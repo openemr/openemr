@@ -14,7 +14,7 @@ namespace OpenEMR\Modules\ClaimRevConnector;
 
 class X12TrackerPage
 {
-    public static function SearchX12Tracker($postData)
+    public static function searchX12Tracker($postData)
     {
         $startDate = $_POST['startDate'];
         $endDate = $_POST['endDate'];

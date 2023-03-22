@@ -19,17 +19,17 @@ use OpenEMR\Modules\ClaimRevConnector\SubscriberPatientEligibilityRequest;
 
 class ClaimRevRteService
 {
-    public static function CreateEligibilityFromAppointment($eid)
+    public static function createEligibilityFromAppointment($eid)
     {
-        $row = EligibilityData::GetPatientIdFromAppointment($eid);
+        $row = EligibilityData::getPatientIdFromAppointment($eid);
         if ($row != null) {
             $pid = $row["pc_pid"];
             $appointmentDate = $row["appointmentDate"];
             $facilityId = $row["facilityId"];
             $providerId = $row["providerId"];
 
-            $requestObjects = EligibilityObjectCreator::BuildObject($pid, "", $appointmentDate, $facilityId, $providerId);
-            EligibilityObjectCreator::SaveToDatabase($requestObjects, $pid);
+            $requestObjects = EligibilityObjectCreator::buildObject($pid, "", $appointmentDate, $facilityId, $providerId);
+            EligibilityObjectCreator::saveToDatabase($requestObjects, $pid);
         }
     }
 }

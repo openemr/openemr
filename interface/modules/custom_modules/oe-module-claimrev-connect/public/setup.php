@@ -15,18 +15,18 @@
     $ta = "setup";
     use OpenEMR\Modules\ClaimRevConnector\ClaimRevModuleSetup;
 
-    $services = ClaimRevModuleSetup::GetBackgroundServices();
+    $services = ClaimRevModuleSetup::getBackgroundServices();
 if (isset($_POST['deactivateSftp'])) {
-    ClaimRevModuleSetup::DeactivateSftpService();
+    ClaimRevModuleSetup::deactivateSftpService();
 }
 if (isset($_POST['reactivateSftp'])) {
-    ClaimRevModuleSetup::ReactivateSftpService();
+    ClaimRevModuleSetup::reactivateSftpService();
 }
 if (isset($_POST['backgroundService'])) {
-    ClaimRevModuleSetup::CreateBackGroundServices();
+    ClaimRevModuleSetup::createBackGroundServices();
 }
 
-$services = ClaimRevModuleSetup::GetBackgroundServices();
+$services = ClaimRevModuleSetup::getBackgroundServices();
 
 ?>
 <html>
@@ -57,7 +57,7 @@ $services = ClaimRevModuleSetup::GetBackgroundServices();
                     <li>
                         <h6><?php echo xlt("x12 Partner Record"); ?></h6>
                         <?php
-                        if (ClaimRevModuleSetup::DoesPartnerExists()) {
+                        if (ClaimRevModuleSetup::doesPartnerExists()) {
                             echo xlt("It looks like your X12 partner record is setup.");
                         } else {
                             echo xlt("Your x12 Partner has not been created, please contact us if you need assistance.");
@@ -81,7 +81,7 @@ $services = ClaimRevModuleSetup::GetBackgroundServices();
                             
                         </h6>
                         <?php
-                        if (ClaimRevModuleSetup::CouldSftpServiceCauseIssues()) {
+                        if (ClaimRevModuleSetup::couldSftpServiceCauseIssues()) {
                             echo xlt("The SFTP service is still activated to send claims. We have noticed that this service can cause our service not to work correctly. If you would like to deactivate it, click the following button. Note: if you're sending claims elsewhere through SFTP, this would stop that.");
                             ?>                                
                                 

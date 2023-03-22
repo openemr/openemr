@@ -86,7 +86,7 @@
         <?php
             $datas = [];
         if (isset($_POST['SubmitButton'])) { //check if form was submitted
-            $datas = ClaimsPage::SearchClaims($_POST);
+            $datas = ClaimsPage::searchClaims($_POST);
             if ($datas == null) {
                 $datas = [];
             }

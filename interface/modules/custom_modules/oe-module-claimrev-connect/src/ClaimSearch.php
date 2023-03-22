@@ -17,9 +17,9 @@ use OpenEMR\Common\Crypto\CryptoGen;
 
 class ClaimSearch
 {
-    public static function Search($search)
+    public static function search($search)
     {
-        $token = ClaimRevApi::GetAccessToken();
+        $token = ClaimRevApi::getAccessToken();
         $data = ClaimRevApi::searchClaims($search, $token);
 
         return $data;

@@ -17,7 +17,7 @@ use OpenEMR\Modules\ClaimRevConnector\ClaimSearchModel;
 
 class ClaimsPage
 {
-    public static function SearchClaims($postData)
+    public static function searchClaims($postData)
     {
         $firstName = $_POST['patFirstName'];
         $lastName = $_POST['patLastName'];
@@ -30,7 +30,7 @@ class ClaimsPage
         $model->receivedDateStart = $startDate;
         $model->receivedDateEnd = $endDate;
 
-        $data = ClaimSearch::Search($model);
+        $data = ClaimSearch::search($model);
         return $data;
     }
 }

@@ -26,10 +26,10 @@ $insurance = EligibilityData::getInsuranceData($pid);
 if (isset($_POST['checkElig'])) {
     $pr = $_POST['responsibility'];
     //$pid is found on the parent page that is including this php file
-    $formattedPr = ValueMapping::MapPayerResponsibility($pr);
-    EligibilityData::RemoveEligibilityCheck($pid, $formattedPr);
-    $requestObjects = EligibilityObjectCreator::BuildObject($pid, $pr, null, null, null);
-    EligibilityObjectCreator::SaveToDatabase($requestObjects, $pid);
+    $formattedPr = ValueMapping::mapPayerResponsibility($pr);
+    EligibilityData::removeEligibilityCheck($pid, $formattedPr);
+    $requestObjects = EligibilityObjectCreator::buildObject($pid, $pr, null, null, null);
+    EligibilityObjectCreator::saveToDatabase($requestObjects, $pid);
     $request = $requestObjects[0];
 }
 

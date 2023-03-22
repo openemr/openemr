@@ -24,7 +24,7 @@ class ConnectivityInfo
     public $api_server;
     public $hasToken;
     public $defaultAccount;
-    function __construct()
+    public function __construct()
     {
         $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
         $globalsConfig = $bootstrap->getGlobalConfig();
@@ -33,8 +33,8 @@ class ConnectivityInfo
         $this->client_scope = $globalsConfig->getClientScope();
         $this->client_secret = $globalsConfig->getClientSecret();
         $this->api_server = $globalsConfig->getApiServer();
-        $this->token = ClaimRevApi::GetAccessToken();
-        $this->hasToken = ClaimRevApi::CanConnectToClaimRev();
+        $this->token = ClaimRevApi::getAccessToken();
+        $this->hasToken = ClaimRevApi::canConnectToClaimRev();
         $this->defaultAccount = ClaimRevApi::getDefaultAccount($this->token);
     }
 }

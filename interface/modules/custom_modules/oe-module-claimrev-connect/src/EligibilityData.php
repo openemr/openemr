@@ -20,7 +20,7 @@ class EligibilityData
     {
     }
 
-    public static function GetPatientIdFromAppointment($eid)
+    public static function getPatientIdFromAppointment($eid)
     {
         $sql = "SELECT 
                 pc_pid 
@@ -40,7 +40,7 @@ class EligibilityData
         }
         return null;
     }
-    public static function RemoveEligibilityCheck($pid, $payer_responsibility)
+    public static function removeEligibilityCheck($pid, $payer_responsibility)
     {
         $sql = "DELETE FROM mod_claimrev_eligibility WHERE pid = ? AND payer_responsibility = ? ";
         $sqlarr = array($pid,$payer_responsibility);
@@ -63,7 +63,7 @@ class EligibilityData
     }
     public static function getEligibilityResult($pid, $payer_responsibility)
     {
-        $pr = ValueMapping::MapPayerResponsibility($payer_responsibility);
+        $pr = ValueMapping::mapPayerResponsibility($payer_responsibility);
         $sql = "SELECT status, coalesce(last_checked,create_date) as last_update,response_json,eligibility_json,individual_json,response_message  FROM mod_claimrev_eligibility WHERE pid = ? AND payer_responsibility = ? LIMIT 1";
         $res = sqlStatement($sql, array($pid,$pr));
         return $res;

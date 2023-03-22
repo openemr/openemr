@@ -20,7 +20,7 @@ class ClaimRevModuleSetup
     {
     }
 
-    public static function DoesPartnerExists()
+    public static function doesPartnerExists()
     {
         $x12Name = $GLOBALS['oe_claimrev_x12_partner_name'];
         $sql = "SELECT * FROM x12_partners WHERE name = ?";
@@ -33,9 +33,9 @@ class ClaimRevModuleSetup
         }
         return false;
     }
-    public static function CouldSftpServiceCauseIssues()
+    public static function couldSftpServiceCauseIssues()
     {
-        $sftp = ClaimRevModuleSetup::GetServiceRecord("X12_SFTP");
+        $sftp = ClaimRevModuleSetup::getServiceRecord("X12_SFTP");
         if ($sftp != null) {
             if ($sftp["active"] == 1) {
                 if ($sftp["require_once"] == "/library/billing_sftp_service.php") {
@@ -45,23 +45,23 @@ class ClaimRevModuleSetup
         }
         return false;
     }
-    public static function DeactivateSftpService()
+    public static function deactivateSftpService()
     {
         $require_once = "/interface/modules/custom_modules/oe-module-claimrev-connect/src/SFTP_Mock_Service.php";
-        ClaimRevModuleSetup::UpdateBackGroundServiceSetRequireOnce("X12_SFTP", $require_once);
+        ClaimRevModuleSetup::updateBackGroundServiceSetRequireOnce("X12_SFTP", $require_once);
     }
-    public static function ReactivateSftpService()
+    public static function reactivateSftpService()
     {
         $require_once = "/library/billing_sftp_service.php";
-        ClaimRevModuleSetup::UpdateBackGroundServiceSetRequireOnce("X12_SFTP", $require_once);
+        ClaimRevModuleSetup::updateBackGroundServiceSetRequireOnce("X12_SFTP", $require_once);
     }
-    public static function UpdateBackGroundServiceSetRequireOnce($name, $requireOnce)
+    public static function updateBackGroundServiceSetRequireOnce($name, $requireOnce)
     {
         $sql = "UPDATE background_services SET require_once = ? WHERE name = ?";
         $sqlarr = array($requireOnce,$name);
         sqlStatement($sql, $sqlarr);
     }
-    public static function GetServiceRecord($name)
+    public static function getServiceRecord($name)
     {
         $sql = "SELECT * FROM background_services WHERE name = ? LIMIT 1";
         $sqlarr = array($name);
@@ -73,13 +73,13 @@ class ClaimRevModuleSetup
         }
         return null;
     }
-    public static function GetBackgroundServices()
+    public static function getBackgroundServices()
     {
         $sql = "SELECT * FROM background_services WHERE name like '%ClaimRev%' OR name = 'X12_SFTP'";
         $result = sqlStatement($sql);
         return $result;
     }
-    public static function CreateBackGroundServices()
+    public static function createBackGroundServices()
     {
         $sql = "DELETE FROM background_services WHERE name like '%ClaimRev%'";
         sqlStatement($sql);

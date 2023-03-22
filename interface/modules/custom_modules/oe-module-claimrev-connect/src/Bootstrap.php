@@ -161,7 +161,7 @@ class Bootstrap
     }
     public function renderAppointmentSetEvent(AppointmentSetEvent $event)
     {
-        ClaimRevRteService::CreateEligibilityFromAppointment($event->eid);
+        ClaimRevRteService::createEligibilityFromAppointment($event->eid);
     }
     public function renderEligibilitySection(pRenderEvent $event)
     {

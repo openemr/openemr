@@ -14,7 +14,7 @@ namespace OpenEMR\Modules\ClaimRevConnector;
 
 class ValueMapping
 {
-    public static function MapPayerResponsibility($payerResponsibility)
+    public static function mapPayerResponsibility($payerResponsibility)
     {
         if (strtolower($payerResponsibility) == "primary") {
             return "p";

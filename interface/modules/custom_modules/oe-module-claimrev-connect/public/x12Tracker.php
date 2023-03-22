@@ -17,7 +17,7 @@
     $datas = [];
 //check if form was submitted
 if (isset($_POST['SubmitButton'])) {
-    $datas = X12TrackerPage::SearchX12Tracker($_POST);
+    $datas = X12TrackerPage::searchX12Tracker($_POST);
 }
 ?>
 

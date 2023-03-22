@@ -13,31 +13,31 @@
 use OpenEMR\Modules\ClaimRevConnector\PrintProperty;
 
 if (property_exists($eligibilityData, 'deductibleReleaseReason')) {
-    PrintProperty::DisplayProperty("Deductible Release Reason:", $eligibilityData->deductibleReleaseReason);
+    PrintProperty::displayProperty("Deductible Release Reason:", $eligibilityData->deductibleReleaseReason);
 }
 if (property_exists($eligibilityData, 'deductible')) {
-    PrintProperty::DisplayProperty("Deductible:", $eligibilityData->deductible);
+    PrintProperty::displayProperty("Deductible:", $eligibilityData->deductible);
 }
 if (property_exists($eligibilityData, 'deductibleRemaining')) {
-    PrintProperty::DisplayProperty("Deductible Remaining:", $eligibilityData->deductibleRemaining);
+    PrintProperty::displayProperty("Deductible Remaining:", $eligibilityData->deductibleRemaining);
 }
 if (property_exists($eligibilityData, 'outOfPocket')) {
-    PrintProperty::DisplayProperty("Out Of Pocket:", $eligibilityData->outOfPocket);
+    PrintProperty::displayProperty("Out Of Pocket:", $eligibilityData->outOfPocket);
 }
 if (property_exists($eligibilityData, 'outOfPocketRemaining')) {
-    PrintProperty::DisplayProperty("Out Of Pocket Remaining:", $eligibilityData->outOfPocketRemaining);
+    PrintProperty::displayProperty("Out Of Pocket Remaining:", $eligibilityData->outOfPocketRemaining);
 }
 if (property_exists($eligibilityData, 'lifetimeLimit')) {
-    PrintProperty::DisplayProperty("Lifetime Limit:", $eligibilityData->lifetimeLimit);
+    PrintProperty::displayProperty("Lifetime Limit:", $eligibilityData->lifetimeLimit);
 }
 if (property_exists($eligibilityData, 'lifetimeLimitRemaining')) {
-    PrintProperty::DisplayProperty("Lifetime Limit Remaining:", $eligibilityData->lifetimeLimitRemaining);
+    PrintProperty::displayProperty("Lifetime Limit Remaining:", $eligibilityData->lifetimeLimitRemaining);
 }
 if (property_exists($eligibilityData, 'spendDownAmount')) {
-    PrintProperty::DisplayProperty("Spend Down Amount:", $eligibilityData->spendDownAmount);
+    PrintProperty::displayProperty("Spend Down Amount:", $eligibilityData->spendDownAmount);
 }
 if (property_exists($eligibilityData, 'deductibleManagementPending')) {
-    PrintProperty::DisplayProperty("Management Pending:", $eligibilityData->deductibleManagementPending);
+    PrintProperty::displayProperty("Management Pending:", $eligibilityData->deductibleManagementPending);
 }
 
 if (property_exists($eligibilityData, 'deductibles')) {

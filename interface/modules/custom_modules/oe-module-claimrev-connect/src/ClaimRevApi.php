@@ -18,7 +18,7 @@ use OpenEMR\Modules\ClaimRevConnector\Bootstrap;
 
 class ClaimRevApi
 {
-    public static function CanConnectToClaimRev()
+    public static function canConnectToClaimRev()
     {
         $token = ClaimRevApi::GetAccessToken();
         if ($token == "") {
@@ -26,7 +26,7 @@ class ClaimRevApi
         }
         return "Yes";
     }
-    public static function GetAccessToken()
+    public static function getAccessToken()
     {
         $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
         $globalsConfig = $bootstrap->getGlobalConfig();
