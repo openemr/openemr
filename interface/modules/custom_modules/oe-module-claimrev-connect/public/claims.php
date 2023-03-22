@@ -1,4 +1,4 @@
-<?php   
+<?php
 
 /**
  *
@@ -10,10 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-
     require_once "../../../../globals.php";
-    $tab="claims";   
+    $tab = "claims";
     use OpenEMR\Modules\ClaimRevConnector\ClaimsPage;
 ?>
 
@@ -26,7 +24,6 @@
         <div class="row"> 
             <div class="col">
             <?php
-               
                 require '../templates/navbar.php';
             ?>
             </div>
@@ -86,20 +83,17 @@
         </form>
 
 
-        <?php                  
+        <?php
             $datas = [];
         if (isset($_POST['SubmitButton'])) { //check if form was submitted
-
             $datas = ClaimsPage::SearchClaims($_POST);
             if ($datas == null) {
                 $datas = [];
             }
-
         }
         if (empty($datas)) {
             echo xlt("No results found");
-        }
-        else { ?>
+        } else { ?>
                 <table class="table">
                 <thead>
                     <tr>
@@ -113,8 +107,7 @@
                 </thead>
                 <tbody>
                     <?php
-                    foreach ($datas as $data) 
-                    {
+                    foreach ($datas as $data) {
                         ?>                            
                         <tr>
                             <td>
@@ -297,14 +290,12 @@
                         <tr>
                             <td colspan="6">
                                 <ul>
-                                <?php 
-                                
-                                foreach ($data->errors as $err)
-                                    { 
+                                <?php
+                                foreach ($data->errors as $err) {
                                     ?>
                                         <li><?php echo text($err->errorMessage); ?></li>
-                                    <?php 
-                                } 
+                                    <?php
+                                }
                                 ?>
                                 </ul>
                             </td>

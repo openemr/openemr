@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package OpenEMR
@@ -9,7 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-    namespace OpenEMR\Modules\ClaimRevConnector;    
+    namespace OpenEMR\Modules\ClaimRevConnector;
+
     use OpenEMR\Modules\ClaimRevConnector\Bootstrap;
     use OpenEMR\Modules\ClaimRevConnector\ClaimRevApi;
 
@@ -26,14 +28,13 @@ class ConnectivityInfo
     {
         $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
         $globalsConfig = $bootstrap->getGlobalConfig();
-        $this->client_authority = $globalsConfig->getClientAuthority();     
+        $this->client_authority = $globalsConfig->getClientAuthority();
         $this->clientId = $globalsConfig->getClientId();
         $this->client_scope = $globalsConfig->getClientScope();
-        $this->client_secret = $globalsConfig->getClientSecret();       
-        $this->api_server = $globalsConfig->getApiServer();     
-        $this->token = ClaimRevApi::GetAccessToken(); 
+        $this->client_secret = $globalsConfig->getClientSecret();
+        $this->api_server = $globalsConfig->getApiServer();
+        $this->token = ClaimRevApi::GetAccessToken();
         $this->hasToken = ClaimRevApi::CanConnectToClaimRev();
-        $this->defaultAccount = ClaimRevApi::getDefaultAccount($this->token); 
+        $this->defaultAccount = ClaimRevApi::getDefaultAccount($this->token);
     }
 }
-?>

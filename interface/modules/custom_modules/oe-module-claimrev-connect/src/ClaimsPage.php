@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package OpenEMR
@@ -10,6 +11,7 @@
  */
 
 namespace OpenEMR\Modules\ClaimRevConnector;
+
 use OpenEMR\Modules\ClaimRevConnector\ClaimSearch;
 use OpenEMR\Modules\ClaimRevConnector\ClaimSearchModel;
 
@@ -17,10 +19,10 @@ class ClaimsPage
 {
     public static function SearchClaims($postData)
     {
-        $firstName = $_POST['patFirstName']; 
-        $lastName = $_POST['patLastName']; 
-        $startDate = $_POST['startDate']; 
-        $endDate = $_POST['endDate']; 
+        $firstName = $_POST['patFirstName'];
+        $lastName = $_POST['patLastName'];
+        $startDate = $_POST['startDate'];
+        $endDate = $_POST['endDate'];
 
         $model = new ClaimSearchModel();
         $model->patientFirstName = $firstName;
@@ -32,5 +34,3 @@ class ClaimsPage
         return $data;
     }
 }
-
-?>

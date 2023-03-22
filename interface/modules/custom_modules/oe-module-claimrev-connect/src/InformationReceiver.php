@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package OpenEMR
@@ -8,10 +9,11 @@
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
     namespace OpenEMR\Modules\ClaimRevConnector;
+
 class InformationReceiver
 {
-
     public $receiverType;//
     public $groupName;
     public $firstName;//
@@ -24,11 +26,9 @@ class InformationReceiver
     public $state;//
     public $zip;//
     public $providerNpi;//
-    public $signature;      
+    public $signature;
 
     public function __construct()
     {
-            
     }
 }
-?>

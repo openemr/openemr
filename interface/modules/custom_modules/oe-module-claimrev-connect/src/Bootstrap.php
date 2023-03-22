@@ -40,7 +40,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Error\LoaderError;
 use Twig\Loader\FilesystemLoader;
 
-
 class Bootstrap
 {
     const MODULE_INSTALLATION_PATH = "/interface/modules/custom_modules/";
@@ -151,7 +150,7 @@ class Bootstrap
     {
         if ($this->getGlobalConfig()->getGlobalSetting(GlobalConfig::CONFIG_ENABLE_ELIGIBILITY_CARD)) {
             $this->eventDispatcher->addListener(pRenderEvent::EVENT_SECTION_LIST_RENDER_AFTER, [$this, 'renderEligibilitySection']);
-        }        
+        }
     }
 
     public function registerEligibilityEvents()
@@ -162,8 +161,7 @@ class Bootstrap
     }
     public function renderAppointmentSetEvent(AppointmentSetEvent $event)
     {
-        ClaimRevRteService::CreateEligibilityFromAppointment($event->eid);      
-
+        ClaimRevRteService::CreateEligibilityFromAppointment($event->eid);
     }
     public function renderEligibilitySection(pRenderEvent $event)
     {
@@ -221,7 +219,6 @@ class Bootstrap
      */
     public function renderMainBodyScripts(RenderEvent $event)
     {
-        
     }
 
     /**
@@ -247,7 +244,7 @@ class Bootstrap
     }
 
     public function registerMenuItems()
-    {       
+    {
         if ($this->getGlobalConfig()->getGlobalSetting(GlobalConfig::CONFIG_ENABLE_MENU)) {
             /**
              * @var    EventDispatcherInterface $eventDispatcher
@@ -315,7 +312,6 @@ class Bootstrap
 
     public function subscribeToApiEvents()
     {
-        
     }
 
     public function addCustomSkeletonApi(RestApiCreateEvent $event)

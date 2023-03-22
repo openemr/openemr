@@ -3,7 +3,7 @@
 /**
  * Executes the background service for billing, which sends EDI claims
  * directly to claimRev if enabled
- * 
+ *
  * @package OpenEMR
  * @link    http://www.claimrev.com
  *
@@ -16,8 +16,4 @@
 
 function start_X12_SFTP()
 {
-    
-
 }
-
-?>

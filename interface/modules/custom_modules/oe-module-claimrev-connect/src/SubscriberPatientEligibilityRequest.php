@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package OpenEMR
@@ -10,9 +11,9 @@
  */
 
     namespace OpenEMR\Modules\ClaimRevConnector;
+
 class SubscriberPatientEligibilityRequest
 {
-
     public $firstName;//
     public $lastName;//
     public $middleName;//
@@ -21,15 +22,12 @@ class SubscriberPatientEligibilityRequest
     public $address2;
     public $city;
     public $state;
-    public $zip;    
+    public $zip;
     public $dateOfBirth;//
     public $gender;//
     public $memberId;//
-       
 
     public function __construct()
     {
-            
     }
 }
-?>

@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package OpenEMR
@@ -8,8 +9,8 @@
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-    use OpenEMR\Modules\ClaimRevConnector\PrintProperty;
 
+    use OpenEMR\Modules\ClaimRevConnector\PrintProperty;
 
 if (property_exists($eligibilityData, 'medicarePartADate')) {
     if (property_exists($eligibilityData->medicarePartADate, 'startDate')) {
@@ -46,4 +47,3 @@ if (property_exists($eligibilityData, 'qualifiedMedicareBeneficiary')) {
 if (property_exists($eligibilityData, 'qualifiedMedicareBeneficiary')) {
     PrintProperty::DisplayProperty("Railroad Medicare Beneficiary", $eligibilityData->railroadMedicareBeneficiary);
 }
-?>

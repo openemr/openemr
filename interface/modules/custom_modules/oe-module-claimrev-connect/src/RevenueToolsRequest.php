@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package OpenEMR
@@ -8,7 +9,9 @@
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
     namespace OpenEMR\Modules\ClaimRevConnector;
+
 class RevenueToolsRequest
 {
     //required for this module, does not go to claimrev
@@ -57,9 +60,6 @@ class RevenueToolsRequest
     public $patientEmployerState;
 
     public function __construct()
-    { 
+    {
     }
-
 }
-
-?>

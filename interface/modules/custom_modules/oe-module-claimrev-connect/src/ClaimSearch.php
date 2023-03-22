@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package OpenEMR
@@ -10,6 +11,7 @@
  */
 
 namespace OpenEMR\Modules\ClaimRevConnector;
+
 use OpenEMR\Modules\ClaimRevConnector\ClaimRevApi;
 use OpenEMR\Common\Crypto\CryptoGen;
 
@@ -23,5 +25,3 @@ class ClaimSearch
         return $data;
     }
 }
-
-?>

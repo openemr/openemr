@@ -14,7 +14,6 @@
     $tab = "x12";
     use OpenEMR\Modules\ClaimRevConnector\X12TrackerPage;
 
-
     $datas = [];
 //check if form was submitted
 if (isset($_POST['SubmitButton'])) {
