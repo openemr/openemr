@@ -1,8 +1,8 @@
 <?php
 /**
  *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -28,8 +28,7 @@ class ReportDownload extends BaseService
         foreach($reportTypes as $reportType) 
         {
             $reportFolder = "f". $reportType;
-            if($reportType == "999")
-            {
+            if($reportType == "999") {
                 $reportFolder = "f997";
             }
             
@@ -42,17 +41,15 @@ class ReportDownload extends BaseService
                 mkdir($savePath, 0777, true);
             }
                           
-            $datas = ClaimRevApi::getReportFiles($reportType,$token);
-            if(is_array($datas))
-            {
+            $datas = ClaimRevApi::getReportFiles($reportType, $token);
+            if(is_array($datas)) {
                 foreach($datas as $data)
                 {
-                    if(property_exists($data,'fileText'))
-                    {
+                    if(property_exists($data, 'fileText')) {
                         $fileText = $data->fileText;
                         $fileName = $data->fileName ;
                         $filePathName =  $savePath . $fileName . '.txt';
-                        file_put_contents($filePathName,$fileText);
+                        file_put_contents($filePathName, $fileText);
                         chmod($filePathName, 0777);
                     }
                     else

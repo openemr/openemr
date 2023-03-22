@@ -1,8 +1,8 @@
 <?php 
 /**
  *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -22,15 +22,14 @@ class ClaimRevRteService
     public static function CreateEligibilityFromAppointment($eid)
     {
         $row = EligibilityData::GetPatientIdFromAppointment($eid);
-        if($row != null)
-        {
+        if($row != null) {
             $pid = $row["pc_pid"];
             $appointmentDate = $row["appointmentDate"];
             $facilityId = $row["facilityId"];
             $providerId = $row["providerId"];
 
-            $requestObjects = EligibilityObjectCreator::BuildObject($pid,"",$appointmentDate, $facilityId, $providerId);
-            EligibilityObjectCreator::SaveToDatabase($requestObjects,$pid );           
+            $requestObjects = EligibilityObjectCreator::BuildObject($pid, "", $appointmentDate, $facilityId, $providerId);
+            EligibilityObjectCreator::SaveToDatabase($requestObjects, $pid);           
         }
     }
 

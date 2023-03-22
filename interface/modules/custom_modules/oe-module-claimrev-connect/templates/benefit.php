@@ -1,8 +1,8 @@
 <?php 
 /**
  *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -14,7 +14,7 @@ $benefitPatResponse = ["B","C","G","J","Y"];
 
 foreach( $benefits as $benefit )
 {
-?>
+    ?>
 <div class="card">
     <div class="card-body">
         <h5 class="card-title"> <?php echo xlt("Benefit"); ?> - <?php echo text($benefit->benefitInformationDesc); ?> </h5>
@@ -26,39 +26,37 @@ foreach( $benefits as $benefit )
             <div class="col">
                 <ul>
                     <?php 
-                        foreach($benefit->serviceTypes as $st)
+                    foreach($benefit->serviceTypes as $st)
                         {
-?>
+                        ?>
                         <li><?php echo text($st->serviceTypeDesc) ?></li>
-<?php 
-                        }
-?>
+                        <?php 
+                    }
+                    ?>
                 </ul>                
             </div>
             
         </div>
-<?php 
+    <?php 
             PrintProperty::DisplayProperty("Coverage Level", $benefit->coverageLevel);
             PrintProperty::DisplayProperty("Insurance Type", $benefit->insuranceTypeCodeDesc);
             PrintProperty::DisplayProperty("Coverage Description", $benefit->planCoverageDescription);
             PrintProperty::DisplayProperty("Time Period", $benefit->timePeriodQualifierDesc);
-            if(in_array($benefit->benefitInformation,$benefitPatResponse))
+    if(in_array($benefit->benefitInformation, $benefitPatResponse)) {
+        PrintProperty::DisplayProperty("Patient Responsibility", $benefit->benefitAmount, "$");
+    }
+    else
             {
-                PrintProperty::DisplayProperty("Patient Responsibility", $benefit->benefitAmount, "$");
-            }
-            else
+        PrintProperty::DisplayProperty("Amount", $benefit->benefitAmount, "$");
+    }
+    if($benefit->benefitInformation == 'A') {
+        PrintProperty::DisplayProperty("Patient Responsibility", $benefit->benefitPercent, "", "%");
+    }
+    else
             {
-                PrintProperty::DisplayProperty("Amount", $benefit->benefitAmount, "$");
-            }
-            if($benefit->benefitInformation == 'A')
-            {
-                PrintProperty::DisplayProperty("Patient Responsibility", $benefit->benefitPercent, "","%");
-            }
-            else
-            {
-                PrintProperty::DisplayProperty("Benefit Percent", $benefit->benefitPercent, "","%");
-            }
-            PrintProperty::DisplayProperty("Benefit Quantity", $benefit->benefitQuantity, "", " - " . $benefit->quantityQualifierDesc );
+        PrintProperty::DisplayProperty("Benefit Percent", $benefit->benefitPercent, "", "%");
+    }
+            PrintProperty::DisplayProperty("Benefit Quantity", $benefit->benefitQuantity, "", " - " . $benefit->quantityQualifierDesc);
             PrintProperty::DisplayProperty("Authorization/Certification Indicator", $benefit->certificationIndicator);
             PrintProperty::DisplayProperty("In Plan Network", $benefit->inPlanNetworkIndicator);
             include 'service_delivery.php';
@@ -69,13 +67,13 @@ foreach( $benefits as $benefit )
             include 'related_entity.php';
             include 'messages.php';
             
-?>
+    ?>
 
      
 
     </div>
 </div>
-<?php
+    <?php
 }
 ?>
 

@@ -1,8 +1,8 @@
 <?php
 /**
  *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -10,24 +10,25 @@
  */
 
     namespace OpenEMR\Modules\ClaimRevConnector;
-    class SubscriberPatientEligibilityRequest
-    {
+class SubscriberPatientEligibilityRequest
+{
 
-        public $firstName;//
-        public $lastName;//
-        public $middleName;//
-        public $suffix;
-        public $address1;
-        public $address2;
-        public $city;
-        public $state;
-        public $zip;    
-        public $dateOfBirth;//
-        public $gender;//
-        public $memberId;//
+    public $firstName;//
+    public $lastName;//
+    public $middleName;//
+    public $suffix;
+    public $address1;
+    public $address2;
+    public $city;
+    public $state;
+    public $zip;    
+    public $dateOfBirth;//
+    public $gender;//
+    public $memberId;//
        
 
-        public function __construct() {
+    public function __construct()
+    {
             
     }
 }

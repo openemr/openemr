@@ -1,8 +1,8 @@
 <?php
 /**
  *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -16,18 +16,18 @@
     use OpenEMR\Modules\ClaimRevConnector\ClaimRevModuleSetup;
 
     $services = ClaimRevModuleSetup::GetBackgroundServices();
-    if(isset($_POST['deactivateSftp'])) {
-        ClaimRevModuleSetup::DeactivateSftpService();
+if(isset($_POST['deactivateSftp'])) {
+    ClaimRevModuleSetup::DeactivateSftpService();
     
-    }
-    if(isset($_POST['reactivateSftp'])) { 
-        ClaimRevModuleSetup::ReactivateSftpService();
+}
+if(isset($_POST['reactivateSftp'])) { 
+    ClaimRevModuleSetup::ReactivateSftpService();
     
-    }
-    if(isset($_POST['backgroundService'])) { 
-        ClaimRevModuleSetup::CreateBackGroundServices();
+}
+if(isset($_POST['backgroundService'])) { 
+    ClaimRevModuleSetup::CreateBackGroundServices();
     
-    }
+}
 
     $services = ClaimRevModuleSetup::GetBackgroundServices();
 ?>
@@ -59,15 +59,14 @@
                     <li>
                         <h6><?php echo xlt("x12 Partner Record"); ?></h6>
                         <?php 
-                            if(ClaimRevModuleSetup::DoesPartnerExists()) 
-                            { 
-                               echo xlt("It looks like your X12 partner record is setup."); 
+                        if(ClaimRevModuleSetup::DoesPartnerExists()) { 
+                            echo xlt("It looks like your X12 partner record is setup."); 
                    
-                            } 
-                            else 
-                            { 
-                                echo xlt("Your x12 Partner has not been created, please contact us if you need assistance.");                                               
-                            }
+                        } 
+                        else 
+                        { 
+                            echo xlt("Your x12 Partner has not been created, please contact us if you need assistance.");                                               
+                        }
                         ?>
                     </li>
                     <li>
@@ -87,27 +86,26 @@
                             
                         </h6>
                         <?php 
-                            if(ClaimRevModuleSetup::CouldSftpServiceCauseIssues())  
-                            {
-                                echo xlt("The SFTP service is still activated to send claims. We have noticed that this service can cause our service not to work correctly. If you would like to deactivate it, click the following button. Note: if you're sending claims elsewhere through SFTP, this would stop that.");
-                        ?>                                
+                        if(ClaimRevModuleSetup::CouldSftpServiceCauseIssues()) {
+                            echo xlt("The SFTP service is still activated to send claims. We have noticed that this service can cause our service not to work correctly. If you would like to deactivate it, click the following button. Note: if you're sending claims elsewhere through SFTP, this would stop that.");
+                            ?>                                
                                 
                                 <form method="post" action="setup.php">
                                     <button type="submit" name="deactivateSftp" class="btn btn-primary"><?php echo xlt("Deactivate"); ?></button>
                                 </form>
-                        <?php
-                            }
-                            else
-                            {
-                                echo xlt("The SFTP Service has been disabled, this is good and will prevent the service from working against sending your claims. However if you would like to reactivate it then click this button.");
-                        ?>
+                            <?php
+                        }
+                        else
+                        {
+                            echo xlt("The SFTP Service has been disabled, this is good and will prevent the service from working against sending your claims. However if you would like to reactivate it then click this button.");
+                            ?>
                                 
                                 <form method="post" action="setup.php">
                                     <button type="submit" name="reactivateSftp" class="btn btn-primary"><?php echo xlt("Reactivate"); ?></button>
                                 </form>
-                        <?php
+                            <?php
 
-                            }
+                        }
                         ?>
                     </li>
                 </ul>
@@ -137,34 +135,34 @@
                     </thead>
                     <tbody>
                             <?php 
-                                foreach($services as $service)
-                                {
-                            ?>
+                            foreach($services as $service)
+                            {
+                                ?>
                                 <tr>
                                     <td>
-                                        <?php echo text($service["name"])  ?> - <?php echo text($service["title"]) ?>
+                                    <?php echo text($service["name"])  ?> - <?php echo text($service["title"]) ?>
                                     </td>
                                     <td>
-                                        <?php echo text($service["active"]) ?>
+                                    <?php echo text($service["active"]) ?>
                                     </td>
                                     <td>
-                                        <?php echo text($service["running"]) ?>
+                                    <?php echo text($service["running"]) ?>
                                     </td>
                                     <td>
-                                        <?php echo text($service["next_run"]) ?>
+                                    <?php echo text($service["next_run"]) ?>
                                     </td>
                                     <td>
-                                        <?php echo text($service["execute_interval"]) ?>
+                                    <?php echo text($service["execute_interval"]) ?>
                                     </td>
                                     <td>
-                                        <?php echo text($service["function"]) ?>
+                                    <?php echo text($service["function"]) ?>
                                     </td>
                                     <td>
-                                        <?php echo text($service["require_once"]) ?>
+                                    <?php echo text($service["require_once"]) ?>
                                     </td>                                  
                                 </tr>
-                            <?php
-                                }
+                                <?php
+                            }
                             ?>
                     </tbody>
                 </table>

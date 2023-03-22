@@ -2,8 +2,8 @@
 
 /**
  *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -88,20 +88,18 @@
 
         <?php                  
             $datas = [];
-            if(isset($_POST['SubmitButton'])) { //check if form was submitted
+        if(isset($_POST['SubmitButton'])) { //check if form was submitted
 
-                $datas = ClaimsPage::SearchClaims($_POST);
-                if($datas == null)
-                {
-                    $datas = [];
-                }
+            $datas = ClaimsPage::SearchClaims($_POST);
+            if($datas == null) {
+                $datas = [];
+            }
 
-            }
-            if(empty($datas))
-            {
-                echo xlt("No results found");
-            }
-            else { ?>
+        }
+        if(empty($datas)) {
+            echo xlt("No results found");
+        }
+        else { ?>
                 <table class="table">
                 <thead>
                     <tr>
@@ -115,33 +113,33 @@
                 </thead>
                 <tbody>
                     <?php
-                        foreach($datas as $data) 
-                        {
-                    ?>                            
+                    foreach($datas as $data) 
+                    {
+                        ?>                            
                         <tr>
                             <td>
                                 <div class="row">
                                     <div class="col">
                                         <div class="row">
                                             <div class="font-weight-bold col">
-                                                <?php echo xlt("ClaimRev Status"); ?>:
+                                            <?php echo xlt("ClaimRev Status"); ?>:
                                             </div>
                                         </div>
                                          <div class="row">
                                             <div class="col">
-                                                <?php echo text($data->statusName); ?>
+                                            <?php echo text($data->statusName); ?>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col">
                                         <div class="row">
                                             <div class="font-weight-bold col">
-                                                <?php echo xlt("File Status"); ?>:                                                
+                                            <?php echo xlt("File Status"); ?>:                                                
                                             </div>
                                         </div>
                                          <div class="row">
                                             <div class="col">
-                                                <?php echo text($data->payerFileStatusName); ?>
+                                            <?php echo text($data->payerFileStatusName); ?>
                                             </div>
                                         </div>
                                     </div>
@@ -150,24 +148,24 @@
                                     <div class="col">
                                         <div class="row">
                                             <div class="font-weight-bold col">
-                                                <?php echo xlt(" Payer Acceptance"); ?>:                                               
+                                            <?php echo xlt(" Payer Acceptance"); ?>:                                               
                                             </div>
                                         </div>
                                          <div class="row">
                                             <div class="col">
-                                                <?php echo text($data->payerAcceptanceStatusName); ?>
+                                            <?php echo text($data->payerAcceptanceStatusName); ?>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col">
                                         <div class="row">
                                             <div class="font-weight-bold col">
-                                                <?php echo xlt("ERA"); ?>:                                                
+                                            <?php echo xlt("ERA"); ?>:                                                
                                             </div>
                                         </div>
                                          <div class="row">
                                             <div class="col">
-                                                <?php echo text($data->paymentAdviceStatusName); ?>
+                                            <?php echo text($data->paymentAdviceStatusName); ?>
                                             </div>
                                         </div>
                                     </div>
@@ -176,148 +174,147 @@
                             <td>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                        <?php echo xlt("Name"); ?>:                                        
+                                    <?php echo xlt("Name"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                        <?php echo text($data->payerName); ?> 
+                                    <?php echo text($data->payerName); ?> 
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                        <?php echo xlt("Number"); ?>:                                        
+                                    <?php echo xlt("Number"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                        <?php echo text($data->payerNumber); ?> 
+                                    <?php echo text($data->payerNumber); ?> 
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                        <?php echo xlt("Control #"); ?>:                                        
+                                    <?php echo xlt("Control #"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                        <?php echo text($data->payerControlNumber); ?> 
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <div class="row">
-                                    <div class="font-weight-bold col">
-                                        <?php echo xlt("Name"); ?>:                                        
-                                    </div>
-                                    <div class="col">
-                                        <?php echo text($data->providerFirstName); ?>  <?php echo text($data->providerLastName); ?>  
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="font-weight-bold col">
-                                        <?php echo xlt("NPI"); ?>:                                        
-                                    </div>
-                                    <div class="col">
-                                        <?php echo text($data->providerNpi); ?> 
+                                    <?php echo text($data->payerControlNumber); ?> 
                                     </div>
                                 </div>
                             </td>
                             <td>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                        <?php echo xlt("Name"); ?>:                                        
+                                    <?php echo xlt("Name"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                        <?php echo text($data->pLastName); ?>, <?php echo text($data->pFirstName); ?>
+                                    <?php echo text($data->providerFirstName); ?>  <?php echo text($data->providerLastName); ?>  
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                        <?php echo xlt("DOB"); ?>:
+                                    <?php echo xlt("NPI"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                    <?php echo text(substr($data->birthDate,0,10) ); ?>  
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="font-weight-bold col">
-                                        <?php echo xlt("Gender"); ?>:                                        
-                                    </div>
-                                    <div class="col">
-                                        <?php echo text($data->patientGender); ?> 
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="font-weight-bold col">
-                                        <?php echo xlt("Member #"); ?>:                                        
-                                    </div>
-                                    <div class="col">
-                                        <?php echo text($data->memberNumber); ?> 
+                                    <?php echo text($data->providerNpi); ?> 
                                     </div>
                                 </div>
                             </td>
                             <td>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                        <?php echo xlt("Trace #"); ?>:                                        
+                                    <?php echo xlt("Name"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                        <?php echo text($data->traceNumber); ?>
+                                    <?php echo text($data->pLastName); ?>, <?php echo text($data->pFirstName); ?>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                        <?php echo xlt("Control #"); ?>:                                        
+                                    <?php echo xlt("DOB"); ?>:
                                     </div>
                                     <div class="col">
-                                        <?php echo text($data->payerControlNumber); ?> 
+                                <?php echo text(substr($data->birthDate, 0, 10)); ?>  
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                        <?php echo xlt("Billed Amt"); ?>:                                        
+                                    <?php echo xlt("Gender"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                        <?php echo text($data->billedAmount); ?> 
+                                    <?php echo text($data->patientGender); ?> 
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                        <?php echo xlt("Payed Amt"); ?>:                                        
+                                    <?php echo xlt("Member #"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                        <?php echo text($data->payerPaidAmount); ?> 
+                                    <?php echo text($data->memberNumber); ?> 
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="row">
+                                    <div class="font-weight-bold col">
+                                    <?php echo xlt("Trace #"); ?>:                                        
+                                    </div>
+                                    <div class="col">
+                                    <?php echo text($data->traceNumber); ?>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                        <?php echo xlt("Service Date"); ?>:                                        
+                                    <?php echo xlt("Control #"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                        <?php echo text(substr($data->serviceDate,0,10) ); ?> / <?php echo text(substr($data->serviceDateEnd,0,10) ); ?> 
+                                    <?php echo text($data->payerControlNumber); ?> 
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="font-weight-bold col">
+                                    <?php echo xlt("Billed Amt"); ?>:                                        
+                                    </div>
+                                    <div class="col">
+                                    <?php echo text($data->billedAmount); ?> 
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="font-weight-bold col">
+                                    <?php echo xlt("Payed Amt"); ?>:                                        
+                                    </div>
+                                    <div class="col">
+                                    <?php echo text($data->payerPaidAmount); ?> 
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="font-weight-bold col">
+                                    <?php echo xlt("Service Date"); ?>:                                        
+                                    </div>
+                                    <div class="col">
+                                    <?php echo text(substr($data->serviceDate, 0, 10)); ?> / <?php echo text(substr($data->serviceDateEnd, 0, 10)); ?> 
                                     </div>
                                 </div>
                             </td>                            
                         </tr>  
-                        <?php if($data->errors)
-                            {
-                        ?>
+                        <?php if($data->errors) {
+                            ?>
                         <tr>
                             <td colspan="6">
                                 <ul>
-                            <?php 
-                                
-                                    foreach($data->errors as $err)
-                                    { 
-                                ?>
-                                        <li><?php echo text($err->errorMessage); ?></li>
                                 <?php 
-                                    } 
+                                
+                                foreach($data->errors as $err)
+                                    { 
+                                    ?>
+                                        <li><?php echo text($err->errorMessage); ?></li>
+                                    <?php 
+                                } 
                                 ?>
                                 </ul>
                             </td>
                         </tr>   
                         <?php } ?>         
-                  <?php } ?>    
+                    <?php } ?>    
                   </tbody>               
                 </table>
-            <?php }
-            ?>
+        <?php }
+        ?>
 
        
         

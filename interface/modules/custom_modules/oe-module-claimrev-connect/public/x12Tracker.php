@@ -1,8 +1,8 @@
 <?php
 /**
  *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -15,10 +15,10 @@
 
 
     $datas = [];
-    if(isset($_POST['SubmitButton'])) { //check if form was submitted
+if(isset($_POST['SubmitButton'])) { //check if form was submitted
 
-        $datas = X12TrackerPage::SearchX12Tracker($_POST);     
-    }
+    $datas = X12TrackerPage::SearchX12Tracker($_POST);     
+}
 ?>
 
 <html>
@@ -81,7 +81,7 @@
         <div class="row">
             <div class="col">                
                 <?php                    
-                    if($datas != null) { ?>
+                if($datas != null) { ?>
                     <table class="table">
                         <thead>
                             <tr>
@@ -92,24 +92,24 @@
                         </thead>
                         <tbody>
                         <?php
-                            foreach($datas as $data) 
-                            { 
-                        ?>  
+                        foreach($datas as $data) 
+                        { 
+                            ?>  
                             <tr>
                                 <td>
-                                    <?php echo text($data["x12_filename"]); ?>
+                                <?php echo text($data["x12_filename"]); ?>
                                 </td>
                                 <td>
-                                    <?php echo text($data["status"]); ?>
+                                <?php echo text($data["status"]); ?>
                                 </td>
                                 <td>
-                                    <?php echo text($data["messages"]); ?>
+                                <?php echo text($data["messages"]); ?>
                                 </td>
                             </tr>
                         <?php } ?>
                         </tbody>
                     </table>
-                    <?php } ?>
+                <?php } ?>
             </div>
         </div>
         <div class="row">

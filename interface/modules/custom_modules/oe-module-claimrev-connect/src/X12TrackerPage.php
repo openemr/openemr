@@ -1,8 +1,8 @@
 <?php
 /**
  *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -19,7 +19,7 @@ class X12TrackerPage
         $endDate = $_POST['endDate']; 
 
         $sql = "SELECT * FROM x12_remote_tracker where created_at BETWEEN ? AND ?";
-        $files = sqlStatementNoLog($sql,array($startDate,$endDate));
+        $files = sqlStatementNoLog($sql, array($startDate,$endDate));
         
         return $files;
     }

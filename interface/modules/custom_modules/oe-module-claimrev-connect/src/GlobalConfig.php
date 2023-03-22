@@ -6,8 +6,8 @@
  * production and is intended to serve as the barebone requirements you need to get started
  * writing modules that can be installed and used in OpenEMR.
  *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -51,6 +51,7 @@ class GlobalConfig
 
     /**
      * Returns true if all of the settings have been configured.  Otherwise it returns false.
+     *
      * @return bool
      */
     public function isConfigured()
@@ -77,12 +78,10 @@ class GlobalConfig
 
     public function getClientScope()
     {
-        if($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "S")
-        {
+        if($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "S") {
             return "https://stagingclaimrevcom.onmicrosoft.com/portal/api/.default";
         }
-        else if($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "D")
-        {
+        else if($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "D") {
             return "https://claimrevportaldevelopment.onmicrosoft.com/portal/api/.default";
         }
         return "https://portalclaimrev.onmicrosoft.com/portal/api/.default";        
@@ -90,12 +89,10 @@ class GlobalConfig
 
     public function getClientAuthority()
     {
-        if($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "S")
-        {
+        if($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "S") {
             return "https://stagingclaimrevcom.b2clogin.com/stagingclaimrevcom.onmicrosoft.com/B2C_1_sign-in-service/oauth2/v2.0/token";
         }
-        else if($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "D")
-        {
+        else if($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "D") {
             return "https://claimrevportaldevelopment.b2clogin.com/claimrevportaldevelopment.onmicrosoft.com/B2C_1_sign-in-service/oauth2/v2.0/token";
         }
         return "https://portalclaimrev.b2clogin.com/portalclaimrev.onmicrosoft.com/B2C_1_sign-in-service/oauth2/v2.0/token";   
@@ -103,12 +100,10 @@ class GlobalConfig
 
     public function getApiServer()
     {
-        if($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "S")
-        {
+        if($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "S") {
             return "https://testapi.claimrev.com";
         }
-        else if($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "D")
-        {
+        else if($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "D") {
             return "https://a3a9-174-128-131-22.ngrok.io";
         }
         return "https://api.claimrev.com";   
@@ -131,6 +126,7 @@ class GlobalConfig
 
     /**
      * Returns our decrypted value if we have one, or false if the value could not be decrypted or is empty.
+     *
      * @return bool|string
      */
     public function getEncryptedOption()

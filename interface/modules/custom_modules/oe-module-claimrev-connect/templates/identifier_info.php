@@ -1,17 +1,16 @@
 <?php 
 /**
  *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-if($benefit->identifiers != null && $benefit->identifiers )
-{
+if($benefit->identifiers != null && $benefit->identifiers ) {
     
-?>
+    ?>
     <div class="row">
         <div class="col">
             <div class="card">
@@ -22,23 +21,23 @@ if($benefit->identifiers != null && $benefit->identifiers )
                             <ul>
                                 <li>
                                     <?php
-                                        foreach($benefit->identifiers as $ident)
+                                    foreach($benefit->identifiers as $ident)
                                         {
-                                    ?>
+                                        ?>
                                             <div class="row">
                                                 <div class="col">
-                                                    <?php echo text($ident->referenceQualifierDesc) ?>
+                                                <?php echo text($ident->referenceQualifierDesc) ?>
                                                 </div>
                                                 <div class="col">                                                
-                                                    <?php echo text($ident->referenceValue) ?>
+                                                <?php echo text($ident->referenceValue) ?>
                                                 </div>
                                                 <div class="col">                                                
-                                                    <?php echo text($ident->referenceDesc) ?>
+                                                <?php echo text($ident->referenceDesc) ?>
                                                 </div>
                                             </div>
 
-                                    <?php
-                                        }
+                                        <?php
+                                    }
                                     ?>
                                 </li>
                             </ul>

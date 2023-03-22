@@ -1,8 +1,8 @@
 <?php
 /**
  *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @package OpenEMR
+ * @link    http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -21,8 +21,7 @@ class ClaimRevApi
     public static function CanConnectToClaimRev()
     {
         $token = ClaimRevApi::GetAccessToken();
-        if($token == "")
-        {
+        if($token == "") {
             return "No";
         }
         return "Yes";
@@ -43,10 +42,10 @@ class ClaimRevApi
            'content-type: application/x-www-form-urlencoded'    
         ];
 
-       $payload = "client_id=" . $clientId ."&scope=" . $scope . "&client_secret=" . $client_secret . "&grant_type=client_credentials";
+        $payload = "client_id=" . $clientId ."&scope=" . $scope . "&client_secret=" . $client_secret . "&grant_type=client_credentials";
 
         $ch = curl_init();
-        curl_setopt($ch,CURLOPT_URL, $authority); 
+        curl_setopt($ch, CURLOPT_URL, $authority); 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);   
@@ -58,7 +57,7 @@ class ClaimRevApi
         $data = json_decode($result); 
         
         $token = "";
-        if(property_exists($data,'access_token')){
+        if(property_exists($data, 'access_token')) {
             $token = $data->access_token;
         }
         return $token;
@@ -80,7 +79,7 @@ class ClaimRevApi
          
         $url = $api_server . "/api/InputFile/v1";
        
-        $model = new UploadEdiFileContentModel("",$ediContents,$fileName);
+        $model = new UploadEdiFileContentModel("", $ediContents, $fileName);
         $payload = json_encode($model, JSON_UNESCAPED_SLASHES);
        
         $ch = curl_init();
@@ -95,13 +94,11 @@ class ClaimRevApi
         curl_close($ch);
         $data = json_decode($result);      
 
-        if($httpcode != 200)
-        {
+        if($httpcode != 200) {
             return false;
         }
        
-        if($data->isError)
-        {
+        if($data->isError) {
             return false;
         }        
       
@@ -134,8 +131,7 @@ class ClaimRevApi
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE); 
         
         curl_close($ch);
-        if($httpcode != 200)
-        {
+        if($httpcode != 200) {
             return "";
         }
         $data = json_decode($result);      
@@ -167,8 +163,7 @@ class ClaimRevApi
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE); 
         
         curl_close($ch);
-        if($httpcode != 200)
-        {
+        if($httpcode != 200) {
             return "";
         }
 
@@ -204,8 +199,7 @@ class ClaimRevApi
         curl_close($ch);
         $data = json_decode($result);      
 
-        if($httpcode != 200)
-        {
+        if($httpcode != 200) {
             return false;
         }
        
@@ -238,8 +232,7 @@ class ClaimRevApi
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE); 
         
         curl_close($ch);
-        if($httpcode != 200)
-        {
+        if($httpcode != 200) {
             return false;
         }
         $data = json_decode($result);      
@@ -279,8 +272,7 @@ class ClaimRevApi
 
         $data = json_decode($result);   
 
-        if($httpcode != 200)
-        {
+        if($httpcode != 200) {
             return false;
         }
        
