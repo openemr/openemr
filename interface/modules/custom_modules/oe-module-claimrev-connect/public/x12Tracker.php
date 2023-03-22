@@ -53,7 +53,7 @@
                             </div>                    
                             <div class="col">
                                 <div class="form-group">
-                                    <label for="endDate">Created Date End</label>
+                                    <label for="endDate"><?php echo xlt("Created Date End");?></label>
                                     <input type="date" class="form-control"  id="endDate" name="endDate"  value="<?php echo isset($_POST['endDate']) ? attr($_POST['endDate']) : '' ?>" placeholder="yyyy-mm-dd"/>
                                 </div>
                             </div>

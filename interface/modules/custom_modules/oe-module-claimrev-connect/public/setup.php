@@ -38,7 +38,6 @@
     
     <title> <?php echo xlt("ClaimRev Connect - Setup"); ?></title>
 
-    <?php echo xlt(""); ?>
 
 <body>
     <div class="row"> 
@@ -118,7 +117,7 @@
     </div>
     <div class="row"> 
         <div class="col">
-            <h1>Background Services</h1>        
+            <h1><?php echo xlt("Background Services")?></h1>        
         </div>
     </div>
     <div class="row">

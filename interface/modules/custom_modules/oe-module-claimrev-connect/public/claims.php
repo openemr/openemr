@@ -179,7 +179,7 @@
                                         <?php echo xlt("Name"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                        <?php echo ($data->payerName); ?> 
+                                        <?php echo text($data->payerName); ?> 
                                     </div>
                                 </div>
                                 <div class="row">
@@ -187,7 +187,7 @@
                                         <?php echo xlt("Number"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                        <?php echo ($data->payerNumber); ?> 
+                                        <?php echo text($data->payerNumber); ?> 
                                     </div>
                                 </div>
                                 <div class="row">
@@ -205,7 +205,7 @@
                                         <?php echo xlt("Name"); ?>:                                        
                                     </div>
                                     <div class="col">
-                                        <?php echo ($data->providerFirstName); ?>  <?php echo($data->providerLastName); ?>  
+                                        <?php echo text($data->providerFirstName); ?>  <?php echo text($data->providerLastName); ?>  
                                     </div>
                                 </div>
                                 <div class="row">
