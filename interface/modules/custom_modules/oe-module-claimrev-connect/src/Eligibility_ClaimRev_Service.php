@@ -1,8 +1,9 @@
 <?php
+
     /**
      * Executes the background service for billing, which sends EDI claims
      * directly to claimRev if enabled
-     * 
+     *
      * @package OpenEMR
      * @link    http://www.claimrev.com
      *
@@ -17,11 +18,7 @@
 function start_send_eligibility()
 {
     $autoSend = $GLOBALS['oe_claimrev_send_eligibility'];
-    if($autoSend) {
+    if ($autoSend) {
         EligibilityTransfer::sendWaitingEligibility();
-
     }
-      
 }
-
-?>

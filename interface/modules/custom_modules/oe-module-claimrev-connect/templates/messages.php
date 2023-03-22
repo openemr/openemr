@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package OpenEMR
@@ -8,7 +9,8 @@
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-if($benefit->messages != null && $benefit->messages ) {
+
+if ($benefit->messages != null && $benefit->messages) {
     ?>
     <div class="row">
         <div class="col">
@@ -16,8 +18,7 @@ if($benefit->messages != null && $benefit->messages ) {
         </div>
         <div class="col">
     <?php
-    foreach($benefit->messages as $message)
-            {
+    foreach ($benefit->messages as $message) {
         ?>
                 <div class="row">
                     <div class="col">

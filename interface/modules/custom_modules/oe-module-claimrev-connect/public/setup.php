@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package OpenEMR
@@ -9,27 +10,24 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
-
     require_once "../../../../globals.php";
-    $tab="setup";
+
+    $ta = "setup";
     use OpenEMR\Modules\ClaimRevConnector\ClaimRevModuleSetup;
 
     $services = ClaimRevModuleSetup::GetBackgroundServices();
-if(isset($_POST['deactivateSftp'])) {
+if (isset($_POST['deactivateSftp'])) {
     ClaimRevModuleSetup::DeactivateSftpService();
-    
 }
-if(isset($_POST['reactivateSftp'])) { 
+if (isset($_POST['reactivateSftp'])) {
     ClaimRevModuleSetup::ReactivateSftpService();
-    
 }
-if(isset($_POST['backgroundService'])) { 
+if (isset($_POST['backgroundService'])) {
     ClaimRevModuleSetup::CreateBackGroundServices();
-    
 }
 
-    $services = ClaimRevModuleSetup::GetBackgroundServices();
+$services = ClaimRevModuleSetup::GetBackgroundServices();
+
 ?>
 <html>
     <head>
@@ -58,14 +56,11 @@ if(isset($_POST['backgroundService'])) {
                 <ul>
                     <li>
                         <h6><?php echo xlt("x12 Partner Record"); ?></h6>
-                        <?php 
-                        if(ClaimRevModuleSetup::DoesPartnerExists()) { 
-                            echo xlt("It looks like your X12 partner record is setup."); 
-                   
-                        } 
-                        else 
-                        { 
-                            echo xlt("Your x12 Partner has not been created, please contact us if you need assistance.");                                               
+                        <?php
+                        if (ClaimRevModuleSetup::DoesPartnerExists()) {
+                            echo xlt("It looks like your X12 partner record is setup.");
+                        } else {
+                            echo xlt("Your x12 Partner has not been created, please contact us if you need assistance.");
                         }
                         ?>
                     </li>
@@ -85,8 +80,8 @@ if(isset($_POST['backgroundService'])) {
                             <?php echo xlt("SFTP Background Service"); ?>
                             
                         </h6>
-                        <?php 
-                        if(ClaimRevModuleSetup::CouldSftpServiceCauseIssues()) {
+                        <?php
+                        if (ClaimRevModuleSetup::CouldSftpServiceCauseIssues()) {
                             echo xlt("The SFTP service is still activated to send claims. We have noticed that this service can cause our service not to work correctly. If you would like to deactivate it, click the following button. Note: if you're sending claims elsewhere through SFTP, this would stop that.");
                             ?>                                
                                 
@@ -94,9 +89,7 @@ if(isset($_POST['backgroundService'])) {
                                     <button type="submit" name="deactivateSftp" class="btn btn-primary"><?php echo xlt("Deactivate"); ?></button>
                                 </form>
                             <?php
-                        }
-                        else
-                        {
+                        } else {
                             echo xlt("The SFTP Service has been disabled, this is good and will prevent the service from working against sending your claims. However if you would like to reactivate it then click this button.");
                             ?>
                                 
@@ -104,7 +97,6 @@ if(isset($_POST['backgroundService'])) {
                                     <button type="submit" name="reactivateSftp" class="btn btn-primary"><?php echo xlt("Reactivate"); ?></button>
                                 </form>
                             <?php
-
                         }
                         ?>
                     </li>
@@ -134,9 +126,8 @@ if(isset($_POST['backgroundService'])) {
                         </tr>
                     </thead>
                     <tbody>
-                            <?php 
-                            foreach($services as $service)
-                            {
+                            <?php
+                            foreach ($services as $service) {
                                 ?>
                                 <tr>
                                     <td>

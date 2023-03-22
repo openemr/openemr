@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /**
  *
  * @package OpenEMR
@@ -8,12 +9,12 @@
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 use OpenEMR\Modules\ClaimRevConnector\PrintProperty;
+
 $benefitPatResponse = ["B","C","G","J","Y"];
 
-
-foreach( $benefits as $benefit )
-{
+foreach ($benefits as $benefit) {
     ?>
 <div class="card">
     <div class="card-body">
@@ -25,35 +26,30 @@ foreach( $benefits as $benefit )
             </div>
             <div class="col">
                 <ul>
-                    <?php 
-                    foreach($benefit->serviceTypes as $st)
-                        {
+                    <?php
+                    foreach ($benefit->serviceTypes as $st) {
                         ?>
                         <li><?php echo text($st->serviceTypeDesc) ?></li>
-                        <?php 
+                        <?php
                     }
                     ?>
                 </ul>                
             </div>
             
         </div>
-    <?php 
+    <?php
             PrintProperty::DisplayProperty("Coverage Level", $benefit->coverageLevel);
             PrintProperty::DisplayProperty("Insurance Type", $benefit->insuranceTypeCodeDesc);
             PrintProperty::DisplayProperty("Coverage Description", $benefit->planCoverageDescription);
             PrintProperty::DisplayProperty("Time Period", $benefit->timePeriodQualifierDesc);
-    if(in_array($benefit->benefitInformation, $benefitPatResponse)) {
+    if (in_array($benefit->benefitInformation, $benefitPatResponse)) {
         PrintProperty::DisplayProperty("Patient Responsibility", $benefit->benefitAmount, "$");
-    }
-    else
-            {
+    } else {
         PrintProperty::DisplayProperty("Amount", $benefit->benefitAmount, "$");
     }
-    if($benefit->benefitInformation == 'A') {
+    if ($benefit->benefitInformation == 'A') {
         PrintProperty::DisplayProperty("Patient Responsibility", $benefit->benefitPercent, "", "%");
-    }
-    else
-            {
+    } else {
         PrintProperty::DisplayProperty("Benefit Percent", $benefit->benefitPercent, "", "%");
     }
             PrintProperty::DisplayProperty("Benefit Quantity", $benefit->benefitQuantity, "", " - " . $benefit->quantityQualifierDesc);
@@ -66,7 +62,6 @@ foreach( $benefits as $benefit )
             include 'additional_info.php';
             include 'related_entity.php';
             include 'messages.php';
-            
     ?>
 
      

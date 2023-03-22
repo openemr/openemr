@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package OpenEMR
@@ -8,7 +9,8 @@
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-    use OpenEMR\Modules\ClaimRevConnector\PrintProperty;
+
+use OpenEMR\Modules\ClaimRevConnector\PrintProperty;
 
 if (property_exists($eligibilityData, 'deductibleReleaseReason')) {
     PrintProperty::DisplayProperty("Deductible Release Reason:", $eligibilityData->deductibleReleaseReason);
@@ -53,8 +55,7 @@ if (property_exists($eligibilityData, 'deductibles')) {
             </thead>
             <tbody>
             <?php
-            foreach($eligibilityData->deductibles as $deductible)
-                {
+            foreach ($eligibilityData->deductibles as $deductible) {
                 ?>
                         <tr>
                             <td> <?php echo text($deductible->serviceTypeDescription) ?> (<?php echo text($deductible->serviceTypeCode) ?>)</td>

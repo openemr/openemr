@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /**
  *
  * @package OpenEMR
@@ -8,8 +9,8 @@
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-if($benefit->identifiers != null && $benefit->identifiers ) {
-    
+
+if ($benefit->identifiers != null && $benefit->identifiers) {
     ?>
     <div class="row">
         <div class="col">
@@ -21,8 +22,7 @@ if($benefit->identifiers != null && $benefit->identifiers ) {
                             <ul>
                                 <li>
                                     <?php
-                                    foreach($benefit->identifiers as $ident)
-                                        {
+                                    foreach ($benefit->identifiers as $ident) {
                                         ?>
                                             <div class="row">
                                                 <div class="col">

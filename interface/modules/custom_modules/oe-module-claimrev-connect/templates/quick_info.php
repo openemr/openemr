@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package OpenEMR
@@ -10,15 +11,13 @@
  */
 
 use OpenEMR\Modules\ClaimRevConnector\PrintProperty;
+
 if (property_exists($eligibilityData, 'status')) {
-    if($eligibilityData->status == "Active Coverage") {
+    if ($eligibilityData->status == "Active Coverage") {
         PrintProperty::DisplayProperty("Coverage Status:", $eligibilityData->status, "", "", "color:green");
-    }
-    else
-    {
+    } else {
         PrintProperty::DisplayProperty("Coverage Status:", $eligibilityData->status, "", "", "color:red");
     }
-       
 }
 if (property_exists($eligibilityData, 'hierarchy')) {
     PrintProperty::DisplayProperty("Hierarchy:", $eligibilityData->hierarchy);
@@ -118,9 +117,3 @@ if (property_exists($eligibilityData, 'ipaDescription:')) {
 if (property_exists($eligibilityData, 'planNetworkIdentificationNumber:')) {
     PrintProperty::DisplayProperty("Plan Network Identification Number:", $eligibilityData->planNetworkIdentificationNumber);
 }
-?>
-
-
-
-
-

@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /**
  *
  * @package OpenEMR
@@ -15,21 +16,21 @@ use OpenEMR\Modules\ClaimRevConnector\SubscriberPatientEligibilityRequest;
 use OpenEMR\Modules\ClaimRevConnector\EligibilityObjectCreator;
 use OpenEMR\Modules\ClaimRevConnector\ValueMapping;
 
-if($pid == null) {
+if ($pid == null) {
     echo xlt("Error retrieving patient.");
     exit;
 }
 $insurance = EligibilityData::getInsuranceData($pid);
 
-if(isset($_POST['checkElig'])) { //check if form was submitted
-
-    $pr=$_POST['responsibility'];
+//check if form was submitted
+if (isset($_POST['checkElig'])) {
+    $pr = $_POST['responsibility'];
     //$pid is found on the parent page that is including this php file
-    $formatedPr = ValueMapping::MapPayerResponsibility($pr);
-    EligibilityData::RemoveEligibilityCheck($pid, $formatedPr);
+    $formattedPr = ValueMapping::MapPayerResponsibility($pr);
+    EligibilityData::RemoveEligibilityCheck($pid, $formattedPr);
     $requestObjects = EligibilityObjectCreator::BuildObject($pid, $pr, null, null, null);
     EligibilityObjectCreator::SaveToDatabase($requestObjects, $pid);
-    $request = $requestObjects[0];  
+    $request = $requestObjects[0];
 }
 
 ?>
@@ -41,27 +42,25 @@ if(isset($_POST['checkElig'])) { //check if form was submitted
 <div class="row">
     <div class="col">
     <ul class="nav nav-tabs mb-2">
-<?php  
-        $classActive = "active"; 
-        $first="true"; 
-foreach ($insurance as $row) 
-{ 
+<?php
+        $classActive = "active";
+        $first = "true";
+foreach ($insurance as $row) {
     ?>
             <li class="nav-item" role="presentation">
                 <a id="claimrev-ins-<?php echo attr(ucfirst($row['payer_responsibility']));?>-tab" aria-selected="<?php echo($first); ?>" class="nav-link <?php echo($classActive);?>"  data-toggle="tab" role="tab" href="#<?php echo attr(ucfirst($row['payer_responsibility']));?>"> <?php echo xlt(ucfirst($row['payer_responsibility']));?>  </a>
             </li>
-    <?php 
-    $first = "false"; 
-    $classActive=""; 
-} 
+    <?php
+    $first = "false";
+    $classActive = "";
+}
 ?>
         
     </ul>
     <div class="tab-content">
-<?php 
-        $classActive = "in active"; 
-foreach ($insurance as $row) 
-{             
+<?php
+        $classActive = "in active";
+foreach ($insurance as $row) {
     ?>
             <div id="<?php echo attr(ucfirst($row['payer_responsibility']));?>" class="tab-pane <?php echo($classActive);?>">
                 <div class="row">
@@ -73,10 +72,9 @@ foreach ($insurance as $row)
                         </form>
                     </div>
                     <div class="col">
-    <?php 
+    <?php
                 $eligibilityCheck = EligibilityData::getEligibilityResult($pid, $row['payer_responsibility']);
-    foreach( $eligibilityCheck as $check )
-                { 
+    foreach ($eligibilityCheck as $check) {
         ?>
                             <div class="row">
                                 <div class="col">
@@ -89,8 +87,8 @@ foreach ($insurance as $row)
             <?php echo xlt("Message"); ?>: <?php echo text($check["response_message"]);?>
                                 </div>                                     
                             </div>
-        <?php 
-    }//end foreach 
+        <?php
+    }//end foreach
     ?>                        
                     </div>
                 </div>
@@ -101,24 +99,21 @@ foreach ($insurance as $row)
                 </div>
                 <div class="row">
                     <div class="col">
-    <?php 
-              //yeah.... this weird. why would someone do this? because I couldn't get the include 
+    <?php
+              //yeah.... this weird. why would someone do this? because I couldn't get the include
               //see my files one directory up. I might of done something wrong but I spent a good hour
-              //trying to figure it out. I finally decided to go use something like this and make it 
+              //trying to figure it out. I finally decided to go use something like this and make it
               //look like a hack.
               $path = __DIR__;
               $path = str_replace("src", "templates", $path);
-                      
-                     
-    foreach( $eligibilityCheck as $check )
-                { 
-        if($check["eligibility_json"] == null) { 
+
+
+    foreach ($eligibilityCheck as $check) {
+        if ($check["eligibility_json"] == null) {
                         echo xlt("No Results");
-        }
-        else
-                    {
+        } else {
                     $result = $check["eligibility_json"];
-                    $eligibilityData = json_decode($result); 
+                    $eligibilityData = json_decode($result);
                     $benefits = null;
                     $subscriberPatient = null;
                     $data = null;
@@ -128,31 +123,29 @@ foreach ($insurance as $row)
 
             if (property_exists($data, 'dependent')) {
                 $dependent = $data->dependent;
-                if($dependent != null) {
+                if ($dependent != null) {
                     if (property_exists($dependent, 'benefits')) {
                         $benefits = $dependent->benefits;
                         $subscriberPatient = $dependent;
                     }
-                }                                            
-            }   
+                }
+            }
 
             if (property_exists($data, 'subscriber')) {
                 $subscriber = $data->subscriber;
-                if($subscriber != null) {                                    
+                if ($subscriber != null) {
                     if (property_exists($subscriber, 'benefits')) {
                         $benefits = $subscriber->benefits;
                         $subscriberPatient = $subscriber;
-                    } 
-
+                    }
                 }
-                                   
-            }                       
+            }
 
             ?>                            
                                 <ul class="nav nav-tabs mb-2">
-            <?php  
-                    $classActive = "active"; 
-                    $first="true"; 
+            <?php
+                    $classActive = "active";
+                    $first = "true";
             ?>
                                 <li class="nav-item" role="presentation">
                                         <a id="claimrev-ins-quick-tab" aria-selected="<?php echo($first); ?>" class="nav-link active"  data-toggle="tab" role="tab" href="#eligibility-quick"> <?php echo xlt("Quick Info "); ?></a>
@@ -169,17 +162,17 @@ foreach ($insurance as $row)
                                     <li class="nav-item" role="presentation">
                                         <a id="claimrev-ins-validations-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-validations"> <?php echo xlt("Validations"); ?></a>
                                     </li>                                 
-            <?php 
-                        $first = "false"; 
-                        $classActive="";  
+            <?php
+                        $first = "false";
+                        $classActive = "";
             ?>                                
                                 </ul>
                             <div class="tab-content">
                                 <div id="eligibility-quick" class="tab-pane active">
                                     <div class="row">
                                         <div class="col">
-            <?php                                             
-                                include $path .'/quick_info.php';
+            <?php
+                                include $path . '/quick_info.php';
             ?>
                                         </div>
                                     </div>
@@ -187,8 +180,8 @@ foreach ($insurance as $row)
                                 <div id="eligibility-deductibles" class="tab-pane">
                                     <div class="row">
                                         <div class="col">
-            <?php                                             
-                                include $path .'/deductibles.php';
+            <?php
+                                include $path . '/deductibles.php';
             ?>
                                         </div>
                                     </div>
@@ -196,8 +189,8 @@ foreach ($insurance as $row)
                                 <div id="eligibility-medicare" class="tab-pane">
                                     <div class="row">
                                         <div class="col">
-            <?php                                             
-                                include $path .'/medicare_info.php';
+            <?php
+                                include $path . '/medicare_info.php';
             ?>
                                         </div>
                                     </div>
@@ -206,15 +199,15 @@ foreach ($insurance as $row)
                                  
                                     <div class="row">
                                         <div class="col">
-            <?php 
+            <?php
                                 $source = $data->informationSourceName;
-                                include $path .'/source.php';
+                                include $path . '/source.php';
             ?>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col">
-            <?php 
+            <?php
                                 $receiver = $data->receiver;
                                 include $path . '/receiver.php';
             ?>
@@ -223,10 +216,10 @@ foreach ($insurance as $row)
 
                                     <div class="row">
                                         <div class="col">
-            <?php                                                            
-            if($benefits != null) {
-                        include $path .'/subscriber_patient.php';
-                        include $path .'/benefit.php';
+            <?php
+            if ($benefits != null) {
+                        include $path . '/subscriber_patient.php';
+                        include $path . '/benefit.php';
             }
             ?>
                                         </div>
@@ -235,7 +228,7 @@ foreach ($insurance as $row)
                                 <div id="eligibility-validations" class="tab-pane">
                                     <div class="row">
                                         <div class="col">
-            <?php 
+            <?php
                                 include $path . '/validation.php';
             ?>
                                         </div>
@@ -243,16 +236,16 @@ foreach ($insurance as $row)
                                 </div>     
                             </div>
   
-            <?php 
+            <?php
         }//else results
-    } 
+    }
     ?>   
                     </div>
                 </div>
             </div>            
-        <?php 
-        $classActive = ""; 
-}//end ($insurance as $row) 
+        <?php
+        $classActive = "";
+}//end ($insurance as $row)
 ?>
     </div>
 </div>

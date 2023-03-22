@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package OpenEMR
@@ -8,7 +9,8 @@
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-if($benefit->relatedEntities != null && $benefit->relatedEntities ) {
+
+if ($benefit->relatedEntities != null && $benefit->relatedEntities) {
     ?>
     <div class="row">
         <div class="col">
@@ -16,21 +18,20 @@ if($benefit->relatedEntities != null && $benefit->relatedEntities ) {
                 <div class="card-body">
                     <h6> <?php echo xlt("Related Entity"); ?></h6>
     <?php
-    foreach($benefit->relatedEntities as $relatedEntity)
-                    {
-        if($relatedEntity->entityIdentifierCodeQualifier == "2") {
+    foreach ($benefit->relatedEntities as $relatedEntity) {
+        if ($relatedEntity->entityIdentifierCodeQualifier == "2") {
             ?>
                             <dl class="row">
                                 <dt class="col">
-                    <?php echo xlt("Organization Name"); ?>                                    
+                    <?php echo xlt("Organization Name"); ?>
                                 </dt>
                                 <dd class="col">
-                    <?php echo text($relatedEntity->lastOrganizationName);?>                                             
+                    <?php echo text($relatedEntity->lastOrganizationName);?>
                                 </dd>
                             <dl>
             <?php
         }
-        if($relatedEntity->entityIdentifierCodeQualifier == "1") {
+        if ($relatedEntity->entityIdentifierCodeQualifier == "1") {
             ?>
                             <dl class="row">
                                 <dt class="col">
@@ -42,7 +43,7 @@ if($benefit->relatedEntities != null && $benefit->relatedEntities ) {
                             <dl>
             <?php
         }
-        if($relatedEntity->entityIdentifierCodeQualifier == "1") {
+        if ($relatedEntity->entityIdentifierCodeQualifier == "1") {
             ?>
                             <dl class="row">
                                 <dt class="col">
@@ -84,7 +85,7 @@ if($benefit->relatedEntities != null && $benefit->relatedEntities ) {
                         </dd>
                     </dl>
         <?php
-        if($relatedEntity->taxonomyCode != "") {
+        if ($relatedEntity->taxonomyCode != "") {
             ?>
                             <dl class="row">
                                 <dt class="col">
@@ -97,9 +98,8 @@ if($benefit->relatedEntities != null && $benefit->relatedEntities ) {
                             <dl>
             <?php
         }
-        if($relatedEntity->contacts != null && $relatedEntity->contacts ) {
-            foreach($relatedEntity->contacts as $c)
-            {
+        if ($relatedEntity->contacts != null && $relatedEntity->contacts) {
+            foreach ($relatedEntity->contacts as $c) {
                 ?>
                                 <dl class="row">                                    
                                     <dt class="col">
@@ -107,9 +107,8 @@ if($benefit->relatedEntities != null && $benefit->relatedEntities ) {
                                     </dt>
                                     <dt class="col">
                         <?php echo text($c->contactName); ?>
-                <?php 
-                foreach($c->contactMethods as $m)
-                            {
+                <?php
+                foreach ($c->contactMethods as $m) {
                     ?>
                                                 <dl class="row">
                                                     <dt class="col">
@@ -129,7 +128,6 @@ if($benefit->relatedEntities != null && $benefit->relatedEntities ) {
                 <?php
             }
         }
-
     }//end foreach
 
 
@@ -139,5 +137,5 @@ if($benefit->relatedEntities != null && $benefit->relatedEntities ) {
         </div>
     </div>
     <?php
-}   
+}
 ?>

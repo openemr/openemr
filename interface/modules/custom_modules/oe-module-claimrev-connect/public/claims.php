@@ -88,15 +88,15 @@
 
         <?php                  
             $datas = [];
-        if(isset($_POST['SubmitButton'])) { //check if form was submitted
+        if (isset($_POST['SubmitButton'])) { //check if form was submitted
 
             $datas = ClaimsPage::SearchClaims($_POST);
-            if($datas == null) {
+            if ($datas == null) {
                 $datas = [];
             }
 
         }
-        if(empty($datas)) {
+        if (empty($datas)) {
             echo xlt("No results found");
         }
         else { ?>
@@ -113,7 +113,7 @@
                 </thead>
                 <tbody>
                     <?php
-                    foreach($datas as $data) 
+                    foreach ($datas as $data) 
                     {
                         ?>                            
                         <tr>
@@ -292,14 +292,14 @@
                                 </div>
                             </td>                            
                         </tr>  
-                        <?php if($data->errors) {
+                        <?php if ($data->errors) {
                             ?>
                         <tr>
                             <td colspan="6">
                                 <ul>
                                 <?php 
                                 
-                                foreach($data->errors as $err)
+                                foreach ($data->errors as $err)
                                     { 
                                     ?>
                                         <li><?php echo text($err->errorMessage); ?></li>

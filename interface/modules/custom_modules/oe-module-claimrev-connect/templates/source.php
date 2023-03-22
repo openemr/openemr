@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package OpenEMR
@@ -9,7 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-if($source != null) {
+if ($source != null) {
     ?>
         <div class="card">
             <div class="card-body">
@@ -32,7 +33,7 @@ if($source != null) {
                 
         </div>
 
-    <?php    
+    <?php
 }
 ?>
 

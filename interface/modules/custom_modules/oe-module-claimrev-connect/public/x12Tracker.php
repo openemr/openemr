@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package OpenEMR
@@ -9,15 +10,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-    require_once "../../../../globals.php"; 
-    $tab="x12";
+    require_once "../../../../globals.php";
+    $tab = "x12";
     use OpenEMR\Modules\ClaimRevConnector\X12TrackerPage;
 
 
     $datas = [];
-if(isset($_POST['SubmitButton'])) { //check if form was submitted
-
-    $datas = X12TrackerPage::SearchX12Tracker($_POST);     
+//check if form was submitted
+if (isset($_POST['SubmitButton'])) {
+    $datas = X12TrackerPage::SearchX12Tracker($_POST);
 }
 ?>
 
@@ -80,8 +81,8 @@ if(isset($_POST['SubmitButton'])) { //check if form was submitted
 
         <div class="row">
             <div class="col">                
-                <?php                    
-                if($datas != null) { ?>
+                <?php
+                if ($datas != null) { ?>
                     <table class="table">
                         <thead>
                             <tr>
@@ -92,8 +93,7 @@ if(isset($_POST['SubmitButton'])) { //check if form was submitted
                         </thead>
                         <tbody>
                         <?php
-                        foreach($datas as $data) 
-                        { 
+                        foreach ($datas as $data) {
                             ?>  
                             <tr>
                                 <td>

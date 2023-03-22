@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package OpenEMR
@@ -8,35 +9,35 @@
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 use OpenEMR\Modules\ClaimRevConnector\PrintProperty;
 
 $validations = null;
-if (property_exists($data, 'requestValidations')) {                                                
+if (property_exists($data, 'requestValidations')) {
     $validations = $data->requestValidations;
     PrintProperty::PrintValidation("Primary Validations", $validations);
-}  
-if (property_exists($data, 'informationSourceName')) {    
-    $informationSourceName = $data->informationSourceName;    
+}
+if (property_exists($data, 'informationSourceName')) {
+    $informationSourceName = $data->informationSourceName;
 
-    if ($informationSourceName != null && property_exists($informationSourceName, 'requestValidations')) {                                                
+    if ($informationSourceName != null && property_exists($informationSourceName, 'requestValidations')) {
         $validations = $informationSourceName->requestValidations;
-        PrintProperty::PrintValidation("information Source Validations", $validations);     
-    } 
-}  
+        PrintProperty::PrintValidation("information Source Validations", $validations);
+    }
+}
 
-if (property_exists($data, 'receiver')) {    
-    $receiver = $data->receiver;                                            
-    if ($receiver != null && property_exists($receiver, 'requestValidations')) {                                                
+if (property_exists($data, 'receiver')) {
+    $receiver = $data->receiver;
+    if ($receiver != null && property_exists($receiver, 'requestValidations')) {
         $validations = $receiver->requestValidations;
         PrintProperty::PrintValidation("Receiver Validations", $validations);
-    } 
-}  
+    }
+}
 
-if (property_exists($data, 'subscriber')) {    
-    $subscriber = $data->subscriber;                                            
-    if ($subscriber != null && property_exists($subscriber, 'requestValidations')) {                                                
+if (property_exists($data, 'subscriber')) {
+    $subscriber = $data->subscriber;
+    if ($subscriber != null && property_exists($subscriber, 'requestValidations')) {
         $validations = $subscriber->requestValidations;
         PrintProperty::PrintValidation("Receiver Validations", $validations);
-    } 
-}  
-?>
+    }
+}

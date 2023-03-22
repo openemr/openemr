@@ -8,7 +8,7 @@
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-if($benefit->dates != null && $benefit->dates ) {    
+if ($benefit->dates != null && $benefit->dates ) {    
     ?>
         <div class="row">
             <div class="col">
@@ -20,7 +20,7 @@ if($benefit->dates != null && $benefit->dates ) {
                                 <ul>
                                     <li>
     <?php
-    foreach($benefit->dates as $dtp)
+    foreach ($benefit->dates as $dtp)
                                     {
         ?>
                                             <div class="row">

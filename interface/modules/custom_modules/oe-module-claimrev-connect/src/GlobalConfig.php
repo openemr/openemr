@@ -21,21 +21,21 @@ use OpenEMR\Services\Globals\GlobalSetting;
 
 class GlobalConfig
 {
-    const CONFIG_OPTION_ENVIRONMENT = 'oe_claimrev_config_environment';
-    const CONFIG_OPTION_CLIENTID = 'oe_claimrev_config_clientid';
-    const CONFIG_OPTION_CLIENTSECRET = 'oe_claimrev_config_clientsecret';
-    const CONFIG_OPTION_SCOPE = 'oe_claimrev_config_scope';
-    const CONFIG_OPTION_AUTHORITY = 'oe_claimrev_config_authority';
+    public const CONFIG_OPTION_ENVIRONMENT = 'oe_claimrev_config_environment';
+    public const CONFIG_OPTION_CLIENTID = 'oe_claimrev_config_clientid';
+    public const CONFIG_OPTION_CLIENTSECRET = 'oe_claimrev_config_clientsecret';
+    public const CONFIG_OPTION_SCOPE = 'oe_claimrev_config_scope';
+    public const CONFIG_OPTION_AUTHORITY = 'oe_claimrev_config_authority';
 
-    const CONFIG_AUTO_SEND_CLAIM_FILES = 'oe_claimrev_config_auto_send_claim_files';
-    const CONFIG_ENABLE_MENU = "oe_claimrev_config_add_menu_button";
-    const CONFIG_SERVICE_TYPE_CODES = "oe_claimrev_config_service_type_codes";
-    const CONFIG_ENABLE_ELIGIBILITY_CARD = "oe_claimrev_config_add_eligibility_card";
-    const CONFIG_USE_FACILITY_FOR_ELIGIBILITY = "oe_claimrev_config_use_facility_for_eligibility";
-    const CONFIG_ENABLE_REALTIME_ELIGIBILITY = "oe_claimrev_enable_rte";
-    const CONFIG_ENABLE_RESULTS_ELIGIBILITY = "oe_claimrev_eligibility_results_age";
-    const CONFIG_ENABLE_AUTO_SEND_ELIGIBILITY = "oe_claimrev_send_eligibility";
-    const CONFIG_X12_PARTNER_NAME = "oe_claimrev_x12_partner_name";
+    public const CONFIG_AUTO_SEND_CLAIM_FILES = 'oe_claimrev_config_auto_send_claim_files';
+    public const CONFIG_ENABLE_MENU = "oe_claimrev_config_add_menu_button";
+    public const CONFIG_SERVICE_TYPE_CODES = "oe_claimrev_config_service_type_codes";
+    public const CONFIG_ENABLE_ELIGIBILITY_CARD = "oe_claimrev_config_add_eligibility_card";
+    public const CONFIG_USE_FACILITY_FOR_ELIGIBILITY = "oe_claimrev_config_use_facility_for_eligibility";
+    public const CONFIG_ENABLE_REALTIME_ELIGIBILITY = "oe_claimrev_enable_rte";
+    public const CONFIG_ENABLE_RESULTS_ELIGIBILITY = "oe_claimrev_eligibility_results_age";
+    public const CONFIG_ENABLE_AUTO_SEND_ELIGIBILITY = "oe_claimrev_send_eligibility";
+    public const CONFIG_X12_PARTNER_NAME = "oe_claimrev_x12_partner_name";
     private $globalsArray;
 
     /**
@@ -78,35 +78,32 @@ class GlobalConfig
 
     public function getClientScope()
     {
-        if($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "S") {
+        if ($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "S") {
             return "https://stagingclaimrevcom.onmicrosoft.com/portal/api/.default";
-        }
-        else if($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "D") {
+        } elseif ($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "D") {
             return "https://claimrevportaldevelopment.onmicrosoft.com/portal/api/.default";
         }
-        return "https://portalclaimrev.onmicrosoft.com/portal/api/.default";        
+        return "https://portalclaimrev.onmicrosoft.com/portal/api/.default";
     }
 
     public function getClientAuthority()
     {
-        if($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "S") {
+        if ($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "S") {
             return "https://stagingclaimrevcom.b2clogin.com/stagingclaimrevcom.onmicrosoft.com/B2C_1_sign-in-service/oauth2/v2.0/token";
-        }
-        else if($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "D") {
+        } elseif ($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "D") {
             return "https://claimrevportaldevelopment.b2clogin.com/claimrevportaldevelopment.onmicrosoft.com/B2C_1_sign-in-service/oauth2/v2.0/token";
         }
-        return "https://portalclaimrev.b2clogin.com/portalclaimrev.onmicrosoft.com/B2C_1_sign-in-service/oauth2/v2.0/token";   
+        return "https://portalclaimrev.b2clogin.com/portalclaimrev.onmicrosoft.com/B2C_1_sign-in-service/oauth2/v2.0/token";
     }
 
     public function getApiServer()
     {
-        if($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "S") {
+        if ($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "S") {
             return "https://testapi.claimrev.com";
-        }
-        else if($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "D") {
+        } elseif ($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "D") {
             return "https://a3a9-174-128-131-22.ngrok.io";
         }
-        return "https://api.claimrev.com";   
+        return "https://api.claimrev.com";
     }
 
 
@@ -178,7 +175,7 @@ class GlobalConfig
                 ,'description' => 'Send Claim Files to ClaimRev automatically'
                 ,'type' => GlobalSetting::DATA_TYPE_BOOL
                 ,'default' => ''
-            ]           
+            ]
             ,self::CONFIG_ENABLE_MENU => [
                 'title' => 'Add module menu item'
                 ,'description' => 'Adding a menu item to the system (requires logging out and logging in again)'
@@ -219,4 +216,3 @@ class GlobalConfig
         return $settings;
     }
 }
-?>
