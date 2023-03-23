@@ -437,7 +437,8 @@ function fetchNextXAppts($from_date, $patient_id, $nextX = 1, $group_id = null)
     return $nextXAppts;
 }
 
-function fetchXPastAppts($pid2, $pastApptsNumber, $orderOfAppts = '1') {
+function fetchXPastAppts($pid2, $pastApptsNumber, $orderOfAppts = '1')
+{
 
     $currentDate = date("Y-m-d");
     $totalAppts = [];
@@ -448,7 +449,6 @@ function fetchXPastAppts($pid2, $pastApptsNumber, $orderOfAppts = '1') {
     $row2 = sqlFetchArray($res2);
 
     if ($row2['minDate']) {
-
         $periodOf = '26';
         $limitRight = date("Y-m-d", strtotime("$currentDate -1 day"));
         $limitLeft = date("Y-m-d", strtotime("$limitRight -$periodOf weeks"));
@@ -456,33 +456,25 @@ function fetchXPastAppts($pid2, $pastApptsNumber, $orderOfAppts = '1') {
         $count2 = 0;
 
         while (($limitRight >= $apptRangeLeft) && ($count2 < $pastApptsNumber)) {
-
             $appts2 = fetchAppointments($limitLeft, $limitRight, $pid2);
             $totalAppts = array_merge($appts2, $totalAppts);
             $limitRight = date("Y-m-d", strtotime("$limitLeft -1 day"));
             $limitLeft = date("Y-m-d", strtotime("$limitRight -$periodOf weeks"));
             $count2 = count($totalAppts);
-
         }
-        if($orderOfAppts == '1') {
-
+        if ($orderOfAppts == '1') {
             $eventDate  = array_column($totalAppts, 'pc_eventDate');
             $eventTime  = array_column($totalAppts, 'pc_startTime');
             array_multisort($eventDate, SORT_ASC, $eventTime, SORT_ASC, $totalAppts);
             $totalAppts = array_slice($totalAppts, -$pastApptsNumber, $pastApptsNumber);
-
         } else if ($orderOfAppts == '2') {
-
             $eventDate  = array_column($totalAppts, 'pc_eventDate');
             $eventTime  = array_column($totalAppts, 'pc_startTime');
             array_multisort($eventDate, SORT_DESC, $eventTime, SORT_ASC, $totalAppts);
             $totalAppts = array_slice($totalAppts, 0, $pastApptsNumber);
-
         }
-
     }
     return $totalAppts;
-
 }
 
 // get the event slot size in seconds

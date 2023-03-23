@@ -1778,11 +1778,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     if (isset($pid) && !$GLOBALS['disable_calendar'] && $showpast > 0 && AclMain::aclCheckCore('patients', 'appt')) {
                         $displayPastAppts = true;
 
-                        $pastAppts=fetchXPastAppts($pid, $showpast, $direction); // This line added by epsdky
+                        $pastAppts = fetchXPastAppts($pid, $showpast, $direction); // This line added by epsdky
 
                         $count = 0;
 
-                        foreach($pastAppts as $row) {
+                        foreach ($pastAppts as $row) {
                             $count++;
                             $dayname = date("D", strtotime($row['pc_eventDate']));
                             $displayMeridiem = ($GLOBALS['time_display_format'] == 0) ? "" : "am";
