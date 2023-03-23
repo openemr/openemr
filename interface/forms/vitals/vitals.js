@@ -74,7 +74,7 @@
                 if (system !== "usa") {
                     inputSave.value = inputSave.value = convValue;
                 } else {
-                    inputSave.value = value;
+                    inputSave.value = inputSave.value = convValue;
                 }
             } else {
                 console.error("Failed to get valid number for input with id ", node.id, " with value ", value);
