@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package OpenEMR
@@ -46,7 +47,7 @@ if ($serviceDelivery->frequencyCode != '') {
                                     </li>
             <?php
         }
-                            
+
         ?>
                                
         <?php

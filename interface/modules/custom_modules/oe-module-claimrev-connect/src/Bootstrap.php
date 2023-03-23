@@ -145,7 +145,7 @@ class Bootstrap
         }
     }
 
-    
+
     public function registerDemographicsEvents()
     {
         if ($this->getGlobalConfig()->getGlobalSetting(GlobalConfig::CONFIG_ENABLE_ELIGIBILITY_CARD)) {
@@ -168,7 +168,7 @@ class Bootstrap
         //using this magic thing again, for some reason I can't move up to the templates directory!!!
         $path = __DIR__;
         $path = str_replace("src", "templates", $path);
-        
+
         $pid = $event->getPid();
         ?>
         <section>
@@ -184,8 +184,7 @@ class Bootstrap
         $widgetAuth = false;
         $fixedWidth = false;
         $forceExpandAlways = false;
-         
-        
+
         expand_collapse_widget(
             $widgetTitle,
             $widgetLabel,
@@ -200,7 +199,7 @@ class Bootstrap
         );
         ?>
         
-        <div> <?php include $path ."/eligibility.php";?> </div>
+        <div> <?php include $path . "/eligibility.php";?> </div>
     </section>
         <?php
     }
@@ -225,8 +224,7 @@ class Bootstrap
      * @param TwigEnvironmentEvent $event
      */
     public function addTemplateOverrideLoader(TwigEnvironmentEvent $event)
-    {
-        
+    {        
         try {
             $twig = $event->getTwigEnvironment();
             if ($twig === $this->twig) {
@@ -315,8 +313,7 @@ class Bootstrap
     }
 
     public function addCustomSkeletonApi(RestApiCreateEvent $event)
-    {
-      
+    {      
         /**
          * Events must ALWAYS be returned
          */
