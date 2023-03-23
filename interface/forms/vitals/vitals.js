@@ -72,9 +72,9 @@
                 inputConv.value = convValue.toFixed(precision);
                 // all values are saved in usa system units
                 if (system !== "usa") {
-                    inputSave.value = inputSave.value = convValue;
+                    inputSave.value = value;
                 } else {
-                    inputSave.value = inputSave.value = convValue;
+                    inputSave.value = value;
                 }
             } else {
                 console.error("Failed to get valid number for input with id ", node.id, " with value ", value);
