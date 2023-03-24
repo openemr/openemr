@@ -137,7 +137,7 @@ function vitalsGetPrecision(node, defaultValue) {
 function convUnit(system, unit, value)
 {
     console.log("unit = ",unit)
-    if (unit == 'kg' || unit == 'lbs' || unit = 'libra') //when measuring in spanish, the weight measure unit is libras
+    if (unit == 'kg' || unit == 'lbs') //|| unit = 'libra') when measuring in spanish, the weight measure unit is libras
     {
         if (system == 'metric')
         {
@@ -149,7 +149,7 @@ function convUnit(system, unit, value)
         }
     }
 
-    if (unit == 'in' || unit = 'en' || unit == 'cm') //when measuring in spanish, the weight measure unit is en
+    if (unit == 'in' || unit == 'cm') //|| unit = 'en' when measuring in spanish, the weight measure unit is en
     {
         if (system == 'metric')
         {
