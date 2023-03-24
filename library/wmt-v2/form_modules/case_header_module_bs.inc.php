@@ -226,12 +226,12 @@ if($draw_display) {
     </div>
   </div>
 
-  <!-- Insurance Section -->
+  <!-- Payer Section -->
   <div id="case_header_ins" <?php echo $ins_disp_mode; ?> class="form-row mt-4" >
     <div class="col-md-12">
     	<div class="card">
     		<div class="card-header">
-		      <h6 class="mb-0 d-inline-block"><?php echo xl('Insurance for this case'); ?></h6>
+		      <h6 class="mb-0 d-inline-block"><?php echo xl('Payer for this case'); ?></h6>
 		    </div>
     		<div class="card-body px-2 py-2">
 
@@ -246,7 +246,7 @@ if($draw_display) {
 			    			<div class="jumbotron jumbotron-fluid px-3 py-3 mb-2 h-100">
 			    				
 			    				<div>
-		  							<label><?php echo $cnt; ?>). Insurance</label>
+		  							<label><?php echo $cnt; ?>). Payer</label>
 			    					<select class="form-control ins-dropdown" name="<?php echo $field_prefix; ?>ins_data_id<?php echo $cnt; ?>" id="<?php echo $field_prefix; ?>ins_data_id<?php echo $cnt; ?>" data-id="<?php echo $cnt; ?>" onchange="showPolicy(<?php echo $cnt; ?>);">
 									    <?php wmtPatData::pidPolicySelect($dt[$field_prefix . 'ins_data_id'.$cnt], $policies); ?>
 									  </select>
@@ -291,7 +291,7 @@ if($draw_display) {
 		    	</div>
 
 		    	<div class="mt-2 mb-1">
-  					<a type="button" id="add_policy_btn" class="btn btn-primary" href="<?php echo $GLOBALS['webroot']; ?>/custom/policy_popup.php?pid=<?php echo $pid; ?>&callback=set_case_insurance"><?php echo xl('Add A Policy'); ?></a>
+  					<a type="button" id="add_policy_btn" class="btn btn-primary" href="<?php echo $GLOBALS['webroot']; ?>/custom/policy_popup.php?pid=<?php echo $pid; ?>&callback=set_case_insurance"><?php echo xl('Add/Edit Payer'); ?></a>
   				</div>
 
     		</div>
@@ -556,7 +556,7 @@ $(document).ready(function(){
 		// Add new policy
     $("#add_policy_btn").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
-        let title = '<?php echo xla('Insurance Policy Management'); ?>';
+        let title = '<?php echo xla('Payer Management'); ?>';
 				var case_dt = '';
 				if(document.getElementById('form_dt').value != '') 
 						case_dt = '&case_dt=' + document.getElementById('form_dt').value;

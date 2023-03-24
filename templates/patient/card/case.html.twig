@@ -1,0 +1,98 @@
+{% extends "patient/card/card_base.html.twig" %}
+
+{% block content %}
+{% if case|length <= 0 %}
+    No case available
+{% else %}
+<ul class="nav nav-tabs mb-2">
+{% for t in case %}
+    <li class="nav-item" role="presentation">
+        <a href="#case{{ t.id|attr }}" id="case{{ t.id|attr }}-tab" data-toggle="tab" role="tab" title="{{t.tab_title_text|raw}}" aria-controls="case{{ t.id|attr }}" aria-selected="{{ loop.first ? "true" : "false" }}" class="nav-link {{ loop.first ? "active" }}">
+            {{t.tab_title|raw}}
+        </a>
+    </li>
+{% endfor %}
+</ul>
+<div class="tab-content px-1">
+{% for c in case %}
+    <div class="tab-pane {{ loop.first ? "active" }}" id="case{{ c.id|attr }}" role="tabpanel" aria-labelledby="case{{ c.id|attr }}-tab">
+    	<div class="d-flex justify-content-between policy-details">
+            <div class="list-group list-group-flush flex-fill">
+            	<div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Case Number"|xlt }}:</strong> <span class="text-right">{{ c.id|text }}</span></div>
+                <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Case Description"|xlt }}:</strong> <span class="text-right">{{ c.case_description|text }}</span></div>
+                <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Notes"|xlt }}:</strong> <span class="text-right text-monospace">{{ c.comments|text }}</span></div>
+            </div>
+        </div>
+
+    	<div class="d-flex justify-content-between pt-2">
+    		<div class="insurer">
+                {% if c.insco1 is defined %}
+                    <em>{{ "Payer1"|xlt }}</em>
+                    <address>
+                        <strong>{{ c.insco1.name|text }}</strong><br>
+                        {{ c.insco1.address.line1|text }}<br>
+                        {{ (c.insco1.address.line2 != "") ? c.insco1.address.line2|text ~ "<br>"|raw }}
+                        {{ c.insco1.address.city|text }} {{ c.insco1.address.state|text }}, {{ c.insco1.address.postal|text }}<br>
+
+                        {% if c.insco1.phone_number != "" %}
+                        <strong>{{ "Phone"|xlt }}:</strong> <span>{{ c.insco1.phone_number|text }}</span><br>
+                        {% endif %}
+
+                        {% if c.subscriber_full_name1 != "" %}
+                        <strong>{{ "Subscriber"|xlt }}:</strong> <span>{{ c.subscriber_full_name1|text }}{{ c.subscriber_relationship1 != "" ? " (" ~ c.subscriber_relationship1|capitalize|text ~ ")" : "" }}</span>
+                        {% endif %}
+                    </address>
+                {% else %}
+                    <span class="font-weight-bold text-danger">{{ "Unassigned"|xlt }}</span>
+                {% endif %}
+            </div>
+
+            <div class="insurer">
+                {% if c.insco2 is defined %}
+                    <em>{{ "Payer2"|xlt }}</em>
+                    <address>
+                        <strong>{{ c.insco2.name|text }}</strong><br>
+                        {{ c.insco2.address.line1|text }}<br>
+                        {{ (c.insco2.address.line2 != "") ? c.insco2.address.line2|text ~ "<br>"|raw }}
+                        {{ c.insco2.address.city|text }} {{ c.insco2.address.state|text }}, {{ c.insco2.address.postal|text }}<br>
+
+                        {% if c.insco2.phone_number != "" %}
+                        <strong>{{ "Phone"|xlt }}:</strong> <span>{{ c.insco2.phone_number|text }}</span><br>
+                        {% endif %}
+                        
+                        {% if c.subscriber_full_name2 != "" %}
+                        <strong>{{ "Subscriber"|xlt }}:</strong> <span>{{ c.subscriber_full_name2|text }}{{ c.subscriber_relationship2 != "" ? " (" ~ c.subscriber_relationship2|capitalize|text ~ ")" : "" }}</span>
+                        {% endif %}
+                    </address>
+                {% else %}
+                    <span class="font-weight-bold text-danger">{{ "Unassigned"|xlt }}</span>
+                {% endif %}
+            </div>
+
+            <div class="insurer">
+                {% if c.insco3 is defined %}
+                    <em>{{ "Payer3"|xlt }}</em>
+                    <address>
+                        <strong>{{ c.insco3.name|text }}</strong><br>
+                        {{ c.insco3.address.line1|text }}<br>
+                        {{ (c.insco3.address.line2 != "") ? c.insco3.address.line2|text ~ "<br>"|raw }}
+                        {{ c.insco3.address.city|text }} {{ c.insco3.address.state|text }}, {{ c.insco3.address.postal|text }}<br>
+
+                        {% if c.insco3.phone_number != "" %}
+                        <strong>{{ "Phone"|xlt }}:</strong> <span>{{ c.insco3.phone_number|text }}</span><br>
+                        {% endif %}
+                        
+                        {% if c.subscriber_full_name3 != "" %}
+                        <strong>{{ "Subscriber"|xlt }}:</strong> <span>{{ c.subscriber_full_name3|text }}{{ c.subscriber_relationship3 != "" ? " (" ~ c.subscriber_relationship3|capitalize|text ~ ")" : "" }}</span>
+                        {% endif %}
+                    </address>
+                {% else %}
+                    <span class="font-weight-bold text-danger">{{ "Unassigned"|xlt }}</span>
+                {% endif %}
+            </div>
+    	</div>
+    	
+    </div>
+{% endfor %}
+{% endif %}
+{% endblock %}

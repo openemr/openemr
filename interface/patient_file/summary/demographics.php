@@ -1587,6 +1587,7 @@ $oemr_ui->heading =  $oemr_ui->heading . ((isset($result['nickname33']) && !empt
                             ob_end_clean();
                         }
 
+                        /*
                         $id = "insurance_ps_expand";
                         $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('insurance'));
                         $viewArgs = [
@@ -1607,9 +1608,132 @@ $oemr_ui->heading =  $oemr_ui->heading . ((isset($result['nickname33']) && !empt
                         if (count($insArr) > 0) {
                             echo $twig->getTwig()->render('patient/card/insurance.html.twig', $viewArgs);
                         }
+                        */
                     endif;  // end if demographics authorized
 
                     /* OEMRAD - Changes */
+                    if (AclMain::aclCheckCore('patients', 'demo')) :
+                        $caseArr = array();
+                        $res = sqlStatement("SELECT fc.*, id1.policy_number as i1_policy_number, id1.group_number as i1_group_number, id1.subscriber_fname as i1_subscriber_fname, id1.subscriber_mname as i1_subscriber_mname,  id1.subscriber_lname as i1_subscriber_lname, ic1.id as i1_payerid, ic1.name as i1_payername, id2.policy_number as i2_policy_number, id2.group_number as i2_group_number, id2.subscriber_fname as i2_subscriber_fname, id2.subscriber_mname as i2_subscriber_mname, id2.subscriber_lname as i2_subscriber_lname, ic2.id as i2_payerid, ic2.name as i2_payername, id3.policy_number as i3_policy_number, id3.group_number as i3_group_number, id3.subscriber_fname as i3_subscriber_fname, id3.subscriber_mname as i3_subscriber_mname, id3.subscriber_lname as i3_subscriber_lname, ic3.id as i3_payerid, ic3.name as i3_payername from form_cases fc left join insurance_data id1 on id1.id = ins_data_id1 left join insurance_data id2 on id2.id = ins_data_id2 left join insurance_data id3 on id3.id = ins_data_id3 left join insurance_companies ic1 on ic1.id = id1.provider left join insurance_companies ic2 on ic2.id = id2.provider left join insurance_companies ic3 on ic3.id = id3.provider where fc.pid = ? order by fc.id desc;", array($pid));
+
+                        while ($row = sqlFetchArray($res)) {
+                            $tab_title = "";
+                            $payertitle = "";
+
+                            if($row['i1_payername'] != "") {
+                                $payertitle = $row['i1_payername'];
+                            } else if($row['i2_payername'] != "") {
+                                $payertitle = $row['i2_payername'];
+                            } else if($row['i3_payername'] != "") {
+                                $payertitle = $row['i3_payername'];
+                            }
+
+                            if(!empty($payertitle)) {
+                                $tab_title = substr($payertitle, 0, 13);
+                                $tab_title .= strlen($payertitle) >= 13 ? "..." : "";
+                            }
+
+                            if($row['closed'] === '1') {
+                                $tab_title .= ' - <span class="text-danger">IA</span>';
+                            }
+
+                            if($row['cash'] === '1') {
+                                $tab_title .= " Cash ";
+                            } else if($row['cash'] !== '1' && empty($payertitle)) {
+                                $tab_title .= " BLANK ";
+                            }
+
+                            $row['tab_title'] = $tab_title;
+                            $row['tab_title_text'] = strip_tags($tab_title);
+
+                            $mname1 = ($row['i1_subscriber_mname'] != "") ? $row['i1_subscriber_mname'] : "";
+                            $row['subscriber_full_name1'] = trim(str_replace("%mname%", $mname1, "{$row['i1_subscriber_fname']} %mname% {$row['i1_subscriber_lname']}"));
+
+                            $mname2 = ($row['i2_subscriber_mname'] != "") ? $row['i2_subscriber_mname'] : "";
+                            $row['subscriber_full_name2'] = trim(str_replace("%mname%", $mname2, "{$row['i2_subscriber_fname']} %mname% {$row['i2_subscriber_lname']}"));
+
+                            $mname3 = ($row['i3_subscriber_mname'] != "") ? $row['i3_subscriber_mname'] : "";
+                            $row['subscriber_full_name3'] = trim(str_replace("%mname%", $mname3, "{$row['i3_subscriber_fname']} %mname% {$row['i3_subscriber_lname']}"));
+
+                            if(!empty($row['i1_payerid'])) {
+                                $icobj1 = new InsuranceCompany($row['i1_payerid']);
+                                $adobj1 = $icobj1->get_address();
+                                $insco_name1 = trim($icobj1->get_name());
+                                $row['insco1'] = [
+                                    'name' => trim($icobj1->get_name()),
+                                    'address' => [
+                                        'line1' => $adobj1->get_line1(),
+                                        'line2' => $adobj1->get_line2(),
+                                        'city' => $adobj1->get_city(),
+                                        'state' => $adobj1->get_state(),
+                                        'postal' => $adobj1->get_zip(),
+                                        'country' => $adobj1->get_country()
+                                    ],
+                                    'phone_number' => $icobj1->get_phone()
+                                ];
+                            }
+
+                            if(!empty($row['i2_payerid'])) {
+                                $icobj2 = new InsuranceCompany($row['i2_payerid']);
+                                $adobj2 = $icobj2->get_address();
+                                $insco_name2 = trim($icobj2->get_name());
+                                $row['insco2'] = [
+                                    'name' => trim($icobj2->get_name()),
+                                    'address' => [
+                                        'line1' => $adobj2->get_line1(),
+                                        'line2' => $adobj2->get_line2(),
+                                        'city' => $adobj2->get_city(),
+                                        'state' => $adobj2->get_state(),
+                                        'postal' => $adobj2->get_zip(),
+                                        'country' => $adobj2->get_country()
+                                    ],
+                                    'phone_number' => $icobj2->get_phone()
+                                ];
+                            }
+
+                            if(!empty($row['i3_payerid'])) {
+                                $icobj3 = new InsuranceCompany($row['i3_payerid']);
+                                $adobj3 = $icobj3->get_address();
+                                $insco_name1 = trim($icobj3->get_name());
+                                $row['insco3'] = [
+                                    'name' => trim($icobj3->get_name()),
+                                    'address' => [
+                                        'line1' => $adobj3->get_line1(),
+                                        'line2' => $adobj3->get_line2(),
+                                        'city' => $adobj3->get_city(),
+                                        'state' => $adobj3->get_state(),
+                                        'postal' => $adobj3->get_zip(),
+                                        'country' => $adobj3->get_country()
+                                    ],
+                                    'phone_number' => $icobj3->get_phone()
+                                ];
+                            }
+
+                            $caseArr[] = $row;
+                        }
+
+                        $id = "case_ps_expand";
+                        $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('case'));
+                        $viewArgs = [
+                            'title' => xl("Cases"),
+                            'id' => $id,
+                            'btnLabel' => "Edit",
+                            'btnLink' => $GLOBALS['webroot'] . '/interface/forms/cases/case_list.php',
+                            'linkMethod' => 'html',
+                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : true,
+                            'case' => $caseArr,
+                            'eligibility' => $output,
+                            'enable_oa' => $GLOBALS['enable_oa'],
+                            'auth' => AclMain::aclCheckCore('patients', 'demo', '', 'write'),
+                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
+                        ];
+
+                        //if (count($caseArr) > 0) {
+                            echo $twig->getTwig()->render('patient/card/case.html.twig', $viewArgs);
+                        //}
+                    endif;  // end if demographics authorized
+
                     if($GLOBALS['wmt::sms_chat']) :
                         $dispatchResult = $ed->dispatch(CardRenderEvent::EVENT_HANDLE, new CardRenderEvent('note'));
                         // Messages expand collapse widget

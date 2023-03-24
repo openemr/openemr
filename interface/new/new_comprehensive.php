@@ -25,6 +25,9 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
+// OEMR - Change
+$updateallpayer = true;
+
 // Check authorization.
 if (!AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Search or Add Patient")]);
@@ -378,6 +381,55 @@ function srchDone(pid){
 }
 //-->
 
+/* OEMR - Changes */
+function insChange(e, i) {
+    var fvalue = e.value;
+
+    <?php
+        $insurancei1 = array();
+        $res = sqlStatement("SELECT ic.id, ic.name, ic.ins_type_code from insurance_companies ic where ic.inactive != 1", array());
+        while ($insrow = sqlFetchArray($res)) {
+            $inscobj = new InsuranceCompany();
+
+            $insrow['inc_type_code_name'] = isset($inscobj->ins_type_code_array[$insrow['ins_type_code']]) ? $inscobj->ins_type_code_array[$insrow['ins_type_code']] : "";
+
+            $insurancei1['i'.$insrow['id']] = $insrow;
+        }
+    ?>
+
+    var insjson = JSON.parse(<?php echo !empty($insurancei1) ? "'" . json_encode($insurancei1) . "'" : '{}' ?>);
+    var insTypeList = ["Automobile Medical", "Workers Compensation Health Plan"]
+
+    var ins_container_label_ele = document.querySelector('.i'+i+'claim_number_label');
+    var ins_container_input_ele = document.querySelector('.i'+i+'claim_number_input');
+    var ins_claim_number = document.querySelector("input[name='i"+i+"claim_number']");
+
+    if(fvalue != '' && insjson['i'+fvalue]) {
+        var insItem = insjson['i'+fvalue];
+        var inc_type_code_name = insItem['inc_type_code_name'];
+
+        if(inc_type_code_name != "" && insTypeList.includes(inc_type_code_name)) {
+            ins_container_label_ele.style.display = "inline";
+            ins_container_input_ele.style.display = "block";
+        } else {
+            ins_container_label_ele.style.display = "none";
+            ins_container_input_ele.style.display = "none";
+            ins_claim_number.value = "";
+        }
+    } else {
+        ins_container_label_ele.style.display = "none";
+        ins_container_input_ele.style.display = "none";
+        ins_claim_number.value = "";
+    }
+}
+
+$(document).ready(function() {
+    document.querySelectorAll('.ins-provider').forEach((insp) => {
+        insp.onchange();
+    });
+});
+/* End */
+
 </script>
 </head>
 
@@ -604,17 +656,26 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                     if (!$GLOBALS['simplified_demographics']) {
                         $insurancei = getInsuranceProviders();
                         $pid = 0;
-                        if ($GLOBALS['insurance_only_one']) {
-                            $insurance_headings = array(xl("Primary Insurance Provider"));
+                        
+                        /* OEMR - Changes */
+                        if($updateallpayer === true) {
                             $insurance_info = array();
-                            $insurance_info[1] = getInsuranceData($pid, "primary");
+                            $insurance_info = getInsuranceDataItems($pid);
                         } else {
-                            $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
-                            $insurance_info = array();
-                            $insurance_info[1] = getInsuranceData($pid, "primary");
-                            $insurance_info[2] = getInsuranceData($pid, "secondary");
-                            $insurance_info[3] = getInsuranceData($pid, "tertiary");
+                            if ($GLOBALS['insurance_only_one']) {
+                                $insurance_headings = array(xl("Primary Insurance Provider"));
+                                $insurance_info = array();
+                                $insurance_info[1] = getInsuranceData($pid, "primary");
+                            } else {
+                                $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
+                                $insurance_info = array();
+                                $insurance_info[1] = getInsuranceData($pid, "primary");
+                                $insurance_info[2] = getInsuranceData($pid, "secondary");
+                                $insurance_info[3] = getInsuranceData($pid, "tertiary");
+                            }
                         }
+                        /* End */
+
                         $insuranceTitle = xlt("Insurance");
                         echo <<<HTML
                         <div class="card">
@@ -627,14 +688,30 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                 <div class="container-xl card-body">
                         HTML;
 
+                        // OEMR - Add address blank
+                        if(!empty($insurance_info)) array_unshift($insurance_info , array());
+                        $insurance_info[] = array('id' => '');
+
+                        // OEMR - Change
                         for ($i = 1; $i <= sizeof($insurance_info); $i++) {
                             $result3 = $insurance_info[$i];
                             ?>
+
+                        <!-- OEMR - Change -->
+                        <input type="hidden" id="i<?php echo attr($i); ?>payerid" name="i<?php echo attr($i); ?>payerid" class="form-control" value="<?php echo attr($result3["id"] ?? ''); ?>" />
+
                         <div class="row p-3">
                           <div class="col-md-12 mb-2">
                             <div class="input-group">
+                              <!-- OEMR - Wrap in if condition -->
+                              <?php if($updateallpayer === true) { ?>
+                              <label class='col-form-label mr-2 required'><?php echo xl("Insurance Provider"); ?></label>
+                              <?php } else { ?>
                               <label class='col-form-label mr-2 required'><?php echo text($insurance_headings[$i - 1]) . ":"?></label>
-                              <select name="i<?php echo attr($i); ?>provider" class="form-control">
+                              <?php } ?>
+                              <!-- End -->
+                              <!-- OEMR - Change class and onchange -->
+                              <select name="i<?php echo attr($i); ?>provider" class="form-control ins-provider" onchange="insChange(this,'<?php echo $i; ?>')">
                                   <option value=""><?php echo xlt('Unassigned'); ?></option>
                                   <?php
                                     foreach ($insurancei as $iid => $iname) {
@@ -661,8 +738,10 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                             <input type='entry' class='form-control' size='3' name='i<?php echo attr($i); ?>subscriber_mname' value="<?php echo attr($result3["subscriber_mname"] ?? ''); ?>" onchange="capitalizeMe(this);" />
                             <input type='entry' class='form-control' size='10' name='i<?php echo attr($i); ?>subscriber_lname' value="<?php echo attr($result3["subscriber_lname"] ?? ''); ?>" onchange="capitalizeMe(this);" />
                           </div>
-                          <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Effective Date'); ?>: </label>
-                          <div class="col-md-5 mb-2">
+
+                          <!-- OEMR - removed effective date -->
+                          <label class='col-form-label col-md-1 mb-2 required' <?php echo $updateallpayer === true ? 'style="display:none;"' : ''; ?>><?php echo xlt('Effective Date'); ?>: </label>
+                          <div class="col-md-5 mb-2" <?php echo $updateallpayer === true ? 'style="display:none;"' : ''; ?>>
                             <input type='entry' size='11' class='datepicker form-control' name='i<?php echo attr($i); ?>effective_date' id='i<?php echo attr($i); ?>effective_date' value='<?php echo attr($result3['date'] ?? ''); ?>' />
                           </div>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Relationship'); ?>:</label>
@@ -684,6 +763,12 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='16' name='i<?php echo attr($i); ?>group_number' value="<?php echo attr($result3["group_number"] ?? ''); ?>" onkeyup='policykeyup(this)' />
                           </div>
+                          <!-- OEMR - Change -->
+                          <label class='col-form-label col-md-1 i<?php echo $i?>claim_number_label'><?php echo xlt('Claim Number'); ?>:</label>
+                          <div class="col-md-5 mb-2 i<?php echo $i?>claim_number_input">
+                            <input type='entry' class='form-control' name='i<?php echo attr($i); ?>claim_number' value="<?php echo attr($result3["claim_number"] ?? ''); ?>" />
+                          </div>
+                          <!-- End -->
                           <label class='col-form-label col-md-1 mb-2'><?php echo xlt('S.S.'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='11' name='i<?php echo attr($i); ?>subscriber_ss' value="<?php echo attr($result3["subscriber_ss"] ?? ''); ?>" />
@@ -788,6 +873,10 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                         echo "</div>\n";
                     } // end of "if not simplified_demographics"
                     ?>
+
+                    <!-- OEMR - added field -->
+                    <input type="hidden" id="ipayercount" name="ipayercount" class="form-control" value="<?php echo attr(($i - 1)); ?>" />
+                    <input type="hidden" id="updateallpayer" name="updateallpayer" class="form-control" value="<?php echo $updateallpayer; ?>" />
 
                     <?php
                     if ($SHORT_FORM) {

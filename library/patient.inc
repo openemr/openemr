@@ -383,6 +383,23 @@ function getInsuranceData($pid, $type = "primary", $given = "insd.*, ic.name as 
     return sqlQuery($sql, array($pid, $type));
 }
 
+/* OEMR - Changes */
+function getInsuranceDataItems($pid, $given = "insd.*, ic.name as provider_name")
+{
+    $items = array();
+    $sql = "select $given from insurance_data as insd " .
+    "left join insurance_companies as ic on ic.id = insd.provider " .
+    "where pid = ? order by id DESC";
+    $res = sqlStatement($sql, array($pid));
+    while ($result = sqlFetchArray($res)) {
+        unset($result['uuid']);
+        $items[] = $result;
+    }
+
+    return $items;
+}
+/* End */
+
 // To prevent sql injection on this function, if a variable is used for $given parameter, then
 // it needs to be escaped via whitelisting prior to using this function.
 function getInsuranceDataByDate(
@@ -1889,5 +1906,159 @@ function getAlterPatientData($formtype = '', $data = array()) {
     }
 
     return $data;
+}
+
+function saveInsuranceData($data = array()) {
+    $type = isset($data['type']) ? $data['type'] : "primary";
+    $provider = isset($data['provider']) ? $data['provider'] : "";
+    $policy_number = isset($data['policy_number']) ? $data['policy_number'] : "";
+    $group_number = isset($data['group_number']) ? $data['group_number'] : "";
+    $plan_name = isset($data['plan_name']) ? $data['plan_name'] : "";
+    $subscriber_lname = isset($data['subscriber_lname']) ? $data['subscriber_lname'] : "";
+    $subscriber_mname = isset($data['subscriber_mname']) ? $data['subscriber_mname'] : "";
+    $subscriber_fname = isset($data['subscriber_fname']) ? $data['subscriber_fname'] : "";
+    $subscriber_relationship = isset($data['subscriber_relationship']) ? $data['subscriber_relationship'] : "";
+    $subscriber_ss = isset($data['subscriber_ss']) ? $data['subscriber_ss'] : "";
+    $subscriber_DOB = isset($data['subscriber_DOB']) ? $data['subscriber_DOB'] : "";
+    $subscriber_street = isset($data['subscriber_street']) ? $data['subscriber_street'] : "";
+    $subscriber_postal_code = isset($data['subscriber_postal_code']) ? $data['subscriber_postal_code'] : "";
+    $subscriber_city = isset($data['subscriber_city']) ? $data['subscriber_city'] : "";
+    $subscriber_state = isset($data['subscriber_state']) ? $data['subscriber_state'] : "";
+    $subscriber_country = isset($data['subscriber_country']) ? $data['subscriber_country'] : "";
+    $subscriber_phone = isset($data['subscriber_phone']) ? $data['subscriber_phone'] : "";
+    $subscriber_employer = isset($data['subscriber_employer']) ? $data['subscriber_employer'] : "";
+    $subscriber_employer_street = isset($data['subscriber_employer_street']) ? $data['subscriber_employer_street'] : "";
+    $subscriber_employer_city = isset($data['subscriber_employer_city']) ? $data['subscriber_employer_city'] : "";
+    $subscriber_employer_postal_code = isset($data['subscriber_employer_postal_code']) ? $data['subscriber_employer_postal_code'] : "";
+    $subscriber_employer_state = isset($data['subscriber_employer_state']) ? $data['subscriber_employer_state'] : "";
+    $subscriber_employer_country = isset($data['subscriber_employer_country']) ? $data['subscriber_employer_country'] : "";
+    $copay = isset($data['copay']) ? $data['copay'] : "";
+    $subscriber_sex = isset($data['subscriber_sex']) ? $data['subscriber_sex'] : "";
+    $effective_date = isset($data['effective_date']) ? $data['effective_date'] : "";
+    $accept_assignment = isset($data['accept_assignment']) ? $data['accept_assignment'] : "";
+    $policy_type = isset($data['policy_type']) ? $data['policy_type'] : "";
+    $claim_number = isset($data['claim_number']) ? $data['claim_number'] : "";
+    $payer_inactive = isset($data['payer_inactive']) ? $data['payer_inactive'] : 0;
+    $payerid = isset($data['payerid']) ? $data['payerid'] : "";
+    $pid = isset($data['pid']) ? $data['pid'] : "";
+
+    if (is_null($accept_assignment)) {
+        $accept_assignment = "TRUE";
+    }
+    if (is_null($policy_type)) {
+        $policy_type = "";
+    }
+
+    // If empty dates were passed, then null.
+    if (empty($effective_date)) {
+        $effective_date = null;
+    }
+    if (empty($subscriber_DOB)) {
+        $subscriber_DOB = null;
+    }
+
+    if($payerid != "") {
+        $data = array();
+        $data['type'] = $type;
+        $data['provider'] = $provider;
+        $data['policy_number'] = $policy_number;
+        $data['group_number'] = $group_number;
+        $data['plan_name'] = $plan_name;
+        $data['subscriber_lname'] = $subscriber_lname;
+        $data['subscriber_mname'] = $subscriber_mname;
+        $data['subscriber_fname'] = $subscriber_fname;
+        $data['subscriber_relationship'] = $subscriber_relationship;
+        $data['subscriber_ss'] = $subscriber_ss;
+        $data['subscriber_DOB'] = $subscriber_DOB;
+        $data['subscriber_street'] = $subscriber_street;
+        $data['subscriber_postal_code'] = $subscriber_postal_code;
+        $data['subscriber_city'] = $subscriber_city;
+        $data['subscriber_state'] = $subscriber_state;
+        $data['subscriber_country'] = $subscriber_country;
+        $data['subscriber_phone'] = $subscriber_phone;
+        $data['subscriber_employer'] = $subscriber_employer;
+        $data['subscriber_employer_city'] = $subscriber_employer_city;
+        $data['subscriber_employer_street'] = $subscriber_employer_street;
+        $data['subscriber_employer_postal_code'] = $subscriber_employer_postal_code;
+        $data['subscriber_employer_state'] = $subscriber_employer_state;
+        $data['subscriber_employer_country'] = $subscriber_employer_country;
+        $data['copay'] = $copay;
+        $data['subscriber_sex'] = $subscriber_sex;
+        $data['pid'] = $pid;
+        $data['date'] = $effective_date;
+        $data['accept_assignment'] = $accept_assignment;
+        $data['policy_type'] = $policy_type;
+        $data['claim_number'] = $claim_number;
+        $data['inactive'] = $payer_inactive;
+        
+        updateInsuranceData($payerid, $data);
+    } else {
+        return sqlInsert(
+            "INSERT INTO `insurance_data` SET `type` = ?,
+            `provider` = ?,
+            `policy_number` = ?,
+            `group_number` = ?,
+            `claim_number` = ?,
+            `plan_name` = ?,
+            `subscriber_lname` = ?,
+            `subscriber_mname` = ?,
+            `subscriber_fname` = ?,
+            `subscriber_relationship` = ?,
+            `subscriber_ss` = ?,
+            `subscriber_DOB` = ?,
+            `subscriber_street` = ?,
+            `subscriber_postal_code` = ?,
+            `subscriber_city` = ?,
+            `subscriber_state` = ?,
+            `subscriber_country` = ?,
+            `subscriber_phone` = ?,
+            `subscriber_employer` = ?,
+            `subscriber_employer_city` = ?,
+            `subscriber_employer_street` = ?,
+            `subscriber_employer_postal_code` = ?,
+            `subscriber_employer_state` = ?,
+            `subscriber_employer_country` = ?,
+            `copay` = ?,
+            `subscriber_sex` = ?,
+            `pid` = ?,
+            `date` = ?,
+            `accept_assignment` = ?,
+            `policy_type` = ?,
+            `inactive` = ?",
+            [
+                $type,
+                $provider,
+                $policy_number,
+                $group_number,
+                $claim_number,
+                $plan_name,
+                $subscriber_lname,
+                $subscriber_mname,
+                $subscriber_fname,
+                $subscriber_relationship,
+                $subscriber_ss,
+                $subscriber_DOB,
+                $subscriber_street,
+                $subscriber_postal_code,
+                $subscriber_city,
+                $subscriber_state,
+                $subscriber_country,
+                $subscriber_phone,
+                $subscriber_employer,
+                $subscriber_employer_city,
+                $subscriber_employer_street,
+                $subscriber_employer_postal_code,
+                $subscriber_employer_state,
+                $subscriber_employer_country,
+                $copay,
+                $subscriber_sex,
+                $pid,
+                $effective_date,
+                $accept_assignment,
+                $policy_type,
+                $payer_inactive
+            ]
+        );
+    }
 }
 /* End */

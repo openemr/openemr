@@ -23,6 +23,9 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
 
+// OEMR - Change
+$updateallpayer = true;
+
 // Session pid must be right or bad things can happen when demographics are saved!
 //
 $set_pid = $_GET["set_pid"] ?? ($_GET["pid"] ?? null);
@@ -74,7 +77,7 @@ if ($GLOBALS['insurance_only_one']) {
 <!DOCTYPE html>
 <html>
 <head>
-<!-- OEMRAD - Added 'oemr_ad' -->
+<!-- OEMR - Added 'oemr_ad' -->
 <?php Header::setupHeader(['datetime-picker','common','select2', 'erx', 'oemr_ad']);
     require_once("$srcdir/erx_javascript.inc.php");
 ?>
@@ -261,7 +264,14 @@ function upperFirst(string,text) {
  return replace(string,text,text.charAt(0).toUpperCase() + text.substring(1,text.length));
 }
 
-<?php for ($i = 1; $i <= 3; $i++) { ?>
+<?php 
+// OEMR - Change
+$total_ins_count = ($updateallpayer === true) ? getInsuranceDataItems($pid) : array(); 
+$total_ins_count = !empty($total_ins_count) ? count($total_ins_count) : 3;
+?>
+
+// OEMR - Change
+<?php for ($i = 1; $i <= $total_ins_count + 1; $i++) { ?>
 function auto_populate_employer_address<?php echo attr($i); ?>(){
  var f = document.demographics_form;
  if (f.form_i<?php echo attr($i); ?>subscriber_relationship.options[f.form_i<?php echo attr($i); ?>subscriber_relationship.selectedIndex].value == "self")
@@ -277,7 +287,7 @@ function auto_populate_employer_address<?php echo attr($i); ?>(){
   if (f.form_country_code)
     f.form_i<?php echo attr($i); ?>subscriber_country.value=f.form_country_code.value;
   <?php 
-  /* OEMRAD - Wrap code with if condition. */
+  /* OEMR - Wrap code with if condition. */
   if (!$GLOBALS['omit_employers']) { ?>
   f.i<?php echo attr($i); ?>subscriber_phone.value=f.form_phone_home.value;
   <?php } 
@@ -290,7 +300,7 @@ function auto_populate_employer_address<?php echo attr($i); ?>(){
     }
   f.form_i<?php echo attr($i); ?>subscriber_sex.value = f.form_sex.value;
   <?php 
-  /* OEMRAD - Wrap code with if condition. */
+  /* OEMR - Wrap code with if condition. */
   if (!$GLOBALS['omit_employers']) { ?>
   f.i<?php echo attr($i); ?>subscriber_employer.value=f.form_em_name.value;
   f.i<?php echo attr($i); ?>subscriber_employer_street.value=f.form_em_street.value;
@@ -469,9 +479,23 @@ if(dateVal > currentDate)
     <?php } ?>
  //return false;
 
+ // OEMR - Added pcount change
+ var pcount = f.ipayercount.value != '' ? f.ipayercount.value : 1;
+
 // Some insurance validation.
- for (var i = 1; i <= 3; ++i) {
+ for (var i = 1; i <= pcount; ++i) {
   subprov = 'i' + i + 'provider';
+
+  /* OEMR - Changes */
+  <?php if($updateallpayer === true) { ?>
+  /*
+  if(f['i' + i + 'payerid'].value != "" && f[subprov].value == "") {
+    alert(<?php //echo xlj('Empty provider not allowed.'); ?>);
+    return false;
+  }*/
+  <?php } ?>
+  /* End */
+
   if (!f[subprov] || f[subprov].selectedIndex <= 0) continue;
   var subpfx = 'i' + i + 'subscriber_';
   var subrelat = f['form_' + subpfx + 'relationship'];
@@ -512,6 +536,23 @@ if(dateVal > currentDate)
  return errMsgs.length < 1;
 }
 
+<?php if($updateallpayer === true) { ?>
+
+// Added 06/2009 by BM to make compatible with list_options table and functions - using jquery
+$(function () {
+
+    // OEMR - Added pcount change
+    //var pcount = document.demographics_form.ipayercount.value != '' ? document.demographics_form.ipayercount.value : 1;
+
+    // Some insurance validation.
+    <?php for ($i = 1; $i <= $total_ins_count + 1; $i++) { ?>
+        $("#form_i<?php echo attr($i); ?>subscriber_relationship").change(function() { window["auto_populate_employer_address<?php echo attr($i); ?>"](); });
+    <?php } ?>
+
+});
+
+<?php } else { ?>
+
 // Added 06/2009 by BM to make compatible with list_options table and functions - using jquery
 $(function () {
 
@@ -521,38 +562,85 @@ $(function () {
 
 });
 
+<?php } ?>
+
+/* OEMR - Changes */
+function insChange(e, i) {
+    var fvalue = e.value;
+
+    <?php
+        $insurancei1 = array();
+        $res = sqlStatement("SELECT ic.id, ic.name, ic.ins_type_code from insurance_companies ic where ic.inactive != 1", array());
+        while ($insrow = sqlFetchArray($res)) {
+            $inscobj = new InsuranceCompany();
+
+            $insrow['inc_type_code_name'] = isset($inscobj->ins_type_code_array[$insrow['ins_type_code']]) ? $inscobj->ins_type_code_array[$insrow['ins_type_code']] : "";
+
+            $insurancei1['i'.$insrow['id']] = $insrow;
+        }
+    ?>
+
+    var insjson = JSON.parse(<?php echo !empty($insurancei1) ? "'" . json_encode($insurancei1) . "'" : '{}' ?>);
+    var insTypeList = ["Automobile Medical", "Workers Compensation Health Plan"]
+
+    var ins_container_ele = document.querySelector('.i'+i+'claim_number_container');
+    var ins_claim_number = document.querySelector("input[name='i"+i+"claim_number']");
+
+    if(fvalue != '' && insjson['i'+fvalue]) {
+        var insItem = insjson['i'+fvalue];
+        var inc_type_code_name = insItem['inc_type_code_name'];
+
+        if(inc_type_code_name != "" && insTypeList.includes(inc_type_code_name)) {
+            ins_container_ele.style.display = "-webkit-box";
+        } else {
+            ins_container_ele.style.display = "none";
+            ins_claim_number.value = "";
+        }
+    } else {
+        ins_container_ele.style.display = "none";
+        ins_claim_number.value = "";
+    }
+}
+
+$(document).ready(function() {
+    document.querySelectorAll('.ins-provider').forEach((insp) => {
+        insp.onchange();
+    });
+});
+/* End */
+
 </script>
 
 <style>
-        div.demographicsEditContainer div.label_custom {
-            font-size: 0.8rem;
-            display: grid;
-            align-items: center;
-            line-height: 1.2;
-            padding-top: 0 !important;
-            margin-bottom: 0.2rem;
-        }
+    div.demographicsEditContainer div.label_custom {
+        font-size: 0.8rem;
+        display: grid;
+        align-items: center;
+        line-height: 1.2;
+        padding-top: 0 !important;
+        margin-bottom: 0.2rem;
+    }
 
-        div.insuranceEditContainer div.label_custom span {
-            font-size: 0.8rem;
-            display: inline-flex;
-            height: 100%;
-            align-items: center;
-            line-height: 1.2;
-        }
+    div.insuranceEditContainer div.label_custom span {
+        font-size: 0.8rem;
+        display: inline-flex;
+        height: 100%;
+        align-items: center;
+        line-height: 1.2;
+    }
 
+    <?php
+    if (!empty($GLOBALS['right_justify_labels_demographics']) && ($_SESSION['language_direction'] == 'ltr')) { ?>
+    div.label_custom {
+        text-align: right !important;
+    }
+
+    div.tab td.data, div.data {
+        padding-left: 0.5em;
+        padding-right: 2em;
+    }
         <?php
-        if (!empty($GLOBALS['right_justify_labels_demographics']) && ($_SESSION['language_direction'] == 'ltr')) { ?>
-        div.label_custom {
-            text-align: right !important;
-        }
-
-        div.tab td.data, div.data {
-            padding-left: 0.5em;
-            padding-right: 2em;
-        }
-            <?php
-        }  ?>
+    }  ?>
 </style>
 
 </head>
@@ -565,7 +653,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
 <body class="body_top">
 
-<!-- OEMRAD - onsubmit function replaced -->
+<!-- OEMR - onsubmit function replaced -->
 <form action='demographics_save.php' name='demographics_form' id="DEM" method='post' class='form-inline'
  onsubmit="handleOnSubmit_DemographicsFull(submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,'DEM',constraints), this, event, 'DEM')">
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
@@ -612,18 +700,25 @@ $condition_str = '';
 
 <?php
 if (! $GLOBALS['simplified_demographics']) {
-    //Check to see if only one insurance is allowed
-    if ($GLOBALS['insurance_only_one']) {
-        $insurance_headings = array(xl("Primary Insurance Provider"));
+    /* OEMR - Changes */
+    if($updateallpayer === true) {
         $insurance_info = array();
-        $insurance_info[1] = getInsuranceData($pid, "primary");
+        $insurance_info = getInsuranceDataItems($pid);
     } else {
-        $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
-        $insurance_info = array();
-        $insurance_info[1] = getInsuranceData($pid, "primary");
-        $insurance_info[2] = getInsuranceData($pid, "secondary");
-        $insurance_info[3] = getInsuranceData($pid, "tertiary");
+        //Check to see if only one insurance is allowed
+        if ($GLOBALS['insurance_only_one']) {
+            $insurance_headings = array(xl("Primary Insurance Provider"));
+            $insurance_info = array();
+            $insurance_info[1] = getInsuranceData($pid, "primary");
+        } else {
+            $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
+            $insurance_info = array();
+            $insurance_info[1] = getInsuranceData($pid, "primary");
+            $insurance_info[2] = getInsuranceData($pid, "secondary");
+            $insurance_info[3] = getInsuranceData($pid, "tertiary");
+        }
     }
+    /* End */
 
 
     ?>
@@ -631,6 +726,21 @@ if (! $GLOBALS['simplified_demographics']) {
        <span class="text font-weight-bold"><?php echo xlt("Insurance")?></span>
     </div>
     <div id="INSURANCE" class="insuranceEditContainer">
+        <!-- OEMR - Wrap in if condition -->
+        <?php if($updateallpayer === true) { ?>
+        <!-- OEMR - added ul list -->
+        <ul class="tabNav">
+        <?php
+        foreach ($insurance_info as $iikey1 => $iItem1) {
+            $inactivestr = ($iItem1['inactive'] == "1") ? ' - <span class="text-danger">IA</span>' : '';
+            $tabtitle = !empty(ucfirst($iItem1['provider_name'])) ? $iItem1['provider_name'] : "BLANK";
+            ?>
+            <li class="<?php echo $ti == 1 ? 'current' : '' ?>"><a href="#"><?php
+            echo xlt($tabtitle); ?><?php echo $inactivestr; ?></a></li>
+        <?php } ?>
+        <li class="<?php echo empty($insurance_info) ? 'current' : '' ?>"><a href="#"><?php echo xlt("Add Payer"); ?></a></li>
+        </ul>
+        <?php } else { ?>
        <ul class="tabNav">
         <?php
         foreach ($insurance_array as $instype) {
@@ -638,26 +748,45 @@ if (! $GLOBALS['simplified_demographics']) {
             <li <?php echo $instype == 'primary' ? 'class="current"' : '' ?>><a href="#"><?php $CapInstype = ucfirst($instype);
             echo xlt($CapInstype); ?></a></li><?php } ?>
         </ul>
+        <?php } ?>
+        <!-- End -->
 
     <div class="tabContainer">
 
     <?php
-    for ($i = 1; $i <= 3; $i++) {
+
+    // OEMR - Add address blank
+    if(!empty($insurance_info)) array_unshift($insurance_info , array());
+    $insurance_info[] = array('id' => '');
+
+    // OEMR - Change
+    for ($i = 1; $i <= count($insurance_info); $i++) {
         $result3 = $insurance_info[$i];
         ?>
 
+     <!-- OEMR - Change -->
      <div class="tab <?php echo $i == 1 ? 'current' : '' ?> h-auto w-auto">
       <div class="form-row">
         <div class="col-md-6"><!-- start left column -->
 
+          <!-- OEMR - Change -->
+          <input type="hidden" id="i<?php echo attr($i); ?>payerid" name="i<?php echo attr($i); ?>payerid" class="form-control" value="<?php echo attr($result3["id"] ?? ''); ?>" />
+
           <div class="form-row"><!-- start nested row -->
             <div class="col-md-3 label_custom pb-3">
-              <span class='required'><?php echo text($insurance_headings[$i - 1]); ?>:</span>
+              <!-- OEMR - Change -->
+              <?php if($updateallpayer === true) { ?>
+                <span class='required'><?php echo xl("Insurance Provider"); ?>:</span>
+              <?php } else { ?>
+                <span class='required'><?php echo text($insurance_headings[$i - 1]); ?>:</span>
+              <?php } ?>
+              <!-- End -->
             </div>
             <div class="col-md-9">
               <a href="../../practice/ins_search.php?ins=" class="medium_modal btn btn-primary"
                onclick="ins_search(<?php echo attr_js($i); ?>)"><?php echo xlt('Search/Add/Edit') ?></a>
-              <select id="i<?php echo attr($i); ?>provider" name="i<?php echo attr($i); ?>provider" class="form-control form-control-sm sel2 mb-1" style="width: 250px;">
+              <!-- OEMR - Change class and onchange -->
+              <select id="i<?php echo attr($i); ?>provider" name="i<?php echo attr($i); ?>provider" class="form-control form-control-sm sel2 mb-1 ins-provider" style="width: 250px;" onchange="insChange(this,'<?php echo $i; ?>')">
                 <option value=""><?php echo xlt('Unassigned'); ?></option>
                 <?php
                 foreach ($insurancei as $iid => $iname) {
@@ -684,7 +813,8 @@ if (! $GLOBALS['simplified_demographics']) {
             </div>
           </div><!-- end nested row -->
 
-          <div class="form-row"><!-- start nested row -->
+          <!-- OEMR - removed effective date -->
+          <div class="form-row" <?php echo $updateallpayer === true ? 'style="display:none;"' : ''; ?> ><!-- start nested row -->
             <div class="col-md-3 pb-1 label_custom ">
               <span class='required'><?php echo xlt('Effective Date'); ?>:</span>
             </div>
@@ -696,7 +826,8 @@ if (! $GLOBALS['simplified_demographics']) {
             </div>
           </div><!-- end nested row -->
 
-          <div class="form-row"><!-- start nested row -->
+          <!-- OEMR - removed effective date -->
+          <div class="form-row" <?php echo $updateallpayer === true ? 'style="display:none;"' : ''; ?> ><!-- start nested row -->
             <div class="col-md-3 pb-1 label_custom ">
               <span class='required'><?php echo xlt('Effective Date End'); ?>:</span>
             </div>
@@ -731,6 +862,17 @@ if (! $GLOBALS['simplified_demographics']) {
                onkeyup='policykeyup(this)' />
             </div>
           </div><!-- end nested row -->
+
+          <!-- OEMR - Change -->
+          <div class="form-row i<?php echo $i?>claim_number_container"><!-- start nested row -->
+            <div class="col-md-3 pb-1 label_custom ">
+              <span class='required'><?php echo xlt('Claim Number'); ?>:</span>
+            </div>
+            <div class="col-md-9">
+              <input type="entry" class='form-control form-control-sm mb-1' name=i<?php echo $i?>claim_number value="<?php echo attr($result3{"claim_number"}); ?>">
+            </div>
+          </div><!-- end nested row -->
+          <!-- End -->
 
           <div class="form-row"<?php echo $GLOBALS['omit_employers'] ? " style='display:none'" : ""; ?>><!-- start nested row -->
             <div class="col-md-3 pb-4 label_custom">
@@ -834,6 +976,18 @@ if (! $GLOBALS['simplified_demographics']) {
                 ?>
             </div>
           </div><!-- end nested row -->
+
+
+          <!-- OEMR - Changes -->
+          <div class="form-row"><!-- start nested row -->
+            <div class="col-md-3 pb-1 label_custom">
+              <span class='required'><?php echo xlt('Inactive'); ?>:</span>
+            </div>
+            <div class="col-md-9">
+              <input type='checkbox' class='form-control form-control-sm mb-1' name='i<?php echo attr($i); ?>payer_inactive' value="1" <?php echo $result3["inactive"] == "1" ? 'checked="checked"' : ''; ?> />
+            </div>
+          </div><!-- end nested row -->
+          <!-- End -->
 
         </div><!-- end left column -->
 
@@ -1018,7 +1172,7 @@ if (! $GLOBALS['simplified_demographics']) {
             </div>
           </div><!-- end nested row -->
 
-          <!-- OEMRAD - Commented -->
+          <!-- OEMR - Commented -->
           <!-- <div class="form-row">
             <div class="col-md-3 pb-1 label_custom">
               <span><?php //echo xlt('Subscriber Phone'); ?>:</span>
@@ -1059,13 +1213,13 @@ if (! $GLOBALS['simplified_demographics']) {
             </div>
           </div><!-- end nested row -->
 
-          <!-- OEMRAD - Commented -->
+          <!-- OEMR - Commented -->
           <!--<div class="form-row">
             <div class="col-md-3 pb-1 label_custom">
               <span><?php //echo xlt('Secondary Medicare Type'); ?>:</span>
             </div>
             <div class="col-md-9">
-              <select class='form-control form-control-sm mb-1 sel2' name='i<?php echo attr($i); ?>policy_type'>
+              <select class='form-control form-control-sm mb-1 sel2' name='i<?php //echo attr($i); ?>policy_type'>
                 <?php
                 /*if (!empty($policy_types)) {
                     foreach ($policy_types as $key => $value) {
@@ -1087,6 +1241,10 @@ if (! $GLOBALS['simplified_demographics']) {
 
         <?php
     } //end insurer for loop ?>
+
+    <!-- OEMR - added field -->
+    <input type="hidden" id="ipayercount" name="ipayercount" class="form-control" value="<?php echo attr(($i - 1)); ?>" />
+    <input type="hidden" id="updateallpayer" name="updateallpayer" class="form-control" value="<?php echo $updateallpayer; ?>" />
 
    </div>
 </div>
