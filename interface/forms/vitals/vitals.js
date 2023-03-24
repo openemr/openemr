@@ -74,7 +74,6 @@
             console.log("unit ",unit)
             if (!isNaN(convValue)) {
                 inputConv.value = convValue.toFixed(precision);
-                inputSave.value = inputConv.value //
                 // all values are saved in usa system units
                 if (system !== "usa") {
                     inputSave.value = convValue;
@@ -137,6 +136,7 @@ function vitalsGetPrecision(node, defaultValue) {
 // TODO: we need to move all of these functions into the anonymous function and connect the events via event listeners
 function convUnit(system, unit, value)
 {
+    console.log("unit = ",unit)
     if (unit == 'kg' || unit == 'lbs' || unit = 'libra') //when measuring in spanish, the weight measure unit is libras
     {
         if (system == 'metric')
