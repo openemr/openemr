@@ -53,7 +53,6 @@ if (function_exists('apache_setenv')) {
 session_set_cookie_params(7200);
 
 require_once("../globals.php");
-//require_once("$srcdir/acl.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 

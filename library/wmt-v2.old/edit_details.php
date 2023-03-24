@@ -7,7 +7,6 @@
 // of the License, or (at your option) any later version.
 
 require_once("../../interface/globals.php");
-require_once("$srcdir/acl.inc");
 require_once("$srcdir/log.inc");
 require_once("$srcdir/formdata.inc.php");
 

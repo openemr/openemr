@@ -1,7 +1,6 @@
 <?php //Templates List
 require_once("../../../interface/globals.php");
 require_once($GLOBALS['srcdir'].'/options.inc.php');
-require_once($GLOBALS['srcdir'].'/acl.inc');
 require_once($GLOBALS['srcdir'].'/wmt-v2/wmtstandard.inc');
 	
 if(!isset($_GET['module'])) $_GET['module'] = '';

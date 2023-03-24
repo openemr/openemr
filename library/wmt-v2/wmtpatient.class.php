@@ -421,15 +421,17 @@ class wmtPatData{
 			$query .= ' AND ins.`type` = ? ';
 			$binds[] = $type;
 		}
-		$query .= 'AND ins.`provider` IS NOT NULL AND ins.`provider` > 0 '.
+		/*$query .= 'AND ins.`provider` IS NOT NULL AND ins.`provider` > 0 '.
 			'AND ins.`date` IS NOT NULL AND ins.`date` != "0000-00-00" '.
-			'AND ins.`date` != "" ';
+			'AND ins.`date` != "" ';*/
+		$query .= 'AND ins.`provider` IS NOT NULL AND ins.`provider` > 0 AND ins.inactive = 0 ';
 		$query .= 'ORDER BY ' . $order_by;
 		
 		
 		$fres = sqlStatement($query, $binds);
 		$policies = array();
 		while($policy = sqlFetchArray($fres)) {
+			unset($policy['uuid']);
 			$policies[] = $policy;
 		}
 		return $policies;		
@@ -467,7 +469,7 @@ class wmtPatData{
 		}
 		$query .= 'AND ins.`provider` IS NOT NULL AND ins.`provider` > 0 '.
 			'AND ins.`date` IS NOT NULL AND ins.`date` != "0000-00-00" '.
-			'AND ins.`date` != "" ';
+			'AND ins.`date` != "" AND ins.inactive = 0 ';
 		if($date) {
 			$query .= ' AND ins.`date` <= ? ';
 			$binds[] = $date;
@@ -487,6 +489,7 @@ class wmtPatData{
 		$policies = array();
 		$type = '';
 		while($policy = sqlFetchArray($fres)) {
+			unset($policy['uuid']);
 			if($policy{'type'} != $type) {
 				$type = $policy{'type'};
 				$policies[$policy{'id'}] = $policy;

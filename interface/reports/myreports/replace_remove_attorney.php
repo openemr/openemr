@@ -1,7 +1,6 @@
 <?php
 
 include_once("../../globals.php");
-include_once("$srcdir/acl.inc");
 include_once("$srcdir/options.inc.php");
 include_once($GLOBALS['srcdir'].'/OemrAD/oemrad.globals.php');
 

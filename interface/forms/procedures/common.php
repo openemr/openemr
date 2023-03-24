@@ -34,7 +34,6 @@
 require_once("../../globals.php");
 require_once("{$GLOBALS['srcdir']}/options.inc.php");
 require_once("{$GLOBALS['srcdir']}/api.inc");
-//require_once("{$GLOBALS['srcdir']}/acl.inc");
 require_once("{$GLOBALS['srcdir']}/forms.inc");
 require_once("{$GLOBALS['srcdir']}/translation.inc.php");
 require_once("{$GLOBALS['srcdir']}/formatting.inc.php");
