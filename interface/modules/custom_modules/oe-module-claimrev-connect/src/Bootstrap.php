@@ -224,7 +224,7 @@ class Bootstrap
      * @param TwigEnvironmentEvent $event
      */
     public function addTemplateOverrideLoader(TwigEnvironmentEvent $event)
-    {        
+    {
         try {
             $twig = $event->getTwigEnvironment();
             if ($twig === $this->twig) {
@@ -313,7 +313,7 @@ class Bootstrap
     }
 
     public function addCustomSkeletonApi(RestApiCreateEvent $event)
-    {      
+    {
         /**
          * Events must ALWAYS be returned
          */
