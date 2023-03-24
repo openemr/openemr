@@ -136,7 +136,7 @@ function vitalsGetPrecision(node, defaultValue) {
 // TODO: we need to move all of these functions into the anonymous function and connect the events via event listeners
 function convUnit(system, unit, value)
 {
-    if (unit == 'kg' || unit == 'lbs')
+    if (unit == 'kg' || unit == 'lbs' || unit = 'libra') //when measuring in spanish, the weight measure unit is libras
     {
         if (system == 'metric')
         {
@@ -148,7 +148,7 @@ function convUnit(system, unit, value)
         }
     }
 
-    if (unit == 'in' || unit == 'cm')
+    if (unit == 'in' || unit = 'en' || unit == 'cm') //when measuring in spanish, the weight measure unit is en
     {
         if (system == 'metric')
         {
