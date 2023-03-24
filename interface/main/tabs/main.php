@@ -304,6 +304,8 @@ $esignApi = new Api();
             height: 100% !important;
         }
     </style>
+
+    <?php require_once($GLOBALS['fileroot'] . "/record/record.js.php"); ?>
 </head>
 
 <body class="min-vw-100">
@@ -359,6 +361,8 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
         <div class="mainFrames d-flex flex-row" id="mainFrames_div">
             <div id="framesDisplay" data-bind="template: {name: 'tabs-frames', data: application_data}"></div>
         </div>
+
+        <?php require_once($GLOBALS['fileroot'] . "/record/record-layout.php"); ?>
     </div>
     <script>
         ko.applyBindings(app_view_model);
