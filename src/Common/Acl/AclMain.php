@@ -25,6 +25,7 @@
  *   acl         ACL Administration
  *   multipledb  Multipledb
  *   menu        Menu
+ *   manage_modules Manage modules
  *
  * Section "acct" (Accounting):
  *   bill        Billing (write optional)
