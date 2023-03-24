@@ -56,7 +56,6 @@
         // we then need to show a two digit representation of the value
         let value = node.value;
         let inputSave = document.getElementById(targetSaveUnit);
-        console.log("inputSave ",inputSave)
         if (!inputSave) {
             console.error("Failed to find node with data-target-input of ", targetSaveUnit);
             return;
@@ -70,8 +69,6 @@
         if (value != "") {
 
             let convValue = convUnit(system, unit, value);
-            console.log("convValue", convValue)
-            console.log("unit ",unit)
             if (!isNaN(convValue)) {
                 inputConv.value = convValue.toFixed(precision);
                 // all values are saved in usa system units
@@ -136,8 +133,7 @@ function vitalsGetPrecision(node, defaultValue) {
 // TODO: we need to move all of these functions into the anonymous function and connect the events via event listeners
 function convUnit(system, unit, value)
 {
-    console.log("unit = ",unit)
-    if (unit === 'kg' || unit === 'lbs' || unit === 'libra') //when measuring in spanish, the weight measure unit is libras
+    if (unit === 'kg' || unit === 'lbs' || unit === 'libra') //when measuring in spanish, the weight measure unit is libras, for any language we should add every different value of definition of  lang_definitions table where cons_id = 5962
     {
         if (system == 'metric')
         {
@@ -149,7 +145,7 @@ function convUnit(system, unit, value)
         }
     }
 
-    if (unit === 'in' || unit === 'cm' || unit === 'en') //when measuring in spanish, the weight measure unit is en
+    if (unit === 'in' || unit === 'cm' || unit === 'en') //when measuring in spanish, the weight measure unit is en, for any language we should add every different value of definition of  lang_definitions table where cons_id = 5273
     {
         if (system == 'metric')
         {
