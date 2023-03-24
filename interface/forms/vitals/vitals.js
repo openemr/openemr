@@ -74,9 +74,10 @@
             console.log("unit ",unit)
             if (!isNaN(convValue)) {
                 inputConv.value = convValue.toFixed(precision);
+                inputSave.value = inputConv.value //
                 // all values are saved in usa system units
                 if (system !== "usa") {
-                    inputSave.value = value;
+                    inputSave.value = convValue;
                 } else {
                     inputSave.value = value;
                 }
