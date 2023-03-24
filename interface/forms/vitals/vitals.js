@@ -56,6 +56,7 @@
         // we then need to show a two digit representation of the value
         let value = node.value;
         let inputSave = document.getElementById(targetSaveUnit);
+        console.log("inputSave ",inputSave)
         if (!inputSave) {
             console.error("Failed to find node with data-target-input of ", targetSaveUnit);
             return;
@@ -67,7 +68,10 @@
         }
 
         if (value != "") {
+
             let convValue = convUnit(system, unit, value);
+            console.log("convValue", convValue)
+            console.log("unit ",unit)
             if (!isNaN(convValue)) {
                 inputConv.value = convValue.toFixed(precision);
                 // all values are saved in usa system units
