@@ -178,14 +178,16 @@ function DateToYYYYMMDD($DateValue)
 
 function TimeToHHMMSS($TimeValue)
 {
-    //For now, just return the $TimeValue, since input fields are not formatting time.
-    // This can be upgraded if decided to format input time fields.
-
     if (trim($TimeValue) == '') {
         return '';
     }
 
-    return $TimeValue;
+    $is_pm = (stripos($TimeValue, 'PM') !== false || stripos($TimeValue, 'pm') !== false);
+    $dt = new DateTime('1970-01-01' . $TimeValue);
+
+
+
+    return $dt->modify('+0 hours')->format('H:i:s');;
 }
 
 
