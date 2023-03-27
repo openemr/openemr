@@ -9,7 +9,7 @@
 # php-fpm Dockerfile build for openemr development docker environment
 # This docker is hosted here: https://hub.docker.com/r/openemr/dev-php-fpm/ <tag is 7.1>
 #
-FROM php:7.0-fpm
+FROM php:7.4-fpm
 
 # Update
 RUN apt-get update
