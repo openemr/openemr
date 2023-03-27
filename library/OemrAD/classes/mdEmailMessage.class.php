@@ -1436,6 +1436,14 @@ class EmailMessage {
 
 		        		$message_content = self::mergeMessageContent($message, $emailfileData);
 
+		        		/*Decode content if encoded*/
+		        		$obj_section = $structure;
+								if ($obj_section->encoding == 3) {
+								    $message_content = imap_base64($message_content);
+								} else if ($obj_section->encoding == 4) {
+								    $message_content = imap_qprint($message_content);
+								}
+
 		        		$logid = self::logEmail($subject, $toaddr, $fromaddr, $current_pid, "", $timestamp, "EMAIL_RECEIVED", $message_content, $direction='in', $active=true, $fromPerson, $email_subject, $mailJSON);
 
 								if(isset($logid) && !empty($logid) && isset($emailfileData)) {

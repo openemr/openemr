@@ -137,7 +137,8 @@ class MessagesLib {
             while ($gprow = sqlFetchArray($tmp)) {
             	$msgData = self::fetchMsgById($gprow['id1']);
             	if(!empty($msgData)) {
-	            	$clickFun = "loadMessage('".$msgData['type']."', '".$msgData['id']."', '".$msgData['pid']."')";
+            		$msgType = $msgData['type'] == "SMS" ? $msgData['type'] . "_REPLY" : $msgData['type'];
+	            	$clickFun = "loadMessage('".$msgType."', '".$msgData['id']."', '".$msgData['pid']."')";
 	                echo '<a href="javascript:void(0)" onclick="'.$clickFun.'">';
 	                echo text($msgData['link_title']);
 	                echo "</a><br/>\n";

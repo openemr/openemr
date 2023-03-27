@@ -1724,6 +1724,7 @@ $portalMsgCount = sqlQuery($sqlCount , array($pid));
 		$('#set_uid').val(uid);
 		$('#set_group').val('');
 		$('#set_username').val(username);
+		$('#set_note_type').val(noteType);
 		if (uid == 0) $('#set_group').val(username);
 		$('#mode').val(tmode);
 

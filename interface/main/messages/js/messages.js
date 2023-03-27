@@ -90,6 +90,7 @@ function loadMessage(type, id, pid) {
     if (type == 'EMAIL') openEmailPopup("?pid="+pid+"&id="+id);
     if (type == 'FAX') openFaxPopup("?pid="+pid+"&id="+id);
     if (type == 'P_LETTER') openPostalLetterPopup("?pid="+pid+"&id="+id);
+    if (type == 'SMS_REPLY') openSMSPopup("?pid="+pid+"&msgId="+id+"&action=reply");
 }
 
 function resendMsgPopup(type, pid, messageId) {
