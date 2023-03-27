@@ -11,8 +11,18 @@
  */
 
     require_once "../../../../globals.php";
-    $tab = "claims";
+
+    use OpenEMR\Common\Acl\AclMain;
+    use OpenEMR\Common\Twig\TwigContainer;
     use OpenEMR\Modules\ClaimRevConnector\ClaimsPage;
+
+    $tab = "claims";
+
+    //ensure user has proper access
+    if (!AclMain::aclCheckCore('acct', 'bill')) {
+        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - Claims")]);
+        exit;
+    }
 ?>
 
 <html>

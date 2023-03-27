@@ -12,21 +12,38 @@
 
     require_once "../../../../globals.php";
 
-    $ta = "setup";
+    use OpenEMR\Common\Acl\AclMain;
+    use OpenEMR\Common\Csrf\CsrfUtils;
+    use OpenEMR\Common\Twig\TwigContainer;
     use OpenEMR\Modules\ClaimRevConnector\ClaimRevModuleSetup;
 
-    $services = ClaimRevModuleSetup::getBackgroundServices();
-if (isset($_POST['deactivateSftp'])) {
-    ClaimRevModuleSetup::deactivateSftpService();
-}
-if (isset($_POST['reactivateSftp'])) {
-    ClaimRevModuleSetup::reactivateSftpService();
-}
-if (isset($_POST['backgroundService'])) {
-    ClaimRevModuleSetup::createBackGroundServices();
-}
+    $tab = "setup";
 
-$services = ClaimRevModuleSetup::getBackgroundServices();
+    //ensure user has proper access
+    if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - Setup")]);
+        exit;
+    }
+
+
+    if (!empty($_POST)) {
+        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], "ClaimRevModule")) {
+            CsrfUtils::csrfNotVerified();
+        }
+    }
+
+    $services = ClaimRevModuleSetup::getBackgroundServices();
+    if (isset($_POST['deactivateSftp'])) {
+        ClaimRevModuleSetup::deactivateSftpService();
+    }
+    if (isset($_POST['reactivateSftp'])) {
+        ClaimRevModuleSetup::reactivateSftpService();
+    }
+    if (isset($_POST['backgroundService'])) {
+        ClaimRevModuleSetup::createBackGroundServices();
+    }
+
+    $services = ClaimRevModuleSetup::getBackgroundServices();
 
 ?>
 <html>
@@ -73,6 +90,7 @@ $services = ClaimRevModuleSetup::getBackgroundServices();
                         
                         <form method="post" action="setup.php">
                             <button type="submit" name="backgroundService" class="btn btn-primary"><?php echo xlt("Set Defaults"); ?></button>
+                            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('ClaimRevModule')); ?>" />
                         </form>
                     </li>
                     <li>
@@ -87,6 +105,7 @@ $services = ClaimRevModuleSetup::getBackgroundServices();
                                 
                                 <form method="post" action="setup.php">
                                     <button type="submit" name="deactivateSftp" class="btn btn-primary"><?php echo xlt("Deactivate"); ?></button>
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('ClaimRevModule')); ?>" />
                                 </form>
                             <?php
                         } else {
@@ -95,6 +114,7 @@ $services = ClaimRevModuleSetup::getBackgroundServices();
                                 
                                 <form method="post" action="setup.php">
                                     <button type="submit" name="reactivateSftp" class="btn btn-primary"><?php echo xlt("Reactivate"); ?></button>
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('ClaimRevModule')); ?>" />
                                 </form>
                             <?php
                         }

@@ -11,14 +11,24 @@
  */
 
     require_once "../../../../globals.php";
-    $tab = "x12";
+
+    use OpenEMR\Common\Acl\AclMain;
+    use OpenEMR\Common\Twig\TwigContainer;
     use OpenEMR\Modules\ClaimRevConnector\X12TrackerPage;
 
-    $datas = [];
-//check if form was submitted
-if (isset($_POST['SubmitButton'])) {
-    $datas = X12TrackerPage::searchX12Tracker($_POST);
+    $tab = "x12";
+
+    //ensure user has proper access
+if (!AclMain::aclCheckCore('acct', 'bill')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - X12 Tracker")]);
+    exit;
 }
+
+    $datas = [];
+    //check if form was submitted
+    if (isset($_POST['SubmitButton'])) {
+        $datas = X12TrackerPage::searchX12Tracker($_POST);
+    }
 ?>
 
 <html>
