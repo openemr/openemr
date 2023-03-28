@@ -580,7 +580,7 @@ function insChange(e, i) {
         }
     ?>
 
-    var insjson = JSON.parse(<?php echo !empty($insurancei1) ? "'" . json_encode($insurancei1) . "'" : '{}' ?>);
+    var insjson = <?php echo !empty($insurancei1) ? json_encode($insurancei1) : json_encode(array()); ?>;
     var insTypeList = ["Automobile Medical", "Workers Compensation Health Plan"]
 
     var ins_container_ele = document.querySelector('.i'+i+'claim_number_container');
