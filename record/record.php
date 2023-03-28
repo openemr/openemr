@@ -15,9 +15,45 @@ use OpenEMR\Core\Header;
   	<script src="<?php echo $GLOBALS['web_root']; ?>/record/assets/js/script.js"></script>
   	<link rel="stylesheet" href="<?php echo $GLOBALS['web_root']; ?>/record/assets/css/styles.css">
 
+    <script type="text/javascript">
+        function selnotevalue() {
+            if (opener.closed || ! opener.setnotevalue)
+                alert("<?php echo xlt('The destination form was closed; I cannot act on your selection.'); ?>");
+            else
+                var notevalue = document.getElementById('note_active');
+                console.log(notevalue.value);
+                opener.setnotevalue(notevalue.value);
+                dlgclose();
+            return false;
+        }
+
+        $(document).ready(function() {
+            var targetNode = document.querySelector('.recordSection');
+            var observer = new MutationObserver(function(){
+                if(targetNode.style.display == 'none'){
+                   selnotevalue();
+                }
+            });
+            observer.observe(targetNode, { attributes: true, childList: true });
+        });
+    </script>
+
+    <style type="text/css">
+        .recordSection {
+            display: block;
+            position: relative;
+            background-color: transparent;
+            height: auto;
+            width: auto;
+        }
+
+        #note_active {
+            /*display: none;*/
+        }
+    </style>
  </head>
  <body>
- 	<div class="recordSection1">
+ 	<div class="recordSection">
         <div class="container-fluid">
             <div class="row">
                 <div class="col-lg-2"></div>
@@ -43,7 +79,7 @@ use OpenEMR\Core\Header;
                        
                         <button class="btn btn-primary btn-sm btn-round" id="pause-record-btn">Pause</button>
                        
-                        <button class="btn btn-primary btn-sm btn-round" id="save-note-btn"  >Save </button>
+                        <button class="btn btn-primary btn-sm btn-round" id="save-note-btn" >Save </button>
                        
                         <button class="btn btn-primary btn-sm btn-round " id="clearDectation">Clear</button>
                         <br>
@@ -64,5 +100,6 @@ use OpenEMR\Core\Header;
             </div>
         </div>
     </div>
+    <textarea id="note_active" class="form-control note-active"></textarea>
  </body>
  </html>
