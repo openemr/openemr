@@ -94,7 +94,7 @@ class EligibilityObjectCreator
             $revenueTools->patientCity = $patientData['city'];
             $revenueTools->patientState = $patientData['state'];
             $revenueTools->patientZip = $patientData['postal_code'];
-            $revenueTools->patientEmailAddress = $patientData['ss'];
+            $revenueTools->patientEmailAddress = $patientData['email'];
 
             $revenueTools->pinCode = $providerPinCode;
         }
