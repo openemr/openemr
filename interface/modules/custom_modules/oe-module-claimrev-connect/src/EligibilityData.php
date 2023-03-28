@@ -127,7 +127,7 @@ class EligibilityData
             $query = $query . " AND i.type = ?";
             array_push($ary, $pr);
         }
-            $query = $query . " LIMIT 1";
+            $query = $query . " order by i.date desc LIMIT 1";
 
             $res = sqlStatement($query, $ary);
             return $res;
