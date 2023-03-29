@@ -1,0 +1,7 @@
+// Render the oemr_voicenote translation constants we will use in the system
+(function(oemr_voicenote) {
+    oemr_voicenote.settings = {{ settings|json_encode }};
+    oemr_voicenote.translations = oemr_voicenote.settings.translations;
+    delete oemr_voicenote.settings.translations; // no point in having it in two places.
+    window.oemr_voicenote = oemr_voicenote;
+})(window.oemr_voicenote || {});

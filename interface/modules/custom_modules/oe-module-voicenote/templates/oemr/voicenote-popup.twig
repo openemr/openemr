@@ -1,0 +1,97 @@
+<html>
+<head>
+	<title>{{ 'Voice Record'|xlt }}</title>
+
+	{{ setupHeader(['opener', 'dialog', 'jquery', 'jquery-ui', 'jquery-ui-base', 'fontawesome', 'main-theme', 'oemr_ad']) }}
+
+	<script src="{{ assetPath }}js/script.js"></script>
+  	<link rel="stylesheet" href="{{ assetPath }}css/styles.css">
+
+  	<script type="text/javascript">
+        function selnotevalue() {
+            if (opener.closed || ! opener.setnotevalue)
+                alert('{{ "The destination form was closed; I cannot act on your selection."|xlt }}');
+            else
+                var notevalue = document.getElementById('note_active');
+                opener.setnotevalue(notevalue.value);
+                dlgclose();
+            return false;
+        }
+
+        $(document).ready(function() {
+            selnotevalue();
+            var targetNode = document.querySelector('.recordSection');
+            var observer = new MutationObserver(function(){
+                if(targetNode.style.display == 'none'){
+                   selnotevalue();
+                }
+            });
+            observer.observe(targetNode, { attributes: true, childList: true });
+        });
+    </script>
+
+    <style type="text/css">
+        .recordSection {
+            display: block;
+            position: relative;
+            background-color: transparent;
+            height: auto;
+            width: auto;
+        }
+
+        #note_active {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+ 	<div class="recordSection">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-2"></div>
+                <div class="col-lg-8">
+                    <div class="text-center rec-section">
+                        <span class=" btn-block-record" id="start-record-btn" >
+                            <div class="box">
+                              <div class="circle_ripple circle_ripple1"></div>
+                               <div class="circle_ripple-2 circle_ripple-22"></div>
+                              <div class="circles circles1">
+                                <div class="circles-2 circles-22">
+                                  <i class="fa fa-microphone" aria-hidden="true"></i>
+                                </div>
+                              </div>
+                            </div>
+                        </span>
+                       <br>
+                       <br>
+                             <br>
+                       <br>
+                            
+                        <button class="btn btn-primary btn-sm btn-round" id="stopDictation">{{ 'Stop Recording'|xlt }}</button>
+                       
+                        <button class="btn btn-primary btn-sm btn-round" id="pause-record-btn">{{ 'Pause'|xlt }}</button>
+                       
+                        <button class="btn btn-primary btn-sm btn-round" id="save-note-btn" >{{ 'Save'|xlt }}</button>
+                       
+                        <button class="btn btn-primary btn-sm btn-round " id="clearDectation">{{ 'Clear'|xlt }}</button>
+                        <br>
+                        <!-- <p contenteditable class="result-box note p-2 no-resize" id="note-textarea"  style="color: #000;" placeholder="Your notes..." ></p> -->
+                        <textarea class="result-box note p-2 no-resize form-control" name="note-textarea" id="note-textarea" value=""  placeholder="Your notes..." rows="8"></textarea>
+                    
+                        <p id="recording-instructions">Press the <strong>Start Recognition</strong> button and allow access.</p>
+                
+                        <h3>{{ 'Recent Notes'|xlt }}</h3>
+                        <ul id="notes">
+                            <li>
+                                <p class="no-notes">{{ "You don't have any notes."|xlt }}</p>
+                            </li>
+                        </ul>
+                    </div> 
+                </div>
+                <div class="col-lg-2"></div>
+            </div>
+        </div>
+    </div>
+    <textarea id="note_active" class="form-control note-active"></textarea>
+ </body>
+</html>
