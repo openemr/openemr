@@ -207,7 +207,7 @@ EOF;
     }
     if (!empty($newname)) {
         if (empty($newconstantid)) {
-            $output->Text(postcalendar_admin_categories($msg, "Category Identifiers must contain a value!"));
+            $output->Text(postcalendar_admin_categories($msg ?? '', "Category Identifiers must contain a value!"));
             return $output->GetOutput();
         }
         if (strpos(trim($newconstantid), ' ')) {
@@ -415,7 +415,7 @@ function postcalendar_admin_categoriesUpdate()
                 'addCategories',
                 array('name' => $newname,'constantid' => $newconstantid,'desc' => $newdesc,'value_cat_type' => $new_value_cat_type,'color' => $newcolor,'active' => $newactive,'sequence' => $newsequence, 'aco' => $newaco,
                 'repeat' => $new_event_repeat,'spec' => $new_event_recurrspec,
-                'recurrfreq' => $new_recurrfreq,'duration' => $new_duration,'limitid' => $new_dailylimitid,
+                'recurrfreq' => $new_recurrfreq ?? '','duration' => $new_duration,'limitid' => $new_dailylimitid,
                 'end_date_flag' => $new_end_date_flag,'end_date_type' => $new_end_date_flag,
                 'end_date_freq' => $new_end_date_freq,
                 'end_all_day' => $new_end_all_day)
@@ -684,8 +684,9 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
     $form_hidden .= "<input type=\"hidden\" name=\"pc_event_id\" value=\"" . attr($pc_event_id ?? '') . "\" />";
     if (isset($data_loaded)) {
         $form_hidden .= "<input type=\"hidden\" name=\"data_loaded\" value=\"" . attr($data_loaded) . "\" />";
-        $tpl->assign('FormHidden', $form_hidden);
     }
+    $tpl->assign('FormHidden', $form_hidden);
+
     $form_submit = '<input type=hidden name="form_action" value="commit"/>
 				   ' . text($authkey ?? '') . '<input class="btn btn-primary" type="submit" name="submit" value="' . xla('Save') . '">';
     $tpl->assign('FormSubmit', $form_submit);

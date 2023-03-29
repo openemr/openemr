@@ -27,7 +27,6 @@
     <title>[-$_EDIT_PC_CONFIG_CATDETAILS|text-]</title>
 </head>
 <body>
-[-$AdminMenu-]
 <form name="cats" action="[-$action-]" method="post" enctype="application/x-www-form-urlencoded">
 <!-- GATHER NEW DATA START -->
 	<table class="table table-bordered" cellpadding="5" cellspacing="0">
@@ -100,7 +99,7 @@
                									[-foreach item=acoGroup key=acoGroupKey from=$ACO_List-]
 													<optgroup label="[-$acoGroupKey|attr-]">
 													[-foreach item=aco  from=$acoGroup-]
-														<option value="[-$aco.value|attr-]" [-if $cat.aco == $aco.value-]selected [-/if-]>
+														<option value="[-$aco.value|attr-]">
 															[-$aco.name|text-]
 														</option>
 													[-/foreach-]
