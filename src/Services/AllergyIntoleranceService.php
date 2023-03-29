@@ -107,6 +107,8 @@ class AllergyIntoleranceService extends BaseService
         while ($row = sqlFetchArray($statementResults)) {
             $row['uuid'] = UuidRegistry::uuidToString($row['allergy_uuid']);
             $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
+            $row['patient_uuid'] = UuidRegistry::uuidToString($row['patient_uuid']);
+            $row['allergy_uuid'] = UuidRegistry::uuidToString($row['allergy_uuid']);
             $row['practitioner'] = $row['practitioner'] ?
                 UuidRegistry::uuidToString($row['practitioner']) :
                 $row['practitioner'];
