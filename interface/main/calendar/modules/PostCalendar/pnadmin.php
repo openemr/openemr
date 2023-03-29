@@ -680,12 +680,12 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
     $output->SetOutputMode(_PNH_RETURNOUTPUT);
     $output->SetOutputMode(_PNH_KEEPOUTPUT);
 
-    $form_hidden = "<input type=\"hidden\" name=\"is_update\" value=\"" . attr($is_update ?? '') . "\" />";
-    $form_hidden .= "<input type=\"hidden\" name=\"pc_event_id\" value=\"" . attr($pc_event_id ?? '') . "\" />";
     if (isset($data_loaded)) {
+        $form_hidden = "<input type=\"hidden\" name=\"is_update\" value=\"" . attr($is_update ?? '') . "\" />";
+        $form_hidden .= "<input type=\"hidden\" name=\"pc_event_id\" value=\"" . attr($pc_event_id ?? '') . "\" />";
         $form_hidden .= "<input type=\"hidden\" name=\"data_loaded\" value=\"" . attr($data_loaded) . "\" />";
+        $tpl->assign('FormHidden', $form_hidden);
     }
-    $tpl->assign('FormHidden', $form_hidden);
 
     $form_submit = '<input type=hidden name="form_action" value="commit"/>
 				   ' . text($authkey ?? '') . '<input class="btn btn-primary" type="submit" name="submit" value="' . xla('Save') . '">';
