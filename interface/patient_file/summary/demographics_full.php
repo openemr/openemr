@@ -88,6 +88,8 @@ var somethingChanged = false;
 $(function () {
     tabbify();
 
+    $('.swapIns').hide();
+
     $(".select-previous-names").select2({
         theme: "bootstrap4",
         dropdownAutoWidth: true,
@@ -233,10 +235,10 @@ $(function () {
   if (window.checkSkipConditions) {
     checkSkipConditions();
   }
-  // Hide swap ins button if insurance not primary
+  // Hide swap ins button if insurance is primary
   $('#INSURANCE .tabNav a').click(function(){
     let text = $(this).text();
-    if ( text == 'Primary') {
+    if ( text != 'Primary') {
         $('.swapIns').show();
     } else {
         $('.swapIns').hide();
@@ -677,9 +679,11 @@ if (! $GLOBALS['simplified_demographics']) {
                value="<?php echo attr($result3["plan_name"] ?? ''); ?>"
                onchange="capitalizeMe(this);" />
             </div>
-            <div class="col-md-3 swapIns" <?php echo (empty($GLOBALS['enable_swap_secondary_insurance'])) ? " style='display:none'" : ""; ?>>
+            <div class="col-md-3 swapIns <?php echo (empty($GLOBALS['enable_swap_secondary_insurance'])) ? ' d-none"' : '"'; ?>>
                 <a class="btn btn-secondary pb-1" href="#" role="button"
-                    onclick="document.forms[0].isSwapClicked.value='1'; document.forms[0].submit()"><?php echo xlt('Swap with Secondary') ?></a>
+                    onclick="document.forms[0].isSwapClicked.value=<?php echo attr($i); ?>; document.forms[0].submit()">
+                        <?php echo ($i == '2') ? xlt('Swap with Primary') : xlt('Swap with Secondary'); ?>
+                </a>
             </div>
           </div><!-- end nested row -->
 
