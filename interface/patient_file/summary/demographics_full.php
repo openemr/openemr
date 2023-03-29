@@ -680,10 +680,10 @@ if (! $GLOBALS['simplified_demographics']) {
                onchange="capitalizeMe(this);" />
             </div>
             <div class="col-md-3 swapIns <?php echo (empty($GLOBALS['enable_swap_secondary_insurance'])) ? ' d-none"' : '"'; ?>>
-             <a class="btn btn-secondary pb-1" href="#" role="button"
+                <a class="btn btn-secondary pb-1" href="#" role="button"
                     onclick="document.forms[0].isSwapClicked.value=<?php echo attr($i); ?>; document.forms[0].submit()">
                         <?php echo ($i == '2') ? xlt('Swap with Primary') : xlt('Swap with Secondary'); ?>
-             </a>
+                </a>
             </div>
           </div><!-- end nested row -->
 
