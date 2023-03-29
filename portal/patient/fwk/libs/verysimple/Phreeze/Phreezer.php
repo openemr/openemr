@@ -557,7 +557,7 @@ class Phreezer extends Observable
         $table = $fms [$pk]->TableName;
         $pkcol = $fms [$pk]->ColumnName;
         $returnval = "";
-        $pk_is_auto_insert = strlen($id) == 0;
+        $pk_is_auto_insert = strlen($id ?? '') == 0;
     // if there is no value for the primary key, this is an insert
         $is_insert = $force_insert || $pk_is_auto_insert;
     // fire the OnSave event in case the object needs to prepare itself
