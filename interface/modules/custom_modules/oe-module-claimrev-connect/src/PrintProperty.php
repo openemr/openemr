@@ -55,6 +55,7 @@ class PrintProperty
             foreach ($validations as $validation) {
                 PrintProperty::displayProperty("Is Valid Request", $validation->validRequestIndicator);
                 PrintProperty::displayProperty("Reject Reason", $validation->rejectReasonCode);
+                PrintProperty::displayProperty("Description", $validation->description);
                 PrintProperty::displayProperty("Follow-up Action", $validation->followUpActionCode);
             }
 

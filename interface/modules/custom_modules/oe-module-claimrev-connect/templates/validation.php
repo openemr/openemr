@@ -41,3 +41,8 @@ if (property_exists($data, 'subscriber')) {
         PrintProperty::printValidation("Receiver Validations", $validations);
     }
 }
+
+if (property_exists($eligibilityData, 'validations')) {
+    $mainValidations = $eligibilityData->validations;
+    PrintProperty::printValidation("Main Validations", $mainValidations);
+}
