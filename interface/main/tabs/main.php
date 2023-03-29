@@ -304,8 +304,6 @@ $esignApi = new Api();
             height: 100% !important;
         }
     </style>
-
-    <?php require_once($GLOBALS['fileroot'] . "/record/record.js.php"); ?>
 </head>
 
 <body class="min-vw-100">
@@ -330,7 +328,7 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
         );
         if ($rs['app_url'] != "main/main_screen.php") {
             echo '<iframe name="app1" src="../../' . attr($rs['app_url']) . '"
-    			style="position: absolute; left: 0; top: 0; height: 100%; width: 100%; border: none;" />';
+                style="position: absolute; left: 0; top: 0; height: 100%; width: 100%; border: none;" />';
             $disp_mainBox = 'style="display: none;"';
         }
     }
@@ -361,8 +359,6 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
         <div class="mainFrames d-flex flex-row" id="mainFrames_div">
             <div id="framesDisplay" data-bind="template: {name: 'tabs-frames', data: application_data}"></div>
         </div>
-
-        <?php require_once($GLOBALS['fileroot'] . "/record/record-layout.php"); ?>
     </div>
     <script>
         ko.applyBindings(app_view_model);

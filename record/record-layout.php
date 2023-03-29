@@ -1,1 +1,0 @@
-<button id="recordWBtn" class="btn btn-warning   btn-round btn-icon pt-1"><i class="fa fa-microphone fa-lg"></i></button>
