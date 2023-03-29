@@ -388,7 +388,7 @@
 <input type="hidden" name="pc_html_or_text" value="text" selected />
 [-*$EventHTMLorText*-]
 
-[-if !empty($FormHidden)-] $FormHidden [-/if-]
+[-if !empty($FormHidden)-] [-$FormHidden-] [-/if-]
 
 [-$FormSubmit-]
 </form>
