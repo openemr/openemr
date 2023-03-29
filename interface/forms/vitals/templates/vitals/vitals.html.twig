@@ -89,7 +89,7 @@
                                 {% endif %}
                                  {% if field.type == "textbox" %}
                                      {% include "vitals_textbox.html.twig" with {title:field.title, input:field.input
-                                         , vitals:vitals, vitalsValue:field.vitalsValue, unit:field.unit,
+                                         , vitals:vitals, vitalsValue:field.vitalsValue, unit:field.unit, unitLabel: field.unitLabel,
                                          precision:field.precision, codes:field.codes, results: vitalsHistoryLookback, is_edit: true }
                                      %}
                                  {% endif %}
