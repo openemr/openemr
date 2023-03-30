@@ -184,7 +184,7 @@ class RestConfig
                 if (strpos($_SERVER['REQUEST_URI'], '?') > 0) {
                     $resource = strstr($_SERVER['REQUEST_URI'], '?', true);
                 } else {
-                    $resource = str_replace(self::$ROOT_URL, '', $_SERVER['REQUEST_URI']);
+                    $resource = str_replace(self::$ROOT_URL ?? '', '', $_SERVER['REQUEST_URI']);
                 }
             }
         }
