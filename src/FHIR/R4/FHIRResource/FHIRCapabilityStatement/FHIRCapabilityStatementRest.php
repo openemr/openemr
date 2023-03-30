@@ -367,11 +367,7 @@ class FHIRCapabilityStatementRest extends FHIRBackboneElement implements \JsonSe
     /**
      * @return array
      */
-<<<<<<< Updated upstream
-     public function jsonSerialize()
-=======
     public function jsonSerialize()
->>>>>>> Stashed changes
     {
         $json = parent::jsonSerialize();
         if (isset($this->mode)) {
