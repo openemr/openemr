@@ -164,7 +164,11 @@ class FHIRElement implements \JsonSerializable
     /**
      * @return array
      */
+<<<<<<< Updated upstream
      public function jsonSerialize()
+=======
+    public function jsonSerialize()
+>>>>>>> Stashed changes
     {
         $json = [];
         if (0 < count($this->extension)) {

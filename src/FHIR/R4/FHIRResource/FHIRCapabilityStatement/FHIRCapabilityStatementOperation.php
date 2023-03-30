@@ -192,7 +192,11 @@ class FHIRCapabilityStatementOperation extends FHIRBackboneElement implements \J
     /**
      * @return array
      */
+<<<<<<< Updated upstream
      public function jsonSerialize()
+=======
+    public function jsonSerialize()
+>>>>>>> Stashed changes
     {
         $json = parent::jsonSerialize();
         if (isset($this->name)) {

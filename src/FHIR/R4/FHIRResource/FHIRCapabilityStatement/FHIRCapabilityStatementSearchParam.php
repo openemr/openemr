@@ -221,7 +221,11 @@ class FHIRCapabilityStatementSearchParam extends FHIRBackboneElement implements 
     /**
      * @return array
      */
+<<<<<<< Updated upstream
      public function jsonSerialize()
+=======
+    public function jsonSerialize()
+>>>>>>> Stashed changes
     {
         $json = parent::jsonSerialize();
         if (isset($this->name)) {

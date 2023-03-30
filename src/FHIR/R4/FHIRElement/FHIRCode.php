@@ -129,7 +129,11 @@ class FHIRCode extends FHIRElement implements \JsonSerializable
     /**
      * @return mixed
      */
+<<<<<<< Updated upstream
      public function jsonSerialize()
+=======
+    public function jsonSerialize()
+>>>>>>> Stashed changes
     {
         return $this->value;
     }

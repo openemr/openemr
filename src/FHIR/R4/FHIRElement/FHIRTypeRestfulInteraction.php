@@ -132,7 +132,11 @@ class FHIRTypeRestfulInteraction extends FHIRElement implements \JsonSerializabl
     /**
      * @return mixed
      */
+<<<<<<< Updated upstream
      public function jsonSerialize()
+=======
+    public function jsonSerialize()
+>>>>>>> Stashed changes
     {
         return $this->value;
     }
