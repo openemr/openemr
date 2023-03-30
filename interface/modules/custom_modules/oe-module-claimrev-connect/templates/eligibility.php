@@ -66,7 +66,7 @@ foreach ($insurance as $row) {
                 <div class="row">
                     <div class="col-2">
                     
-                        <form method="post" action="/interface/patient_file/summary/demographics.php">
+                        <form method="post" action="../../patient_file/summary/demographics.php">
                             <input type="hidden" id="responsibility" name="responsibility" value="<?php echo attr(ucfirst($row['payer_responsibility']));?>">
                             <button type="submit" name="checkElig" class="btn btn-primary"><?php echo xlt("Check"); ?></button>
                         </form>

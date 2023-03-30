@@ -20,30 +20,30 @@
     $tab = "setup";
 
     //ensure user has proper access
-    if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - Setup")]);
-        exit;
-    }
+if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - Setup")]);
+    exit;
+}
 
 
-    if (!empty($_POST)) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], "ClaimRevModule")) {
-            CsrfUtils::csrfNotVerified();
-        }
+if (!empty($_POST)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], "ClaimRevModule")) {
+        CsrfUtils::csrfNotVerified();
     }
+}
 
-    $services = ClaimRevModuleSetup::getBackgroundServices();
-    if (isset($_POST['deactivateSftp'])) {
-        ClaimRevModuleSetup::deactivateSftpService();
-    }
-    if (isset($_POST['reactivateSftp'])) {
-        ClaimRevModuleSetup::reactivateSftpService();
-    }
-    if (isset($_POST['backgroundService'])) {
-        ClaimRevModuleSetup::createBackGroundServices();
-    }
+$services = ClaimRevModuleSetup::getBackgroundServices();
+if (isset($_POST['deactivateSftp'])) {
+    ClaimRevModuleSetup::deactivateSftpService();
+}
+if (isset($_POST['reactivateSftp'])) {
+    ClaimRevModuleSetup::reactivateSftpService();
+}
+if (isset($_POST['backgroundService'])) {
+    ClaimRevModuleSetup::createBackGroundServices();
+}
 
-    $services = ClaimRevModuleSetup::getBackgroundServices();
+$services = ClaimRevModuleSetup::getBackgroundServices();
 
 ?>
 <html>

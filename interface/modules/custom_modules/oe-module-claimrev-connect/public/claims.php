@@ -18,11 +18,11 @@
 
     $tab = "claims";
 
-    //ensure user has proper access
-    if (!AclMain::aclCheckCore('acct', 'bill')) {
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - Claims")]);
-        exit;
-    }
+//ensure user has proper access
+if (!AclMain::aclCheckCore('acct', 'bill')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - Claims")]);
+    exit;
+}
 ?>
 
 <html>

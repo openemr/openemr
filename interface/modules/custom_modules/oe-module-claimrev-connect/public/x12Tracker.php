@@ -26,9 +26,9 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
 
     $datas = [];
     //check if form was submitted
-    if (isset($_POST['SubmitButton'])) {
-        $datas = X12TrackerPage::searchX12Tracker($_POST);
-    }
+if (isset($_POST['SubmitButton'])) {
+    $datas = X12TrackerPage::searchX12Tracker($_POST);
+}
 ?>
 
 <html>
