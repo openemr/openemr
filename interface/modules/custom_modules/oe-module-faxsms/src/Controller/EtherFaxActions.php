@@ -750,8 +750,10 @@ class EtherFaxActions extends AppDispatch
                             switch ($src->Text) {
                                 case 'M':
                                     $src->Text = 'Male';
+                                    break;
                                 case 'F':
                                     $src->Text = 'Female';
+                                    break;
                             }
                         }
                         $rtn[$k] = $src->Text;
