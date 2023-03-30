@@ -141,7 +141,7 @@ $db_sms_msg['message'] = $MESSAGE;
                         }
                         if (!$isValid) {
                             $strMsg .= "<strong style='color:red'>\n* " . xlt("INVALID Mobile Phone#") . text('$prow["phone_cell"]') . " " . xlt("SMS NOT SENT Patient") . ":</strong>" . text($prow['fname']) . " " . text($prow['lname']) . "</b>";
-                            $db_sms_msg['message'] = xlt("ERROR: INVALID Mobile Phone") . '# ' . text($prow['phone_cell']) . xlt("SMS NOT SENT For") . ": " . text($prow['fname']) . " " . text($prow['lname']);
+                            $db_sms_msg['message'] = xlt("Error: INVALID Mobile Phone") . '# ' . text($prow['phone_cell']) . xlt("SMS NOT SENT For") . ": " . text($prow['fname']) . " " . text($prow['lname']);
                             if ($bTestRun == 0) {
                                 cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
                             }

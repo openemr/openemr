@@ -479,35 +479,6 @@ abstract class AppDispatch
     }
 
     /**
-     * @return string
-     */
-    public function chartDocument(): string
-    {
-        $pid = $this->getRequest('pid');
-        $docid = $this->getRequest('docid');
-        $fileName = $this->getRequest('file_name');
-        $mime = $this->getRequest('mime');
-
-        $catid = sqlQuery("SELECT id FROM `categories` WHERE `name` = 'FAX'")['id'];
-
-        $document = new Document();
-        $result = $document->createDocument(
-            $pid,
-            $catid,
-            $fileName,
-            $mime,
-            $content
-        );
-        if (!empty($result)) {
-            $err = xlt("ERROR: Failed to save document. Category Fax");
-            error_log($err  . ' ' . text($result));
-            return $err;
-        }
-        return $result;
-    }
-
-
-    /**
      * @param       $email
      * @param       $body
      * @param       $file

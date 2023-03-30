@@ -81,9 +81,11 @@ class EtherFaxActions extends AppDispatch
             }
             $c++;
             // insert to queue
-            $this->insertFaxQueue($fax);
-            // mark fax received. as good as delete.
-            $this->client->setFaxReceived($fax->JobId);
+            if (!empty($fax->JobId)) {
+                $this->insertFaxQueue($fax);
+                // mark fax received. as good as delete.
+                $this->client->setFaxReceived($fax->JobId);
+            }
         }
 
         $cnt = $this->fetchQueueCount();
@@ -266,7 +268,7 @@ class EtherFaxActions extends AppDispatch
         $csid = $user['facility'];
         $tag = xlt("Forwarded");
         try {
-            if (!$hasEmail || empty($faxNumber)) {
+            if (!$hasEmail && empty($faxNumber)) {
                 return js_escape(xlt("Error: Nothing to forward. Try again."));
             }
             if ($hasEmail || !empty($faxNumber)) {
@@ -331,10 +333,10 @@ class EtherFaxActions extends AppDispatch
         $dateFrom = trim($this->getRequest('datefrom'));
         $dateTo = trim($this->getRequest('dateto'));
 
-        $pull = $this->fetchReminderCount();
         if (!$this->authenticate()) {
             return $this->authErrorDefault;
         };
+        $pull = $this->fetchReminderCount();
         try {
             // dateFrom and dateTo
             $timeFrom = 'T00:00:01';
@@ -358,7 +360,8 @@ class EtherFaxActions extends AppDispatch
                 $docType = null;
                 $id_esc = text($id);
                 $showFlag = 0;
-                foreach ($faxDetails->AnalyzeFormResult->AnalyzeResult->DocumentResults as $r) {
+                $recog = $faxDetails->AnalyzeFormResult->AnalyzeResult->DocumentResults;
+                foreach ($recog as $r) {
                     $details = null;
                     $form = "<tr id='$id_esc' class='d-none collapse-all'><td colspan='12'>\n" .
                         "<div class='container table-responsive'>\n" .
@@ -369,6 +372,15 @@ class EtherFaxActions extends AppDispatch
                         xlt("Confidence") . " : " . text($r->DocTypeConfidence * 100) .
                         "\n</th></tr></thead>\n";
                     $form .= "<tbody>\n";
+                    $parse = $this->parseValidators($r->Fields);
+                    $pid_assumed = '';
+                    if (!empty($parse['DOB']) && !empty($parse['fname']) && !empty($parse['lname'])) {
+                        $pid_assumed = sqlQuery(
+                            "Select pid From patient_data Where fname = ? And lname = ? And DOB = ?",
+                            array($parse['fname'], $parse['lname'], date("Y-m-d", strtotime(($parse['DOB']))))
+                        )['pid'];
+                    }
+                    $pid_assumed = $pid_assumed ?: 'No';
                     foreach ($r->Fields as $field) {
                         if ($field->Text == 'unselected' || empty($field->Text)) {
                             continue;
@@ -379,26 +391,28 @@ class EtherFaxActions extends AppDispatch
                         $form .= '<td>' . text($field->Text) . "</td>\n";
                         $form .= '<td>' . text($field->Confidence * 100) . "</td>\n";
                         $form .= "</tr>\n";
+                        $table[$field->Name] = ['name' => $field->Name, 'value' => $field->Text];
                         $details['dob'] = $field->Name == "Patient Date of Birth" ? $field->Text : $details['dob'];
                         if (preg_match('/(Patient First Name)(Patient Last Name)/', $field->Name)) {
                             $details['name'][$field->Name] = $field->Text;
                         }
-                        $details['gender'] = $field->Text == "selected" && ($field->Name == "Patient Gender - Male") ? 'Male' : $details['gender'];
-                        $details['gender'] = $field->Text == "selected" && ($field->Name == "Patient Gender - Female") ? 'Female' : $details['gender'];
+                        $details['gender'] = $field->Text == "selected" && (stripos($field->Name, 'Male') !== false) ? 'Male' : $details['gender'];
+                        $details['gender'] = $field->Text == "selected" && (stripos($field->Name, 'Female') !== false) ? 'Female' : $details['gender'];
                     }
                     $form .= "</tbody>\n</table>\n</div>\n</td>\n</tr>\n";
                 }
-                $messageLink = "<a role='button' href='javaScript:' onclick=\"notifyUser(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js(($pid ?? 0)) . ")\"> <i class='fa fa-paper-plane'></i></a>";
-                $downloadLink = "<a role='button' href='javaScript:' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\"> <i class='fa fa-file-download'></i></a>";
-                $viewLink = "<a role='button' href='javaScript:' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\"> <i class='fa fa-file-pdf'></i></a>";
+                $parse = json_encode($parse);
+                $patientLink = "<a role='button' href='javascript:void(0)' onclick=\"createPatient(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js($parse) . ")\"> <i class='fa fa-chart-simple mr-2' title='" . xla("Chart fax or Create patient and chart fax to documents.") . "'></i></a>";
+                $messageLink = "<a role='button' href='javascript:void(0)' onclick=\"notifyUser(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js(($pid ?? 0)) . ")\"> <i class='fa fa-paper-plane mr-2' title='" . xla("Notify a user and attach this fax to message.") . "'></i></a>";
+                $downloadLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\"> <i class='fa fa-file-download mr-2' title='" . xla("Download and delete fax") . "'></i></a>";
+                $viewLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\"> <i class='fa fa-file-pdf mr-2' title='" . xla("View fax document") . "'></i></a>";
                 $details_esc = json_encode($details);
-                $forwardLink = "<a role='button' href='javaScript:' onclick=\"forwardFax(event, " . attr_js($id) . ")\"> <i class='fa fa-forward'></i></a>";
+                $forwardLink = "<a role='button' href='javascript:void(0)' onclick=\"forwardFax(event, " . attr_js($id) . ")\"> <i class='fa fa-forward mr-2' title='" . xla("Forward fax to new fax recipient or email attachment.") . "'></i></a>";
                 $detailLink = '';
                 if ($showFlag) {
                     $showFlag = text($showFlag) . ' ' . xlt("Items");
-                    $detailLink = "<a role='button' href='javaScript:' class='btn btn-link fa fa-eye' onclick='toggleDetail(\"#$id_esc\")'></a>$showFlag";
+                    $detailLink = "<a role='button' href='javascript:void(0)' class='btn btn-link fa fa-eye' onclick='toggleDetail(\"#$id_esc\")' " . xla("") . "'></a>$showFlag";
                 }
-
                 $faxFormattedDate = date('M j, Y g:i:sa T', $faxDate);
                 $docLen = text(round($params->Length / 1000, 2)) . "KB";
                 if (strtolower($direction) == "inbound") {
@@ -407,10 +421,9 @@ class EtherFaxActions extends AppDispatch
                         "</td><td>" . text($faxDetails->PagesReceived) .
                         "</td><td>" . text($docLen) .
                         "</td><td class='text-left'>" . $detailLink .
-                        "</td><td class='text-center'>" . $messageLink .
-                        "</td><td class='text-center'>" . $forwardLink .
-                        "</td><td class='text-center'>" . $downloadLink .
-                        "</td><td class='text-center'>" . $viewLink .
+                        "</td><td class='text-left'>" . text($pid_assumed) .
+                        "</td><td class='text-left'>" . $patientLink .
+                        "</td><td class='text-left'>" . $messageLink . $forwardLink . $viewLink . $downloadLink .
                         "</td></tr>";
                     $responseMsgs[0] .= $form;
                 }
@@ -575,6 +588,10 @@ class EtherFaxActions extends AppDispatch
         return xlt('Not Implemented');
     }
 
+    /**
+     * @param $faxDetails
+     * @return int
+     */
     public function insertFaxQueue($faxDetails): int
     {
         $account = $this->credentials['account'];
@@ -592,6 +609,11 @@ class EtherFaxActions extends AppDispatch
         return sqlInsert($sql, $binds);
     }
 
+    /**
+     * @param $start
+     * @param $end
+     * @return array
+     */
     public function fetchFaxQueue($start, $end): array
     {
         $rows = [];
@@ -605,6 +627,11 @@ class EtherFaxActions extends AppDispatch
         return $rows;
     }
 
+    /**
+     * @param $jobId
+     * @param $id
+     * @return mixed
+     */
     public function fetchFaxFromQueue($jobId, $id = null)
     {
         if (!empty($jobId)) {
@@ -618,14 +645,122 @@ class EtherFaxActions extends AppDispatch
         return $detail;
     }
 
+    /**
+     * @return int
+     */
     public function fetchQueueCount(): int
     {
         return  (int)sqlQuery("SELECT COUNT(id) as count FROM `oe_faxsms_queue` WHERE deleted = 0")['count'] ?? 0;
     }
 
+    /**
+     * @param $jobId
+     * @return bool|array|null
+     */
     public function setFaxDeleted($jobId): bool|array|null
     {
         return sqlQuery("UPDATE `oe_faxsms_queue` SET `deleted` = '1' WHERE `job_id` = ?", [$jobId]);
+    }
+
+    /**
+     * @return string
+     */
+    public function chartDocument(): string
+    {
+        $pid = $this->getRequest('pid');
+        $docid = $this->getRequest('docid');
+        $fileName = $this->getRequest('file_name');
+        $mime = $this->getRequest('mime');
+
+        $result = $this->chartFaxDocument($pid, $docid, $fileName);
+
+        return $result;
+    }
+
+    /**
+     * @param $pid
+     * @param $docid
+     * @param $fileName
+     * @return string
+     */
+    public function chartFaxDocument($pid, $docid, $fileName = null): string
+    {
+        $catid = sqlQuery("SELECT id FROM `categories` WHERE `name` = 'FAX'")['id'];
+        if (empty($catid)) {
+            $catid = sqlQuery("SELECT id FROM `categories` WHERE `name` = 'Medical Record'")['id'];
+        }
+        $fax = $this->fetchFaxFromQueue($docid);
+        $mime = $fax->DocumentParams->Type;
+        if ($mime == 'application/pdf') {
+            $ext = '.pdf';
+        } elseif ($mime == 'image/tiff' || $mime == 'image/tif') {
+            $ext = '.tiff';
+        } else {
+            $ext = '.txt';
+        }
+        if (empty($fileName)) {
+            $fileName = xlt("fax") . '_' . text($docid) . $ext;
+        }
+        $content = base64_decode($fax->FaxImage);
+        $document = new Document();
+        $result = $document->createDocument(
+            $pid,
+            $catid,
+            $fileName,
+            $mime,
+            $content
+        );
+        if (!empty($result)) {
+            $err = xlt("Error: Failed to save document. Category Fax");
+            error_log($err  . ' ' . text($result));
+            return $err;
+        } else {
+            $result = xlt("Chart Success");
+        }
+        return $result;
+    }
+
+    /**
+     * @param $source
+     * @return array
+     */
+    public function parseValidators($source): array
+    {
+        $rtn = null;
+        $rtn['fname'] = '';
+        $rtn['lname'] = '';
+        $rtn['DOB'] = '';
+        $rtn['sex'] = '';
+        $val['fname'] = array("First Name", "first", "Patient.name", "Patient.given");
+        $val['lname'] = array("Last Name", "last", "Patient.name", "Patient.family");
+        $val['DOB'] = array("dob", "Date of Birth", "Birth", "Birthdate", "Patient.birthDate");
+        $val['sex'] = array("gender", "sex", "male", "female", "Sexual Orientation", "Patient.gender");
+        foreach ($source as $src) {
+            foreach ($val as $k => $v) {
+                foreach ($v as $s) {
+                    if (stripos($src->Name, $s) !== false) {
+                        if ($k == "sex") {
+                            $src->Text = ucfirst($src->Text);
+                            if (stripos($src->Name, 'Male') !== false) {
+                                $src->Text = 'Male';
+                            }
+                            if (stripos($src->Name, 'Female') !== false) {
+                                $src->Text = 'Female';
+                            }
+                            switch ($src->Text) {
+                                case 'M':
+                                    $src->Text = 'Male';
+                                case 'F':
+                                    $src->Text = 'Female';
+                            }
+                        }
+                        $rtn[$k] = $src->Text;
+                    }
+                }
+            }
+        }
+
+        return $rtn;
     }
 
     /**

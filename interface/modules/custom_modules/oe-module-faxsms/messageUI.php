@@ -413,11 +413,22 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
         function notifyUser(e, faxId, recordId, pid=0) {
             e.preventDefault();
             let btnClose = <?php echo xlj("Exit"); ?>;
-            let title = <?php echo xlj("Message"); ?>;
             let url = top.webroot_url +
                 '/interface/main/messages/messages.php?showall=no&task=addnew&form_active=1&gptype=9&attach=' +
                 encodeURIComponent(recordId) + "&jobId=" + encodeURIComponent(faxId) + "&pid=" + encodeURIComponent(pid);
             dlgopen(url, 'attach_fax', 'modal-mlg', 800, '', '', {buttons: [{text: btnClose, close: true, style: 'primary'}]});
+            return false;
+        }
+
+        function createPatient(e, faxId, recordId, data) {
+            e.preventDefault();
+            let btnClose = <?php echo xlj("Exit"); ?>;
+            let url = './library/utility.php?pop_add_new=1&recId=' +
+                encodeURIComponent(recordId) + "&jobId=" + encodeURIComponent(faxId) + "&data=" + encodeURIComponent(data);
+            dlgopen(url, 'create_patient', 'modal-md', 'full', '', '', {
+                buttons: [{text: btnClose, close: true, style: 'primary'}],
+                sizeHeight: 'full'}
+            );
             return false;
         }
         // drop bucket
@@ -537,13 +548,12 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                                             <th><?php echo xlt("To") ?></th>
                                             <th><?php echo xlt("Pages") ?></th>
                                             <th><?php echo xlt("Length") ?></th>
-                                            <th><a role='button' href='javaScript:' class='btn btn-link fa fa-eye' onclick="toggleDetail('collapse')"></a>
+                                            <th><a role='button' href='javascript:void(0)' class='btn btn-link fa fa-eye' onclick="toggleDetail('collapse')"></a>
                                                 <?php echo xlt("Extracted") ?>
                                             </th>
-                                            <th><?php echo xlt("Message") ?></th>
-                                            <th><?php echo xlt("Forward") ?></th>
-                                            <th><?php echo xlt("Download") ?></th>
-                                            <th><?php echo xlt("View") ?></th>
+                                            <th><?php echo xlt("Matched") ?></th>
+                                            <th><?php echo xlt("Chart Patient") ?></th>
+                                            <th><?php echo xlt("Actions") ?></th>
                                         </tr>
                                         </thead>
                                         <tbody>
