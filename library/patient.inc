@@ -389,7 +389,7 @@ function getInsuranceDataItems($pid, $given = "insd.*, ic.name as provider_name"
     $items = array();
     $sql = "select $given from insurance_data as insd " .
     "left join insurance_companies as ic on ic.id = insd.provider " .
-    "where pid = ? order by id DESC";
+    "where pid = ? and provider != '' order by id DESC";
     $res = sqlStatement($sql, array($pid));
     while ($result = sqlFetchArray($res)) {
         unset($result['uuid']);

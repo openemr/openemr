@@ -731,7 +731,9 @@ if (! $GLOBALS['simplified_demographics']) {
         <!-- OEMR - added ul list -->
         <ul class="tabNav">
         <?php
+        $ti = 0;
         foreach ($insurance_info as $iikey1 => $iItem1) {
+            $ti++;
             $inactivestr = ($iItem1['inactive'] == "1") ? ' - <span class="text-danger">IA</span>' : '';
             $tabtitle = !empty(ucfirst($iItem1['provider_name'])) ? $iItem1['provider_name'] : "BLANK";
             ?>

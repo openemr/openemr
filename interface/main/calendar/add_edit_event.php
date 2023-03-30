@@ -1268,7 +1268,11 @@ if ($groupid) {
 <!-- OEMRAD - Added script -->
 <script type="text/javascript">
     function validateHhMm(value) {
+        <?php if ($GLOBALS['time_display_format'] == 1) { ?>
         var isValid = /^([0-0]?[0-9]|1[0-2]):([0-5][0-9])(:[0-5][0-9])?$/.test(value);
+        <?php } else { ?>
+        var isValid = /^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/.test(value);
+        <?php } ?>
         return isValid;
     }
 
