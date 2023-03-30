@@ -1767,9 +1767,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     // Show PAST appointments.
                     // added by Terry Hill to allow reverse sorting of the appointments
-                    $direction = '2';
+                    $direction = '1';
                     if ($GLOBALS['num_past_appointments_to_show'] < 0) {
-                        $direction = '1';
+                        $direction = '2';
                         ($showpast = -1 * $GLOBALS['num_past_appointments_to_show']);
                     } else {
                         $showpast = $GLOBALS['num_past_appointments_to_show'];
