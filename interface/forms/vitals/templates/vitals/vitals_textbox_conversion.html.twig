@@ -29,7 +29,7 @@
     {% else %}
         <td>
     {% endif %}
-            {{ field.unit|text }}
+            {{ field.unitLabel|text }}
         </td>
     {% if is_edit %}
         {%  if units_of_measurement == MEASUREMENT_PERSIST_IN_METRIC%}
@@ -73,7 +73,7 @@
     {%  else %}
         <td>
     {% endif %}
-            {{ field.unitMetric|text }}
+            {{ field.unitMetricLabel|text }}
     </td>
     {% if is_edit %}
         {% if units_of_measurement == MEASUREMENT_PERSIST_IN_USA %}
