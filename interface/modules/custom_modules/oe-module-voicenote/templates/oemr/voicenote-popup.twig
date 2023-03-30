@@ -13,7 +13,7 @@
                 alert('{{ "The destination form was closed; I cannot act on your selection."|xlt }}');
             else
                 var notevalue = document.getElementById('note_active');
-                opener.setnotevalue(notevalue.value);
+                opener.setnotevalue(notevalue);
                 dlgclose();
             return false;
         }

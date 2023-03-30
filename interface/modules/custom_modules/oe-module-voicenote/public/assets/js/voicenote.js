@@ -12,7 +12,7 @@
 
     window.setnotevalue = function(note) {
         if(top.activenote && note != "") {
-            top.activenote.value = note;
+            top.activenote.value = top.activenote.value + note;
         }
     }
 

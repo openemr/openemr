@@ -4,7 +4,7 @@
      */
     //let moduleLocation = oemr_voicenote.settings.modulePath || '/interface/modules/custom_modules/oe-module-voicenote/';
     $(document).ready(function() {
-        $('.form-control').click(function() {
+        $('textarea, input[type="text"]').click(function() {
             top.activenote = $(this)[0];
         });
     });
