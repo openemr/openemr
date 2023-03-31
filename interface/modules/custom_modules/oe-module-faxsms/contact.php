@@ -187,7 +187,7 @@ $service = $clientApp::getServiceType();
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container-fluid">
         <form class="form" id="contact-form" method="post" action="contact.php" role="form">
             <input type="hidden" id="form_file" name="file" value='<?php echo attr($the_file) ?>'>
             <input type="hidden" id="form_docid" name="docid" value='<?php echo attr($the_docid) ?>'>

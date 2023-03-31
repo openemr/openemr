@@ -5,7 +5,7 @@ Fax and SMS feature for OpenEMR
 
 
  This module uses an abstract class to arbitrate and dispatch
- API calls to diffrent vendor services for both the fax and sms type on a per-call basis.
+ API calls to different vendor services for both the fax and sms type on a per-call basis.
  To add new vendors, just follow and use the existing dispatching flow
  for an existing service type and vendor service.
 
