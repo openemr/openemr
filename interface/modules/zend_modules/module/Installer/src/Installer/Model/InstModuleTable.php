@@ -18,7 +18,7 @@ namespace Installer\Model;
 
 use Laminas\Db\Adapter\Driver\Pdo\Result;
 use Laminas\Db\TableGateway\TableGateway;
-use Laminas\Db\TableGateway\Feature;
+use Laminas\Db\TableGateway\Feature\GlobalAdapterFeature;
 use Laminas\Config\Reader\Ini;
 use Laminas\Db\ResultSet\ResultSet;
 use Application\Model\ApplicationTable;
@@ -50,13 +50,13 @@ class InstModuleTable
      */
     private $module_zend_path;
 
-    private const MODULE_TYPE_ZEND = 1;
-    private const MODULE_TYPE_CUSTOM = 0;
+    public const MODULE_TYPE_ZEND = 1;
+    public const MODULE_TYPE_CUSTOM = 0;
 
     public function __construct(TableGateway $tableGateway, ContainerInterface $container)
     {
         $this->tableGateway = $tableGateway;
-        $adapter = Feature\GlobalAdapterFeature::getStaticAdapter();
+        $adapter = GlobalAdapterFeature::getStaticAdapter();
         $this->adapter = $adapter;
         $this->resultSetPrototype = new ResultSet();
         $this->applicationTable = new ApplicationTable();
