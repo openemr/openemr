@@ -20,36 +20,41 @@ use MyMailer;
 
 class TelehealthGlobalConfig
 {
-    const MODULE_INSTALLATION_PATH = "/interface/modules/custom_modules/";
+    public const MODULE_INSTALLATION_PATH = "/interface/modules/custom_modules/";
 
-    const COMLINK_VIDEO_TELEHEALTH_API = 'comlink_telehealth_video_uri';
-    const COMLINK_VIDEO_REGISTRATION_API = 'comlink_telehealth_registration_uri';
-    const COMLINK_VIDEO_API_USER_ID = 'comlink_telehealth_user_id';
-    const COMLINK_VIDEO_API_USER_PASSWORD = 'comlink_telehealth_user_password';
-    const COMLINK_VIDEO_TELEHEALTH_CMS_ID = 'comlink_telehealth_cms_id';
+    public const COMLINK_VIDEO_TELEHEALTH_API = 'comlink_telehealth_video_uri';
+    public const COMLINK_VIDEO_REGISTRATION_API = 'comlink_telehealth_registration_uri';
+    public const COMLINK_VIDEO_API_USER_ID = 'comlink_telehealth_user_id';
+    public const COMLINK_VIDEO_API_USER_PASSWORD = 'comlink_telehealth_user_password';
+    public const COMLINK_VIDEO_TELEHEALTH_CMS_ID = 'comlink_telehealth_cms_id';
     // note patients always auto provision
-    const COMLINK_AUTO_PROVISION_PROVIDER = 'comlink_autoprovision_provider';
-    const COMLINK_ENABLE_THIRDPARTY_INVITATIONS = "comlink_telehealth_thirdparty_enabled";
-    const UNIQUE_INSTALLATION_ID = "unique_installation_id";
-    const INSTALLATION_NAME  = "openemr_name";
-    const DEBUG_MODE_FLAG = "comlink_telehealth_debug";
+    public const COMLINK_AUTO_PROVISION_PROVIDER = 'comlink_autoprovision_provider';
+    public const COMLINK_ENABLE_THIRDPARTY_INVITATIONS = "comlink_telehealth_thirdparty_enabled";
+    public const UNIQUE_INSTALLATION_ID = "unique_installation_id";
+    public const INSTALLATION_NAME  = "openemr_name";
+    public const DEBUG_MODE_FLAG = "comlink_telehealth_debug";
 
-    const COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT = "comlink_telehealth_minimized_position_default";
-    const DEFAULT_MINIMIZED_SESSION_POSITION_DEFAULT = 'bottom-left';
+    public const COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT = "comlink_telehealth_minimized_position_default";
+    public const DEFAULT_MINIMIZED_SESSION_POSITION_DEFAULT = 'bottom-left';
 
 
     // character length to generate for the unique registration code for the user
-    const APP_REGISTRATION_CODE_LENGTH = 12;
+    public const APP_REGISTRATION_CODE_LENGTH = 12;
 
     // TODO: @adunsulag replace this with the name of the app that comlink is using.
-    const COMLINK_MOBILE_APP_TITLE = "Comlink App";
+    public const COMLINK_MOBILE_APP_TITLE = "Comlink App";
 
-    const VERIFY_SETTINGS_BUTTON = "comlink_verify_settings_button";
+    public const VERIFY_SETTINGS_BUTTON = "comlink_verify_settings_button";
 
     /**
      * @var CryptoGen
      */
     private $cryptoGen;
+
+    /**
+     * @var publicWebPath
+     */
+    private $publicWebPath;
 
     public function __construct($publicWebPath)
     {

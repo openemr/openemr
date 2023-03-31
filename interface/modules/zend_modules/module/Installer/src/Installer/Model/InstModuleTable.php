@@ -18,6 +18,7 @@ namespace Installer\Model;
 
 use Laminas\Db\Adapter\Driver\Pdo\Result;
 use Laminas\Db\TableGateway\TableGateway;
+use Laminas\Db\TableGateway\Feature\GlobalAdapterFeature;
 use Laminas\Config\Reader\Ini;
 use Laminas\Db\ResultSet\ResultSet;
 use Application\Model\ApplicationTable;
@@ -29,6 +30,8 @@ use OpenEMR\Services\Utils\SQLUpgradeService;
 class InstModuleTable
 {
     protected $tableGateway;
+    protected $adapter;
+    protected $resultSetPrototype;
 
     /**
      * @var ApplicationTable
@@ -47,13 +50,13 @@ class InstModuleTable
      */
     private $module_zend_path;
 
-    const MODULE_TYPE_ZEND = 1;
-    const MODULE_TYPE_CUSTOM = 0;
+    public const MODULE_TYPE_ZEND = 1;
+    public const MODULE_TYPE_CUSTOM = 0;
 
     public function __construct(TableGateway $tableGateway, ContainerInterface $container)
     {
         $this->tableGateway = $tableGateway;
-        $adapter = \Laminas\Db\TableGateway\Feature\GlobalAdapterFeature::getStaticAdapter();
+        $adapter = GlobalAdapterFeature::getStaticAdapter();
         $this->adapter = $adapter;
         $this->resultSetPrototype = new ResultSet();
         $this->applicationTable = new ApplicationTable();
@@ -448,7 +451,7 @@ class InstModuleTable
         }
         if ($results == false) {
             return 'failure';
-        } else if (is_string($results) && stripos($results, 'ERROR') !== false) {
+        } elseif (is_string($results) && stripos($results, 'ERROR') !== false) {
             return 'failure';
         } else {
             return 'success';
