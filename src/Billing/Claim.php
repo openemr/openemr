@@ -49,6 +49,8 @@ class Claim
     private $encounterService;
     public $billing_prov_id;
     public $line_item_adjs;    // adjustment array with key of [group code][reason code] needed for secondary claims
+    public $using_modifiers;
+
 
     public function __construct($pid, $encounter_id)
     {
@@ -834,7 +836,7 @@ class Claim
 
     public function facilityTaxonomy()
     {
-        return $this->x12Clean(trim($this->facility['facility_taxonomy']));
+        return $this->x12Clean(trim($this->facility['facility_taxonomy'] ?? ''));
     }
 
     public function clearingHouseName()
