@@ -19,6 +19,42 @@ use OpenEMR\Gacl\GaclApi;
 
 class Installer
 {
+    private $iuser;
+    private $iuserpass;
+    private $iuname;
+    private $iufname;
+    private $igroup;
+    private $i2faEnable;
+    private $i2faSecret;
+    private $server;
+    private $loginhost;
+    private $port;
+    private $root;
+    private $rootpass;
+    private $login;
+    private $pass;
+    private $dbname;
+    private $collate;
+    private $site;
+    private $source_site_id;
+    private $clone_database;
+    private $no_root_db_access;
+    private $development_translations;
+    private $new_theme;
+    private $ippf_specific;
+    private $conffile;
+    private $main_sql;
+    private $translation_sql;
+    private $devel_translation_sql;
+    private $ippf_sql;
+    private $icd9;
+    private $cvx;
+    private $additional_users;
+    private $dumpfiles;
+    private $error_message;
+    private $debug_message;
+    private $dbh;
+
     public function __construct($cgi_variables)
     {
         // Installation variables
