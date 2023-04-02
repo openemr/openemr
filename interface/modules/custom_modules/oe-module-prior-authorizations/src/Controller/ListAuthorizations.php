@@ -38,7 +38,7 @@ class ListAuthorizations
     private static function getAuthsFromModulePriorAuth(): array
     {
         $sql = "SELECT auth_num FROM module_prior_authorizations WHERE pid = ?";
-        $auths = sqlStatement($sql, [$_SESSION['pid']]);
+        $auths = sqlStatement($sql, [$_SESSION['pid'] ?? null]);
         $auth_array = [];
         while ($row = sqlFetchArray($auths)) {
             $auth_array[] = $row['auth_num'];
@@ -105,7 +105,7 @@ class ListAuthorizations
     private static function formMiscBilling()
     {
         $sql = "select prior_auth_number from form_misc_billing_options where pid = ?";
-        $auths = sqlStatement($sql, [$_SESSION['pid']]);
+        $auths = sqlStatement($sql, [$_SESSION['pid'] ?? null]);
         $auths_array = [];
         while ($row = sqlFetchArray($auths)) {
             $auths_array[] = $row['prior_auth_number'];

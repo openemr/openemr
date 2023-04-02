@@ -38,7 +38,7 @@ $listener			= $this->listenerObject;
 								<?php foreach($USER_GROUPS as $KEY => $VAL) : ?>
 								<?php
 							$selected = "";
-							if(is_array($ACL_DATA[$MODULE_DATA['module_name']['id']]) && in_array($KEY,$ACL_DATA[$MODULE_DATA['module_name']['id']])) $selected = "checked";
+							if(is_array($ACL_DATA[$MODULE_DATA['module_name']['id']] ?? null) && in_array($KEY,$ACL_DATA[$MODULE_DATA['module_name']['id']])) $selected = "checked";
 								?>
 								<td class="align_center"><input <?php echo $selected; ?> class="module_check" type="checkbox" name="<?php echo $this->escapeHtml($MODULE_DATA['module_name']['id']).'_'.$this->escapeHtml($KEY); ?>" id="<?php echo $this->escapeHtml($MODULE_DATA['module_name']['id']).'_'.$this->escapeHtml($KEY); ?>" ></td>
 								<?php endforeach ?>

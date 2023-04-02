@@ -647,7 +647,7 @@ class InstModuleTable
                 $modArr = $row;
             }
 
-            if ($modArr['mod_id'] <> "") {
+            if (!empty($modArr['mod_id'])) {
                 return "1";
             } else {
                 return "0";
@@ -884,7 +884,7 @@ class InstModuleTable
             $modArr = $row;
         }
 
-        if ($modArr['obj_name'] <> "") {
+        if (!empty($modArr['obj_name'])) {
             return "1";
         } else {
             return "0";

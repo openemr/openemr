@@ -431,7 +431,7 @@ function pnVarPrepForDisplay()
 
     foreach (func_get_args() as $ourvar) {
         // Prepare var
-        $ourvar = htmlspecialchars($ourvar);
+        $ourvar = htmlspecialchars($ourvar ?? '');
 
         $ourvar = preg_replace_callback(
             $search,
