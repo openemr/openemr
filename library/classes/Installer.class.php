@@ -42,7 +42,7 @@ class Installer
     private $development_translations;
     private $new_theme;
     private $ippf_specific;
-    private $conffile;
+    public $conffile;
     private $main_sql;
     private $translation_sql;
     private $devel_translation_sql;
@@ -51,8 +51,8 @@ class Installer
     private $cvx;
     private $additional_users;
     private $dumpfiles;
-    private $error_message;
-    private $debug_message;
+    public $error_message;
+    public $debug_message;
     private $dbh;
 
     public function __construct($cgi_variables)
