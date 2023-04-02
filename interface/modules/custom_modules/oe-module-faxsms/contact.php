@@ -25,6 +25,7 @@ if (!$clientApp->verifyAcl()) {
 $logged_in = $clientApp->authenticate();
 $isSMS = $clientApp->getRequest('isSMS', 0);
 $isForward = ($clientApp->getRequest('mode', null) == 'forward') ? 1 : 0;
+$isSMTP = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
 $default_message = '';
 $interface_pid = null;
 $file_mime = '';
@@ -223,7 +224,7 @@ $service = $clientApp::getServiceType();
                     <div class="form-group faxExclude smsExclude show-detail">
                         <label for="form_email"><?php echo xlt('Email') ?></label>
                         <input id="form_email" type="email" name="email" class="form-control"
-                            placeholder="<?php echo xla('Email address if forwarding to Email.') ?>"
+                            placeholder="<?php echo ($isSMTP ? xla('Forward to email address.') : xla('Unavailable! Setup SMTP in Config Notifications.')); ?>"
                             title="<?php echo xla('Forward to an email address.') ?>" />
                         <div class="help-block with-errors"></div>
                     </div>
@@ -239,7 +240,7 @@ $service = $clientApp::getServiceType();
                         <div class="form-group">
                             <label for="form_message"><?php echo xlt('Message') ?></label>
                             <textarea id="form_message" name="comments" class="form-control" placeholder="
-                            <?php echo empty($isSMS) ? xla('Message for fax forward to Email.') : xla('SMS text message.') ?>" rows="6"><?php echo $default_message; ?></textarea>
+                            <?php echo empty($isSMS) ? xla('Add a note to recipient concerning fax.') : xla('SMS text message.') ?>" rows="6"><?php echo $default_message; ?></textarea>
                             <div class="help-block with-errors"></div>
                         </div>
                     <?php } ?>

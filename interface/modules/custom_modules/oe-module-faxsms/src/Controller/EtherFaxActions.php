@@ -263,6 +263,7 @@ class EtherFaxActions extends AppDispatch
         $email = $this->getRequest('email');
         $faxNumber = $this->formatPhone($this->getRequest('phone'));
         $hasEmail = $this->validEmail($email);
+        $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
         $from = $this->formatPhone($this->credentials['phone']);
         $user = $this::getLoggedInUser();
         $csid = $user['facility'];
@@ -285,7 +286,12 @@ class EtherFaxActions extends AppDispatch
                 file_put_contents($filepath, base64_decode($content));
             }
             if ($hasEmail) {
-                $statusMsg .= $this->emailDocument($email, $comment, $filepath, $user) . "<br />";
+                if ($smtpEnabled) {
+                    $statusMsg .= $this->emailDocument($email, $comment, $filepath, $user) . "<br />";
+                } else {
+                    $statusMsg .= 'Error: ' . xlt("Fax was not forwarded. A SMTP client is not set up in Config Notifications!.");
+                    return js_escape($statusMsg);
+                }
             }
             // forward to new fax number.
             if ($faxNumber) {
@@ -315,8 +321,10 @@ class EtherFaxActions extends AppDispatch
             if ($filepath) {
                 unlink($filepath);
             }
-            $this->setFaxDeleted($jobId);
-            $statusMsg .= xlt("Fax Deleted.");
+            // TODO TBD Should fax be deleted after being forwarded? For now no.
+            /*$this->setFaxDeleted($jobId);
+            $statusMsg .= xlt("Fax Deleted.");*/
+            $statusMsg .= xlt("Fax was not deleted for further processing.");
         } catch (\Exception $e) {
             $message = $e->getMessage();
             $statusMsg = 'Error: ' . $message;
