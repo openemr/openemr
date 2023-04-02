@@ -263,6 +263,7 @@ class EtherFaxActions extends AppDispatch
         $email = $this->getRequest('email');
         $faxNumber = $this->formatPhone($this->getRequest('phone'));
         $hasEmail = $this->validEmail($email);
+        $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
         $from = $this->formatPhone($this->credentials['phone']);
         $user = $this::getLoggedInUser();
         $csid = $user['facility'];
@@ -285,7 +286,12 @@ class EtherFaxActions extends AppDispatch
                 file_put_contents($filepath, base64_decode($content));
             }
             if ($hasEmail) {
-                $statusMsg .= $this->emailDocument($email, $comment, $filepath, $user) . "<br />";
+                if ($smtpEnabled) {
+                    $statusMsg .= $this->emailDocument($email, $comment, $filepath, $user) . "<br />";
+                } else {
+                    $statusMsg .= 'Error: ' . xlt("Fax was not forwarded. A SMTP client is not set up in Config Notifications!.");
+                    return js_escape($statusMsg);
+                }
             }
             // forward to new fax number.
             if ($faxNumber) {
@@ -315,8 +321,10 @@ class EtherFaxActions extends AppDispatch
             if ($filepath) {
                 unlink($filepath);
             }
-            $this->setFaxDeleted($jobId);
-            $statusMsg .= xlt("Fax Deleted.");
+            // TODO TBD Should fax be deleted after being forwarded? For now no.
+            /*$this->setFaxDeleted($jobId);
+            $statusMsg .= xlt("Fax Deleted.");*/
+            $statusMsg .= xlt("Fax was not deleted for further processing.");
         } catch (\Exception $e) {
             $message = $e->getMessage();
             $statusMsg = 'Error: ' . $message;
@@ -406,7 +414,7 @@ class EtherFaxActions extends AppDispatch
                 $messageLink = "<a role='button' href='javascript:void(0)' onclick=\"notifyUser(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js(($pid ?? 0)) . ")\"> <i class='fa fa-paper-plane mr-2' title='" . xla("Notify a user and attach this fax to message.") . "'></i></a>";
                 $downloadLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\"> <i class='fa fa-file-download mr-2' title='" . xla("Download and delete fax") . "'></i></a>";
                 $viewLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false')\"> <i class='fa fa-file-pdf mr-2' title='" . xla("View fax document") . "'></i></a>";
-                $details_esc = json_encode($details);
+                $deleteLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'false', 'true')\"> <i class='text-danger fa fa-trash mr-2' title='" . xla("Delete this fax document") . "'></i></a>";
                 $forwardLink = "<a role='button' href='javascript:void(0)' onclick=\"forwardFax(event, " . attr_js($id) . ")\"> <i class='fa fa-forward mr-2' title='" . xla("Forward fax to new fax recipient or email attachment.") . "'></i></a>";
                 $detailLink = '';
                 if ($showFlag) {
@@ -421,9 +429,8 @@ class EtherFaxActions extends AppDispatch
                         "</td><td>" . text($faxDetails->PagesReceived) .
                         "</td><td>" . text($docLen) .
                         "</td><td class='text-left'>" . $detailLink .
-                        "</td><td class='text-left'>" . text($pid_assumed) .
-                        "</td><td class='text-left'>" . $patientLink .
-                        "</td><td class='text-left'>" . $messageLink . $forwardLink . $viewLink . $downloadLink .
+                        "</td><td class='text-center'>" . text($pid_assumed) .
+                        "</td><td class='text-left'>" . $patientLink . $messageLink . $forwardLink . $viewLink . $downloadLink . $deleteLink .
                         "</td></tr>";
                     $responseMsgs[0] .= $form;
                 }
@@ -452,6 +459,7 @@ class EtherFaxActions extends AppDispatch
         $docid = $this->getRequest('docid');
         $isDownload = $this->getRequest('download');
         $isDownload = $isDownload == 'true' ? 1 : 0;
+        $isDelete = $this->getRequest('delete');
 
         if ($this->authenticate() !== 1) {
             return $this->authErrorDefault;
@@ -470,7 +478,10 @@ class EtherFaxActions extends AppDispatch
             $r = "Error: Retrieving Fax:\n" . $message;
             return $r;
         }
-
+        if (!empty($isDelete && !empty($apiResponse->JobId ?? null))) {
+            $this->setFaxDeleted($apiResponse->JobId);
+            return json_encode('success');
+        }
         $faxImage = $apiResponse->FaxImage;
         $raw = base64_decode($faxImage);
         $c_header = $apiResponse->DocumentParams->Type;

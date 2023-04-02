@@ -215,7 +215,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             win.document.write("<iframe width='100%' height='100%' style='border:none;' src='" + dataUrl + "'></iframe>");
         }
 
-        function getDocument(e, docuri, docid, downFlag) {
+        function getDocument(e, docuri, docid, downFlag, deleteFlag = '') {
             try {
                 top.restoreSession();
             } catch (error) {
@@ -236,6 +236,14 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                     return false;
                 }
             }
+            if (deleteFlag == 'true') {
+                let yn = confirm(
+                    xl("Are you sure you want to continue with delete?")
+                );
+                if (!yn) {
+                    return false;
+                }
+            }
             let actionUrl = 'viewFax?type=fax';
             $("#brand").addClass('fa fa-spinner fa-spin');
             return $.post(actionUrl, {
@@ -243,13 +251,18 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                 'docuri': docuri,
                 'docid': docid,
                 'pid': pid,
-                'download': downFlag
+                'download': downFlag,
+                'delete': deleteFlag
             }).done(function (json) {
                 $("#brand").removeClass('fa fa-spinner fa-spin');
                 try {
                     data = JSON.parse(json);
                 } catch {
                     data = json;
+                }
+                if (deleteFlag == 'true') {
+                    setTimeout(retrieveMsgs, 1000);
+                    return false;
                 }
                 if (downFlag == 'true') {
                     location.href = "disposeDoc?type=fax&file_path=" + encodeURIComponent(data);
@@ -551,8 +564,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                                             <th><a role='button' href='javascript:void(0)' class='btn btn-link fa fa-eye' onclick="toggleDetail('collapse')"></a>
                                                 <?php echo xlt("Extracted") ?>
                                             </th>
-                                            <th><?php echo xlt("Matched") ?></th>
-                                            <th><?php echo xlt("Chart Patient") ?></th>
+                                            <th><?php echo xlt("MRN Match") ?></th>
                                             <th><?php echo xlt("Actions") ?></th>
                                         </tr>
                                         </thead>
