@@ -314,7 +314,7 @@ class InstallerController extends AbstractActionController
             'ListActiveUsers' => $this->getInstallerTable()->getActiveUsers(),
             'ListActiveACL' => $this->getInstallerTable()->getActiveACL($modId),
             'ListActiveHooks' => $this->getInstallerTable()->getActiveHooks($modId),
-            'helperObject' => $this->helperObject,
+            'helperObject' => $this->helperObject ?? null,
             'configuration' => $configuration,
             'hangers' => $this->getInstallerTable()->getHangers(),
             'Hooks' => $hooksArr,

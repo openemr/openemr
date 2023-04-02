@@ -109,7 +109,7 @@ class AclController extends AbstractActionController
                 $data           = $this->getAclTable()->getGroupAcl($module_id);
                 $saved_ACL  = array();
         foreach ($data as $row) {
-            if (!$saved_ACL[$row['section_id']]) {
+            if (empty($saved_ACL[$row['section_id']])) {
                 $saved_ACL[$row['section_id']] = array();
             }
 

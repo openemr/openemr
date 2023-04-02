@@ -138,7 +138,7 @@ if (count($TabSettings) > 0) {
                                     ?>
                                     <tr>
                                         <td width='15%'><?php echo $listener->z_xlt($element->getLabel()) ?></td>
-                                        <td><?php echo $this->formElement($element->setValue($configuration[$element->getAttribute('id')]['field_value'])); ?></td>
+                                        <td><?php echo $this->formElement($element->setValue($configuration[$element->getAttribute('id')]['field_value'] ?? null)); ?></td>
                                     </tr>
                                     <?php
                                     $i++;
