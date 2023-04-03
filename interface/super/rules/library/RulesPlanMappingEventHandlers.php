@@ -99,7 +99,7 @@ function addNewPlan($plan_name, $plan_rules)
                 "WHERE `list_id` = 'clinical_plans' AND `title` = ?;";
     $res = sqlStatement($sql_st, array($plan_name));
     $row = sqlFetchArray($res);
-    if ($row['option_id'] != null) {
+    if (!empty($row['option_id'])) {
         throw new Exception("002");
     }
 

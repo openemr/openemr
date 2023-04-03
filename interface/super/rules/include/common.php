@@ -54,7 +54,7 @@ function _get($var, $default = '')
  */
 function _post($var, $default = '')
 {
-    $val = $_POST[$var];
+    $val = $_POST[$var] ?? null;
     return isset($val) && $val != '' ? $val : $default;
 }
 
