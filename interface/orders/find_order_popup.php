@@ -31,7 +31,7 @@ if (isset($_GET['typeid'])) {
         $name = $ptrow['name'];
         $proctype = trim($ptrow['procedure_type']);
         $codes = ($proctype === 'pro') ? '' : $ptrow['related_code'];
-        $transport = trim($ptrow['transport']);
+        $transport = trim($ptrow['transport'] ?? '');
         $testid = trim($ptrow['procedure_code']);
         $proctype_name = trim($ptrow['procedure_type_name']);
 
@@ -83,7 +83,7 @@ if (isset($_GET['typeid'])) {
                     }
                 }
                 $i++;
-            } while ($grporders[$i]['procedure_type_id']);
+            } while ($grporders[$i]['procedure_type_id'] ?? null);
             ?>
         }
         window.close();
