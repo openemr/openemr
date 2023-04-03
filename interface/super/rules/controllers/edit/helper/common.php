@@ -112,7 +112,7 @@ Compound Helpers
     return generate_select_list(
         $args['name'],
         $args['context'],
-        $args['value']->code,
+        $args['value']->code ?? null,
         $args['name'],
         '',
         '',

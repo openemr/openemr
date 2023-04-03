@@ -55,7 +55,7 @@ class ReminderIntervals
      */
     function getDetailFor($type, $range = null)
     {
-        $details = $this->detailMap[ $type->code ];
+        $details = $this->detailMap[$type->code] ?? null;
         if (is_null($range)) {
             return $details;
         }

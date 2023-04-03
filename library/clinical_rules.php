@@ -144,7 +144,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
         } elseif ($action['clin_rem_link']) {
             // Start link for reminders that use the custom rules input screen
             $pieces_url = parse_url($action['clin_rem_link']);
-            $url_prefix = $pieces_url['scheme'];
+            $url_prefix = $pieces_url['scheme'] ?? '';
             if ($url_prefix == 'https' || $url_prefix == 'http') {
                 echo "<a href='" . $action['clin_rem_link'] .
                 "' class='medium_modal' onclick='return top.restoreSession()'>";

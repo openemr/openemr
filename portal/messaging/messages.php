@@ -131,7 +131,7 @@ function getAuthPortalUsers()
                 $scope.deletedItems = [];
                 $scope.inboxItems = [];
                 $scope.inboxItems = <?php echo json_encode($theresult);?>;
-                $scope.userproper = <?php echo $_SESSION['ptName'] ? js_escape($_SESSION['ptName']) : js_escape($dashuser['fname'] . ' ' . $dashuser['lname']);?>;
+                $scope.userproper = <?php echo !empty($_SESSION['ptName']) ? js_escape($_SESSION['ptName']) : js_escape($dashuser['fname'] . ' ' . $dashuser['lname']);?>;
                 $scope.isPortal = "<?php echo IS_PORTAL;?>";
                 $scope.isDashboard = "<?php echo IS_DASHBOARD ?: 0;?>";
                 $scope.cUserId = $scope.isPortal ? $scope.isPortal : $scope.isDashboard;

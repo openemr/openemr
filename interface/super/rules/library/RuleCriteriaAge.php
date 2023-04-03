@@ -66,8 +66,8 @@ class RuleCriteriaAge extends RuleCriteria
         $dbView = parent::getDbView();
 
         $dbView->method = "age_" . $this->type;
-        $dbView->methodDetail = $this->timeUnit->code;
-        $dbView->value = $this->value;
+        $dbView->methodDetail = $this->timeUnit->code ?? null;
+        $dbView->value = $this->value ?? null;
         return $dbView;
     }
 
