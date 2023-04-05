@@ -100,7 +100,6 @@ class EtherFaxActions extends AppDispatch
     {
         if (!empty($_FILES)) {
             $name = $_FILES['fax']['name'];
-            $ext = $_FILES['fax']['ext'];
             $tmp_name = $_FILES['fax']['tmp_name'];
         } else {
             return 'Error:';
