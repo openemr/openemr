@@ -173,6 +173,10 @@ class OnsiteDocumentController extends AppBasePortalController
             $this->RenderExceptionJSON($ex);
         }
     }
+
+    /**
+     * @return void
+     */
     public function SingleView()
     {
         $rid = $pid = $user = $encounter = 0;
@@ -240,16 +244,17 @@ class OnsiteDocumentController extends AppBasePortalController
 
             $onsitedocument = new OnsiteDocument($this->Phreezer);
 
-            // TODO: any fields that should not be inserted by the user should be commented out
-
-            // this is an auto-increment.  uncomment if updating is allowed
-            // $onsitedocument->Id = $this->SafeGetVal($json, 'id');
-
-            // only allow patient to add to themself
+            // only allow patient to add to themselves
             if (!empty($GLOBALS['bootstrap_pid'])) {
                 $onsitedocument->Pid = $GLOBALS['bootstrap_pid'];
             } else {
                 $onsitedocument->Pid = $this->SafeGetVal($json, 'pid');
+            }
+
+            if (!empty($_SESSION["patient_portal_onsite_two"] ?? null)) {
+                $decode = $this->SafeGetVal($json, 'fullDocument');
+                $k = (int)$this->SafeGetVal($json, 'csrf_token_form')[0];
+                $json->fullDocument = $this->decode($decode, $k);
             }
 
             $onsitedocument->Facility = $this->SafeGetVal($json, 'facility');
@@ -295,11 +300,10 @@ class OnsiteDocumentController extends AppBasePortalController
             if (!$json) {
                 throw new Exception('The request body does not contain valid JSON');
             }
-
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
 
-            // only allow patient to update themself (part 1)
+            // only allow patient to update themselves (part 1)
             if (!empty($GLOBALS['bootstrap_pid'])) {
                 if ($GLOBALS['bootstrap_pid'] != $onsitedocument->Pid) {
                     $error = 'Unauthorized';
@@ -307,16 +311,17 @@ class OnsiteDocumentController extends AppBasePortalController
                 }
             }
 
-            // TODO: any fields that should not be updated by the user should be commented out
-
-            // this is a primary key.  uncomment if updating is allowed
-            // $onsitedocument->Id = $this->SafeGetVal($json, 'id', $onsitedocument->Id);
-
-            // only allow patient to update themself (part 2)
+            // only allow patient to update themselves (part 2)
             if (!empty($GLOBALS['bootstrap_pid'])) {
                 $onsitedocument->Pid = $GLOBALS['bootstrap_pid'];
             } else {
                 $onsitedocument->Pid = $this->SafeGetVal($json, 'pid', $onsitedocument->Pid);
+            }
+
+            if (!empty($_SESSION["patient_portal_onsite_two"] ?? null)) {
+                $decode = $this->SafeGetVal($json, 'fullDocument');
+                $k = (int)$this->SafeGetVal($json, 'csrf_token_form')[0];
+                $json->fullDocument = $this->decode($decode, $k);
             }
 
             $onsitedocument->Facility = $this->SafeGetVal($json, 'facility', $onsitedocument->Facility);
@@ -378,5 +383,22 @@ class OnsiteDocumentController extends AppBasePortalController
         } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
         }
+    }
+
+    /**
+     * @param $encoded
+     * @param $v
+     * @return bool|string
+     */
+    private function decode($encoded, $v): bool|string
+    {
+        $encoded = base64_decode($encoded);
+        $decoded = "";
+        for ($i = 0; $i < strlen($encoded); $i++) {
+            $b = ord($encoded[$i]);
+            $a = $b ^ $v;
+            $decoded .= chr($a);
+        }
+        return base64_decode(base64_decode($decoded));
     }
 }

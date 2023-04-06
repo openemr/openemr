@@ -848,6 +848,9 @@ var page = {
             // no frame content is maintained in onsite document activity but template directives are.
             templateContent = templateContent.replace("id=0", "id=" + page.encounterFormId);
         }
+        if (isPortal) {
+            templateContent = page.encode(templateContent, parseInt(csrfTokenDoclib[0]));
+        }
         page.onsiteDocument.save({
             'pid': cpid,
             'facility': page.formOrigin, /* 0 portal, 1 dashboard, 2 patient documents */
@@ -866,7 +869,8 @@ var page = {
             'patientSignature': ptsignature,
             'fullDocument': templateContent,
             'fileName': page.onsiteDocument.get('fileName'),
-            'filePath': page.onsiteDocument.get('filePath')
+            'filePath': page.onsiteDocument.get('filePath'),
+            'csrf_token_form': csrfTokenDoclib
         }, {
             wait: true,
             success: function () {
@@ -951,5 +955,16 @@ var page = {
                 app.hideProgress('modelLoader');
             }
         });
+    },
+    encode: function (content, k) {
+        let encoded = "";
+        content = btoa(content);
+        content = btoa(content);
+        for (i = 0; i < content.length; i++) {
+            let a = content.charCodeAt(i);
+            let b = a ^ k;
+            encoded = encoded + String.fromCharCode(b);
+        }
+        return btoa(encoded);
     }
 };
