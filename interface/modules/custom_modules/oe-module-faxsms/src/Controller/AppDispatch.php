@@ -60,7 +60,7 @@ abstract class AppDispatch
     private function dispatchActions(): void
     {
         $action = $this->getQuery('_ACTION_COMMAND');
-        $route = explode('/', $action);
+        $route = explode('/', ($action ?? ''));
         $serviceType = $this->getQuery('type');
         if (count($route ?? []) === 2) {
             $serviceType = $route[0];
@@ -429,7 +429,7 @@ abstract class AppDispatch
         if (!($GLOBALS['oerestrict_users'] ?? null)) {
             $this->authUser = 0;
         }
-        $credentials = sqlQuery("SELECT * FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", array($this->authUser, $vendor))['credentials'];
+        $credentials = sqlQuery("SELECT * FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", array($this->authUser, $vendor));
 
         if (empty($credentials)) {
             $credentials = array(
@@ -449,6 +449,8 @@ abstract class AppDispatch
                 'smsMessage' => "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.",
             );
             return $credentials;
+        } else {
+            $credentials = $credentials['credentials'];
         }
 
         return json_decode($this->crypto->decryptStandard($credentials), true);
