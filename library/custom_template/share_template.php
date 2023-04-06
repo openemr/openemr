@@ -55,7 +55,7 @@ $list_id = $_REQUEST['list_id'];
                 url: "ajax_code.php",
                 dataType: "html",
                 data: {
-                     list_id: <?php echo htmlspecialchars($list_id, ENT_QUOTES);?>,
+                     list_id: <?php echo js_escape($list_id); ?>,
                      multi: val,
                      source: "save_provider"
                 },
@@ -71,7 +71,7 @@ $list_id = $_REQUEST['list_id'];
                 return;
                 }
                 else{
-                    alert("<?php echo addslashes(xl('You should select at least one Provider'));?>");
+                    alert(<?php echo xlj('You should select at least one Provider');?>);
                 }
 
         }
@@ -97,13 +97,13 @@ $list_id = $_REQUEST['list_id'];
                                         $sel = '';
                                     }
                                 }
-                                echo "<option value='" . htmlspecialchars($row['id'], ENT_QUOTES) . "' $sel>" . htmlspecialchars($row['lname'] . "," . $row['fname'], ENT_QUOTES) . "</option>";
+                                echo "<option value='" . attr($row['id']) . "' $sel>" . text($row['lname'] . "," . $row['fname']) . "</option>";
                             }
                             ?>
                         </select>
                     </td>
                     <td>
-                    <a href="#" onclick="add_template()" class="btn btn-primary"><span><?php echo htmlspecialchars(xl('Save'), ENT_QUOTES);?></span></a>
+                    <a href="#" onclick="add_template()" class="btn btn-primary"><span><?php echo xlt('Save');?></span></a>
                     </td>
                 </tr>
             </table>
