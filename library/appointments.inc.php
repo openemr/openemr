@@ -467,7 +467,7 @@ function fetchXPastAppts($pid2, $pastApptsNumber, $orderOfAppts = '1')
             $eventTime  = array_column($totalAppts, 'pc_startTime');
             array_multisort($eventDate, SORT_ASC, $eventTime, SORT_ASC, $totalAppts);
             $totalAppts = array_slice($totalAppts, -$pastApptsNumber, $pastApptsNumber);
-        } else if ($orderOfAppts == '2') {
+        } elseif ($orderOfAppts == '2') {
             $eventDate  = array_column($totalAppts, 'pc_eventDate');
             $eventTime  = array_column($totalAppts, 'pc_startTime');
             array_multisort($eventDate, SORT_DESC, $eventTime, SORT_ASC, $totalAppts);
@@ -514,8 +514,17 @@ function getAvailableSlots($from_date, $to_date, $provider_id = null, $facility_
         $next_appointment_time = 0;
         for ($j = $i + 1; $j < count($appointments); ++$j) {
             if ($appointments[$j]['uprovider_id'] == $provider_id) {
-                $next_appointment_date = $appointments[$j]['pc_eventDate'];
-                $next_appointment_time = $appointments[$j]['pc_startTime'];
+                // if consecutive appointments are in office on separate days...
+                if (
+                    $appointments[$i]['pc_catid'] == '2'
+                    && $appointments[$j]['pc_catid'] == '2'
+                ) {
+                    $next_appointment_date = $appointments[$i]['pc_eventDate'];
+                    $next_appointment_time = $appointments[$i]['pc_endTime'];
+                } else {
+                    $next_appointment_date = $appointments[$j]['pc_eventDate'];
+                    $next_appointment_time = $appointments[$j]['pc_startTime'];
+                }
                 break;
             }
         }
