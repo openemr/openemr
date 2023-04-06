@@ -40,7 +40,7 @@ if (!empty($_POST['isPortal'])) {
     $total_counts = GetPortalAlertCounts();
 }
 
-if (empty($_POST['isServicesOther'])) {
+if (!empty($_POST['isServicesOther'])) {
     $other_count = GetServiceOtherCounts();
     $total_counts = array_merge($total_counts, $other_count);
 }
