@@ -47,3 +47,31 @@
 
 --  #EndIf
 --    all blocks are terminated with and #EndIf statement.
+
+#IfTable pma_bookmark
+DROP TABLE IF EXISTS `pma_bookmark`;
+#EndIf
+
+#IfTable pma_column_info
+DROP TABLE IF EXISTS `pma_column_info`;
+#EndIf
+
+#IfTable pma_history
+DROP TABLE IF EXISTS `pma_history`;
+#EndIf
+
+#IfTable pma_pdf_pages
+DROP TABLE IF EXISTS `pma_pdf_pages`;
+#EndIf
+
+#IfTable pma_relation
+DROP TABLE IF EXISTS `pma_relation`;
+#EndIf
+
+#IfTable pma_table_coords
+DROP TABLE IF EXISTS `pma_table_coords`;
+#EndIf
+
+#IfTable pma_table_info
+DROP TABLE IF EXISTS `pma_table_info`;
+#EndIf
