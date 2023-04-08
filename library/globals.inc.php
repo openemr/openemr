@@ -2045,6 +2045,11 @@ $GLOBALS_METADATA = array(
     // Security Tab
     //
     'Security' => array(
+        'white_list' => array(
+            xl('Whitelisted Admin IP'),
+            'text',                           // data type
+            '',                               // default
+        ),
         'sql_string_no_show_screen' => array(
             xl('Mode - Do Not Show SQL Queries'),
             'bool',                           // data type
@@ -2445,7 +2450,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'SMTP_HOST' => array(
-            xl('SMTP Server Hostname'),
+            xl('SMTP Server HosPtname'),
             'text',                           // data type
             'localhost',                      // default
             xl('If SMTP is used, the server`s hostname or IP address.')
