@@ -250,10 +250,10 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
     $(function () {
         // Initializing the DataTable.
         //
-        let serverUrl = "dynamic_finder_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+        let serverUrl = "dynamic_finder_ajax.php";
         let srcAny = <?php echo js_url($searchAny); ?>;
         if (srcAny) {
-            serverUrl += "&search_any=" + srcAny;
+            serverUrl += "?search_any=" + srcAny;
         }
         var oTable = $('#pt_table').dataTable({
             "processing": true,
