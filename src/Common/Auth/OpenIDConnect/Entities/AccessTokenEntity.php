@@ -19,14 +19,14 @@ use League\OAuth2\Server\Entities\Traits\TokenEntityTrait;
 
 class AccessTokenEntity implements AccessTokenEntityInterface
 {
+    use AccessTokenTrait;
+    use TokenEntityTrait;
+    use EntityTrait;
+
     /**
      * @var bool
      */
     private $revoked;
-
-    use AccessTokenTrait;
-    use TokenEntityTrait;
-    use EntityTrait;
 
     public function setIsRevoked(bool $revoked): void
     {
