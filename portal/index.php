@@ -62,6 +62,22 @@ if (isset($_GET['woops'])) {
     unset($_SESSION['password_update']);
 }
 
+if (!empty($_GET['service_auth'] ?? null)) {
+    $token = $_GET['service_auth'];
+    $redirect_token = $_GET['target'] ?? null;
+    $oneTime = new OneTimeAuth();
+    $do_actions = $oneTime->decodePortalOneTime($token, $redirect_token);
+    if (!empty($do_actions['error'])) {
+        (new SystemLogger())->debug("Failed " . $do_actions['error']);
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        header('Location: ' . $landingpage . '&w&u');
+        exit();
+    }
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    header('Location: ' . $do_actions['redirect']);
+    exit();
+}
+
 if (!empty($_GET['forward_email_verify'])) {
     if (empty($GLOBALS['portal_onsite_two_register']) || empty($GLOBALS['google_recaptcha_site_key']) || empty($GLOBALS['google_recaptcha_secret_key'])) {
         (new SystemLogger())->debug("registration not supported, so stopped attempt to use forward_email_verify token");
