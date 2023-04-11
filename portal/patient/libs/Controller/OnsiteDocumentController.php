@@ -251,11 +251,12 @@ class OnsiteDocumentController extends AppBasePortalController
                 $onsitedocument->Pid = $this->SafeGetVal($json, 'pid');
             }
 
-            if (!empty($_SESSION["patient_portal_onsite_two"] ?? null)) {
+            // removing for testing
+            /* if (!empty($_SESSION["patient_portal_onsite_two"] ?? null)) {
                 $decode = $this->SafeGetVal($json, 'fullDocument');
                 $k = (int)$this->SafeGetVal($json, 'csrf_token_form')[0];
                 $json->fullDocument = $this->decode($decode, $k);
-            }
+            } */
 
             $onsitedocument->Facility = $this->SafeGetVal($json, 'facility');
             $onsitedocument->Provider = $this->SafeGetVal($json, 'provider');
@@ -281,6 +282,12 @@ class OnsiteDocumentController extends AppBasePortalController
             if (count($errors) > 0) {
                 $this->RenderErrorJSON('Please check the form for errors', $errors);
             } else {
+                $new_data = $onsitedocument->FullDocument;
+                // use a custom diff function to look for changing tags only with html
+                if ($new_data != strip_tags($new_data)) {
+                    $old_data = $json->fullDocument;
+                    $onsitedocument->FullDocument = $this->htmlDiff($old_data, $new_data);
+                }
                 $onsitedocument->Save();
                 $this->RenderJSON($onsitedocument, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
@@ -302,6 +309,7 @@ class OnsiteDocumentController extends AppBasePortalController
             }
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
+            $old_data = $onsitedocument->FullDocument;
 
             // only allow patient to update themselves (part 1)
             if (!empty($GLOBALS['bootstrap_pid'])) {
@@ -318,11 +326,12 @@ class OnsiteDocumentController extends AppBasePortalController
                 $onsitedocument->Pid = $this->SafeGetVal($json, 'pid', $onsitedocument->Pid);
             }
 
-            if (!empty($_SESSION["patient_portal_onsite_two"] ?? null)) {
+            // removing for testing
+            /* if (!empty($_SESSION["patient_portal_onsite_two"] ?? null)) {
                 $decode = $this->SafeGetVal($json, 'fullDocument');
                 $k = (int)$this->SafeGetVal($json, 'csrf_token_form')[0];
                 $json->fullDocument = $this->decode($decode, $k);
-            }
+            } */
 
             $onsitedocument->Facility = $this->SafeGetVal($json, 'facility', $onsitedocument->Facility);
             $onsitedocument->Provider = $this->SafeGetVal($json, 'provider', $onsitedocument->Provider);
@@ -348,6 +357,11 @@ class OnsiteDocumentController extends AppBasePortalController
             if (count($errors) > 0) {
                 $this->RenderErrorJSON('Please check the form for errors', $errors);
             } else {
+                // use a custom diff function to look for changing tags only with html
+                $new_data = $onsitedocument->FullDocument;
+                if ($new_data != strip_tags($new_data)) {
+                    $onsitedocument->FullDocument = $this->htmlDiff($old_data, $new_data);
+                }
                 $onsitedocument->Save();
                 $this->RenderJSON($onsitedocument, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
@@ -385,11 +399,12 @@ class OnsiteDocumentController extends AppBasePortalController
         }
     }
 
-    /**
+    // removing for testing
+    /*
      * @param $encoded
      * @param $v
      * @return bool|string
-     */
+
     private function decode($encoded, $v): bool|string
     {
         $encoded = base64_decode($encoded);
@@ -400,5 +415,46 @@ class OnsiteDocumentController extends AppBasePortalController
             $decoded .= chr($a);
         }
         return base64_decode(base64_decode($decoded));
+    }
+    */
+
+    private function diff($old, $new): array
+    {
+        $matrix = array();
+        $maxlen = 0;
+        foreach ($old as $oindex => $ovalue) {
+            $nkeys = array_keys($new, $ovalue);
+            foreach ($nkeys as $nindex) {
+                $matrix[$oindex][$nindex] = isset($matrix[$oindex - 1][$nindex - 1]) ?
+                    $matrix[$oindex - 1][$nindex - 1] + 1 : 1;
+                if ($matrix[$oindex][$nindex] > $maxlen) {
+                    $maxlen = $matrix[$oindex][$nindex];
+                    $omax = $oindex + 1 - $maxlen;
+                    $nmax = $nindex + 1 - $maxlen;
+                }
+            }
+        }
+        if ($maxlen == 0) {
+            return array(array('d' => $old, 'i' => $new));
+        }
+        return array_merge(
+            $this->diff(array_slice($old, 0, $omax), array_slice($new, 0, $nmax)),
+            array_slice($new, $nmax, $maxlen),
+            $this->diff(array_slice($old, $omax + $maxlen), array_slice($new, $nmax + $maxlen))
+        );
+    }
+
+    private function htmlDiff($old, $new): string
+    {
+        $ret = '';
+        $diff = $this->diff(preg_split("/[\s]+/", $old), preg_split("/[\s]+/", $new));
+        foreach ($diff as $k) {
+            if (is_array($k)) {
+                $ret .= (!empty($k['i']) ? text(implode(' ', $k['i'])) : '');
+            } else {
+                $ret .= $k . ' ';
+            }
+        }
+        return $ret;
     }
 }
