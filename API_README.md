@@ -14,6 +14,7 @@
     - [Password Grant](API_README.md#password-grant)
     - [Client Credentials Grant](API_README#client-credentials-grant)
     - [Logout](API_README.md#logout)
+    - [OpenID Connect](API_README.md#openid-connect)
     - [More Details](API_README.md#more-details)
 - [Standard API Documentation](API_README.md#standard-api-documentation)
 - [Patient Portal API Documentation](API_README.md#patient-portal-api-documentation)
@@ -351,6 +352,35 @@ To walk you through how to do this process you can follow [this guide created by
 ### Logout
 
 A grant (both Authorization Code and Password grants) can be logged out (ie. removed) by url of `oauth2/<site>/logout?id_token_hint=<id_token>`; an example full path would be `https://localhost:9300/oauth2/default/logout?id_token_hint=<id_token>`. Optional: `post_logout_redirect_uri` and `state` parameters can also be sent; note that `post_logout_redirect_uris` also needs to be set during registration for it to work.
+
+## OpenID Connect
+- The OpenEMR OpenID Connect discover endpoint is `https://{openmr_host}/oauth2/{site}/.well-known/openid-configuration` as the base URI. An example on the OpenEMR easy-dev docker with the 'default' site installation would be: https://localhost:9300/oauth2/default/.well-known/openid-configuration
+- A sample response is the following:
+    ```json
+    {
+       "issuer": "https://localhost:9300/oauth2/default",
+       "authorization_endpoint": "https://localhost:9300/oauth2/default/authorize",
+       "token_endpoint": "https://localhost:9300/oauth2/default/token",
+       "jwks_uri": "https://localhost:9300/oauth2/default/jwk",
+       "userinfo_endpoint": "https://localhost:9300/oauth2/default/userinfo",
+       "registration_endpoint": "https://localhost:9300/oauth2/default/registration",
+       "end_session_endpoint": "https://localhost:9300/oauth2/default/logout",
+       "introspection_endpoint": "https://localhost:9300/oauth2/default/introspect",
+       "scopes_supported": [
+         "openid",
+         "fhirUser",
+         "online_access",
+         "offline_access",
+         "launch",
+         "launch\/patient",
+         "api:oemr",
+         "api:fhir",
+         "api:port"
+       ]
+    }
+   ```
+- The standard site used is **default**
+- OpenEMR supports token revocation.  It is recommended that clients use the OpenID Connect **introspection_endpoint** retrieved from the discovery endpoint to verify a token is active before assuming the token is active.
 
 ### More Details
 
