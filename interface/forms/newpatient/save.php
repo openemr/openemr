@@ -30,7 +30,6 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 $facilityService = new FacilityService();
 $encounterService = new EncounterService();
 
-
 if (
     $_POST['mode'] == 'new'
     && (
