@@ -48,6 +48,11 @@ class RestApiScopeEvent extends Event
         return $this;
     }
 
+    public function addScope($context, $resource, $permission)
+    {
+        $this->scopes[] = $context . '/' . $resource . '.' . $permission;
+    }
+
     /**
      * @return mixed
      */
