@@ -1176,6 +1176,9 @@ class AuthorizationController
         // not required for public apps but mandatory for confidential
         $clientSecret = $_REQUEST['client_secret'] ?? null;
 
+        $this->logger->debug(self::class . "->tokenIntrospection() start",
+            ['token_type_hint' => $token_hint, 'client_id' => $clientId]);
+
         // the ride starts. had to use a try because PHP doesn't support tryhard yet!
         try {
             // so regardless of client type(private/public) we need client for client app type and secret.
@@ -1186,6 +1189,11 @@ class AuthorizationController
             // a no no. if private we need a secret.
             if (empty($clientSecret) && !empty($client['is_confidential'])) {
                 throw new OAuthServerException('Invalid client app type', 0, 'invalid_request', 400);
+            }
+            // lets verify secret to prevent bad guys.
+            if (intval($client['is_enabled'] !== 1)) {
+                // client is disabled and we don't allow introspection of tokens for disabled clients.
+                throw new OAuthServerException('Client failed security', 0, 'invalid_request', 401);
             }
             // lets verify secret to prevent bad guys.
             if (!empty($client['client_secret'])) {
@@ -1237,8 +1245,8 @@ class AuthorizationController
             }
             if ($token_hint === 'refresh_token') {
                 try {
+                    // client_id comes back from the parsed refresh token
                     $result = $jsonWebKeyParser->parseRefreshToken($rawToken);
-                    $result['client_id'] = $clientId;
                 } catch (Exception $exception) {
                     $body = $response->getBody();
                     $body->write($exception->getMessage());
@@ -1264,6 +1272,7 @@ class AuthorizationController
         } catch (OAuthServerException $exception) {
             // JWT couldn't be parsed
             SessionUtil::oauthSessionCookieDestroy();
+            $this->logger->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             $this->emitResponse($exception->generateHttpResponse($response));
             exit();
         }
