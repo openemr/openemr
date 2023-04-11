@@ -520,7 +520,7 @@ function getAvailableSlots($from_date, $to_date, $provider_id = null, $facility_
             $next_appointment_date = $appointments[$i]['pc_eventDate'];
             $next_appointment_time = $appointments[$i]['pc_endTime'];
         } else {
-            for ($j = $i + 1; $j < count($appointments); ++$j) {
+            for ($j = $i + 1; $j < $appts_count; ++$j) {
                 if ($appointments[$j]['uprovider_id'] == $provider_id) {
                     // if consecutive appointments are in office on separate days...
                     if (
