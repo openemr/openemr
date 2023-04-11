@@ -365,6 +365,7 @@ class TelehealthGlobalConfig
         return $key == self::COMLINK_AUTO_PROVISION_PROVIDER
             || $key == self::VERIFY_SETTINGS_BUTTON
             || $key == self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS
-            || $key == self::COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT;
+            || $key == self::COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT
+            || $key == self::DEBUG_MODE_FLAG;
     }
 }
