@@ -1176,8 +1176,10 @@ class AuthorizationController
         // not required for public apps but mandatory for confidential
         $clientSecret = $_REQUEST['client_secret'] ?? null;
 
-        $this->logger->debug(self::class . "->tokenIntrospection() start",
-            ['token_type_hint' => $token_hint, 'client_id' => $clientId]);
+        $this->logger->debug(
+            self::class . "->tokenIntrospection() start",
+            ['token_type_hint' => $token_hint, 'client_id' => $clientId]
+        );
 
         // the ride starts. had to use a try because PHP doesn't support tryhard yet!
         try {
