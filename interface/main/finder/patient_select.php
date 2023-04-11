@@ -468,10 +468,10 @@ if ($result) {
             echo "<td class='srDOB'>&nbsp;</td>";
         }
 
-        echo "<td class='srID'>" . text($iter['pubpid']) . "</td>";
+        echo "<td class='srID'>" . text($iter['pid']) . "</td>";
 
         if (empty($GLOBALS['patient_search_results_style'])) {
-            echo "<td class='srPID'>" . text($iter['pid']) . "</td>";
+            echo "<td class='srPID'>" . text($iter['pubpid']) . "</td>";
 
           //setup for display of encounter date info
             $encounter_count = 0;
