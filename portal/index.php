@@ -10,7 +10,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2011 Cassian LUP <cassi.lup@gmail.com>
- * @copyright Copyright (c) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -34,6 +34,7 @@ require_once '../interface/globals.php';
 require_once __DIR__ . "/lib/appsql.class.php";
 $logit = new ApplicationTable();
 
+use OpenEMR\Common\Auth\OneTimeAuth;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -62,18 +63,38 @@ if (isset($_GET['woops'])) {
     unset($_SESSION['password_update']);
 }
 
+/* TODO For testing token create. Remove later */
+if (!empty($_REQUEST['bypass'] ?? null)) {
+    $oneTime = new OneTimeAuth();
+    $token = $oneTime->createPortalOneTime(['pid' => 2, 'redirect_link' => 'https://opensourcedemr.us/']);
+    $link = $token['encoded_link'];
+    $body = xlt("Here is your onetime access bypass link.") . "<br>" .
+        xlt("Click to access your scheduled session.") .
+        ": <a type='button' style='display:block;border: 1px solid #BBBBBB;font-size:18px;color: red;' rel='noopener' target='_blank' href='$link'>" .
+        xlt('Click to Join') . "</a>";
+    $err = $oneTime->emailNotification($token['email'], $body);
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    header('Location: ' . $landingpage . '&w&u');
+    exit;
+}
+/*
+ * Patient for onetime is verified when token redirect is decoded.
+ * The embedded pid in token is compared to the token looked up result pid.
+ * Also verified as the portal account id is rebuilt from patient data
+ * and compared to portal credential account id lookup.
+ * */
 if (!empty($_GET['service_auth'] ?? null)) {
     $token = $_GET['service_auth'];
     $redirect_token = $_GET['target'] ?? null;
     $oneTime = new OneTimeAuth();
     $do_actions = $oneTime->decodePortalOneTime($token, $redirect_token);
     if (!empty($do_actions['error'])) {
-        (new SystemLogger())->debug("Failed " . $do_actions['error']);
+        (new SystemLogger())->error("Failed " . $do_actions['error']);
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
     }
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    //OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $do_actions['redirect']);
     exit();
 }
@@ -541,6 +562,9 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                             <button class="btn btn-danger ml-2" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) {
                                 echo "&redirect=" . attr_url($redirectUrl); } ?>')"><?php echo xlt('Reset Credentials'); ?></button>
                         <?php } ?>
+                        <!-- ***************** TODO remove ***************** -->
+                        <button class="btn btn-secondary float-left" onclick="location.replace('./index.php?bypass=1&site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('ByPass'); ?></button>
+                        <!-- ************************ TODO remove ******************************* -->
                         <button class="btn btn-success float-right" type="submit"><?php echo xlt('Log In'); ?></button>
                     </div>
                 </div>
