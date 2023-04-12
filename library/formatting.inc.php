@@ -186,8 +186,7 @@ function TimeToHHMMSS($TimeValue)
 
     if ($is_pm === true) {
         $date = new DateTimeImmutable('1970-01-01' . $TimeValue);
-        $date->modify('+12 hours');
-        return $date->format('H:i:s');
+        $TimeValue = $date->format('H:i:s');
     }
 
     return $TimeValue;
