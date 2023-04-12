@@ -182,7 +182,7 @@ function TimeToHHMMSS($TimeValue)
         return '';
     }
 
-    $is_pm = (stripos($TimeValue, 'PM') !== false);
+    $is_pm = (stripos($TimeValue, 'pm') !== false);
 
     if ($is_pm) {
         $dt = new DateTime('1970-01-01' . $TimeValue);
