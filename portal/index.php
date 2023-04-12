@@ -68,13 +68,13 @@ if (!empty($_REQUEST['bypass'] ?? null)) {
     $oneTime = new OneTimeAuth();
     $token = $oneTime->createPortalOneTime(['pid' => 2, 'redirect_link' => 'https://opensourcedemr.us/']);
     $link = $token['encoded_link'];
-    $body = xlt("Here is your onetime access bypass link.") . "<br>" .
+    $body = xlt("Here is your onetime access bypass link valid for 15 minutes.") . "<br>" .
         xlt("Click to access your scheduled session.") .
-        ": <a type='button' style='display:block;border: 1px solid #BBBBBB;font-size:18px;color: red;' rel='noopener' target='_blank' href='$link'>" .
+        ": <a style='font-size:16px;color: red;' rel='noopener' target='_blank' href='$link'>" .
         xlt('Click to Join') . "</a>";
     $err = $oneTime->emailNotification($token['email'], $body);
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-    header('Location: ' . $landingpage . '&w&u');
+    header('Location: ' . $landingpage);
     exit;
 }
 /*
@@ -87,16 +87,7 @@ if (!empty($_GET['service_auth'] ?? null)) {
     $token = $_GET['service_auth'];
     $redirect_token = $_GET['target'] ?? null;
     $oneTime = new OneTimeAuth();
-    $do_actions = $oneTime->decodePortalOneTime($token, $redirect_token);
-    if (!empty($do_actions['error'])) {
-        (new SystemLogger())->error("Failed " . $do_actions['error']);
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-        header('Location: ' . $landingpage . '&w&u');
-        exit();
-    }
-    //OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-    header('Location: ' . $do_actions['redirect']);
-    exit();
+    $oneTime->processOnetime($token, $redirect_token, $landingpage);
 }
 
 if (!empty($_GET['forward_email_verify'])) {

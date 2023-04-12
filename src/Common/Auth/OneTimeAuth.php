@@ -18,6 +18,7 @@ use DateTime;
 use MyMailer;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
 class OneTimeAuth
@@ -60,17 +61,12 @@ class OneTimeAuth
         $token_raw = RandomGenUtils::createUniqueToken(32);
         $pin = substr(str_shuffle(str_shuffle("0123456789")), 0, 6);
         $token_encrypt = (new CryptoGen())->encryptStandard($token_raw);
-        $token_database = $token_raw . $pin . bin2hex($expiry->format('U'));
-        if (!empty($p['pid']) && !empty($token_raw)) {
-            $query_parameters = [$token_database, $p['pid']];
-            sqlStatementNoLog("UPDATE `patient_access_onsite` SET `portal_onetime` = ? WHERE `pid` = ?", $query_parameters);
-            (new SystemLogger())->debug("New onetime token added in database.");
-        } else {
+        if (empty($p['pid']) || empty($token_raw)) {
             (new SystemLogger())->error("Onetime failed missing PID or token creation failed");
             return false;
         }
 
-        $redirect_raw = trim($p['redirect_link']);
+        $redirect_raw = trim($p['redirect_link'] ?? '');
         if (!empty($redirect_raw)) {
             $redirect_plus = js_escape(['pid' => $passed_in_pid, 'to' => $redirect_raw]);
             $redirect_token = (new CryptoGen())->encryptStandard($redirect_plus);
@@ -85,11 +81,13 @@ class OneTimeAuth
         }
 
         $rtn['encoded_link'] = $this->encodeLink($site_addr, $token_encrypt, $passed_in_pid, $redirect_token);
-        $rtn['onetime_token'] = $token_database;
+        $rtn['onetime_token'] = $token_encrypt;
         $rtn['redirect_token'] = $redirect_token;
         $rtn['pin'] = $pin;
         $rtn['email'] = $email;
-        (new SystemLogger())->debug("New standard onetime token created successfully.");
+
+        $save = $this->insertOnetime($passed_in_pid, $pin, $token_raw, $redirect_raw, $redirect_token, $expiry->format('U'));
+        (new SystemLogger())->debug("New standard onetime token created and saved successfully.");
 
         return $rtn;
     }
@@ -113,7 +111,10 @@ class OneTimeAuth
             if ($crypto->cryptCheckStandard($onetime_token)) {
                 $one_time = $crypto->decryptStandard($onetime_token, null, 'drive', 6);
                 if (!empty($one_time)) {
-                    $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_onetime Like BINARY ?", array($one_time . '%'));
+                    $t_info = $this->getOnetime($one_time);
+                    if (!empty($t_info['pid'] ?? 0)) {
+                        $auth = sqlQueryNoLog("Select * From patient_access_onsite Where `pid` = ?", array($t_info['pid']));
+                    }
                 } else {
                     (new SystemLogger())->error("Onetime decrypt token failed. Empty!");
                 }
@@ -126,8 +127,8 @@ class OneTimeAuth
             (new SystemLogger())->error($rtn['error']);
             die(xlt("Not Authorized!"));
         }
-        $parse = str_replace($one_time, '', $auth['portal_onetime']);
-        $validate = hex2bin(substr($parse, 6));
+
+        $validate = $t_info['expires'];
         if ($validate <= time()) {
             $rtn['error'] = xlt("Your one time credential reset link has expired. Reset and try again.") . "time:$validate time:" . time();
             (new SystemLogger())->error($rtn['error']);
@@ -147,12 +148,15 @@ class OneTimeAuth
             }
         }
         $rtn['pid'] = $auth['pid'];
-        $rtn['pin'] = substr($parse, 0, 6);
+        $rtn['pin'] = $t_info['pin'];
         $rtn['redirect'] = $redirect;
-        $rtn['portal_username'] = $auth['portal_username'];
-        $rtn['portal_login_username'] = $auth['portal_login_username'];
+        $rtn['username'] = $auth['portal_username'];
+        $rtn['login_username'] = $auth['portal_login_username'];
+        $rtn['portal_pwd'] = $auth['portal_pwd'];
         $rtn['onetime_decrypted'] = $one_time;
-        (new SystemLogger())->debug("Onetime sucessfully decoded.");
+
+        $this->updateOnetime($auth['pid'], $one_time);
+        (new SystemLogger())->debug("Onetime successfully decoded. $one_time");
 
         return $rtn;
     }
@@ -208,7 +212,7 @@ class OneTimeAuth
      */
     private function encodeLink($site_addr, $token_encrypt, $pid, $forward = ''): string
     {
-        $site_id = $_SESSION['site_id'] ?? null ?: 'default';
+        $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
         $format = "%s&%s";
         if (stripos($site_addr, "?site") === false) {
             $format = "%s?%s";
@@ -255,5 +259,82 @@ class OneTimeAuth
         $patient['valid'] = !empty($portal) && ((int)$pid === (int)$portal['pid']);
 
         return $patient;
+    }
+
+    /**
+     * @param $pid
+     * @param $onetime_pin
+     * @param $onetime_token
+     * @param $redirect_url
+     * @param $redirect_token
+     * @param $expires
+     * @return int
+     */
+    public function insertOnetime($pid, $onetime_pin, $onetime_token, $redirect_url, $redirect_token, $expires): int
+    {
+        $bind = [$pid, $_SESSION['authUserID'] ?? null, $this->context, $onetime_pin, $onetime_token, $redirect_url, $redirect_token, $expires];
+
+        $sql = "INSERT INTO `onetime_auth` (`id`, `pid`, `create_user_id`, `context`, `onetime_pin`, `onetime_token`, `redirect_url`, `redirect_token`, `expires`, `date_created`) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, current_timestamp())";
+
+        return sqlInsert($sql, $bind);
+    }
+
+    /**
+     * @param $pid
+     * @param $token
+     * @param $ip
+     * @return bool|array|null
+     */
+    public function updateOnetime($pid, $token, $ip = null): bool|array|null
+    {
+        $access_ip = $ip ?: $_SERVER['REMOTE_ADDR'] ?? null;
+        $sql = "UPDATE `onetime_auth` SET `remote_ip` = ?, `last_accessed` = current_timestamp(), `access_count` = `access_count`+1 WHERE `pid` = ? AND `onetime_token` = ?";
+
+        return sqlQuery($sql, array($access_ip, $pid, $token));
+    }
+
+    /**
+     * @param $token
+     * @param $pid
+     * @return bool|array|null
+     */
+    public function getOnetime($token, $pid = null): bool|array|null
+    {
+        $sql = "SELECT * FROM `onetime_auth` WHERE `onetime_token` Like BINARY ? LIMIT 1";
+        $bind = [$token];
+        if ($pid) {
+            $bind = [$pid, $token];
+            $sql = "SELECT * FROM `onetime_auth` WHERE `pid` = ? AND `onetime_token` = ? LIMIT 1";
+        }
+
+        return sqlQuery($sql, $bind);
+    }
+
+    /**
+     * @param $token
+     * @param $redirect_token
+     * @return void
+     */
+    public function processOnetime($token, $redirect_token): void
+    {
+        $auth = $this->decodePortalOneTime($token, $redirect_token);
+        if (!empty($auth['error'] ?? null)) {
+            (new SystemLogger())->error("Failed " . $auth['error']);
+            SessionUtil::portalSessionCookieDestroy();
+            unset($auth);
+            die(xlt("Authentication Failed! Contact administrator."));
+        }
+        // preserve session for target use
+        $_SESSION['pid'] = $auth['pid'];
+        $_SESSION['auth_pin'] = $auth['pin'];
+        $_SESSION['auth_scope'] = $this->scope;
+        $_SESSION['redirect_target'] = $auth['redirect'];
+        $_SESSION['username'] = $auth['username'];
+        $_SESSION['login_username'] = $auth['login_username'];
+        $_SESSION['onetime'] = $auth['portal_pwd'];
+
+        header('Location: ' . $auth['redirect']);
+
+        exit();
     }
 }
