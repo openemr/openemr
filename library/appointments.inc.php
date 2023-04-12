@@ -528,7 +528,15 @@ function getAvailableSlots($from_date, $to_date, $provider_id = null, $facility_
                         && $appointments[$j]['pc_catid'] == '2'
                     ) {
                         $next_appointment_date = $appointments[$i]['pc_eventDate'];
-                        $next_appointment_time = $appointments[$i]['pc_endTime'];
+                        // default IN OFFICE appt for provider uses a duration of 0
+                        // which opens up the entire day after the start time
+                        // which prevents the next appointment time from being set
+                        // for the $same_day assignment below, so this fix...
+                        if ($appointments[$i]['pc_duration'] == 0) {
+                            $next_appointment_time = $GLOBALS['schedule_end'] . ":00";
+                        } else {
+                            $next_appointment_time = $appointments[$i]['pc_endTime'];
+                        }
                     } else {
                         $next_appointment_date = $appointments[$j]['pc_eventDate'];
                         $next_appointment_time = $appointments[$j]['pc_startTime'];
