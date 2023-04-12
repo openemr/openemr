@@ -13235,3 +13235,22 @@ CREATE TABLE `form_questionnaire_assessments` (
   `lform_response` longtext,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `onetime_auth`;
+CREATE TABLE `onetime_auth` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `pid` bigint(20) DEFAULT NULL,
+    `create_user_id` bigint(20) DEFAULT NULL,
+    `context` varchar(64) DEFAULT NULL,
+    `access_count` int(11) NOT NULL DEFAULT 0,
+    `remote_ip` varchar(32) DEFAULT NULL,
+    `onetime_pin` varchar(10) DEFAULT NULL COMMENT 'Max 10 numeric. Default 6',
+    `onetime_token` tinytext,
+    `redirect_url` tinytext,
+    `redirect_token` tinytext,
+    `expires` int(11) DEFAULT NULL,
+    `date_created` datetime DEFAULT current_timestamp(),
+    `last_accessed` datetime DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `pid` (`pid`,`onetime_token`(255))
+) ENGINE=InnoDB;
