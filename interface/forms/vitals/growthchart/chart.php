@@ -111,7 +111,7 @@ function unitsDist($dist)
         return (number_format(($dist * 2.54), 2, '.', '') . xl('cm', '', ' '));
     } else {
         //keep US units
-        return number_format(($dist * 1), 2)  . xl('in', '', ' ');
+        return number_format(((int) $dist * 1), 2)  . xl('in', '', ' ');
     }
 }
 
@@ -623,7 +623,7 @@ foreach ($datapoints as $data) {
         if ($charttype == "birth") {
             // Draw Head circumference
             $HC_x = $HC_dot_x + $HC_delta_x * $age;
-            $HC_y = $HC_dot_y - $HC_delta_y * ($head_circ - 11);
+            $HC_y = $HC_dot_y - $HC_delta_y * (((int) $head_circ ?? null) - 11);
             imagefilledellipse($im, (int) $HC_x, (int) $HC_y, 10, 10, $color1);
             // Draw Wt and Ht graph at the bottom half
             $WT = $WT_y - $WT_delta_y * ($weight - $WToffset);
