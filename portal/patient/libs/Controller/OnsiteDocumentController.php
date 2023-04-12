@@ -450,7 +450,7 @@ class OnsiteDocumentController extends AppBasePortalController
         $diff = $this->diff(preg_split("/[\s]+/", $old), preg_split("/[\s]+/", $new));
         foreach ($diff as $k) {
             if (is_array($k)) {
-                $ret .= (!empty($k['i']) ? text(implode(' ', $k['i'])) : '');
+                $ret .= (!empty($k['i']) ? attr(implode(' ', $k['i'])) : '');
             } else {
                 $ret .= $k . ' ';
             }
