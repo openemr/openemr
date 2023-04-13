@@ -296,7 +296,6 @@ class OneTimeAuth
      * @param $onetime_pin
      * @param $onetime_token
      * @param $redirect_url
-     * @param $redirect_token
      * @param $expires
      * @return int
      */
@@ -361,12 +360,10 @@ class OneTimeAuth
         $_SESSION['auth_pin'] = $auth['pin'];
         $_SESSION['auth_scope'] = $this->scope;
         $_SESSION['redirect_target'] = $auth['redirect'];
-        $_SESSION['username'] = $auth['username'];
-        $_SESSION['login_username'] = $auth['login_username'];
         $_SESSION['onetime'] = $auth['portal_pwd'];
         $_SESSION['patient_portal_onsite_two'] = 1;
 
-        // setup the other variables needed for the session interaction
+        // set up the other variables needed for the session interaction
         // this was taken from portal/get_patient_info.php
         $userService = new UserService();
         $tmp = $userService->getUser($patient['providerID']);
@@ -379,7 +376,7 @@ class OneTimeAuth
         $_SESSION['authUser'] = 'portal-user';
         $_SESSION['portal_username'] = $auth['username']; // required by portal/handle_note.php
         $_SESSION['portal_login_username'] = $auth['login_username']; // required by portal/handle_note.php
-        // Set up the csrf private_key (for the paient portal)
+        // Set up the csrf private_key (for the patient portal)
         //  Note this key always remains private and never leaves server session. It is used to create
         //  the csrf tokens.
         CsrfUtils::setupCsrfKey();

@@ -81,18 +81,26 @@ if (!empty($_GET['service_auth'] ?? null)) {
         $auth = $oneTime->processOnetime($token, $redirect_token);
         $logit->portalLog('onetime login attempt', $auth['pid'], 'patient logged in and redirecting', '', '1');
         exit();
-    }
-    catch (OneTimeAuthExpiredException $exception) {
-        $logit->portalLog('onetime login attempt', $exception->getPid() ?? ''
-            , ':invalid one time', '', '0');
+    } catch (OneTimeAuthExpiredException $exception) {
+        $logit->portalLog(
+            'onetime login attempt',
+            $exception->getPid() ?? '',
+            ':invalid one time',
+            '',
+            '0'
+        );
         // do we want a separate message that their token has expired?
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
-    }
-    catch (OneTimeAuthException $exception) {
-        $logit->portalLog('onetime login attempt', $exception->getPid() ?? ''
-            , ':invalid one time', '', '0');
+    } catch (OneTimeAuthException $exception) {
+        $logit->portalLog(
+            'onetime login attempt',
+            $exception->getPid() ?? '',
+            ':invalid one time',
+            '',
+            '0'
+        );
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
         exit();
