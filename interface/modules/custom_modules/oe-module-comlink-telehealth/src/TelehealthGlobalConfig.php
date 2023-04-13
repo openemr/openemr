@@ -108,7 +108,8 @@ class TelehealthGlobalConfig
         return $this->getGlobalSetting(self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS) == '1';
     }
 
-    public function isOneTimePasswordLoginEnabled() {
+    public function isOneTimePasswordLoginEnabled()
+    {
         $setting = $this->getGlobalSetting(self::COMLINK_ONETIME_PASSWORD_LOGIN);
         if ($setting === null) {
             return true; // TODO: @adunsulag change this to false once we have a way to disable this feature

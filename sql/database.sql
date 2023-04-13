@@ -13247,7 +13247,6 @@ CREATE TABLE `onetime_auth` (
     `onetime_pin` varchar(10) DEFAULT NULL COMMENT 'Max 10 numeric. Default 6',
     `onetime_token` tinytext,
     `redirect_url` tinytext,
-    `redirect_token` tinytext,
     `expires` int(11) DEFAULT NULL,
     `date_created` datetime DEFAULT current_timestamp(),
     `last_accessed` datetime DEFAULT NULL,

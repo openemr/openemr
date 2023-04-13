@@ -30,16 +30,21 @@ class OneTimeAuth
 {
     private $scope;
     private $context;
+    private $cryptoGen;
+    private $systemLogger;
 
     public function __construct($context = 'portal', $scope = 'redirect')
     {
         // scope = portal/service tasks (reset, register). context = portal, patient etc.
         $this->scope = $scope;
         $this->context = $context;
+        $this->cryptoGen = new CryptoGen();
+        $this->systemLogger = new SystemLogger();
     }
 
     /**
      * @param array $p
+     * @param bool  $encrypt_redirect
      * @return array|bool
      * @throws \Exception
      *
@@ -51,9 +56,9 @@ class OneTimeAuth
      *   'expiry_interval' => 'PT15M', // Always PTxx{Sec,Min,Day} PeriodTime
      *   'email' => '']
      */
-    public function createPortalOneTime(array $p = []): array|bool
+    public function createPortalOneTime(array $p, bool $encrypt_redirect = false): array|bool
     {
-        $redirect_token = '';
+        $redirect_token = null;
         $passed_in_pid = $p['pid'] ?? 0;
         $valid = $this->isValidPortalPatient($passed_in_pid);
         if (empty($valid['valid'] ?? null) || empty($passed_in_pid)) {
@@ -64,35 +69,47 @@ class OneTimeAuth
         $expiry = new DateTime($date_base);
         $expiry->add(new DateInterval($p['expiry_interval'] ?? 'PT15M'));
         $token_raw = RandomGenUtils::createUniqueToken(32);
+        $token_encrypt = $this->cryptoGen->encryptStandard($token_raw);
         $pin = substr(str_shuffle(str_shuffle("0123456789")), 0, 6);
-        $token_encrypt = (new CryptoGen())->encryptStandard($token_raw);
         if (empty($p['pid']) || empty($token_raw)) {
-            (new SystemLogger())->error("Onetime failed missing PID or token creation failed");
-            return false;
+            $err = xlt("Onetime failed missing PID or token creation failed");
+            $this->systemLogger->error($err);
+            throw new \RuntimeException($err);
         }
 
-        $redirect_raw = trim($p['redirect_link'] ?? '');
-        if (!empty($redirect_raw)) {
+        $redirect_raw = trim($p['redirect_link'] ?? null);
+        if (!empty($redirect_raw) && $encrypt_redirect) {
             $redirect_plus = js_escape(['pid' => $passed_in_pid, 'to' => $redirect_raw]);
-            $redirect_token = (new CryptoGen())->encryptStandard($redirect_plus);
+            $redirect_token = $this->cryptoGen->encryptStandard($redirect_plus);
             if (empty($redirect_token)) {
-                (new SystemLogger())->error("Onetime redirect failed encryption.");
+                // since redirect is in database we can continue.
+                $this->systemLogger->error(xlt("Onetime redirect failed encryption."));
             }
         }
         if (!empty($p['target_link'] ?? null)) {
             $site_addr = trim($p['target_link']);
         } elseif ($this->context == 'portal') {
             $site_addr = trim($GLOBALS['portal_onsite_two_address']);
+        } else {
+            $err = xlt("Onetime creation failed. Missing site address!");
+            $this->systemLogger->error($err);
+            throw new \RuntimeException($err);
         }
 
-        $rtn['encoded_link'] = $this->encodeLink($site_addr, $token_encrypt, $passed_in_pid, $redirect_token);
+        $rtn['encoded_link'] = $this->encodeLink($site_addr, $token_encrypt, $redirect_token);
         $rtn['onetime_token'] = $token_encrypt;
         $rtn['redirect_token'] = $redirect_token;
         $rtn['pin'] = $pin;
         $rtn['email'] = $email;
 
-        $save = $this->insertOnetime($passed_in_pid, $pin, $token_raw, $redirect_raw, $redirect_token, $expiry->format('U'));
-        (new SystemLogger())->debug("New standard onetime token created and saved successfully.");
+        $save = $this->insertOnetime($passed_in_pid, $pin, $token_raw, $redirect_raw, $expiry->format('U'));
+        if (empty($save)) {
+            $err = xlt("Onetime save failed!");
+            $this->systemLogger->error($err);
+            throw new \RuntimeException($err);
+        }
+
+        $this->systemLogger->debug(xlt("New standard onetime token created and saved successfully."));
 
         return $rtn;
     }
@@ -103,7 +120,7 @@ class OneTimeAuth
      * @return array
      * @throws OneTimeAuthExpiredException
      */
-    public function decodePortalOneTime($onetime_token, $redirect_token = ''): array
+    public function decodePortalOneTime($onetime_token, $redirect_token = null): array
     {
         $auth = false;
         $rtn = [];
@@ -122,25 +139,27 @@ class OneTimeAuth
                         $auth = sqlQueryNoLog("Select * From patient_access_onsite Where `pid` = ?", array($t_info['pid']));
                     }
                 } else {
-                    (new SystemLogger())->error("Onetime decrypt token failed. Empty!");
+                    $this->systemLogger->error("Onetime decrypt token failed. Empty!");
                 }
             }
         } else {
-            (new SystemLogger())->error("Onetime token invalid length.");
+            $this->systemLogger->error("Onetime token invalid length.");
         }
         if (!$auth) {
             $rtn['error'] = "Onetime decode failed Onetime auth: " . $onetime_token;
-            (new SystemLogger())->error($rtn['error']);
+            $this->systemLogger->error($rtn['error']);
             throw new OneTimeAuthException($rtn['error']);
         }
 
         $validate = $t_info['expires'];
         if ($validate <= time()) {
             $rtn['error'] = xlt("Your one time credential reset link has expired. Reset and try again.") . "time:$validate time:" . time();
-            (new SystemLogger())->error($rtn['error']);
+            $this->systemLogger->error($rtn['error']);
             throw new OneTimeAuthExpiredException($rtn['error'], $auth['pid']);
         }
-        $redirect = '';
+        // We'll rely on the stored redirect address as default but
+        // leave the option of using embedded encrypted redirect.
+        $redirect = $t_info['redirect_url'] ?? null;
         if (!empty($redirect_token)) {
             if ($crypto->cryptCheckStandard($redirect_token)) {
                 $redirect_decrypted = $crypto->decryptStandard($redirect_token, null, 'drive', 6);
@@ -149,21 +168,63 @@ class OneTimeAuth
                 if (($redirect_array['pid'] != $auth['pid'] && !empty($redirect_array['pid']))) {
                     throw new OneTimeAuthException(xlt("Error! credentials pid to and from don't match!"), $auth['pid']);
                 }
-                (new SystemLogger())->debug("Redirect token decrypted: pid= " . $redirect_array['pid'] . " redirect= " . $redirect);
+                $this->systemLogger->debug("Redirect token decrypted: pid = " . $redirect_array['pid'] . " redirect = " . $redirect);
             }
         }
         $rtn['pid'] = $auth['pid'];
         $rtn['pin'] = $t_info['pin'];
-        $rtn['redirect'] = $redirect ?: $t_info['redirect_url'];
+        $rtn['redirect'] = $redirect;
         $rtn['username'] = $auth['portal_username'];
         $rtn['login_username'] = $auth['portal_login_username'];
         $rtn['portal_pwd'] = $auth['portal_pwd'];
         $rtn['onetime_decrypted'] = $one_time;
 
         $this->updateOnetime($auth['pid'], $one_time);
-        (new SystemLogger())->debug("Onetime successfully decoded. $one_time");
+        $this->systemLogger->debug("Onetime successfully decoded. $one_time");
 
         return $rtn;
+    }
+
+    /**
+     * @param $site_addr
+     * @param $token_encrypt
+     * @param $encrypted_redirect
+     * @return string
+     */
+    private function encodeLink($site_addr, $token_encrypt, $encrypted_redirect = null): string
+    {
+        $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
+        $format = "%s&%s";
+        if (stripos($site_addr, "?site") === false) {
+            $format = "%s?%s";
+        }
+        if ($this->scope == 'register') {
+            $encoded_link = sprintf($format, attr($site_addr), http_build_query([
+                'forward_email_verify' => $token_encrypt,
+                'site' => $site_id
+            ]));
+        } elseif ($this->scope == 'reset_password') {
+            $encoded_link = sprintf($format, attr($site_addr), http_build_query([
+                'forward' => $token_encrypt,
+                'site' => $site_id
+            ]));
+        } else {
+            if (!empty($encrypted_redirect)) {
+                $encoded_link = sprintf($format, attr($site_addr), http_build_query([
+                    'service_auth' => $token_encrypt,
+                    'target' => $encrypted_redirect,
+                    'site' => $site_id
+                ]));
+            } else {
+                $encoded_link = sprintf($format, attr($site_addr), http_build_query([
+                    'service_auth' => $token_encrypt,
+                    'site' => $site_id
+                ]));
+            }
+        }
+        $this->systemLogger->debug("Onetime link " . text($encoded_link) . " encoded");
+
+        return $encoded_link;
     }
 
     /**
@@ -210,42 +271,6 @@ class OneTimeAuth
     }
 
     /**
-     * @param $site_addr
-     * @param $token_encrypt
-     * @param $forward
-     * @return string
-     */
-    private function encodeLink($site_addr, $token_encrypt, $pid, $forward = ''): string
-    {
-        $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
-        $format = "%s&%s";
-        if (stripos($site_addr, "?site") === false) {
-            $format = "%s?%s";
-        }
-        if ($this->scope == 'register') {
-            $encoded_link = sprintf($format, attr($site_addr), http_build_query([
-                'forward_email_verify' => $token_encrypt,
-                'site' => $site_id
-            ]));
-        } elseif ($this->scope == 'reset_password') {
-            $encoded_link = sprintf($format, attr($site_addr), http_build_query([
-                'forward' => $token_encrypt,
-                'site' => $site_id
-            ]));
-        } else {
-            $encoded_link = sprintf($format, attr($site_addr), http_build_query([
-                'id' => $pid,
-                'service_auth' => $token_encrypt,
-                'target' => $forward,
-                'site' => $site_id
-            ]));
-        }
-        (new SystemLogger())->debug("Onetime link " . text($encoded_link) . " encoded");
-
-        return $encoded_link;
-    }
-
-    /**
      * @param $pid
      * @return array
      */
@@ -275,11 +300,11 @@ class OneTimeAuth
      * @param $expires
      * @return int
      */
-    public function insertOnetime($pid, $onetime_pin, $onetime_token, $redirect_url, $redirect_token, $expires): int
+    public function insertOnetime($pid, $onetime_pin, $onetime_token, $redirect_url, $expires): int
     {
-        $bind = [$pid, $_SESSION['authUserID'] ?? null, $this->context, $onetime_pin, $onetime_token, $redirect_url, $redirect_token, $expires];
+        $bind = [$pid, $_SESSION['authUserID'] ?? null, $this->context, $onetime_pin, $onetime_token, $redirect_url, $expires];
 
-        $sql = "INSERT INTO `onetime_auth` (`id`, `pid`, `create_user_id`, `context`, `onetime_pin`, `onetime_token`, `redirect_url`, `redirect_token`, `expires`, `date_created`) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, current_timestamp())";
+        $sql = "INSERT INTO `onetime_auth` (`id`, `pid`, `create_user_id`, `context`, `onetime_pin`, `onetime_token`, `redirect_url`, `expires`, `date_created`) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, current_timestamp())";
 
         return sqlInsert($sql, $bind);
     }
@@ -324,7 +349,7 @@ class OneTimeAuth
     {
         $auth = $this->decodePortalOneTime($token, $redirect_token);
         if (!empty($auth['error'] ?? null)) {
-            (new SystemLogger())->error("Failed " . $auth['error']);
+            $this->systemLogger->error("Failed " . $auth['error']);
             unset($auth);
             throw new OneTimeAuthException(xlt("Authentication Failed! Contact administrator."));
         }
