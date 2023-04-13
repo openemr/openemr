@@ -42,6 +42,8 @@ require_once("../../../../interface/globals.php");
 require_once($GLOBALS['fileroot'] . "/library/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Services\VitalsService;
+
 
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -57,6 +59,8 @@ if ($pid == "") {
     exit;
 }
 
+$vitalsService = new VitalsService();
+
 $patient_data = "";
 if (isset($pid) && is_numeric($pid)) {
     $patient_data = getPatientData($pid, "fname, lname, sex, DATE_FORMAT(DOB,'%Y%m%d') as DOB");
@@ -69,9 +73,13 @@ if (isset($pid) && is_numeric($pid)) {
 // of the currently viewed vitals by the user. We will use this
 // date to define which chart is displayed on the screen
 $charttype = "2-20"; // default the chart-type to ages 2-20
-$datapoints = explode('~', $_GET['data']);
-if (isset($datapoints) && $datapoints != "") {
-    list($date, $height, $weight, $head_circ) = explode('-', $datapoints[0]);
+$datapoints = $vitalsService->getVitalsHistoryForPatient($pid, true);
+$first_datapoint = $datapoints[0];
+if (!empty($first_datapoint)) {
+    $date = str_replace('-', '', substr($first_datapoint['date'], 0, 10));
+    $height = $first_datapoint['height'];
+    $weight = $first_datapoint['weight'];
+    $head_circ = $first_datapoint['head_circ'];
     if ($date != "") {
         $charttype_date = $date;
     }
@@ -420,7 +428,11 @@ if (($_GET['html'] ?? null) == 1) {
     // plot the data points
     foreach ($datapoints as $data) {
         if (!empty($data)) {
-            list($date, $height, $weight, $head_circ) = explode('-', $data);
+            $date = str_replace('-', '', substr($data['date'], 0, 10));
+            $height = $data['height'];
+            $weight = $data['weight'];
+            $head_circ = $data['head_circ'];
+
             if ($date == "") {
                 continue;
             }
@@ -548,12 +560,8 @@ if (($_GET['html'] ?? null) == 1) {
                 echo("<div id='" . attr($point[2]) . "' class='label_custom' style='position: absolute; top: " . attr($point[1]) . "pt; left: " . attr($point[0]) . "pt;'>" . text(substr($bmi, 0, 5)) . "</div>\n");
                 $datatable2_y = $datatable2_y + $datatable2_y_increment; // increment the datatable2 "row pointer"
             }
-
             $count++;
         }
-
-        cssFooter();
-        exit;
     }
 }
 
@@ -576,7 +584,11 @@ $count = 0;
 // plot the data points
 foreach ($datapoints as $data) {
     if (!empty($data)) {
-        list($date, $height, $weight, $head_circ) = explode('-', $data);
+        $date = str_replace('-', '', substr($data['date'], 0, 10));
+        $height = $data['height'];
+        $weight = $data['weight'];
+        $head_circ = $data['head_circ'];
+
         if ($date == "") {
             continue;
         }
@@ -685,7 +697,7 @@ foreach ($datapoints as $data) {
     }
 }
 
-if ($_GET['pdf'] == 1) {
+if (($_GET['pdf'] ?? null) == 1) {
     $pdf = new Cezpdf("LETTER");
     $pdf->ezSetMargins(0, 0, 0, 0);
 
@@ -712,9 +724,6 @@ if ($_GET['pdf'] == 1) {
     // output the PDF
     $pdf->ezStream();
 } else {
-    // older style chart that is simply a PNG image
-    header("Content-type: image/png");
-    imagepng($im);
-    imagedestroy($im);
+    cssFooter();
 }
 ?>

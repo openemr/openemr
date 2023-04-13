@@ -8,10 +8,8 @@
     {% else %}
     <td colspan='2' class="text-center pt-2">
     {% endif %}
-    {% if has_id %}
     <input type="button" class="btn btn-primary" id="pdfchart" value='{{ "Growth-Chart"|xla }} ({{ "PDF"|xla }})'>
     <input type="button" class="btn btn-primary" id="htmlchart" value='{{ "Growth-Chart"|xla }} ({{ "HTML"|xla }})'>
-    {% endif %}
     </td>
 {% for result in results %}
     <td class="historicalvalues {% if is_edit %}d-none d-md-table-cell{% endif %}"></td>
