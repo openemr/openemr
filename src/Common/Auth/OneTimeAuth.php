@@ -377,6 +377,8 @@ class OneTimeAuth
         $_SESSION['ptName'] = $patient['fname'] . ' ' . $patient['lname'];
         // never set authUserID though authUser is used for ACL!
         $_SESSION['authUser'] = 'portal-user';
+        $_SESSION['portal_username'] = $auth['username']; // required by portal/handle_note.php
+        $_SESSION['portal_login_username'] = $auth['login_username']; // required by portal/handle_note.php
         // Set up the csrf private_key (for the paient portal)
         //  Note this key always remains private and never leaves server session. It is used to create
         //  the csrf tokens.
