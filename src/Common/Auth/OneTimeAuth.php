@@ -149,7 +149,7 @@ class OneTimeAuth
         }
         $rtn['pid'] = $auth['pid'];
         $rtn['pin'] = $t_info['pin'];
-        $rtn['redirect'] = $redirect;
+        $rtn['redirect'] = $redirect ?: $t_info['redirect_url'];
         $rtn['username'] = $auth['portal_username'];
         $rtn['login_username'] = $auth['portal_login_username'];
         $rtn['portal_pwd'] = $auth['portal_pwd'];

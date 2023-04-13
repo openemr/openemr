@@ -63,20 +63,6 @@ if (isset($_GET['woops'])) {
     unset($_SESSION['password_update']);
 }
 
-/* TODO For testing token create. Remove later */
-if (!empty($_REQUEST['bypass'] ?? null)) {
-    $oneTime = new OneTimeAuth();
-    $token = $oneTime->createPortalOneTime(['pid' => 2, 'redirect_link' => 'https://opensourcedemr.us/']);
-    $link = $token['encoded_link'];
-    $body = xlt("Here is your onetime access bypass link valid for 15 minutes.") . "<br>" .
-        xlt("Click to access your scheduled session.") .
-        ": <a style='font-size:16px;color: red;' rel='noopener' target='_blank' href='$link'>" .
-        xlt('Click to Join') . "</a>";
-    $err = $oneTime->emailNotification($token['email'], $body);
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-    header('Location: ' . $landingpage);
-    exit;
-}
 /*
  * Patient for onetime is verified when token redirect is decoded.
  * The embedded pid in token is compared to the token looked up result pid.
@@ -553,9 +539,6 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                             <button class="btn btn-danger ml-2" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) {
                                 echo "&redirect=" . attr_url($redirectUrl); } ?>')"><?php echo xlt('Reset Credentials'); ?></button>
                         <?php } ?>
-                        <!-- ***************** TODO remove ***************** -->
-                        <button class="btn btn-secondary float-left" onclick="location.replace('./index.php?bypass=1&site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('ByPass'); ?></button>
-                        <!-- ************************ TODO remove ******************************* -->
                         <button class="btn btn-success float-right" type="submit"><?php echo xlt('Log In'); ?></button>
                     </div>
                 </div>
