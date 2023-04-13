@@ -23,6 +23,7 @@ Header("Content-Security-Policy: frame-ancestors 'none'");
 //setting the session & other config options
 
 // Will start the (patient) portal OpenEMR session/cookie.
+
 require_once __DIR__ . "/../src/Common/Session/SessionUtil.php";
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
@@ -30,6 +31,7 @@ OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 $ignoreAuth_onsite_portal = true;
 
 //includes
+
 require_once '../interface/globals.php';
 require_once __DIR__ . "/lib/appsql.class.php";
 $logit = new ApplicationTable();
@@ -41,6 +43,8 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\LogoService;
+use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
+use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
 
 //For redirect if the site on session does not match
 $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
@@ -72,8 +76,27 @@ if (isset($_GET['woops'])) {
 if (!empty($_GET['service_auth'] ?? null)) {
     $token = $_GET['service_auth'];
     $redirect_token = $_GET['target'] ?? null;
-    $oneTime = new OneTimeAuth();
-    $oneTime->processOnetime($token, $redirect_token, $landingpage);
+    try {
+        $oneTime = new OneTimeAuth();
+        $auth = $oneTime->processOnetime($token, $redirect_token);
+        $logit->portalLog('onetime login attempt', $auth['pid'], 'patient logged in and redirecting', '', '1');
+        exit();
+    }
+    catch (OneTimeAuthExpiredException $exception) {
+        $logit->portalLog('onetime login attempt', $exception->getPid() ?? ''
+            , ':invalid one time', '', '0');
+        // do we want a separate message that their token has expired?
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        header('Location: ' . $landingpage . '&w&u');
+        exit();
+    }
+    catch (OneTimeAuthException $exception) {
+        $logit->portalLog('onetime login attempt', $exception->getPid() ?? ''
+            , ':invalid one time', '', '0');
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        header('Location: ' . $landingpage . '&w&u');
+        exit();
+    }
 }
 
 if (!empty($_GET['forward_email_verify'])) {

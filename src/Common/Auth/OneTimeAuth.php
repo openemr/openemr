@@ -16,10 +16,15 @@ namespace OpenEMR\Common\Auth;
 use DateInterval;
 use DateTime;
 use MyMailer;
+use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
+use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Services\PatientService;
+use OpenEMR\Services\UserService;
 
 class OneTimeAuth
 {
@@ -96,6 +101,7 @@ class OneTimeAuth
      * @param $onetime_token
      * @param $redirect_token
      * @return array
+     * @throws OneTimeAuthExpiredException
      */
     public function decodePortalOneTime($onetime_token, $redirect_token = ''): array
     {
@@ -125,14 +131,14 @@ class OneTimeAuth
         if (!$auth) {
             $rtn['error'] = "Onetime decode failed Onetime auth: " . $onetime_token;
             (new SystemLogger())->error($rtn['error']);
-            die(xlt("Not Authorized!"));
+            throw new OneTimeAuthException($rtn['error']);
         }
 
         $validate = $t_info['expires'];
         if ($validate <= time()) {
             $rtn['error'] = xlt("Your one time credential reset link has expired. Reset and try again.") . "time:$validate time:" . time();
             (new SystemLogger())->error($rtn['error']);
-            die(xlt("Expired. Not Authorized!"));
+            throw new OneTimeAuthExpiredException($rtn['error'], $auth['pid']);
         }
         $redirect = '';
         if (!empty($redirect_token)) {
@@ -141,8 +147,7 @@ class OneTimeAuth
                 $redirect_array = json_decode($redirect_decrypted, true);
                 $redirect = $redirect_array['to'];
                 if (($redirect_array['pid'] != $auth['pid'] && !empty($redirect_array['pid']))) {
-                    (new SystemLogger())->error(xlt("Error! credentials pid to and from don't match!"));
-                    die(xlt("Not Authorized!"));
+                    throw new OneTimeAuthException(xlt("Error! credentials pid to and from don't match!"), $auth['pid']);
                 }
                 (new SystemLogger())->debug("Redirect token decrypted: pid= " . $redirect_array['pid'] . " redirect= " . $redirect);
             }
@@ -313,17 +318,19 @@ class OneTimeAuth
     /**
      * @param $token
      * @param $redirect_token
-     * @return void
+     * @return array
      */
-    public function processOnetime($token, $redirect_token): void
+    public function processOnetime($token, $redirect_token): array
     {
         $auth = $this->decodePortalOneTime($token, $redirect_token);
         if (!empty($auth['error'] ?? null)) {
             (new SystemLogger())->error("Failed " . $auth['error']);
-            SessionUtil::portalSessionCookieDestroy();
             unset($auth);
-            die(xlt("Authentication Failed! Contact administrator."));
+            throw new OneTimeAuthException(xlt("Authentication Failed! Contact administrator."));
         }
+        $patientService = new PatientService();
+        $patient = $patientService->findByPid($auth['pid']);
+
         // preserve session for target use
         $_SESSION['pid'] = $auth['pid'];
         $_SESSION['auth_pin'] = $auth['pin'];
@@ -332,9 +339,25 @@ class OneTimeAuth
         $_SESSION['username'] = $auth['username'];
         $_SESSION['login_username'] = $auth['login_username'];
         $_SESSION['onetime'] = $auth['portal_pwd'];
+        $_SESSION['patient_portal_onsite_two'] = 1;
 
+        // setup the other variables needed for the session interaction
+        // this was taken from portal/get_patient_info.php
+        $userService = new UserService();
+        $tmp = $userService->getUser($patient['providerID']);
+        $_SESSION['providerName'] = ($tmp['fname'] ?? '') . ' ' . ($tmp['lname'] ?? '');
+        $_SESSION['providerUName'] = $tmp['username'] ?? null;
+        $_SESSION['sessionUser'] = '-patient-';
+        $_SESSION['providerId'] = $patient['providerID'] ? $patient['providerID'] : 'undefined';
+        $_SESSION['ptName'] = $patient['fname'] . ' ' . $patient['lname'];
+        // never set authUserID though authUser is used for ACL!
+        $_SESSION['authUser'] = 'portal-user';
+        // Set up the csrf private_key (for the paient portal)
+        //  Note this key always remains private and never leaves server session. It is used to create
+        //  the csrf tokens.
+        CsrfUtils::setupCsrfKey();
         header('Location: ' . $auth['redirect']);
-
-        exit();
+        // allows logging and any other processing to be handled on the return
+        return $auth;
     }
 }

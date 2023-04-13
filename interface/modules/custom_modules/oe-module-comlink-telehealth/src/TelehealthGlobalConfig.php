@@ -47,6 +47,11 @@ class TelehealthGlobalConfig
     public const VERIFY_SETTINGS_BUTTON = "comlink_verify_settings_button";
 
     /**
+     * Setting used for enabling the onetime passwordless login option.
+     */
+    public const COMLINK_ONETIME_PASSWORD_LOGIN = "comlink_onetime_password_login";
+
+    /**
      * @var CryptoGen
      */
     private $cryptoGen;
@@ -55,6 +60,7 @@ class TelehealthGlobalConfig
      * @var publicWebPath
      */
     private $publicWebPath;
+
 
     public function __construct($publicWebPath)
     {
@@ -100,6 +106,15 @@ class TelehealthGlobalConfig
     public function isThirdPartyInvitationsEnabled()
     {
         return $this->getGlobalSetting(self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS) == '1';
+    }
+
+    public function isOneTimePasswordLoginEnabled() {
+        $setting = $this->getGlobalSetting(self::COMLINK_ONETIME_PASSWORD_LOGIN);
+        if ($setting === null) {
+            return true; // TODO: @adunsulag change this to false once we have a way to disable this feature
+        } else {
+            return $setting;
+        }
     }
 
     public function getFHIRPath()
@@ -311,6 +326,12 @@ class TelehealthGlobalConfig
                     ,'top-right' => xl('Top Right')
                 ]
             ]
+            ,self::COMLINK_ONETIME_PASSWORD_LOGIN => [
+                'title' => 'Enable Passwordless Patient Login'
+                , 'description' => 'Allow patients to receive a one time use login link to access their telehealth session'
+                ,'type' => GlobalSetting::DATA_TYPE_BOOL
+                ,'default' => ''
+            ]
             ,self::DEBUG_MODE_FLAG => [
                 'title' => 'Debug Mode'
                 , 'description' => 'Turn on debug versions of javascript and other debug settings'
@@ -366,6 +387,7 @@ class TelehealthGlobalConfig
             || $key == self::VERIFY_SETTINGS_BUTTON
             || $key == self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS
             || $key == self::COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT
-            || $key == self::DEBUG_MODE_FLAG;
+            || $key == self::DEBUG_MODE_FLAG
+            || $key == self::COMLINK_ONETIME_PASSWORD_LOGIN;
     }
 }
