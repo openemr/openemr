@@ -848,9 +848,10 @@ var page = {
             // no frame content is maintained in onsite document activity but template directives are.
             templateContent = templateContent.replace("id=0", "id=" + page.encounterFormId);
         }
-        if (isPortal) {
+        // removing for testing
+        /* if (isPortal) {
             templateContent = page.encode(templateContent, parseInt(csrfTokenDoclib[0]));
-        }
+        } */
         page.onsiteDocument.save({
             'pid': cpid,
             'facility': page.formOrigin, /* 0 portal, 1 dashboard, 2 patient documents */
@@ -956,7 +957,8 @@ var page = {
             }
         });
     },
-    encode: function (content, k) {
+    // removing for testing
+    /* encode: function (content, k) {
         let encoded = "";
         content = btoa(content);
         content = btoa(content);
@@ -966,5 +968,5 @@ var page = {
             encoded = encoded + String.fromCharCode(b);
         }
         return btoa(encoded);
-    }
+    } */
 };
