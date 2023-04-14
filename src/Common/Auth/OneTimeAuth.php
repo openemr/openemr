@@ -129,10 +129,10 @@ class OneTimeAuth
         $rtn['redirect'] = null;
         $rtn['error'] = null;
         $one_time = '';
-        $crypto = new CryptoGen();
+
         if (strlen($onetime_token) >= 64) {
-            if ($crypto->cryptCheckStandard($onetime_token)) {
-                $one_time = $crypto->decryptStandard($onetime_token, null, 'drive', 6);
+            if ($this->cryptoGen->cryptCheckStandard($onetime_token)) {
+                $one_time = $this->cryptoGen->decryptStandard($onetime_token, null, 'drive', 6);
                 if (!empty($one_time)) {
                     $t_info = $this->getOnetime($one_time);
                     if (!empty($t_info['pid'] ?? 0)) {
@@ -161,8 +161,8 @@ class OneTimeAuth
         // leave the option of using embedded encrypted redirect.
         $redirect = $t_info['redirect_url'] ?? null;
         if (!empty($redirect_token)) {
-            if ($crypto->cryptCheckStandard($redirect_token)) {
-                $redirect_decrypted = $crypto->decryptStandard($redirect_token, null, 'drive', 6);
+            if ($this->cryptoGen->cryptCheckStandard($redirect_token)) {
+                $redirect_decrypted = $this->cryptoGen->decryptStandard($redirect_token, null, 'drive', 6);
                 $redirect_array = json_decode($redirect_decrypted, true);
                 $redirect = $redirect_array['to'];
                 if (($redirect_array['pid'] != $auth['pid'] && !empty($redirect_array['pid']))) {
@@ -172,7 +172,7 @@ class OneTimeAuth
             }
         }
         $rtn['pid'] = $auth['pid'];
-        $rtn['pin'] = $t_info['pin'];
+        $rtn['pin'] = $t_info['onetime_pin'];
         $rtn['redirect'] = $redirect;
         $rtn['username'] = $auth['portal_username'];
         $rtn['login_username'] = $auth['portal_login_username'];
@@ -380,6 +380,7 @@ class OneTimeAuth
         //  Note this key always remains private and never leaves server session. It is used to create
         //  the csrf tokens.
         CsrfUtils::setupCsrfKey();
+        $auth['redirect'] .= "&me=" . session_id();
         header('Location: ' . $auth['redirect']);
         // allows logging and any other processing to be handled on the return
         return $auth;
