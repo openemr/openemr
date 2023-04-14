@@ -17,6 +17,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Globals\GlobalsService;
 use MyMailer;
+use Twig\Environment;
 
 class TelehealthGlobalConfig
 {
@@ -51,6 +52,8 @@ class TelehealthGlobalConfig
      */
     public const COMLINK_ONETIME_PASSWORD_LOGIN = "comlink_onetime_password_login";
 
+    public const COMLINK_SECTION_FOOTER_BOX = "comlink_section_footer_box";
+
     /**
      * @var CryptoGen
      */
@@ -61,11 +64,17 @@ class TelehealthGlobalConfig
      */
     private $publicWebPath;
 
+    /**
+     * @var Environment $twig
+     */
+    private $twig;
 
-    public function __construct($publicWebPath)
+
+    public function __construct($publicWebPath, $moduleDirectoryName, Environment $twig)
     {
         $this->cryptoGen = new CryptoGen();
         $this->publicWebPath = $publicWebPath;
+        $this->twig = $twig;
     }
 
     public function getPortalTimeout()
@@ -106,16 +115,6 @@ class TelehealthGlobalConfig
     public function isThirdPartyInvitationsEnabled()
     {
         return $this->getGlobalSetting(self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS) == '1';
-    }
-
-    public function isOneTimePasswordLoginEnabled()
-    {
-        $setting = $this->getGlobalSetting(self::COMLINK_ONETIME_PASSWORD_LOGIN);
-        if ($setting === null) {
-            return true; // TODO: @adunsulag change this to false once we have a way to disable this feature
-        } else {
-            return $setting;
-        }
     }
 
     public function getFHIRPath()
@@ -327,17 +326,20 @@ class TelehealthGlobalConfig
                     ,'top-right' => xl('Top Right')
                 ]
             ]
-            ,self::COMLINK_ONETIME_PASSWORD_LOGIN => [
-                'title' => 'Enable Passwordless Patient Login'
-                , 'description' => 'Allow patients to receive a one time use login link to access their telehealth session'
-                ,'type' => GlobalSetting::DATA_TYPE_BOOL
-                ,'default' => ''
-            ]
             ,self::DEBUG_MODE_FLAG => [
                 'title' => 'Debug Mode'
                 , 'description' => 'Turn on debug versions of javascript and other debug settings'
                 ,'type' => GlobalSetting::DATA_TYPE_BOOL
                 ,'default' => ''
+            ]
+            ,self::COMLINK_SECTION_FOOTER_BOX => [
+                'title' => 'Telehealth Footer Box'
+                , 'description' => 'This is an information section for providing additional information about this configuration'
+                ,'type' => GlobalSetting::DATA_TYPE_HTML_DISPLAY_SECTION
+                ,'default' => ''
+                ,'options' => [
+                    GlobalSetting::DATA_TYPE_OPTION_RENDER_CALLBACK => [$this, 'renderFooterBox']
+                ]
             ]
 //            ,self::VERIFY_SETTINGS_BUTTON => [
 //                'title' => 'Verify Comlink Installation Settings'
@@ -350,6 +352,35 @@ class TelehealthGlobalConfig
 //            ]
         ];
         return $settings;
+    }
+
+    public function renderFooterBox($fldid, $fldarray)
+    {
+        $emailNotificationsConfigured = $this->isEmailNotificationsConfigured();
+        $isThirdPartyConfigurationSetup = $this->isThirdPartyConfigurationSetup();
+        // need to check and make sure the portal site address has the same hostname / address as the site address override
+        $qualifiedSiteAddress = $this->getQualifiedSiteAddress();
+        $portalAddress = $this->getPortalOnsiteAddress();
+        $qualifiedHost = parse_url($qualifiedSiteAddress, PHP_URL_HOST);
+        $portalHost = parse_url($portalAddress, PHP_URL_HOST);
+        $hostnamesMatch = $qualifiedHost === $portalHost;
+
+        $isValidRegistrationUri = filter_var($this->getRegistrationAPIURI(), FILTER_VALIDATE_URL);
+        $isValidTelehealthApi = filter_var($this->getTelehealthAPIURI(), FILTER_VALIDATE_URL);
+
+        $dataArray = [
+            'emailNotificationsConfigured' => $emailNotificationsConfigured
+            ,'isThirdPartyConfigurationSetup' => $isThirdPartyConfigurationSetup
+            ,'hostnamesMatch' => $hostnamesMatch
+            ,'isValidTelehealthApi' => $isValidTelehealthApi
+            ,'isValidRegistrationUri' => $isValidRegistrationUri
+            ,'fldid' => $fldid
+            ,'fldarray' => $fldarray
+            ,'verifyInstallationPathUrl' => $this->publicWebPath . 'index.php?action=verify_installation_settings'
+            ,'telehealthCvbUrl' => $this->publicWebPath . 'assets/js/src/cvb.min.js'
+        ];
+
+        return $this->twig->render("comlink/admin/telehealth_footer_box.html.twig", $dataArray);
     }
 
     public function setupConfiguration(GlobalsService $service)
@@ -389,6 +420,7 @@ class TelehealthGlobalConfig
             || $key == self::COMLINK_ENABLE_THIRDPARTY_INVITATIONS
             || $key == self::COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT
             || $key == self::DEBUG_MODE_FLAG
+            || $key == self::COMLINK_SECTION_FOOTER_BOX
             || $key == self::COMLINK_ONETIME_PASSWORD_LOGIN;
     }
 }
