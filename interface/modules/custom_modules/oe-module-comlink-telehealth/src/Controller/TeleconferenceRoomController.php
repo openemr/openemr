@@ -28,7 +28,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthParticipantInvit
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthProvisioningService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\The;
-use Comlink\OpenEMR\Modules\TeleHealthModule\Util\AuthUtils;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Util\TelehealthAuthUtils;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Validators\TelehealthPatientValidator;
 use OpenEMR\Common\Acl\AccessDeniedException;
@@ -1232,6 +1232,6 @@ class TeleconferenceRoomController
     private function getApiKeyForPassword($password)
     {
         $decrypted = $this->telehealthUserRepo->decryptPassword($password);
-        return AuthUtils::getFormattedPassword($decrypted);
+        return TelehealthAuthUtils::getFormattedPassword($decrypted);
     }
 }

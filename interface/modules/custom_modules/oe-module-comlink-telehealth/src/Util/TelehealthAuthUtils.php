@@ -2,7 +2,7 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Util;
 
-class AuthUtils
+class TelehealthAuthUtils
 {
     public static function getFormattedPassword($password)
     {

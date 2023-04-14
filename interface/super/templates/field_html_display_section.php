@@ -23,7 +23,7 @@ if (
         ob_end_clean();
         (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getMessage()]);
         echo xlt("Error in rendering html display section.")
-            . xlt("Field name") . " '" . $fldname . "'";
+            . xlt("Field name") . " '" . text($fldname) . "'";
     }
 }
 echo "</div></div>";

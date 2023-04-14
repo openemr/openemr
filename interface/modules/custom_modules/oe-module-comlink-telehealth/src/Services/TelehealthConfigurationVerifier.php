@@ -5,7 +5,7 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule\Services;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
-use Comlink\OpenEMR\Modules\TeleHealthModule\Util\AuthUtils;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Util\TelehealthAuthUtils;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use OpenEMR\Common\Http\Psr17Factory;
@@ -53,7 +53,7 @@ class TelehealthConfigurationVerifier
     private function getVerifyBridgeSettings(TeleHealthUser $user)
     {
         $password = $this->userRepository->decryptPassword($user->getAuthToken());
-        $hashedPassword = AuthUtils::getFormattedPassword($password);
+        $hashedPassword = TelehealthAuthUtils::getFormattedPassword($password);
         $data = ["userId" => $user->getUsername(), "passwordHash" => $hashedPassword
             , "type" => "normal"
             , 'telehealthApiUrl' => $this->config->getTelehealthAPIURI()
