@@ -23,10 +23,12 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository
 use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthVideoRegistrationController;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\FormattedPatientService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\ParticipantListService;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TelehealthConfigurationVerifier;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthParticipantInvitationMailerService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthProvisioningService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\The;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Util\TelehealthAuthUtils;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Validators\TelehealthPatientValidator;
 use OpenEMR\Common\Acl\AccessDeniedException;
@@ -453,24 +455,20 @@ class TeleconferenceRoomController
 
     public function verifyInstallationSettings($queryVars)
     {
-        $config = $this->config;
-        if (!$config->isTelehealthConfigured()) {
-            echo xlt("Telehealth settings must be saved to verify configuration");
-        } else {
-//             settings have been saved... now we need to hit the remote server and verify we can talk to them
-//             TODO: we need a mechanism to verify the video bridge is working
-            $verificationResult = $this->telehealthRegistrationController->verifyProvisioningServiceIsValid();
-            if ($verificationResult['status'] == 200) {
-                echo xlt("Settings verified");
-            } else {
-                http_response_code($verificationResult['status']);
-                if ($verificationResult['status'] == 401) {
-                    echo xlt("Could not successfully communicate with provisioning server.  Check that your Telehealth registration settings are valid.");
-                } else {
-                    echo text($verificationResult['message']);
-                }
-            }
+        $configVerifier = new TelehealthConfigurationVerifier(
+            $this->logger,
+            $this->provisioningService,
+            $this->telehealthUserRepo,
+            $this->config
+        );
+        $userService = new UserService();
+        $user = $userService->getUserByUsername($queryVars['authUser']);
+        if (empty($user)) {
+            echo json_encode(['status' => 'error', 'message' => xlt("Could not find authenticated user")]);
+            return;
         }
+
+        $configVerifier->verifyInstallationSettings($user);
     }
 
     public function setAppointmentStatusAction($queryVars)
@@ -1234,7 +1232,6 @@ class TeleconferenceRoomController
     private function getApiKeyForPassword($password)
     {
         $decrypted = $this->telehealthUserRepo->decryptPassword($password);
-        $hash = hash('sha256', $decrypted);
-        return $hash;
+        return TelehealthAuthUtils::getFormattedPassword($decrypted);
     }
 }
