@@ -29,6 +29,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\GlobalSetting;
@@ -111,7 +112,7 @@ function checkBackgroundServices()
 {
   //load up any necessary globals
     $bgservices = sqlStatement(
-        "SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN 
+        "SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN
         (
             'phimail_enable',
             'phimail_interval',
@@ -488,6 +489,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     $fldvalue = $userSetting;
                                                     $settingDefault = "";
                                                 }
+                                            }
+                                            if ($fldtype == GlobalSetting::DATA_TYPE_HTML_DISPLAY_SECTION) {
+                                                // if the field is an html display box we want to take over the entire real estate so we will continue from here.
+                                                include_once 'templates/field_html_display_section.php';
+                                                ++$i; // make sure we advance the iterator here...
+                                                continue;
                                             }
 
                                             if ($userMode) {
