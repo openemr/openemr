@@ -1064,8 +1064,15 @@ $GLOBALS_METADATA = array(
         'expand_form' => array(
             xl('Expand Form'),
             'bool',                           // data type
-            '1',                              // default false
+            '1',                              // default true
             xl('Open all expandable forms in expanded state')
+        ),
+
+        'graph_data_warning' => array(
+            xl('Graphing Data Warning'),
+            'bool',                           // data type
+            '0',                              // default false
+            xl('Warn if not enough data to graph')
         ),
 
     ),

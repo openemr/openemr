@@ -94,6 +94,15 @@ class C_FormVitals
             $i++;
         }
 
+        // For the demographics page and $form_id === 0
+        if ($form_id === 0) {
+            $vitals_history_count = count($results);
+            $vitals = $results[$vitals_history_count];
+            if (isset($vitals->uuid)) {
+                $vitals->uuid = UuidRegistry::uuidToBytes($vitals->uuid);
+            }
+        }
+
         $reasonCodeStatii = ReasonStatusCodes::getCodesWithDescriptions();
         $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status code");
 
