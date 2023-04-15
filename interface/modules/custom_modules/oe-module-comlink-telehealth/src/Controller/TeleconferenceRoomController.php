@@ -348,7 +348,7 @@ class TeleconferenceRoomController
             // note we are NOT intentionally using $queryVars['pid'] here as we want to validate the pid that is being passed in
             // the appointment creator can choose a different patient than the one that is currently selected in the pid
             // we still need to make sure they have an ACL check.
-
+            // note this will stop portal access for patients as we don't want them to have access to this api.
             if (!AclMain::aclCheckCore('patients', 'appt')) {
                 throw new AccessDeniedException("patients", "appt", "Does not have ACL permission to patient appointments");
             }
