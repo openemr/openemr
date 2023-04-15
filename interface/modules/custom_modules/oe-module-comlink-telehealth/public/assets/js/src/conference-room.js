@@ -1053,6 +1053,9 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
                if (result.status !== 'success') {
                    throw new Error("Failed to update session");
                } else {
+                   if (conf.__isShutdown) {
+                       // we've shutdown so ignore any updates here.
+                   }
                    // grab our participant list
 
                    // algorithm will be

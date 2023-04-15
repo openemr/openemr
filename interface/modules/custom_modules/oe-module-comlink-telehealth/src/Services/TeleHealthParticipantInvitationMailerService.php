@@ -66,6 +66,31 @@ class TeleHealthParticipantInvitationMailerService
         );
     }
 
+    /**
+     * Returns the data that for the mailer invitation that can be used to manually send the invitation outside of
+     * the OpenEMR mailer system. IE a user could take the html or link properties and send them via their own email.
+     * @param $patient
+     * @param $session
+     * @param $thirdPartyLaunchAction
+     * @return array
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function getMailerInvitationForManualSend($patient, $session, $thirdPartyLaunchAction)
+    {
+        $data = $this->getInvitationData($patient, $session, $thirdPartyLaunchAction);
+        $htmlMsg = $this->twig->render('comlink/emails/telehealth-invitation-existing.html.twig', $data);
+        $plainMsg = $this->twig->render('comlink/emails/telehealth-invitation-existing.text.twig', $data);
+        return [
+            'link' => $data['url']
+            ,'html' => $htmlMsg
+            ,'text' => $plainMsg
+            ,'pc_eid' => $session['pc_eid']
+            ,'pid' => $patient['pid']
+        ];
+    }
+
     public function sendInvitationToNewPatient($patient, $session, $thirdPartyLaunchAction)
     {
         $data = $this->getInvitationData($patient, $session, $thirdPartyLaunchAction);
@@ -116,6 +141,7 @@ class TeleHealthParticipantInvitationMailerService
                 ,'redirect_link' => $this->publicPathFQDN . "index-portal.php?action=" . urlencode($thirdPartyLaunchAction)
                     . "&pc_eid=" . urlencode($session['pc_eid'])
                 ,'email' => $patient['email']
+                ,'expiry_interval' => $this->config->getOneTimePasswordTimeoutSetting()
             ];
             $service = new OneTimeAuth();
             $oneTime = $service->createPortalOneTime($parameters);

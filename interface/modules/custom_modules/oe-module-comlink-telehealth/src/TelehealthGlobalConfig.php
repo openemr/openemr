@@ -54,6 +54,10 @@ class TelehealthGlobalConfig
 
     public const COMLINK_SECTION_FOOTER_BOX = "comlink_section_footer_box";
 
+    public const COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT = "comlink_onetime_password_login_time_limit";
+
+    public const MAX_LOGIN_LIMIT_TIME = 30;
+
     /**
      * @var CryptoGen
      */
@@ -110,6 +114,16 @@ class TelehealthGlobalConfig
     public function getPublicWebPath()
     {
         return $this->publicWebPath;
+    }
+
+    public function isOneTimePasswordLoginEnabled()
+    {
+        $setting = $this->getGlobalSetting(self::COMLINK_ONETIME_PASSWORD_LOGIN);
+        if ($setting === null) {
+            return false;
+        } else {
+            return $setting;
+        }
     }
 
     public function isThirdPartyInvitationsEnabled()
@@ -326,6 +340,18 @@ class TelehealthGlobalConfig
                     ,'top-right' => xl('Top Right')
                 ]
             ]
+            ,self::COMLINK_ONETIME_PASSWORD_LOGIN => [
+                'title' => 'Enable Pre-Authenticated Patient Login Link'
+                , 'description' => 'Allow patients to receive a time limited link to access their telehealth session'
+                ,'type' => GlobalSetting::DATA_TYPE_BOOL
+                ,'default' => ''
+            ]
+            ,self::COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT => [
+                'title' => 'Pre-Authenticated Patient Login Link Timeout (Minutes)'
+                , 'description' => 'The amount of minutes the pre-authenticated link will be valid for (maximum of 30 minutes). Note provide sufficient time as email delivery delays can cause the link to expire before the patient can use it. '
+                , 'type' => GlobalSetting::DATA_TYPE_TEXT
+                ,'default' => '15'
+            ]
             ,self::DEBUG_MODE_FLAG => [
                 'title' => 'Debug Mode'
                 , 'description' => 'Turn on debug versions of javascript and other debug settings'
@@ -422,5 +448,21 @@ class TelehealthGlobalConfig
             || $key == self::DEBUG_MODE_FLAG
             || $key == self::COMLINK_SECTION_FOOTER_BOX
             || $key == self::COMLINK_ONETIME_PASSWORD_LOGIN;
+    }
+
+    /**
+     * Returns the One Time Password Timeout Setting in PHP DatePeriod format IE PT{minutes}M
+     * If the setting exceeds
+     * @return string
+     */
+    public function getOneTimePasswordTimeoutSetting()
+    {
+        $setting = intval($this->getGlobalSetting(self::COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT));
+        if ($setting > self::MAX_LOGIN_LIMIT_TIME) {
+            $setting = self::MAX_LOGIN_LIMIT_TIME;
+        } else if ($setting <= 0) { // set it to the default setting
+            $setting = 15;
+        }
+        return "PT{$setting}M";
     }
 }
