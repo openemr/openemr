@@ -39,7 +39,9 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Bootstrap;
 $kernel = $GLOBALS['kernel'];
 $bootstrap = new Bootstrap($kernel->getEventDispatcher(), $kernel);
 $roomController = $bootstrap->getTeleconferenceRoomController(true);
-
+if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
+    $queryVars['csrf_token'] = $_SERVER['HTTP_APICSRFTOKEN'];
+}
 $action = $_GET['action'] ?? '';
 $queryVars = $_GET ?? [];
 $queryVars['pid'] = $_SESSION['pid']; // we overwrite any pid value to make sure we only grab this patient.

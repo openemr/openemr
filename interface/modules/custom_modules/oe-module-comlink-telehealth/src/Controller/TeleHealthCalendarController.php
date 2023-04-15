@@ -19,6 +19,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\The;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Utils\CacheUtils;
+use OpenEMR\Events\Appointments\AppointmentJavascriptEventNames;
 use OpenEMR\Events\Appointments\AppointmentRenderEvent;
 use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 use OpenEMR\Events\Core\ScriptFilterEvent;
@@ -69,6 +70,7 @@ class TeleHealthCalendarController
         $eventDispatcher->addListener(StyleFilterEvent::EVENT_NAME, [$this, 'addCalendarStylesheet']);
 
         $eventDispatcher->addListener(AppointmentRenderEvent::RENDER_JAVASCRIPT, [$this, 'renderAppointmentJavascript']);
+        $eventDispatcher->addListener(AppointmentRenderEvent::RENDER_BELOW_PATIENT, [$this, 'renderPatientValidationDiv']);
         $eventDispatcher->addListener(AppointmentRenderEvent::RENDER_BELOW_PATIENT, [$this, 'renderAppointmentsLaunchSessionButton']);
     }
 
@@ -146,9 +148,17 @@ class TeleHealthCalendarController
         $providerIds = array_map(function ($provider) {
             return intval($provider->getDbRecordId());
         }, $providers);
+
+        $jsAppointmentEventNames = [
+            'appointmentSetEvent' => AppointmentJavascriptEventNames::APPOINTMENT_PATIENT_SET_EVENT
+        ];
         //
-        echo $this->twig->render("comlink/appointment/add_edit_event.js.twig", ['appt' => $appt
-            , 'providers' => $providerIds, 'categories' => $categoryIds]);
+        echo $this->twig->render("comlink/appointment/add_edit_event.js.twig",
+            [
+                'appt' => $appt
+                , 'providers' => $providerIds, 'categories' => $categoryIds
+                , 'jsAppointmentEventNames' => $jsAppointmentEventNames
+            ]);
     }
 
     public function addCalendarJavascript(ScriptFilterEvent $event)
@@ -180,6 +190,9 @@ class TeleHealthCalendarController
         }
     }
 
+    public function renderPatientValidationDiv(AppointmentRenderEvent $event) {
+        echo "<div class='patient-validation-div d-none alert mt-1 mb-1'></div>";
+    }
     public function renderAppointmentsLaunchSessionButton(AppointmentRenderEvent $event)
     {
         $row = $event->getAppt();
