@@ -324,7 +324,8 @@ class TeleconferenceRoomController
         }
     }
 
-    public function generateParticipantLinkAction($queryVars) {
+    public function generateParticipantLinkAction($queryVars)
+    {
         try {
             $json = file_get_contents("php://input");
             $data = json_decode($json, true);
@@ -365,8 +366,11 @@ class TeleconferenceRoomController
                 throw new InvalidArgumentException("patient was not found for pid of " + $session['pid']);
             }
 
-            $invitation = $this->mailerService->getMailerInvitationForManualSend($patient, $session
-                , self::LAUNCH_PATIENT_SESSION);
+            $invitation = $this->mailerService->getMailerInvitationForManualSend(
+                $patient,
+                $session,
+                self::LAUNCH_PATIENT_SESSION
+            );
             // TODO: @adunsulag we really should return Response objects so we can unit test all of this...
             $invitation['generated'] = true; // make sure we mark that this invitation was generated
             echo json_encode(['success' => true, 'invitation' => $invitation]);
@@ -375,13 +379,11 @@ class TeleconferenceRoomController
             http_response_code(401);
             header("Content-type: application/json");
             echo json_encode(['success' => false, 'error' => xlt("Access Denied")]);
-
         } catch (InvalidArgumentException $exception) {
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(400);
             header("Content-type: application/json");
             echo json_encode(['error' => xlt("Improperly formatted request")]);
-
         } catch (Exception $exception) {
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(500);

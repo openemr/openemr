@@ -82,7 +82,7 @@ class OneTimeAuth
             $redirect_plus = js_escape(['pid' => $passed_in_pid, 'to' => $redirect_raw]);
             $redirect_token = $this->cryptoGen->encryptStandard($redirect_plus);
             if (empty($redirect_token)) {
-                // since redirect is in database we can continue.
+                // since redirect should be in database we can continue.
                 $this->systemLogger->error(xlt("Onetime redirect failed encryption."));
             }
         }

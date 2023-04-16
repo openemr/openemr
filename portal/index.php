@@ -89,9 +89,8 @@ if (!empty($_GET['service_auth'] ?? null)) {
             '',
             '0'
         );
-        // do we want a separate message that their token has expired?
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-        header('Location: ' . $landingpage . '&w&u');
+        header('Location: ' . $landingpage . '&oe');
         exit();
     } catch (OneTimeAuthException $exception) {
         $logit->portalLog(
@@ -102,7 +101,7 @@ if (!empty($_GET['service_auth'] ?? null)) {
             '0'
         );
         OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-        header('Location: ' . $landingpage . '&w&u');
+        header('Location: ' . $landingpage . '&oi');
         exit();
     }
 }
@@ -626,6 +625,14 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             // mdsupport - Would be good to include some clue about what went wrong!
             bsAlert(<?php echo xlj('Something went wrong. Please try again.'); ?>);
             <?php } ?>
+            <?php if (isset($_GET['oe'])) { ?>
+            // mdsupport - Would be good to include some clue about what went wrong!
+            bsAlert(<?php echo xlj('Something went wrong. Onetime Authentication! Expired.'); ?>);
+            <?php } ?>
+            <?php if (isset($_GET['oi'])) { ?>
+            // mdsupport - Would be good to include some clue about what went wrong!
+            bsAlert(<?php echo xlj('Something went wrong. Onetime Authentication! Invalid.'); ?>);
+            <?php } ?>
             <?php // if successfully logged out
             if (isset($_GET['logout'])) { ?>
             bsAlert(<?php echo xlj('You have been successfully logged out.'); ?>);
@@ -687,7 +694,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             divAlert.prepend(strongMsg);
             setTimeout(() => {
                 document.querySelector("div.alert").remove();
-            }, 3000);
+            }, 6000);
         }
     </script>
 </body>

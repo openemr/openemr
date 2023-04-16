@@ -24,17 +24,17 @@ if (!empty($query)) {
 // need to retain the webroot if we have one
 $landingpage = $basePath . "portal/index.php?site=" . urlencode($_GET['site_id'] ?? '') . "&redirect=" . urlencode($redirect);
 $skipLandingPageError = true;
-// test session
-if (!empty($_REQUEST['me'] ?? null) && empty($_SESSION ?? null)) {
+
+// TODO include after we securely pass session id.
+/*if (!empty($_REQUEST['me'] ?? null) && empty($_SESSION ?? null)) {
     session_id($_REQUEST['me']);
     session_start();
-}
+}*/
+
 // since we are working inside the portal we have to use the portal session verification logic here...
 require_once "../../../../../portal/verify_session.php";
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Bootstrap;
-
-
 
 $kernel = $GLOBALS['kernel'];
 $bootstrap = new Bootstrap($kernel->getEventDispatcher(), $kernel);
