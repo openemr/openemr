@@ -380,7 +380,7 @@ class OneTimeAuth
         //  Note this key always remains private and never leaves server session. It is used to create
         //  the csrf tokens.
         CsrfUtils::setupCsrfKey();
-        $auth['redirect'] .= "&me=" . session_id();
+        // $auth['redirect'] .= "&me=" . session_id();
         header('Location: ' . $auth['redirect']);
         // allows logging and any other processing to be handled on the return
         return $auth;
