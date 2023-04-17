@@ -16,6 +16,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Events\TelehealthNotificationSendEv
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\NotificationSendAddress;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use MyMailer;
+use OpenEMR\Common\Auth\OneTimeAuth;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\LogoService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -60,9 +61,34 @@ class TeleHealthParticipantInvitationMailerService
             $htmlMsg,
             $plainMsg,
             $patient,
-            $this->getJoinLink($session, $thirdPartyLaunchAction),
+            $data['url'],
             self::MESSAGE_ID_TELEHEALTH_EXISTING_PATIENT
         );
+    }
+
+    /**
+     * Returns the data that for the mailer invitation that can be used to manually send the invitation outside of
+     * the OpenEMR mailer system. IE a user could take the html or link properties and send them via their own email.
+     * @param $patient
+     * @param $session
+     * @param $thirdPartyLaunchAction
+     * @return array
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     */
+    public function getMailerInvitationForManualSend($patient, $session, $thirdPartyLaunchAction)
+    {
+        $data = $this->getInvitationData($patient, $session, $thirdPartyLaunchAction);
+        $htmlMsg = $this->twig->render('comlink/emails/telehealth-invitation-existing.html.twig', $data);
+        $plainMsg = $this->twig->render('comlink/emails/telehealth-invitation-existing.text.twig', $data);
+        return [
+            'link' => $data['url']
+            ,'html' => $htmlMsg
+            ,'text' => $plainMsg
+            ,'pc_eid' => $session['pc_eid']
+            ,'pid' => $patient['pid']
+        ];
     }
 
     public function sendInvitationToNewPatient($patient, $session, $thirdPartyLaunchAction)
@@ -75,7 +101,7 @@ class TeleHealthParticipantInvitationMailerService
             $htmlMsg,
             $plainMsg,
             $patient,
-            $this->getJoinLink($session, $thirdPartyLaunchAction),
+            $data['url'],
             self::MESSAGE_ID_TELEHEALTH_NEW_PATIENT
         );
     }
@@ -86,7 +112,7 @@ class TeleHealthParticipantInvitationMailerService
         $logoPath = $this->config->getQualifiedSiteAddress() . $logoService->getLogo('core/login/primary');
         $name = $this->config->getOpenEMRName();
         $data = [
-            'url' => $this->getJoinLink()
+            'url' => $this->getJoinLink($patient, $session, $thirdPartyLaunchAction)
             ,'pc_eid' => $session['pc_eid']
             ,'launchAction' => $thirdPartyLaunchAction
             ,'salutation' => ($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? '')
@@ -97,10 +123,41 @@ class TeleHealthParticipantInvitationMailerService
         return $data;
     }
 
-    private function getJoinLink()
+    private function getJoinLink($patient, $session, $thirdPartyLaunchAction)
     {
-        // the index-portal will redirect the person to login before completing the action
-        return $this->publicPathFQDN . "index-portal.php";
+        /**
+         * $p[
+         *    'pid' => '', // required for most onetime auth
+         *   'target_link' => '', // Onetime endpoint
+         *   'redirect_link' => '', // Where to redirect the user after auth
+         *   'enabled_datetime' => 'NOW', // Use a datetime if wish to enable for a future date.
+         *   'expiry_interval' => 'PT15M', // Always PTxx{Sec,Min,Day} PeriodTime
+         *   'email' => '']
+         */
+
+        if ($this->config->isOneTimePasswordLoginEnabled()) {
+            $parameters = [
+                'pid' => $patient['pid']
+                ,'redirect_link' => $this->publicPathFQDN . "index-portal.php?action=" . urlencode($thirdPartyLaunchAction)
+                    . "&pc_eid=" . urlencode($session['pc_eid'])
+                ,'email' => $patient['email']
+                ,'expiry_interval' => $this->config->getOneTimePasswordTimeoutSetting()
+            ];
+            $service = new OneTimeAuth();
+            $oneTime = $service->createPortalOneTime($parameters);
+            if (isset($oneTime['encoded_link'])) {
+                return $oneTime['encoded_link'];
+            } else {
+                (new SystemLogger())->errorLogCaller("Failed to generate encoded_link with onetime service");
+                return $this->publicPathFQDN . "index-portal.php";
+            }
+        } else {
+            // the index-portal will redirect the person to login before completing the action
+            return $this->publicPathFQDN . "index-portal.php?action=" . urlencode($thirdPartyLaunchAction)
+                . "&pc_eid=" . urlencode($session['pc_eid']);
+        }
+
+        return $oneTime;
     }
 
     private function sendMessageToPatient($htmlMsg, $plainMsg, $patient, $joinLink, $messageId)
