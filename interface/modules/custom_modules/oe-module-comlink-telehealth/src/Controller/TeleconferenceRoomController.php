@@ -328,7 +328,8 @@ class TeleconferenceRoomController
         }
     }
 
-    public function validatePatientIsTelehealthReadyAction($queryVars) {
+    public function validatePatientIsTelehealthReadyAction($queryVars)
+    {
 
         // grab the patient pid from the query vars
         // verify the current user can access patient demographics via the acl

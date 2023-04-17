@@ -153,12 +153,14 @@ class TeleHealthCalendarController
             'appointmentSetEvent' => AppointmentJavascriptEventNames::APPOINTMENT_PATIENT_SET_EVENT
         ];
         //
-        echo $this->twig->render("comlink/appointment/add_edit_event.js.twig",
+        echo $this->twig->render(
+            "comlink/appointment/add_edit_event.js.twig",
             [
                 'appt' => $appt
                 , 'providers' => $providerIds, 'categories' => $categoryIds
                 , 'jsAppointmentEventNames' => $jsAppointmentEventNames
-            ]);
+            ]
+        );
     }
 
     public function addCalendarJavascript(ScriptFilterEvent $event)
@@ -190,7 +192,8 @@ class TeleHealthCalendarController
         }
     }
 
-    public function renderPatientValidationDiv(AppointmentRenderEvent $event) {
+    public function renderPatientValidationDiv(AppointmentRenderEvent $event)
+    {
         echo "<div class='patient-validation-div d-none alert mt-1 mb-1'></div>";
     }
     public function renderAppointmentsLaunchSessionButton(AppointmentRenderEvent $event)

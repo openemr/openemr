@@ -1,4 +1,5 @@
 <?php
+
 /**
  * AppointmentJavascriptEventNames class holds an array of javascript event names
  *
