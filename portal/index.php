@@ -75,7 +75,6 @@ if (isset($_GET['woops'])) {
  * and compared to portal credential account id lookup.
  * */
 if (!empty($_REQUEST['service_auth'] ?? null)) {
-
     if (!empty($_GET['service_auth'] ?? null)) {
         // we have to setup the csrf key to preven CSRF Login attacks
         // we also implement this mechanism in order to handle Same-Site cookie blocking when being referred by
@@ -92,8 +91,7 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
             'images_static_relative' => $GLOBALS['images_static_relative'] ?? ''
         ]);
         exit;
-    }
-    else if (!empty($_POST['service_auth'] ?? null)) {
+    } else if (!empty($_POST['service_auth'] ?? null)) {
         $token = $_POST['service_auth'];
         $redirect_token = $_POST['target'] ?? null;
         $csrfToken = $_POST['csrf_token'] ?? null;
