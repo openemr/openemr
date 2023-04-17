@@ -194,8 +194,17 @@ class OneTimeAuth
     private function encodeLink($site_addr, $token_encrypt, $encrypted_redirect = null): string
     {
         $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
+        if (stripos($site_addr, "portal") !== false) {
+            $site_addr = strtok($site_addr, '?');
+            if (stripos($site_addr, "index.php") !== false) {
+                $site_addr = dirname($site_addr);
+            }
+            if (substr($site_addr, -1) == '/') {
+                $site_addr = substr($site_addr, 0, -1);
+            }
+        }
         $format = "%s&%s";
-        if (stripos($site_addr, "?site") === false) {
+        if (stripos($site_addr, "?") === false) {
             $format = "%s?%s";
         }
         if ($this->scope == 'register') {

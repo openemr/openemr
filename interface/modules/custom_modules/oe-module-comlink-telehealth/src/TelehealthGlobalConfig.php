@@ -107,7 +107,17 @@ class TelehealthGlobalConfig
         if ($this->getGlobalSetting('portal_onsite_two_basepath') == '1') {
             return $this->getQualifiedSiteAddress() . '/portal/patient';
         } else {
-            return $this->getGlobalSetting('portal_onsite_two_address');
+            $site_addr = $this->getGlobalSetting('portal_onsite_two_address');
+            if (stripos($site_addr, "portal") !== false) {
+                $site_addr = strtok($site_addr, '?');
+                if (stripos($site_addr, "index.php") !== false) {
+                    $site_addr = dirname($site_addr);
+                }
+                if (substr($site_addr, -1) == '/') {
+                    $site_addr = substr($site_addr, 0, -1);
+                }
+            }
+            return $site_addr;
         }
     }
 
