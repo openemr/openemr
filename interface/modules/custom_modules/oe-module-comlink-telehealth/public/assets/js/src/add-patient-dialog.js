@@ -298,10 +298,23 @@ export class AddPatientDialog
                     let invitation = p.invitation || {};
                     let btnInvitationCopy = clonedNode.querySelector('.btn-invitation-copy');
                     let btnLinkCopy = clonedNode.querySelector('.btn-link-copy');
+                    let btnGenerateLink = clonedNode.querySelector('.btn-generate-link');
+
                     if (invitation) {
+                        if (btnGenerateLink) {
+                            // setup our link generation process since the user has enabled the onetime
+                            // note the server will check the onetime setting and reject requests if its not enabled
+                            btnGenerateLink.addEventListener('click', this.generatePatientLink.bind(this, p.id));
+                        }
                         btnInvitationCopy.addEventListener('click', this.copyPatientInvitationToClipboard.bind(this));
                         btnLinkCopy.addEventListener('click', this.copyPatientLinkToClipboard.bind(this));
                         btnLinkCopy.dataset['inviteId'] = p.id;
+
+                        if (invitation.generated) {
+                            // show our buttons, we lave the generate link button open again in case they need to generate a new link.
+                            btnLinkCopy.classList.remove('d-none');
+                            btnInvitationCopy.classList.remove('d-none');
+                        }
 
                         // invitation text is escaped from innerText
                         this.setNodeInnerText(clonedNode, '.patient-invitation-text', invitation.text || "")
@@ -586,6 +599,65 @@ export class AddPatientDialog
         } else {
             this.showActionAlert('danger', this.__translations.CLIPBOARD_COPY_FAILURE);
         }
+    }
+
+    sendGeneratePatientLink(patientId) {
+        let postData = {pc_eid: this.pc_eid, pid: patientId};
+        let scriptLocation = this.scriptLocation + "?action=generate_participant_link";
+
+        window.top.restoreSession();
+        return window.fetch(scriptLocation,
+            {
+                method: 'POST'
+                ,headers: {
+                    'Content-Type': 'application/json'
+                }
+                ,body: JSON.stringify(postData)
+                ,redirect: 'manual'
+            })
+            .then(result => {
+                if (result.status == 400 || result.status == 401 || (result.ok && result.status == 200)) {
+                    return result.json();
+                } else {
+                    throw new Error("Failed to generate participant link for participant " + this.pid
+                        + " with save data for session " + this.pc_eid);
+                }
+            });
+    }
+
+    generatePatientLink(patientId, evt) {
+        // let's do a post to generate the link to OpenEMR
+        let target = evt.currentTarget;
+
+        // once we have the link we will update the button to copy the link.
+        // we will also insert the invitation text into the patient invitation text div.
+        // then we will show the copy button and the copy invitation button.
+        this.clearActionAlerts();
+        this.showActionAlert('info', this.__translations.PATIENT_INVITATION_PROCESSING);
+        this.toggleActionButton(false);
+        this.sendGeneratePatientLink(patientId)
+            .then(result => {
+                this.toggleActionButton(true);
+                this.clearActionAlerts();
+                if (result.success) {
+                    let invitation = result.invitation;
+                    let patient = this.__participantList.find(p => p.id == patientId);
+                    if (patient) {
+                        patient.invitation = invitation;
+                        this.__updateParticipants = true;
+                        this.updateParticipantControls();
+                        this.showActionAlert('success', this.__translations.PATIENT_INVITATION_GENERATED);
+                    } else {
+                        this.showActionAlert('danger', this.__translations.PATIENT_INVITATION_FAILURE);
+                    }
+                } else {
+                    this.showActionAlert('danger', this.__translations.PATIENT_INVITATION_FAILURE);
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                this.showActionAlert('danger', this.__translations.PATIENT_INVITATION_FAILURE);
+            });
     }
 
     copyPatientInvitationToClipboard(evt) {
