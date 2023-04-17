@@ -45,6 +45,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\LogoService;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
+use OpenEMR\Common\Twig\TwigContainer;
 
 //For redirect if the site on session does not match
 $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
@@ -73,36 +74,63 @@ if (isset($_GET['woops'])) {
  * Also verified as the portal account id is rebuilt from patient data
  * and compared to portal credential account id lookup.
  * */
-if (!empty($_GET['service_auth'] ?? null)) {
-    $token = $_GET['service_auth'];
-    $redirect_token = $_GET['target'] ?? null;
-    try {
-        $oneTime = new OneTimeAuth();
-        $auth = $oneTime->processOnetime($token, $redirect_token);
-        $logit->portalLog('onetime login attempt', $auth['pid'], 'patient logged in and redirecting', '', '1');
-        exit();
-    } catch (OneTimeAuthExpiredException $exception) {
-        $logit->portalLog(
-            'onetime login attempt',
-            $exception->getPid() ?? '',
-            ':invalid one time',
-            '',
-            '0'
-        );
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-        header('Location: ' . $landingpage . '&oe');
-        exit();
-    } catch (OneTimeAuthException $exception) {
-        $logit->portalLog(
-            'onetime login attempt',
-            $exception->getPid() ?? '',
-            ':invalid one time',
-            '',
-            '0'
-        );
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-        header('Location: ' . $landingpage . '&oi');
-        exit();
+if (!empty($_REQUEST['service_auth'] ?? null)) {
+
+    if (!empty($_GET['service_auth'] ?? null)) {
+        // we have to setup the csrf key to preven CSRF Login attacks
+        // we also implement this mechanism in order to handle Same-Site cookie blocking when being referred by
+        // an external site domain.  We used to auto process via GET but now we submit via the POST in order to make it
+        // a same site cookie origin request. This is a workaround for the Same-Site cookie blocking.
+        CsrfUtils::setupCsrfKey();
+        $twig = new TwigContainer(null, $GLOBALS['kernel']);
+        echo $twig->getTwig()->render('portal/login/autologin.html.twig', [
+            'action' => $GLOBALS['web_root'] . '/portal/index.php',
+            'service_auth' => $_GET['service_auth'],
+            'target' => $_GET['target'] ?? null,
+            'csrf_token' => CsrfUtils::collectCsrfToken('autologin'),
+            'pagetitle' => xl("OpenEMR Patient Portal"),
+            'images_static_relative' => $GLOBALS['images_static_relative'] ?? ''
+        ]);
+        exit;
+    }
+    else if (!empty($_POST['service_auth'] ?? null)) {
+        $token = $_POST['service_auth'];
+        $redirect_token = $_POST['target'] ?? null;
+        $csrfToken = $_POST['csrf_token'] ?? null;
+        try {
+            if (!CsrfUtils::verifyCsrfToken($csrfToken, 'autologin')) {
+                throw new OneTimeAuthException('Invalid CSRF token');
+            }
+            $oneTime = new OneTimeAuth();
+            $auth = $oneTime->processOnetime($token, $redirect_token);
+            $logit->portalLog('onetime login attempt', $auth['pid'], 'patient logged in and redirecting', '', '1');
+            exit();
+        } catch (OneTimeAuthExpiredException $exception) {
+            $logit->portalLog(
+                'onetime login attempt',
+                $exception->getPid() ?? '',
+                ':invalid one time',
+                '',
+                '0'
+            );
+            // do we want a separate message that their token has expired?
+            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            header('Location: ' . $landingpage . '&oe');
+            exit();
+        } catch (OneTimeAuthException $exception) {
+            $logit->portalLog(
+                'onetime login attempt',
+                $exception->getPid() ?? '',
+                ':invalid one time',
+                '',
+                '0'
+            );
+            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            header('Location: ' . $landingpage . '&oi');
+            exit();
+        }
+    } else {
+        // TODO: @adunsulag need to handle an invalid request method... should never get here
     }
 }
 
