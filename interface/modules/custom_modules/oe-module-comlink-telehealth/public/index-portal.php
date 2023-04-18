@@ -30,8 +30,6 @@ require_once "../../../../../portal/verify_session.php";
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Bootstrap;
 
-
-
 $kernel = $GLOBALS['kernel'];
 $bootstrap = new Bootstrap($kernel->getEventDispatcher(), $kernel);
 $roomController = $bootstrap->getTeleconferenceRoomController(true);
