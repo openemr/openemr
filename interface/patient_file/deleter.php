@@ -169,7 +169,7 @@ function form_delete($formdir, $formid, $patient_id, $encounter_id)
         }
         row_delete("form_eye_mag_impplan", "form_id = '" . add_escape_custom($formid) . "'");
         row_delete("form_eye_mag_wearing", "FORM_ID = '" . add_escape_custom($formid) . "'");
-    } elseif ($formdir == 'form_HIS') {
+    } elseif ($formdir == 'HIS') {
         // when history form is entered in portal, just ignore...
     } else {
         row_delete("form_$formdir", "id = '" . add_escape_custom($formid) . "'");
