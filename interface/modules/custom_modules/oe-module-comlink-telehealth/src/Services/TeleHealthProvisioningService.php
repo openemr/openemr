@@ -34,6 +34,13 @@ class TeleHealthProvisioningService
     }
 
     /**
+     * @return TeleHealthRemoteRegistrationService
+     */
+    public function getRemoteRegistrationService(): TeleHealthRemoteRegistrationService
+    {
+        return $this->telehealthRegistration;
+    }
+    /**
      * @param $user - a user as returned from UserService
      * @return \Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser|null
      * @throws TelehealthProvisioningServiceRequestException
