@@ -13,6 +13,7 @@
      * @type {string} The path of where the module is installed at.  In a multisite we pull this from the server configuration, otherwise we default here
      */
     let moduleLocation = comlink.settings.modulePath || '/interface/modules/custom_modules/oe-module-comlink-telehealth/';
+    let csrfToken = comlink.settings.apiCSRFToken || "";
 
     let defaultTranslations = {
     };
@@ -72,6 +73,21 @@
         }
     }
 
+    function isCategoryTelehealth(category, telehealthCategories) {
+        let value = +(category || 0);
+        if (value > 0 && telehealthCategories.indexOf(value) !== -1) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    function getValidationDiv(form) {
+        let validationDiv = form.querySelector(".patient-validation-div");
+        return validationDiv;
+    }
+
     function updateAppointmentScreenForCategory(category, telehealthProviders, telehealthCategories) {
 
         let node = window.document.querySelector("#form_category");
@@ -79,6 +95,7 @@
             console.error("Failed to find node with selector #form_category");
             return;
         }
+        let form = window.document.querySelector("#theform");
 
         // setup the change order
         // if the current category has an id of one of the telehealth categories
@@ -86,16 +103,89 @@
         // telehealth provider lists
         // Note this will probably max out at a few thousand providers... so if an OpenEMR install is larger than that
         // this will need to be adjusted.
-        let value = +(node.value || 0);
-        if (value > 0 && telehealthCategories.indexOf(value) !== -1) {
+        if (isCategoryTelehealth(node.value, telehealthCategories)) {
             // now let's hide our providers
             hideInvalidTelehealthProviders(telehealthProviders);
+            // if we have a patient, let's go ahead and validate.
+            let formPid = form.form_pid.value || 0;
+            if (formPid) {
+                validatePatientForTelehealthForm(form, formPid, telehealthCategories);
+            }
         } else {
             displayAllProviders();
+            let validationDiv = getValidationDiv(form);
+            validationDiv.classList.add('d-none');
+
         }
     }
+    function validatePatientForTelehealthForm(form, patientId, telehealthCategories) {
 
-    function initAppointmentWithTelehealth(telehealthProviders, telehealthCategories) {
+        // now we need to check if the patient is setup for telehealth
+        let url = moduleLocation + 'public/index.php?action=patient_validate_telehealth_ready&validatePid=' + encodeURIComponent(patientId);
+        // first show a message saying validating patient for telehealth appointment
+        let validationDiv = form.querySelector(".patient-validation-div");
+        validationDiv.innerText = translations.PATIENT_SETUP_FOR_TELEHEALTH_VALIDATING || "Checking if patient is setup for telehealth appointment...";
+        validationDiv.classList.remove('d-none');
+        validationDiv.classList.remove("alert-info");
+        validationDiv.classList.remove("alert-success");
+        validationDiv.classList.remove("alert-danger");
+        validationDiv.classList.add("alert-info");
+        let headers = {
+            'apicsrftoken': csrfToken
+        };
+        window.fetch(url, {
+            method: 'GET'
+            ,redirect: 'manual'
+            ,headers: headers
+        }).then(result => {
+            if (result.status == 400 || result.status == 401 || (result.ok && result.status == 200)) {
+                return result.json();
+            } else {
+                throw new Error("Failed to validate patient " + this.pid
+                    + " for telehealth data");
+            }
+        })
+            .then(data => {
+                validationDiv.classList.remove("alert-info");
+                if (data && data.success === true) {
+                    validationDiv.classList.add("alert-success");
+                    validationDiv.innerText = translations.PATIENT_SETUP_FOR_TELEHEALTH_SUCCESS || "Patient has portal credentials and is setup for telehealth sessions";
+                } else {
+                    validationDiv.classList.add("alert-danger");
+                    // we need to display an error message to the user
+                    validationDiv.innerText = translations.PATIENT_SETUP_FOR_TELEHEALTH_FAILED || "Failed to validate patient for telehealth appointment";
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                validationDiv.classList.remove("alert-info");
+                validationDiv.classList.add("alert-danger");
+                // we need to display an error message to the user
+                validationDiv.innerText = translations.PATIENT_SETUP_FOR_TELEHEALTH_FAILED || "Failed to validate patient for telehealth appointment";
+            });
+    }
+    function validatePatientForTelehealth(evt, telehealthCategories) {
+        if (!evt.detail)
+        {
+            console.error("validatePatientForTelehealth() - Failed to find detail object on event");
+            return;
+        }
+        let node = window.document.querySelector("#form_category");
+        if (!node) {
+            console.error("Failed to find node with selector #form_category");
+            return;
+        }
+        if (!isCategoryTelehealth(node.value, telehealthCategories)) {
+            console.log("validatePatientForTelehealth() - category is not a telehealth category, skipping validation");
+            return;
+        }
+
+        let patientId = evt.detail.pid;
+        let form = evt.detail.form;
+        validatePatientForTelehealthForm(form, patientId, telehealthCategories);
+    }
+
+    function initAppointmentWithTelehealth(telehealthProviders, telehealthCategories, jsEventNames) {
         let node = window.document.querySelector("#form_category");
         if (!node) {
             console.error("Failed to find node with selector #form_category");
@@ -109,6 +199,15 @@
 
         // go with the initial value
         updateAppointmentScreenForCategory(node.value, telehealthProviders, telehealthCategories);
+
+        // now we need to handle when the patient is selected to do some backend validation and display messages
+        // if the patient is not setup properly for a telehealth session
+        let appointmentForm = document.getElementById('theform');
+        if (appointmentForm) {
+            appointmentForm.addEventListener(jsEventNames.appointmentSetEvent, function(evt) {
+                validatePatientForTelehealth(evt, telehealthCategories);
+            });
+        }
     }
 
     comlink.initAppointmentWithTelehealth = initAppointmentWithTelehealth;
