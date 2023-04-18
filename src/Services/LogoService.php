@@ -101,6 +101,9 @@ class LogoService
             $GLOBALS['OE_SITE_DIR'] => $GLOBALS['OE_SITE_WEBROOT'],
             $GLOBALS['images_static_absolute'] => $GLOBALS['images_static_relative'],
         ];
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $path = str_replace('\\', '/', $path);
+        }
         return str_replace(array_keys($paths), array_values($paths), $path);
     }
 
