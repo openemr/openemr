@@ -33,6 +33,8 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Validators\TelehealthPatientValidator;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Auth\OneTimeAuth;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -185,6 +187,8 @@ class TeleconferenceRoomController
             return $this->launchPatientSessionAction($queryVars);
         } else if ($action == 'generate_participant_link') {
             return $this->generateParticipantLinkAction($queryVars);
+        } else if ($action == 'patient_validate_telehealth_ready') {
+            return $this->validatePatientIsTelehealthReadyAction($queryVars);
         } else {
             $this->logger->error(self::class . '->dispatch() invalid action found', ['action' => $action]);
             echo "action not supported";
@@ -321,6 +325,61 @@ class TeleconferenceRoomController
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(500);
             echo $this->twig->render('error/general_http_error.html.twig', ['statusCode' => 500]);
+        }
+    }
+
+    public function validatePatientIsTelehealthReadyAction($queryVars)
+    {
+
+        // grab the patient pid from the query vars
+        // verify the current user can access patient demographics via the acl
+        // verify the patient has the portal setup and a valid email
+        try {
+            $csrfToken = $queryVars['csrf_token'] ?? null;
+            if (empty($csrfToken) || !CsrfUtils::verifyCsrfToken($csrfToken, 'api')) {
+                throw new InvalidArgumentException("csrf_token was missing or invalid in request");
+            }
+
+            $validatePid = $queryVars['validatePid'] ?? null;
+            if (empty($validatePid)) {
+                throw new InvalidArgumentException("validatePid was missing from request");
+            } else {
+                $validatePid = intval($validatePid);
+            }
+            // note we are NOT intentionally using $queryVars['pid'] here as we want to validate the pid that is being passed in
+            // the appointment creator can choose a different patient than the one that is currently selected in the pid
+            // we still need to make sure they have an ACL check.
+            // note this will stop portal access for patients as we don't want them to have access to this api.
+            if (!AclMain::aclCheckCore('patients', 'appt')) {
+                throw new AccessDeniedException("patients", "appt", "Does not have ACL permission to patient appointments");
+            }
+            // feels odd to use the OneTimeAuth for verifying if the patient is a valid portal user...
+            // TODO: @adunsulag look at moving this isValidPortalPatient function the Patient service or perhaps a PatientPortal service.
+            $oneTimeAuth = new OneTimeAuth();
+            $patient = $oneTimeAuth->isValidPortalPatient($validatePid) ?? ['valid' => false];
+            if (!empty($patient['valid']) && $patient['valid'] == true) {
+                http_response_code(200);
+                header("Content-type: application/json");
+                echo json_encode(['success' => true]);
+            } else {
+                http_response_code(400);
+                header("Content-type: application/json");
+                echo json_encode(['success' => false, 'error' => xlt("Patient is not a valid portal user")]);
+            }
+        } catch (AccessDeniedException $exception) {
+            $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            http_response_code(401);
+            header("Content-type: application/json");
+            echo json_encode(['success' => false, 'error' => xlt("Access Denied")]);
+        } catch (InvalidArgumentException $exception) {
+            $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            http_response_code(400);
+            header("Content-type: application/json");
+            echo json_encode(['error' => xlt("Improperly formatted request")]);
+        } catch (Exception $exception) {
+            $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            http_response_code(500);
+            echo json_encode(['success' => false, 'error' => xlt("Server error occurred, Check logs.")]);
         }
     }
 
