@@ -121,7 +121,7 @@
     function validatePatientForTelehealthForm(form, patientId, telehealthCategories) {
 
         // now we need to check if the patient is setup for telehealth
-        let url = moduleLocation + 'public/index.php?action=patient_validate_telehealth_ready&validatePid=' + patientId;
+        let url = moduleLocation + 'public/index.php?action=patient_validate_telehealth_ready&validatePid=' + encodeURIComponent(patientId);
         // first show a message saying validating patient for telehealth appointment
         let validationDiv = form.querySelector(".patient-validation-div");
         validationDiv.innerText = translations.PATIENT_SETUP_FOR_TELEHEALTH_VALIDATING || "Checking if patient is setup for telehealth appointment...";
