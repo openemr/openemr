@@ -2,6 +2,7 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Services;
 
+use Comlink\OpenEMR\Modules\TeleHealthModule\Exception\TelehealthProvisioningServiceRequestException;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
@@ -15,9 +16,16 @@ class TelehealthConfigurationVerifier
 {
     private Client $httpClient;
 
+    /**
+     * @var TeleHealthRemoteRegistrationService $telehealthRegistration
+     */
+    private TeleHealthRemoteRegistrationService $telehealthRegistration;
+
+
     public function __construct(private SystemLogger $logger, private TeleHealthProvisioningService $provisioningService, private TeleHealthUserRepository $userRepository, private TelehealthGlobalConfig $config)
     {
         $this->httpClient = new Client();
+        $this->telehealthRegistration = $this->provisioningService->getRemoteRegistrationService();
     }
 
     public function verifyInstallationSettings($user)
@@ -33,7 +41,15 @@ class TelehealthConfigurationVerifier
             $resultObject['message'] = xlt('Telehealth settings must be saved to verify configuration');
         } else {
             try {
-                $provider = $this->provisioningService->getOrCreateTelehealthProvider($user);
+                // for existing users we need to make sure we can issue operations on the user so we are going to
+                // suspend and activate the user to make sure we can do this.
+                // TODO: @adunsulag if comlink provides a better mechanism for api health checks we can use that instead
+                if ($this->isProvisionedUser($user)) {
+                    $provider = $this->suspendAndActivateUser($user);
+                } else {
+                    // provision the user through the normal process
+                    $provider = $this->provisioningService->getOrCreateTelehealthProvider($user);
+                }
                 $bridgeSettings = $this->getVerifyBridgeSettings($provider);
                 http_response_code(200);
                 $resultObject['message'] = xlt('Settings verified');
@@ -48,6 +64,31 @@ class TelehealthConfigurationVerifier
             }
         }
         echo json_encode($resultObject);
+    }
+
+    private function isProvisionedUser(array $user): bool
+    {
+        $providerTelehealthSettings = $this->userRepository->getUser($user['uuid']);
+        if (empty($providerTelehealthSettings)) {
+            return false;
+        }
+        return true;
+    }
+
+    private function suspendAndActivateUser(array $user)
+    {
+        $providerTelehealthSettings = $this->userRepository->getUser($user['uuid']);
+        $didSuspend = $this->telehealthRegistration->suspendUser($providerTelehealthSettings->getUsername(), $providerTelehealthSettings->getAuthToken());
+        if ($didSuspend) {
+            $didActivate = $this->telehealthRegistration->resumeUser($providerTelehealthSettings->getUsername(), $providerTelehealthSettings->getAuthToken());
+            if ($didActivate) {
+                return $providerTelehealthSettings;
+            } else {
+                throw new TelehealthProvisioningServiceRequestException("Could not activate user " . $user['id'] . ' with username ' . $user['username']);
+            }
+        } else {
+            throw new TelehealthProvisioningServiceRequestException("Could not suspend user " . $user['id'] . ' with username ' . $user['username']);
+        }
     }
 
     private function getVerifyBridgeSettings(TeleHealthUser $user)
