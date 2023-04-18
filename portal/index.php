@@ -128,7 +128,8 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
             exit();
         }
     } else {
-        // TODO: @adunsulag need to handle an invalid request method... should never get here
+        (new SystemLogger())->errorLogCaller("Invalid service_auth request - should never reach here");
+        exit();
     }
 }
 

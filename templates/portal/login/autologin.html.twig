@@ -34,9 +34,9 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token|attr }}" />
             <input type="hidden" name="service_auth" value="{{ service_auth|attr }}" />
             <input type="hidden" name="target" value="{{ target|attr_url }}" />
-            <input class="btn btn-lg btn-primary" type="submit" name="autoLoginSubmit" value="{{ "Go To Destination"|attr }}" />
+            <input class="btn btn-lg btn-primary" type="submit" name="autoLoginSubmit" value="{{ "Go To Destination"|xla }}" />
         </form>
-        <p>{{ "If you have not been redirected in a few seconds click the button above" }}</p>
+        <p>{{ "If you have not been redirected in a few seconds click the button above"|xlt }}</p>
         <p>{{ "You will be sent to the following web page"|xlt }} {{ target|text }}</p>
     </div>
     <script>
