@@ -16,11 +16,20 @@
             <h5 class="text-primary patient-name">{{ patient.callerName|default("")|text }}</h5>
 {#            <h6 class="text-secondary patient-dob">{{ "DOB"|xlt }}: {{ patient.DOB|text}}</h6>#}
             <h6 class="text-secondary patient-email">{{ "EMAIL"|xlt }}: {{ patient.email|default("")|text}}</h6>
-            <button class="btn btn-sm btn-secondary btn-link-copy" data-invite-link="{{ patient.invitation.link|default("")|attr }}">
+            {% if isOneTimePasswordLoginEnabled %}
+                {# Note we make this a d-block button because we don't hide it and want it on its own line in case users needs to generate the link again #}
+                <button class="btn btn-sm btn-secondary btn-generate-link d-block mb-2"
+                        >
+                    <i class="fa fa-key"></i>
+                    <small>{{ "Generate Invite Link"|xlt }}</small>
+                </button>
+            {% endif %}
+            <button class="btn btn-sm btn-secondary btn-link-copy{% if isOneTimePasswordLoginEnabled %} d-none{% endif %}"
+                    data-invite-link="{{ patient.invitation.link|default("")|attr }}">
                 <i class="fa fa-copy"></i>
                 <small>{{ "Copy Invite Link"|xlt }}</small>
             </button>
-            <button class="btn btn-sm btn-secondary btn-invitation-copy">
+            <button class="btn btn-sm btn-secondary btn-invitation-copy{% if isOneTimePasswordLoginEnabled %} d-none{% endif %}">
                 <i class="fa fa-copy"></i>
                 <small>{{ "Copy Invitation"|xlt }}</small>
             </button>

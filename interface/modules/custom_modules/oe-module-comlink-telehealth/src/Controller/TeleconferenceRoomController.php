@@ -23,14 +23,18 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository
 use Comlink\OpenEMR\Modules\TeleHealthModule\Controller\TeleHealthVideoRegistrationController;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\FormattedPatientService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\ParticipantListService;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TelehealthConfigurationVerifier;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthParticipantInvitationMailerService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthProvisioningService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\The;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Util\TelehealthAuthUtils;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Validators\TelehealthPatientValidator;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Auth\OneTimeAuth;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -181,6 +185,10 @@ class TeleconferenceRoomController
             return $this->getParticipantListAction($queryVars);
         } else if ($action == self::LAUNCH_PATIENT_SESSION) {
             return $this->launchPatientSessionAction($queryVars);
+        } else if ($action == 'generate_participant_link') {
+            return $this->generateParticipantLinkAction($queryVars);
+        } else if ($action == 'patient_validate_telehealth_ready') {
+            return $this->validatePatientIsTelehealthReadyAction($queryVars);
         } else {
             $this->logger->error(self::class . '->dispatch() invalid action found', ['action' => $action]);
             echo "action not supported";
@@ -233,7 +241,7 @@ class TeleconferenceRoomController
         $userService = new UserService();
         $user = $userService->getUserByUsername($userName);
         if (empty($user) || $user['id'] != $session['user_id']) {
-            throw new AccessDeniedException('patient', 'demo', 'Access not allowed to this telehealth session for user' . $queryVars['authUser']);
+            throw new AccessDeniedException('patient', 'demo', 'Access not allowed to this telehealth session for user' . $userName);
         }
         return $user;
     }
@@ -317,6 +325,128 @@ class TeleconferenceRoomController
             $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             http_response_code(500);
             echo $this->twig->render('error/general_http_error.html.twig', ['statusCode' => 500]);
+        }
+    }
+
+    public function validatePatientIsTelehealthReadyAction($queryVars)
+    {
+
+        // grab the patient pid from the query vars
+        // verify the current user can access patient demographics via the acl
+        // verify the patient has the portal setup and a valid email
+        try {
+            $csrfToken = $queryVars['csrf_token'] ?? null;
+            if (empty($csrfToken) || !CsrfUtils::verifyCsrfToken($csrfToken, 'api')) {
+                throw new InvalidArgumentException("csrf_token was missing or invalid in request");
+            }
+
+            $validatePid = $queryVars['validatePid'] ?? null;
+            if (empty($validatePid)) {
+                throw new InvalidArgumentException("validatePid was missing from request");
+            } else {
+                $validatePid = intval($validatePid);
+            }
+            // note we are NOT intentionally using $queryVars['pid'] here as we want to validate the pid that is being passed in
+            // the appointment creator can choose a different patient than the one that is currently selected in the pid
+            // we still need to make sure they have an ACL check.
+            // note this will stop portal access for patients as we don't want them to have access to this api.
+            if (!AclMain::aclCheckCore('patients', 'appt')) {
+                throw new AccessDeniedException("patients", "appt", "Does not have ACL permission to patient appointments");
+            }
+            // feels odd to use the OneTimeAuth for verifying if the patient is a valid portal user...
+            // TODO: @adunsulag look at moving this isValidPortalPatient function the Patient service or perhaps a PatientPortal service.
+            $oneTimeAuth = new OneTimeAuth();
+            $patient = $oneTimeAuth->isValidPortalPatient($validatePid) ?? ['valid' => false];
+            if (!empty($patient['valid']) && $patient['valid'] == true) {
+                http_response_code(200);
+                header("Content-type: application/json");
+                echo json_encode(['success' => true]);
+            } else {
+                http_response_code(400);
+                header("Content-type: application/json");
+                echo json_encode(['success' => false, 'error' => xlt("Patient is not a valid portal user")]);
+            }
+        } catch (AccessDeniedException $exception) {
+            $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            http_response_code(401);
+            header("Content-type: application/json");
+            echo json_encode(['success' => false, 'error' => xlt("Access Denied")]);
+        } catch (InvalidArgumentException $exception) {
+            $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            http_response_code(400);
+            header("Content-type: application/json");
+            echo json_encode(['error' => xlt("Improperly formatted request")]);
+        } catch (Exception $exception) {
+            $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            http_response_code(500);
+            echo json_encode(['success' => false, 'error' => xlt("Server error occurred, Check logs.")]);
+        }
+    }
+
+    public function generateParticipantLinkAction($queryVars)
+    {
+        try {
+            $json = file_get_contents("php://input");
+            $data = json_decode($json, true);
+            $pc_eid = $data['pc_eid'] ?? null;
+            if (empty($pc_eid)) {
+                throw new InvalidArgumentException("pc_eid was missing from request");
+            } else {
+                $pc_eid = intval($pc_eid);
+            }
+            $session = $this->sessionRepository->getSessionByAppointmentId($pc_eid);
+            if (empty($session)) {
+                throw new InvalidArgumentException("session was not found for pc_eid of " + $pc_eid);
+            }
+            // check to make sure the session user is the same as the logged in user
+            $verifiedUser = null;
+            // need to check for access denied exception on user and patient
+            if (!empty($queryVars['authUser'])) {
+                // throws exception if the user is not found
+                $verifiedUser = $this->verifyUsernameCanAccessSession($queryVars['authUser'], $session);
+            }
+            // provider can't grab the invitation if they don't have access to the patient demographics
+            if (empty($verifiedUser) || !AclMain::aclCheckCore('patients', 'demo')) {
+                throw new AccessDeniedException("patients", "demo", "Does not have ACL permission to patient demographics");
+            }
+            $pid = $data['pid'];
+            if (empty($pid)) {
+                throw new InvalidArgumentException("pid was missing from request");
+            } else {
+                $pid = intval($pid);
+            }
+            if ($pid !== intval($session['pid']) && $pid !== intval($session['pid_related'])) {
+                throw new InvalidArgumentException("pid does not match the session pid");
+            }
+
+            $patientService = new PatientService();
+            $patient = $patientService->findByPid($pid);
+            if (empty($patient)) {
+                throw new InvalidArgumentException("patient was not found for pid of " + $session['pid']);
+            }
+
+            $invitation = $this->mailerService->getMailerInvitationForManualSend(
+                $patient,
+                $session,
+                self::LAUNCH_PATIENT_SESSION
+            );
+            // TODO: @adunsulag we really should return Response objects so we can unit test all of this...
+            $invitation['generated'] = true; // make sure we mark that this invitation was generated
+            echo json_encode(['success' => true, 'invitation' => $invitation]);
+        } catch (AccessDeniedException $exception) {
+            $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            http_response_code(401);
+            header("Content-type: application/json");
+            echo json_encode(['success' => false, 'error' => xlt("Access Denied")]);
+        } catch (InvalidArgumentException $exception) {
+            $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            http_response_code(400);
+            header("Content-type: application/json");
+            echo json_encode(['error' => xlt("Improperly formatted request")]);
+        } catch (Exception $exception) {
+            $this->logger->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            http_response_code(500);
+            echo json_encode(['success' => false, 'error' => xlt("Server error occurred, Check logs.")]);
         }
     }
 
@@ -453,24 +583,20 @@ class TeleconferenceRoomController
 
     public function verifyInstallationSettings($queryVars)
     {
-        $config = $this->config;
-        if (!$config->isTelehealthConfigured()) {
-            echo xlt("Telehealth settings must be saved to verify configuration");
-        } else {
-//             settings have been saved... now we need to hit the remote server and verify we can talk to them
-//             TODO: we need a mechanism to verify the video bridge is working
-            $verificationResult = $this->telehealthRegistrationController->verifyProvisioningServiceIsValid();
-            if ($verificationResult['status'] == 200) {
-                echo xlt("Settings verified");
-            } else {
-                http_response_code($verificationResult['status']);
-                if ($verificationResult['status'] == 401) {
-                    echo xlt("Could not successfully communicate with provisioning server.  Check that your Telehealth registration settings are valid.");
-                } else {
-                    echo text($verificationResult['message']);
-                }
-            }
+        $configVerifier = new TelehealthConfigurationVerifier(
+            $this->logger,
+            $this->provisioningService,
+            $this->telehealthUserRepo,
+            $this->config
+        );
+        $userService = new UserService();
+        $user = $userService->getUserByUsername($queryVars['authUser']);
+        if (empty($user)) {
+            echo json_encode(['status' => 'error', 'message' => xlt("Could not find authenticated user")]);
+            return;
         }
+
+        $configVerifier->verifyInstallationSettings($user);
     }
 
     public function setAppointmentStatusAction($queryVars)
@@ -1015,6 +1141,7 @@ class TeleconferenceRoomController
         $statuses = $this->getAppointmentStatuses();
 
         $data['statuses'] = $statuses;
+        $data['isOneTimePasswordLoginEnabled'] = $this->config->isOneTimePasswordLoginEnabled();
         return $this->twig->render('comlink/conference-room.twig', $data);
     }
 
@@ -1234,7 +1361,6 @@ class TeleconferenceRoomController
     private function getApiKeyForPassword($password)
     {
         $decrypted = $this->telehealthUserRepo->decryptPassword($password);
-        $hash = hash('sha256', $decrypted);
-        return $hash;
+        return TelehealthAuthUtils::getFormattedPassword($decrypted);
     }
 }

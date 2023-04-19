@@ -1084,6 +1084,11 @@ function setpatient(pid, lname, fname, dob) {
     f.form_pid.value = pid;
     dobstyle = (dob == '' || dob.substr(5, 10) == '00-00') ? '' : 'none';
     document.getElementById('dob_row').style.display = dobstyle;
+    let event = new CustomEvent('openemr:appointment:patient:set', {
+        bubbles: true
+        ,detail: {form: f, pid: pid, lname: lname, fname: fname, dob: dob}
+    });
+    f.dispatchEvent(event);
 }
 
 // This invokes the find-patient popup.

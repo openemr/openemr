@@ -56,7 +56,10 @@ class HttpRestRouteHandler
         header("Access-Control-Allow-Credentials: true");
         header("Access-Control-Allow-Headers: origin, authorization, accept, content-type, x-requested-with");
         header("Access-Control-Allow-Methods: GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS");
-        header("Access-Control-Allow-Origin: *");
+//        header("Access-Control-Allow-Origin: *");
+        // we have already validated the token which authenticates our client_id
+        // we will go ahead and allow the origin
+        header("Access-Control-Allow-Origin: " . $dispatchRestRequest->getHeader('Origin'));
         if ($request_method === 'OPTIONS') {
             return true; // for now we just return true if we have the route.
         }
