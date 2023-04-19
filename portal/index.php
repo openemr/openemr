@@ -10,7 +10,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2011 Cassian LUP <cassi.lup@gmail.com>
- * @copyright Copyright (c) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -23,6 +23,7 @@ Header("Content-Security-Policy: frame-ancestors 'none'");
 //setting the session & other config options
 
 // Will start the (patient) portal OpenEMR session/cookie.
+
 require_once __DIR__ . "/../src/Common/Session/SessionUtil.php";
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
@@ -30,16 +31,21 @@ OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 $ignoreAuth_onsite_portal = true;
 
 //includes
+
 require_once '../interface/globals.php';
 require_once __DIR__ . "/lib/appsql.class.php";
 $logit = new ApplicationTable();
 
+use OpenEMR\Common\Auth\OneTimeAuth;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\LogoService;
+use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
+use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
+use OpenEMR\Common\Twig\TwigContainer;
 
 //For redirect if the site on session does not match
 $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
@@ -60,6 +66,71 @@ $auth['portal_pwd'] = '';
 if (isset($_GET['woops'])) {
     unset($_GET['woops']);
     unset($_SESSION['password_update']);
+}
+
+/*
+ * Patient for onetime is verified when token redirect is decoded.
+ * The embedded pid in token is compared to the token looked up result pid.
+ * Also verified as the portal account id is rebuilt from patient data
+ * and compared to portal credential account id lookup.
+ * */
+if (!empty($_REQUEST['service_auth'] ?? null)) {
+    if (!empty($_GET['service_auth'] ?? null)) {
+        // we have to setup the csrf key to preven CSRF Login attacks
+        // we also implement this mechanism in order to handle Same-Site cookie blocking when being referred by
+        // an external site domain.  We used to auto process via GET but now we submit via the POST in order to make it
+        // a same site cookie origin request. This is a workaround for the Same-Site cookie blocking.
+        CsrfUtils::setupCsrfKey();
+        $twig = new TwigContainer(null, $GLOBALS['kernel']);
+        echo $twig->getTwig()->render('portal/login/autologin.html.twig', [
+            'action' => $GLOBALS['web_root'] . '/portal/index.php',
+            'service_auth' => $_GET['service_auth'],
+            'target' => $_GET['target'] ?? null,
+            'csrf_token' => CsrfUtils::collectCsrfToken('autologin'),
+            'pagetitle' => xl("OpenEMR Patient Portal"),
+            'images_static_relative' => $GLOBALS['images_static_relative'] ?? ''
+        ]);
+        exit;
+    } else if (!empty($_POST['service_auth'] ?? null)) {
+        $token = $_POST['service_auth'];
+        $redirect_token = $_POST['target'] ?? null;
+        $csrfToken = $_POST['csrf_token'] ?? null;
+        try {
+            if (!CsrfUtils::verifyCsrfToken($csrfToken, 'autologin')) {
+                throw new OneTimeAuthException('Invalid CSRF token');
+            }
+            $oneTime = new OneTimeAuth();
+            $auth = $oneTime->processOnetime($token, $redirect_token);
+            $logit->portalLog('onetime login attempt', $auth['pid'], 'patient logged in and redirecting', '', '1');
+            exit();
+        } catch (OneTimeAuthExpiredException $exception) {
+            $logit->portalLog(
+                'onetime login attempt',
+                $exception->getPid() ?? '',
+                ':invalid one time',
+                '',
+                '0'
+            );
+            // do we want a separate message that their token has expired?
+            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            header('Location: ' . $landingpage . '&oe');
+            exit();
+        } catch (OneTimeAuthException $exception) {
+            $logit->portalLog(
+                'onetime login attempt',
+                $exception->getPid() ?? '',
+                ':invalid one time',
+                '',
+                '0'
+            );
+            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            header('Location: ' . $landingpage . '&oi');
+            exit();
+        }
+    } else {
+        (new SystemLogger())->errorLogCaller("Invalid service_auth request - should never reach here");
+        exit();
+    }
 }
 
 if (!empty($_GET['forward_email_verify'])) {
@@ -581,6 +652,14 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             // mdsupport - Would be good to include some clue about what went wrong!
             bsAlert(<?php echo xlj('Something went wrong. Please try again.'); ?>);
             <?php } ?>
+            <?php if (isset($_GET['oe'])) { ?>
+            // mdsupport - Would be good to include some clue about what went wrong!
+            bsAlert(<?php echo xlj('Something went wrong. Onetime Authentication! Expired.'); ?>);
+            <?php } ?>
+            <?php if (isset($_GET['oi'])) { ?>
+            // mdsupport - Would be good to include some clue about what went wrong!
+            bsAlert(<?php echo xlj('Something went wrong. Onetime Authentication! Invalid.'); ?>);
+            <?php } ?>
             <?php // if successfully logged out
             if (isset($_GET['logout'])) { ?>
             bsAlert(<?php echo xlj('You have been successfully logged out.'); ?>);
@@ -642,7 +721,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             divAlert.prepend(strongMsg);
             setTimeout(() => {
                 document.querySelector("div.alert").remove();
-            }, 3000);
+            }, 6000);
         }
     </script>
 </body>

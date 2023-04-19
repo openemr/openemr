@@ -31,6 +31,9 @@ export function PatientConferenceRoom(apiCSRFToken, enabledFeatures, translation
                 }
             })
             .then(apptReadyData => {
+                if (patientConferenceRoom.__shutdown) {
+                    return; // don't do anything else here as we have shutdown inbetween the callback.
+                }
                 if (apptReadyData.session)
                 {
                     // provider being ready is just one test, local camera permissions also must be checked
