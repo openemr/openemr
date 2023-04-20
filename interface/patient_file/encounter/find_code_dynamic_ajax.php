@@ -317,9 +317,11 @@ if ($what == 'fields' && $source == 'V') {
                 $dynCodeType = $row['valueset_code_type'] ?? 'VALUESET';
             }
             $arow = array('DT_RowId' => genFieldIdString(array(
-              'code' => $row['code'],
-              'description' => $row['code_text'],
-              'codetype' => $dynCodeType,
+                'code' => $row['code'],
+                'description' => $row['code_text'],
+                'codetype' => $dynCodeType,
+                'modifier' => $row['modifier'],
+                'fee' => $row['fee'],
             )));
             $arow[] = str_replace('|', ':', rtrim($row['code'], '|'));
             $arow[] = $row['code_text'];

@@ -62,7 +62,6 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
     var oChosenIDs = {};
 
     $(function () {
-
         // Initializing the DataTable.
         oTable = $('#my_data_table').dataTable({
             "bProcessing": true,
@@ -123,8 +122,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
                 <?php if ($what == 'codes') { ?>
                 // this.id is of the form "CID|jsonstring".
                 var codesel = jobj['code'].split('|');
-
-                selcode(jobj['codetype'], codesel[0], codesel[1], jobj['description'], target_element, limit);
+                selcode(jobj['codetype'], codesel[0], codesel[1], jobj['description'], target_element, limit, jobj['modifier']);
                 <?php } elseif ($what == 'fields') { ?>
                 selectField(jobj);
                 <?php } elseif ($what == 'lists') { ?>
@@ -158,7 +156,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
 
     <?php if ($what == 'codes') { ?>
     // Pass info back to the opener and close this window. Specific to billing/product codes.
-    function selcode(codetype, code, selector, codedesc, target_element, limit = 0) {
+    function selcode(codetype, code, selector, codedesc, target_element, limit = 0, modifier = '') {
         if (opener.closed || (!opener.set_related && !opener.set_related_target)) {
             alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
         } else {
@@ -168,7 +166,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
                 opener.promiseData = JSON.stringify({codetype, code, selector, codedesc});
                 dlgclose();
             } else {
-                var msg = opener.set_related(codetype, code, selector, codedesc);
+                var msg = opener.set_related(codetype, code, selector, codedesc, modifier);
             }
             if (msg) alert(msg);
             // window.close();
@@ -228,7 +226,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
             opener.SetList(jobj['code']);
         dlgclose();
         return false;
-    };
+    }
 
     <?php } elseif ($what == 'groups') { ?>
     var SelectItem = function (jobj) {

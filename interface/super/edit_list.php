@@ -965,14 +965,16 @@ function writeITLine($it_array)
         }
 
         // This is for callback by the find-code popup.
-        function set_related(codetype, code, selector, codedesc) {
+        function set_related(codetype, code, selector, codedesc, modifier = '') {
             var f = document.forms[0];
             if (current_sel_clin_term) {
                 // Coming from the Clinical Terms Code(s) edit
                 var e = f[current_sel_clin_term];
                 var s = e.value;
                 if (code) {
-                    if (s.length > 0) s += ';';
+                    if (s.length > 0) {
+                        s += ';';
+                    }
                     s += codetype + ':' + code;
                 }
                 else {
@@ -1001,6 +1003,9 @@ function writeITLine($it_array)
                     codedesc = codedesc.substring(0, i) + ' ' + codedesc.substring(i+1);
                 }
                 if (code) {
+                    if (modifier) {
+                        code = code + ':' + modifier;
+                    }
                     if (celem.value) {
                         celem.value += '~';
                         delem.value += '~';
