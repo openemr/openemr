@@ -14,6 +14,7 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule;
 
 use Comlink\OpenEMR\Module\GlobalConfig;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Globals\GlobalsService;
 use MyMailer;
@@ -158,10 +159,10 @@ class TelehealthGlobalConfig
     }
 
     /**
-     * Returns true if all of the telehealth settings have been configured.  Otherwise it returns false.
-     * @return bool
+     * Checks if the core telehealth configuration settings are properly setup.
+     * @return false|void
      */
-    public function isTelehealthConfigured()
+    public function isTelehealthCoreSettingsConfigured()
     {
         $config = $this->getGlobalSettingSectionConfiguration();
         $keys = array_keys($config);
@@ -172,8 +173,20 @@ class TelehealthGlobalConfig
             $value = $this->getGlobalSetting($key);
 
             if (empty($value)) {
+                (new SystemLogger())->debug("Telehealth is missing configuration key", ['key' => $key]);
                 return false;
             }
+        }
+        return true;
+    }
+    /**
+     * Returns true if all of the telehealth settings have been configured.  Otherwise it returns false.
+     * @return bool
+     */
+    public function isTelehealthConfigured()
+    {
+        if (!$this->isTelehealthCoreSettingsConfigured()) {
+            return false;
         }
 
         // if third party is enabled make sure the portal is configured
@@ -202,6 +215,7 @@ class TelehealthGlobalConfig
         $enabled = $this->getGlobalSetting('portal_onsite_two_enable') == '1';
         $useBasePath = $this->getGlobalSetting('portal_onsite_two_basepath') == '1';
         if (!$enabled) {
+            (new SystemLogger())->debug("Telehealth is missing portal_onsite_two_enable enabled");
             return false;
         }
         if (!$useBasePath) {
@@ -209,11 +223,13 @@ class TelehealthGlobalConfig
             $defaultValue = $this->getGlobalSetting('portal_onsite_two_address');
             // TODO: @adunsulag can we pull the default onsite configuration pulled out into a constant somewhere?
             if ($defaultValue == 'https://your_web_site.com/openemr/portal') {
+                (new SystemLogger())->debug("Telehealth is using unconfigured portal_onsite_two_address");
                 return false;
             }
         }
         // have to have the qualified site address for our full email link
         if (empty($this->getQualifiedSiteAddress())) {
+            (new SystemLogger())->debug("Telehealth is missing qualified site address");
             return false;
         }
         return true;
@@ -457,7 +473,8 @@ class TelehealthGlobalConfig
             || $key == self::COMLINK_MINIMIZED_SESSION_POSITION_DEFAULT
             || $key == self::DEBUG_MODE_FLAG
             || $key == self::COMLINK_SECTION_FOOTER_BOX
-            || $key == self::COMLINK_ONETIME_PASSWORD_LOGIN;
+            || $key == self::COMLINK_ONETIME_PASSWORD_LOGIN
+            || $key == self::COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT;
     }
 
     /**

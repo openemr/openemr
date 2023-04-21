@@ -9,6 +9,9 @@
             function displayResponse(type, message) {
                 let settingsContainer = document.querySelector('.section-verify-configuration-settings');
                 settingsContainer.classList.remove('d-none');
+                settingsContainer.classList.remove('text-success');
+                settingsContainer.classList.remove('text-danger');
+                settingsContainer.classList.remove('text-info');
                 settingsContainer.classList.add('text-' + type);
                 // removes any html so safe to inject message
                 settingsContainer.textContent = message;
@@ -46,6 +49,9 @@
             if (confirm(confirmMessage)) {
                 let settings = document.querySelector('.section-verify-configuration-settings');
                 settings.classList.add("d-none");
+                settings.classList.remove('text-success');
+                settings.classList.remove('text-danger');
+                settings.classList.remove('text-info');
                 window.fetch(url)
                     .then(function (response) {
                         return response.json();
