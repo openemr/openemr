@@ -11,6 +11,7 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2015-2017 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -321,10 +322,10 @@ if ($what == 'fields' && $source == 'V') {
                 'description' => $row['code_text'],
                 'codetype' => $dynCodeType,
                 'modifier' => $row['modifier'],
-                'fee' => $row['fee'],
             )));
             $arow[] = str_replace('|', ':', rtrim($row['code'], '|'));
             $arow[] = $row['code_text'];
+            $arow[] = $row['modifier'];
             $out['aaData'][] = $arow;
         }
     }

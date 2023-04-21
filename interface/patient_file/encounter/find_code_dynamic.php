@@ -8,8 +8,10 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2015-2017 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -72,7 +74,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
             "aLengthMenu": [15, 25, 50, 100],
             "iDisplayLength": 50,
             // Specify a width for the first column.
-            "aoColumns": [{"sWidth": "10%"}, null],
+            "aoColumns": [{"sWidth": "20%"}, {"sWidth": "60%"}, {"sWidth": "10%"}],
             // This callback function passes some form data on each call to the ajax handler.
             "fnServerParams": function (aoData) {
                 aoData.push({"name": "what", "value": <?php echo js_escape($what); ?>});
@@ -299,12 +301,15 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
         echo "</div>\n";
         ?>
 
-        <!-- Exception here: Do not use table-responsive as it breaks datatables !-->
-        <table id="my_data_table" class="table table-striped table-hover table-sm">
+        <!-- Exception here: Do not use table-responsive as it breaks datatables
+        note by sjp: table-responsive does not go in table but the container div!
+        !-->
+        <table id="my_data_table" class="table table-striped table-hover table-sm w-100">
             <thead>
             <tr>
                 <th><?php echo xlt('Code'); ?></th>
                 <th><?php echo xlt('Description'); ?></th>
+                <th><?php echo xlt('Modifier'); ?></th>
             </tr>
             </thead>
             <tbody>
