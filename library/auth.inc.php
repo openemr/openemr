@@ -96,7 +96,7 @@ if (
     // Check if session is valid (already logged in user)
     if (!AuthUtils::authCheckSession()) {
         // Session is not valid (this should only happen if a user's password is changed via another session while the user is logged in)
-        EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "authCheckSession() check failed, so force logout");
+        EventAuditLogger::instance()->newEvent("logout", $_SESSION['authUser'] ?? '', $_SESSION['authProvider'] ?? '', 0, "authCheckSession() check failed, so force logout");
         authCloseSession();
         authLoginScreen(true);
     }
