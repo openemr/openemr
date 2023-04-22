@@ -281,7 +281,7 @@ class TeleHealthVideoRegistrationController
 
     public function resumeUser(string $username, string $password): bool
     {
-        return $this->remoteService->suspendUser($username, $password);
+        return $this->remoteService->resumeUser($username, $password);
     }
 
     public function deactivateUser(string $username, string $password)

@@ -285,6 +285,8 @@ class TeleHealthRemoteRegistrationService
         if ($response['status'] != 200) {
             $this->logger->errorLogCaller("Failed to suspend user", ['username' => $username, 'response' => $response]);
             return false;
+        } else {
+            $this->logger->debug("Suspended user on comlink api ", ['username' => $username]);
         }
         $dbUserRecord->setIsActive(false);
         $this->userRepository->saveUser($dbUserRecord);
@@ -308,6 +310,8 @@ class TeleHealthRemoteRegistrationService
         if ($response['status'] != 200) {
             $this->logger->errorLogCaller("Failed to resume user", ['username' => $username, 'response' => $response]);
             return false;
+        } else {
+            $this->logger->debug("Resumed user on comlink api ", ['username' => $username]);
         }
         $dbUserRecord->setIsActive(true);
         $this->userRepository->saveUser($dbUserRecord);
@@ -329,6 +333,8 @@ class TeleHealthRemoteRegistrationService
         if ($response['status'] != 200) {
             $this->logger->errorLogCaller("Failed to deactivate user", ['username' => $username, 'response' => $response]);
             return false;
+        } else {
+            $this->logger->debug("Deactivated user on comlink api ", ['username' => $username]);
         }
         $dbUserRecord->setIsActive(false);
         $this->userRepository->saveUser($dbUserRecord);

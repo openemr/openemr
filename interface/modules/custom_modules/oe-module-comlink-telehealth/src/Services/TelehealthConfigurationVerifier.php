@@ -37,8 +37,10 @@ class TelehealthConfigurationVerifier
         ];
 
         $config = $this->config;
-        if (!$config->isTelehealthConfigured()) {
+        if (!$config->isTelehealthCoreSettingsConfigured()) { // no settings saved, means we can't continue.
             $resultObject['message'] = xlt('Telehealth settings must be saved to verify configuration');
+        } elseif (!$config->isTelehealthConfigured()) {
+            $resultObject['message'] = xlt('Telehealth settings portal is not setup for patient session invitations');
         } else {
             try {
                 // for existing users we need to make sure we can issue operations on the user so we are going to
