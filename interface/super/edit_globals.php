@@ -111,7 +111,7 @@ function checkBackgroundServices()
 {
   //load up any necessary globals
     $bgservices = sqlStatement(
-        "SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN 
+        "SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN
         (
             'phimail_enable',
             'phimail_interval',
@@ -543,6 +543,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 }
                                                         echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
                                                             "maxlength='255' value='" . attr($fldvalue) . "' />\n";
+                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_TEXTAREA){
+                                                if ($userMode) {
+                                                    $globalTitle = $globalValue;
+                                                }
+                                                        echo "  <textarea class='form-control' name='form_$i' id='form_$i' rows='4' cols='50'></textarea>\n";
                                             } elseif ($fldtype == GlobalSetting::DATA_TYPE_DEFAULT_RANDOM_UUID) {
                                                 if ($userMode) {
                                                     $globalTitle = $globalValue;

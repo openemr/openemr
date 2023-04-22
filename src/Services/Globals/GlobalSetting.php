@@ -52,6 +52,8 @@ class GlobalSetting
     const DATA_TYPE_HOUR = "hour";
     // textbox
     const DATA_TYPE_TEXT = "text";
+    // textarea
+    const DATA_TYPE_TEXTAREA = "textarea";
 
     /**
      * Multiple list box with a dropdown selector to add list items.  Items can be re-arranged in order.  Selected

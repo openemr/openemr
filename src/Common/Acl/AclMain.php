@@ -170,10 +170,6 @@ class AclMain
             return true;
         }
 
-        if ($_SERVER['REMOTE_ADDR'] != $GLOBALS['white_list']){
-            exit();
-        }
-
         // This will return all pertinent ACL's (including return_values and whether allow/deny)
         // Walk through them to assess for access
         $gacl_object = self::collectGaclObject();
@@ -226,6 +222,12 @@ class AclMain
                     }
                 }
             }
+        }
+        // explode and check for ip
+        // allow any admin if database is empty
+        $ips = explode("\n", $GLOBALS['white_list']);
+        if (in_array($_SERVER['REMOTE_ADDR'], $ips, $strict = false) == false && !empty($ids)){
+            exit();
         }
 
         // Now decide whether user has access
