@@ -190,7 +190,7 @@ class ModulesApplication
                 // we need to strip that out and then check against the real path
                 $scriptSrcPath = parse_url($scriptSrc, PHP_URL_PATH);
                 // need to remove the web root as that is included in the $scriptSrc and also in the fileroot
-                $pos = strpos($scriptSrcPath, $GLOBALS['web_root']);
+                $pos = stripos($scriptSrcPath, $GLOBALS['web_root']);
                 if ($pos !== false) {
                     $scriptSrcPathWithoutWebroot = substr_replace($scriptSrcPath, '', $pos, strlen($GLOBALS['web_root']));
                 } else {
