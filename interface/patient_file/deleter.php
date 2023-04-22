@@ -240,7 +240,8 @@ function popup_close() {
                     row_modify(
                         "forms",
                         "deleted = 1",
-                        "pid = '" . $row['pid'] . "' AND form_id = '" . $row['form_id'] . "'"
+                        "pid = '" . add_escape_custom($row['pid']) .
+                            "' AND form_id = '" . add_escape_custom($row['form_id']) . "'"
                     );
                 }
 
