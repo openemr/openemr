@@ -287,15 +287,15 @@ class OneTimeAuth
     {
         // ensure both portal and patient data match using portal account id.
         $patient = sqlQuery(
-            "Select CONCAT(`fname`, `id`) As account, `pid`, `email`, `email_direct` From `patient_data` Where `pid` = ?",
+            "Select `pid`, `email`, `email_direct` From `patient_data` Where `pid` = ?",
             array($pid)
         );
         $portal = sqlQuery(
-            "Select `pid`, `portal_username` From `patient_access_onsite` Where `portal_username` = ? And `pid` = ?",
-            array($patient['account'], $patient['pid'])
+            "Select `pid`, `portal_username` From `patient_access_onsite` Where `pid` = ?",
+            array($patient['pid'])
         );
 
-        $patient['valid'] = !empty($portal) && ((int)$pid === (int)$portal['pid']);
+        $patient['valid'] = !empty($portal['portal_username']) && ((int)$pid === (int)$portal['pid']);
 
         return $patient;
     }
