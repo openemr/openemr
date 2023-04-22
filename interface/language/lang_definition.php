@@ -151,7 +151,7 @@ if (!empty($_POST['load'])) {
             $value = trim($value);
 
             // only continue if the definition is new
-            $sql = "SELECT * FROM lang_definitions WHERE def_id=? AND definition=? " . $case_sensitive_collation;
+            $sql = "SELECT * FROM lang_definitions WHERE def_id=? AND definition " . $case_sensitive_collation . " =?";
             $res_test = SqlStatement($sql, array($key, $value));
             if (!SqlFetchArray($res_test)) {
                 // insert into the main language tables
