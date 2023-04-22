@@ -226,7 +226,7 @@ class AclMain
         // explode and check for ip
         // allow any admin if database is empty
         $ips = explode("\n", $GLOBALS['white_list']);
-        if (in_array($_SERVER['REMOTE_ADDR'], $ips, $strict = false) == false && !empty($ids)){
+        if (!empty($GLOBALS['white_list']) && !in_array($_SERVER['REMOTE_ADDR'], $ips)){
             exit();
         }
 
