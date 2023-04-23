@@ -77,7 +77,7 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
         echo xlt('Following is a new custom language:') . " " . text($var) . "<br>";
         if (!$checkOnly) {
             // add the new language (first collect the language code)
-            $sql = "SELECT lang_code FROM lang_custom WHERE constant_name='' AND lang_description=? " . $case_sensitive_collation . " LIMIT 1";
+            $sql = "SELECT lang_code FROM lang_custom WHERE constant_name='' AND lang_description " . $case_sensitive_collation . " =? LIMIT 1";
             $res = SqlStatement($sql, array($var));
             $row = SqlFetchArray($res);
             $sql = "INSERT INTO lang_languages SET lang_code=?, lang_description=?";
@@ -129,13 +129,13 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
     $res = SqlStatement($sql);
     while ($row = SqlFetchArray($res)) {
         // collect language id
-        $sql = "SELECT lang_id FROM lang_languages WHERE lang_description=? " . $case_sensitive_collation . " LIMIT 1";
+        $sql = "SELECT lang_id FROM lang_languages WHERE lang_description " . $case_sensitive_collation . " =? LIMIT 1";
         $res2 = SqlStatement($sql, array($row['lang_description']));
         $row2 = SqlFetchArray($res2);
         $language_id = $row2['lang_id'];
 
         // collect constant id
-        $sql = "SELECT cons_id FROM lang_constants WHERE constant_name=? " . $case_sensitive_collation . " LIMIT 1";
+        $sql = "SELECT cons_id FROM lang_constants WHERE constant_name " . $case_sensitive_collation . " =? LIMIT 1";
         $res2 = SqlStatement($sql, array($row['constant_name']));
         $row2 = SqlFetchArray($res2);
         $constant_id = $row2['cons_id'];
@@ -148,7 +148,7 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
 
         if ($def_id) {
             //definition exist, so check to see if different
-            $sql = "SELECT * FROM lang_definitions WHERE def_id=? AND definition=? " . $case_sensitive_collation;
+            $sql = "SELECT * FROM lang_definitions WHERE def_id=? AND definition " . $case_sensitive_collation . " =?";
             $res_test = SqlStatement($sql, array($def_id, $row['definition']));
             if (SqlFetchArray($res_test)) {
             //definition not different
