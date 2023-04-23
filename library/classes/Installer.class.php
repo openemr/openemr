@@ -19,41 +19,41 @@ use OpenEMR\Gacl\GaclApi;
 
 class Installer
 {
-    private $iuser;
-    private $iuserpass;
-    private $iuname;
-    private $iufname;
-    private $igroup;
-    private $i2faEnable;
-    private $i2faSecret;
-    private $server;
-    private $loginhost;
-    private $port;
-    private $root;
-    private $rootpass;
-    private $login;
-    private $pass;
-    private $dbname;
-    private $collate;
-    private $site;
-    private $source_site_id;
-    private $clone_database;
-    private $no_root_db_access;
-    private $development_translations;
-    private $new_theme;
-    private $ippf_specific;
+    public $iuser;
+    public $iuserpass;
+    public $iuname;
+    public $iufname;
+    public $igroup;
+    public $i2faEnable;
+    public $i2faSecret;
+    public $server;
+    public $loginhost;
+    public $port;
+    public $root;
+    public $rootpass;
+    public $login;
+    public $pass;
+    public $dbname;
+    public $collate;
+    public $site;
+    public $source_site_id;
+    public $clone_database;
+    public $no_root_db_access;
+    public $development_translations;
+    public $new_theme;
+    public $ippf_specific;
     public $conffile;
-    private $main_sql;
-    private $translation_sql;
-    private $devel_translation_sql;
-    private $ippf_sql;
-    private $icd9;
-    private $cvx;
-    private $additional_users;
-    private $dumpfiles;
+    public $main_sql;
+    public $translation_sql;
+    public $devel_translation_sql;
+    public $ippf_sql;
+    public $icd9;
+    public $cvx;
+    public $additional_users;
+    public $dumpfiles;
     public $error_message;
     public $debug_message;
-    private $dbh;
+    public $dbh;
 
     public function __construct($cgi_variables)
     {
@@ -527,6 +527,9 @@ class Installer
 
     public function write_configuration_file()
     {
+        if (!file_exists($GLOBALS['OE_SITE_DIR'])) {
+            $this->create_site_directory();
+        }
         @touch($this->conffile); // php bug
         $fd = @fopen($this->conffile, 'w');
         if (! $fd) {
