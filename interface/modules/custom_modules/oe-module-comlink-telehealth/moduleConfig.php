@@ -14,6 +14,7 @@
 
 require_once dirname(__FILE__, 4) . '/globals.php';
 
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 $module_config = 1;
@@ -24,9 +25,9 @@ if (!empty($_GET['setup']) ?? null) {
      * $args = ['ctsiVBData' => [
      * 'registrationUri' => 'https://sginsts.comlinktelehealth.io:28749/CTSIVB/',
      * 'videoApiUri' => 'https://sginsts.comlinktelehealth.io:22528',
-     * 'ctsiOrgUid' => 'OPEN5C0D4F',
-     * 'ctsiOrgPwd' => 'DD71C92B-834D-4C',
-     * 'ctsiOrgId' => 'OPENEM280D0D']];
+     * 'ctsiOrgUid' => 'OPEN5xxxxx',
+     * 'ctsiOrgPwd' => 'DD71C92B-xxxx-xx',
+     * 'ctsiOrgId' => 'OPENEM2xxxx']];
      *
      * */
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -35,11 +36,11 @@ if (!empty($_GET['setup']) ?? null) {
 
     $content = trim(file_get_contents("php://input"));
     $credentials = json_decode($content, true);
-
+    $cryptoGen = new CryptoGen();
     $items['comlink_telehealth_registration_uri'] = $credentials['registrationUri'];
     $items['comlink_telehealth_video_uri'] = $credentials['videoApiUri'];
     $items['comlink_telehealth_user_id'] = $credentials['ctsiOrgUid'];
-    $items['comlink_telehealth_user_password'] = $credentials['ctsiOrgPwd'];
+    $items['comlink_telehealth_user_password'] = $cryptoGen->encryptStandard(trim($credentials['ctsiOrgPwd']));
     $items['comlink_telehealth_cms_id'] = $credentials['ctsiOrgId'];
     // Save to globals table.
     foreach ($items as $key => $credential) {
@@ -48,15 +49,8 @@ if (!empty($_GET['setup']) ?? null) {
             array($key, $credential, $key, $credential)
         );
     }
-    // Recall GLOBALS to verify the save.
-    require_once dirname(__FILE__, 4) . "/globals.php";
-    // Just a comparison of one of our saved credential.
-    if (isset($GLOBALS['comlink_telehealth_cms_id']) == $items['comlink_telehealth_cms_id']) {
-        echo xlt("Credentials save is successful.");
-    } else {
-        echo xlt("Credentials save failed.");
-    }
-    // todo we may want a location header here!
+
+    echo xlt("Credentials save is successful.");
     exit;
 }
 ?>
@@ -69,7 +63,7 @@ if (!empty($_GET['setup']) ?? null) {
             // ensure we accept data of known origin.
             // TODO Remember! if application moves domain to change here!
             if (e.origin !== remote) {
-                alert(xl("Invalid source!"));
+                alert("Invalid source!");
                 return false;
             }
             // fix twig single quote escaping of passed in object.
@@ -90,6 +84,8 @@ if (!empty($_GET['setup']) ?? null) {
                 return response.text();
             }).then(response => {
                 alert(response);
+                // Back to landing page.
+                window.location.replace("./moduleConfig.php");
             });
         }
         // Our posted message event from distant origin.
