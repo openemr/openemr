@@ -189,7 +189,14 @@ class ModulesApplication
                 // scripts that have any kind of parameters in them such as a cache buster mess up finding the real path
                 // we need to strip that out and then check against the real path
                 $scriptSrcPath = parse_url($scriptSrc, PHP_URL_PATH);
-                $realPath = realpath($GLOBALS['fileroot'] . $scriptSrcPath);
+                // need to remove the web root as that is included in the $scriptSrc and also in the fileroot
+                $pos = stripos($scriptSrcPath, $GLOBALS['web_root']);
+                if ($pos !== false) {
+                    $scriptSrcPathWithoutWebroot = substr_replace($scriptSrcPath, '', $pos, strlen($GLOBALS['web_root']));
+                } else {
+                    $scriptSrcPathWithoutWebroot = $scriptSrcPath;
+                }
+                $realPath = realpath($GLOBALS['fileroot'] . $scriptSrcPathWithoutWebroot);
                 $moduleRootLocation = realpath($GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . 'interface' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR);
 
                 // make sure we haven't left our root path ie interface folder
