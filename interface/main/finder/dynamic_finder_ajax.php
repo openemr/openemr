@@ -76,6 +76,9 @@ if (isset($_GET['iSortCol_0'])) {
             //
             if ($aColumns[$iSortCol] == 'name') {
                 $orderby .= "lname $sSortDir, fname $sSortDir, mname $sSortDir";
+            } else if ($aColumns[$iSortCol] == 'pubpid') {
+                // If selected the external ID column for sorting, use the INT casted column to get them sorted numerically
+                $orderby .= "`pubpid_int` $sSortDir";
             } else {
                 $orderby .= "`" . escape_sql_column_name($aColumns[$iSortCol], array('patient_data')) . "` $sSortDir";
             }
@@ -258,7 +261,8 @@ while ($row = sqlFetchArray($res)) {
     $fieldsInfo[$row['field_id']] = $row;
 }
 
-$query = "SELECT $sellist FROM patient_data WHERE $where $orderby $limit";
+// Cast pubpid to INT to allow it to be sorted numerically
+$query = "SELECT $sellist, CAST(`pubpid` AS int) AS `pubpid_int` FROM patient_data WHERE $where $orderby $limit";
 $res = sqlStatement($query, $srch_bind);
 while ($row = sqlFetchArray($res)) {
     // Each <tr> will have an ID identifying the patient.
