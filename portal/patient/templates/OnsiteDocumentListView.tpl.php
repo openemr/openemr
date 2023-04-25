@@ -129,6 +129,13 @@ $templateService = new DocumentTemplateService();
                 $(".helpHide").addClass("d-none");
 
                 $('#showNav').on('click', () => {
+                    let menuMsg;
+                    if($(parent.document.getElementById('topNav')).is('.collapse:not(.show)')) {
+                        menuMsg = xl("Hide Top Menu");
+                    } else {
+                        menuMsg = xl("Show Top Menu");
+                    }
+                    document.getElementById("showNav").innerHTML = menuMsg;
                     parent.document.getElementById('topNav').classList.toggle('collapse');
                 });
             }
@@ -364,7 +371,7 @@ $templateService = new DocumentTemplateService();
     </script>
     <div class="container-xl px-1">
         <nav id="verytop" class="navbar navbar-expand-lg navbar-light bg-light px-1 pt-3 pb-1 m-0 sticky-top" style="z-index:1030;">
-            <a class="navbar-brand mt-1 mr-1"><h3><?php echo xlt("My Documents") ?></h3></a>
+            <a class="navbar-brand mt-1 mr-1"><h3><?php echo xlt("Document Actions") ?></h3></a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#topmenu" aria-controls="topmenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -412,7 +419,7 @@ $templateService = new DocumentTemplateService();
                         <a class='nav-link btn btn-secondary' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'> <span class='fa fa-sync fa-lg'></span></a>
                     </li>
                     <li class='nav-item mb-1'>
-                        <a id='showNav' class='nav-link btn btn-secondary'><span class='navbar-toggler-icon mr-1'></span><?php echo xlt('Menu'); ?></a>
+                        <a id='showNav' class='nav-link btn btn-secondary'><span class='navbar-toggler-icon mr-1'></span><?php echo xlt('Top Menu'); ?></a>
                     </li>
                 </ul>
             </div>
@@ -428,6 +435,9 @@ $templateService = new DocumentTemplateService();
                 <script type="text/template" id="onsiteDocumentModelTemplate">
                     <div class="card m-0 p-0" id="docpanel">
                         <!-- Document edit container -->
+                        <span>
+                            <button id="dismissOnsiteDocumentButtonTop" class="dismissOnsiteDocumentButton btn btn-outline-primary float-right m-1" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
+                        </span>
                         <header class="card-header bg-dark text-light helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?></header>
                         <!-- editor form -->
                         <form class="container-xl p-0" id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
@@ -446,7 +456,7 @@ $templateService = new DocumentTemplateService();
                         </form>
                         <div class="clearfix">
                             <span>
-                                <button id="dismissOnsiteDocumentButton" class="btn btn-secondary float-right" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
+                                <button id="dismissOnsiteDocumentButton" class="dismissOnsiteDocumentButton btn btn-outline-primary float-right m-1" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
                             </span>
                             <!-- delete button is a separate form to prevent enter key from triggering a delete-->
                             <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
