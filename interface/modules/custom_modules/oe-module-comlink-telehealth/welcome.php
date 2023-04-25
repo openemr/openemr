@@ -79,6 +79,50 @@ require_once dirname(__FILE__, 4) . "/globals.php";
             <div id="paypal-button-container-P-25N86285GY8825203MMWZEIY"></div>
             <script src="https://www.paypal.com/sdk/js?client-id=AUQ1tRakVcTZ0wIOjQ0CicVxB8K47tXo4l8PucxwmmB1v_LIE4-_pJ-kEZf3fsk3uKZuhb_3WuDasVBC&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
             <script>
+                // handles the copying of the subscription id for the client's reference.
+                function btnCopy() {
+                    try {
+                        let el = document.querySelector('#paypal-subscription-id');
+                        if (el) {
+                            el.select();
+                        }
+                        let text = el.value;
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            navigator.clipboard.writeText(text).then(() => {
+                                alert(<?php echo xlj("Copied to clipboard"); ?>);
+                            }, (error) => {
+                                console.error(error);
+                                alert(<?php echo xlj("Failed to copy to clipboard"); ?>);
+                            });
+                        } else {
+                            document.execCommand("copy");
+                            alert(<?php echo xlj("Copied to clipboard"); ?>);
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        alert(<?php echo xlj("Failed to copy to clipboard"); ?>);
+                    }
+                }
+                function paypalOnApproveHandler(data, actions) {
+                    let el = document.querySelector('.alert-success');
+                    el.classList.remove("d-none");
+                    let el2 = document.querySelector('#paypal-subscription-id');
+                    el2.value = data.subscriptionID;
+
+                    let payPalSection = document.querySelector('#paypal-button-container-P-25N86285GY8825203MMWZEIY');
+                    payPalSection.classList.add('d-none');
+
+                    let sinupLink = document.querySelector('#signupLink');
+                    // if we want to pass along the subscription_id we can do that, right now that causes the signup page
+                    // to fail.
+                    // sinupLink.href = sinupLink.href + "?subscription_id=" + encodeURIComponent(data.subscriptionID);
+                }
+                window.addEventListener("DOMContentLoaded", function() {
+                    let btnCopyElement = document.querySelector('#btnCopy');
+                    btnCopyElement.addEventListener('click', btnCopy);
+                    // uncomment for testing
+                    // paypalOnApproveHandler({subscriptionID: 'testingId1'}, {});
+                });
                 paypal.Buttons({
                     style: {
                         shape: 'rect',
@@ -93,13 +137,18 @@ require_once dirname(__FILE__, 4) . "/globals.php";
                             quantity: 1 // The quantity of the product for a subscription
                         });
                     },
-                    onApprove: function(data, actions) {
-                        alert(data.subscriptionID); // You can add optional success message for the subscriber here
-                    }
+                    onApprove: paypalOnApproveHandler
                 }).render('#paypal-button-container-P-25N86285GY8825203MMWZEIY'); // Renders the PayPal button
             </script>
+            <div class="alert alert-success d-none">
+                <h1><?php echo xlt("Your subscription trial has been created."); ?></h1>
+                <p><?php echo xlt("Your Subscription ID / Profile ID is the following"); ?></p>
+                <h3><input type="text" disabled="disabled" id="paypal-subscription-id"></input> <i class="fa fa-copy" id="btnCopy"></i></h3>
+                <p><?php echo xlt("Copy your subscription ID / Profile ID for obtaining your telehealth credentials"); ?></p>
+                <p><small><?php echo xlt("You have been sent an email from Paypal with your subscription information"); ?></small></p>
+            </div>
             <div>
-                <p><h3><a href="https://credentials.affordablecustomehr.com/customer"><?php echo xlt("Click Here to get credentials after subscribing"); ?></a></h3></p>
+                <p><h3><a id='signupLink' href="https://credentials.affordablecustomehr.com/customer"><?php echo xlt("Click Here to get credentials after subscribing"); ?></a></h3></p>
             </div>
         </div>
     </section>
