@@ -14,6 +14,7 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule;
 
 use Comlink\OpenEMR\Module\GlobalConfig;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Globals\GlobalsService;
@@ -58,6 +59,8 @@ class TelehealthGlobalConfig
     public const COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT = "comlink_onetime_password_login_time_limit";
 
     public const MAX_LOGIN_LIMIT_TIME = 30;
+    const LOCALE_TIMEZONE_DEFAULT = "Unassigned";
+    const LOCALE_TIMEZONE = "gbl_time_zone";
 
     /**
      * @var CryptoGen
@@ -420,6 +423,8 @@ class TelehealthGlobalConfig
         $isValidRegistrationUri = filter_var($this->getRegistrationAPIURI(), FILTER_VALIDATE_URL);
         $isValidTelehealthApi = filter_var($this->getTelehealthAPIURI(), FILTER_VALIDATE_URL);
 
+        $isLocaleConfigured = $this->isLocaleConfigured();
+
         $dataArray = [
             'emailNotificationsConfigured' => $emailNotificationsConfigured
             ,'isThirdPartyConfigurationSetup' => $isThirdPartyConfigurationSetup
@@ -430,9 +435,24 @@ class TelehealthGlobalConfig
             ,'fldarray' => $fldarray
             ,'verifyInstallationPathUrl' => $this->publicWebPath . 'index.php?action=verify_installation_settings'
             ,'telehealthCvbUrl' => $this->publicWebPath . 'assets/js/src/cvb.min.js'
+            ,'isLocaleConfigured' => $isLocaleConfigured
         ];
 
         return $this->twig->render("comlink/admin/telehealth_footer_box.html.twig", $dataArray);
+    }
+
+    private function isLocaleConfigured() {
+        // timezone is not set in the $GLOBALS array oddly, not sure why, check against the database
+        $record = QueryUtils::fetchRecords("SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name=?", [self::LOCALE_TIMEZONE]);
+        if (!empty($record)) {
+            if (empty($record[0]['gl_value'])) {
+                return false;
+                // default can get translated so we need to go with that
+            } else if ($record[0]['gl_value'] == xl(self::LOCALE_TIMEZONE_DEFAULT)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public function setupConfiguration(GlobalsService $service)
