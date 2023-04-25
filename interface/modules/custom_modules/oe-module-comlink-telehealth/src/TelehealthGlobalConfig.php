@@ -441,7 +441,8 @@ class TelehealthGlobalConfig
         return $this->twig->render("comlink/admin/telehealth_footer_box.html.twig", $dataArray);
     }
 
-    private function isLocaleConfigured() {
+    private function isLocaleConfigured()
+    {
         // timezone is not set in the $GLOBALS array oddly, not sure why, check against the database
         $record = QueryUtils::fetchRecords("SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name=?", [self::LOCALE_TIMEZONE]);
         if (!empty($record)) {
