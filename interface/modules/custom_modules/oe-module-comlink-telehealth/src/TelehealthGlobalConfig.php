@@ -58,6 +58,8 @@ class TelehealthGlobalConfig
 
     public const COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT = "comlink_onetime_password_login_time_limit";
 
+    public const COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID = "comlink_telehealth_payment_subscription_id";
+
     public const MAX_LOGIN_LIMIT_TIME = 30;
     const LOCALE_TIMEZONE_DEFAULT = "Unassigned";
     const LOCALE_TIMEZONE = "gbl_time_zone";
@@ -345,6 +347,12 @@ class TelehealthGlobalConfig
                 ,'type' => GlobalSetting::DATA_TYPE_TEXT
                 ,'default' => ''
             ]
+            ,self::COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID => [
+                'title' => 'Telehealth Payment Subscription ID'
+                ,'description' => 'This is your unique video application payment subscription id. Signup via the Manage Modules configuration screen if you have not received it'
+                ,'type' => GlobalSetting::DATA_TYPE_TEXT
+                ,'default' => ''
+            ]
             ,self::COMLINK_AUTO_PROVISION_PROVIDER => [
                 'title' => 'Auto Register Providers For Telehealth'
                 ,'description' => 'Disable this setting if you will manually enable the providers you wish to be registered for Telehealth'
@@ -495,7 +503,8 @@ class TelehealthGlobalConfig
             || $key == self::DEBUG_MODE_FLAG
             || $key == self::COMLINK_SECTION_FOOTER_BOX
             || $key == self::COMLINK_ONETIME_PASSWORD_LOGIN
-            || $key == self::COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT;
+            || $key == self::COMLINK_ONETIME_PASSWORD_LOGIN_TIME_LIMIT
+            || $key == self::COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID; // we don't require the payment subscription id
     }
 
     /**

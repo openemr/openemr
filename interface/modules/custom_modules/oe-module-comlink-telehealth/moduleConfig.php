@@ -16,6 +16,7 @@ require_once dirname(__FILE__, 4) . '/globals.php';
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 
 $module_config = 1;
 
@@ -37,11 +38,12 @@ if (!empty($_GET['setup']) ?? null) {
     $content = trim(file_get_contents("php://input"));
     $credentials = json_decode($content, true);
     $cryptoGen = new CryptoGen();
-    $items['comlink_telehealth_registration_uri'] = $credentials['registrationUri'];
-    $items['comlink_telehealth_video_uri'] = $credentials['videoApiUri'];
-    $items['comlink_telehealth_user_id'] = $credentials['ctsiOrgUid'];
-    $items['comlink_telehealth_user_password'] = $cryptoGen->encryptStandard(trim($credentials['ctsiOrgPwd']));
-    $items['comlink_telehealth_cms_id'] = $credentials['ctsiOrgId'];
+    $items[TelehealthGlobalConfig::COMLINK_VIDEO_REGISTRATION_API] = $credentials['registrationUri'];
+    $items[TelehealthGlobalConfig::COMLINK_VIDEO_TELEHEALTH_API] = $credentials['videoApiUri'];
+    $items[TelehealthGlobalConfig::COMLINK_VIDEO_API_USER_ID] = $credentials['ctsiOrgUid'];
+    $items[TelehealthGlobalConfig::COMLINK_VIDEO_API_USER_PASSWORD] = $cryptoGen->encryptStandard(trim($credentials['ctsiOrgPwd']));
+    $items[TelehealthGlobalConfig::COMLINK_VIDEO_TELEHEALTH_CMS_ID] = $credentials['ctsiOrgId'];
+    $items[TelehealthGlobalConfig::COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID] = $credentials['subscriptionID'] ?? null;
     // Save to globals table.
     foreach ($items as $key => $credential) {
         sqlQuery(

@@ -13,6 +13,15 @@ use OpenEMR\Core\Header;
 
 require_once dirname(__FILE__, 4) . "/globals.php";
 
+use Comlink\OpenEMR\Modules\TeleHealthModule\Bootstrap;
+use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
+
+$kernel = $GLOBALS['kernel'];
+$bootstrap = new Bootstrap($kernel->getEventDispatcher(), $kernel);
+$globalConfig = $bootstrap->getGlobalConfig();
+$subscriptionId = $globalConfig->getGlobalSetting(TelehealthGlobalConfig::COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID) ?? '';
+$isCoreConfigured = $globalConfig->isTelehealthCoreSettingsConfigured() === true;
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -71,13 +80,29 @@ require_once dirname(__FILE__, 4) . "/globals.php";
         </div>
         <div class="card-body">
 
-            <p><?php echo xlt("To get your telehealth configuration information"); ?>,
+            <p><?php echo xlt("To get your telehealth configuration information you must first signup for a subscription trial and then setup your telehealth credentials"); ?>,
                 <?php echo xlt("Please select the subscription button below."); ?></p>
-            <p>
-                <?php echo xlt("There is a 7 day trial period included with the subscription"); ?>
-            </p>
-            <div id="paypal-button-container-P-25N86285GY8825203MMWZEIY"></div>
-            <script src="https://www.paypal.com/sdk/js?client-id=AUQ1tRakVcTZ0wIOjQ0CicVxB8K47tXo4l8PucxwmmB1v_LIE4-_pJ-kEZf3fsk3uKZuhb_3WuDasVBC&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
+            <div id="step-1-subscription-signup" class="<?php if ($isCoreConfigured) {
+                echo 'd-none';} ?>">
+                <h2><?php echo xlt("Step 1 - Subscription Signup"); ?></h2>
+                <p>
+                    <?php echo xlt("There is a 7 day trial period included with the subscription"); ?>
+                </p>
+                <div id="paypal-button-container-P-25N86285GY8825203MMWZEIY"></div>
+                <script src="https://www.paypal.com/sdk/js?client-id=AUQ1tRakVcTZ0wIOjQ0CicVxB8K47tXo4l8PucxwmmB1v_LIE4-_pJ-kEZf3fsk3uKZuhb_3WuDasVBC&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
+            </div>
+            <div id="step-1-subscription-signup-complete" class="<?php if (!$isCoreConfigured) {
+                echo 'd-none';} ?>">
+                <h2><?php echo xlt("Step 1 - Subscription Signup"); ?> - <span class="text-success"><?php echo xlt("Complete"); ?></span></h2>
+                <div class="alert alert-success <?php if (!$isCoreConfigured) {
+                    echo 'd-none';} ?>">
+                    <h3><?php echo xlt("Your payment subscription has been created."); ?></h3>
+                    <p><?php echo xlt("Your Subscription ID / Profile ID is the following"); ?></p>
+                    <h3><input type="text" disabled="disabled" id="paypal-subscription-id" value="<?php echo attr($subscriptionId); ?>" /><i class="fa fa-copy" id="btnCopy"></i></h3>
+                    <p><?php echo xlt("Copy your subscription ID / Profile ID for obtaining your telehealth credentials"); ?></p>
+                    <p><small><?php echo xlt("You have been sent an email from Paypal with your subscription information"); ?></small></p>
+                </div>
+            </div>
             <script>
                 // handles the copying of the subscription id for the client's reference.
                 function btnCopy() {
@@ -109,7 +134,10 @@ require_once dirname(__FILE__, 4) . "/globals.php";
                     let el2 = document.querySelector('#paypal-subscription-id');
                     el2.value = data.subscriptionID;
 
-                    let payPalSection = document.querySelector('#paypal-button-container-P-25N86285GY8825203MMWZEIY');
+                    let el3 = document.querySelector('#step-1-subscription-signup-complete');
+                    el3.classList.remove("d-none");
+
+                    let payPalSection = document.querySelector('#step-1-subscription-signup');
                     payPalSection.classList.add('d-none');
 
                     let sinupLink = document.querySelector('#signupLink');
@@ -140,15 +168,19 @@ require_once dirname(__FILE__, 4) . "/globals.php";
                     onApprove: paypalOnApproveHandler
                 }).render('#paypal-button-container-P-25N86285GY8825203MMWZEIY'); // Renders the PayPal button
             </script>
-            <div class="alert alert-success d-none">
-                <h1><?php echo xlt("Your subscription trial has been created."); ?></h1>
-                <p><?php echo xlt("Your Subscription ID / Profile ID is the following"); ?></p>
-                <h3><input type="text" disabled="disabled" id="paypal-subscription-id"></input> <i class="fa fa-copy" id="btnCopy"></i></h3>
-                <p><?php echo xlt("Copy your subscription ID / Profile ID for obtaining your telehealth credentials"); ?></p>
-                <p><small><?php echo xlt("You have been sent an email from Paypal with your subscription information"); ?></small></p>
+            <div class="<?php if ($isCoreConfigured) {
+                echo 'd-none';} ?>">
+                <h2><?php echo xlt("Step 2 - Credentials Signup"); ?></h2>
+                <p><h3><a id='signupLink' href="https://credentials.affordablecustomehr.com/customer"><?php echo xlt("Click Here to get credentials after subscribing"); ?></a></h3></p>
+            </div>
+            <div class="<?php if (!$isCoreConfigured) {
+                echo 'd-none';} ?>">
+                <h2><?php echo xlt("Step 2 - Credentials Signup"); ?> - <span class="text-success"><?php echo xlt("Complete"); ?></span></h2>
+                <p><?php echo xlt("Your credentials have been setup and saved in the Telehealth configuration"); ?></p>
             </div>
             <div>
-                <p><h3><a id='signupLink' href="https://credentials.affordablecustomehr.com/customer"><?php echo xlt("Click Here to get credentials after subscribing"); ?></a></h3></p>
+                <h3><?php echo xlt("Step 3 - Complete Telehealth Configuration"); ?></h3>
+                <p><?php echo xlt("Finish the telehealth configuration and verify your setup is fully functionining in the Admin -> Config -> Telehealth settings section"); ?></p>
             </div>
         </div>
     </section>
