@@ -97,7 +97,11 @@ class C_FormVitals
         }
 
         // For the demographics page and $form_id === 0
-        if ($form_id === 0 && $this->context == 'dashboard') {
+        if (
+            $form_id === 0
+            && $this->context == 'dashboard'
+            && is_countable($results)
+        ) {
             $vitals_history_count = count($results);
             $vitals = $results[$vitals_history_count];
             if (isset($vitals->uuid)) {
