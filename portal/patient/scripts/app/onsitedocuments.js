@@ -206,7 +206,7 @@ var page = {
                 $("#submitTemplate").hide();
                 $("#sendTemplate").hide();
                 $("#downloadTemplate").hide();
-                isModule ? $("#dismissOnsiteDocumentButton").show() : $("#dismissOnsiteDocumentButton").hide();
+                isModule ? $(".dismissOnsiteDocumentButton").show() : $(".dismissOnsiteDocumentButton").hide();
                 ((isModule || page.isFrameForm) && !page.isLocked) ? $("#saveTemplate").show() : $("#saveTemplate").hide();
                 isModule ? $("#homeTemplate").show() : $("#homeTemplate").hide();
                 (page.encounterFormName === 'HIS' && !page.isLocked) ? $("#chartHistory").show() : $("#chartHistory").hide();
@@ -616,15 +616,22 @@ var page = {
         let currentNameStyled = currentName.substr(0, currentName.lastIndexOf('.')) || currentName;
         currentNameStyled = currentNameStyled.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
         if (currentName === 'Help') {
-            $("#dismissOnsiteDocumentButton").addClass("d-none");
+            $(".dismissOnsiteDocumentButton").addClass("d-none");
         } else {
-            $("#dismissOnsiteDocumentButton").removeClass("d-none");
+            $(".dismissOnsiteDocumentButton").removeClass("d-none");
         }
         page.isFrameForm = 0;
         page.encounterFormId = 0;
         page.encounterFormName = '';
         if (docid !== 'Help') {
             $("#topnav").hide();
+            let menuMsg;
+            if($(parent.document.getElementById('topNav')).is('.collapse:not(.show)')) {
+                menuMsg = xl("Show Top Menu");
+            } else {
+                menuMsg = xl("Hide Top Menu");
+            }
+            document.getElementById("showNav").innerHTML = menuMsg;
         }
         if (currentName === templateName && currentName && !page.isNewDoc) {
             // update form for any submits.(downloads and prints)
@@ -685,11 +692,10 @@ var page = {
                             $('#patientSignature').css('cursor', 'default').off();
                             $('#witnessSignature').css('cursor', 'default').off();
                         }
-                        bindFetch();
-
-                        if (page.isFrameForm) {
-                            //$("#editorContainer").removeClass('w-100').addClass('w-auto');
+                        if (typeof bindFetch == 'function') {
+                            bindFetch();
                         }
+
                         // new encounter form
                         // lbf has own signer instance. no binding here.
                         // page.encounterFormName & page.isFrameForm is set from template directive
