@@ -38,12 +38,12 @@ if (!empty($_GET['setup']) ?? null) {
     $content = trim(file_get_contents("php://input"));
     $credentials = json_decode($content, true);
     $cryptoGen = new CryptoGen();
-    $items[TelehealthGlobalConfig::COMLINK_VIDEO_REGISTRATION_API] = $credentials['registrationUri'];
-    $items[TelehealthGlobalConfig::COMLINK_VIDEO_TELEHEALTH_API] = $credentials['videoApiUri'];
-    $items[TelehealthGlobalConfig::COMLINK_VIDEO_API_USER_ID] = $credentials['ctsiOrgUid'];
-    $items[TelehealthGlobalConfig::COMLINK_VIDEO_API_USER_PASSWORD] = $cryptoGen->encryptStandard(trim($credentials['ctsiOrgPwd']));
-    $items[TelehealthGlobalConfig::COMLINK_VIDEO_TELEHEALTH_CMS_ID] = $credentials['ctsiOrgId'];
-    $items[TelehealthGlobalConfig::COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID] = $credentials['paypal_subscription_id'] ?? null;
+    $items[TelehealthGlobalConfig::COMLINK_VIDEO_REGISTRATION_API] = $credentials['registrationUri'] ?? '';
+    $items[TelehealthGlobalConfig::COMLINK_VIDEO_TELEHEALTH_API] = $credentials['videoApiUri'] ?? '';
+    $items[TelehealthGlobalConfig::COMLINK_VIDEO_API_USER_ID] = $credentials['ctsiOrgUid'] ?? '';
+    $items[TelehealthGlobalConfig::COMLINK_VIDEO_API_USER_PASSWORD] = isset($credentials['ctsiOrgPwd']) ? $cryptoGen->encryptStandard(trim($credentials['ctsiOrgPwd'])) : '';
+    $items[TelehealthGlobalConfig::COMLINK_VIDEO_TELEHEALTH_CMS_ID] = $credentials['ctsiOrgId'] ?? '';
+    $items[TelehealthGlobalConfig::COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID] = $credentials['paypal_subscription_id'] ?? '';
     // Save to globals table.
     foreach ($items as $key => $credential) {
         sqlQuery(
