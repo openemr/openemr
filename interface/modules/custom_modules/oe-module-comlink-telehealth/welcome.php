@@ -82,7 +82,7 @@ $isCoreConfigured = $globalConfig->isTelehealthCoreSettingsConfigured() === true
 
             <p><?php echo xlt("To get your telehealth configuration information you must first signup for a subscription trial and then setup your telehealth credentials"); ?>,
                 <?php echo xlt("Please select the subscription button below."); ?></p>
-            <div id="step-1-subscription-signup" class="<?php if ($isCoreConfigured) {
+            <div id="step-1-subscription-signup" class="<?php if (!empty($subscriptionId)) {
                 echo 'd-none';} ?>">
                 <h2><?php echo xlt("Step 1 - Subscription Signup"); ?></h2>
                 <p>
@@ -91,14 +91,14 @@ $isCoreConfigured = $globalConfig->isTelehealthCoreSettingsConfigured() === true
                 <div id="paypal-button-container-P-25N86285GY8825203MMWZEIY"></div>
                 <script src="https://www.paypal.com/sdk/js?client-id=AUQ1tRakVcTZ0wIOjQ0CicVxB8K47tXo4l8PucxwmmB1v_LIE4-_pJ-kEZf3fsk3uKZuhb_3WuDasVBC&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
             </div>
-            <div id="step-1-subscription-signup-complete" class="<?php if (!$isCoreConfigured) {
+            <div id="step-1-subscription-signup-complete" class="<?php if (empty($subscriptionId)) {
                 echo 'd-none';} ?>">
                 <h2><?php echo xlt("Step 1 - Subscription Signup"); ?> - <span class="text-success"><?php echo xlt("Complete"); ?></span></h2>
-                <div class="alert alert-success <?php if (!$isCoreConfigured) {
+                <div class="alert alert-success <?php if (empty($subscriptionId)) {
                     echo 'd-none';} ?>">
                     <h3><?php echo xlt("Your payment subscription has been created."); ?></h3>
                     <p><?php echo xlt("Your Subscription ID / Profile ID is the following"); ?></p>
-                    <h3><input type="text" disabled="disabled" id="paypal-subscription-id" value="<?php echo attr($subscriptionId); ?>" /><i class="fa fa-copy" id="btnCopy"></i></h3>
+                    <h3><input type="text" disabled="disabled" id="paypal-subscription-id" value="<?php echo attr($subscriptionId); ?>" /><i class="ml-2 fa fa-copy" id="btnCopy"></i></h3>
                     <p><?php echo xlt("Copy your subscription ID / Profile ID for obtaining your telehealth credentials"); ?></p>
                     <p><small><?php echo xlt("You have been sent an email from Paypal with your subscription information"); ?></small></p>
                 </div>

@@ -43,7 +43,7 @@ if (!empty($_GET['setup']) ?? null) {
     $items[TelehealthGlobalConfig::COMLINK_VIDEO_API_USER_ID] = $credentials['ctsiOrgUid'];
     $items[TelehealthGlobalConfig::COMLINK_VIDEO_API_USER_PASSWORD] = $cryptoGen->encryptStandard(trim($credentials['ctsiOrgPwd']));
     $items[TelehealthGlobalConfig::COMLINK_VIDEO_TELEHEALTH_CMS_ID] = $credentials['ctsiOrgId'];
-    $items[TelehealthGlobalConfig::COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID] = $credentials['subscriptionID'] ?? null;
+    $items[TelehealthGlobalConfig::COMLINK_TELEHEALTH_PAYMENT_SUBSCRIPTION_ID] = $credentials['paypal_subscription_id'] ?? null;
     // Save to globals table.
     foreach ($items as $key => $credential) {
         sqlQuery(
