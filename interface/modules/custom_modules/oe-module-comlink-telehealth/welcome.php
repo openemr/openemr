@@ -86,7 +86,7 @@ $isCoreConfigured = $globalConfig->isTelehealthCoreSettingsConfigured() === true
                 echo 'd-none';} ?>">
                 <h2><?php echo xlt("Step 1 - Subscription Signup"); ?></h2>
                 <p>
-                    <?php echo xlt("There is a 7 day trial period included with the subscription"); ?>
+                    <?php echo xlt("There is a 7 day free trial period included with the subscription"); ?>
                 </p>
                 <div id="paypal-button-container-P-25N86285GY8825203MMWZEIY"></div>
                 <script src="https://www.paypal.com/sdk/js?client-id=AUQ1tRakVcTZ0wIOjQ0CicVxB8K47tXo4l8PucxwmmB1v_LIE4-_pJ-kEZf3fsk3uKZuhb_3WuDasVBC&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
