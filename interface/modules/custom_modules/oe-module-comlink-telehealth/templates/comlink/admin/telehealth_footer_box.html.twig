@@ -82,6 +82,10 @@
         });
     })(window);
 </script>
+<p>
+    {{ "The Telehealth module allows you to conduct video visits with your patients."|xlt }}
+    {{ "After saving these settings you must log out and log back in for the Telehealth Settings to be applied"|xlt }}
+</p>
 <div class="alert alert-info">
     <details>
         <summary class="h4">
@@ -148,6 +152,20 @@
                     <li>{{ "SMTP Security Protocol"|xlt }} - {{ "Recommended to use TLS when using SMTP transport method"|xlt }}</li>
                     <li>{{ "SMTP User for Authentication"|xlt }} - {{ "When using SMTP transport method and SMTP Security Protocol"|xlt }}</li>
                     <li>{{ "SMTP Password for Authentication"|xlt }} - {{ "When using SMTP transport method and SMTP Security Protocol"|xlt }}</li>
+                </ul>
+            </li>
+            <li class="h5">
+                {{ "Config"|xlt }} -> {{ "Locale"|xlt }} -
+                {% if isLocaleConfigured %}
+                    <span class="text-success">{{ "Configured"|xlt }}</span>
+                {% else %}
+                    <span class="text-danger">{{ "Incorrect"|xlt }}</span>
+                {% endif %}
+                <p>
+                    {{ "The following settings must be configured in the Config Locale section for Telehealth Calendar Sessions to work properly"|xlt }}
+                </p>
+                <ul class="h6">
+                    <li>{{ "Time Zone"|xlt }}</li>
                 </ul>
             </li>
         </ul>

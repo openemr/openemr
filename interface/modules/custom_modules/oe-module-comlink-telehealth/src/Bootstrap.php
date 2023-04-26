@@ -133,6 +133,11 @@ class Bootstrap
         $this->globalsConfig = new TelehealthGlobalConfig($this->getURLPath(), $this->moduleDirectoryName, $this->twig);
     }
 
+    public function getGlobalConfig(): TelehealthGlobalConfig
+    {
+        return $this->globalsConfig;
+    }
+
     public function getTemplatePath()
     {
         return \dirname(__DIR__) . DIRECTORY_SEPARATOR . "templates" . DIRECTORY_SEPARATOR;
