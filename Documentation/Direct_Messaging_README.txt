@@ -86,7 +86,7 @@ Note: This is *not* your Direct certificate; it is the trust anchor for the SSL
 certificate issued to our servers, and is used only to validate the SSL certificate 
 presented by the phiMail server on the other side of OpenEMR's connection.  Your Direct private
 key and certificate are managed by the phiMail Server and are not installed in OpenEMR.
-Your Direct certificate is made availabe for your review by EMR Direct, but you will not
+Your Direct certificate is made available for your review by EMR Direct, but you will not
 need to install it anywhere.
 
 For added security, the trust anchor for the phiMail Server should be installed in the OpenEMR 
@@ -94,7 +94,7 @@ installation tree at:
 
 [installation_root]/sites/[site_id]/documents/phimail_server_pem/phimail_server.pem
 
-This phimail_server_pem directory and its contents should be readable by the the 
+This phimail_server_pem directory and its contents should be readable by the
 webserver process, but only writable by trusted local users. The certificate file 
 itself must be PEM encoded. You can identify a PEM encoded certificate file because 
 it begins with the text "-----BEGIN CERTIFICATE-----". Although OpenEMR will connect 
@@ -116,7 +116,7 @@ G. Debugging background connections to the server.
 
 You may review the connection activity to the server by Selecting Administration::Other::Logs,
 selecting "direct-message" in the "Name of events:" drop-down menu, and clicking "[Refresh]".
-If the background service is succesfully connecting, you will see "message check completed"
+If the background service is successfully connecting, you will see "message check completed"
 events in the log as well as any message related entries (see below for instructions to
 view more detailed message related status information). If you see no entries, make sure that
 the background service is enabled (See F.4 above). If you see "could not connect to server"
