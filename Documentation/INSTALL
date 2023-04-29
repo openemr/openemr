@@ -93,7 +93,7 @@ its own, or if you have already created the database.  MySQL root privileges wil
 be required to create a database.
 
 In step 2, you will be presented with a number of fields which specify the MySQL
-server details and the openemr directory paths.
+server details and the OpenEMR directory paths.
 
 The "Server Host" field specifies the location of the MySQL server.  If you
 run MySQL and Apache/PHP on the same server, then leave this as 'localhost'.
@@ -136,7 +136,7 @@ database.  It is the hostname of the Apache/PHP server from which the user
 ("Login Name") is permitted to connect to the MySQL database.  If you are setting
 up MySQL and Apache/PHP on the same computer, then you can use 'localhost'.
 
-The "UTF-8 Collation" field is the collation setting for mysql. If the language
+The "UTF-8 Collation" field is the collation setting for MySQL. If the language
 you are planning to use in OpenEMR is in the menu, then you can select it.
 Otherwise, just select 'General'. Choosing 'None' is not recommended and
 will force latin1 encoding.
