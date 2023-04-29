@@ -16,6 +16,7 @@ use Comlink\OpenEMR\Module\GlobalConfig;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Globals\GlobalsService;
 use MyMailer;
@@ -253,7 +254,7 @@ class TelehealthGlobalConfig
 
     public function getInstitutionId()
     {
-        return $this->getGlobalSetting(self::UNIQUE_INSTALLATION_ID);
+        return UniqueInstallationUuid::getUniqueInstallationUuid();
     }
 
     public function getInstitutionName()
