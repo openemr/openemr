@@ -547,7 +547,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 if ($userMode) {
                                                     $globalTitle = $globalValue;
                                                 }
-                                                        echo "  <textarea class='form-control' name='form_$i' id='form_$i' rows='4' cols='50'></textarea>\n";
+                                                        echo "  <textarea name='form_$i' id='form_$i' rows='4' cols='50'>" . attr($fldvalue) . "</textarea>\n";
                                             } elseif ($fldtype == GlobalSetting::DATA_TYPE_DEFAULT_RANDOM_UUID) {
                                                 if ($userMode) {
                                                     $globalTitle = $globalValue;
