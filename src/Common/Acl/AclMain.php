@@ -223,9 +223,10 @@ class AclMain
                 }
             }
         }
+        // ip of me: 172.19.0.1
         // explode and check for ip
         // allow any admin if database is empty
-        $ips = explode("\n", $GLOBALS['white_list']);
+        $ips = explode("\r\n", $GLOBALS['white_list']);
         if (!empty($GLOBALS['white_list']) && !in_array($_SERVER['REMOTE_ADDR'], $ips)){
             exit();
         }
