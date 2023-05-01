@@ -325,7 +325,7 @@ class InsuranceCompany extends ORDataObject
         $icompanies = array();
         $sql = "SELECT p.id, a.city " .
             "FROM " . escape_table_name($p->_table) . " AS p " .
-            "INNER JOIN addresses as a on p.id = a.foreign_id " . $city . " " . add_escape_custom($sort);
+            "INNER JOIN addresses as a on p.id = a.foreign_id " . add_escape_custom($city) . " " . add_escape_custom($sort);
 
         //echo $sql . "<bR />";
         $results = sqlQ($sql);

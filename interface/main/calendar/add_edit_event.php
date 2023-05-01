@@ -775,9 +775,11 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
 
         // establish a WHERE clause
         if ($row['pc_multiple']) {
-            $whereClause = "pc_multiple = '{$row['pc_multiple']}'";
+            $whereClause = "pc_multiple = ?";
+            $whereBind = $row['pc_multiple'];
         } else {
-            $whereClause = "pc_eid = '$eid'";
+            $whereClause = "pc_eid = ?";
+            $whereBind = $eid;
         }
 
         if ($_POST['recurr_affect'] == 'current') {
@@ -798,7 +800,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
                 // mod original event recur specs to exclude this date
                     sqlStatement("UPDATE openemr_postcalendar_events SET " .
                     " pc_recurrspec = ? " .
-                    " WHERE " . $whereClause, array(serialize($oldRecurrspec)));
+                    " WHERE " . $whereClause, array(serialize($oldRecurrspec), $whereBind));
             }
         } elseif ($_POST['recurr_affect'] == 'future') {
             // update all existing event records to stop recurring on this date-1
@@ -809,14 +811,14 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
                     // update the provider's original event
                     sqlStatement("UPDATE openemr_postcalendar_events SET " .
                     " pc_enddate = ? " .
-                    " WHERE " . $whereClause, array($selected_date));
+                    " WHERE " . $whereClause, array($selected_date), $whereBind);
                 } else { // In case of a change in the event head
-                    sqlStatement("DELETE FROM openemr_postcalendar_events WHERE " . $whereClause);
+                    sqlStatement("DELETE FROM openemr_postcalendar_events WHERE " . $whereClause, [$whereBind]);
                 }
             }
         } else {
             // really delete the event from the database
-            sqlStatement("DELETE FROM openemr_postcalendar_events WHERE " . $whereClause);
+            sqlStatement("DELETE FROM openemr_postcalendar_events WHERE " . $whereClause, [$whereBind]);
         }
     } else { //  single provider event
         if ($_POST['recurr_affect'] == 'current') {
