@@ -51,7 +51,7 @@ if ($exists_title) {
 
 $exists_id = sqlQuery("SELECT * FROM list_options WHERE " .
     " list_id= ?" .
-    "AND option_id = ?" . "AND activity = 1", array($list_id, $option_id));
+    " AND option_id = ?" . "AND activity = 1", array($list_id, $option_id));
 if ($exists_id) {
     echo json_encode(array("error" => xl('Record already exist') ));
     exit;

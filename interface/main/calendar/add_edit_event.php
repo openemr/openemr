@@ -338,8 +338,8 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "duplicate" || $_
         $tmpm = 0;
         $duration = 24 * 60;
     } else {
-        $tmph = $_POST['form_hour'] + 0;
-        $tmpm = $_POST['form_minute'] + 0;
+        $tmph = (int) $_POST['form_hour'] + 0;
+        $tmpm = (int) $_POST['form_minute'] + 0;
         if (!empty($_POST['form_ampm']) && ($_POST['form_ampm'] == '2' && $tmph < 12)) {
             $tmph += 12;
         }
