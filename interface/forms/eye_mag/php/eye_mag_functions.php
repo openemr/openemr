@@ -1781,7 +1781,7 @@ function build_PMSFH($pid)
         $field_id   = $group_fields['field_id'];
         $list_id    = $group_fields['list_id'];
         $currvalue  = '';
-        if ((preg_match("/^\|?0\|?\|?/", $result1[$field_id])) || ($result1[$field_id] == '')) {
+        if ((preg_match("/^\|?0\|?\|?/", ($result1[$field_id] ?? ''))) || ($result1[$field_id] == '')) {
             continue;
         } else {
             $currvalue = $result1[$field_id];
@@ -1907,7 +1907,7 @@ function build_PMSFH($pid)
         $field_id   = $group_fields['field_id'];
         $list_id    = $group_fields['list_id'];
         $currvalue  = '';
-        if ((preg_match("/^\|?0\|?\|?/", $result1[$field_id])) || ($result1[$field_id] == '')) {
+        if ((preg_match("/^\|?0\|?\|?/", ($result1[$field_id] ?? ''))) || ($result1[$field_id] == '')) {
             continue;
         } else {
             $currvalue = $result1[$field_id];
@@ -4377,7 +4377,7 @@ function start_your_engines($FIELDS)
             $term = $amihere['term'];
         }
 
-        if (stripos($FIELDS[$amihere['location']], $term) !== false) {
+        if (stripos(($FIELDS[$amihere['location']] ?? ''), $term) !== false) {
             //the term is in the field
             $within_array = 'no';
             if (isset($positives[$amihere['location']]) > '') { //true if anything was already found in this field
@@ -5319,7 +5319,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
             </table>
         </div>
-        <script src="<?php echo $GLOBALS['assets_static_relative'] ?>/chart.js/dist/chart.js"></script>
+        <script type="module" src="<?php echo $GLOBALS['assets_static_relative'] ?>/chart.js/dist/chart.js"></script>
         <div style="position:relative;float:right; margin: 0px 5px;text-align:center;width:60%;">
             <?php
             if ($priors) {

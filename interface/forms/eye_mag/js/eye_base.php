@@ -369,7 +369,7 @@ function create_task(to_id,task,to_type) {
     var url = "../../forms/eye_mag/taskman.php";
     var formData = {
         'action'            : "make_task",
-        'from_id'           : <?php echo attr_js($providerID); ?>,
+        'from_id'           : <?php echo attr_js((int) $providerID); ?>,
         'to_id'             : to_id,
         'pid'               : $('#pid').val(),
         'doc_type'          : task,
@@ -1901,6 +1901,7 @@ function HPI_sync_heights() {
 /**
  *  Keyboard shortcut commands.
  */
+const shortcut = new Set();
 
 shortcut.add("Control+T",function() {
              show_TEXT();
