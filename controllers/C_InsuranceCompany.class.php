@@ -40,14 +40,10 @@ class C_InsuranceCompany extends Controller
         return $this->fetch($GLOBALS['template_dir'] . "insurance_companies/" . $this->template_mod . "_edit.html");
     }
 
-    public function list_action($sort = "")
+    public function list_action()
     {
 
-        if (!empty($sort)) {
-            $this->assign("icompanies", $this->InsuranceCompany->insurance_companies_factory("", $sort));
-        } else {
-            $this->assign("icompanies", $this->InsuranceCompany->insurance_companies_factory());
-        }
+        $this->assign("icompanies", $this->InsuranceCompany->insurance_companies_factory());
 
         return $this->fetch($GLOBALS['template_dir'] . "insurance_companies/" . $this->template_mod . "_list.html");
     }
