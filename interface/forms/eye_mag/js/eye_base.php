@@ -369,7 +369,7 @@ function create_task(to_id,task,to_type) {
     var url = "../../forms/eye_mag/taskman.php";
     var formData = {
         'action'            : "make_task",
-        'from_id'           : <?php echo js_escape($providerID); ?>,
+        'from_id'           : <?php echo attr_js((int) $providerID); ?>,
         'to_id'             : to_id,
         'pid'               : $('#pid').val(),
         'doc_type'          : task,
