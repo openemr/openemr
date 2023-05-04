@@ -250,10 +250,10 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
     $(function () {
         // Initializing the DataTable.
         //
-        let serverUrl = "dynamic_finder_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+        let serverUrl = "dynamic_finder_ajax.php";
         let srcAny = <?php echo js_url($searchAny); ?>;
         if (srcAny) {
-            serverUrl += "&search_any=" + srcAny;
+            serverUrl += "?search_any=" + srcAny;
         }
         var oTable = $('#pt_table').dataTable({
             "processing": true,
@@ -285,7 +285,7 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
         <?php
         $checked = (!empty($GLOBALS['gbl_pt_list_new_window'])) ? 'checked' : '';
         ?>
-        $("div.mytopdiv").html("<form name='myform'><div class='form-check form-check-inline'><label for='form_new_window' class='form-check-label' id='form_new_window_label'><input type='checkbox' class='form-check-input' id='form_new_window' name='form_new_window' value='1' <?php echo $checked; ?> /><?php echo xlt('Open in New Window'); ?></label></div><div class='form-check form-check-inline'><label for='setting_search_type' id='setting_search_type_label' class='form-check-label'><input type='checkbox' name='setting_search_type' class='form-check-input' id='setting_search_type' onchange='persistCriteria(this, event)' value='<?php echo attr($patient_finder_exact_search); ?>'<?php echo text($patient_finder_exact_search); ?>/><?php echo xlt('Search with exact method'); ?></label></div></form>");
+        $("div.mytopdiv").html("<form name='myform'><div class='form-check form-check-inline'><label for='form_new_window' class='form-check-label' id='form_new_window_label'><input type='checkbox' class='form-check-input' id='form_new_window' name='form_new_window' value='1' <?php echo $checked; ?> /><?php echo xlt('Open in New Browser Tab'); ?></label></div><div class='form-check form-check-inline'><label for='setting_search_type' id='setting_search_type_label' class='form-check-label'><input type='checkbox' name='setting_search_type' class='form-check-input' id='setting_search_type' onchange='persistCriteria(this, event)' value='<?php echo attr($patient_finder_exact_search); ?>'<?php echo text($patient_finder_exact_search); ?>/><?php echo xlt('Search with exact method'); ?></label></div></form>");
 
         // This is to support column-specific search fields.
         // Borrowed from the multi_filter.html example.

@@ -169,8 +169,6 @@ function form_delete($formdir, $formid, $patient_id, $encounter_id)
         }
         row_delete("form_eye_mag_impplan", "form_id = '" . add_escape_custom($formid) . "'");
         row_delete("form_eye_mag_wearing", "FORM_ID = '" . add_escape_custom($formid) . "'");
-    } elseif ($formdir == 'form_HIS') {
-        // when history form is entered in portal, just ignore...
     } else {
         row_delete("form_$formdir", "id = '" . add_escape_custom($formid) . "'");
     }
@@ -239,10 +237,13 @@ function popup_close() {
 
                 $res = sqlStatement("SELECT * FROM forms WHERE pid = ?", array($patient));
                 while ($row = sqlFetchArray($res)) {
-                    form_delete($row['formdir'], $row['form_id'], $row['pid'], $row['encounter']);
+                    row_modify(
+                        "forms",
+                        "deleted = 1",
+                        "pid = '" . add_escape_custom($row['pid']) .
+                            "' AND form_id = '" . add_escape_custom($row['form_id']) . "'"
+                    );
                 }
-
-                row_delete("forms", "pid = '" . add_escape_custom($patient) . "'");
 
                 // Delete all documents for the patient.
                 $res = sqlStatement("SELECT id FROM documents WHERE foreign_id = ? AND deleted = 0", array($patient));

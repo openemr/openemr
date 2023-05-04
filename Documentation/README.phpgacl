@@ -52,7 +52,7 @@ meaningful to you.  What really matters is the Value column.
 Then you should define or modify groups and assign users (AROs) to
 them using the "ARO Group Admin" tab of the GUI.  These can be
 structured any way you like.  Here is one example of a group
-heirarchy for a clinic setting:
+hierarchy for a clinic setting:
 
   Users
     Accounting

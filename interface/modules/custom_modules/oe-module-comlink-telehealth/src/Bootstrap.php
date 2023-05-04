@@ -130,7 +130,12 @@ class Bootstrap
 
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->logger = new SystemLogger();
-        $this->globalsConfig = new TelehealthGlobalConfig($this->getURLPath(), $this->moduleDirectoryName);
+        $this->globalsConfig = new TelehealthGlobalConfig($this->getURLPath(), $this->moduleDirectoryName, $this->twig);
+    }
+
+    public function getGlobalConfig(): TelehealthGlobalConfig
+    {
+        return $this->globalsConfig;
     }
 
     public function getTemplatePath()
@@ -233,7 +238,7 @@ class Bootstrap
     {
         // return the public path with the fully qualified domain name in it
         // qualified_site_addr already has the webroot in it.
-        return $GLOBALS['qualified_site_addr'] . self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR;
+        return $GLOBALS['qualified_site_addr'] . self::MODULE_INSTALLATION_PATH . ($this->moduleDirectoryName ?? '') . '/' . 'public' . '/';
     }
 
     private function getAssetPath()

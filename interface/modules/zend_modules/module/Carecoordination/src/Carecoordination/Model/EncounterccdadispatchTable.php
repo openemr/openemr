@@ -728,7 +728,17 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         if (empty($details)) {
             return '';
         } else {
-            $organization_uuid = UuidRegistry::uuidToString($details['facility_uuid']);
+            if (!empty($details['facility_uuid'])) {
+                $organization_uuid = UuidRegistry::uuidToString($details['facility_uuid']);
+            } else {
+                $organization_uuid = ''; // leave it an empty string as we don't even know if we have a connected organization.
+                (new SystemLogger())->errorLogCaller(
+                    "Failed to find facility uuid for Carecoordination hie_office_contact, uuid is either missing or office contact has no connected organization",
+                    ['fname' => $details['fname'], 'lname' => $details['lname'], 'organization' => $details['organization']
+                    ,
+                    'npi' => $details['facility_npi']]
+                );
+            }
         }
 
         $time = $this->getAuthorDate($pid, $encounter);

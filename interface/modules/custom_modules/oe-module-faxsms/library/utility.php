@@ -12,6 +12,8 @@
  */
 
 require_once(__DIR__ . "/../../../../globals.php");
+require_once("$srcdir/pid.inc.php");
+require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -52,14 +54,8 @@ if ($_POST['form_create'] ?? null) {
         }
     }
 
-    require_once("$srcdir/pid.inc.php");
-    require_once("$srcdir/patient.inc.php");
-
-    sqlStatement("lock tables patient_data read");
     $result = sqlQuery("select max(pid)+1 as pid from patient_data");
-    sqlStatement("unlock tables");
     $newpid = 1;
-
     if ($result['pid'] > 1) {
         $newpid = $result['pid'];
     }

@@ -29,6 +29,7 @@ $isSMTP = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] 
 $default_message = '';
 $interface_pid = null;
 $file_mime = '';
+$recipient_phone = '';
 if (empty($isSMS)) {
     $interface_pid = $clientApp->getRequest('pid');
     $the_file = $clientApp->getRequest('file');

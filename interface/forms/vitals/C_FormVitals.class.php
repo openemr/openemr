@@ -34,6 +34,7 @@ class C_FormVitals
     var $form_id;
     var $units_of_measurement;
     var $template_mod;
+    var $context;
 
     const OMIT_CIRCUMFERENCES_NO = 0;
     const OMIT_CIRCUMFERENCES_YES = 1;
@@ -43,12 +44,13 @@ class C_FormVitals
      */
     private $interpretationsList = [];
 
-    public function __construct($template_mod = "general")
+    public function __construct($template_mod = "general", $context = '')
     {
         $this->units_of_measurement = $GLOBALS['units_of_measurement'];
         $this->interpretationsList = $this->get_interpretation_list_options();
         $this->template_mod = $template_mod;
         $this->template_dir = __DIR__ . "/templates/vitals/";
+        $this->context = $context;
     }
 
     public function setFormId($form_id)
@@ -92,6 +94,19 @@ class C_FormVitals
             $historicalVitals->populate_array($result);
             $results[$i] = $historicalVitals;
             $i++;
+        }
+
+        // For the demographics page and $form_id === 0
+        if (
+            $form_id === 0
+            && $this->context == 'dashboard'
+            && is_countable($results)
+        ) {
+            $vitals_history_count = count($results);
+            $vitals = $results[$vitals_history_count];
+            if (isset($vitals->uuid)) {
+                $vitals->uuid = UuidRegistry::uuidToBytes($vitals->uuid);
+            }
         }
 
         $reasonCodeStatii = ReasonStatusCodes::getCodesWithDescriptions();
