@@ -61,6 +61,8 @@ if ($pid == "") {
 
 $vitalsService = new VitalsService();
 
+$isMetric = ((($GLOBALS['units_of_measurement'] == 2) || ($GLOBALS['units_of_measurement'] == 4)) ? true : false);
+
 $patient_data = "";
 if (isset($pid) && is_numeric($pid)) {
     $patient_data = getPatientData($pid, "fname, lname, sex, DATE_FORMAT(DOB,'%Y%m%d') as DOB");
@@ -77,8 +79,8 @@ $datapoints = $vitalsService->getVitalsHistoryForPatient($pid, true);
 $first_datapoint = $datapoints[0];
 if (!empty($first_datapoint)) {
     $date = str_replace('-', '', substr($first_datapoint['date'], 0, 10));
-    $height = $first_datapoint['height'];
-    $weight = $first_datapoint['weight'];
+    $height = (($isMetric) ? convertHeightToUs($first_datapoint['height']) : $first_datapoint['height']);
+    $weight = (($isMetric) ? convertWeightToUS($first_datapoint['weight']) : $first_datapoint['weight']);
     $head_circ = $first_datapoint['head_circ'];
     if ($date != "") {
         $charttype_date = $date;
@@ -99,30 +101,42 @@ if (isset($_GET['chart_type'])) {
 rsort($datapoints);
 
 
-// convert to applicable weight units from the globals.php setting
+// convert to applicable weight units from Config Locale
 function unitsWt($wt)
 {
-    if (($GLOBALS['units_of_measurement'] == 2) || ($GLOBALS['units_of_measurement'] == 4)) {
+    global $isMetric;
+    if ($isMetric) {
         //convert to metric
         return (number_format(($wt * 0.45359237), 2, '.', '') . xl('kg', '', ' '));
     } else {
-    //keep US units
-        return number_format(($wt * 1), 2) . xl('lb', '', ' ');
+    //keep US
+        return number_format($wt, 2) . xl('lb', '', ' ');
     }
 }
 
-// convert to applicable weight units from the globals.php setting
+// convert to applicable length units from Config Locale
 function unitsDist($dist)
 {
-    if (($GLOBALS['units_of_measurement'] == 2) || ($GLOBALS['units_of_measurement'] == 4)) {
+    global $isMetric;
+    if ($isMetric) {
         //convert to metric
         return (number_format(($dist * 2.54), 2, '.', '') . xl('cm', '', ' '));
     } else {
-        //keep US units
-        return number_format(($dist * 1), 2)  . xl('in', '', ' ');
+        //keep US
+        return number_format($dist, 2)  . xl('in', '', ' ');
     }
 }
 
+// convert vitals service data to US values for graphing
+function convertHeightToUs($height)
+{
+    return $height * 0.393701;
+}
+
+function convertWeightToUs($weight)
+{
+    return $weight * 2.20462262185;
+}
 /******************************/
 /******************************/
 /******************************/
@@ -429,8 +443,9 @@ if (($_GET['html'] ?? null) == 1) {
     foreach ($datapoints as $data) {
         if (!empty($data)) {
             $date = str_replace('-', '', substr($data['date'], 0, 10));
-            $height = $data['height'];
-            $weight = $data['weight'];
+            // convert to US if metric locale
+            $height = (($isMetric) ? convertHeightToUs($data['height']) : $data['height']);
+            $weight = (($isMetric) ? convertWeightToUs($data['weight']) : $data['weight']);
             $head_circ = $data['head_circ'];
 
             if ($date == "") {
@@ -585,8 +600,9 @@ $count = 0;
 foreach ($datapoints as $data) {
     if (!empty($data)) {
         $date = str_replace('-', '', substr($data['date'], 0, 10));
-        $height = $data['height'];
-        $weight = $data['weight'];
+        // values can be US or metric thus convert to US for graphing
+        $height = (($isMetric) ? convertHeightToUs($data['height']) : $data['height']);
+        $weight = (($isMetric) ? convertWeightToUs($data['weight']) : $data['weight']);
         $head_circ = $data['head_circ'];
 
         if ($date == "") {

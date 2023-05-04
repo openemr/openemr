@@ -579,7 +579,10 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
         $returnval[$iter] = $row;
     }
 
-    _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+    if (is_countable($returnval)) {
+        _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+    }
+
     return $returnval;
 }
 /**
@@ -657,7 +660,9 @@ function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, provid
         $returnval[$iter] = $row;
     }
 
-    _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+    if (is_countable($returnval)) {
+        _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+    }
     return $returnval;
 }
 
@@ -691,7 +696,9 @@ function getByPatientDemographics($searchTerm = "%", $given = "pid, id, lname, f
         $returnval[$iter] = $row;
     }
 
-    _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+    if (is_countable($returnval)) {
+        _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+    }
     return $returnval;
 }
 
@@ -760,7 +767,9 @@ function getByPatientDemographicsFilter(
         $returnval[$iter] = $row;
     }
 
-    _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+    if (is_countable($returnval)) {
+        _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+    }
     return $returnval;
 }
 
@@ -922,7 +931,9 @@ function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $ord
         $returnval[$iter] = $row;
     }
 
-    _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+    if (is_countable($returnval)) {
+        _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+    }
     return $returnval;
 }
 
@@ -944,7 +955,9 @@ function getPatientSSN($ss = "%", $given = "pid, id, lname, fname, mname, provid
         $returnval[$iter] = $row;
     }
 
-    _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+    if (is_countable($returnval)) {
+        _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+    }
     return $returnval;
 }
 
@@ -967,7 +980,9 @@ function getPatientPhone($phone = "%", $given = "pid, id, lname, fname, mname, p
         $returnval[$iter] = $row;
     }
 
-    _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+    if (is_countable($returnval)) {
+        _set_patient_inc_count($limit, count($returnval), $where, $sqlBindArray);
+    }
     return $returnval;
 }
 
