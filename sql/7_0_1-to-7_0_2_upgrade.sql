@@ -144,3 +144,35 @@ ALTER TABLE `x12_partners` ADD COLUMN `x12_submitter_id` tinyint(1) DEFAULT NULL
 #IfNotRow2D list_options list_id abook_type option_id bill_svc
 INSERT INTO list_options (list_id, option_id, title, seq, option_value) VALUES ('abook_type', 'bill_svc', 'Billing Service', 125, 3);
 #EndIf
+
+#IfMissingColumn users_secure last_login_fail
+ALTER TABLE `users_secure` ADD `last_login_fail` datetime DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn users_secure total_login_fail_counter
+ALTER TABLE `users_secure` ADD `total_login_fail_counter` bigint DEFAULT 0;
+#EndIf
+
+#IfMissingColumn users_secure auto_block_emailed
+ALTER TABLE `users_secure` ADD `auto_block_emailed` tinyint DEFAULT 0;
+#EndIf
+
+#IfNotRow globals gl_name time_reset_password_max_failed_logins
+UPDATE `globals` SET `gl_value` = 20 WHERE `gl_name` = 'password_max_failed_logins' AND `gl_value` = 0;
+#EndIf
+
+#IfNotTable ip_tracking
+CREATE TABLE `ip_tracking` (
+`id` bigint NOT NULL auto_increment,
+`ip_string` varchar(255) DEFAULT '',
+`total_ip_login_fail_counter` bigint DEFAULT 0,
+`ip_login_fail_counter` bigint DEFAULT 0,
+`ip_last_login_fail` datetime DEFAULT NULL,
+`ip_auto_block_emailed` tinyint DEFAULT 0,
+`ip_force_block` tinyint DEFAULT 0,
+`ip_no_prevent_timing_attack` tinyint DEFAULT 0,
+PRIMARY KEY (`id`),
+UNIQUE KEY `ip_string` (`ip_string`)
+) ENGINE=InnoDb AUTO_INCREMENT=1;
+#EndIf
+

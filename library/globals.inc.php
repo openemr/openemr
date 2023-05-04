@@ -2148,10 +2148,31 @@ $GLOBALS_METADATA = array(
         ),
 
         'password_max_failed_logins' => array(
-            xl('Maximum Failed Login Attempts'),
+            xl('Maximum Failed Login Attempts For User'),
             'num',                            // data type
-            '0',                              // default
-            xl('Maximum Failed Login Attempts (0 for no maximum).')
+            '20',                             // default
+            xl('Maximum Failed Login Attempts For User (0 for no maximum).')
+        ),
+
+        'time_reset_password_max_failed_logins' => array(
+            xl('Time (seconds) to Reset Maximum Failed Login Attempts For User'),
+            'num',                            // data type
+            '3600',                           // default to 1 hour
+            xl('Time (seconds) to Reset Maximum Failed Login Attempts Counter For User (0 for no reset).')
+        ),
+
+        'ip_max_failed_logins' => array(
+            xl('Maximum Failed Login Attempts From IP Address'),
+            'num',                            // data type
+            '100',                            // default
+            xl('Maximum Failed Login Attempts From IP Address (0 for no maximum).')
+        ),
+
+        'ip_time_reset_password_max_failed_logins' => array(
+            xl('Time (seconds) to Reset Maximum Failed Login Attempts From IP Address'),
+            'num',                            // data type
+            '3600',                           // default to 1 hour
+            xl('Time (seconds) to Reset Maximum Failed Login Attempts Counter From IP Address (0 for no reset).')
         ),
 
         'gbl_fac_warehouse_restrictions' => array(
