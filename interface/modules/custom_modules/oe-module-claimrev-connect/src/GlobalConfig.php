@@ -36,7 +36,6 @@ class GlobalConfig
     public const CONFIG_ENABLE_RESULTS_ELIGIBILITY = "oe_claimrev_eligibility_results_age";
     public const CONFIG_ENABLE_AUTO_SEND_ELIGIBILITY = "oe_claimrev_send_eligibility";
     public const CONFIG_X12_PARTNER_NAME = "oe_claimrev_x12_partner_name";
-
     private $globalsArray;
 
     /**
@@ -102,7 +101,7 @@ class GlobalConfig
         if ($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "S") {
             return "https://testapi.claimrev.com";
         } elseif ($this->getGlobalSetting(self::CONFIG_OPTION_ENVIRONMENT) == "D") {
-            return "https://a3a9-174-128-131-22.ngrok.io";
+            return "https://9a89-174-128-131-22.ngrok.io";
         }
         return "https://api.claimrev.com";
     }
