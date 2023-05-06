@@ -144,7 +144,7 @@ function getBarId($lab_id, $pid): bool|array|string|null
     $bar = sqlQuery($sql, array($lab_id,$pid));
     $isOrder = sqlQuery($checkForLabOrder, array($lab_id,$pid));
     if (empty($isOrder['procedure_order_id'])) {
-        sqlStatement("DELETE FROM `requisition` WHERE `lab_id` = ? AND `pid` = ?", array($lab_id,$pid));;
+        sqlStatement("DELETE FROM `requisition` WHERE `lab_id` = ? AND `pid` = ?", array($lab_id,$pid));
         return '';
     }
     return $bar;

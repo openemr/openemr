@@ -137,16 +137,16 @@ table, th, td {
 <body>
 <div class="container">
     <?php
-        if (empty($order)) {
+    if (empty($order)) {
             echo "<div class='text-center mt-5'><span>" .
                 xlt('procedure order not found in database contact tech support') . "</span></div>";
             exit;
-        }
-        if (empty($oid)) {
+    }
+    if (empty($oid)) {
             print "<div class='text-center mt-5'><span>" .
          xlt('No Order found, please enter procedure order first') . "</span></div>";
             exit;
-        }
+    }
     ?>
         <div class="text-center mt-3">
                 <?php
