@@ -22,7 +22,6 @@ class EraPage
         $endDate = $_POST['endDate'];
         $fileStatus = $_POST['downloadStatus'];
 
-        
         $model = new FileSearchModel();
         $model->fileStatus = intval($fileStatus);
         $model->ediType = "835";
@@ -40,9 +39,9 @@ class EraPage
     }
     public static function downloadEra($id)
     {
-        $data = EraSearch::downloadEra($id);
+        $data = EraSearch::downloadEra(convert_safe_file_dir_name($id));
         $data->fileName = $data->ediType . "-" . $data->payerNumber . "-" . $id . ".txt";
-      
+
         return $data;
     }
 }

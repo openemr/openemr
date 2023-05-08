@@ -72,7 +72,7 @@ class ReportDownload extends BaseService
 
         if (property_exists($data, 'fileText')) {
             $fileText = $data->fileText;
-            $fileName = $objectId. ".edi";
+            $fileName = $objectId . ".edi";
             $filePathName =  $savePath . $fileName;
             file_put_contents($filePathName, $fileText);
             chmod($filePathName, 0777);

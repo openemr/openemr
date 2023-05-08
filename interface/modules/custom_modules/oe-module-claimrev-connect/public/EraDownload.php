@@ -9,9 +9,19 @@
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
     require_once "../../../../globals.php";
 
     use OpenEMR\Modules\ClaimRevConnector\EraPage;
+    use OpenEMR\Common\Acl\AclMain;
+    use OpenEMR\Common\Twig\TwigContainer;
+
+    //ensure user has proper access
+if (!AclMain::aclCheckCore('acct', 'bill')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ClaimRev Connect - ERAs")]);
+    exit;
+}
+
 
     $eraId = $_GET['eraId'];
     $fileViewModel = EraPage::downloadEra($eraId);
