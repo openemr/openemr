@@ -163,7 +163,7 @@ function goPid(pid) {
 <?php
     // initialize html string
     $pdHTML = '<div class="">
-                      <div class="drHide>' .
+                      <div class="drHide">' .
                           '<a title="' . xla('View Past and Future Reminders') . '" onclick="openLogScreen()" class="btn btn-secondary  btn-sm btn-show" href="#">' . xlt('View Log') . '</a>&nbsp;' . '<a onclick="openAddScreen(0)" class="btn btn-primary btn-sm btn-add" href="#">' . xlt('Create A Dated Reminder') . '</a>
                       </div>
                       <div class="pre-scrollable mt-3">
