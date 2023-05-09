@@ -48,10 +48,9 @@ class UserService
     {
         foreach ($fields as $field) {
             switch ($field) {
-                case 'username': {
+                case 'username':
                     $this->_includeUsername = !$this->_includeUsername;
-                }
-                break;
+                    break;
             }
         }
     }
