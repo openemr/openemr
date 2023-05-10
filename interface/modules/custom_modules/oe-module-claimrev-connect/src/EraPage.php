@@ -18,9 +18,9 @@ class EraPage
 {
     public static function searchEras($postData)
     {
-        $startDate = $_POST['startDate'];
-        $endDate = $_POST['endDate'];
-        $fileStatus = $_POST['downloadStatus'];
+        $startDate = $postData['startDate'];
+        $endDate = $postData['endDate'];
+        $fileStatus = $postData['downloadStatus'];
 
         $model = new FileSearchModel();
         $model->fileStatus = intval($fileStatus);
@@ -39,8 +39,8 @@ class EraPage
     }
     public static function downloadEra($id)
     {
-        $data = EraSearch::downloadEra(convert_safe_file_dir_name($id));
-        $data->fileName = $data->ediType . "-" . $data->payerNumber . "-" . $id . ".txt";
+        $data = EraSearch::downloadEra($id);
+        $data->fileName = $data->ediType . "-" . $data->payerNumber . "-" .  convert_safe_file_dir_name($id) . ".txt";
 
         return $data;
     }
