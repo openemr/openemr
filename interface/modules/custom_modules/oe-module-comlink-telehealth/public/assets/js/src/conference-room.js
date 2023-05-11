@@ -669,7 +669,7 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     {
         // shouldn't
         if (this.__isShutdown) {
-            console.error("destruct called multiple times.  Ignoring");
+            console.log("destruct called multiple times while application has already shutdown.  Ignoring");
             return;
         }
 
@@ -956,6 +956,11 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
     };
 
     conf.updateSessionControlsActive = function() {
+        // if the interval has shutdown then we don't want to update anything anymore.
+        if (!conf.sessionControlsActiveInterval || conf.__isShutdown) {
+            return;
+        }
+
         let date = new Date();
         let lastActive = conf.lastActiveDate;
         if (lastActive && (date.getTime() - lastActive.getTime() > conf.sessionControlsIdleTime)) {
@@ -1050,6 +1055,9 @@ export function ConferenceRoom(apiCSRFToken, enabledFeatures, translations, scri
                 }
             })
             .then(result => {
+                if (!conf.sessionUpdateInterval) {
+                    return; // we've been shut down and should just cancel at this point.
+                }
                if (result.status !== 'success') {
                    throw new Error("Failed to update session");
                } else {
