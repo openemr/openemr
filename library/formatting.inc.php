@@ -183,9 +183,7 @@ function TimeToHHMMSS($TimeValue)
     }
 
     $date = new DateTimeImmutable('1970-01-01' . $TimeValue);
-    $TimeValue = $date->format('H:i:s');
-
-    return $TimeValue;
+    return $date->format('H:i:s');
 }
 
 
