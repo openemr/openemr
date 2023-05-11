@@ -84,7 +84,7 @@ class Controller extends Smarty
         }
 
         if ((array_key_first($qarray) ?? '') == 'prescription') {
-            if (!AclMain::aclCheckCore('patients', 'prescriptions')) {
+            if (!AclMain::aclCheckCore('patients', 'rx')) {
                 echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Prescriptions")]);
                 exit;
             }
