@@ -387,7 +387,7 @@ class ClientAdminController
             'contacts' => [
                 'type' => 'text'
                 ,'label' => xl("Contacts")
-                ,'value' => $client->getContacts()
+                ,'value' => implode("|", $client->getContacts())
             ],
             'registrationDate' => [
                 'type' => 'text'
@@ -413,7 +413,7 @@ class ClientAdminController
             'redirectUri' => [
                 'type' => 'text'
                 ,'label' => xl("Redirect URI")
-                ,'value' => $client->getRedirectUri()
+                ,'value' => implode("|", $client->getRedirectUri())
             ],
             'launchUri' => [
                 'type' => 'text'
