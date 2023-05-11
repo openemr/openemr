@@ -87,8 +87,13 @@ class Header
         $output = "\n<meta charset=\"utf-8\" />\n";
         // Makes only compatible with MS Edge
         $output .= "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\" />\n";
-        // BS4 required tag
-        $output .= "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n";
+
+        if (in_array('shrink-to-fit', $assets)) {
+            $output .= "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=yes\" />\n";
+        } else {
+            // BS4 required tag
+            $output .= "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n";
+        }
         // Favicon
         $output .= "<link rel=\"shortcut icon\" href=\"$favicon\" />\n";
         $output .= self::setupAssets($assets, true, false);

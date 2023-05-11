@@ -314,8 +314,19 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
 <head>
     <title><?php echo xlt('Patient Portal Login'); ?></title>
     <?php
-    Header::setupHeader(['no_main-theme', 'datetime-picker', 'patientportal-style', 'patientportal-base', 'patientportal-register']);
+    Header::setupHeader(['no_main-theme', 'shrink-to-fit']);
     ?>
+    <style>
+        .sign-in-container {
+            display: block;
+            width: 50%;
+            margin: 0   auto;
+            position: absolute;
+            top: 50%;
+            -ms-transform: translateY(-50%);
+            transform: translateY(-50%);
+        }
+    </style>
     <script>
         function checkUserName() {
             let vacct = document.getElementById('uname').value;
@@ -526,39 +537,40 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             </form>
         <?php } else {
             ?> <!-- Main logon -->
-        <img class="img-fluid login-logo" src='<?php echo $logoSrc; ?>'>
-        <form class="text-center" action="get_patient_info.php" method="POST" onsubmit="return process()">
-            <?php if (isset($redirectUrl)) { ?>
-                <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
-            <?php } ?>
-            <fieldset>
-                <legend class="bg-primary text-white pt-2 py-1"><h3><?php echo xlt('Patient Portal Login'); ?></h3></legend>
-                <div class="jumbotron jumbotron-fluid px-5 py-3">
-                    <div class="form-row my-3">
+        <img class="img-fluid w-25" src='<?php echo $logoSrc; ?>'>
+        <div class="form-container sign-in-container w-50">
+            <form class="patient-form" action="get_patient_info.php" method="POST" onsubmit="return process()" style="padding-left: 250px">
+                <?php if (isset($redirectUrl)) { ?>
+                    <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
+                <?php } ?>
+                <!-- <fieldset> -->
+                <!--<legend class="bg-primary text-white pt-2 py-1"><h3><?php echo xlt('Patient Portal Login'); ?></h3></legend>-->
+                <div class="">
+                    <div class="form-group row">
                         <label class="col-md-2 col-form-label" for="uname"><?php echo xlt('Username') ?></label>
-                        <div class="col-md">
+                        <div class="col-sm-6">
                             <input type="text" class="form-control" name="uname" id="uname" autocomplete="none" required />
                         </div>
                     </div>
-                    <div class="form-row mt-3">
+                    <div class="form-group row">
                         <label class="col-md-2 col-form-label" for="pass"><?php echo xlt('Password') ?></label>
-                        <div class="col-md">
+                        <div class="col-sm-6">
                             <input class="form-control" name="pass" id="pass" type="password" required autocomplete="none" />
                         </div>
                     </div>
                     <?php if ($GLOBALS['enforce_signin_email']) { ?>
-                        <div class="form-row mt-3">
+                        <div class="form-group row">
                             <label class="col-md-2 col-form-label" for="passaddon"><?php echo xlt('E-Mail Address') ?></label>
-                            <div class="col-md">
+                            <div class="col-sm-6">
                                 <input class="form-control" name="passaddon" id="passaddon" type="email" autocomplete="none" />
                             </div>
                         </div>
                     <?php } ?>
                     <?php if ($GLOBALS['language_menu_login']) { ?>
                         <?php if (count($result3) != 1) { ?>
-                            <div class="form-row mt-3">
+                            <div class="form-group row">
                                 <label class="col-form-label col-md-2" for="selLanguage"><?php echo xlt('Language'); ?></label>
-                                <div class="col-md">
+                                <div class="col-sm-6">
                                     <select class="form-control" id="selLanguage" name="languageChoice">
                                         <?php
                                         echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
@@ -587,8 +599,8 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                         <?php }
                     } ?>
                 </div>
-                <div class="row">
-                    <div class="col-12">
+                <div class="form-group row">
+                    <div class="col-6 mt-lg-5">
                         <?php if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) { ?>
                             <button class="btn btn-secondary float-left" onclick="location.replace('./account/verify.php?site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Register'); ?></button>
                         <?php } ?>
@@ -599,11 +611,12 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                         <button class="btn btn-success float-right" type="submit"><?php echo xlt('Log In'); ?></button>
                     </div>
                 </div>
-            </fieldset>
-            <?php if (!(empty($hiddenLanguageField))) {
-                echo $hiddenLanguageField;
-            } ?>
-        </form>
+                <!-- </fieldset> -->
+                <?php if (!(empty($hiddenLanguageField))) {
+                    echo $hiddenLanguageField;
+                } ?>
+            </form>
+        </div>
     </div><!-- div wrapper -->
     <?php } ?> <!--  logon wrapper -->
 
