@@ -12,6 +12,11 @@
 
 use OpenEMR\Modules\ClaimRevConnector\PrintProperty;
 
+if (property_exists($eligibilityData, 'payerInfo')) {
+    if (property_exists($eligibilityData->payerInfo, 'payerName')) {
+        PrintProperty::displayProperty("Payer Name:", $eligibilityData->payerInfo->payerName);
+    }
+}
 if (property_exists($eligibilityData, 'status')) {
     if ($eligibilityData->status == "Active Coverage") {
         PrintProperty::displayProperty("Coverage Status:", $eligibilityData->status, "", "", "color:green");
