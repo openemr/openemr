@@ -750,9 +750,10 @@ class Claim
         if (!$this->x12_submitter_name()) {
             return $this->x12Clean(trim($this->billing_facility['attn']));
         } else {
-            $query = "SELECT organization FROM users WHERE federaltaxid = ?";
-            $ores = sqlQuery($query, array($this->x12_partner['id_number'] ?? ''));
-            return $this->x12Clean(trim($ores['organization'] ?? ''));
+            $query = "SELECT fname, lname FROM users WHERE id = ?";
+            $ores = sqlQuery($query, array($this->x12_partner['x12_submitter_id'] ?? ''));
+            $contact_name = $this->x12Clean(trim($ores['fname'] ?? '')) . " " . $this->x12Clean(trim($ores['lname'] ?? ''));
+            return $contact_name;
         }
     }
 
@@ -761,8 +762,8 @@ class Claim
         if (!$this->x12_submitter_name()) {
             $tmp_phone = $this->x12Clean(trim($this->billing_facility['phone']));
         } else {
-            $query = "SELECT phonew1 FROM users WHERE federaltaxid = ?";
-            $ores = sqlQuery($query, array($this->x12_partner['id_number'] ?? ''));
+            $query = "SELECT phonew1 FROM users WHERE id = ?";
+            $ores = sqlQuery($query, array($this->x12_partner['x12_submitter_id'] ?? ''));
             $tmp_phone = $this->x12Clean(trim($ores['phonew1'] ?? ''));
         }
 
@@ -784,8 +785,8 @@ class Claim
         if (!$this->x12_submitter_name()) {
             return $this->x12Clean(trim($this->billing_facility['email'] ?? ''));
         } else {
-            $query = "SELECT email FROM users WHERE federaltaxid = ?";
-            $ores = sqlQuery($query, array($this->x12_partner['id_number'] ?? ''));
+            $query = "SELECT email FROM users WHERE id = ?";
+            $ores = sqlQuery($query, array($this->x12_partner['x12_submitter_id'] ?? ''));
             return $this->x12Clean(trim($ores['email'] ?? ''));
         }
     }
