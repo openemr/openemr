@@ -49,7 +49,6 @@ class ClaimRevApi
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        echo "</br>";
 
         $result = curl_exec($ch);
         curl_close($ch);
@@ -200,6 +199,71 @@ class ClaimRevApi
             return false;
         }
 
+        return $data;
+    }
+    public static function searchDownloadableFiles($downloadSearch, $token)
+    {
+        $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
+        $globalsConfig = $bootstrap->getGlobalConfig();
+        $api_server = $globalsConfig->getApiServer();
+
+        $content = 'content-type: application/json';
+        $bearer = 'authorization: Bearer ' . $token;
+        $headers = [
+            $content,
+            $bearer
+         ];
+
+        $url = $api_server . "/FileManagement/SearchOutboundClientFiles";
+
+        $payload = json_encode($downloadSearch, JSON_UNESCAPED_SLASHES);
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $result = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        $data = json_decode($result);
+
+        if ($httpcode != 200) {
+            return false;
+        }
+
+        return $data;
+    }
+    public static function getFileForDownload($objectId, $token)
+    {
+        $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
+        $globalsConfig = $bootstrap->getGlobalConfig();
+        $api_server = $globalsConfig->getApiServer();
+
+        $content = 'content-type: application/json';
+        $bearer = 'authorization: Bearer ' . $token;
+        $headers = [
+            $content,
+            $bearer
+         ];
+
+        $endpoint = $api_server . "/FileManagement/GetFileForDownload";
+        $params = array('id' => $objectId);
+        $url = $endpoint . '?' . http_build_query($params);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        curl_close($ch);
+        if ($httpcode != 200) {
+            return false;
+        }
+        $data = json_decode($result);
         return $data;
     }
     public static function getEligibilityResult($originatingSystemId, $token)
