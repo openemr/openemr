@@ -45,7 +45,7 @@
         "mobiledetect/mobiledetectlib": "3.74.0",
         "monolog/monolog": "2.9.1",
         "mpdf/mpdf": "8.1.4",
-        "nyholm/psr7": "1.5.1",
+        "nyholm/psr7": "1.6.1",
         "nyholm/psr7-server": "1.0.2",
         "omnipay/stripe": "3.2.0",
         "openemr/mustache": "2.15.2",
