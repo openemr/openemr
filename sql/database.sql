@@ -4258,6 +4258,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, option_value ) VALUES
 INSERT INTO list_options (list_id, option_id, title , seq, option_value ) VALUES ('abook_type','emr_direct', 'EMR Direct' ,105,4);
 INSERT INTO list_options (list_id, option_id, title , seq, option_value ) VALUES ('abook_type','external_provider', 'External Provider' ,110,1);
 INSERT INTO list_options (list_id, option_id, title , seq, option_value ) VALUES ('abook_type','external_org', 'External Organization' ,120,1);
+INSERT INTO list_options (list_id, option_id, title , seq, option_value ) VALUES ('abook_type','bill_svc', 'Billing Service' ,120,3);
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','proc_type','Procedure Types', 1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','grp','Group'          ,10,0);
@@ -9024,6 +9025,7 @@ CREATE TABLE `x12_partners` (
   `x12_per06` varchar(80) NOT NULL DEFAULT '',
   `x12_dtp03` char(1)     NOT NULL DEFAULT 'A',
   `x12_gs03` varchar(15) DEFAULT NULL,
+  `x12_submitter_id` tinyint(1) DEFAULT NULL,
   `x12_submitter_name` varchar(255) DEFAULT NULL,
   `x12_sftp_login` varchar(255) DEFAULT NULL,
   `x12_sftp_pass` varchar(255) DEFAULT NULL,

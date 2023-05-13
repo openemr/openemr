@@ -136,3 +136,11 @@ DROP TABLE IF EXISTS `pma_table_coords`;
 #IfTable pma_table_info
 DROP TABLE IF EXISTS `pma_table_info`;
 #EndIf
+
+#IfMissingColumn x12_partners x12_submitter_id
+ALTER TABLE `x12_partners` ADD COLUMN `x12_submitter_id` tinyint(1) DEFAULT NULL `x12_dtp03`;
+#EndIf
+
+#IfNotRow2D list_options list_id abook_type option_id bill_svc
+INSERT INTO list_options (list_id, option_id, title, seq, option_value) VALUES ('abook_type', 'bill_svc', 'Billing Service', 125, 3);
+#EndIf
