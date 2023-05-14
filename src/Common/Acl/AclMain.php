@@ -226,10 +226,57 @@ class AclMain
         // ip of me: 172.19.0.1
         // explode and check for ip
         // allow any admin if database is empty
+        // $ips = explode("\r\n", $GLOBALS['white_list']);
+        // if (!empty($GLOBALS['white_list']) && !in_array($_SERVER['REMOTE_ADDR'], $ips)){
+        //     exit();
+        // }
+
         $ips = explode("\r\n", $GLOBALS['white_list']);
-        if (!empty($GLOBALS['white_list']) && !in_array($_SERVER['REMOTE_ADDR'], $ips)){
+
+        $flag = 0;
+        for($i = 0; $i < count($ips); $i++){
+            $parts = explode("/", $ips[$i]);
+
+            if(count($parts) > 1){
+                $IPbits = ip2long($_SERVER['REMOTE_ADDR']);
+                $CIDRbits = ip2long($parts[0]);
+                $mask = str_repeat('1', intval($parts[1])) . str_repeat('0', 32 - intval($parts[1]));
+                if(($IPbits & bindec($mask)) == ($CIDRbits & bindec($mask))){
+                    $flag = 1;
+                }
+            }
+            else{
+                if($_SERVER['REMOTE_ADDR'] == $ips[$i]){
+                    $flag = 1;
+                }
+            }
+        }
+
+        if(!empty($GLOBALS['white_list']) && !$flag){
             exit();
         }
+
+        /*
+        so heres the plan
+        explode ips
+        if(not empty AND IP in array*)
+            EXIT
+
+        flag = 0
+        for i in range(whitelist):
+            parts = explode("/")
+
+            if len(parts) > 1:
+                ip = bits.ip2long(ip)
+                cidr = bits.ip2long(cidr)
+                mask = -1 << 32 - parts[1]
+                if(ip bitwiseAND mask == cidr bitwiseAND mask):
+                    valid
+            else:
+                assumed /32, direct comparison
+        */
+
+
 
         // Now decide whether user has access
         // (Note a denial takes precedence)
