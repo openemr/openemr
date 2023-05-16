@@ -582,6 +582,9 @@ $GLOBALS['include_de_identification'] = 0;
 // don't include the authentication module - we do this to avoid
 // include loops.
 
+// EMAIL SETTINGS
+$SMTP_Auth = !empty($GLOBALS['SMTP_USER']);
+
 if (($ignoreAuth_onsite_portal === true) && ($GLOBALS['portal_onsite_two_enable'] == 1)) {
     $ignoreAuth = true;
 }
@@ -593,9 +596,6 @@ if (!$ignoreAuth) {
 // This is the background color to apply to form fields that are searchable.
 // Currently it is applicable only to the "Search or Add Patient" form.
 $GLOBALS['layout_search_color'] = '#ff9919';
-
-// EMAIL SETTINGS
-$SMTP_Auth = !empty($GLOBALS['SMTP_USER']);
 
 // module configurations
 // upgrade fails for versions prior to 4.2.0 since no modules table

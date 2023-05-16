@@ -47,3 +47,35 @@
 
 --  #EndIf
 --    all blocks are terminated with and #EndIf statement.
+
+#IfMissingColumn users_secure last_login_fail
+ALTER TABLE `users_secure` ADD `last_login_fail` datetime DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn users_secure total_login_fail_counter
+ALTER TABLE `users_secure` ADD `total_login_fail_counter` bigint DEFAULT 0;
+#EndIf
+
+#IfMissingColumn users_secure auto_block_emailed
+ALTER TABLE `users_secure` ADD `auto_block_emailed` tinyint DEFAULT 0;
+#EndIf
+
+#IfNotRow globals gl_name time_reset_password_max_failed_logins
+UPDATE `globals` SET `gl_value` = 20 WHERE `gl_name` = 'password_max_failed_logins' AND `gl_value` = 0;
+#EndIf
+
+#IfNotTable ip_tracking
+CREATE TABLE `ip_tracking` (
+`id` bigint NOT NULL auto_increment,
+`ip_string` varchar(255) DEFAULT '',
+`total_ip_login_fail_counter` bigint DEFAULT 0,
+`ip_login_fail_counter` bigint DEFAULT 0,
+`ip_last_login_fail` datetime DEFAULT NULL,
+`ip_auto_block_emailed` tinyint DEFAULT 0,
+`ip_force_block` tinyint DEFAULT 0,
+`ip_no_prevent_timing_attack` tinyint DEFAULT 0,
+PRIMARY KEY (`id`),
+UNIQUE KEY `ip_string` (`ip_string`)
+) ENGINE=InnoDb AUTO_INCREMENT=1;
+#EndIf
+

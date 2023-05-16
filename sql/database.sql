@@ -3234,6 +3234,26 @@ INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('26','Mutuall
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `ip_tracking`
+--
+DROP TABLE IF EXISTS `ip_tracking`;
+CREATE TABLE `ip_tracking` (
+    `id` bigint NOT NULL auto_increment,
+    `ip_string` varchar(255) DEFAULT '',
+    `total_ip_login_fail_counter` bigint DEFAULT 0,
+    `ip_login_fail_counter` bigint DEFAULT 0,
+    `ip_last_login_fail` datetime DEFAULT NULL,
+    `ip_auto_block_emailed` tinyint DEFAULT 0,
+    `ip_force_block` tinyint DEFAULT 0,
+    `ip_no_prevent_timing_attack` tinyint DEFAULT 0,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `ip_string` (`ip_string`)
+) ENGINE=InnoDb AUTO_INCREMENT=1;
+
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `issue_encounter`
 --
 
@@ -8867,7 +8887,10 @@ CREATE TABLE `users_secure` (
   `password_history4` varchar(255),
   `last_challenge_response` datetime DEFAULT NULL,
   `login_work_area` text,
+  `total_login_fail_counter` bigint DEFAULT 0,
   `login_fail_counter` INT(11) DEFAULT '0',
+  `last_login_fail` datetime DEFAULT NULL,
+  `auto_block_emailed` tinyint DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `USERNAME_ID` (`id`,`username`)
 ) ENGINE=InnoDb;
