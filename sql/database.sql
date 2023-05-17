@@ -9073,7 +9073,7 @@ CREATE TABLE `x12_partners` (
   `x12_per06` varchar(80) NOT NULL DEFAULT '',
   `x12_dtp03` char(1)     NOT NULL DEFAULT 'A',
   `x12_gs03` varchar(15) DEFAULT NULL,
-  `x12_submitter_id` tinyint(1) DEFAULT NULL,
+  `x12_submitter_id` smallint(6) DEFAULT NULL,
   `x12_submitter_name` varchar(255) DEFAULT NULL,
   `x12_sftp_login` varchar(255) DEFAULT NULL,
   `x12_sftp_pass` varchar(255) DEFAULT NULL,
