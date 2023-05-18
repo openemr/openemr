@@ -547,7 +547,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 if ($userMode) {
                                                     $globalTitle = $globalValue;
                                                 }
-                                                        echo "  <textarea name='form_$i' id='form_$i' rows='4' cols='50'>" . attr($fldvalue) . "</textarea>\n";
+                                                        echo "  <textarea name='form_$i' id=" . attr($fldid) . " rows='3' cols='20'>" . text($fldvalue) . "</textarea>\n";
                                             } elseif ($fldtype == GlobalSetting::DATA_TYPE_DEFAULT_RANDOM_UUID) {
                                                 if ($userMode) {
                                                     $globalTitle = $globalValue;
@@ -795,8 +795,87 @@ if (!empty($post_srch_desc) && $srch_item == 0) {
 ?>
 
 <script>
+
+//
+function isInRange(string, max){
+    if(/^\d+$/.test(string)){
+        num = parseInt(string, 10);
+        if (!(num >= 0 && num <= max)){
+            return false;
+        }
+    }
+    else{
+        return false;
+    }
+    return true;
+}
+
+// Determines IP address validity
+function IPvalidation(input_IPs){
+    let IPmax = 255;
+    let CIDRmax = 32
+    let ips = explode("\r\n", input_IPs);
+    for (let j = 0; j < ips.length; j++){
+        let parts = ips[j].split(".");
+        if(parts.length != 4){
+            return false;
+        }
+        if(parts[3].includes("/")){
+            for(let i = 0; i < 3; i++){
+                if(!(isInRange(parts[i], IPmax))){
+                    return false;
+                }
+            }
+            // checks if the final fourth of the ip is correct. should have the format 255/32
+            let subparts = parts[3].split('/');
+            if(subparts != 2){
+                return false;
+            }
+            // IP range is between 0 and 255
+            if(!(isInRange(subparts[0], IPmax))){
+                return false;
+            }
+            // CIDR notation is between 0 and 32
+            if(!(isInRange(subparts[1], CIDRmax))){
+                return false;
+            }
+        }
+        // validates if the ip does not have CIDR notation
+        else{
+            for(let i = 0; i < 4; i++){
+                if(!(isInRange(parts[i], IPmax))){
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
 $(function () {
     tabbify();
+    let elm = document.getElementByID("white_list");
+    let is_valid = false;
+    elm.addEventListener('blur', function(event) {
+        processWhiteListValidation();
+        if (IPvalidation(elm.value) == false){
+            event.preventDefault();
+        }
+
+        alert("Error: Invalid IP address entered");
+        elm.focus();
+    });
+
+    let form = document.getElementByID('theform');
+    form.addEventListener('click', function(event) {
+        if (IPvalidation(elm.value) == false){
+            event.preventDefault();
+        }
+
+        alert("Error: Invalid IP address entered");
+        elm.focus();
+    });
+
     <?php // mdsupport - Highlight search results ?>
     $('.srch div.control-label').wrapInner("<mark></mark>");
     $('.tab .row.srch :first-child').closest('.tab').each(function() {
@@ -806,13 +885,13 @@ $(function () {
     <?php
     if ($userMode) {
         for ($j = 0; $j <= $i; $j++) { ?>
-            $("#form_<?php echo $j ?>").change(function() {
+            $("input[name=form_<?php echo $j ?>]").change(function() {
                 $("#toggle_<?php echo $j ?>").prop('checked', false);
             });
             $("#toggle_<?php echo $j ?>").change(function() {
                 if ($('#toggle_<?php echo $j ?>').prop('checked')) {
                     var defaultGlobal = $("#globaldefault_<?php echo $j ?>").val();
-                    $("#form_<?php echo $j ?>").val(defaultGlobal);
+                    $("input[name=form_<?php echo $j ?>]").val(defaultGlobal);
                 }
             });
             <?php
