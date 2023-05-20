@@ -526,14 +526,15 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             </form>
         <?php } else {
             ?> <!-- Main logon -->
-        <img class="img-fluid login-logo" src='<?php echo $logoSrc; ?>'>
+        <img class="img-fluid login-logo w-25" src='<?php echo $logoSrc; ?>'>
         <form class="text-center" action="get_patient_info.php" method="POST" onsubmit="return process()">
             <?php if (isset($redirectUrl)) { ?>
                 <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
             <?php } ?>
             <fieldset>
-                <legend class="bg-primary text-white pt-2 py-1"><h3><?php echo xlt('Patient Portal Login'); ?></h3></legend>
-                <div class="jumbotron jumbotron-fluid px-5 py-3">
+                <!--<legend class="bg-primary text-white pt-2 py-1"><h3><?php echo xlt('Patient Portal Login'); ?></h3></legend>-->
+                <div class="row justify-content-center mb-3">
+                <div class="col-6 px-5 py-3">
                     <div class="form-row my-3">
                         <label class="col-md-2 col-form-label" for="uname"><?php echo xlt('Username') ?></label>
                         <div class="col-md">
@@ -587,8 +588,9 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                         <?php }
                     } ?>
                 </div>
-                <div class="row">
-                    <div class="col-12">
+                </div>
+                <div class="row justify-content-center">
+                    <div class="col-6 px-5">
                         <?php if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) { ?>
                             <button class="btn btn-secondary float-left" onclick="location.replace('./account/verify.php?site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Register'); ?></button>
                         <?php } ?>
