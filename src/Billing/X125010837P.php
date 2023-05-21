@@ -24,6 +24,7 @@ class X125010837P
     /*
      * @param  $pid
      * @param  $encounter
+     * @param  $x12_partner
      * @param  $log
      * @param  false $encounter_claim
      * @param  $SEFLAG
@@ -36,6 +37,7 @@ class X125010837P
     public static function genX12837P(
         $pid,
         $encounter,
+        $x12_partner,
         &$log,
         $encounter_claim = false,
         $SEFLAG = false,
@@ -45,7 +47,7 @@ class X125010837P
     ) {
         $today = time();
         $out = '';
-        $claim = new Claim($pid, $encounter);
+        $claim = new Claim($pid, $encounter, $x12_partner);
 
         if ($GLOBALS['gen_x12_based_on_ins_co']) {
             $log .= "Generating directly to insurance claim $pid" . "-" . $encounter . " for ";
@@ -161,7 +163,7 @@ class X125010837P
                     "*" .
                     "*" .
                     "*" . "46" .
-                    "*" . $claim->x12_sender_id();
+                    "*" . $claim->billingIdCode();
                 // else use provider's group name
                 } else {
                     $billingFacilityName = substr($claim->billingFacilityName(), 0, 60);
