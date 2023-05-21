@@ -182,14 +182,8 @@ function TimeToHHMMSS($TimeValue)
         return '';
     }
 
-    $is_pm = (stripos($TimeValue, 'PM') !== false);
-
-    if ($is_pm === true) {
-        $date = new DateTimeImmutable('1970-01-01' . $TimeValue);
-        $TimeValue = $date->format('H:i:s');
-    }
-
-    return $TimeValue;
+    $date = new DateTimeImmutable('1970-01-01' . $TimeValue);
+    return $date->format('H:i:s');
 }
 
 
