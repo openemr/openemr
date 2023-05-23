@@ -2452,7 +2452,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'SMTP_HOST' => array(
-            xl('SMTP Server HosPtname'),
+            xl('SMTP Server Hostname'),
             'text',                           // data type
             'localhost',                      // default
             xl('If SMTP is used, the server`s hostname or IP address.')
