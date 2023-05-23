@@ -2050,7 +2050,7 @@ $GLOBALS_METADATA = array(
             xl('Whitelisted Admin IP'),
             GlobalSetting::DATA_TYPE_TEXTAREA,// data type
             '',                               // default
-            xl("List of allowed administrators")
+            xl("List of IPs of allowed administrators")
         ),
         'sql_string_no_show_screen' => array(
             xl('Mode - Do Not Show SQL Queries'),

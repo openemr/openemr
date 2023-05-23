@@ -797,30 +797,28 @@ if (!empty($post_srch_desc) && $srch_item == 0) {
 <script>
 
 //
-function isInRange(string, max){
-    if(/^\d+$/.test(string)){
-        num = parseInt(string, 10);
-        if (!(num >= 0 && num <= max)){
-            return false;
+function isInRange(input, max){
+    let isValid = false;
+    if(/^\d+$/.test(input)){
+        let num = parseInt(input, 10);
+        if (num >= 0 && num <= max){
+            isValid = true;
         }
     }
-    else{
-        return false;
-    }
-    return true;
+    return isValid;
 }
 
 // Determines IP address validity
 function IPvalidation(input_IPs){
     let IPmax = 255;
     let CIDRmax = 32
-    let ips = explode("\r\n", input_IPs);
+    let ips = input_IPs.split("\n");
     for (let j = 0; j < ips.length; j++){
         let parts = ips[j].split(".");
         if(parts.length != 4){
             return false;
         }
-        if(parts[3].includes("/")){
+        if(parts[3].includes("/")){         // contains CIDR notation
             for(let i = 0; i < 3; i++){
                 if(!(isInRange(parts[i], IPmax))){
                     return false;
@@ -828,7 +826,7 @@ function IPvalidation(input_IPs){
             }
             // checks if the final fourth of the ip is correct. should have the format 255/32
             let subparts = parts[3].split('/');
-            if(subparts != 2){
+            if(subparts.length != 2){
                 return false;
             }
             // IP range is between 0 and 255
@@ -854,26 +852,33 @@ function IPvalidation(input_IPs){
 
 $(function () {
     tabbify();
-    let elm = document.getElementByID("white_list");
-    let is_valid = false;
-    elm.addEventListener('blur', function(event) {
-        processWhiteListValidation();
-        if (IPvalidation(elm.value) == false){
-            event.preventDefault();
-        }
 
-        alert("Error: Invalid IP address entered");
-        elm.focus();
+    let elm = document.getElementById("white_list");
+    let form = document.getElementById('theform');
+    let is_valid = true;
+
+    // Create and style the helper text element
+    let helper_text = document.createElement("span");
+    helper_text.textContent = "Invalid IP address entered";
+    helper_text.style.fontSize = "12px";
+    helper_text.style.color = "red";
+    helper_text.style.marginTop = "2px";
+    helper_text.style.display = "none";
+
+    // Append the helper text after the textarea
+    elm.parentNode.insertBefore(helper_text, elm.nextSibling);
+
+    elm.addEventListener('blur', function(event) {
+        is_valid = IPvalidation(elm.value);
+        helper_text.style.display = "none";
     });
 
-    let form = document.getElementByID('theform');
-    form.addEventListener('click', function(event) {
-        if (IPvalidation(elm.value) == false){
+    form.addEventListener('submit', function(event) {
+        if (is_valid == false){
             event.preventDefault();
+            helper_text.style.display = "block";
+            elm.focus();
         }
-
-        alert("Error: Invalid IP address entered");
-        elm.focus();
     });
 
     <?php // mdsupport - Highlight search results ?>
