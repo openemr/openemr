@@ -543,7 +543,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 }
                                                         echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
                                                             "maxlength='255' value='" . attr($fldvalue) . "' />\n";
-                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_TEXTAREA){
+                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_TEXTAREA) {
                                                 if ($userMode) {
                                                     $globalTitle = $globalValue;
                                                 }
