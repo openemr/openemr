@@ -59,6 +59,16 @@ class MyMailer extends PHPMailer
         return true;
     }
 
+    public static function emailServiceQueue(string $sender, string $recipient, string $subject, string $body): bool
+    {
+        if (empty($sender) || empty($recipient) || empty($subject) || empty($body)) {
+            return false;
+        }
+
+        sqlInsert("INSERT into `email_queue` (`sender`, `recipient`, `subject`, `body`) VALUES (?, ?, ?, ?)", [$sender, $recipient, $subject, $body]);
+        return true;
+    }
+
     function emailMethod()
     {
         global $HTML_CHARSET;
