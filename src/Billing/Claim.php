@@ -52,7 +52,7 @@ class Claim
     public $using_modifiers;
 
 
-    public function __construct($pid, $encounter_id)
+    public function __construct($pid, $encounter_id, $x12_partner_id)
     {
         $this->pid = $pid;
         $this->encounter_id = $encounter_id;
@@ -63,7 +63,7 @@ class Claim
         $this->facilityService = new FacilityService();
         $this->facility = $this->facilityService->getById($this->encounter['facility_id']);
         $this->pay_to_provider = ''; // will populate from facility someday :)
-        $this->x12_partner = $this->getX12Partner($this->procs[0]['x12_partner_id']);
+        $this->x12_partner = $this->getX12Partner($x12_partner_id);
         $this->provider = (new UserService())->getUser($this->encounter['provider_id']);
         $this->billing_facility = empty($this->encounter['billing_facility']) ?
             $this->facilityService->getPrimaryBillingLocation() :
@@ -617,7 +617,7 @@ class Claim
             return false;
         }
 
-        $tmp = $this->x12Clean(trim($this->x12_partner['x12_submitter_name'] ?? ''));
+        $tmp = $this->x12Clean(trim($this->x12_partner['x12_submitter_name']  ?? ''));
         return $tmp;
     }
 
@@ -788,6 +788,17 @@ class Claim
             $query = "SELECT email FROM users WHERE id = ?";
             $ores = sqlQuery($query, array($this->x12_partner['x12_submitter_id'] ?? ''));
             return $this->x12Clean(trim($ores['email'] ?? ''));
+        }
+    }
+
+    public function billingIdCode()
+    {
+        if (!$this->x12_submitter_name()) {
+            return $this->x12Clean(trim($this->x12_sender_id() ?? ''));
+        } else {
+            $query = "SELECT federaltaxid FROM users WHERE id = ?";
+            $ores = sqlQuery($query, array($this->x12_partner['x12_submitter_id'] ?? ''));
+            return $this->x12Clean(trim($ores['federaltaxid'] ?? ''));
         }
     }
 

@@ -67,7 +67,16 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
     {
         // Generate the file
         $log = '';
-        $segs = explode("~\n", X125010837P::genX12837P($claim->getPid(), $claim->getEncounter(), $log, $this->encounter_claim));
+        $segs = explode(
+            "~\n",
+            X125010837P::genX12837P(
+                $claim->getPid(),
+                $claim->getEncounter(),
+                $claim->getPartner(),
+                $log,
+                $this->encounter_claim
+            )
+        );
         $this->appendToLog($log);
         $this->batch->append_claim($segs);
 

@@ -214,6 +214,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         $segs = explode("~\n", X125010837P::genX12837P(
             $claim->getPid(),
             $claim->getEncounter(),
+            $claim->getPartner(),
             $log,
             $this->encounter_claim,
             $is_last_claim,
