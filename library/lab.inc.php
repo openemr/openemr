@@ -98,9 +98,7 @@ function getProcedureProvider($prov_id): array
            "FROM users AS i, procedure_providers AS pi WHERE pi.ppid = ? AND pi.lab_director = i.id ";
 
     $res = sqlStatement($sql, array($prov_id));
-    $labs = sqlFetchArray($res);
-
-    return $labs;
+    return sqlFetchArray($res) ?? [];
 }
 
 /**
