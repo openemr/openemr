@@ -103,7 +103,7 @@ class MyMailer extends PHPMailer
                         error_log("Failed to send email notification through Mymailer emailServiceRun with error " . errorLogEscape($mail->ErrorInfo));
                     }
                 } else {
-                    sqlStatement("UPDATE `email_queue` SET `error` = 1, `error_message`= 'email method is not configured correctly', , `datetime_error` = NOW() WHERE `id` = ?", [$ret['id']]);
+                    sqlStatement("UPDATE `email_queue` SET `error` = 1, `error_message`= 'email method is not configured correctly', `datetime_error` = NOW() WHERE `id` = ?", [$ret['id']]);
                     error_log("Failed to send email notification through Mymailer since email method is not configured correctly");
                 }
             }
