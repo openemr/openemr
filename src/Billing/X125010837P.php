@@ -43,7 +43,7 @@ class X125010837P
         $SEFLAG = false,
         $HLcount = 0,
         &$edicount = 0,
-        $HLBillingPayToProvider = 1
+        &$patSegmentCount = 0
     ) {
         $today = time();
         $out = '';
@@ -376,7 +376,11 @@ class X125010837P
             // NM1*PE, N3, N4, REF*2U, REF*EI
         }
 
-        $HLBillingPayToProvider = $HLcount++;
+        if (!empty($GLOBALS['gen_x12_based_on_ins_co'])) {
+            $HLcount += $patSegmentCount;
+        }
+
+        $HLcount++;
 
         $PatientHL = $claim->isSelfOfInsured() ? 0 : 1;
         $HLSubscriber = $HLcount++;
@@ -384,7 +388,7 @@ class X125010837P
         ++$edicount;
         $out .= "HL" .        // Loop 2000B Subscriber HL Loop
             "*" . $HLSubscriber .
-            "*" . $HLBillingPayToProvider .
+            "*" . "1" .
             "*" . "22" .
             "*" . $PatientHL .
             "~\n";
