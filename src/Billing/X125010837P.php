@@ -211,7 +211,6 @@ class X125010837P
                 "~\n";
 
             ++$edicount;
-            ++$HLcount;
 
             $out .= "HL" . // Loop 2000A Billing/Pay-To Provider HL Loop
             "*" . $HLcount .
@@ -219,12 +218,6 @@ class X125010837P
             "*" . "20" .
             "*" . "1" . // 1 indicates there are child segments
             "~\n";
-
-            if (
-                empty($GLOBALS['gen_x12_based_on_ins_co'])
-            ) {
-                $HLBillingPayToProvider = $HLcount++;
-            }
 
             // Situational PRV segment for provider taxonomy.
             if ($claim->facilityTaxonomy()) {
@@ -382,6 +375,8 @@ class X125010837P
             // Loop 2010AC Pay-To Plan Name omitted.  Includes:
             // NM1*PE, N3, N4, REF*2U, REF*EI
         }
+
+        $HLBillingPayToProvider = $HLcount++;
 
         $PatientHL = $claim->isSelfOfInsured() ? 0 : 1;
         $HLSubscriber = $HLcount++;

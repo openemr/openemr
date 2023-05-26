@@ -206,7 +206,7 @@ class Claim
     // Handles date time stamp formats as well
     public function cleanDate($date_field)
     {
-        $cleandate = str_replace('-', '', substr($date_field, 0, 10));
+        $cleandate = str_replace('-', '', substr(($date_field ?? ''), 0, 10));
 
         if (substr_count($cleandate, '0') == 8) {
             $cleandate = '';
