@@ -212,7 +212,7 @@ INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_r
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
 ('UUID_Service', 'Automated UUID Creation Service', 1, 0, '2021-01-18 11:25:10', 240, 'autoPopulateAllMissingUuids', '/library/uuid.php', 100);
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
-('Email_Service', 'Email Service', 1, 0, '2021-01-18 11:25:10', 1, 'emailServiceRun', '/library/email_service_run.php', 100);
+('Email_Service', 'Email Service', 1, 0, '2021-01-18 11:25:10', 2, 'emailServiceRun', '/library/email_service_run.php', 100);
 
 -- --------------------------------------------------------
 
@@ -1523,11 +1523,14 @@ CREATE TABLE `email_queue` (
   `recipient` varchar(255) DEFAULT '',
   `subject` varchar(255) DEFAULT '',
   `body` text,
+  `datetime_queued` datetime default NULL,
   `sent` tinyint DEFAULT 0,
+  `datetime_sent` datetime default NULL,
   `error` tinyint DEFAULT 0,
   `error_message` text,
-  PRIMARY KEY (`id`),
-  KEY `sent` (`sent`)
+  `datetime_error` datetime default NULL,
+PRIMARY KEY (`id`),
+KEY `sent` (`sent`)
 ) ENGINE=InnoDb AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------

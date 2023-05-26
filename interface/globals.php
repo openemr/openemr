@@ -583,7 +583,7 @@ $GLOBALS['include_de_identification'] = 0;
 // include loops.
 
 // EMAIL SETTINGS
-$SMTP_Auth = !empty($GLOBALS['SMTP_USER']);
+$GLOBALS['SMTP_Auth'] = !empty($GLOBALS['SMTP_USER']);
 
 if (($ignoreAuth_onsite_portal === true) && ($GLOBALS['portal_onsite_two_enable'] == 1)) {
     $ignoreAuth = true;

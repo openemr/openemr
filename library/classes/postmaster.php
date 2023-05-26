@@ -65,8 +65,49 @@ class MyMailer extends PHPMailer
             return false;
         }
 
-        sqlInsert("INSERT into `email_queue` (`sender`, `recipient`, `subject`, `body`) VALUES (?, ?, ?, ?)", [$sender, $recipient, $subject, $body]);
+        sqlInsert("INSERT into `email_queue` (`sender`, `recipient`, `subject`, `body`, `datetime_queued`) VALUES (?, ?, ?, ?, NOW())", [$sender, $recipient, $subject, $body]);
         return true;
+    }
+
+    public static function emailServiceRun(): void
+    {
+        // collect the queue
+        $res = sqlStatement("SELECT `id`, `sender`, `recipient`, `subject`, `body` FROM `email_queue` WHERE `sent` = 0");
+
+        // send emails in the queue (to avoid race conditions, sent flag is rechecked before sending the email and then quickly set before proceeding to send the email)
+        //  (first ensure the email method is properly configured)
+        $emailMethodConfigured = self::isConfigured();
+        while ($ret = sqlFetchArray($res)) {
+            $sql = sqlQuery("SELECT `sent` FROM `email_queue` WHERE `id` = ?", [$ret['id']]);
+            if ($sql['sent'] == 1) {
+                // Sent, so skip
+            } else {
+                // Not sent, so set the sent flag, and then send the email
+                sqlStatement("UPDATE `email_queue` SET `sent` = 1, `datetime_sent` = NOW() WHERE `id` = ?", [$ret['id']]);
+
+                if ($emailMethodConfigured) {
+                    $mail = new MyMailer();
+                    $email_subject = $ret['subject'];
+                    $email_sender = $ret['sender'];
+                    $email_address = $ret['recipient'];
+                    $message = $ret['body'];
+                    $mail->AddReplyTo($email_sender, $email_sender);
+                    $mail->SetFrom($email_sender, $email_sender);
+                    $mail->AddAddress($email_address);
+                    $mail->Subject = $email_subject;
+                    $mail->MsgHTML("<html><body><div class='wrapper'>" . text($message) . "</div></body></html>");
+                    $mail->AltBody = $message;
+                    $mail->IsHTML(true);
+                    if (!$mail->Send()) {
+                        sqlStatement("UPDATE `email_queue` SET `error` = 1, `error_message`= ?, , `datetime_error` = NOW() WHERE `id` = ?", [$mail->ErrorInfo, $ret['id']]);
+                        error_log("Failed to send email notification through Mymailer emailServiceRun with error " . errorLogEscape($mail->ErrorInfo));
+                    }
+                } else {
+                    sqlStatement("UPDATE `email_queue` SET `error` = 1, `error_message`= 'email method is not configured correctly', , `datetime_error` = NOW() WHERE `id` = ?", [$ret['id']]);
+                    error_log("Failed to send email notification through Mymailer since email method is not configured correctly");
+                }
+            }
+        }
     }
 
     function emailMethod()
@@ -78,9 +119,8 @@ class MyMailer extends PHPMailer
                 $this->Mailer = "mail";
                 break;
             case "SMTP":
-                global $SMTP_Auth;
                 $this->Mailer = "smtp";
-                $this->SMTPAuth = $SMTP_Auth;
+                $this->SMTPAuth = $GLOBALS['SMTP_Auth'];
                 $this->Host = $GLOBALS['SMTP_HOST'];
                 $this->Username = $GLOBALS['SMTP_USER'];
                 $cryptoGen = new CryptoGen();
