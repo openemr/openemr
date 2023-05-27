@@ -376,6 +376,23 @@ class AuthUtils
             return false;
         }
 
+        // check login counter if this option is set
+        if ($this->loginAuth || $this->apiAuth) {
+            // Utilize this during logins (and not during standard password checks within openemr such as esign)
+            $checkArray = $this->checkLoginFailedCounter($username);
+            if (!$checkArray['pass']) {
+                $this->incrementLoginFailedCounter($username);
+                $this->incrementIpLoginFailedCounter($ip['ip_string']);
+                EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user exceeded maximum number of failed logins");
+                $this->clearFromMemory($password);
+                if ($checkArray['email_notification']) {
+                    $this->notifyUserBlock($username);
+                }
+                $this->preventTimingAttack();
+                return false;
+            }
+        }
+
         // Check password
         if (self::useActiveDirectory($username)) {
             // ldap authentication
@@ -423,22 +440,6 @@ class AuthUtils
                 $newHash = $this->rehashPassword($username, $password);
                 // store the rehash
                 privStatement("UPDATE `users_secure` SET `password` = ? WHERE `id` = ?", [$newHash, $userSecure['id']]);
-            }
-        }
-
-        // check login counter if this option is set
-        if ($this->loginAuth || $this->apiAuth) {
-            // Utilize this during logins (and not during standard password checks within openemr such as esign)
-            $checkArray = $this->checkLoginFailedCounter($username);
-            if (!$checkArray['pass']) {
-                $this->incrementLoginFailedCounter($username);
-                $this->incrementIpLoginFailedCounter($ip['ip_string']);
-                EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user exceeded maximum number of failed logins");
-                $this->clearFromMemory($password);
-                if ($checkArray['email_notification']) {
-                    $this->notifyUserBlock($username);
-                }
-                return false;
             }
         }
 
