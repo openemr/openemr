@@ -79,3 +79,26 @@ UNIQUE KEY `ip_string` (`ip_string`)
 ) ENGINE=InnoDb AUTO_INCREMENT=1;
 #EndIf
 
+#IfNotTable email_queue
+CREATE TABLE `email_queue` (
+`id` bigint NOT NULL auto_increment,
+`sender` varchar(255) DEFAULT '',
+`recipient` varchar(255) DEFAULT '',
+`subject` varchar(255) DEFAULT '',
+`body` text,
+`datetime_queued` datetime default NULL,
+`sent` tinyint DEFAULT 0,
+`datetime_sent` datetime default NULL,
+`error` tinyint DEFAULT 0,
+`error_message` text,
+`datetime_error` datetime default NULL,
+PRIMARY KEY (`id`),
+KEY `sent` (`sent`)
+) ENGINE=InnoDb AUTO_INCREMENT=1;
+#EndIf
+
+#IfNotRow background_services name Email_Service
+INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
+('Email_Service', 'Email Service', 1, 0, '2021-01-18 11:25:10', 2, 'emailServiceRun', '/library/email_service_run.php', 100);
+#EndIf
+
