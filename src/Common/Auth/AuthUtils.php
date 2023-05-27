@@ -376,6 +376,23 @@ class AuthUtils
             return false;
         }
 
+        // check login counter if this option is set
+        if ($this->loginAuth || $this->apiAuth) {
+            // Utilize this during logins (and not during standard password checks within openemr such as esign)
+            $checkArray = $this->checkLoginFailedCounter($username);
+            if (!$checkArray['pass']) {
+                $this->incrementLoginFailedCounter($username);
+                $this->incrementIpLoginFailedCounter($ip['ip_string']);
+                EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user exceeded maximum number of failed logins");
+                $this->clearFromMemory($password);
+                if ($checkArray['email_notification']) {
+                    $this->notifyUserBlock($username);
+                }
+                $this->preventTimingAttack();
+                return false;
+            }
+        }
+
         // Check password
         if (self::useActiveDirectory($username)) {
             // ldap authentication
@@ -423,22 +440,6 @@ class AuthUtils
                 $newHash = $this->rehashPassword($username, $password);
                 // store the rehash
                 privStatement("UPDATE `users_secure` SET `password` = ? WHERE `id` = ?", [$newHash, $userSecure['id']]);
-            }
-        }
-
-        // check login counter if this option is set
-        if ($this->loginAuth || $this->apiAuth) {
-            // Utilize this during logins (and not during standard password checks within openemr such as esign)
-            $checkArray = $this->checkLoginFailedCounter($username);
-            if (!$checkArray['pass']) {
-                $this->incrementLoginFailedCounter($username);
-                $this->incrementIpLoginFailedCounter($ip['ip_string']);
-                EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user exceeded maximum number of failed logins");
-                $this->clearFromMemory($password);
-                if ($checkArray['email_notification']) {
-                    $this->notifyUserBlock($username);
-                }
-                return false;
             }
         }
 
@@ -1223,28 +1224,12 @@ class AuthUtils
         sqlStatement("UPDATE `ip_tracking` SET `ip_auto_block_emailed` = 1 WHERE `ip_string` = ?", [$ip_string]);
 
         if (!empty($GLOBALS['patient_reminder_sender_email']) && !empty($GLOBALS['practice_return_email_path'])) {
-            $mail = new MyMailer();
-            $email_subject = xl('IP Address Block Notification For OpenEMR Admin');
-            $email_sender = $GLOBALS['patient_reminder_sender_email'];
-            $email_address = $GLOBALS['practice_return_email_path'];
             if (empty((int)$GLOBALS['ip_time_reset_password_max_failed_logins'])) {
                 $message = "IP address '" . text($ip_string) . "' has been blocked.";
             } else {
                 $message = "IP address '" . text($ip_string) . "' has been temporarily blocked.";
             }
-            $mail->AddReplyTo($email_sender, $email_sender);
-            $mail->SetFrom($email_sender, $email_sender);
-            $mail->AddAddress($email_address, "OpenEMR Admin");
-            $mail->Subject = $email_subject;
-            $mail->MsgHTML("<html><body><div class='wrapper'>" . $message . "</div></body></html>");
-            $mail->AltBody = $message;
-            $mail->IsHTML(true);
-            if ($mail->Send()) {
-                return true;
-            } else {
-                error_log("Failed to send OpenEMR admin email notification through Mymailer with error " . errorLogEscape($mail->ErrorInfo));
-                return false;
-            }
+            return MyMailer::emailServiceQueue($GLOBALS['patient_reminder_sender_email'], $GLOBALS['practice_return_email_path'], xl('IP Address Block Notification For OpenEMR Admin'), $message);
         } else {
             error_log("Unable to send OpenEMR admin email notification since either patient_reminder_sender_email or practice_return_email_path global was not set");
             return false;
@@ -1256,28 +1241,12 @@ class AuthUtils
         privStatement("UPDATE `users_secure` SET `auto_block_emailed` = 1 WHERE BINARY `username` = ?", [$username]);
 
         if (!empty($GLOBALS['patient_reminder_sender_email']) && !empty($GLOBALS['practice_return_email_path'])) {
-            $mail = new MyMailer();
-            $email_subject = xl('Username Block Notification For OpenEMR Admin');
-            $email_sender = $GLOBALS['patient_reminder_sender_email'];
-            $email_address = $GLOBALS['practice_return_email_path'];
             if (empty((int)$GLOBALS['time_reset_password_max_failed_logins'])) {
                 $message = "Username '" . text($username) . "' has been blocked.";
             } else {
                 $message = "Username '" . text($username) . "' has been temporarily blocked.";
             }
-            $mail->AddReplyTo($email_sender, $email_sender);
-            $mail->SetFrom($email_sender, $email_sender);
-            $mail->AddAddress($email_address, "OpenEMR Admin");
-            $mail->Subject = $email_subject;
-            $mail->MsgHTML("<html><body><div class='wrapper'>" . $message . "</div></body></html>");
-            $mail->AltBody = $message;
-            $mail->IsHTML(true);
-            if ($mail->Send()) {
-                return true;
-            } else {
-                error_log("Failed to send OpenEMR admin email notification through Mymailer with error " . errorLogEscape($mail->ErrorInfo));
-                return false;
-            }
+            return MyMailer::emailServiceQueue($GLOBALS['patient_reminder_sender_email'], $GLOBALS['practice_return_email_path'], xl('Username Block Notification For OpenEMR Admin'), $message);
         } else {
             error_log("Unable to send OpenEMR admin email notification since either patient_reminder_sender_email or practice_return_email_path global was not set");
             return false;
