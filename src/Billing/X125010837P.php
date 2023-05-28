@@ -1070,6 +1070,12 @@ class X125010837P
 
         for ($ins = 1; $ins < $claim->payerCount(); ++$ins) {
             $tmp1 = $claim->claimType($ins);
+
+            // if the ins is unassigned don't include this SBR/OI loop
+            if ($tmp1 === '09') {
+                continue;
+            }
+
             $tmp2 = 'C1'; // Here a kludge. See page 321.
             if ($tmp1 === 'CI') {
                 $tmp2 = 'C1';
