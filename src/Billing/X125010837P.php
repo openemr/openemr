@@ -34,6 +34,7 @@ class X125010837P
      * @return string|string[]|null
      */
 
+    // removed $HLBillingPayToProvider until it's supported in the generators
     public static function genX12837P(
         $pid,
         $encounter,
@@ -386,6 +387,8 @@ class X125010837P
         $HLSubscriber = $HLcount++;
 
         ++$edicount;
+
+        // replaced $HLBillingPayToProvider with 1 until it's supported in the generators
         $out .= "HL" .        // Loop 2000B Subscriber HL Loop
             "*" . $HLSubscriber .
             "*" . "1" .
