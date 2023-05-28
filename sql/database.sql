@@ -211,6 +211,9 @@ INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_r
 ('WenoExchange', 'Weno Log Sync', 0, 0, '2021-01-18 11:25:10', 0, 'start_weno', '/library/weno_log_sync.php', 100);
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
 ('UUID_Service', 'Automated UUID Creation Service', 1, 0, '2021-01-18 11:25:10', 240, 'autoPopulateAllMissingUuids', '/library/uuid.php', 100);
+INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
+('Email_Service', 'Email Service', 1, 0, '2021-01-18 11:25:10', 2, 'emailServiceRun', '/library/email_service_run.php', 100);
+
 -- --------------------------------------------------------
 
 --
@@ -1507,6 +1510,28 @@ CREATE TABLE `eligibility_verification` (
   PRIMARY KEY  (`verification_id`),
   KEY `insurance_id` (`insurance_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `email_queue`
+--
+
+CREATE TABLE `email_queue` (
+  `id` bigint NOT NULL auto_increment,
+  `sender` varchar(255) DEFAULT '',
+  `recipient` varchar(255) DEFAULT '',
+  `subject` varchar(255) DEFAULT '',
+  `body` text,
+  `datetime_queued` datetime default NULL,
+  `sent` tinyint DEFAULT 0,
+  `datetime_sent` datetime default NULL,
+  `error` tinyint DEFAULT 0,
+  `error_message` text,
+  `datetime_error` datetime default NULL,
+PRIMARY KEY (`id`),
+KEY `sent` (`sent`)
+) ENGINE=InnoDb AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 

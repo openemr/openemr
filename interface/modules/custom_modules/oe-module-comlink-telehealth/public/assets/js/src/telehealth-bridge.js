@@ -117,7 +117,12 @@ export class TelehealthBridge
     shutdown() {
         // if we are already shut down, don't need to do anything here.
         if (!this.isShutdown) {
-            this.bridge.shutdown();
+            try {
+                this.bridge.shutdown();
+            }
+            catch (e) {
+                console.log("Error shutting down bridge", e);
+            }
             this.isShutdown = true;
         }
     }
