@@ -25,6 +25,7 @@ use OpenEMR\Billing\BillingProcessor\BillingClaim;
 use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingProcessor\Traits\WritesToBillingLog;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Billing\Claim;
 use OpenEMR\Billing\X125010837P;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
@@ -60,6 +61,12 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
      * @var array
      */
     protected $edi_counts = [];
+
+    /**
+     * For each X12 partner, track patient segment counts
+     * @var array
+     */
+    protected $pat_segment_counts = [];
 
     public function __construct($action, $encounter_claim = false)
     {
@@ -115,6 +122,9 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
 
             // We need to track the edi count for each x-12 partner, initialize them to zero here
             $this->edi_counts[$row['id']] = 0;
+
+            // We need to track the patient segment count for each x-12 partner, initialize them to zero here
+            $this->pat_segment_counts[$row['id']] = 0;
 
             // Store the directory in an associative array with the partner ID as the index
             $this->x12_partner_batches[$row['id']] = $batch;
@@ -204,6 +214,9 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         // Get the correct edi count for this x-12 partner using the partner ID
         $edicount = $this->edi_counts[$claim->getPartner()];
 
+        // Get the correct patient segment count for this x-12 partner using the partner ID
+        $patSegmentCount = $this->pat_segment_counts[$claim->getPartner()];
+
         // Tell our batch that we've processed this claim
         $batch->addClaim($claim);
 
@@ -211,6 +224,22 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
         $log = '';
         $is_last_claim = $claim->getIsLast();
         $HLCount = count($batch->getClaims());
+        if ($HLCount > 1) {
+            $idx = $HLCount - 2;
+            $prior_claim = $batch->getClaims()[$idx];
+            $priorX12ClaimSelfInsured = (
+                new Claim(
+                    $prior_claim->getPid(),
+                    $prior_claim->getEncounter(),
+                    $prior_claim->getPartner()
+                )
+                )->isSelfOfInsured($prior_claim->getPayorType() - 1);
+            if (!$priorX12ClaimSelfInsured) {
+                $patSegmentCount++;
+            }
+        }
+
+        //$is_self_of_insured = $claim->isSelfOfInsured();
         $segs = explode("~\n", X125010837P::genX12837P(
             $claim->getPid(),
             $claim->getEncounter(),
@@ -219,10 +248,13 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
             $this->encounter_claim,
             $is_last_claim,
             $HLCount,
-            $edicount
+            $edicount,
+            $patSegmentCount
         ));
-        // edi count is passed by reference and incremented in the tr3 function, and we need to set it back here
+        // edi count is passed by reference and incremented in the genX12837P function, and we need to set it back here
         $this->edi_counts[$claim->getPartner()] = $edicount;
+        // also for the patient segment counts
+        $this->pat_segment_counts[$claim->getPartner()] = $patSegmentCount;
         $this->appendToLog($log);
         $batch->append_claim($segs);
 

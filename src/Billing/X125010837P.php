@@ -34,6 +34,7 @@ class X125010837P
      * @return string|string[]|null
      */
 
+    // removed $HLBillingPayToProvider until it's supported in the generators
     public static function genX12837P(
         $pid,
         $encounter,
@@ -43,7 +44,7 @@ class X125010837P
         $SEFLAG = false,
         $HLcount = 0,
         &$edicount = 0,
-        $HLBillingPayToProvider = 1
+        &$patSegmentCount = 0
     ) {
         $today = time();
         $out = '';
@@ -211,7 +212,6 @@ class X125010837P
                 "~\n";
 
             ++$edicount;
-            ++$HLcount;
 
             $out .= "HL" . // Loop 2000A Billing/Pay-To Provider HL Loop
             "*" . $HLcount .
@@ -219,12 +219,6 @@ class X125010837P
             "*" . "20" .
             "*" . "1" . // 1 indicates there are child segments
             "~\n";
-
-            if (
-                empty($GLOBALS['gen_x12_based_on_ins_co'])
-            ) {
-                $HLBillingPayToProvider = $HLcount++;
-            }
 
             // Situational PRV segment for provider taxonomy.
             if ($claim->facilityTaxonomy()) {
@@ -383,13 +377,21 @@ class X125010837P
             // NM1*PE, N3, N4, REF*2U, REF*EI
         }
 
+        if (!empty($GLOBALS['gen_x12_based_on_ins_co'])) {
+            $HLcount += $patSegmentCount;
+        }
+
+        $HLcount++;
+
         $PatientHL = $claim->isSelfOfInsured() ? 0 : 1;
         $HLSubscriber = $HLcount++;
 
         ++$edicount;
+
+        // replaced $HLBillingPayToProvider with 1 until it's supported in the generators
         $out .= "HL" .        // Loop 2000B Subscriber HL Loop
             "*" . $HLSubscriber .
-            "*" . $HLBillingPayToProvider .
+            "*" . "1" .
             "*" . "22" .
             "*" . $PatientHL .
             "~\n";
@@ -1071,6 +1073,12 @@ class X125010837P
 
         for ($ins = 1; $ins < $claim->payerCount(); ++$ins) {
             $tmp1 = $claim->claimType($ins);
+
+            // if the ins is unassigned don't include this SBR/OI loop
+            if ($tmp1 === '09') {
+                continue;
+            }
+
             $tmp2 = 'C1'; // Here a kludge. See page 321.
             if ($tmp1 === 'CI') {
                 $tmp2 = 'C1';
