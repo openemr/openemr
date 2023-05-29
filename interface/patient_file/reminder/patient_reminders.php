@@ -28,7 +28,7 @@ $thisauth = true;
 if (($_GET['mode'] == 'admin') && !AclMain::aclCheckCore('admin', 'super')) {
     $thisauth = false;
 }
-if (($_GET['mode'] != 'admin') && !AclMain::aclCheckCore('patients', 'reminder')) {
+if (($_GET['mode'] != 'admin') && !AclMain::aclCheckCore('patients', 'reminder', '', 'write')) {
     $thisauth = false;
 }
 if (!$thisauth) {
