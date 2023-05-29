@@ -126,7 +126,7 @@ class Claim
                 $row['provider'] = sqlQuery($sql, array($row['provider_id']));
                 // Get insurance numbers for this row's provider.
                 $sql = "SELECT * FROM insurance_numbers " .
-                "WHERE (insurance_company_id = ? OR insurance_company_id is NULL) AND provider_id = ?" .
+                "WHERE (insurance_company_id = ? OR insurance_company_id is NULL) AND provider_id = ? " .
                 "ORDER BY insurance_company_id DESC LIMIT 1";
                 $row['insurance_numbers'] = sqlQuery($sql, array($row['payer_id'], $row['provider_id']));
             }
