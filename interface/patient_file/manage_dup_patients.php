@@ -262,7 +262,7 @@ if ($form_action == 'U') {
         array($_POST['form_toppid'])
     );
 } else if ($form_action == 'R') {
-    updateDupScore($_POST['form_toppid']);
+    updateDupScore($_POST['form_toppid'], false); /* this is not a new patient so check against all other patients */
 }
 
 $query = "SELECT * FROM patient_data WHERE dupscore > 7 " .
@@ -272,7 +272,10 @@ while ($row1 = sqlFetchArray($res1)) {
     displayRow($row1);
     $query = "SELECT p2.*, ($scorecalc) AS myscore " .
     "FROM patient_data AS p1, patient_data AS p2 WHERE " .
-    "p1.pid = ? AND p2.pid < p1.pid AND ($scorecalc) > 7 " .
+ /*   "p1.pid = ? AND p2.pid < p1.pid AND ($scorecalc) > 7 " .  */
+ /* check against all other patients, to fix bug where a lone patient appears in the table */
+    "p1.pid = ? AND p2.pid != p1.pid AND ($scorecalc) > 7 " .
+
     "ORDER BY myscore DESC, p2.pid DESC";
     $res2 = sqlStatement($query, array($row1['pid']));
     while ($row2 = sqlFetchArray($res2)) {

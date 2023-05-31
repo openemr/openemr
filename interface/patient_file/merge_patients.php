@@ -567,8 +567,8 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                 resolveDuplicateEncounters($targets);
             }
 
-            // Recompute dupscore for target patient.
-            updateDupScore($target_pid);
+            // Recompute dupscore for target patient. check against all patients
+            updateDupScore($target_pid, false);
 
             echo "<br />" . xlt('Merge complete.') . "</div>";
 
