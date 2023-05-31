@@ -23,7 +23,10 @@ require_once "$srcdir/options.inc.php";
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
+use OpenEMR\Menu\BaseMenuItem;
 use OpenEMR\OeUI\OemrUI;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 $uspfx = 'patient_finder.'; //substr(__FILE__, strlen($webserver_root)) . '.';
 $patient_finder_exact_search = prevSetting($uspfx, 'patient_finder_exact_search', 'patient_finder_exact_search', ' ');
@@ -351,6 +354,8 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
 
 </script>
 <?php
+    /** @var EventDispatcher */
+    $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
     $arrOeUiSettings = array(
     'heading_title' => xl('Patient Finder'),
     'include_patient_name' => false,
@@ -360,25 +365,38 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
     'action_title' => "",//only for action link, leave empty for conceal, reveal, search
     'action_href' => "",//only for actions - reset, link or back
     'show_help_icon' => false,
-    'help_file_name' => ""
+    'help_file_name' => "",
+    'page_id' => 'dynamic_finder',
     );
     $oemr_ui = new OemrUI($arrOeUiSettings);
+
+    $eventDispatcher->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, function($event) {
+        if ($event->getPageId() !== 'dynamic_finder') {
+            return;
+        }
+
+        $event->setPrimaryMenuItem(new BaseMenuItem([
+            'displayText' => xl('Add New Patient'),
+            'linkClassList' => ['btn-add'],
+            'id' => '/interface/new/new.php',
+            'acl' => ['patients', 'demo', ['write', 'addonly']]
+        ]));
+
+
+    });
     ?>
 </head>
 <body>
-    <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?> mt-3">
-         <div class="w-100">
+    <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
+         <div class="">
             <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
-            <?php if (AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) { ?>
-                <button id="create_patient_btn1" class="btn btn-primary btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
-            <?php } ?>
             <div>
-                <div id="dynamic"><!-- TBD: id seems unused, is this div required? -->
+                <div id="dynamic" class="pt-3"><!-- TBD: id seems unused, is this div required? -->
                     <!-- Class "display" is defined in demo_table.css -->
                     <div class="table-responsive">
                         <table class="table" class="border-0 display" id="pt_table">
-                            <thead class="thead-dark">
-                                <tr id="advanced_search" class="hideaway d-none">
+                            <thead class="thead-light">
+                                <tr id="advanced_search" class="">
                                     <?php echo $header0; ?>
                                 </tr>
                                 <tr class="">
@@ -388,7 +406,7 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
                             <tbody>
                                 <tr>
                                     <!-- Class "dataTables_empty" is defined in jquery.dataTables.css -->
-                                    <td class="dataTables_empty" colspan="<?php echo attr($colcount); ?>">...</td>
+                                    <td class="dataTables_empty" colspan="<?php echo attr($colcount); ?>"></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -405,37 +423,24 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
     </div> <!--End of Container div-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
 
-    <script>
-        $(function () {
-            $("#exp_cont_icon").click(function () {
-                $("#pt_table").removeAttr("style");
-            });
-        });
+<script>
+    $(window).on("resize", function() { //portrait vs landscape
+        $("#pt_table").removeAttr("style");
+    });
 
-        $(window).on("resize", function() { //portrait vs landscape
-           $("#pt_table").removeAttr("style");
+    $(function() {
+        $("#exp_cont_icon").click(function () {
+            $("#pt_table").removeAttr("style");
         });
-    </script>
-    <script>
-      $(function() {
         $("#pt_table_filter").addClass("d-md-initial");
         $("#pt_table_length").addClass("d-md-initial");
         $("#show_hide").addClass("d-md-initial");
         $("#search_hide").addClass("d-md-initial");
-        $("#pt_table_length").addClass("d-none");
         $("#show_hide").addClass("d-none");
         $("#search_hide").addClass("d-none");
-      });
-    </script>
-
-    <script>
-        document.addEventListener('touchstart', {});
-    </script>
-
-    <script>
-        $(function() {
-            $('div.dataTables_filter input').focus();
-        });
-    </script>
+        $('div.dataTables_filter input').focus();
+    });
+    document.addEventListener('touchstart', {});
+</script>
 </body>
 </html>

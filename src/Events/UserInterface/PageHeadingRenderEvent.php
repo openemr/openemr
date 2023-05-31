@@ -15,6 +15,7 @@
 
 namespace OpenEMR\Events\UserInterface;
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Menu\MenuItems;
 use OpenEMR\Menu\MenuItemInterface;
 
@@ -98,7 +99,22 @@ class PageHeadingRenderEvent
 
     public function getPrimaryMenuItems(): MenuItems
     {
-        return $this->primary_menu;
+        $items = $this->primary_menu;
+
+        foreach ($items as $k => $i) {
+            // No check if ACL element is absent
+            if (count($i->getAcl()) == 0) {
+                continue;
+            }
+
+            // Unset the item if the user does not have access
+            $acl = $i->getAcl();
+            $rv = (count($acl) > 2) ? $acl[2] : [];
+            if (AclMain::aclCheckCore($acl[0], $acl[1], '', $rv) === false) {
+                unset($items[$k]);
+            }
+        }
+        return $items;
     }
 
     /**
