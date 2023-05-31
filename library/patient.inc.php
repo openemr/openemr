@@ -14,6 +14,8 @@
  * @copyright Copyright (c) 2018-2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2021-2022 Rod Roark <rod@sunsetsystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+ * update duplicate score modified so as to do this when a patients demographics are changed, as well as for new patients
  */
 
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -1195,6 +1197,7 @@ function pdValueOrNull($key, $value)
  */
 function updatePatientData($pid, $new, $create = false)
 {
+        //add a new patient to the db, or update where demographics modified. in both cases update the dup score
     // Create instance of patient service
     $patientService = new PatientService();
     if (
@@ -1202,10 +1205,11 @@ function updatePatientData($pid, $new, $create = false)
         $pid === null
     ) {
         $result = $patientService->databaseInsert($new);
-        updateDupScore($result['pid']);
+        updateDupScore($result['pid'], true);
     } else {
         $new['pid'] = $pid;
         $result = $patientService->databaseUpdate($new);
+        updateDupScore($result['pid'], false);
     }
 
     // From the returned patient data array
@@ -1820,21 +1824,35 @@ function is_patient_deceased($pid, $date = '')
     }
 }
 
-// This computes, sets and returns the dup score for the given patient.
+// This computes, sets and returns the dup score for the given patient, compared to all patients earlier in the patient_data table
+// for updateing after patients demographics have been changed need to check against whole table
 //
-function updateDupScore($pid)
+function updateDupScore($pid, $new=true)
 {
+    if ($new)
+    {   // new patient
     $row = sqlQuery(
         "SELECT MAX(" . getDupScoreSQL() . ") AS dupscore " .
         "FROM patient_data AS p1, patient_data AS p2 WHERE " .
         "p1.pid = ? AND p2.pid < p1.pid",
         array($pid)
     );
+    }
+    else   //updateing demographics
+    {
+         $row = sqlQuery(
+        "SELECT MAX(" . getDupScoreSQL() . ") AS dupscore " .
+        "FROM patient_data AS p1, patient_data AS p2 WHERE " .
+        "p1.pid = ? AND p2.pid != p1.pid",
+        array($pid)
+        );
+    }
     $dupscore = empty($row['dupscore']) ? 0 : $row['dupscore'];
     sqlStatement(
         "UPDATE patient_data SET dupscore = ? WHERE pid = ?",
         array($dupscore, $pid)
     );
+     error_log ("updateDupScore: pid =".$pid.", new is ".($new ? "true" : "false") . ", resultant dupscore is ".$dupscore);
     return $dupscore;
 }
 
