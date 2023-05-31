@@ -15,6 +15,8 @@ require_once("../globals.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
+error_log (" *** in new.php *** ");
+
 if ($GLOBALS['full_new_patient_form']) {
     require("new_comprehensive.php");
     exit;
@@ -100,8 +102,7 @@ $(function () {
 
 <body class="body_top" onload="javascript:document.new_patient.fname.focus();">
 
-<form name='new_patient' method='post' action="new_patient_save.php"
- onsubmit='return validate()'>
+<form name='new_patient' method='post' action="new_patient_save.php" onsubmit='return validate()'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <span class='title'><?php echo xlt('Add Patient Record'); ?></span>

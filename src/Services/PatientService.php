@@ -211,6 +211,7 @@ class PatientService extends BaseService
      */
     public function databaseUpdate($data)
     {
+        error_log("$$$ databaseupdate called $$$");
         // Get the data before update to send to the event listener
         $dataBeforeUpdate = $this->findByPid($data['pid']);
 
@@ -391,7 +392,7 @@ class PatientService extends BaseService
                     FROM patient_history
                 ) patient_history ON patient_data.pid = patient_history.patient_history_pid
                 LEFT JOIN (
-                    SELECT  
+                    SELECT
                         contact.id AS contact_address_contact_id
                         ,contact.foreign_id AS contact_address_patient_id
                         ,contact_address.`id` AS contact_address_id
