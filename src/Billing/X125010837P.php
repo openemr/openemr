@@ -1026,7 +1026,7 @@ class X125010837P
             }
             $out .= "*";
             if (strlen($claim->facilityZip()) != 9) {
-                $log .= "*** Billing facility zip is not 9 digits.\n";
+                $log .= "*** Service facility zip is not 9 digits.\n";
             }
             $out .= $claim->facilityZip();
             $out .= "~\n";
