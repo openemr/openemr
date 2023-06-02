@@ -1825,28 +1825,18 @@ function is_patient_deceased($pid, $date = '')
 }
 
 // This computes, sets and returns the dup score for the given patient, compared to all patients earlier in the patient_data table
-// for updateing after patients demographics have been changed need to check against whole table
+// for updateing after patients demographics have been changed need to check against whole table, i.e. patients who come earlier and later in the table, i.e. where p2 != p1, this works for new patients as well
 //
-function updateDupScore($pid, $new=true)
+function updateDupScore($pid)
 {
-    if ($new)
-    {   // new patient
+        // new patient or patient with editted demographics
     $row = sqlQuery(
-        "SELECT MAX(" . getDupScoreSQL() . ") AS dupscore " .
-        "FROM patient_data AS p1, patient_data AS p2 WHERE " .
-        "p1.pid = ? AND p2.pid < p1.pid",
-        array($pid)
-    );
-    }
-    else   //updateing demographics
-    {
-         $row = sqlQuery(
         "SELECT MAX(" . getDupScoreSQL() . ") AS dupscore " .
         "FROM patient_data AS p1, patient_data AS p2 WHERE " .
         "p1.pid = ? AND p2.pid != p1.pid",
         array($pid)
-        );
-    }
+    );
+
     $dupscore = empty($row['dupscore']) ? 0 : $row['dupscore'];
     sqlStatement(
         "UPDATE patient_data SET dupscore = ? WHERE pid = ?",
