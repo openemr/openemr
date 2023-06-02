@@ -1025,11 +1025,10 @@ class X125010837P
                 $log .= "*** Missing service facility state.\n";
             }
             $out .= "*";
-            if (strlen($claim->facilityZip()) == 9) {
-                $out .= $claim->facilityZip();
-            } else {
+            if (strlen($claim->facilityZip()) != 9) {
                 $log .= "*** Service facility zip is not 9 digits.\n";
             }
+            $out .= $claim->facilityZip();
             $out .= "~\n";
         }
         // Segment REF (Service Facility Location Secondary Identification) omitted.
