@@ -696,7 +696,7 @@ function toencounter(enc, datestr, topframe) {
                             <td style="border-right-color:white !important;"></td>
                             <td ></td>
                             <td class="text-right bg-color-w"><?php echo text("Total"); ?></td>
-                            <td class="text-left bg-color-w"><?php echo text(oeFormatMoney($payrow['amount1'])); ?></td>
+                            <td class="text-left bg-color-w"><?php echo text(oeFormatMoney($payrow['amount1'] + $payrow['amount2'])); ?></td>
                         </tr>
 
                     </table>
