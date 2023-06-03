@@ -296,7 +296,18 @@ class PatientService extends BaseService
             // Tell subscribers that a new patient has been updated
             // We have to do this here and in the databaseUpdate() because this lookup is
             // by uuid where the databseUpdate updates by pid.
-            $patientUpdatedEvent = new PatientUpdatedEvent($dataBeforeUpdate, $processingResult->getData());
+
+
+            $originalData = [];
+            if ($dataBeforeUpdate->hasData()) {
+                $originalData = $dataBeforeUpdate->getData()[0]; // so wierd the findOne returns an array
+            }
+            // in order to be consistent and backwards compatible with the other PatientUpdatedEvent event
+            // we need the uuid to be the same binary fomrat as the other event firing.
+            if (!empty($originalData['uuid'])) {
+                $originalData['uuid'] = UuidRegistry::uuidToBytes($originalData['uuid']);
+            }
+            $patientUpdatedEvent = new PatientUpdatedEvent($originalData, $processingResult->getData());
             $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE, 10);
         }
         return $processingResult;
@@ -391,7 +402,7 @@ class PatientService extends BaseService
                     FROM patient_history
                 ) patient_history ON patient_data.pid = patient_history.patient_history_pid
                 LEFT JOIN (
-                    SELECT  
+                    SELECT
                         contact.id AS contact_address_contact_id
                         ,contact.foreign_id AS contact_address_patient_id
                         ,contact_address.`id` AS contact_address_id
