@@ -8,8 +8,8 @@
     <title>{% block pagetitle %}{{ "Home"|xlt }}{% endblock %}</title>
 </head>
 <body>
+    {% block header %}{% endblock %}
     <div class="container-lg">
-        {% block header %}{% endblock %}
         {% block content %}{% endblock %}
         {% block footer %}{% endblock %}
         {% block scripts %}{% endblock %}

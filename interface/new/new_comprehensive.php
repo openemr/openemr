@@ -379,31 +379,41 @@ function srchDone(pid){
 </script>
 </head>
 
-<body class="body_top">
+<body class="body_top" style="position: relative;">
 
 <?php
 /*Get the constraint from the DB-> LBF forms accordinf the form_id*/
 $constraints = LBF_Validation::generate_validate_constraints("DEM");
 ?>
 <script> var constraints = <?php echo $constraints; ?>; </script>
-    <div class="container-xl">
+    <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
                 <h2><?php echo xlt('Search or Add Patient');?></h2>
             </div>
         </div>
-        <div class="row">
-            <div class="<?php echo $BS_COL_CLASS; ?>-12">
-                <div class="accordion" id="dem_according">
-                <form action='new_comprehensive_save.php' name='demographics_form' id='DEM'
-                      method='post'
-                      onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM",constraints)'>
+        <div class="row flex-row">
+            <div class="">
+                <div class="list-group list-group-flush sticky-top" id="scrollspy-control">
+                    <?php $toc = $grparr; ?>
+                    <?php for ($i = 1; $i <= count($toc); $i++) : ?>
+                        <a href="#form_section_<?php echo $i; ?>" class="list-group-item list-group-item-action"><?php echo $toc[$i]['grp_title']; ?></a>
+                    <?php endfor; ?>
+                    <?php if ($WITH_SEARCH) { ?>
+                        <button type="button" class="btn btn-secondary btn-search list-group-item list-group-item-action" id="search" value="<?php echo xla('Search'); ?>">
+                            <?php echo xlt('Search'); ?>
+                        </button>
+                    <?php } ?>
+                    <button type="button" class="btn btn-primary btn-save  list-group-item list-group-item-action" name='create' id="create" value="<?php echo xla('Create New Patient'); ?>">
+                        <?php echo xlt('Create New Patient'); ?>
+                    </button>
+                </div>
+            </div>
+            <div class="flex-grow">
+                <div class="accordion w-100" id="dem_according">
+                <form action='new_comprehensive_save.php' name='demographics_form' id='DEM' method='post' data-spy="scroll" data-target="#scrollspy-control" data-offset="0" onsubmit='return submitme(<?php echo $GLOBALS['new_validate'] ? 1 : 0;?>,event,"DEM",constraints)'>
                     <!--  Was: class='form-inline' -->
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-
-                    <table class='table table-sm w-100' cellspacing='8'>
-                    <tr>
-                      <td class="text-left align-top">
                     <?php
                     if ($SHORT_FORM) {
                         echo "<div class='mx-auto'>";
@@ -486,7 +496,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                 $group_name = $grparr[$this_group]['grp_title'];
 
                                 $group_seq_attr = attr($group_seq);
-                                $checked = ($display_style == 'block') ? "show" : "";
+                                $checked = ($display_style == 'block') ? "show" : "show";
                                 $group_name_xl = text(xl_layout_label($group_name));
                                 $onclick = attr_js("div_" . $group_seq);
                                 $init_open = $grparr[$this_group]['grp_init_open'];
@@ -494,8 +504,8 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                     $checked = ($init_open == 1) ? $checked . " show" : $checked;
                                 }
                                 echo <<<HTML
-                                <div class="card">
-                                    <div class="card-header p-0 bg-secondary" id="header_{$group_seq_attr}">
+                                <div class="card" id="form_section_{$group_seq_attr}">
+                                    <div class="card-header p-0 bg-primary" id="header_{$group_seq_attr}">
                                         <h2 class="mb-0">
                                             <button class="btn btn-link btn-block text-light text-left" type="button" data-toggle="collapse" data-target="#div_{$group_seq_attr}" aria-expanded="true" aria-controls="{$group_seq_attr}">$group_name_xl</button>
                                         </h2>
@@ -781,28 +791,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                     if ($SHORT_FORM) {
                         echo "  </div>\n";
                     } ?>
-
-                            </td>
-                            <td class="text-right align-top text-nowrap" width='1%'>
-                            <!-- Image upload stuff was here but got moved. -->
-                            </td>
-                        </tr>
-                    </table>
                 </form>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="btn-group">
-                    <?php if ($WITH_SEARCH) { ?>
-                        <button type="button" class="btn btn-secondary btn-search" id="search" value="<?php echo xla('Search'); ?>">
-                            <?php echo xlt('Search'); ?>
-                        </button>
-                    <?php } ?>
-                    <button type="button" class="btn btn-primary btn-save" name='create' id="create" value="<?php echo xla('Create New Patient'); ?>">
-                        <?php echo xlt('Create New Patient'); ?>
-                    </button>
                 </div>
             </div>
         </div>
