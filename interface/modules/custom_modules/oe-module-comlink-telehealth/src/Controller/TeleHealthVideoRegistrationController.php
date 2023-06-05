@@ -107,7 +107,6 @@ class TeleHealthVideoRegistrationController
             $oldPatient = $event->getDataBeforeUpdate();
             // we need the patient uuid so we are going to grab it from the pid
             $patientService = new PatientService();
-
             $patient['uuid'] = UuidRegistry::uuidToString($oldPatient['uuid']); // convert uuid to a string value
             $this->logger->debug(
                 self::class . "->onPatientUpdatedEvent received for patient ",
@@ -120,7 +119,7 @@ class TeleHealthVideoRegistrationController
             }
         } catch (Exception $exception) {
             $this->logger->errorLogCaller("Failed to create patient registration. Error: "
-                . $exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'patient' => $patient['uuid']]);
+                . $exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'patient' => $patient['uuid'] ?? '']);
         }
     }
 
