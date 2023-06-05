@@ -67,6 +67,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
     {
         // Generate the file
         $log = '';
+        $hlCount = 1;
         $segs = explode(
             "~\n",
             X125010837P::genX12837P(
@@ -76,7 +77,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
                 $log,
                 $this->encounter_claim,
                 false,
-                1 // HLCount
+                $hlCount
             )
         );
         $this->appendToLog($log);
