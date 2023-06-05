@@ -9323,8 +9323,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         $return = $fhirExportService->processExport(
             $exportParams,
             'Group',
-            $request->getHeader('Accept'),
-            $request->getHeader('Prefer')
+            $request->getHeader('Accept')[0] ?? '',
+            $request->getHeader('Prefer')[0] ?? ''
         );
         RestConfig::apiLog($return);
         return $return;
@@ -11173,8 +11173,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         $return = $fhirExportService->processExport(
             $request->getQueryParams(),
             'Patient',
-            $request->getHeader('Accept'),
-            $request->getHeader('Prefer')
+            $request->getHeader('Accept')[0] ?? '',
+            $request->getHeader('Prefer')[0] ?? ''
         );
         RestConfig::apiLog($return);
         return $return;
@@ -12664,8 +12664,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         $return = $fhirExportService->processExport(
             $request->getQueryParams(),
             'System',
-            $request->getHeader('Accept'),
-            $request->getHeader('Prefer')
+            $request->getHeader('Accept')[0] ?? '',
+            $request->getHeader('Prefer')[0] ?? ''
         );
         RestConfig::apiLog($return);
         return $return;
