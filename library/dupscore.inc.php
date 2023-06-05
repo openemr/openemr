@@ -15,7 +15,6 @@
 //
 function getDupScoreSQL()
 {
-    error_log ("***getDupScore called***");
     return
     //  5 First name
     "5 * (SOUNDEX(p1.fname) = SOUNDEX(p2.fname)) + " .

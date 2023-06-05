@@ -1205,11 +1205,11 @@ function updatePatientData($pid, $new, $create = false)
         $pid === null
     ) {
         $result = $patientService->databaseInsert($new);
-        updateDupScore($result['pid'], true);
+        updateDupScore($result['pid']);
     } else {
         $new['pid'] = $pid;
         $result = $patientService->databaseUpdate($new);
-        updateDupScore($result['pid'], false);
+        updateDupScore($result['pid']);
     }
 
     // From the returned patient data array
