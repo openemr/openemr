@@ -12,7 +12,12 @@
 
 require_once(__DIR__ . "/../../../src/Common/Forms/CoreFormToPortalUtility.php");
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Core\Header;
+use OpenEMR\Services\QuestionnaireResponseService;
+use OpenEMR\Services\QuestionnaireService;
 
 // block of code to securely support use by the patient portal
 $isPortal = CoreFormToPortalUtility::isPatientPortalSession($_GET);
@@ -23,12 +28,6 @@ $patientPortalOther = CoreFormToPortalUtility::isPatientPortalOther($_GET);
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/user.inc.php");
-
-use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
-use OpenEMR\Services\QuestionnaireResponseService;
-use OpenEMR\Services\QuestionnaireService;
 
 $service = new QuestionnaireService();
 $responseService = new QuestionnaireResponseService();
@@ -47,7 +46,17 @@ try {
     if (!empty($_GET['id'] ?? 0)) {
         $mode = 'update';
         $formid = $_GET['id'];
-        $form = formFetch("form_questionnaire_assessments", $formid);
+
+        // Prevent grabbing wrong form due to currently selected pid and not portal pid!
+        // This is Dashboard so ...
+        if (($_REQUEST["formOrigin"] ?? null) == 1 && empty($isPortal)) {
+            $form = sqlQuery("SELECT * FROM `form_questionnaire_assessments` Where id=? And activity = 1 Limit 1", [$formid]);
+        } else {
+            $form = formFetch("form_questionnaire_assessments", $formid);
+        }
+        if (empty($form)) {
+            throw new RuntimeException("Can not find encounter form.");
+        }
         CoreFormToPortalUtility::confirmFormBootstrapPatient($isPortal, $formid, 'questionnaire_assessments', $_SESSION['pid']);
         $qr = $responseService->fetchQuestionnaireResponse(null, $form["response_id"]);
         // if empty form will revert to the backup response stored with form.
@@ -57,10 +66,10 @@ try {
             $form['response_id'] = $qr['response_id'];
         }
     }
+
     $q_json = '';
     $lform = '';
     $form_name = '';
-
     if (empty($formid) && !empty($questionnaire_form) && $questionnaire_form != 'New Questionnaire') {
         // since we are here then user is authorized for a pre-approved questionnaire form.
         $is_authorized = true;
@@ -102,7 +111,7 @@ try {
 <head>
     <title id="main_title"><?php echo xlt('Questionnaire'); ?></title>
     <?php Header::setupHeader(); ?>
-    <!--<link href="<?php /*echo $GLOBALS['assets_static_relative']; */?>/lforms/webcomponent/styles.css" media="screen" rel="stylesheet" />-->
+    <!--<link href="<?php /*echo $GLOBALS['assets_static_relative']; */ ?>/lforms/webcomponent/styles.css" media="screen" rel="stylesheet" />-->
     <!-- TODO remove next release -->
     <script>
         let isPortal = <?php echo js_escape($isPortal); ?>;
@@ -338,20 +347,21 @@ try {
 <body>
     <div class="container-xl my-2">
         <div class="title"><h3><?php if ($mode != 'new_form' && $mode != 'update') {
-            echo xlt("Create Encounter Questionnaires");
+                    echo xlt("Create Encounter Questionnaires");
                                } else {
                                    echo xlt("Edit Questionnaire");
                                } ?></h3></div>
         <?php if (!$is_authorized) { ?>
-        <div class="d-flex flex-column w-100 align-items-center">
-            <?php
-            echo "<h3>" . xlt("Not Authorized") . "</h3>";
-            echo "<h4>" . xlt("You must have administrator privileges.") . "</h4>";
-            echo "<h5>" . xlt("Contact an administrator to use this feature.") . "</h5>";
-            ?>
-            <button type='button' class="btn btn-secondary btn-cancel" onclick="parent.closeTab(window.name, false)"><?php echo xlt('Exit'); ?></button>
-        </div>
-        <?php die(); } ?>
+            <div class="d-flex flex-column w-100 align-items-center">
+                <?php
+                echo "<h3>" . xlt("Not Authorized") . "</h3>";
+                echo "<h4>" . xlt("You must have administrator privileges.") . "</h4>";
+                echo "<h5>" . xlt("Contact an administrator to use this feature.") . "</h5>";
+                ?>
+                <button type='button' class="btn btn-secondary btn-cancel" onclick="parent.closeTab(window.name, false)"><?php echo xlt('Exit'); ?></button>
+            </div>
+            <?php die();
+        } ?>
         <form method="post" id="qa_form" name="qa_form" onsubmit="return saveQR()" action="<?php echo $rootdir; ?>/forms/questionnaire_assessments/save.php?form_id=<?php echo attr_url($formid); ?><?php echo ($isPortal) ? '&isPortal=1' : ''; ?><?php echo ($patientPortalOther) ? '&formOrigin=' . attr_url($_GET['formOrigin']) : '' ?><?php echo '&mode=' . attr_url($mode ?? ''); ?>">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <input type="hidden" id="lform" name="lform" value="<?php echo attr($form['lform'] ?? ''); ?>" />
@@ -407,12 +417,12 @@ try {
         </form>
     </div>
     <!-- Below scripts must be in body. -->
-    <!--<script src="<?php /*echo $GLOBALS['assets_static_relative']; */?>/lforms/webcomponent/assets/lib/zone.min.js"></script>
-    <script src="<?php /*echo $GLOBALS['assets_static_relative']; */?>/lforms/webcomponent/scripts.js"></script>
-    <script src="<?php /*echo $GLOBALS['assets_static_relative']; */?>/lforms/webcomponent/runtime-es2015.js"></script>
-    <script src="<?php /*echo $GLOBALS['assets_static_relative']; */?>/lforms/webcomponent/polyfills-es2015.js"></script>
-    <script src="<?php /*echo $GLOBALS['assets_static_relative']; */?>/lforms/webcomponent/main-es2015.js"></script>
-    <script src="<?php /*echo $GLOBALS['assets_static_relative']; */?>/lforms/fhir/R4/lformsFHIR.min.js"></script>-->
+    <!--<script src="<?php /*echo $GLOBALS['assets_static_relative']; */ ?>/lforms/webcomponent/assets/lib/zone.min.js"></script>
+    <script src="<?php /*echo $GLOBALS['assets_static_relative']; */ ?>/lforms/webcomponent/scripts.js"></script>
+    <script src="<?php /*echo $GLOBALS['assets_static_relative']; */ ?>/lforms/webcomponent/runtime-es2015.js"></script>
+    <script src="<?php /*echo $GLOBALS['assets_static_relative']; */ ?>/lforms/webcomponent/polyfills-es2015.js"></script>
+    <script src="<?php /*echo $GLOBALS['assets_static_relative']; */ ?>/lforms/webcomponent/main-es2015.js"></script>
+    <script src="<?php /*echo $GLOBALS['assets_static_relative']; */ ?>/lforms/fhir/R4/lformsFHIR.min.js"></script>-->
 
     <!-- TODO Temporary dependencies location -->
     <?php require(__DIR__ . "/../../forms/questionnaire_assessments/lform_webcomponents.php") ?>

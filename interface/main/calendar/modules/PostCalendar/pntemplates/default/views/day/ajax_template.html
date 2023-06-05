@@ -358,19 +358,13 @@ if (count($facilities) > 1) {
 [-php-]
 if($_SESSION['pc_facility'] == 0){
 [-/php-]
-<div id="facilityColor" class="table-responsive">
- <table>
+<ul class="list-group list-group-flush" id="facilityColor">
 [-php-]
 foreach ($facilities as $f){
-  echo "   <tr>\n";
-  echo "   <td>\n";
-  echo "   <div class='view1 font-weight-bold text-ovr-dark p-1 rounded' style='background-color:".$f['color'].";'>" . text($f['name'])."</div>";
-  echo "   </td>\n";
-  echo "   </tr>\n";
+    echo "<li class='list-group-item' style='border-left: 35px solid ".$f['color'].";'>" . text($f['name'])."</li>";
 }
 [-/php-]
- </table>
-</div>
+</ul>
 [-php-]
 }
 [-/php-]

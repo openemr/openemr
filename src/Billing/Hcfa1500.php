@@ -163,7 +163,7 @@ class Hcfa1500
 
         $today = time();
 
-        $claim = new Claim($pid, $encounter);
+        $claim = new Claim($pid, $encounter, false);
 
         $log .= "Generating HCFA claim $pid-$encounter for " .
             $claim->patientFirstName() . ' ' .

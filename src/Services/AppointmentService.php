@@ -138,7 +138,7 @@ class AppointmentService extends BaseService
                        f1.name as facility_name,
                        f2.name as billing_location_name
                        FROM (
-                             SELECT 
+                             SELECT
                                pc_eid,
                                uuid AS pc_uuid, -- we do this because our uuid registry requires the field to be named this way
                                pc_aid,
@@ -150,7 +150,7 @@ class AppointmentService extends BaseService
                                pc_billing_location,
                                pc_catid,
                                pc_pid
-                            FROM 
+                            FROM
                                  openemr_postcalendar_events
                        ) pce
                        LEFT JOIN facility as f1 ON pce.pc_facility = f1.id
@@ -161,7 +161,7 @@ class AppointmentService extends BaseService
                            ,lname
                            ,DOB
                            ,pid
-                           FROM 
+                           FROM
                                 patient_data
                       ) pd ON pd.pid = pce.pc_pid
                        LEFT JOIN users as providers ON pce.pc_aid = providers.id";
@@ -247,6 +247,7 @@ class AppointmentService extends BaseService
                        pce.pc_catid,
                        pce.pc_room,
                        pce.pc_pid,
+                       pce.pc_hometext,
                        f1.name as facility_name,
                        f2.name as billing_location_name
                        FROM openemr_postcalendar_events as pce
@@ -274,7 +275,7 @@ class AppointmentService extends BaseService
         $uuid = (new UuidRegistry())->createUuid();
 
         $sql  = " INSERT INTO openemr_postcalendar_events SET";
-        $sql .= "     uuid=?";
+        $sql .= "     uuid=?,";
         $sql .= "     pc_pid=?,";
         $sql .= "     pc_catid=?,";
         $sql .= "     pc_title=?,";
@@ -360,6 +361,15 @@ class AppointmentService extends BaseService
         }
 
         return(true);
+    }
+
+    public function isPendingStatus($option)
+    {
+        // TODO: @adunsulag is there ANY way to track this in the database of what statii are pending?
+        if ($option == '^') {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -456,7 +466,7 @@ class AppointmentService extends BaseService
         $pos_code = QueryUtils::fetchSingleValue(
             "SELECT pos_code FROM facility WHERE id = ?",
             'pos_code',
-            $appointment['pc_facility']
+            [$appointment['pc_facility']]
         );
 
         $data = [

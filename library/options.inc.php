@@ -786,7 +786,7 @@ function generate_form_field($frow, $currvalue)
         $got_selected = false;
         $zone = '';
         while ($prow = sqlFetchArray($pres)) {
-            if ($zone != strtolower(trim($prow['city']))) {
+            if ($zone != strtolower(trim($prow['city'] ?? ''))) {
                 if ($zone != '') {
                     echo "</optgroup>";
                 }
@@ -1575,7 +1575,7 @@ function generate_form_field($frow, $currvalue)
         $mywidth  = 50 + ($canWidth  > 250 ? $canWidth  : 250);
         $myheight = 31 + ($canHeight > 261 ? $canHeight : 261);
         echo "<div>"; // wrapper for myHideOrShow()
-        echo "<div id='form_$field_id_esc' style='width:${mywidth}px; height:${myheight}px;'></div>";
+        echo "<div id='form_$field_id_esc' style='width:{$mywidth}px; height:{$myheight}px;'></div>";
         // Hidden form field exists to send updated data to the server at submit time.
         echo "<input type='hidden' name='form_$field_id_esc' value='' />";
         // Hidden image exists to support initialization of the canvas.
@@ -2832,7 +2832,7 @@ function generate_display_field($frow, $currvalue)
         }
     } elseif ($data_type == 35) { // facility
         $urow = $facilityService->getById($currvalue);
-        $s = htmlspecialchars($urow['name'], ENT_NOQUOTES);
+        $s = htmlspecialchars($urow['name'] ?? '', ENT_NOQUOTES);
     } elseif ($data_type == 36 || $data_type == 33) { // Multi select. Supports backup lists
         $values_array = explode("|", $currvalue);
         $i = 0;

@@ -1064,8 +1064,15 @@ $GLOBALS_METADATA = array(
         'expand_form' => array(
             xl('Expand Form'),
             'bool',                           // data type
-            '1',                              // default false
+            '1',                              // default true
             xl('Open all expandable forms in expanded state')
+        ),
+
+        'graph_data_warning' => array(
+            xl('Graphing Data Warning'),
+            'bool',                           // data type
+            '0',                              // default false
+            xl('Warn if not enough data to graph')
         ),
 
     ),
@@ -2141,10 +2148,31 @@ $GLOBALS_METADATA = array(
         ),
 
         'password_max_failed_logins' => array(
-            xl('Maximum Failed Login Attempts'),
+            xl('Maximum Failed Login Attempts For User'),
             'num',                            // data type
-            '0',                              // default
-            xl('Maximum Failed Login Attempts (0 for no maximum).')
+            '20',                             // default
+            xl('Maximum Failed Login Attempts For User (0 for no maximum).')
+        ),
+
+        'time_reset_password_max_failed_logins' => array(
+            xl('Time (seconds) to Reset Maximum Failed Login Attempts For User'),
+            'num',                            // data type
+            '3600',                           // default to 1 hour
+            xl('Time (seconds) to Reset Maximum Failed Login Attempts Counter For User (0 for no reset).')
+        ),
+
+        'ip_max_failed_logins' => array(
+            xl('Maximum Failed Login Attempts From IP Address'),
+            'num',                            // data type
+            '100',                            // default
+            xl('Maximum Failed Login Attempts From IP Address (0 for no maximum).')
+        ),
+
+        'ip_time_reset_password_max_failed_logins' => array(
+            xl('Time (seconds) to Reset Maximum Failed Login Attempts From IP Address'),
+            'num',                            // data type
+            '3600',                           // default to 1 hour
+            xl('Time (seconds) to Reset Maximum Failed Login Attempts Counter From IP Address (0 for no reset).')
         ),
 
         'gbl_fac_warehouse_restrictions' => array(
@@ -3072,7 +3100,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'portal_onsite_two_register' => array(
-            xl('Allow New Patient Registration Widget'),
+            xl('Allow New Patient Registration Widget') . ' ' . xl('This requires reCAPTCHA to be setup'),
             'bool',                           // data type
             '0',
             xl('Enable Patient Portal new patient to self register.')
@@ -3107,7 +3135,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'portal_two_pass_reset' => array(
-            xl('Allow Patients to Reset Credentials'),
+            xl('Allow Patients to Reset Credentials') . ' ' . xl('This requires reCAPTCHA to be setup'),
             'bool',                           // data type
             '0',
             xl('Patient may change their logon from portal login dialog.')

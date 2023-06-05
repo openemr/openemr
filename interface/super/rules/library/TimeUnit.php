@@ -35,7 +35,7 @@ class TimeUnit
     public static function from($code)
     {
         $map = self::map();
-        return $map[$code];
+        return $map[$code] ?? null;
     }
 
     public static function values()

@@ -114,7 +114,8 @@ class SLEOB
         $debug,
         $time = '',
         $codetype = '',
-        $date = ''
+        $date = null,
+        $payer_claim_number = null
     ) {
         $codeonly = $code;
         $modifier = '';
@@ -135,8 +136,8 @@ class SLEOB
         );
         $query = "INSERT INTO ar_activity ( " .
             "pid, encounter, sequence_no, code_type, code, modifier, payer_type, post_time, post_date, post_user, " .
-            "session_id, memo, pay_amount " .
-            ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            "session_id, memo, pay_amount, payer_claim_number " .
+            ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         sqlStatement(
             $query,
             array(
@@ -152,7 +153,8 @@ class SLEOB
                 $_SESSION['authUserID'],
                 $session_id,
                 $memo,
-                $amount
+                $amount,
+                $payer_claim_number
             )
         );
         sqlCommitTrans();

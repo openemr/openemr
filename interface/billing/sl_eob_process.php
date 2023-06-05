@@ -469,7 +469,9 @@ function era_callback(&$out)
                         $out['check_number'],
                         $debug,
                         '',
-                        $codetype
+                        $codetype,
+                        $date ?? null,
+                        $out['payer_claim_id']
                     );
                     $invoice_total -= $svc['paid'];
                 }
@@ -495,7 +497,7 @@ function era_callback(&$out)
             // Post and report adjustments from this ERA.  Posted adjustment reasons
             // must be 25 characters or less in order to fit on patient statements.
             foreach ($svc['adj'] as $adj) {
-                $description = $adj['reason_code'] ?? '' . ': ' .
+                $description = ($adj['reason_code'] ?? '') . ': ' .
                     BillingUtilities::CLAIM_ADJUSTMENT_REASON_CODES[$adj['reason_code'] ?? ''];
                 if ($adj['group_code'] == 'PR' || !$primary) {
                     // Group code PR is Patient Responsibility.  Enter these as zero
@@ -537,7 +539,8 @@ function era_callback(&$out)
                             $reason,
                             $debug,
                             '',
-                            $codetype
+                            $codetype,
+                            $out['payer_claim_id']
                         );
                     }
 
@@ -555,7 +558,8 @@ function era_callback(&$out)
                             "Adjust code " . $adj['reason_code'],
                             $debug,
                             '',
-                            $codetype ?? ''
+                            $codetype ?? '',
+                            $out['payer_claim_id']
                         );
                         $invoice_total -= $adj['amount'];
                     }

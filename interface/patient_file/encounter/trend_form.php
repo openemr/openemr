@@ -112,12 +112,14 @@ function show_graph(table_graph, name_graph, title_graph)
         error: function() {
             // hide the chart div
           $('#chart').hide();
+          <?php if ($GLOBALS['graph_data_warning']) { ?>
           if(!title_graph){
               alert(<?php echo xlj('This item does not have enough data to graph');?> + ".\n" + <?php echo xlj('Please select an item that has more data');?> + ".");
           }
           else {
               alert(title_graph + " " + <?php echo xlj('does not have enough data to graph');?> + ".\n" + <?php echo xlj('Please select an item that has more data');?> + ".");
           }
+          <?php } ?>
 
         }
     });
@@ -133,7 +135,7 @@ $(function () {
   // For LBF the <td> has an id of label_id_$fieldid
   $(".graph").on("click", function(e){ show_graph(<?php echo js_escape($formname); ?>, this.id.substring(9), $(this).text()) });
 <?php } else { ?>
-  $(".graph").on("click", function(e){ show_graph('form_vitals', this.id, $(this).text()) });
+  $(".graph").on("click", function(e){ show_graph('form_vitals', this.id, '$(this).text()') });
 <?php } ?>
 
   // Show hovering effects for the .graph links

@@ -1128,7 +1128,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         while ($row = sqlFetchArray($res)) {
                             if ($row['provider']) {
                                 // since the query is sorted by DATE DESC can use prior ins type to identify
-                                $row['isOld'] = (!empty($row['date_end']) && $row['date_end'] <= date("Y-m-d")) ? true : false;
+                                // until insurance date_end is handled for upgraders must use old logic
+                                //$row['isOld'] = (!empty($row['date_end']) && $row['date_end'] <= date("Y-m-d")) ? true : false;
+                                $row['isOld'] = (strcmp($row['type'], $prior_ins_type) == 0) ? true : false;
                                 $icobj = new InsuranceCompany($row['provider']);
                                 $adobj = $icobj->get_address();
                                 $insco_name = trim($icobj->get_name());
@@ -1352,7 +1354,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'id' => $id,
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
                             'btnLabel' => 'Trend',
-                            'btnLink' => "../encounter/trend_form.php?formname=vitals",
+                            'btnLink' => "../encounter/trend_form.php?formname=vitals&context=dashboard",
                             'linkMethod' => 'html',
                             'bodyClass' => 'collapse show',
                             'auth' => $widgetAuth,
@@ -1396,7 +1398,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'id' => $vitals_form_id,
                             'initiallyCollapsed' => getUserSetting($vitals_form_id) == true ? true : false,
                             'btnLabel' => 'Trend',
-                            'btnLink' => "../encounter/trend_form.php?formname=vitals",
+                            'btnLink' => "../encounter/trend_form.php?formname=vitals&context=dashboard",
                             'linkMethod' => 'html',
                             'bodyClass' => 'notab collapse show',
                             'auth' => $widgetAuth,
@@ -1767,9 +1769,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     // Show PAST appointments.
                     // added by Terry Hill to allow reverse sorting of the appointments
-                    $direction = "ASC";
+                    $direction = '1';
                     if ($GLOBALS['num_past_appointments_to_show'] < 0) {
-                        $direction = "DESC";
+                        $direction = '2';
                         ($showpast = -1 * $GLOBALS['num_past_appointments_to_show']);
                     } else {
                         $showpast = $GLOBALS['num_past_appointments_to_show'];
@@ -1778,21 +1780,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     if (isset($pid) && !$GLOBALS['disable_calendar'] && $showpast > 0 && AclMain::aclCheckCore('patients', 'appt')) {
                         $displayPastAppts = true;
 
-                        $query = "SELECT e.pc_eid, e.pc_aid, e.pc_title, e.pc_eventDate, e.pc_startTime, e.pc_hometext, u.fname, u.lname, u.mname, c.pc_catname, e.pc_apptstatus, e.pc_facility
-                            FROM openemr_postcalendar_events AS e,
-                                users AS u,
-                                openemr_postcalendar_categories AS c
-                            WHERE e.pc_pid = ?
-                                AND e.pc_eventDate < CURRENT_DATE
-                                AND u.id = e.pc_aid
-                                AND e.pc_catid = c.pc_catid
-                            ORDER BY e.pc_eventDate " . escape_sort_order($direction) . " , e.pc_startTime DESC LIMIT " . escape_limit($showpast);
-
-                        $pres = sqlStatement($query, array($pid));
+                        $pastAppts = fetchXPastAppts($pid, $showpast, $direction); // This line added by epsdky
 
                         $count = 0;
 
-                        while ($row = sqlFetchArray($pres)) {
+                        foreach ($pastAppts as $row) {
                             $count++;
                             $dayname = date("D", strtotime($row['pc_eventDate']));
                             $displayMeridiem = ($GLOBALS['time_display_format'] == 0) ? "" : "am";
@@ -1816,7 +1808,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $row['dayName'] = $dayname;
                             $row['displayMeridiem'] = $displayMeridiem;
                             $row['pc_eventTime'] = sprintf("%02d", $disphour) . ":{$dispmin}";
-                            $row['uname'] = text($row['fname'] . " " . $row['lname']);
+                            $row['uname'] = text($row['ufname'] . " " . $row['ulname']);
                             $row['jsEvent'] = attr_js(preg_replace("/-/", "", $row['pc_eventDate'])) . ', ' . attr_js($row['pc_eid']);
                             $past_appts[] = $row;
                         }

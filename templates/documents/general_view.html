@@ -108,7 +108,7 @@ function tagProcedure() {
                 <button class="btn btn-sm btn-primary active">{xlt t='Contents'}</button>
               </div>
             <span class="float-right">
-            <script>var file = {$file->get_url()|js_escape};var mime = {$file->get_mimetype()|js_escape};</script>
+            <script>var file = {$file->get_url()|js_escape};var mime = {$file->get_mimetype()|js_escape};var docid = {$file->get_id()|js_escape};</script>
             {dispatchPatientDocumentEvent event="actions_render_fax_anchor"}
             <a class="btn btn-primary" href='' onclick='return popoutcontent(this)' title="{xla t='Pop Out Full Screen.'}">{xlt t='Pop Out'}</a>
             <a class="btn btn-primary" href="{$web_path|attr}" title="{xla t='Original file'}" onclick="top.restoreSession()">{xlt t='Download'}</a>

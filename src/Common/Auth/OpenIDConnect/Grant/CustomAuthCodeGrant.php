@@ -12,6 +12,7 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect\Grant;
 
 use DateInterval;
+use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
 use League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface;
@@ -88,6 +89,23 @@ class CustomAuthCodeGrant extends AuthCodeGrant
         $this->validateCodeChallengeMethod($request);
 
         return parent::validateAuthorizationRequest($request);
+    }
+
+    protected function validateRedirectUri(
+        string $redirectUri,
+        ClientEntityInterface $client,
+        ServerRequestInterface $request
+    ) {
+        try {
+            // make sure we log the error so we have more details on what is going on here
+            parent::validateRedirectUri($redirectUri, $client, $request);
+        } catch (OAuthServerException $exception) {
+            $this->logger->errorLogCaller(
+                "Invalid client detected.  Failed to validate redirect uri",
+                ['redirectUri' => $redirectUri, 'client' => $client->getIdentifier(), 'message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
+            );
+            throw $exception;
+        }
     }
 
     protected function validateClient(ServerRequestInterface $request)

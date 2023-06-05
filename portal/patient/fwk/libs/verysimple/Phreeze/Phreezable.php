@@ -410,7 +410,7 @@ abstract class Phreezable implements Serializable
                     if ($left > $limitLeft || $right > $limitRight) {
                         $this->AddValidationError($prop, "$prop exceeds the maximum length of " . $fm->FieldSize . "");
                     }
-                } elseif (is_numeric($fm->FieldSize) && ($lenfunction($this->$prop) - 1 > $fm->FieldSize)) {
+                } elseif (is_numeric($fm->FieldSize) && ($lenfunction($this->$prop ?? '') - 1 > $fm->FieldSize)) {
                     $this->AddValidationError($prop, "$prop exceeds the maximum length of " . $fm->FieldSize . "");
                 }
 

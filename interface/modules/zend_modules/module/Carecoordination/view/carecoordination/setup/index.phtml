@@ -117,7 +117,7 @@ $(function () {
             <a href="#" rel="previous" style="float:left;"><img src="<?php echo $this->basePath().'/images/prev.png' ?>" alt="" /></a>
             <a href="#" rel="next" style="float:right;"><img src="<?php echo $this->basePath().'/images/next.png' ?>" alt="" /></a>
         </div>
-        <ul class='virtualpage_<?php echo $this->escapeHtml($key);?> sortable_div droptrue <?php if(is_array($rowforms[1])) //echo "navigation";?>'>
+        <ul class='virtualpage_<?php echo $this->escapeHtml($key);?> sortable_div droptrue <?php if(is_array($rowforms[1] ?? null)) //echo "navigation";?>'>
         <?php
         $per_page = 13;
         $count = 0;
@@ -136,7 +136,7 @@ $(function () {
                 ?>
                 <li class='ui-state-default sortable_li <?php echo $this->escapeHtml($rowforms[1]);?>' id='<?php echo preg_replace('/\s/','_',$this->escapeHtml($rowforms[0]));?>'>
                     <?php echo $rowforms[0];
-                    if(is_array($rowforms[2])){
+                    if(is_array($rowforms[2] ?? null)){
                         ?>
                         <ul class='droptrue' style='display: none;' id='sub_<?php echo preg_replace('/\s/','_',$this->escapeHtml($rowforms[0]));?>'>
                             <?php
@@ -209,7 +209,7 @@ $(function () {
                         <?php echo $this->listenerObject->z_xlt($row['ccda_sections_name']);?>
                     </li>
                     <?php
-                    if($this->saved[$row['ccda_components_field']][$row['ccda_sections_field']]){
+                    if($this->saved[$row['ccda_components_field']][$row['ccda_sections_field']] ?? null){
                         foreach($this->saved[$row['ccda_components_field']][$row['ccda_sections_field']] as $key_1 => $value_1){
                             if(!$this->listenerObject->z_xlt($this->saved[$row['ccda_components_field']][$row['ccda_sections_field']][$key_1]['name'])) continue;
                         ?>

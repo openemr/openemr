@@ -320,7 +320,11 @@ if (!empty($_REQUEST['go'])) { ?>
                                     // There's no note ID, and/or it's assigned to the patient.
                                     // In these cases a new note is created.
                                     foreach ($reply_to as $patient) {
-                                        addPnote($patient, $note, $userauthorized, '1', $form_note_type, $assigned_to, $datetime, $form_message_status);
+                                        $note_id = addPnote($patient, $note, $userauthorized, '1', $form_note_type, $assigned_to, $datetime, $form_message_status);
+                                        if (!empty($_POST['attachment_id'] ?? null) && !empty($_POST['attachment_type'] ?? null)) {
+                                            setGpRelation($_POST['attachment_type'], $_POST['attachment_id'], 6, $note_id);
+                                            echo "<script>dlgclose();</script>";
+                                        }
                                     }
                                 }
                             }
@@ -383,18 +387,24 @@ if (!empty($_REQUEST['go'])) { ?>
                                 action=\"messages.php?showall=" . attr_url($showall) . "&sortby=" . attr_url($sortby) . "&sortorder=" . attr_url($sortorder) . "&begin=" . attr_url($begin) . "&$activity_string_html\"
                                 method='post'>
                                 <input type='hidden' name='noteid' id='noteid' value='" . attr($noteid) . "' />
+                                
                                 <input type='hidden' name='task' id='task' value='add' />";
                         if ($task == "addnew") {
+                            $attach_id = $_REQUEST['attach'] ?? null;
+                            $attach_type = $_REQUEST['gptype'] ?? null;
+                            if (!empty($attach_id) && !empty($attach_type)) {
+                                echo "<input type='hidden' name='attachment_id' id='attachment_id' value='" . attr($attach_id) . "' />";
+                                echo "<input type='hidden' name='attachment_type' id='attachment_type' value='" . attr($attach_type) . "' />";
+                            }
                             $message_legend = xl('Create New Message');
                             $onclick = "onclick=multi_sel_patient()";
                         } elseif ($task == "edit") {
                             $message_legend = xl('Add To Existing Message');
                             $onclick = "";
                         }
-
                         ?>
                         <div class='col-md-12'>
-                            <div class="jumbotron jumbotron-fluid py-3">
+                            <div class="jumbotron jumbotron-fluid p-2">
                                 <h4><?php echo text($message_legend); ?></h4>
                                 <div class="row">
                                     <div class="col-12 oe-custom-line">
@@ -423,7 +433,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                     <a class="patLink" onclick="goPid('<?php echo attr(addslashes($result['pid'])); ?>')" title='<?php echo xla('Click me to Open Patient Dashboard') ?>'><?php echo xlt('Patient'); ?>:</a><label for="form_patient">&nbsp</label>
                                                     <?php
                                                 } else { ?>
-                                                    <span class='font-weight-bold <?php echo($task == "addnew" ? "text-danger" : "") ?>'><?php echo xlt('Patient'); ?>:</span></a><label for="form_patient"></label>
+                                                    <span class='<?php echo($task == "addnew" ? "text-danger" : "") ?>'><?php echo xlt('Patient'); ?>:</span></a><label for="form_patient"></label>
                                                     <?php
                                                 }
 
@@ -526,16 +536,14 @@ if (!empty($_REQUEST['go'])) { ?>
                                 <!-- <div class="row"> -->
                                     <div class='col-12'>
                                         <?php
-
                                         if ($noteid) {
                                             $body = preg_replace('/(:\d{2}\s\()' . $result['pid'] . '(\sto\s)/', '${1}' . $patientname . '${2}', $body);
                                             $body = preg_replace('/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}\s\([^)(]+\s)(to)(\s[^)(]+\))/', '${1}' . xl('to{{Destination}}') . '${3}', $body);
                                             $body = pnoteConvertLinks(nl2br(text(oeFormatPatientNote($body))));
-                                            echo "<div style='height: 120px; resize: vertical;' class='border overflow-auto text oe-margin-t-3 p-2 mb-2 w-100'>" . $body . "</div>";
+                                            echo "<div style='height: 120px; resize: vertical;' class='border overflow-auto text text-light bg-dark oe-margin-t-3 p-2 mb-2 w-100'>" . $body . "</div>";
                                         }
-
                                         ?>
-                                        <textarea name='note' id='note' class='form-control oe-margin-t-3 p-1' rows="5"><?php echo nl2br(text($note)); ?></textarea>
+                                        <textarea name='note' id='note' class='form-control oe-margin-t-3 p-1 text-dark bg-light' rows="5"><?php echo nl2br(text($note)); ?></textarea>
                                     </div>
                                     <div class="col-12 position-override oe-margin-t-10">
                                         <?php if ($noteid) { ?>
@@ -757,7 +765,7 @@ if (!empty($_REQUEST['go'])) { ?>
             <?php } ?>
             <div class="row tab-pane" role="tabpanel" id="sms-div">
                 <div class="col-sm-12">
-                    <div class="jumbotron jumbotron-fluid py-3">
+                    <div class="jumbotron jumbotron-fluid p-2">
                         <?php if ($logged_in) { ?>
                         <div class="col-sm-4 col-md-4 col-lg-4">
                             <span class="title"><?php echo xlt('SMS Zone'); ?></span>
@@ -878,7 +886,6 @@ if (!empty($_REQUEST['go'])) { ?>
         })
 
         $(function () {
-
             $("#newnote").click(function (event) {
                 NewNote(event);
             });
@@ -929,7 +936,7 @@ if (!empty($_REQUEST['go'])) { ?>
 
             $('#newnote').attr('disabled', true);
 
-            var submit = submitme(1, event, 'new_note', collectvalidation);
+            const submit = submitme(1, event, 'new_note', collectvalidation);
             if(!submit){
                 $('#newnote').attr('disabled', false);
             }
@@ -1036,6 +1043,63 @@ if (!empty($_REQUEST['go'])) { ?>
                 top.restoreSession();
                 window.open('messages.php?nomenu=1&go=SMS_bot&pid=' + encodeURIComponent(pid) + '&m=' + encodeURIComponent(m), 'SMS_bot', 'width=370,height=600,resizable=0');
             }
+        }
+
+        $(function () {
+            const attachment = <?php echo js_escape($_REQUEST['jobId'] ?? '') ?>;
+            const attach = <?php echo js_escape($_REQUEST['attach'] ?? '') ?>;
+            if (attachment && attach) {
+                let el = document.createElement('label').innerText = xl("Attaching Fax Id") + ": " + jsText(attachment);
+                document.getElementById('note').after(el);
+            }
+        });
+        function viewFaxAttachment(e, docid) {
+            let actionUrl = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/viewFax?type=fax';
+            if (e) {
+                e.preventDefault();
+            }
+            try {
+                top.restoreSession();
+            } catch (error) {
+                console.log('Session restore failed!');
+            }
+            $.post(actionUrl, {
+                'type': 'fax',
+                'docuri': '',
+                'docid': docid,
+                'pid': '',
+                'download': ''
+            }).done(function (json) {
+                try {
+                    data = JSON.parse(json);
+                } catch {
+                    data = json;
+                }
+                const binary = atob(data.base64.replace(/\s/g, ''));
+                const len = binary.length;
+                const buffer = new ArrayBuffer(len);
+                const view = new Uint8Array(buffer);
+                for (let i = 0; i < len; i++) {
+                    view[i] = binary.charCodeAt(i);
+                }
+                const blob = new Blob([view], {type: data.mime});
+                const dataUrl = URL.createObjectURL(blob);
+                let width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ?
+                    document.documentElement.clientWidth : screen.width;
+                let height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ?
+                    document.documentElement.clientHeight : screen.height;
+                height = screen.height ? screen.height * 0.95 : height;
+                let left = (width / 4);
+                let top = '10';
+                let win = window.open(
+                    '', '',
+                    'toolbar=0, location=0, directories=0, status=0, menubar=0, ' +
+                    'scrollbars=0, resizable=0, copyhistory=0, ' +
+                    'width=' + width / 1.75 + ', height=' + height + ', top=' + top + ', left=' + left
+                );
+                win.document.write("<iframe width='100%' height='100%' style='border:none;' src='" + dataUrl + "'></iframe>");
+            });
+            return false;
         }
     </script>
     <?php

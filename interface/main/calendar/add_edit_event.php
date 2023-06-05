@@ -209,7 +209,7 @@ function DOBandEncounter($pc_eid)
 {
      global $event_date,$info_msg;
      // Save new DOB if it's there.
-     $patient_dob = trim($_POST['form_dob'] ?? null);
+     $patient_dob = trim($_POST['form_dob'] ?? '');
      $tmph = $_POST['form_hour'] + 0;
      $tmpm = $_POST['form_minute'] + 0;
     if (!empty($_POST['form_ampm']) && ($_POST['form_ampm'] == '2' && $tmph < 12)) {
@@ -338,8 +338,8 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "duplicate" || $_
         $tmpm = 0;
         $duration = 24 * 60;
     } else {
-        $tmph = $_POST['form_hour'] + 0;
-        $tmpm = $_POST['form_minute'] + 0;
+        $tmph = (int) $_POST['form_hour'] + 0;
+        $tmpm = (int) $_POST['form_minute'] + 0;
         if (!empty($_POST['form_ampm']) && ($_POST['form_ampm'] == '2' && $tmph < 12)) {
             $tmph += 12;
         }
@@ -775,9 +775,11 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
 
         // establish a WHERE clause
         if ($row['pc_multiple']) {
-            $whereClause = "pc_multiple = '{$row['pc_multiple']}'";
+            $whereClause = "pc_multiple = ?";
+            $whereBind = $row['pc_multiple'];
         } else {
-            $whereClause = "pc_eid = '$eid'";
+            $whereClause = "pc_eid = ?";
+            $whereBind = $eid;
         }
 
         if ($_POST['recurr_affect'] == 'current') {
@@ -798,7 +800,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
                 // mod original event recur specs to exclude this date
                     sqlStatement("UPDATE openemr_postcalendar_events SET " .
                     " pc_recurrspec = ? " .
-                    " WHERE " . $whereClause, array(serialize($oldRecurrspec)));
+                    " WHERE " . $whereClause, array(serialize($oldRecurrspec), $whereBind));
             }
         } elseif ($_POST['recurr_affect'] == 'future') {
             // update all existing event records to stop recurring on this date-1
@@ -809,14 +811,14 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
                     // update the provider's original event
                     sqlStatement("UPDATE openemr_postcalendar_events SET " .
                     " pc_enddate = ? " .
-                    " WHERE " . $whereClause, array($selected_date));
+                    " WHERE " . $whereClause, array($selected_date), $whereBind);
                 } else { // In case of a change in the event head
-                    sqlStatement("DELETE FROM openemr_postcalendar_events WHERE " . $whereClause);
+                    sqlStatement("DELETE FROM openemr_postcalendar_events WHERE " . $whereClause, [$whereBind]);
                 }
             }
         } else {
             // really delete the event from the database
-            sqlStatement("DELETE FROM openemr_postcalendar_events WHERE " . $whereClause);
+            sqlStatement("DELETE FROM openemr_postcalendar_events WHERE " . $whereClause, [$whereBind]);
         }
     } else { //  single provider event
         if ($_POST['recurr_affect'] == 'current') {
@@ -1084,6 +1086,11 @@ function setpatient(pid, lname, fname, dob) {
     f.form_pid.value = pid;
     dobstyle = (dob == '' || dob.substr(5, 10) == '00-00') ? '' : 'none';
     document.getElementById('dob_row').style.display = dobstyle;
+    let event = new CustomEvent('openemr:appointment:patient:set', {
+        bubbles: true
+        ,detail: {form: f, pid: pid, lname: lname, fname: fname, dob: dob}
+    });
+    f.dispatchEvent(event);
 }
 
 // This invokes the find-patient popup.
@@ -1500,7 +1507,7 @@ if (empty($_GET['prov']) && empty($_GET['group'])) { ?>
     // DOB is important for the clinic, so if it's missing give them a chance
     // to enter it right here.  We must display or hide this row dynamically
     // in case the patient-select popup is used.
-    $patient_dob = trim($prow['DOB'] ?? null);
+    $patient_dob = trim($prow['DOB'] ?? '');
     $is_group = $groupname;
     $dobstyle = (!empty($prow) && (!$patient_dob || substr($patient_dob, 5) == '00-00') && !$is_group) ?
         '' : 'none';

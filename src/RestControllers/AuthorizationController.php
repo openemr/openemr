@@ -395,6 +395,7 @@ class AuthorizationController
 
 
         try {
+            // TODO: @adunsulag why do we skip over request_uris when we have it in the outer function?
             $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`, `jwks_uri`, `jwks`, `initiate_login_uri`, `endorsements`, `policy_uri`, `tos_uri`, `is_enabled`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $i_vals = array(
                 $clientId,
@@ -534,6 +535,7 @@ class AuthorizationController
             $_SESSION['client_id'] = $request->getQueryParams()['client_id'];
             $_SESSION['client_role'] = $authRequest->getClient()->getClientRole();
             $_SESSION['launch'] = $request->getQueryParams()['launch'] ?? null;
+            $_SESSION['redirect_uri'] = $authRequest->getRedirectUri() ?? null;
             $this->logger->debug("AuthorizationController->oauthAuthorizationFlow() session updated", ['session' => $_SESSION]);
             // If needed, serialize into a users session
             if ($this->providerForm) {
@@ -1063,6 +1065,7 @@ class AuthorizationController
         try {
             if (($this->grantType === 'authorization_code') && empty($_SESSION['csrf'])) {
                 // the saved session was not populated as expected
+                $this->logger->error("AuthorizationController->oauthAuthorizeToken() CSRF check failed");
                 throw new OAuthServerException('Bad request', 0, 'invalid_request', 400);
             }
             $result = $server->respondToAccessTokenRequest($request, $response);
@@ -1176,6 +1179,11 @@ class AuthorizationController
         // not required for public apps but mandatory for confidential
         $clientSecret = $_REQUEST['client_secret'] ?? null;
 
+        $this->logger->debug(
+            self::class . "->tokenIntrospection() start",
+            ['token_type_hint' => $token_hint, 'client_id' => $clientId]
+        );
+
         // the ride starts. had to use a try because PHP doesn't support tryhard yet!
         try {
             // so regardless of client type(private/public) we need client for client app type and secret.
@@ -1186,6 +1194,11 @@ class AuthorizationController
             // a no no. if private we need a secret.
             if (empty($clientSecret) && !empty($client['is_confidential'])) {
                 throw new OAuthServerException('Invalid client app type', 0, 'invalid_request', 400);
+            }
+            // lets verify secret to prevent bad guys.
+            if (intval($client['is_enabled'] !== 1)) {
+                // client is disabled and we don't allow introspection of tokens for disabled clients.
+                throw new OAuthServerException('Client failed security', 0, 'invalid_request', 401);
             }
             // lets verify secret to prevent bad guys.
             if (!empty($client['client_secret'])) {
@@ -1237,8 +1250,8 @@ class AuthorizationController
             }
             if ($token_hint === 'refresh_token') {
                 try {
+                    // client_id comes back from the parsed refresh token
                     $result = $jsonWebKeyParser->parseRefreshToken($rawToken);
-                    $result['client_id'] = $clientId;
                 } catch (Exception $exception) {
                     $body = $response->getBody();
                     $body->write($exception->getMessage());
@@ -1264,6 +1277,7 @@ class AuthorizationController
         } catch (OAuthServerException $exception) {
             // JWT couldn't be parsed
             SessionUtil::oauthSessionCookieDestroy();
+            $this->logger->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             $this->emitResponse($exception->generateHttpResponse($response));
             exit();
         }

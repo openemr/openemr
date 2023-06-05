@@ -5,10 +5,18 @@
  * email credentials message.  The code originally came from the create_portallogin.php code and was abstracted into this
  * class.
  *
- * @package openemr
- * @link      http://www.open-emr.org
+ * @author    Eldho Chacko <eldho@zhservices.com>
+ * @author    Jacob T Paul <jacob@zhservices.com>
+ * @author    Paul Simon <paul@zhservices.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
- * @copyright Copyright (c) 2023 Discover and Change, Inc. <snielson@discoverandchange.com>
+ * @author    Stephen Waite <stephen.waite@open-emr.org
+ * @copyright Copyright (c) 2011 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2022 Discover and Change, Inc <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2022 Stephen Waite <stephen.waite@open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -21,6 +29,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Patient\Summary\PortalCredentialsTemplateDataFilterEvent;
 use OpenEMR\Events\Patient\Summary\PortalCredentialsUpdatedEvent;
@@ -121,7 +130,8 @@ class PatientAccessOnsiteService
         // Create the message
         $fhirServerConfig = new ServerConfig();
         $data = [
-            'portal_onsite_two_address' => $GLOBALS['portal_onsite_two_address']
+            'portal_onsite_two_enable' => $GLOBALS['portal_onsite_two_enable']
+            ,'portal_onsite_two_address' => $GLOBALS['portal_onsite_two_address']
             ,'enforce_signin_email' => $GLOBALS['enforce_signin_email']
             ,'uname' => $username
             ,'login_uname' => $loginUsername
@@ -274,13 +284,6 @@ class PatientAccessOnsiteService
 
     private function validEmail($email)
     {
-        // TODO: OpenEMR has used this validator for 11+ years... should we switch to php's filter_var FILTER_VALIDATE_EMAIL?
-        // on January 30th 2023 added the ability to support SMTP label addresses such as myname+label@gmail.com
-        // Fixes #6159 (openemr/openemr/issues/6159)
-        if (preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-\+]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/i", $email)) {
-            return true;
-        }
-
-        return false;
+        return ValidationUtils::isValidEmail($email);
     }
 }

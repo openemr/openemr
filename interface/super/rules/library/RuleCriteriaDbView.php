@@ -22,6 +22,8 @@ class RuleCriteriaDbView
     var $interval;
     var $intervalType;
 
+    var $value;
+
     function __construct()
     {
     }

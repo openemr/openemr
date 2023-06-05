@@ -3,6 +3,9 @@
 /**
  * Communicates with the Comlink User provisioning api.
  *
+ * TODO: @adunsulag look at having this class utilize TeleHealthProvisioningService as there is a bit of
+ * duplication there.
+ *
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
@@ -59,7 +62,7 @@ class TeleHealthVideoRegistrationController
 
     public function __construct(TeleHealthRemoteRegistrationService $remoteService, TeleHealthProviderRepository $repo)
     {
-        $this->userRepository = new TeleHealthUserRepository();
+//        $this->userRepository = new TeleHealthUserRepository();
         $this->remoteService = $remoteService;
         $this->providerRepository = $repo;
         $this->logger = new SystemLogger();
@@ -71,6 +74,14 @@ class TeleHealthVideoRegistrationController
         $eventDispatcher->addListener(PatientUpdatedEvent::EVENT_HANDLE, [$this, 'onPatientUpdatedEvent']);
         $eventDispatcher->addListener(UserCreatedEvent::EVENT_HANDLE, [$this, 'onUserCreatedEvent']);
         $eventDispatcher->addListener(UserUpdatedEvent::EVENT_HANDLE, [$this, 'onUserUpdatedEvent']);
+    }
+
+    public function getUserRepository()
+    {
+        if (!isset($this->userRepository)) {
+            $this->userRepository = new TeleHealthUserRepository();
+        }
+        return $this->userRepository;
     }
 
     public function onPatientCreatedEvent(PatientCreatedEvent $event)
@@ -103,7 +114,7 @@ class TeleHealthVideoRegistrationController
                 ['uuid' => $patient['uuid'] ?? null, 'patient' => $patient]
             );
             // let's grab the patient data and create the patient if its not registered
-            $apiUser = $this->userRepository->getUser($patient['uuid']);
+            $apiUser = $this->getUserRepository()->getUser($patient['uuid']);
             if (empty($apiUser)) {
                 $this->createPatientRegistration($patient);
             }
@@ -160,7 +171,7 @@ class TeleHealthVideoRegistrationController
             $providerRepo = $this->providerRepository;
 
             // create the registration
-            $apiUser = $this->userRepository->getUser($userWithUuid['uuid']);
+            $apiUser = $this->getUserRepository()->getUser($userWithUuid['uuid']);
 
             if ($providerRepo->isEnabledProvider($userWithUuid['id'])) {
                 // create our registration if there is one
@@ -205,6 +216,11 @@ class TeleHealthVideoRegistrationController
             $this->logger->errorLogCaller("Failed to create user registration. Error: "
                 . $exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'user' => $user]);
         }
+    }
+
+    public function verifyProvisioningServiceIsValid()
+    {
+        return $this->remoteService->verifyProvisioningServiceIsValid();
     }
 
     public function createPatientRegistration($patient)
@@ -265,7 +281,7 @@ class TeleHealthVideoRegistrationController
 
     public function resumeUser(string $username, string $password): bool
     {
-        return $this->remoteService->suspendUser($username, $password);
+        return $this->remoteService->resumeUser($username, $password);
     }
 
     public function deactivateUser(string $username, string $password)

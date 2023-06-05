@@ -100,8 +100,8 @@ $i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
 $i1date = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date"));
 $i1date_end = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date_end"));
 
-$swap_with_secondary = !empty($_POST['isSwapClicked']);
-$type = ($swap_with_secondary) ? 'secondary' : 'primary';
+$swap_value = $_POST['isSwapClicked'] ?? null;
+$type = ($swap_value == '2') ? "secondary" : "primary";
 newInsuranceData(
     $pid,
     $type,
@@ -141,8 +141,15 @@ if (!$GLOBALS['insurance_only_one']) {
     $i2date = DateToYYYYMMDD(filter_input(INPUT_POST, "i2effective_date"));
     $i2date_end = DateToYYYYMMDD(filter_input(INPUT_POST, "i2effective_date_end"));
 
-    $swap_with_secondary = !empty($_POST['isSwapClicked']);
-    $type = ($swap_with_secondary) ? 'primary' : 'secondary';
+    // secondary swaps with primary, tertiary with secondary
+    if ($swap_value == '2') {
+        $type = "primary";
+    } elseif ($swap_value == '3') {
+        $type = "tertiary";
+    } else {
+        $type = "secondary";
+    }
+
     newInsuranceData(
         $pid,
         $type,
@@ -180,9 +187,11 @@ if (!$GLOBALS['insurance_only_one']) {
     $i3date = DateToYYYYMMDD(filter_input(INPUT_POST, "i3effective_date"));
     $i3date_end = DateToYYYYMMDD(filter_input(INPUT_POST, "i3effective_date_end"));
 
+    $type = ($swap_value == '3') ? "secondary" : "tertiary";
+
     newInsuranceData(
         $pid,
-        "tertiary",
+        $type,
         filter_input(INPUT_POST, "i3provider"),
         filter_input(INPUT_POST, "i3policy_number"),
         filter_input(INPUT_POST, "i3group_number"),

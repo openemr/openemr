@@ -11,6 +11,7 @@ namespace OpenEMR\Core;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
+use OpenEMR\Services\LogoService;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Yaml\Exception\ParseException;
 
@@ -80,6 +81,8 @@ class Header
      */
     public static function setupHeader($assets = [], $echoOutput = true)
     {
+        $favicon = self::getFavIcon();
+
         // Required tag
         $output = "\n<meta charset=\"utf-8\" />\n";
         // Makes only compatible with MS Edge
@@ -87,7 +90,7 @@ class Header
         // BS4 required tag
         $output .= "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n";
         // Favicon
-        $output .= "<link rel=\"shortcut icon\" href=\"" . $GLOBALS['images_static_relative'] . "/favicon.ico\" />\n";
+        $output .= "<link rel=\"shortcut icon\" href=\"$favicon\" />\n";
         $output .= self::setupAssets($assets, true, false);
 
         // we need to grab the script
@@ -126,6 +129,13 @@ class Header
         } else {
             return $output;
         }
+    }
+
+    public static function getFavIcon()
+    {
+        $logoService = new LogoService();
+        $icon = $logoService->getLogo("core/favicon/", "favicon.ico");
+        return $icon;
     }
 
     /**

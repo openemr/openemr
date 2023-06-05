@@ -671,10 +671,11 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
         }
     } else {
         if (!$form_facility) {
-            $form_facility = '3';
+            $facility = $facilityService->getPrimaryBusinessEntity();
+        } else {
+            $facility = $facilityService->getById($form_facility);
         }
 
-        $facility = $facilityService->getById($form_facility);
         $patient = sqlQuery("SELECT * from patient_data WHERE pid=?", array($form_patient));
         $pat_dob = $patient['DOB'] ?? null;
         $pat_name = ($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? '');
@@ -683,19 +684,19 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             <div class="table-responsive">
                 <table class="border-0 table" width="98%" cellspacing="0" cellpadding="0">
                     <tr>
-                        <td class="title"><?php echo text($facility['name']); ?></td>
+                        <td class="title"><?php echo text($facility['name'] ?? ''); ?></td>
                     </tr>
                     <tr>
-                        <td class="title"><?php echo text($facility['street']); ?></td>
+                        <td class="title"><?php echo text($facility['street'] ?? ''); ?></td>
                     </tr>
                     <tr>
-                        <td class="title"><?php echo text($facility['city']) . ", " . text($facility['state']) . " " . text($facility['postal_code']); ?></td>
+                        <td class="title"><?php echo text($facility['city'] ?? '') . ", " . text($facility['state'] ?? '') . " " . text($facility['postal_code'] ?? ''); ?></td>
                     </tr>
                     <tr>
-                        <td class="title"><?php echo xlt('Phone') . ': ' . text($facility['phone']); ?></td>
+                        <td class="title"><?php echo xlt('Phone') . ': ' . text($facility['phone'] ?? ''); ?></td>
                     </tr>
                     <tr>
-                        <td class="title"><?php echo xlt('Tax Id') . ': ' . text($facility['federal_ein']); ?></td>
+                        <td class="title"><?php echo xlt('Tax Id') . ': ' . text($facility['federal_ein'] ?? ''); ?></td>
                     </tr>
                     <tr><td>&nbsp;</td></tr>
                     <tr>
@@ -832,7 +833,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             $print .= "</td>";
             $print .= "<td class='detail' colspan='2'>" . text($code_desc) . "</td>";
             $who = ($erow['name'] == '') ? xl('Self') : $erow['name'];
-            $bill = substr($erow['bill_date'], 0, 10);
+            $bill = substr($erow['bill_date'] ?? '', 0, 10);
             if ($bill == '') {
                 $bill = 'unbilled';
             }

@@ -96,7 +96,7 @@ class TeleHealthUserRepository extends BaseService
             ->setDbRecordId($row['patient_id'] ?? $row['user_id'])
             ->setIsPatient(isset($row['patient_id']))
             ->setIsActive($row['active'] == 1)
-            ->setRegistrationCode($row['app_registration_code']);
+            ->setRegistrationCode($row['app_registration_code'] ?? null);
 
         if (isset($row['date_registered'])) {
             $date = \DateTime::createFromFormat($dateFormat, $row['date_registered']);

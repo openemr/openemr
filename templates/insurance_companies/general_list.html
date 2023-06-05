@@ -32,7 +32,16 @@
           </tr>
           {foreachelse}
           <tr>
-              <td colspan="8">{xlt t='No Insurance Companies Found'}</td>
+              <td>{xlt t='No Insurance Companies Found'}</td>
+              <!-- DataTables requires the number of cols in the table header match the table body,
+                  https://datatables.net/manual/tech-notes/18 -->
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
           </tr>
           {/foreach}
       </tbody>

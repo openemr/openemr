@@ -43,7 +43,7 @@ function getListItem($listid, $value)
 
 function myCellText($s)
 {
-    $s = trim($s);
+    $s = trim($s ?? '');
     if ($s === '') {
         return '&nbsp;';
     }

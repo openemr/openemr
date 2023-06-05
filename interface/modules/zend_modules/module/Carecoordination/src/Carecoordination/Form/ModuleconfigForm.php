@@ -21,6 +21,8 @@ class ModuleconfigForm extends Form
 {
     protected $zListener;
 
+    protected $application;
+
     public function __construct(AdapterInterface $dbAdapter)
     {
         $this->application  = new ApplicationTable();

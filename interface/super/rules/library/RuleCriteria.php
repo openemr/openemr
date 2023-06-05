@@ -120,7 +120,7 @@ abstract class RuleCriteria
         $dbView->inclusion = $this->inclusion;
         $dbView->optional = $this->optional;
         $dbView->interval = $this->interval;
-        $dbView->intervalType = $this->intervalType->code;
+        $dbView->intervalType = $this->intervalType->code ?? null;
 
         return $dbView;
     }

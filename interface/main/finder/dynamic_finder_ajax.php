@@ -23,10 +23,10 @@ use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
 
-// Not checking csrf for good reasons.
-//  1. Not needed since no state changes in this script
-//  2. It will cause potential session clash fails because it throws a popup which messes things up
-//     when opening a patient in a new window.
+// Not checking csrf since it breaks when opening up a patient in a new frame.
+//  Also note that csrf checking is not needed in this script because of following 2 reasons.
+//  1. cookie_samesite in OpenEMR is set to 'Strict', which is an effective security measure to stop csrf vulnerabilities.
+//  2. Additionally, in this script there are no state changes, thus it is not even sensitive to csrf vulnerabilities.
 
 $popup = empty($_REQUEST['popup']) ? 0 : 1;
 $searchAny = !empty($_GET['search_any']) && empty($_GET['sSearch']) ? $_GET['search_any'] : "";

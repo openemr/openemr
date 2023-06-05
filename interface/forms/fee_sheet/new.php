@@ -8,8 +8,10 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2005-2022 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -25,8 +27,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
 //acl check
-if (!AclMain::aclCheckForm('fee_sheet')) {
-    ?>
+if (!AclMain::aclCheckForm('fee_sheet')) { ?>
     <script>alert(<?php echo xlj("Not authorized"); ?>)</script>;
     <?php
     formJump();
@@ -709,11 +710,13 @@ function reinitForm(){
 // This is invoked by <select onchange> for the various dropdowns,
 // including search results.
 function codeselect(selobj) {
- var i = selobj ? selobj.selectedIndex : -1;
+ let i = selobj ? selobj.selectedIndex : -1;
  if (i) {
   top.restoreSession();
-  var f = document.forms[0];
-  if (selobj) f.newcodes.value = selobj.options[i].value;
+  let f = document.forms[0];
+  if (selobj) {
+      f.newcodes.value = selobj.options[i].value;
+  }
   f.submit();
  }
 }
@@ -1004,7 +1007,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <?php
                                 $i = 0;
                                 $last_category = '';
-
                                 // Create drop-lists based on the fee_sheet_options table.
                                 $res = sqlStatement("SELECT * FROM fee_sheet_options " .
                                 "ORDER BY fs_category, fs_option");
@@ -1038,7 +1040,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 echo "  <td class='text-center text-nowrap' width='50%'>\n";
                                 echo "   <select class='form-control' onchange='codeselect(this)'>\n";
                                 echo "    <option value=''> " . text(xl_list_label($prow['title'])) . "\n";
-                                $res = sqlStatement("SELECT code_type, code, code_text,modifier FROM codes " .
+                                $res = sqlStatement("SELECT code_type, code, code_text, modifier FROM codes " .
                                 "WHERE superbill = ? AND active = 1 " .
                                 "ORDER BY code_text", array($prow['option_id']));
                                 while ($row = sqlFetchArray($res)) {
@@ -1154,17 +1156,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             $numrows = sqlNumRows($res);
                                         }
                                     }
-                                    if (! $numrows) {
+                                    if (empty($numrows)) {
                                         echo "   <select name='search_results' class='form-control text-danger' " .
                                         "onchange='codeselect(this)' disabled >\n";
                                     } else {
-                                        echo "   <select name='search_results' style='background: var(--yellow)' " .
-                                        "onchange='codeselect(this)' >\n";
+                                        echo "   <select name='search_results' style='background: lightyellow' " . "onchange='codeselect(this)' >\n";
                                     }
 
                                     echo "    <option value=''> " . xlt("Search Results") . " ($numrows " . xlt("items") . ")\n";
 
-                                    if ($numrows) {
+                                    if (!empty($numrows)) {
                                         while ($row = sqlFetchArray($res)) {
                                             $code = $row['code'];
                                             if ($row['modifier']) {
@@ -1199,7 +1200,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             </table>
                         </div>
                         <div class='col-12 text-center table-responsive'>
-                            <table name='selected_codes' id='selected_codes' class="table">
+                            <table name='selected_codes' id='selected_codes' class="table table-striped table-sm">
                                 <thead>
                                     <tr>
                                         <th class='billcell'><?php echo xlt('Type');?></th>
@@ -1275,8 +1276,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             if ($institutional) {
                                                 //$revenue_code   = trim($bline['revenue_code']);
                                             }
-                                            $modifier   = trim($bline['mod'] ?? null);
-                                            $units = intval(trim($bline['units'] ?? null));
+                                            $modifier   = trim($bline['mod'] ?? '');
+                                            $units = intval(trim($bline['units'] ?? ''));
                                             if (!$units) {
                                                 $units = 1; // units may be negative.
                                             }
@@ -1291,7 +1292,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 trim($bline['ndcqty']);
                                             }
                                             $justify    = $bline['justify'] ?? null;
-                                            $notecodes  = trim($bline['notecodes'] ?? null);
+                                            $notecodes  = trim($bline['notecodes'] ?? '');
                                             $provider_id = (int) ($bline['provid'] ?? null);
                                         }
 

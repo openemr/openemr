@@ -12,6 +12,7 @@
 namespace OpenEMR\RestControllers\SMART;
 
 use League\OAuth2\Server\Exception\OAuthServerException;
+use League\OAuth2\Server\RedirectUriValidators\RedirectUriValidator;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
@@ -175,8 +176,10 @@ class SMARTAuthorizationController
         } catch (AccessDeniedException $error) {
             // or should we present some kind of error display form...
             $this->logger->error("AuthorizationController->patientSelect() Exception thrown", ['exception' => $error->getMessage(), 'userId' => $user_uuid]);
+            // make sure to grab the redirect uri before the session is destroyed
+            $redirectUri = $this->getClientRedirectURI();
             SessionUtil::oauthSessionCookieDestroy();
-            $error = OAuthServerException::accessDenied("No access to patient data for this user", $this->getClientRedirectURI(), $error);
+            $error = OAuthServerException::accessDenied("No access to patient data for this user", $redirectUri, $error);
             $response = (new Psr17Factory())->createResponse();
             $this->emitResponse($error->generateHttpResponse($response));
         } catch (\Exception $error) {
@@ -223,10 +226,11 @@ class SMARTAuthorizationController
 
             require_once($this->oauthTemplateDir . "smart/patient-select.php");
         } catch (AccessDeniedException $error) {
+            // make sure to grab the redirect uri before the session is destroyed
+            $redirectUri = $this->getClientRedirectURI();
             $this->logger->error("AuthorizationController->patientSelect() Exception thrown", ['exception' => $error->getMessage(), 'userId' => $user_uuid]);
             SessionUtil::oauthSessionCookieDestroy();
-
-            $error = OAuthServerException::accessDenied("No access to patient data for this user", $this->getClientRedirectURI(), $error);
+            $error = OAuthServerException::accessDenied("No access to patient data for this user", $redirectUri, $error);
             $response = (new Psr17Factory())->createResponse();
             $this->emitResponse($error->generateHttpResponse($response));
         } catch (\Exception $error) {
@@ -267,7 +271,21 @@ class SMARTAuthorizationController
         $client_id = $_SESSION['client_id'];
         $repo = new ClientRepository();
         $client = $repo->getClientEntity($client_id);
-        $uri = $client->getRedirectUri();
+        $uriList = $client->getRedirectUri();
+        $uri = $uriList;
+        if (is_array($uriList) && !empty($uriList)) {
+            $validator = new RedirectUriValidator($uri);
+            $uri = $uriList[0]; // we grab the first one if we don't have one in the session already
+
+            // this is probably overly paranoid but we want to safeguard against any session tampering and use the same logic
+            // to validate the redirect_uri as we do elsewhere in the system
+            // if we have multiple redirect_uris and we have the redirect uri in our session
+            if (!empty($_SESSION['redirect_uri'])) {
+                if ($validator->validateRedirectUri($_SESSION['redirect_uri'])) {
+                    $uri = $_SESSION['redirect_uri'];
+                }
+            }
+        }
         return $uri;
     }
 }

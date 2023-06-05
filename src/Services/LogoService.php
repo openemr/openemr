@@ -62,7 +62,7 @@ class LogoService
      * @param string $type
      * @return string
      */
-    public function getLogo(string $type): string
+    public function getLogo(string $type, string $filename = "logo.*"): string
     {
         $siteDir = "{$GLOBALS['OE_SITE_DIR']}/images/logos/{$type}/";
         $publicDir = "{$GLOBALS['images_static_absolute']}/logos/{$type}/";
@@ -77,7 +77,7 @@ class LogoService
         }
 
         try {
-            $logo = $this->findLogo($paths);
+            $logo = $this->findLogo($paths, $filename);
         } catch (\Exception $e) {
             error_log($e->getMessage());
             $logo = "";
@@ -101,6 +101,9 @@ class LogoService
             $GLOBALS['OE_SITE_DIR'] => $GLOBALS['OE_SITE_WEBROOT'],
             $GLOBALS['images_static_absolute'] => $GLOBALS['images_static_relative'],
         ];
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $path = str_replace('\\', '/', $path);
+        }
         return str_replace(array_keys($paths), array_values($paths), $path);
     }
 
@@ -115,7 +118,7 @@ class LogoService
      * @param boolean $timestamp Will return with a query string of the last modified time
      * @return string|null String of real path or null if no file found
      */
-    private function findLogo(array $directory, string $filename = 'logo.*', $timestamp = true): string|null
+    private function findLogo(array $directory, string $filename = 'logo.*', $timestamp = true): string
     {
         $this->finder->files()->in($directory)->name($filename);
 
@@ -126,7 +129,7 @@ class LogoService
                 $return = ($timestamp) ? $return . "?t=" . $f->getMTime() : $return;
             }
         } else {
-            $return = null;
+            $return = "";
         }
 
         return $return;

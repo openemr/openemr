@@ -8,8 +8,10 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2015-2017 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -62,7 +64,6 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
     var oChosenIDs = {};
 
     $(function () {
-
         // Initializing the DataTable.
         oTable = $('#my_data_table').dataTable({
             "bProcessing": true,
@@ -73,7 +74,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
             "aLengthMenu": [15, 25, 50, 100],
             "iDisplayLength": 50,
             // Specify a width for the first column.
-            "aoColumns": [{"sWidth": "10%"}, null],
+            "aoColumns": [{"sWidth": "20%"}, {"sWidth": "60%"}, {"sWidth": "10%"}],
             // This callback function passes some form data on each call to the ajax handler.
             "fnServerParams": function (aoData) {
                 aoData.push({"name": "what", "value": <?php echo js_escape($what); ?>});
@@ -123,8 +124,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
                 <?php if ($what == 'codes') { ?>
                 // this.id is of the form "CID|jsonstring".
                 var codesel = jobj['code'].split('|');
-
-                selcode(jobj['codetype'], codesel[0], codesel[1], jobj['description'], target_element, limit);
+                selcode(jobj['codetype'], codesel[0], codesel[1], jobj['description'], target_element, limit, jobj['modifier']);
                 <?php } elseif ($what == 'fields') { ?>
                 selectField(jobj);
                 <?php } elseif ($what == 'lists') { ?>
@@ -158,7 +158,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
 
     <?php if ($what == 'codes') { ?>
     // Pass info back to the opener and close this window. Specific to billing/product codes.
-    function selcode(codetype, code, selector, codedesc, target_element, limit = 0) {
+    function selcode(codetype, code, selector, codedesc, target_element, limit = 0, modifier = '') {
         if (opener.closed || (!opener.set_related && !opener.set_related_target)) {
             alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
         } else {
@@ -168,7 +168,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
                 opener.promiseData = JSON.stringify({codetype, code, selector, codedesc});
                 dlgclose();
             } else {
-                var msg = opener.set_related(codetype, code, selector, codedesc);
+                var msg = opener.set_related(codetype, code, selector, codedesc, modifier);
             }
             if (msg) alert(msg);
             // window.close();
@@ -228,7 +228,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
             opener.SetList(jobj['code']);
         dlgclose();
         return false;
-    };
+    }
 
     <?php } elseif ($what == 'groups') { ?>
     var SelectItem = function (jobj) {
@@ -301,12 +301,15 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
         echo "</div>\n";
         ?>
 
-        <!-- Exception here: Do not use table-responsive as it breaks datatables !-->
-        <table id="my_data_table" class="table table-striped table-hover table-sm">
+        <!-- Exception here: Do not use table-responsive as it breaks datatables
+        note by sjp: table-responsive does not go in table but the container div!
+        !-->
+        <table id="my_data_table" class="table table-striped table-hover table-sm w-100">
             <thead>
             <tr>
                 <th><?php echo xlt('Code'); ?></th>
                 <th><?php echo xlt('Description'); ?></th>
+                <th><?php echo xlt('Modifier'); ?></th>
             </tr>
             </thead>
             <tbody>

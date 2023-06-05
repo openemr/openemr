@@ -14,8 +14,19 @@
     function launchDialog(evt)
     {
         let target = evt.currentTarget;
+        if (!(target || target.dataset['pc_eid']))
+        {
+            // if something happens inside the dialog launch its already handled.
+            alert(translations.SESSION_LAUNCH_FAILED);
+            console.error("Event target was empty or missing data-pc_eid property");
+            return;
+        }
+        var appointmentEventId = target.dataset['pc_eid'];
+        launchDialogForEid(appointmentEventId);
+    }
+
+    function launchDialogForEid(appointmentEventId) {
         try {
-            var appointmentEventId = target.dataset['pc_eid'] || null;
             if (!appointmentEventId) {
                 throw new Error("No appointmentEventId id found, cannot start session");
             }
@@ -45,4 +56,5 @@
     {
         window.addEventListener('load', init);
     }
+    telehealth.launchThirdPartyPortalDialog = launchDialogForEid;
 })(window, window.comlink || {});

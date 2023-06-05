@@ -20,7 +20,7 @@ class ParseERA
     {
         if ($out['loopid'] == '2110' || $out['loopid'] == '2100') {
             // Production date is posted with adjustments, so make sure it exists.
-            if (!$out['production_date']) {
+            if (empty($out['production_date'])) {
                 $out['production_date'] = $out['check_date'];
             }
 
@@ -537,7 +537,7 @@ class ParseERA
                 //if ($out['loopid']) return 'Unexpected TRN segment';
                 $out['check_number' . $check_count] = trim($seg[2]);
                 $out['payer_tax_id' . $check_count] = substr($seg[3], 1); // 9 digits
-                $out['payer_id' . $check_count] = trim($seg[4] ?? null);
+                $out['payer_id' . $check_count] = trim($seg[4] ?? '');
                 // Note: TRN04 further qualifies the paying entity within the
                 // organization identified by TRN03.
             }

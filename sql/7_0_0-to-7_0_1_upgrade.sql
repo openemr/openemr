@@ -298,3 +298,26 @@ UPDATE `globals` SET `gl_value` = 'login/layouts/horizontal_box_left_logo.html.t
 #IfRow2D globals gl_name login_page_layout gl_value right
 UPDATE `globals` SET `gl_value` = 'login/layouts/horizontal_band_right_logo.html.twig' WHERE `gl_name` = 'login_page_layout' AND `gl_value` = 'right';
 #EndIf
+
+#IfMissingColumn ar_activity payer_claim_number
+ALTER TABLE `ar_activity` ADD `payer_claim_number` VARCHAR(30) DEFAULT NULL;
+#EndIf
+
+#IfNotTable onetime_auth
+CREATE TABLE `onetime_auth` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `pid` bigint(20) DEFAULT NULL,
+  `create_user_id` bigint(20) DEFAULT NULL,
+  `context` varchar(64) DEFAULT NULL,
+  `access_count` int(11) NOT NULL DEFAULT 0,
+  `remote_ip` varchar(32) DEFAULT NULL,
+  `onetime_pin` varchar(10) DEFAULT NULL COMMENT 'Max 10 numeric. Default 6',
+  `onetime_token` tinytext,
+  `redirect_url` tinytext,
+  `expires` int(11) DEFAULT NULL,
+  `date_created` datetime DEFAULT current_timestamp(),
+  `last_accessed` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `pid` (`pid`,`onetime_token`(255))
+) ENGINE=InnoDB;
+#EndIf

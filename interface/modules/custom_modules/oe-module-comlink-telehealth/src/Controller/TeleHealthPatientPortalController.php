@@ -12,9 +12,14 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Controller;
 
+use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\CalendarEventCategoryRepository;
+use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthSessionRepository;
+use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
 use OpenEMR\Events\PatientPortal\AppointmentFilterEvent;
 use OpenEMR\Services\AppointmentService;
+use OpenEMR\Services\ListService;
+use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use OpenEMR\Events\PatientPortal\RenderEvent;
 use Symfony\Component\EventDispatcher\GenericEvent;
@@ -24,10 +29,15 @@ class TeleHealthPatientPortalController
 {
     private $twig;
     private $assetPath;
-    public function __construct(Environment $twig, $assetPath)
+    /**
+     * @var TelehealthGlobalConfig
+     */
+    private $config;
+    public function __construct(Environment $twig, $assetPath, TelehealthGlobalConfig $config)
     {
         $this->twig = $twig;
         $this->assetPath = $assetPath;
+        $this->config = $config;
     }
 
     public function subscribeToEvents(EventDispatcher $eventDispatcher)
@@ -38,7 +48,12 @@ class TeleHealthPatientPortalController
 
     public function renderTeleHealthPatientVideo(GenericEvent $event)
     {
-        echo $this->twig->render('comlink/patient-portal.twig', ['assetPath' => $this->assetPath]);
+
+        $data = [
+            'assetPath' => $this->assetPath,
+            'debug' => $this->config->isDebugModeEnabled()
+        ];
+        echo $this->twig->render('comlink/patient-portal.twig', $data);
     }
 
     public function filterPatientAppointment(AppointmentFilterEvent $event)
@@ -56,7 +71,10 @@ class TeleHealthPatientPortalController
             $dateTime !== false && CalendarUtils::isAppointmentDateTimeInSafeRange($dateTime)
             // since this hits the database we do this one last
         ) {
-            if ($apptService->isCheckOutStatus($dbRecord['pc_apptstatus'])) {
+            if (
+                $apptService->isCheckOutStatus($dbRecord['pc_apptstatus'])
+                || $apptService->isPendingStatus($dbRecord['pc_apptstatus'])
+            ) {
                 $appointment['showTelehealth'] = false;
             } else {
                 $appointment['showTelehealth'] = true;

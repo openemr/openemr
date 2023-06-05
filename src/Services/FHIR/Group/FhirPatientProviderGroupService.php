@@ -29,6 +29,8 @@ class FhirPatientProviderGroupService extends FhirServiceBase
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
 
+    private $service;
+
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);

@@ -66,7 +66,13 @@ class ClientEntity implements ClientEntityInterface
 
     public function setRedirectUri($uri): void
     {
-        $this->redirectUri = $uri;
+        if (\is_string($uri)) {
+            $this->redirectUri = [$uri];
+        } else if (\is_array($uri)) {
+            $this->redirectUri = $uri;
+        } else {
+            throw new \InvalidArgumentException("redirectUri must be a string or array");
+        }
     }
 
     public function setIsConfidential($set): void

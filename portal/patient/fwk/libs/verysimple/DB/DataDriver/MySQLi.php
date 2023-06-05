@@ -89,9 +89,9 @@ class DataDriverMySQLi implements IDataDriver
                 // with client side certificate/key
                 mysqli_ssl_set(
                     $connection,
-                    "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key",
-                    "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert",
-                    "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca",
+                    "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key",
+                    "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert",
+                    "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca",
                     null,
                     null
                 );
@@ -101,7 +101,7 @@ class DataDriverMySQLi implements IDataDriver
                     $connection,
                     null,
                     null,
-                    "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca",
+                    "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca",
                     null,
                     null
                 );

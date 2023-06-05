@@ -13,6 +13,9 @@
 
 namespace OpenEMR\FHIR\Config;
 
+use http\Exception\RuntimeException;
+use OpenEMR\Common\Auth\OAuth2KeyConfig;
+
 class ServerConfig
 {
     /**
@@ -29,6 +32,8 @@ class ServerConfig
      * @var string The web root address for the fhir server
      */
     private $webRoot;
+
+    private $webServerRoot;
 
     public function __construct()
     {
@@ -104,5 +109,33 @@ class ServerConfig
     {
         $this->webRoot = $webRoot;
         return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getWebServerRoot()
+    {
+        return $this->webServerRoot;
+    }
+
+    /**
+     * @param mixed $webServerRoot
+     */
+    public function setWebServerRoot($webServerRoot): void
+    {
+        $this->webServerRoot = $webServerRoot;
+    }
+
+    public function getPublicRestKey()
+    {
+        // TODO: @adunsulag we have redundancy here in OAuth2KeyConfig and ServerConfig.  We should probably merge these.
+        $site = $this->getSiteId() ?? "default";
+        $webServerRoot = $this->getWebServerRoot() ?? $GLOBALS['web_root'] ?? "";
+        // if we can't get the web server root then we can't get the public key
+        if (empty($webServerRoot)) {
+            throw new RuntimeException("Unable to determine web server root");
+        }
+        return $webServerRoot . "/sites/" . $site . "/documents/certificates/oapublic.key";
     }
 }

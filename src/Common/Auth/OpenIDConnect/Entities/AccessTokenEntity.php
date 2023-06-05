@@ -22,4 +22,24 @@ class AccessTokenEntity implements AccessTokenEntityInterface
     use AccessTokenTrait;
     use TokenEntityTrait;
     use EntityTrait;
+
+    /**
+     * @var bool
+     */
+    private $revoked;
+
+    public function setIsRevoked(bool $revoked): void
+    {
+        $this->revoked = $revoked;
+    }
+
+    public function isRevoked(): bool
+    {
+        return $this->revoked;
+    }
+
+    public function isExpired(): bool
+    {
+        return $this->getExpiryDateTime() < new DateTimeImmutable();
+    }
 }

@@ -211,6 +211,9 @@ INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_r
 ('WenoExchange', 'Weno Log Sync', 0, 0, '2021-01-18 11:25:10', 0, 'start_weno', '/library/weno_log_sync.php', 100);
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
 ('UUID_Service', 'Automated UUID Creation Service', 1, 0, '2021-01-18 11:25:10', 240, 'autoPopulateAllMissingUuids', '/library/uuid.php', 100);
+INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
+('Email_Service', 'Email Service', 1, 0, '2021-01-18 11:25:10', 2, 'emailServiceRun', '/library/email_service_run.php', 100);
+
 -- --------------------------------------------------------
 
 --
@@ -1507,6 +1510,28 @@ CREATE TABLE `eligibility_verification` (
   PRIMARY KEY  (`verification_id`),
   KEY `insurance_id` (`insurance_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `email_queue`
+--
+
+CREATE TABLE `email_queue` (
+  `id` bigint NOT NULL auto_increment,
+  `sender` varchar(255) DEFAULT '',
+  `recipient` varchar(255) DEFAULT '',
+  `subject` varchar(255) DEFAULT '',
+  `body` text,
+  `datetime_queued` datetime default NULL,
+  `sent` tinyint DEFAULT 0,
+  `datetime_sent` datetime default NULL,
+  `error` tinyint DEFAULT 0,
+  `error_message` text,
+  `datetime_error` datetime default NULL,
+PRIMARY KEY (`id`),
+KEY `sent` (`sent`)
+) ENGINE=InnoDb AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
 
@@ -3234,6 +3259,26 @@ INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('26','Mutuall
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `ip_tracking`
+--
+DROP TABLE IF EXISTS `ip_tracking`;
+CREATE TABLE `ip_tracking` (
+    `id` bigint NOT NULL auto_increment,
+    `ip_string` varchar(255) DEFAULT '',
+    `total_ip_login_fail_counter` bigint DEFAULT 0,
+    `ip_login_fail_counter` bigint DEFAULT 0,
+    `ip_last_login_fail` datetime DEFAULT NULL,
+    `ip_auto_block_emailed` tinyint DEFAULT 0,
+    `ip_force_block` tinyint DEFAULT 0,
+    `ip_no_prevent_timing_attack` tinyint DEFAULT 0,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `ip_string` (`ip_string`)
+) ENGINE=InnoDb AUTO_INCREMENT=1;
+
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `issue_encounter`
 --
 
@@ -4258,6 +4303,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, option_value ) VALUES
 INSERT INTO list_options (list_id, option_id, title , seq, option_value ) VALUES ('abook_type','emr_direct', 'EMR Direct' ,105,4);
 INSERT INTO list_options (list_id, option_id, title , seq, option_value ) VALUES ('abook_type','external_provider', 'External Provider' ,110,1);
 INSERT INTO list_options (list_id, option_id, title , seq, option_value ) VALUES ('abook_type','external_org', 'External Organization' ,120,1);
+INSERT INTO list_options (list_id, option_id, title , seq, option_value ) VALUES ('abook_type','bill_svc', 'Billing Service' ,120,3);
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','proc_type','Procedure Types', 1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','grp','Group'          ,10,0);
@@ -8867,7 +8913,10 @@ CREATE TABLE `users_secure` (
   `password_history4` varchar(255),
   `last_challenge_response` datetime DEFAULT NULL,
   `login_work_area` text,
+  `total_login_fail_counter` bigint DEFAULT 0,
   `login_fail_counter` INT(11) DEFAULT '0',
+  `last_login_fail` datetime DEFAULT NULL,
+  `auto_block_emailed` tinyint DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `USERNAME_ID` (`id`,`username`)
 ) ENGINE=InnoDb;
@@ -9024,6 +9073,7 @@ CREATE TABLE `x12_partners` (
   `x12_per06` varchar(80) NOT NULL DEFAULT '',
   `x12_dtp03` char(1)     NOT NULL DEFAULT 'A',
   `x12_gs03` varchar(15) DEFAULT NULL,
+  `x12_submitter_id` smallint(6) DEFAULT NULL,
   `x12_submitter_name` varchar(255) DEFAULT NULL,
   `x12_sftp_login` varchar(255) DEFAULT NULL,
   `x12_sftp_pass` varchar(255) DEFAULT NULL,
@@ -9182,6 +9232,7 @@ CREATE TABLE ar_activity (
   reason_code varchar(255) DEFAULT NULL COMMENT 'Use as needed to show the primary payer adjustment reason code',
   deleted        datetime DEFAULT NULL COMMENT 'NULL if active, otherwise when voided',
   post_date      date DEFAULT NULL COMMENT 'Posting date if specified at payment time',
+  payer_claim_number varchar(30) DEFAULT NULL,
   PRIMARY KEY (pid, encounter, sequence_no),
   KEY session_id (session_id)
 ) ENGINE=InnoDB;
@@ -13233,4 +13284,22 @@ CREATE TABLE `form_questionnaire_assessments` (
   `lform` longtext,
   `lform_response` longtext,
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `onetime_auth`;
+CREATE TABLE `onetime_auth` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `pid` bigint(20) DEFAULT NULL,
+    `create_user_id` bigint(20) DEFAULT NULL,
+    `context` varchar(64) DEFAULT NULL,
+    `access_count` int(11) NOT NULL DEFAULT 0,
+    `remote_ip` varchar(32) DEFAULT NULL,
+    `onetime_pin` varchar(10) DEFAULT NULL COMMENT 'Max 10 numeric. Default 6',
+    `onetime_token` tinytext,
+    `redirect_url` tinytext,
+    `expires` int(11) DEFAULT NULL,
+    `date_created` datetime DEFAULT current_timestamp(),
+    `last_accessed` datetime DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `pid` (`pid`,`onetime_token`(255))
 ) ENGINE=InnoDB;

@@ -3,6 +3,14 @@
 /**
  * portal/verify_session.php
  *
+ * Note you can define $landingpage to be the page you would like the user to be redirected to if the session is unverified
+ * This allows you to do things such as setup the portal's redirect URL parameter for you to redirect the user upon the
+ * portal login
+ *
+ * The other option is the $skipLandingPageError variable.  If this is set to boolean true it will skip the &w parameter
+ * in the redirect showing the user that there was an error since you may actually be requiring the user login and there
+ * is no error in doing that.
+ *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Cassian LUP <cassi.lup@gmail.com>
@@ -31,6 +39,10 @@ OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 if (!isset($landingpage)) {
     $landingpage = "index.php?site=" . urlencode($_SESSION['site_id'] ?? null);
 }
+
+if (!isset($skipLandingPageError)) {
+    $skipLandingPageError = false;
+}
 //
 
 // kick out if patient not authenticated
@@ -38,7 +50,11 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     $pid = $_SESSION['pid'];
 } else {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-    header('Location: ' . $landingpage . '&w');
+    if ($skipLandingPageError === true) {
+        header('Location: ' . $landingpage);
+    } else {
+        header('Location: ' . $landingpage . '&w');
+    }
     exit;
 }
 

@@ -228,4 +228,30 @@ class QueryUtils
     {
         return \generate_id();
     }
+
+    public static function startTransaction()
+    {
+        \sqlBeginTrans();
+    }
+
+    public static function commitTransaction()
+    {
+        \sqlCommitTrans();
+    }
+
+    public static function rollbackTransaction()
+    {
+        \sqlRollbackTrans();
+    }
+
+    public static function getLastInsertId()
+    {
+        return \sqlGetLastInsertId();
+    }
+
+    public static function querySingleRow(string $sql, array $params)
+    {
+        $result = self::sqlStatementThrowException($sql, $params);
+        return \sqlFetchArray($result);
+    }
 }

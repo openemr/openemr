@@ -144,7 +144,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
         } elseif ($action['clin_rem_link']) {
             // Start link for reminders that use the custom rules input screen
             $pieces_url = parse_url($action['clin_rem_link']);
-            $url_prefix = $pieces_url['scheme'];
+            $url_prefix = $pieces_url['scheme'] ?? '';
             if ($url_prefix == 'https' || $url_prefix == 'http') {
                 echo "<a href='" . $action['clin_rem_link'] .
                 "' class='medium_modal' onclick='return top.restoreSession()'>";
@@ -1703,7 +1703,7 @@ function resolve_plans_sql($type = '', $patient_id = '0', $configurableOnly = fa
 
         // Use the chosen plan if set
         if (!empty($type)) {
-            if ($goPlan["${type}_flag"] == 1) {
+            if ($goPlan["{$type}_flag"] == 1) {
                 // active, so use the plan
                 $newReturnArray[] = $goPlan;
             }
@@ -1869,7 +1869,7 @@ function resolve_rules_sql($type = '', $patient_id = '0', $configurableOnly = fa
 
         // Use the chosen rule if set
         if (!empty($type)) {
-            if ($goRule["${type}_flag"] == 1) {
+            if ($goRule["{$type}_flag"] == 1) {
                 // active, so use the rule
                 $newReturnArray[] = $goRule;
             }

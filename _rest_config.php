@@ -25,6 +25,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\Services\TrustedUserService;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -98,9 +99,12 @@ class RestConfig
         // The busy stuff.
         self::setPaths();
         self::setSiteFromEndpoint();
+        $serverConfig = new ServerConfig();
+        $serverConfig->setWebServerRoot(self::$webserver_root);
+        $serverConfig->setSiteId(self::$SITE);
         self::$ROOT_URL = self::$web_root . "/apis";
         self::$VENDOR_DIR = self::$webserver_root . "/vendor";
-        self::$publicKey = self::$webserver_root . "/sites/" . self::$SITE . "/documents/certificates/oapublic.key";
+        self::$publicKey = $serverConfig->getPublicRestKey();
         self::$IS_INITIALIZED = true;
     }
 
@@ -184,7 +188,7 @@ class RestConfig
                 if (strpos($_SERVER['REQUEST_URI'], '?') > 0) {
                     $resource = strstr($_SERVER['REQUEST_URI'], '?', true);
                 } else {
-                    $resource = str_replace(self::$ROOT_URL, '', $_SERVER['REQUEST_URI']);
+                    $resource = str_replace(self::$ROOT_URL ?? '', '', $_SERVER['REQUEST_URI']);
                 }
             }
         }
