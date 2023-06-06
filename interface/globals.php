@@ -622,7 +622,7 @@ if (!file_exists($webserver_root . "/interface/modules/")) {
     } catch (\OpenEMR\Common\Acl\AccessDeniedException $accessDeniedException) {
         // this occurs when the current SCRIPT_PATH is to a module that is not currently allowed to be accessed
         http_response_code(401);
-        error_log(errorLogEscape($ex->getMessage() . $ex->getTraceAsString()));
+        error_log(errorLogEscape($accessDeniedException->getMessage() . $accessDeniedException->getTraceAsString()));
     } catch (\Exception $ex) {
         error_log(errorLogEscape($ex->getMessage() . $ex->getTraceAsString()));
         die();

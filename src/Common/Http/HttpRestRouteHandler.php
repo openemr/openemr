@@ -16,6 +16,7 @@ namespace OpenEMR\Common\Http;
 
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Events\RestApiExtend\RestApiSecurityCheckEvent;
 use Psr\Http\Message\ResponseInterface;
 
 class HttpRestRouteHandler
@@ -59,7 +60,11 @@ class HttpRestRouteHandler
 //        header("Access-Control-Allow-Origin: *");
         // we have already validated the token which authenticates our client_id
         // we will go ahead and allow the origin
-        header("Access-Control-Allow-Origin: " . $dispatchRestRequest->getHeader('Origin'));
+        $origins = $dispatchRestRequest->getHeader('Origin');
+        if (!empty($origins)) {
+            header("Access-Control-Allow-Origin: " . $origins[0]);
+        }
+
         if ($request_method === 'OPTIONS') {
             return true; // for now we just return true if we have the route.
         }
@@ -83,8 +88,12 @@ class HttpRestRouteHandler
                     }
 
                     // make sure our scopes pass the security checks
-                    self::checkSecurity($dispatchRestRequest);
-                    (new SystemLogger())->debug("HttpRestRouteHandler->dispatch() dispatching route", ["route" => $routePath,]);
+                    $securityCheck = self::checkSecurity($dispatchRestRequest);
+                    if ($securityCheck instanceof ResponseInterface) {
+                        (new SystemLogger())->debug("HttpRestRouteHandler->dispatch() security check failed", ["route" => $routePath]);
+                        return $securityCheck;
+                    }
+                    (new SystemLogger())->debug("HttpRestRouteHandler->dispatch() dispatching route", ["route" => $routePath]);
                     $hasRoute = true;
 
                     // now grab our url parameters and issue the controller callback for the route
@@ -217,6 +226,7 @@ class HttpRestRouteHandler
      * Security check on the request route against the Access Token scopes.
      * @param HttpRestRequest $restRequest
      * @throws AccessDeniedException If the security check fails
+     * @returns ResponseInterface|bool
      */
     private static function checkSecurity(HttpRestRequest $restRequest)
     {
@@ -245,33 +255,49 @@ class HttpRestRouteHandler
         }
 
         $config = $restRequest->getRestConfig();
-
         if ($restRequest->isPatientRequest()) {
             (new SystemLogger())->debug("checkSecurity() - patient specific request, so only allowing access to records to that one patient");
             if (empty($restRequest->getPatientUUIDString())) { // we MUST have a patient uuid string if its a patient request
                 // need to fail here since this means the downstream patient binding mechanism will be broken
                 (new SystemLogger())->error("checkSecurity() - exited since patient binding mechanism broken");
-                http_response_code(401);
+                $psrFactory = new Psr17Factory();
                 $config::destroySession();
-                exit;
+                return $psrFactory->createResponse(401);
             }
             // if we are a patient only request and we have a patient uuid populated (from session) then we set our scope type to be patient.
             $scopeType = 'patient';
+        }
+        // let module writers handle there own security checking or bypass the security as needed
+        // this allows experiments to be done on a module basis such as opening up patient write requests if a module
+        // allows that to occur, or more comprehensive in depth permission checks occurring.
+        $restApiSecurityCheckEvent = new RestApiSecurityCheckEvent($restRequest);
+        $restApiSecurityCheckEvent->setRestRequest($restRequest);
+        $restApiSecurityCheckEvent->setScopeType($scopeType);
+        $restApiSecurityCheckEvent->setResource($resource);
+        $restApiSecurityCheckEvent->setPermission($permission);
+        $checkedRestApiSecurityCheckEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($restApiSecurityCheckEvent, RestApiSecurityCheckEvent::EVENT_HANDLE);
+        if (!$checkedRestApiSecurityCheckEvent instanceof RestApiSecurityCheckEvent) {
+            throw new \RuntimeException("Invalid event object returned as part of dispatch");
+        }
+        if ($checkedRestApiSecurityCheckEvent->hasSecurityCheckFailedResponse()) {
+            return $checkedRestApiSecurityCheckEvent->getSecurityCheckFailedResponse();
+        } else if ($checkedRestApiSecurityCheckEvent->shouldSkipSecurityCheck()) {
+            return true;
         }
 
         if ($restRequest->isFhir()) {
             // don't do any checks on our open fhir resources
             if (self::fhirRestRequestSkipSecurityCheck($restRequest)) {
-                return;
+                return true;
             }
             // we do NOT want logged in patients writing data at this point so we fail
             // TODO: when we have better auditing and provider merge/verification mechanisms look at opening up patient write access to data.
             if ($restRequest->isPatientWriteRequest() && $restRequest->getRequestUserRole() == 'patient') {
                 // not allowing patient userrole write for fhir
                 (new SystemLogger())->debug("checkSecurity() - not allowing patient role write for fhir");
-                http_response_code(401);
+                $psrFactory = new Psr17Factory();
                 $config::destroySession();
-                exit;
+                return $psrFactory->createResponse(401);
             }
         } elseif (($restRequest->getApiType() === 'oemr') || ($restRequest->getApiType() === 'port')) {
             // don't do any checks on our open non-fhir resources
@@ -280,27 +306,27 @@ class HttpRestRouteHandler
                 || $restRequest->getResource() == 'product'
                 || $restRequest->isLocalApi() // skip security check if its a local api
             ) {
-                return;
+                return true;
             }
             // ensure correct user role type for the non-fhir routes
             if (($restRequest->getApiType() === 'oemr') && (($restRequest->getRequestUserRole() !== 'users') || ($scopeType !== 'user'))) {
                 (new SystemLogger())->debug("checkSecurity() - not allowing patient role to access oemr api");
-                http_response_code(401);
+                $psrFactory = new Psr17Factory();
                 $config::destroySession();
-                exit;
+                return $psrFactory->createResponse(401);
             }
             if (($restRequest->getApiType() === 'port') && (($restRequest->getRequestUserRole() !== 'patient') || ($scopeType !== 'patient'))) {
                 (new SystemLogger())->debug("checkSecurity() - not allowing users role to access port api");
-                http_response_code(401);
+                $psrFactory = new Psr17Factory();
                 $config::destroySession();
-                exit;
+                return $psrFactory->createResponse(401);
             }
         } else {
             // should never be here
             (new SystemLogger())->error("checkSecurity() - illegal api type");
-            http_response_code(401);
+            $psrFactory = new Psr17Factory();
             $config::destroySession();
-            exit;
+            return $psrFactory->createResponse(401);
         }
 
         // handle our scope checks

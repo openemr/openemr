@@ -1044,6 +1044,12 @@ class AuthorizationController
         $response = $this->createServerResponse();
         $request = $this->createServerRequest();
 
+        if ($request->getMethod() == 'OPTIONS') {
+            // nothing to do here, just return
+            $this->emitResponse($response->withStatus(200));
+            return;
+        }
+
         // authorization code which is normally only sent for new tokens
         // by the authorization grant flow.
         $code = $request->getParsedBody()['code'] ?? null;

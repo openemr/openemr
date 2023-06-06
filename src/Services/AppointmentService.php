@@ -135,6 +135,7 @@ class AppointmentService extends BaseService
                        pce.pc_billing_location,
                        pce.pc_catid,
                        pce.pc_pid,
+                       pce.pc_duration,
                        f1.name as facility_name,
                        f2.name as billing_location_name
                        FROM (
@@ -145,6 +146,7 @@ class AppointmentService extends BaseService
                                pc_apptstatus,
                                pc_eventDate,
                                pc_startTime,
+                               pc_duration,
                                pc_endTime,
                                pc_facility,
                                pc_billing_location,
