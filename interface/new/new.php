@@ -15,7 +15,6 @@ require_once("../globals.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
-error_log (" *** in new.php *** ");
 
 if ($GLOBALS['full_new_patient_form']) {
     require("new_comprehensive.php");
