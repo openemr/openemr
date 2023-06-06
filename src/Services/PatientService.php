@@ -896,6 +896,47 @@ class PatientService extends BaseService
         return compact('age', 'age_in_months', 'ageinYMD');
     }
 
+    public function getProviderIDsForPatientPids(array $patientPids)
+    {
+        // get integer only filtered pids for sql safety
+        $pids = array_map('intval', $patientPids);
+        $pids = array_filter($pids, function ($pid) {
+            return $pid > 0;
+        });
+
+        $sql = "SELECT pid,providerID FROM patient_data WHERE pid IN (" . implode(",", $pids) . ") "
+        . " AND providerID IS NOT NULL AND providerID != 0 ORDER BY pid";
+        $providerIds = QueryUtils::fetchRecords($sql, []);
+        $mappedPids = [];
+        if (!empty($providerIds)) {
+            foreach ($providerIds as $record) {
+                $mappedPids[$record['pid']] = $record['providerID'];
+            }
+        }
+        return $mappedPids;
+    }
+
+    public function getProviderIDsForPatientUuids(array $patientUuids)
+    {
+        // get integer only filtered pids for sql safety
+        $bindString = rtrim(str_repeat("?,", count($patientUuids) - 1)) . "?";
+        $patientUuids = array_map(function ($uuid) {
+            return UuidRegistry::uuidToBytes($uuid);
+        }, $patientUuids);
+
+        $sql = "SELECT uuid,providerID FROM patient_data WHERE uuid IN (" . $bindString . ") "
+            . " AND providerID IS NOT NULL AND providerID != 0 ORDER BY uuid";
+        $providerIds = QueryUtils::fetchRecords($sql, $patientUuids);
+        $mappedUuids = [];
+        if (!empty($providerIds)) {
+            foreach ($providerIds as $record) {
+                $uuid = UuidRegistry::uuidToString($record['uuid']);
+                $mappedUuids[$uuid] = $record['providerID'];
+            }
+        }
+        return $mappedUuids;
+    }
+
     private function parseSuffixForPatientRecord($patientRecord)
     {
         // if we have a suffix populated (that wasn't entered into last name) let's use that.
