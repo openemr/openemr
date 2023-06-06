@@ -272,9 +272,9 @@ $query = "SELECT * FROM patient_data WHERE dupscore > 7 " .
 $res1 = sqlStatement($query);
 $used = array(); /* record which patients we display in the table, so as not to use them more than once */
 while ($row1 = sqlFetchArray($res1)) {
-    (new SystemLogger())->debug("array used: ",$used);
-   (new SystemLogger())->debug ("p1 & score ",[$row1['pid'], $row1['dupscore']]);
-    if (array_search($row1['pid'],$used) === false){ //haven't used this one yet
+    (new SystemLogger())->debug("array used: ", $used);
+    (new SystemLogger())->debug("p1 & score ", [$row1['pid'], $row1['dupscore']]);
+    if (array_search($row1['pid'], $used) === false) { //haven't used this one yet
     // build the sql query to compare to all other patients
         $query = "SELECT p2.*, ($scorecalc) AS myscore " .
         "FROM patient_data AS p1, patient_data AS p2 WHERE " .
@@ -285,10 +285,9 @@ while ($row1 = sqlFetchArray($res1)) {
     /*only if more patients are potential duplicates display the first one -correct bug where only 1 patient in agroup displayed*/
         $displayFirst = true;
         while ($row2 = sqlFetchArray($res2)) {
-            (new SystemLogger())->debug ("p2 & score ", [$row2['pid'],$row2['dupscore']]);
+            (new SystemLogger())->debug("p2 & score ", [$row2['pid'], $row2['dupscore']]);
             if ($row2['dupscore'] != -1) { // don't use if marked as unique
-                if ($displayFirst )
-                {
+                if ($displayFirst) {
                     displayRow($row1);
                     $displayFirst = false;
                 }
