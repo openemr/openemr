@@ -1842,7 +1842,7 @@ function updateDupScore($pid)
         "UPDATE patient_data SET dupscore = ? WHERE pid = ?",
         array($dupscore, $pid)
     );
-     error_log ("updateDupScore: pid =".$pid.", new is ".($new ? "true" : "false") . ", resultant dupscore is ".$dupscore);
+
     return $dupscore;
 }
 

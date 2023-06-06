@@ -211,7 +211,6 @@ class PatientService extends BaseService
      */
     public function databaseUpdate($data)
     {
-        error_log("$$$ databaseupdate called $$$");
         // Get the data before update to send to the event listener
         $dataBeforeUpdate = $this->findByPid($data['pid']);
 
