@@ -276,3 +276,9 @@ a {
   height: 22px;
   width: 44px;
 }
+
+$input-padding-x: 20px;
+
+.input {
+  padding: math.div($input-padding-x, 2);
+}
