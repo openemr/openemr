@@ -92,7 +92,7 @@ function getNPI($prov_id)
 /**
  * @return array
  */
-function getProcedureProvider($prov_id): array
+function getProcedureProvider($prov_id): array|bool
 {
     $sql = "SELECT i.organization, i.street, i.city, i.state, i.zip, i.fax, i.phone, pi.lab_director " .
            "FROM users AS i, procedure_providers AS pi WHERE pi.ppid = ? AND pi.lab_director = i.id ";
