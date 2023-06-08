@@ -94,6 +94,7 @@
     "moment": "2.29.4",
     "numeral": "2.0.6",
     "purecss": "3.0.0",
+    "sass-migrator": "1.7.3",
     "select2": "4.0.13",
     "sortablejs": "1.15.0",
     "underscore": "1.13.6",
