@@ -84,7 +84,7 @@ if ($form_abook_type) {
 }
 
 if ($form_external) {
-    $query .= "AND u.username = '' ";
+    $query .= "AND u.abook_type = 'external_provider' ";
 }
 
 if ($form_lname) {
