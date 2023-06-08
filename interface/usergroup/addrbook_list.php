@@ -52,7 +52,7 @@ $sqlBindArray = array();
 $query = "SELECT u.*, lo.option_id AS ab_name, lo.option_value as ab_option FROM users AS u " .
   "LEFT JOIN list_options AS lo ON " .
   "list_id = 'abook_type' AND option_id = u.abook_type AND activity = 1 " .
-  "WHERE u.active = 1 AND ( u.authorized = 1 OR u.username = '' ) ";
+  "WHERE u.active = 1 AND ( u.authorized = 1 OR ( u.username = '' OR u.username IS NULL )) ";
 if ($form_organization) {
     $query .= "AND u.organization LIKE ? ";
     array_push($sqlBindArray, $form_organization . "%");
