@@ -38,6 +38,7 @@ function sqlQuery($statement, $link)
 <html>
 <head>
     <title>OpenEMR Site Administration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="public/assets/bootstrap/dist/css/bootstrap.min.css">
     <script src="public/assets/jquery/dist/jquery.min.js"></script>
     <script src="public/assets/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
