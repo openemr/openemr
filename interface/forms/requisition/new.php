@@ -139,12 +139,12 @@ table, th, td {
     <?php
     if (empty($order)) {
             echo "<div class='text-center mt-5'><span>" .
-                xlt('procedure order not found in database contact tech support') . "</span></div></div>";
+                xlt('procedure order not found in database contact tech support') . "</span></div></div></body></html>";
             exit;
     }
     if (empty($oid)) {
             print "<div class='text-center mt-5'><span>" .
-         xlt('No Order found, please enter procedure order first') . "</span></div></div>";
+         xlt('No Order found, please enter procedure order first') . "</span></div></div></body></html>";
             exit;
     }
     ?>
