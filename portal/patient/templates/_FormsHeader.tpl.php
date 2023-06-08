@@ -24,7 +24,7 @@ use OpenEMR\Core\Header;
 <meta name="author" content="Form | sjpadgett@gmail.com" />
 
 <!-- Styles -->
-<?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'moment', 'patientportal-style']); ?>
+<?php Header::setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker', 'moment']); ?>
 <script src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
 <script>
     $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore/underscore-min.js").wait()

@@ -48,7 +48,7 @@ $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
     <title><?php echo xlt('New Patient'); ?> | <?php echo xlt('Register'); ?></title>
     <meta name="description" content="Developed By sjpadgett@gmail.com" />
 
-    <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'patientportal-style', 'patientportal-register']); ?>
+    <?php Header::setupHeader(['no_main-theme',  'portal-theme', 'datetime-picker']); ?>
 
     <script>
         var webRoot = <?php echo js_escape($GLOBALS['web_root']); ?>;

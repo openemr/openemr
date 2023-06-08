@@ -89,7 +89,7 @@ if ($GLOBALS['language_menu_login']) {
     <title><?php echo xlt('New Patient'); ?> | <?php echo xlt('Register'); ?></title>
     <meta name="description" content="Developed By sjpadgett@gmail.com" />
 
-    <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'patientportal-style', 'patientportal-register']); ?>
+    <?php Header::setupHeader(['no_main-theme',  'portal-theme', 'datetime-picker']); ?>
 
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 

@@ -84,7 +84,7 @@ $templateService = new DocumentTemplateService();
     // list of encounter form directories/names (that are patient portal compliant) that use for whitelisting (security)
     echo "<script>var formNamesWhitelist=" . json_encode(CoreFormToPortalUtility::getListPortalCompliantEncounterForms()) . ";</script>";
 
-    Header::setupHeader(['no_main-theme', 'patientportal-style', 'datetime-picker']);
+    Header::setupHeader(['no_main-theme',  'portal-theme', 'datetime-picker']);
     ?>
     <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
     <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
@@ -416,10 +416,10 @@ $templateService = new DocumentTemplateService();
                         </li>
                     <?php } ?>
                     <li class='nav-item mb-1'>
-                        <a class='nav-link btn btn-secondary' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'> <span class='fa fa-sync fa-lg'></span></a>
+                        <a class='nav-link btn btn-outline-secondary' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'> <span class='fa fa-sync fa-lg'></span></a>
                     </li>
                     <li class='nav-item mb-1'>
-                        <a id='showNav' class='nav-link btn btn-secondary'><span class='navbar-toggler-icon mr-1'></span><?php echo xlt('Top Menu'); ?></a>
+                        <a id='showNav' class='nav-link btn btn-outline-secondary'><?php echo xlt('Top Menu'); ?></a>
                     </li>
                 </ul>
             </div>
@@ -435,10 +435,9 @@ $templateService = new DocumentTemplateService();
                 <script type="text/template" id="onsiteDocumentModelTemplate">
                     <div class="card m-0 p-0" id="docpanel">
                         <!-- Document edit container -->
-                        <span>
-                            <button id="dismissOnsiteDocumentButtonTop" class="dismissOnsiteDocumentButton btn btn-outline-primary float-right m-1" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
-                        </span>
-                        <header class="card-header bg-dark text-light helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?></header>
+                        <header class="card-header bg-dark text-light helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?>
+                            <button id="dismissOnsiteDocumentButtonTop" class="dismissOnsiteDocumentButton btn btn-outline-light btn-sm float-right" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
+                        </header>
                         <!-- editor form -->
                         <form class="container-xl p-0" id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
                             <div id="templatediv" class="card-body border overflow-auto">

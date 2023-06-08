@@ -218,7 +218,7 @@ if ($_REQUEST['providerid']) {
 <html>
 <head>
     <title><?php echo xlt('Find Available Appointments'); ?></title>
-    <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'opener']); ?>
+    <?php Header::setupHeader(['no_main-theme',  'portal-theme', 'datetime-picker', 'opener']); ?>
     <script>
 
         function setappt(year, mon, mday, hours, minutes) {
