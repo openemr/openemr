@@ -84,7 +84,11 @@ $templateService = new DocumentTemplateService();
     // list of encounter form directories/names (that are patient portal compliant) that use for whitelisting (security)
     echo "<script>var formNamesWhitelist=" . json_encode(CoreFormToPortalUtility::getListPortalCompliantEncounterForms()) . ";</script>";
 
-    Header::setupHeader(['no_main-theme',  'portal-theme', 'datetime-picker']);
+    if ($is_portal) {
+        Header::setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker']);
+    } else {
+        Header::setupHeader(['datetime-picker']);
+    }
     ?>
     <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
     <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
