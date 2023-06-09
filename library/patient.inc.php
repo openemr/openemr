@@ -401,7 +401,7 @@ function getInsuranceDataByDate(
     "left join insurance_companies as ic on ic.id = provider " .
     "where pid = ? and (date_format(date,'%Y-%m-%d') <= ? OR date IS NULL) and " .
     "(date_format(date_end,'%Y-%m-%d') >= ? OR date_end IS NULL) and " .
-    "type=? order by date DESC limit 1";
+    "type = ? order by date DESC limit 1";
     return sqlQuery($sql, array($pid, $date, $date, $type));
 }
 
