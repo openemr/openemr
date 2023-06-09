@@ -106,7 +106,13 @@ function getAuthPortalUsers()
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <?php Header::setupHeader(['no_main-theme',  'portal-theme', 'ckeditor', 'angular', 'angular-sanitize', 'checklist-model']); ?>
+    <?php
+    if (IS_PORTAL) {
+        Header::setupHeader(['no_main-theme',  'portal-theme', 'ckeditor', 'angular', 'angular-sanitize', 'checklist-model']);
+    } else {
+        Header::setupHeader(['ckeditor', 'angular', 'angular-sanitize', 'checklist-model']);
+    }
+    ?>
     <title><?php echo xlt("Secure Messaging"); ?></title>
     <meta name="description" content="Mail Application" />
 </head>

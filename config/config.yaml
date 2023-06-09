@@ -69,8 +69,6 @@ assets:
     portal-theme:
       alreadyBuilt: true
       link: '%portal_css_header%'
-      autoload: false
-      allowNoLoad: true
     patientportal-register:
         basePath: '%webroot%/public/themes/'
         link: patientportal-register.css
