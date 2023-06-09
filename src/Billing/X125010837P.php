@@ -555,13 +555,15 @@ class X125010837P
         }
         $out .= "*";
         if (
-            (strlen($claim->payerZip()) == 5)
-            || (strlen($claim->payerZip()) == 9)
+            !(
+                (strlen($claim->payerZip()) == 5)
+                || (strlen($claim->payerZip()) == 9)
+            )
         ) {
-            $out .= $claim->x12Zip($claim->payerZip());
-        } else {
             $log .= "*** Payer zip is not 5 or 9 digits.\n";
         }
+
+        $out .= $claim->x12Zip($claim->payerZip());
         $out .= "~\n";
 
         // Segment REF (Payer Secondary Identification) omitted.
