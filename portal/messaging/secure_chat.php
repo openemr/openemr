@@ -90,7 +90,7 @@ $msgApp = new ChatController();
 <head>
     <meta charset="utf-8" />
     <?php
-    Header::setupHeader(['no_main-theme', 'ckeditor', 'angular', 'angular-sanitize', 'checklist-model']);
+    Header::setupHeader(['no_main-theme',  'portal-theme', 'ckeditor', 'angular', 'angular-sanitize', 'checklist-model']);
     ?>
     <title><?php echo xlt('Secure Chat'); ?></title>
     <meta name="author" content="Jerry Padgett sjpadgett{{at}} gmail {{dot}} com" />

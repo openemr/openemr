@@ -106,11 +106,17 @@ function getAuthPortalUsers()
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <?php Header::setupHeader(['no_main-theme', 'patientportal-style', 'ckeditor', 'angular', 'angular-sanitize', 'checklist-model']); ?>
+    <?php
+    if (IS_PORTAL) {
+        Header::setupHeader(['no_main-theme',  'portal-theme', 'ckeditor', 'angular', 'angular-sanitize', 'checklist-model']);
+    } else {
+        Header::setupHeader(['ckeditor', 'angular', 'angular-sanitize', 'checklist-model']);
+    }
+    ?>
     <title><?php echo xlt("Secure Messaging"); ?></title>
     <meta name="description" content="Mail Application" />
 </head>
-<body class="skin-blue">
+<body class="body_top">
     <script>
         (function () {
             var app = angular.module("emrMessageApp", ['ngSanitize', "checklist-model"]);
@@ -559,7 +565,7 @@ function getAuthPortalUsers()
                 <h2><i class='fa fa-envelope w-auto h-auto mr-2'></i><?php echo xlt('Secure Messaging'); ?></h2>
             </div>
             <div class="row" ng-controller="inboxCtrl">
-                <div class="col-md-2 p-0 m-0 text-left border-right bg-secondary">
+                <div class="col-md-2 p-0 m-0 text-left border-right bg-light text-dark">
                     <div class="sticky-top">
                         <ul class="nav nav-pills nav-stacked flex-column">
                             <li class="nav-item">
@@ -645,7 +651,7 @@ function getAuthPortalUsers()
                         <!--message detail-->
                         <div class="container-fluid" ng-show="isMessageSelected()">
                             <div class="row" ng-controller="messageCtrl">
-                                <div class="w-100 pl-1 mb-1 bg-secondary">
+                                <div class="w-100 pl-1 mb-1 bg-light text-dark">
                                     <h5 class="pt-2">
                                         <a href="javascript:;" ng-click="groupToPages()"><?php echo xlt('Conversation from'); ?></a>
                                         <strong>{{selected.sender_name}}</strong> <?php echo xlt('regarding'); ?> <strong>{{selected.title}}</strong> <?php echo xlt('on'); ?> &lt;{{selected.date | date:'yyyy-MM-dd hh:mm'}}&gt;
@@ -680,7 +686,7 @@ function getAuthPortalUsers()
                                                     <button ng-show='!isTrash && selected.id == item.id' class="btn btn-small btn-primary" ng-click="deleteItem(items.indexOf(selected))" title="<?php echo xla('Delete this message'); ?>" data-toggle="tooltip"><i class="fa fa-trash fa-1x"></i>
                                                     </button>
                                                 </span>
-                                                <div class='col jumbotron jumbotron-fluid my-3 p-1 bg-secondary rounded border border-info' ng-show="selected.id == item.id">
+                                                <div class='col jumbotron jumbotron-fluid my-3 p-1 bg-light text-dark rounded border border-info' ng-show="selected.id == item.id">
                                                     <span ng-bind-html=renderMessageBody(selected.body)></span>
                                                 </div>
                                             </td>
@@ -715,7 +721,7 @@ function getAuthPortalUsers()
                             <div class="modal-body ">
                                 <div class="col-12">
                                     <label ng-show='selected.mail_chain'><?php echo xlt('Refer to Message') . ' # '; ?>{{selected.id}}</label>
-                                    <div class="jumbotron col-lg-12 m-1 p-1 bg-secondary" id="referMsg" ng-show='selected.mail_chain' ng-bind-html='renderMessageBody(selected.body)'></div>
+                                    <div class="jumbotron col-lg-12 m-1 p-1 bg-light text-dark" id="referMsg" ng-show='selected.mail_chain' ng-bind-html='renderMessageBody(selected.body)'></div>
 
                                     <form role="form" class="form-horizontal" ng-submit="submitForm(compose)" name="fcompose" id="fcompose" method="post" action="./handle_note.php">
                                         <fieldset class="row">

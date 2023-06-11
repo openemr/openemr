@@ -3057,6 +3057,16 @@ $GLOBALS_METADATA = array(
             xl('Website link for the Patient Portal.')
         ),
 
+        'portal_css_header' => array(
+            xl('Portal Default Theme'),
+            array(
+                'style_light.css' => xl('Light'),
+                'style_dark.css' => xl('Dark')
+            ),
+            'style_light.css',
+            xl('Pick a default portal theme.')
+        ),
+
         'portal_onsite_two_basepath' => array(
             xl('Portal Uses Server Base Path (internal)'),
             'bool',

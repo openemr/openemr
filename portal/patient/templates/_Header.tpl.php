@@ -18,7 +18,7 @@ use OpenEMR\Core\Header;
 <!DOCTYPE html>
 <html>
     <head>
-        <?php Header::setupHeader(['no_main-theme', 'patientportal-style', 'datetime-picker']); ?>
+        <?php Header::setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker']); ?>
         <title><?php $this->eprint($this->title); ?></title>
         <meta http-equiv="X-Frame-Options" content="deny" />
         <base href="<?php $this->eprint($this->ROOT_URL); ?>" />
