@@ -383,7 +383,7 @@ if (!empty($glrow)) {
             $GLOBALS['language_menu_show'][] = $gl_value;
         } elseif ($gl_name == 'css_header') {
             //Escape css file name using 'attr' for security (prevent XSS).
-            if (!file_exists($web_root . '/public/themes/' . attr($gl_value))) {
+            if (!file_exists($webserver_root . '/public/themes/' . attr($gl_value))) {
                 $gl_value = 'style_light.css';
             }
             $GLOBALS[$gl_name] = $web_root . '/public/themes/' . attr($gl_value) . '?v=' . $v_js_includes;
