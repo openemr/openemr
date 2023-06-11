@@ -133,8 +133,7 @@ $templateService = new DocumentTemplateService();
                 $("#Help").click();
                 $(".helpHide").addClass("d-none");
 
-                parent.document.getElementById('topNav').classList.toggle('collapse');
-
+                $(parent.document.getElementById('topNav')).addClass("d-none");
                 /*$('#showNav').on('click', () => {
                     let menuMsg;
                     if($(parent.document.getElementById('topNav')).is('.collapse:not(.show)')) {
@@ -208,7 +207,7 @@ $templateService = new DocumentTemplateService();
             if (!printContents) {
                 printContents = document.getElementById(divName).innerHTML;
             }
-            request = new FormData;
+            const request = new FormData;
             request.append("handler", "fetch_pdf");
             request.append("docid", docid);
             request.append("content", printContents);

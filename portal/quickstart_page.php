@@ -38,6 +38,7 @@ use OpenEMR\Core\Header;
             if ($(parent.document.getElementById('topNav')).is('.collapse:not(.show)')) {
                 ele.classList.toggle('collapse');
             }
+            $(parent.document.getElementById('topNav')).removeClass("d-none");
         });
     </script>
 </head>
