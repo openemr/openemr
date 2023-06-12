@@ -396,7 +396,7 @@ if (!empty($glrow)) {
             $current_theme = sqlQueryNoLog(
                 "SELECT `setting_value` FROM `patient_settings` " .
                 "WHERE setting_patient = ? AND `setting_label` = ?",
-                array($_SESSION['pid'], 'portal_theme')
+                array($_SESSION['pid'] ?? 0, 'portal_theme')
             )['setting_value'] ?? null;
             $gl_value = $current_theme ?? null ?: $gl_value;
             $GLOBALS[$gl_name] = $web_root . '/public/themes/' . attr($gl_value) . '?v=' . $v_js_includes;
