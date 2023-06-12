@@ -625,13 +625,13 @@ var page = {
         page.encounterFormName = '';
         if (docid !== 'Help') {
             $("#topnav").hide();
-            let menuMsg;
+            /*let menuMsg;
             if($(parent.document.getElementById('topNav')).is('.collapse:not(.show)')) {
                 menuMsg = xl("Show Top Menu");
             } else {
                 menuMsg = xl("Hide Top Menu");
             }
-            document.getElementById("showNav").innerHTML = menuMsg;
+            document.getElementById("showNav").innerHTML = menuMsg;*/
         }
         if (currentName === templateName && currentName && !page.isNewDoc) {
             // update form for any submits.(downloads and prints)

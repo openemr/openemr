@@ -314,7 +314,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
 <head>
     <title><?php echo xlt('Patient Portal Login'); ?></title>
     <?php
-    Header::setupHeader(['no_main-theme', 'datetime-picker', 'patientportal-style', 'patientportal-base', 'patientportal-register']);
+    Header::setupHeader(['no_main-theme',  'portal-theme', 'datetime-picker']);
     ?>
     <script>
         function checkUserName() {
