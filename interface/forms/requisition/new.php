@@ -131,7 +131,7 @@ table, th, td {
   }
 
 </style>
-    <title><?php echo xlt('Lab Requisition ') . text($lab); ?></title>
+    <title><?php echo xlt('Lab Requisition') . ' ' . text($lab); ?></title>
 </head>
 
 <body>
