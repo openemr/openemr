@@ -878,7 +878,7 @@ class X125010837P
         // Segment HI*BP (Anesthesia Related Procedure) omitted.
         // Segment HI*BG (Condition Information) omitted.
         // Segment HCP (Claim Pricing/Repricing Information) omitted.
-        if ($claim->referrerLastName()) {
+        if ($claim->referrer ?? null) {
             // Medicare requires referring provider's name and NPI.
             ++$edicount;
             $out .= "NM1" .     // Loop 2310A Referring Provider
