@@ -24,7 +24,7 @@ formHeader("Form:Lab Requisition");
 
 $returnurl = 'encounter_top.php';
 
-$formid = (int) (isset($_GET['id']) ? $_GET['id'] : '');
+$formid = (int) ($_GET['id'] ?? 0);
 $obj = $formid ? formFetch("form_requisition", $formid) : array();
 
 global $pid ;
@@ -52,15 +52,12 @@ if (empty($ins)) {
     $npi       = getNPI($prov_id);
     $pp        = getProcedureProvider($lab);
     $provLabId = getLabconfig();
-
-
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
     <?php Header::setupHeader(); ?>
-
 <style>
 table, th, td {
      border: 1px solid black;
