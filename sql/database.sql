@@ -13303,3 +13303,12 @@ CREATE TABLE `onetime_auth` (
     PRIMARY KEY (`id`),
     KEY `pid` (`pid`,`onetime_token`(255))
 ) ENGINE=InnoDB;
+
+
+DROP TABLE IF EXISTS `patient_settings`;
+CREATE TABLE `patient_settings` (
+     `setting_patient`  bigint(20)   NOT NULL DEFAULT 0,
+     `setting_label` varchar(100)  NOT NULL,
+     `setting_value` varchar(255) NOT NULL DEFAULT '',
+     PRIMARY KEY (`setting_patient`, `setting_label`)
+) ENGINE=InnoDB;
