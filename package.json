@@ -58,7 +58,6 @@
   "dependencies": {
     "@eastdesire/jscolor": "2.5.1",
     "@fortawesome/fontawesome-free": "6.3.0",
-    "@ttskch/select2-bootstrap4-theme": "1.5.2",
     "angular": "1.8.3",
     "angular-sanitize": "1.8.3",
     "backbone": "1.4.1",
