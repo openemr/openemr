@@ -760,23 +760,25 @@ window.onload = function() {
                         if (!empty($subresult5["provider_name"])) {
                             $style = $responsible == 1 ? " style='color: var(--danger)'" : "";
                             $insured = "<span class='text'$style>&nbsp;" . xlt('Primary') . ": " .
-                            text($subresult5["provider_name"]) . "</span><br />\n";
+                                text($subresult5["provider_name"]) . "</span><br />\n";
+                        } else {
+                            $insured = "<span class='text'>&nbsp;" . xlt('Primary') . ": </span><br />\n";
                         }
                         $subresult6 = getInsuranceDataByDate($pid, $raw_encounter_date, "secondary");
                         if (!empty($subresult6["provider_name"])) {
                             $style = $responsible == 2 ? " style='color: var(--danger)'" : "";
                             $insured .= "<span class='text'$style>&nbsp;" . xlt('Secondary') . ": " .
-                            text($subresult6["provider_name"]) . "</span><br />\n";
+                                text($subresult6["provider_name"]) . "</span><br />\n";
                         }
                         $subresult7 = getInsuranceDataByDate($pid, $raw_encounter_date, "tertiary");
                         if ($subresult6 && !empty($subresult7["provider_name"])) {
                             $style = $responsible == 3 ? " style='color: var(--danger)'" : "";
                             $insured .= "<span class='text'$style>&nbsp;" . xlt('Tertiary') . ": " .
-                            text($subresult7["provider_name"]) . "</span><br />\n";
+                                text($subresult7["provider_name"]) . "</span><br />\n";
                         }
                         if ($responsible == 0) {
                             $insured .= "<span class='text' style='color: var(--danger)'>&nbsp;" . xlt('Patient') .
-                                        "</span><br />\n";
+                                "</span><br />\n";
                         }
                     } else {
                         $insured = " (" . xlt("No access") . ")";
