@@ -86,6 +86,11 @@ if (!empty($_POST['with_day_of_week'])) {
     $chk_day_of_week = true;
 }
 
+$chk_with_canceled_appt = false;
+if (!empty($_POST['with_canceled_appt'])) {
+    $chk_with_canceled_appt = true;
+}
+
 $provider  = $_POST['form_provider'] ?? null;
 $facility  = $_POST['form_facility'] ?? null;  //(CHEMED) facility filter
 $form_orderby = (!empty($_REQUEST['form_orderby']) && getComparisonOrder($_REQUEST['form_orderby'])) ?  $_REQUEST['form_orderby'] : 'date';
@@ -303,7 +308,7 @@ if (empty($_POST['form_csvexport'])) {
                 <?php # these two selects will show entries that do not have a facility or a provider ?>
                 <td>
                     <div class="checkbox">
-                        <label><input type="checkbox" name="with_out_provider" id="with_out_provider" <?php echo ($chk_with_out_provider) ? "checked" : ""; ?>><?php echo xlt('Without Provider'); ?>
+                        <label><input type="checkbox" name="with_out_provider" id="with_out_provider" <?php echo ($chk_with_out_provider) ? "checked" : ""; ?>>&nbsp;<?php echo xlt('Without Provider'); ?>
                         </label>
                     </div>
                 </td>
@@ -323,6 +328,14 @@ if (empty($_POST['form_csvexport'])) {
                         <label><input type="checkbox" name="with_day_of_week" id="with_day_of_week"
                         <?php echo ($chk_day_of_week ? ' checked' : ''); ?>>
                         <?php echo xlt('Show Day of Week'); ?>
+                        </label>
+                    </div>
+                </td>
+
+                <td></td>
+                <td>
+                    <div class="checkbox">
+                        <label><input type="checkbox" name="with_canceled_appt" id="with_canceled_appt" <?php echo ($chk_with_canceled_appt) ? "checked" : ""; ?>>&nbsp;<?php echo xlt('With Canceled Appointments'); ?>
                         </label>
                     </div>
                 </td>
@@ -462,6 +475,12 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
         $cntr = 1; // column labels above start at 1
         foreach ($appointments as $appointment) {
+            if (
+                $appointment['pc_apptstatus'] == "x"
+                && empty($chk_with_canceled_appt)
+            ) {
+                continue;
+            }
             $cntr++;
             array_push($pid_list, $appointment['pid']);
             array_push($apptdate_list, $appointment['pc_eventDate']);
