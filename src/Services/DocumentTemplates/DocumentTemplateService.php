@@ -222,7 +222,7 @@ class DocumentTemplateService extends QuestionnaireService
                     $template['period'] = $event['period'];
                 }
             } else {
-                return false; // in review or locked so don't show. @todo possibly delete sent template.
+                return true; // in review or locked so show default template. @todo possibly delete sent template.
             }
         }
         if ($template['event_trigger'] === 'once') {

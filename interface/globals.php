@@ -391,8 +391,14 @@ if (!empty($glrow)) {
             $compact_header = $GLOBALS['compact_header'];
             $css_header = $GLOBALS[$gl_name];
             $temp_css_theme_name = $gl_value;
-        } elseif ($gl_name == 'portal_css_header') {
-            //Escape css file name using 'attr' for security (prevent XSS).
+        } elseif ($gl_name == 'portal_css_header' && $ignoreAuth_onsite_portal) {
+            // does patient have a portal theme selected?
+            $current_theme = sqlQueryNoLog(
+                "SELECT `setting_value` FROM `patient_settings` " .
+                "WHERE setting_patient = ? AND `setting_label` = ?",
+                array($_SESSION['pid'] ?? 0, 'portal_theme')
+            )['setting_value'] ?? null;
+            $gl_value = $current_theme ?? null ?: $gl_value;
             $GLOBALS[$gl_name] = $web_root . '/public/themes/' . attr($gl_value) . '?v=' . $v_js_includes;
             $portal_css_header = $GLOBALS[$gl_name];
             $portal_temp_css_theme_name = $gl_value;
