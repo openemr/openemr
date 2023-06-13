@@ -325,6 +325,12 @@ class InsuranceCompanyService extends BaseService
         return $iid;
     }
 
+    /**
+     * Return an array of insurance companies with the same payer id
+     *
+     * @param  $cms_id  Insurance company payer id (assigned by clearinghouses)
+     * @return Array Insurance company data payload.
+     */
     public function getAllByPayerID($cms_id)
     {
         $insuranceCompanyResult = $this->search(['cms_id' => $cms_id]);
