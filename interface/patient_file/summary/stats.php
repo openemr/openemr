@@ -293,7 +293,7 @@ if (!$GLOBALS['disable_immunizations'] && !$GLOBALS['weight_loss_clinic']) :
         'btnLabel' => 'Edit',
         'btnLink' => 'immunizations.php',
         'linkMethod' => 'html',
-        'auth' => ACLMain::aclCheckCore('patients', 'med, '', 'write'),
+        'auth' => true,
         'imx' => $imxList,
     ]);
 endif; // End immunizations

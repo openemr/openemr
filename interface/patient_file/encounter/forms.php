@@ -260,7 +260,7 @@ $(function () {
      $(".deleteme").click(function(evt) { deleteme(); evt.stopPropogation(); });
 
 <?php
-// If the user was not just asked about orphaned orders, build javascript for that.
+ // If the user was not just asked about orphaned orders, build javascript for that.
 if (!isset($_GET['attachid'])) {
     $ares = sqlStatement(
         "SELECT procedure_order_id, date_ordered " .
@@ -280,7 +280,7 @@ if (!isset($_GET['attachid'])) {
         xlj('Assign it to this one?') . ")) attachid += " . js_escape($orderid . ",") . ";\n";
     }
     echo "  if (attachid) location.href = 'forms.php?attachid=' + encodeURIComponent(attachid);\n";
-}   
+}
 ?>
 
     <?php if ($reviewMode) { ?>

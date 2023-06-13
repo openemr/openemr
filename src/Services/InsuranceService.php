@@ -26,8 +26,8 @@ use OpenEMR\Services\Search\{
     TokenSearchValue,
 };
 use OpenEMR\Validators\{
-    ProcessingResult,
     CoverageValidator,
+    ProcessingResult,
 };
 use Particle\Validator\Validator;
 

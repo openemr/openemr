@@ -91,7 +91,9 @@ class Module
         $blacklist = include __DIR__ . "/config/blacklist.php";
         $pids = [];
         foreach ($blacklist as $item) {
-                $pids = array_merge($pids, $blacklisted);
+            if ($username == $item['username']) {
+                $pids = array_merge($pids, $item['blacklist']);
+            }
         }
 
         return $pids;
