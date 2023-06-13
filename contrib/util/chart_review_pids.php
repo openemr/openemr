@@ -2,7 +2,7 @@
 
 /**
  * Create an array of pids for whitelisting the patient filter for a chart review
- * 
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    stephen waite <stephen.waite@cmsvt.com>
