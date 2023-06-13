@@ -7,7 +7,7 @@ if ($aclSetupFlag !== true) {
 
 use OpenEMR\Common\Acl\AclExtended;
 
-AclExtended::addObjectSectionAcl('pfeh', 'PatientFilterEventHook');
+AclExtended::addObjectSectionAcl('pfeh', 'PatientFilter');
 
 AclExtended::addObjectAcl('pfeh', 'Fields Filter', 'field_filter', 'Fields Filter');
 AclExtended::addObjectAcl('pfeh', 'Hook Filter', 'hooks', 'Hook Filter');
@@ -21,11 +21,11 @@ AclExtended::updateAcl($physicians_write, 'Physicians', 'pfeh', 'Parameters', 'p
 ?>
 <html>
 <head>
-    <title>PatientFilterEventHookTest ACL Setup</title>
+    <title>PatientFilter ACL Setup</title>
     <link rel=STYLESHEET href="interface/themes/style_blue.css">
 </head>
 <body>
-<b>OpenEMR[PatientFilterEventHookTest] ACL Setup</b>
+<b>OpenEMR[PatientFilter] ACL Setup</b>
 <br>
 All done configuring and installing access controls (php-GACL)!
 </body>
