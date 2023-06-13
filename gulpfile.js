@@ -459,12 +459,6 @@ function install(done) {
                     .pipe(gulp.dest(config.dist.assets + key + '/scss'));
                 gulp.src('node_modules/' + key + '/webfonts/**/*')
                     .pipe(gulp.dest(config.dist.assets + key + '/webfonts'));
-            } else if (key == '@ttskch/select2-bootstrap4-theme') {
-                // @ttskch/select2-bootstrap4-theme is special and need to copy dist and src
-                gulp.src('node_modules/' + key + '/dist/**/*')
-                    .pipe(gulp.dest(config.dist.assets + key + '/dist'));
-                gulp.src('node_modules/' + key + '/src/**/*')
-                    .pipe(gulp.dest(config.dist.assets + key + '/src'));
             } else if (key == "moment") {
                 gulp.src('node_modules/' + key + '/min/**/*')
                     .pipe(gulp.dest(config.dist.assets + key + '/min'));
