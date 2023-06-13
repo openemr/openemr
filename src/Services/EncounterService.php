@@ -620,6 +620,7 @@ class EncounterService extends BaseService
         $validator->optional('assessment')->lengthBetween(2, 65535);
         $validator->optional('plan')->lengthBetween(2, 65535);
 
+        return $validator->validate($soapNote);
     }
 
     public function validateVital($vital)

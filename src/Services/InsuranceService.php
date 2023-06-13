@@ -17,7 +17,6 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\AddressService;
-
 use OpenEMR\Services\Search\{
     CompositeSearchField,
     DateSearchField,
@@ -26,12 +25,10 @@ use OpenEMR\Services\Search\{
     TokenSearchField,
     TokenSearchValue,
 };
-
 use OpenEMR\Validators\{
     ProcessingResult,
     CoverageValidator,
 };
-
 use Particle\Validator\Validator;
 
 class InsuranceService extends BaseService
@@ -91,6 +88,7 @@ class InsuranceService extends BaseService
         $validator->optional('subscriber_employer_city')->lengthBetween(2, 255);
         $validator->optional('copay')->lengthBetween(2, 255);
         $validator->optional('date')->datetime('Y-m-d');
+        $validator->optional('date_end')->datetime('Y-m-d');
 
         return $validator->validate($data);
     }
@@ -112,7 +110,7 @@ class InsuranceService extends BaseService
                     `uuid` as `puuid`
                     FROM `patient_data`
                 ) `patient_data` ON `insurance_data`.`pid` = `patient_data`.`patient_data_pid` ";
-    
+
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
         $sql .= $whereClause->getFragment();
@@ -373,15 +371,26 @@ class InsuranceService extends BaseService
             )
         );
     }
+
+    /**
+     * Return an array of encounters within a date range
+     *
+     * @param  $start_date  Any encounter starting on this date
+     * @param  $end_date  Any encounter ending on this date
+     * @return Array Encounter data payload.
+     */
     public function getPidsForPayerByEffectiveDate($provider, $type, $startDate, $endDate)
     {
-        // most common case of null in effective date which signifies is only type of insurance (primary)
+        // most common case of null in 'date' field aka effective date which signifies is only insurance of that type
+        // TBD: add another token for 'date_end' field
         $dateMissing = new TokenSearchField('date', [new TokenSearchValue(null)]);
         $dateMissing->setModifier(SearchModifier::MISSING);
 
-        // set up composite search with false signifying an OR condition for the effective date
-        $composite = new CompositeSearchField('date', [], false); 
+        // search for encounters by passed in start and end dates
         $dateField = new DateSearchField('date', ['ge' . $startDate, 'le' . $endDate], DateSearchField::DATE_TYPE_DATE);
+
+        // set up composite search with false signifying an OR condition for the effective date
+        $composite = new CompositeSearchField('date', [], false);
         $composite->addChild($dateMissing);
         $composite->addChild($dateField);
 
@@ -398,30 +407,6 @@ class InsuranceService extends BaseService
             $result = [];
         }
 
-    
-        /* $query = "SELECT id.pid AS pid " .
-            "FROM insurance_data AS id WHERE " .
-            "id.provider = ? AND " .
-            "id.type = ? AND " .
-            "(id.date <= ? OR id.date IS NULL) ";
-
-        $rez = sqlStatement(
-            $query,
-            array(
-            $provider,
-            $type,
-            $effectiveDate
-            )
-        );
-
-        while ($row = sqlFetchArray($rez)) {
-            $result[] = $row;
-        } */
-
-
-        //var_dump($result_array);
         return $result;
-        
     }
-    
 }

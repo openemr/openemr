@@ -13,7 +13,6 @@ use OpenEMR\Events\Appointments\AppointmentsFilterEvent;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
 use OpenEMR\Events\PatientDemographics\ViewEvent;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
-use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Laminas\ModuleManager\ModuleManager;
@@ -29,6 +28,21 @@ use Laminas\Mvc\MvcEvent;
  */
 class Module
 {
+    public function getAutoloaderConfig()
+    {
+        return array(
+            'Laminas\Loader\ClassMapAutoloader' => array(
+                __DIR__ . '/autoload_classmap.php',
+            ),
+            'Laminas\Loader\StandardAutoloader' => array(
+                'namespaces' => array(
+                    __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
+
+                ),
+            ),
+        );
+    }
+
     public function getConfig()
     {
         return include __DIR__ . '/config/module.config.php';
@@ -77,15 +91,7 @@ class Module
         $blacklist = include __DIR__ . "/config/blacklist.php";
         $pids = [];
         foreach ($blacklist as $item) {
-            if ($username == $item['username']) {
-                //$patientData = (new PatientService())->getAll()->getData();
-                $patientPids = sqlStatement("SELECT pid from patient_data");
-                while ($row = sqlFetchArray($patientPids)) {
-                    $patientData[] = $row;
-                }
-                $blacklisted = array_diff(array_column($patientData, 'pid'), $item['blacklist']);
                 $pids = array_merge($pids, $blacklisted);
-            }
         }
 
         return $pids;

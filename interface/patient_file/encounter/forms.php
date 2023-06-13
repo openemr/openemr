@@ -260,29 +260,27 @@ $(function () {
      $(".deleteme").click(function(evt) { deleteme(); evt.stopPropogation(); });
 
 <?php
-  // If the user was not just asked about orphaned orders, build javascript for that.
-if (AclMain::aclCheckCore('patients', 'med')) {
-    if (!isset($_GET['attachid'])) {
-        $ares = sqlStatement(
-            "SELECT procedure_order_id, date_ordered " .
-            "FROM procedure_order WHERE " .
-            "patient_id = ? AND encounter_id = 0 AND activity = 1 " .
-            "ORDER BY procedure_order_id",
-            array($pid)
-        );
-        echo "  // Ask about attaching orphaned orders to this encounter.\n";
-        echo "  var attachid = '';\n";
-        while ($arow = sqlFetchArray($ares)) {
-            $orderid   = $arow['procedure_order_id'];
-            $orderdate = $arow['date_ordered'];
-            echo "  if (confirm(" . xlj('There is a lab order') . " + ' ' + " . js_escape($orderid) . " + ' ' + " .
-            xlj('dated') . " + ' ' + " . js_escape($orderdate) .  " + ' ' + " .
-            xlj('for this patient not yet assigned to any encounter.') . " + ' ' + " .
-            xlj('Assign it to this one?') . ")) attachid += " . js_escape($orderid . ",") . ";\n";
-        }
-        echo "  if (attachid) location.href = 'forms.php?attachid=' + encodeURIComponent(attachid);\n";
+// If the user was not just asked about orphaned orders, build javascript for that.
+if (!isset($_GET['attachid'])) {
+    $ares = sqlStatement(
+        "SELECT procedure_order_id, date_ordered " .
+        "FROM procedure_order WHERE " .
+        "patient_id = ? AND encounter_id = 0 AND activity = 1 " .
+        "ORDER BY procedure_order_id",
+        array($pid)
+    );
+    echo "  // Ask about attaching orphaned orders to this encounter.\n";
+    echo "  var attachid = '';\n";
+    while ($arow = sqlFetchArray($ares)) {
+        $orderid   = $arow['procedure_order_id'];
+        $orderdate = $arow['date_ordered'];
+        echo "  if (confirm(" . xlj('There is a lab order') . " + ' ' + " . js_escape($orderid) . " + ' ' + " .
+        xlj('dated') . " + ' ' + " . js_escape($orderdate) .  " + ' ' + " .
+        xlj('for this patient not yet assigned to any encounter.') . " + ' ' + " .
+        xlj('Assign it to this one?') . ")) attachid += " . js_escape($orderid . ",") . ";\n";
     }
-}    
+    echo "  if (attachid) location.href = 'forms.php?attachid=' + encodeURIComponent(attachid);\n";
+}   
 ?>
 
     <?php if ($reviewMode) { ?>

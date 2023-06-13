@@ -618,7 +618,7 @@ function generate_receipt($patient_id, $encounter = 0)
         $form_amount = $_POST['form_amount'];
         $lines = $_POST['line'];
 
-        for ($lino = 0; $lines[$lino]['code_type'] ?? null; ++$lino) {
+        for ($lino = 0; $lines[$lino]['code_type']; ++$lino) {
             $line = $lines[$lino];
             $code_type = $line['code_type'];
             $id        = $line['id'];

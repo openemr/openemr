@@ -16,7 +16,11 @@
  */
 return [
     [
-        'username' => 'physician',
+        'username' => 'admin', // The username of user to restrict
+        'blacklist' => [1, 3] // The list of pids that this user should not have access to
+    ],
+    [
+        'username' => 'doctor99',
         'blacklist' => [2, 3]
     ],
 ];
