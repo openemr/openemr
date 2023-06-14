@@ -350,16 +350,8 @@ if (!empty($_REQUEST['go'])) { ?>
                                 $noteid = $_GET['noteid'];
                             }
                             // Check to make sure the noteid is assigned to the user
-                            $tmp = getPnotesByUser('1', 'no', $_SESSION['authUser']);
-                            while ($tmp_row = sqlFetchArray($tmp)) {
-                                if (
-                                    ($tmp_row['id'] == $noteid)
-                                    && ($tmp_row['user'] == $_SESSION['authUser'])
-                                ) {
-                                    continue;
-                                } else {
-                                    die("There was an error processing your request.");
-                                }
+                            if (!checkPnotesNoteId($noteid, $_SESSION['authUser'])) {
+                                die("There was an error processing your request.");
                             }
                             // Update the message if it already exists; it's appended to an existing note in Patient Notes.
                             $result = getPnoteById($noteid);
