@@ -24,7 +24,7 @@ $ovr-light: $gray-800;
 $light: $gray-100;
 $dark: $gray-800;
 $gray: $gray-600;
-
+$link-color: #f0f0f0;
 $body-bg: $white;
 /* This is actually dark */
 $body-color: $gray-900;
@@ -60,33 +60,61 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 /* Overrides go here */
 @if $compact-theme == false {
   .btn-secondary {
-    color: $ovr-dark !important;
+    color: $ovr-dark;
+  }
+
+  .btn-primary {
+    color: $black;
+  }
+
+  .btn-success {
+    color: $black;
+  }
+
+  .btn-danger {
+    color: $black;
+  }
+
+  .btn-outline-primary {
+    color: $black;
+  }
+
+  .btn-outline-success {
+    color: $black;
+  }
+
+  ul.tabNav a {
+    color: $black;
+  }
+
+  input.list-group-item {
+    color: $black;
   }
 
   .menuLabel:hover {
-    color: $ovr-dark !important;
+    color: $ovr-dark;
   }
 
   .menuDisabled {
-    color: $ovr-dark !important;
+    color: $ovr-dark;
   }
 
   .menuEntries li .menuLabel:hover {
-    color: $ovr-dark !important;
+    color: $ovr-dark;
   }
 
   .documents_list a {
-    color: $body-color !important;
+    color: $body-color;
   }
 
   /* Changes all SVG colors to white to match theme */
   .about-review-image > #color {
-    fill: $black !important;
+    fill: $black;
   }
 
   #mainBox .logo .emr-menu-logo > #blue-color,
   #mainBox_vertical .logo .emr-menu-logo > #blue-color {
-    fill: $black !important;
+    fill: $black;
   }
 }
 

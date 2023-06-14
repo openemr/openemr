@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Patient Portal
+ * Patient Portal Documents
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
- * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -398,7 +398,7 @@ $templateService = new DocumentTemplateService();
                     </div>
                     <?php if (!empty($is_module) || !empty($is_portal)) { ?>
                         <div class="dropdown mb-1">
-                            <a class="dropdown-toggle nav-link btn btn-outline-success text-success" href="#" role="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a class="dropdown-toggle nav-link btn btn-outline-success" href="#" role="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <?php echo xlt('Select Documents') ?>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenu">
@@ -407,7 +407,7 @@ $templateService = new DocumentTemplateService();
                         </div>
                     <?php } ?>
                     <li class='nav-item mb-1'>
-                        <a class='nav-link text-success btn btn-outline-success' onclick="page.handleHistoryView()">
+                        <a class='nav-link btn btn-outline-success' onclick="page.handleHistoryView()">
                             <?php echo xlt('History') ?>
                             <i class="history-direction ml-1 fa fa-arrow-down"></i>
                         </a>
@@ -423,7 +423,7 @@ $templateService = new DocumentTemplateService();
                     <?php } ?>
                     <?php if (!empty($is_portal)) { ?>
                         <li class="nav-item mb-1">
-                            <a class="nav-link text-danger btn btn-outline-secondary" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer_portal ?>")'><?php echo xlt('Home'); ?></a>
+                            <a class="nav-link text-danger btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer_portal ?>")'><?php echo xlt('Exit'); ?></a>
                         </li>
                     <?php } ?>
                     <li class='nav-item mb-1'>
