@@ -346,8 +346,9 @@ if (!empty($_REQUEST['go'])) { ?>
                             $reply_to = $_POST['reply_to'];
                             break;
                         case "edit":
-                            if ($noteid == "") {
-                                $noteid = $_GET['noteid'];
+                            $noteid = (int) $_GET['noteid'];
+                            if (empty($noteid)) {
+                                die("There was an error processing your request.");
                             }
                             // Check to make sure the noteid is assigned to the user
                             if (!checkPnotesNoteId($noteid, $_SESSION['authUser'])) {
