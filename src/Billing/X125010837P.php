@@ -50,11 +50,6 @@ class X125010837P
         $out = '';
         $claim = new Claim($pid, $encounter, $x12_partner);
 
-        if ($GLOBALS['gen_x12_based_on_ins_co']) {
-            $log .= "Generating directly to insurance claim $pid" . "-" . $encounter . " for ";
-        } else {
-            $log .= "Generating claim $pid" . "-" . $encounter . " for ";
-        }
         $log .= $claim->patientFirstName() . ' ' .
         $claim->patientMiddleName() . ' ' .
         $claim->patientLastName() . ' on ' .

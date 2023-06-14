@@ -1194,6 +1194,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                             "id.pid = ? AND " .
                                             "id.provider = ? AND " .
                                             "(id.date <= ? OR id.date IS NULL) AND " .
+                                            "(id.date_end >= ? OR id.date_end IS NULL) AND " .
                                             "ic.id = id.provider " .
                                             "ORDER BY id.type ASC, id.date DESC";
 
@@ -1202,6 +1203,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                             array(
                                             $iter['enc_pid'],
                                             $crow['payer_id'],
+                                            $raw_encounter_date,
                                             $raw_encounter_date
                                             )
                                         );
