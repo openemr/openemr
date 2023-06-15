@@ -2,12 +2,17 @@
 *
 *   Dark Theme for OpenEMR
 *   @author Tyler Wrenn
+*   @author Jerry Padgett
 *
 *   Colors that are declared below have been inverted to show the dark theme.
 *
 */
 
-/* Dark theme overrides */
+/* Dark theme overrides
+  It is important to be careful using the !important rule.
+  Only use if necessary to override an existing rule.
+  So don't just use because its easier!
+*/
 $white: #000;
 $gray-100: #212529;
 $gray-200: #343a40;
@@ -58,7 +63,6 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 @import "../navigation-slide/future-bootstrap";
 
 /* Overrides go here */
-@if $compact-theme == false {
   .btn-secondary {
     color: $ovr-dark;
   }
@@ -95,6 +99,11 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
     color: $black;
   }
 
+.appMenu .appMenu>span:hover, .appMenu li:hover, .appMenu>span:hover {
+  background-color: #cbd8e7 !important;
+  color: var(--white);
+}
+
   .menuEntries li .menuLabel:hover {
     color: $light !important;
   }
@@ -116,6 +125,14 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
   #mainBox_vertical .logo .emr-menu-logo > #blue-color {
     fill: $black;
   }
+
+  /*
+  Use conditional if wanting to change padding, margins etc.
+  so as to not impact the compact styling.
+  Colors should be the same for both.
+  */
+@if $compact-theme == false {
+
 }
 
 /*search any*/
