@@ -152,9 +152,19 @@ $templateService = new DocumentTemplateService();
                     page.init();
                     if (!pageAudit.isInitialized) {
                         pageAudit.init();
+                        console.log('secondary init done!');
                     }
                 }
             }, 2000);
+
+            $(function () {
+                $(window).bind('beforeunload', function () {
+                    if (page.inFormEdit) {
+                        // You have unsaved changes auto browser popup
+                        event.preventDefault();
+                    }
+                });
+            });
         });
 
         function printaDocHtml(divName) {

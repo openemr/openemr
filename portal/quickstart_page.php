@@ -99,7 +99,7 @@ use OpenEMR\Core\Header;
         </div>
         <div class='jumbotron jumbotron-fluid p-4'>
             <div class="row" id="inject_card">
-                <div class="card overflow-auto d-flex">
+                <div class="card d-flex">
                     <div class="card-body">
                         <h4 class="card-title"><i class="fa fa-file-text mr-1"></i><?php echo xlt('Forms') ?></h4>
                         <a class="btn btn-success" href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr_url($pid); ?>"><?php echo xlt('Manage Forms') ?></a>
@@ -109,61 +109,69 @@ use OpenEMR\Core\Header;
                     <h4><i class="fa fa-message mr-1"></i><?php /*echo xlt('Chat') */ ?></h4>
                     <a class="btn btn-success" href="<?php /*echo $GLOBALS['web_root'];*/ ?>/portal/messaging/secure_chat.php"><?php /*echo xlt('Chat Messaging') */ ?></a>
                 </div>-->
-                <div class="card overflow-auto d-flex">
+                <div class="card d-flex">
                     <div class="card-body">
                         <h4><i class="card-title fa fa-signature mr-1"></i><?php echo xlt('Signature') ?></h4>
                         <a data-type="patient-signature" class="btn btn-primary" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal"><?php echo xlt('Manage Signature'); ?></a>
                     </div>
                 </div>
-                <div class="card overflow-auto d-flex">
-                    <div class="card-body">
-                        <h4 class="card-title"><i class="fa fa-link mr-1"></i><?php echo xlt('Theme') ?></h4>
-                        <div class="row form-group">
-                            <div class="input-group">
-                                <?php
-                                $theme_dir = "$webserver_root/public/themes";
-                                $fld_type = 'css';
-                                $patternStyle = 'style_';
-                                $dh = opendir($theme_dir);
-                                if ($dh) {
-                                    // Collect styles
-                                    $styleArray = array();
-                                    while (false !== ($tfname = readdir($dh))) {
+                <div class="card d-flex">
+                    <div class="card-body row">
+                        <h4 class="card-title"><i class="fa fa-link mr-1"></i><?php echo xlt('Settings') ?></h4>
+                        <div class="col-12 form-group">
+                            <div class="col">
+                                <div class="input-group">
+                                    <label for='my_theme'><?php echo xlt('Current Theme') ?></label>
+                                    <select class='form-control ml-2' id='my_theme'>
+                                        <?php
+                                        $theme_dir = "$webserver_root/public/themes";
+                                        $fld_type = 'css';
                                         $patternStyle = 'style_';
-                                        if (
-                                            $tfname == 'style_blue.css' ||
-                                            $tfname == 'style_pdf.css' ||
-                                            !preg_match("/^" . $patternStyle . ".*\.css$/", $tfname)
-                                        ) {
-                                            continue;
+                                        $dh = opendir($theme_dir);
+                                        if ($dh) {
+                                            // Collect styles
+                                            $styleArray = array();
+                                            while (false !== ($tfname = readdir($dh))) {
+                                                $patternStyle = 'style_';
+                                                if (
+                                                    $tfname == 'style_blue.css' ||
+                                                    $tfname == 'style_pdf.css' ||
+                                                    !preg_match("/^" . $patternStyle . ".*\.css$/", $tfname)
+                                                ) {
+                                                    continue;
+                                                }
+                                                $styleDisplayName = str_replace("_", " ", substr($tfname, 6));
+                                                $styleDisplayName = ucfirst(str_replace(".css", "", $styleDisplayName));
+                                                $styleArray[$tfname] = $styleDisplayName;
+                                            }
+                                            asort($styleArray);
+                                            // Generate style selector
+                                            foreach ($styleArray as $styleKey => $styleValue) {
+                                                echo "<option value='" . attr($styleKey) . "'";
+                                                if ($styleKey == $current_theme) {
+                                                    echo " selected";
+                                                }
+                                                echo ">";
+                                                echo text($styleValue);
+                                                echo "</option>\n";
+                                            }
                                         }
-                                        $styleDisplayName = str_replace("_", " ", substr($tfname, 6));
-                                        $styleDisplayName = ucfirst(str_replace(".css", "", $styleDisplayName));
-                                        $styleArray[$tfname] = $styleDisplayName;
-                                    }
-                                    asort($styleArray);
-                                    // Generate style selector
-                                    echo "<select class='form-control' id='my_theme'>\n";
-                                    foreach ($styleArray as $styleKey => $styleValue) {
-                                        echo "<option value='" . attr($styleKey) . "'";
-                                        if ($styleKey == $current_theme) {
-                                            echo " selected";
-                                        }
-                                        echo ">";
-                                        echo text($styleValue);
-                                        echo "</option>\n";
-                                    }
-                                    echo "</select>\n";
-                                }
-                                closedir($dh);
-                                ?>
-                                <div class="input-group-append">
-                                    <a class="input-group-text btn btn-outline-light" href="./home.php" target="_parent"><?php echo xlt('Apply') ?></a>
+                                        closedir($dh);
+                                        ?>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <a class="btn btn-primary" href="./home.php" target="_parent"><?php echo xlt('Apply') ?></a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="form-group form-check">
+                                    <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                                    <label class="form-check-label" for="exampleCheck1"><?php echo xlt('Auto Save Documents') . " (Coming soon)" ?></label>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- /container -->
+            <!-- /container -->
