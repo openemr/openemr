@@ -63,74 +63,74 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 @import "../navigation-slide/future-bootstrap";
 
 /* Overrides go here */
-  .btn-secondary {
-    color: $ovr-dark;
-  }
+.btn-secondary {
+  color: $ovr-dark;
+}
 
-  .btn-primary {
-    color: $black;
-  }
+.btn-primary {
+  color: $black;
+}
 
-  .btn-success {
-    color: $black;
-  }
+.btn-success {
+  color: $black;
+}
 
-  .btn-danger {
-    color: $black;
-  }
+.btn-danger {
+  color: $black;
+}
 
-  .btn-outline-primary {
-    color: $black;
-  }
+.btn-outline-primary {
+  color: $black;
+}
 
-  .btn-outline-success {
-    color: $black;
-  }
+.btn-outline-success {
+  color: $black;
+}
 
-  lhc-item-question-text {
-    color: $white;
-  }
+lhc-item-question-text {
+  color: $white;
+}
 
-  ul.tabNav a {
-    color: $black;
-  }
+ul.tabNav a {
+  color: $black;
+}
 
-  input.list-group-item {
-    color: $black;
-  }
+input.list-group-item {
+  color: $black;
+}
 
-.appMenu .appMenu>span:hover, .appMenu li:hover, .appMenu>span:hover {
+.appMenu .appMenu > span:hover, .appMenu li:hover, .appMenu > span:hover {
   background-color: #cbd8e7 !important;
   color: var(--white);
 }
 
-  .menuEntries li .menuLabel:hover {
-    color: $light !important;
-  }
+.menuEntries li .menuLabel:hover {
+  color: $light !important;
+}
 
-  .menuDisabled {
-    color: $ovr-dark;
-  }
+.menuDisabled {
+  color: $ovr-dark;
+}
 
-  .documents_list a {
-    color: $body-color;
-  }
+.documents_list a {
+  color: $body-color;
+}
 
-  /* Changes all SVG colors to white to match theme */
-  .about-review-image > #color {
-    fill: $black;
-  }
+/* Changes all SVG colors to white to match theme */
+.about-review-image > #color {
+  fill: $black;
+}
 
-  #mainBox .logo .emr-menu-logo > #blue-color,
-  #mainBox_vertical .logo .emr-menu-logo > #blue-color {
-    fill: $black;
-  }
+#mainBox .logo .emr-menu-logo > #blue-color,
+#mainBox_vertical .logo .emr-menu-logo > #blue-color {
+  fill: $black;
+}
 
-  /*
-  Use conditional if wanting to change padding, margins etc.
-  so as to not impact the compact styling.
-  Colors should be the same for both.
-  */
+/*
+Use conditional if wanting to change padding, margins etc.
+so as to not impact the compact styling.
+Colors should be the same for both.
+*/
 @if $compact-theme == false {
 
 }
