@@ -7,7 +7,7 @@
  * @link      http://www.open-emr.org
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2016-2023 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -24,7 +24,7 @@ formHeader("Form:Lab Requisition");
 
 $returnurl = 'encounter_top.php';
 
-$formid = (int) (isset($_GET['id']) ? $_GET['id'] : '');
+$formid = (int) ($_GET['id'] ?? 0);
 $obj = $formid ? formFetch("form_requisition", $formid) : array();
 
 global $pid ;
@@ -33,10 +33,7 @@ $encounter = $_SESSION['encounter'];
 
 $oid = fetchProcedureId($pid, $encounter);
 
-if (empty($oid)) {
-    print "<center>" . xlt('No Order found, please enter procedure order first') . "</center>";
-    exit;
-}
+
 
     $patient_id = $pid;
     $pdata = getPatientData($pid);
@@ -48,10 +45,6 @@ if (empty($ins)) {
 }
     $order = getProceduresInfo($oid, $encounter);
 
-if (empty($order)) {
-    echo xlt('procedure order not found in database contact tech support');
-    exit;
-}
 
     $prov_id   = $order[5];
     $lab       = $order[7];
@@ -59,15 +52,12 @@ if (empty($order)) {
     $npi       = getNPI($prov_id);
     $pp        = getProcedureProvider($lab);
     $provLabId = getLabconfig();
-
-
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
     <?php Header::setupHeader(); ?>
-
 <style>
 table, th, td {
      border: 1px solid black;
@@ -136,64 +126,72 @@ table, th, td {
       float: left;
 
   }
-  .barcode{
-      position: relative;
-      right: -380px;
-  }
+
 </style>
+    <title><?php echo xlt('Lab Requisition') . ' ' . text($lab); ?></title>
 </head>
 
 <body>
 <div class="container">
-        <div class="barcode">
-        <br />
-        <br />
-            <?php
-            /**
-             *  This is to store the requisition bar code number to use again if the form needs to be printed or viewed again
-             *  But save it the first time through.
-             */
-               $lab_id = $order[0];
-               $storeBar = getBarId($lab_id, $pid);
+    <?php
+    if (empty($order)) {
+            echo "<div class='text-center mt-5'><span>" .
+                xlt('procedure order not found in database contact tech support') . "</span></div></div></body></html>";
+            exit;
+    }
+    if (empty($oid)) {
+            print "<div class='text-center mt-5'><span>" .
+         xlt('No Order found, please enter procedure order first') . "</span></div></div></body></html>";
+            exit;
+    }
+    ?>
+        <div class="text-center mt-3">
+                <?php
+                /**
+                 *  This is to store the requisition bar code number to use again if the form needs to be printed or viewed again
+                 *  But save it the first time through.
+                 */
+                   $lab_id = $order[0];
+                   $storeBar = getBarId($lab_id, $pid);
 
-            if (!empty($storeBar)) {
-                $bar = $storeBar['req_id'];
-            } else {
-                $bar = rand(1000, 999999);
-                saveBarCode($bar, $pid, $order[0]);
-            }
+                if (!empty($storeBar)) {
+                    $bar = $storeBar['req_id'];
+                } else {
+                    $bar = rand(1000, 999999);
+                    saveBarCode($bar, $pid, $order[0]);
+                }
 
-            ?>
-            <img  src="../../forms/requisition/barcode.php?text=<?php echo attr_url($bar); ?>" alt="barcode" /><br />
-        &#160;&#160;&#160;&#160;&#160;  <?php echo text($bar); ?>
+                ?>
+                <img  src="../../forms/requisition/barcode.php?text=<?php echo attr_url($bar); ?>" alt="barcode" /><br />
+             <h3><?php echo text($bar); ?></h3>
         </div>
         <div class="reqHeader" id="printableArea">
-        <p><font size="4"><b><?php print xlt('Requisition Number') ?>:</b> <?php echo text($bar); ?>  &#160;&#160;&#160;&#160;&#160;&#160;<b><?php print xlt('Client Number') ?>:</b> <?php echo text($provLabId['recv_fac_id']); ?></font></p>
+        <p><span class="fs-4"><b><?php print xlt('Requisition Number') ?>:</b> <?php echo text($bar); ?>  &#160;&#160;&#160;&#160;&#160;&#160;<b><?php print xlt('Client Number') ?>:</b> <?php echo text($provLabId['recv_fac_id']); ?></span></p>
            <div class="cinfo">
-           <font size="4">
+           <span class="fs-3">
                 <?php echo text($facility['name']) . "<br />" . text($facility['street']) . "<br />" .
                           text($facility['city']) . "," . text($facility['state']) . "," . text($facility['postal_code']) . "<br />" .
                           text($facility['phone']); ?>
-                          </font>
+                          </span>
            </div>
            <div class="pdata">
-                 <p><font size="4">
+                 <p><span class="fs-3">
             <?php echo text($pp['organization']) . "<br />" .
             text($pp['street']) . " | " . text($pp['city']) . ", " . text($pp['state']) . " " . text($pp['zip']) . "<br />" .
             "O:" . text($pp['phone']) . " | F:" . text($pp['fax']) . "<br />";
-            ?></font></p>
+            ?></span></p>
 
            </div>
         </div>
         <div class="req" id="printableArea">
-            <table class="table" style="width:800px" border="1">
+            <table class="table" style="width:800px border=1">
                <tr style="height:125px;">
                    <td style="vertical-align:top; width:400px;" >
                    <div class="plist">
-                        <?php echo xlt('Collection Date/Time')?>:<br />
-                        <?php echo xlt('Lab Reference ID') ?>:<br />
-                        <?php echo xlt('Fasting')?>:<br />
-                        <?php echo xlt('Hours')?>:<br />
+                       <b><?php echo xlt('Collection Date/Time')?>:</b><br />
+                       <b><?php echo xlt('Lab Reference ID') ?>:</b><br />
+                       <b><?php echo xlt('Fasting')?>:</b><br />
+                       <b><?php echo xlt('Hours')?>:</b><br />
                      </div>
                     <div class="pFill">
                         <?php echo text($order[6]);?> <br />
@@ -218,7 +216,7 @@ table, th, td {
 
                <tr style="height:125px">
                    <td style="vertical-align:top; width:400px;">
-                      <font size="4"><strong><?php print xlt("Ordering Physician") ?>:</strong></font><br />
+                      <span class="fs-4"><strong><?php print xlt("Ordering Physician") ?>:</strong></span><br />
                       <div class="plist">
                         <?php echo xlt('Name') ?>:        <br />
                         <?php echo xlt('NPI') ?>:         <br />
@@ -231,7 +229,7 @@ table, th, td {
                        </div>
                    </td>
                    <td style="vertical-align:top">
-                     <font size="4"><strong><?php print xlt("Responsible Party") ?>:</strong></font><br />
+                     <span class="fs-4"><strong><?php print xlt("Responsible Party") ?>:</strong></span><br />
                       <div class="plist">
                         <?php echo xlt('Name') ?>:             <br />
                         <?php echo xlt('Address') ?>:          <br />
@@ -255,7 +253,7 @@ table, th, td {
                </tr>
                   <tr style="height:125px">
                    <td style="vertical-align:top; width:400px;">
-                      <font size="4"><strong><?php print xlt("Primary Insurance") ?>:</strong></font><br />
+                      <span class="fs-4"><strong><?php print xlt("Primary Insurance") ?>:</strong></span><br />
                       <div class="plist">
                         <?php echo xlt('Bill Type') ?>:<br />
                         <?php echo xlt('Payor/Carrier Code') ?>:<br />
@@ -287,7 +285,7 @@ table, th, td {
                        </div>
                    </td>
                    <td style="vertical-align:top">
-                      <font size="4"><strong><?php print xlt("Secondary Insurance") ?>:</strong></font><br />
+                      <span class="fs-4"><strong><?php print xlt("Secondary Insurance") ?>:</strong></span><br />
                       <div class="plist">
                         <?php echo xlt('Bill Type') ?>:<br />
                         <?php echo xlt('Payor/Carrier Code') ?>:<br />
@@ -323,7 +321,7 @@ table, th, td {
                <tr style="height:125px">
                    <td style="vertical-align:top; width:400px;">
                        <div class="notes">
-                         <font size="4"><strong><?php echo xlt('Test Ordered') ?>:</strong></font><br />
+                         <span clas="fs-4"><strong><?php echo xlt('Test Ordered') ?>:</strong></span><br />
                             <?php echo text($order[2]) . " " . text($order[3]); ?><br />
                             <?php echo text($order[17]) . " " . text($order[16]); ?><br />
                             <?php echo text($order[28]) . " " . text($order[29]); ?><br />
@@ -331,11 +329,11 @@ table, th, td {
                    </td>
                    <td style="vertical-align:top">
                     <div class="notes">
-                     <font size="4"><strong><?php echo xlt('Order Notes') ?>:</strong></font><br />
+                     <span class="fs-4"><strong><?php echo xlt('Order Notes') ?>:</strong></span><br />
                         <?php echo text($order[8]); ?>
                      </div>
                    <div class="dx">
-                     <font size="4"><strong><?php echo xlt('Dx Codes') ?>:</strong></font><br />
+                     <span class="fs-4"><strong><?php echo xlt('Dx Codes') ?>:</strong></span><br />
                         <?php echo text($order[4]); ?><br />
                         <?php echo text($order[18]); ?><br />
                         <?php echo text($order[30]); ?><br />
@@ -345,10 +343,10 @@ table, th, td {
 
             </table>
             <?php if (!empty($order['question_text'])) { // display this table only if there are questions ?>
-            <table style="width:800px" border="1">
+            <table style="width:800px; border=1">
                <tr style="height:125px">
                   <td style="vertical-align:top">
-                       <font size="4"><strong><?php echo xlt('AOE Q&A') ?>: </strong></font><br />
+                       <span class="fs-4"><strong><?php echo xlt('AOE Q&A') ?>: </strong></span><br />
                        <b>Question:</b> <?php print text($order['question_text']); ?><br />
                        <b>Answer:</b> <?php print text($order['answer']); ?>
                   </td>
@@ -357,7 +355,7 @@ table, th, td {
             <?php } ?>
             <br />
             <br />
-            &#160;&#160;&#160;&#160;&#160; <?php echo xlt('End of Requisition') ?> #:  <?php echo text($bar); ?>
+            <span class="text-center"><?php echo xlt('End of Requisition') ?> #:  <?php echo text($bar); ?></span>
         </div>
 </div>
 <div class="reqHeader" id="non-printable">
