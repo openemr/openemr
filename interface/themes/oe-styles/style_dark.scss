@@ -83,6 +83,10 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
     color: $black;
   }
 
+  lhc-item-question-text {
+    color: $white;
+  }
+
   ul.tabNav a {
     color: $black;
   }
@@ -91,15 +95,11 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
     color: $black;
   }
 
-  .menuLabel:hover {
-    color: $ovr-dark;
+  .menuEntries li .menuLabel:hover {
+    color: $light !important;
   }
 
   .menuDisabled {
-    color: $ovr-dark;
-  }
-
-  .menuEntries li .menuLabel:hover {
     color: $ovr-dark;
   }
 
