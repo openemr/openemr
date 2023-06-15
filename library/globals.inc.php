@@ -265,13 +265,6 @@ $GLOBALS_METADATA = array(
             xl('Choose your default encounter view')
         ),
 
-        'gbl_nav_area_width' => array(
-            xl('Navigation Area Width for Frames'),
-            'num',
-            '175',
-            xl('Width in pixels of the left navigation frame in frame based layout.')
-        ),
-
         'enable_group_therapy' => array(
             xl('Enable Group Therapy'),
             'bool',                           // data type
@@ -312,13 +305,6 @@ $GLOBALS_METADATA = array(
             ),
             '0',                              // default
             xl('Type of columns displayed for patient search results')
-        ),
-
-        'gbl_tall_nav_area' => array(
-            xl('Tall Navigation Area'),
-            'bool',                           // data type
-            '0',                              // default = false
-            xl('Navigation area uses full height of frameset')
         ),
 
         'gbl_nav_visit_forms' => array(
@@ -3069,6 +3055,16 @@ $GLOBALS_METADATA = array(
             'text',                           // data type
             'https://your_web_site.com/openemr/portal',
             xl('Website link for the Patient Portal.')
+        ),
+
+        'portal_css_header' => array(
+            xl('Portal Default Theme'),
+            array(
+                'style_light.css' => xl('Light'),
+                'style_dark.css' => xl('Dark')
+            ),
+            'style_light.css',
+            xl('Pick a default portal theme.')
         ),
 
         'portal_onsite_two_basepath' => array(

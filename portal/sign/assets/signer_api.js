@@ -220,7 +220,7 @@ function archiveSignature(signImage = '', edata = '') {
     return true;
 }
 
-function isDataURL(dataUrl) {
+function isDataURL(dataUrl = '') {
     return !!dataUrl.match(isDataURL.regex);
 }
 

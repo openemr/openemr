@@ -497,11 +497,6 @@ if ($is_expired) {
     }
 }
 
-$nav_area_width = '130';
-if (!empty($GLOBALS['gbl_nav_area_width'])) {
-    $nav_area_width = $GLOBALS['gbl_nav_area_width'];
-}
-
 // Will set Session variables to communicate settings to tab layout
 $_SESSION['frame1url'] = $frame1url;
 $_SESSION['frame1target'] = $frame1target;

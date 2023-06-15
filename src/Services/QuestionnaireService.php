@@ -14,6 +14,7 @@ namespace OpenEMR\Services;
 
 use Exception;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
 use OpenEMR\FHIR\R4\FHIRElement;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -32,6 +33,11 @@ class QuestionnaireService extends BaseService
     public function __construct($base_table = null)
     {
         parent::__construct($base_table ?? self::TABLE_NAME);
+    }
+
+    public function getUuidFields(): array
+    {
+        return ['uuid'];
     }
 
     /**
@@ -120,7 +126,9 @@ class QuestionnaireService extends BaseService
         if (empty($id)) {
             $q_uuid = (new UuidRegistry(['table_name' => 'questionnaire_repository']))->createUuid();
             $q_id = UuidRegistry::uuidToString($q_uuid);
-            $q_url = 'fhir/Questionnaire/' . $q_id;
+            $serverConfig = new ServerConfig();
+            $fhirUrl = $serverConfig->getFhirUrl();
+            $q_url = $fhirUrl . 'Questionnaire/' . $q_id;
             $fhir_ob->setId(new FHIRId($q_id));
             $fhir_ob->setUrl(new FHIRUri($q_url));
             $fhir_ob->setTitle(new FHIRString($name));
