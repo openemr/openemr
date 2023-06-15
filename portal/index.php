@@ -475,8 +475,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                     </div>
                 <?php } ?>
                 <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) {
-                    echo "&redirect=" . attr_url($redirectUrl);
-                                                                                                                                       } ?>');" value="<?php echo xla('Cancel'); ?>" />
+                    echo "&redirect=" . attr_url($redirectUrl); } ?>');" value="<?php echo xla('Cancel'); ?>" />
                 <input class="btn btn-primary float-right" type="submit" value="<?php echo xla('Log In'); ?>" />
             </form>
         <?php } elseif (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])) { ?>
@@ -520,8 +519,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                             </div>
                         </div>
                         <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) {
-                            echo "&redirect=" . attr_url($redirectUrl);
-                                                                                                                                               } ?>');" value="<?php echo xla('Cancel'); ?>" />
+                            echo "&redirect=" . attr_url($redirectUrl); } ?>');" value="<?php echo xla('Cancel'); ?>" />
                         <button id="submitRequest" class="btn btn-primary nextBtn float-right" type="submit" disabled="disabled"><?php echo xlt('Verify') ?></button>
                     </fieldset>
                 </div>
@@ -588,8 +586,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                         <?php } ?>
                         <?php if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
                             <button class="btn btn-danger ml-2" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) {
-                                echo "&redirect=" . attr_url($redirectUrl);
-                                                                                                                         } ?>')"><?php echo xlt('Reset Credentials'); ?></button>
+                                echo "&redirect=" . attr_url($redirectUrl); } ?>')"><?php echo xlt('Reset Credentials'); ?></button>
                         <?php } ?>
                         <button class="btn btn-success float-right" type="submit"><?php echo xlt('Log In'); ?></button>
                     </div>
