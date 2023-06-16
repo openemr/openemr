@@ -56,7 +56,11 @@ class UtilsService
     {
 
         $siteConfig = new ServerConfig();
-        $url = $siteConfig->getFhirUrl() . $resourceType . '/' . $uuid;
+        $fhirUrl = $siteConfig->getFhirUrl() ?? "";
+        if (strrpos("/", $fhirUrl) != strlen($fhirUrl)) {
+            $fhirUrl .= "/";
+        }
+        $url = $fhirUrl . $resourceType . '/' . $uuid;
         $cannonical = new FHIRCanonical();
         $cannonical->setValue($url);
         return $cannonical;
