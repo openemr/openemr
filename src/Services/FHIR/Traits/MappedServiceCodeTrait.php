@@ -20,6 +20,19 @@ trait MappedServiceCodeTrait
 {
     use MappedServiceTrait;
 
+    public function getServiceListForCode(TokenSearchField $field)
+    {
+        // TODO: @adunsulag if we want to aggregate multiple code parameters we will need to handle selecting a subset of codes
+        // per service
+        $serviceList = [];
+        foreach ($this->getMappedServices() as $service) {
+            $subsetCodes = $this->getTokenSearchFieldWithSupportedCodes($service, $field);
+            if (!empty($subsetCodes->getValues())) {
+                $serviceList[] = $service;
+            }
+        }
+        return $serviceList;
+    }
     public function getServiceForCode(TokenSearchField $field, $defaultCode)
     {
         // shouldn't ever hit the default but we have it there just in case.
@@ -33,6 +46,18 @@ trait MappedServiceCodeTrait
             }
         }
         throw new SearchFieldException($field->getField(), "Invalid or unsupported code");
+    }
+
+    public function getTokenSearchFieldWithSupportedCodes(FhirServiceBase $service, TokenSearchField $field)
+    {
+        $subsetCodes = [];
+        foreach ($field->getValues() as $value) {
+            $searchCode = $value->getCode();
+            if ($service->supportsCode($searchCode)) {
+                $subsetCodes[] = $value;
+            }
+        }
+        return new TokenSearchField($field->getField(), $subsetCodes, $field->isUuid());
     }
 
     public function getServiceForCategory(TokenSearchField $category, $defaultCategory): FhirServiceBase
