@@ -20,7 +20,7 @@ Then you will be able to register the module.
 
 **Usage**
 
-edit the file in UserPatientBlacklist/vonfig/blacklist.php to include the usernames of users 
+edit the file in UserPatientBlacklist/config/blacklist.php to include the usernames of users 
 and PIDs to restrict access to those patients for those users.
 
 Try using the patient finder and see that when logged in as a user, the patients in your blacklist

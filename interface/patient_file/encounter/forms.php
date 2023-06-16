@@ -260,7 +260,7 @@ $(function () {
      $(".deleteme").click(function(evt) { deleteme(); evt.stopPropogation(); });
 
 <?php
-  // If the user was not just asked about orphaned orders, build javascript for that.
+ // If the user was not just asked about orphaned orders, build javascript for that.
 if (!isset($_GET['attachid'])) {
     $ares = sqlStatement(
         "SELECT procedure_order_id, date_ordered " .
