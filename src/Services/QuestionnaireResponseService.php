@@ -248,36 +248,73 @@ class QuestionnaireResponseService extends BaseService
         return $question_results;
     }
 
+    public function getUuidFields(): array
+    {
+        return ['questionnaire_response_uuid', 'encounter_uuid', 'puuid'];
+    }
+
     public function search($search, $isAndCondition = true)
     {
-        $sqlSelectIds = "SELECT DISTINCT questionnaire_response.uuid ";
-        $sqlSelectData = " SELECT questionnaire_response.*
-        ,fe.uuid AS encounter_uuid
-        ";
-        $sql = "FROM questionnnaire_response qr "
-            . " LEFT JOIN form_questionnaire_assessments ON fqa.response_id = qr.response_id " // TODO: @adunsulag is this field indexed?
+        $sqlSelectIds = "SELECT DISTINCT qr.questionnaire_response_uuid ";
+        $sqlSelectData = " SELECT qr.*
+        ,fe.encounter_uuid
+        ,pd.puuid ";
+        $sql = "FROM (
+                SELECT
+                    uuid AS questionnaire_response_uuid
+                    ,id AS id
+                    ,response_id
+                    ,questionnaire_foreign_id
+                    ,questionnaire_id
+                    ,questionnaire_name
+                    ,patient_id
+                    ,encounter
+                    ,audit_user_id
+                    ,creator_user_id
+                    ,create_time
+                    ,last_updated
+                    ,version
+                    ,status
+                    ,questionnaire
+                    ,questionnaire_response
+                    ,form_response
+                    ,form_score
+                    ,tscore
+                    ,error
+                FROM questionnaire_response
+             ) qr "
+            . " LEFT JOIN form_questionnaire_assessments fqa ON fqa.response_id = qr.response_id " // TODO: @adunsulag is this field indexed?
             . " LEFT JOIN forms f ON fqa.id = f.form_id AND f.formdir='questionnaire_assessments' "
-            . " LEFT JOIN form_encounter fe ON f.encounter = fe.encounter "
-            . " LEFT JOIN patient_data pd ON qr.patient_id = patient_data.pid "
+            . " LEFT JOIN (
+                    SELECT
+                        uuid AS encounter_uuid
+                        ,encounter
+                    FROM form_encounter
+             ) fe ON f.encounter = fe.encounter "
+            . " LEFT JOIN (
+                    SELECT
+                        uuid AS puuid
+                        ,pid
+                    FROM patient_data
+             ) pd ON qr.patient_id = pd.pid "
             // we only grab users that are actual Practitioners with a valid NPI number
-            . " LEFT JOIN users ON qr.creator_user_id = users.id AND user.username IS NOT NULL and user.npi IS NOT NULL AND user.npi != ''" ;
-
-        $sqlIds = $sqlSelectIds . $sql;
-        QueryUtils::fetchTableColumn($sqlIds, 'uuid');
+            . " LEFT JOIN users ON qr.creator_user_id = users.id AND users.username IS NOT NULL and users.npi IS NOT NULL AND users.npi != ''" ;
 
         $whereUuidClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
-
-        $sqlUuids = $sqlSelectIds . $sql . $whereUuidClause->getFragment();
-        $uuidResults = QueryUtils::fetchTableColumn($sqlUuids, 'uuid', $whereUuidClause->getBoundValues());
+        $sqlUuids = $sqlSelectIds . " " . $sql . " " . $whereUuidClause->getFragment();
+        $uuidResults = QueryUtils::fetchTableColumn($sqlUuids, 'questionnaire_response_uuid', $whereUuidClause->getBoundValues());
 
         if (!empty($uuidResults)) {
             // now we are going to run through this again and grab all of our data w only the uuid search as our filter
             // this makes sure we grab the entire patient record and associated data
-            $whereClause = " WHERE patient_data.uuid IN (" . implode(",", array_map(function ($uuid) {
+            $whereClause = " WHERE qr.questionnaire_response_uuid IN (" . implode(",", array_map(function ($uuid) {
                     return "?";
             }, $uuidResults)) . ")";
             $statementResults = QueryUtils::sqlStatementThrowException($sqlSelectData . $sql . $whereClause, $uuidResults);
-            $processingResult = $this->hydrateSearchResultsFromQueryResource($statementResults);
+            $processingResult = new ProcessingResult();
+            foreach ($statementResults as $record) {
+                $processingResult->addData($this->createResultRecordFromDatabaseResult($record));
+            }
             return $processingResult;
         } else {
             return new ProcessingResult();
