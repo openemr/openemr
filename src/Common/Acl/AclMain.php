@@ -239,8 +239,7 @@ class AclMain
                 if (($bits_IP & bindec($mask)) == ($bits_CIDR & bindec($mask))) {
                     $valid_IP = true;
                 }
-            }
-            else {
+            } else {
                 if ($remoteAddr == $ips[$i]) {
                     $valid_IP = true;
                 }
