@@ -13,6 +13,9 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Forms\BaseForm;
+
 class FormService
 {
     public function getFormByEncounter(
@@ -50,5 +53,28 @@ class FormService
         }
 
         return $all;
+    }
+
+    public function saveEncounterForm(BaseForm $form): BaseForm
+    {
+        // first we insert the form
+
+        $data = $form->getFormTableDataForSave();
+        $columns = implode(",", array_keys($data));
+        $bind = array_values($data);
+        $bindings = str_repeat("?,", count($data) - 1) . "?";
+        $sql = "INSERT INTO " . \escape_table_name($form->getFormTableName()) . " (" . $columns . ") VALUES (" . $bindings . ")";
+        $insert = QueryUtils::sqlInsert($sql, $bind);
+        $form->setFormId($insert);
+
+        $encounterFormData = $form->getEncounterFormDataForSave();
+        $encounterFormColumns = implode(",", array_keys($encounterFormData));
+        $encounterFormBind = array_values($encounterFormData);
+        $encounterFormBindings = str_repeat("?,", count($encounterFormData) - 1) . "?";
+        $encounterFormSql = "INSERT INTO forms (" . $encounterFormColumns
+            . ") VALUES (" . $encounterFormBindings . ")";
+        $id = QueryUtils::sqlInsert($encounterFormSql, $encounterFormBind);
+        $form->setId($id);
+        return $form;
     }
 }
