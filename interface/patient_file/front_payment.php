@@ -1175,7 +1175,8 @@ function make_insurance() {
                                     if ($brow1112['option_id'] == 'electronic' || $brow1112['option_id'] == 'bank_draft') {
                                         continue;
                                     }
-                                    echo "<option value='" . attr($brow1112['option_id']) . "'>" . text(xl_list_label($brow1112['title'])) . "</option>";
+                                    echo "<option value='" . attr($brow1112['option_id']) . "'" .
+                                        ($brow1112['is_default'] ? ' selected' : '') . ">" . text(xl_list_label($brow1112['title'])) . "</option>";
                                 }
                                 ?>
                             </select>
