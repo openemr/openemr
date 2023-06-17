@@ -79,6 +79,7 @@
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\Globals\GlobalsService;
+use OpenEMR\Services\Globals\GlobalSetting;
 
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {
@@ -2038,6 +2039,12 @@ $GLOBALS_METADATA = array(
     // Security Tab
     //
     'Security' => array(
+        'white_list' => array(
+            xl('Whitelisted Admin IP'),
+            GlobalSetting::DATA_TYPE_TEXTAREA,// data type
+            '',                               // default
+            xl("List of IPs of allowed administrators")
+        ),
         'sql_string_no_show_screen' => array(
             xl('Mode - Do Not Show SQL Queries'),
             'bool',                           // data type

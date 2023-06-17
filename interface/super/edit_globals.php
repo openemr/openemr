@@ -550,6 +550,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 }
                                                         echo "  <input type='text' class='form-control' name='form_$i' id='form_$i' " .
                                                             "maxlength='255' value='" . attr($fldvalue) . "' />\n";
+                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_TEXTAREA) {
+                                                if ($userMode) {
+                                                    $globalTitle = $globalValue;
+                                                }
+                                                        echo "  <textarea name='form_$i' id=" . attr($fldid) . " rows='3' cols='20'>" . text($fldvalue) . "</textarea>\n";
                                             } elseif ($fldtype == GlobalSetting::DATA_TYPE_DEFAULT_RANDOM_UUID) {
                                                 if ($userMode) {
                                                     $globalTitle = $globalValue;
@@ -797,8 +802,92 @@ if (!empty($post_srch_desc) && $srch_item == 0) {
 ?>
 
 <script>
+
+//
+function isInRange(input, max){
+    let isValid = false;
+    if(/^\d+$/.test(input)){
+        let num = parseInt(input, 10);
+        if (num >= 0 && num <= max){
+            isValid = true;
+        }
+    }
+    return isValid;
+}
+
+// Determines IP address validity
+function IPvalidation(input_IPs){
+    let IPmax = 255;
+    let CIDRmax = 32
+    let ips = input_IPs.split("\n");
+    for (let j = 0; j < ips.length; j++){
+        let parts = ips[j].split(".");
+        if(parts.length != 4){
+            return false;
+        }
+        if(parts[3].includes("/")){         // contains CIDR notation
+            for(let i = 0; i < 3; i++){
+                if(!(isInRange(parts[i], IPmax))){
+                    return false;
+                }
+            }
+            // checks if the final fourth of the ip is correct. should have the format 255/32
+            let subparts = parts[3].split('/');
+            if(subparts.length != 2){
+                return false;
+            }
+            // IP range is between 0 and 255
+            if(!(isInRange(subparts[0], IPmax))){
+                return false;
+            }
+            // CIDR notation is between 0 and 32
+            if(!(isInRange(subparts[1], CIDRmax))){
+                return false;
+            }
+        }
+        // validates if the ip does not have CIDR notation
+        else{
+            for(let i = 0; i < 4; i++){
+                if(!(isInRange(parts[i], IPmax))){
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
 $(function () {
     tabbify();
+
+    let elm = document.getElementById("white_list");
+    let form = document.getElementById('theform');
+    let is_valid = true;
+
+    // Create and style the helper text element
+    let helper_text = document.createElement("span");
+    helper_text.textContent = "Invalid IP address entered";
+    helper_text.style.fontSize = "12px";
+    helper_text.style.color = "red";
+    helper_text.style.marginTop = "2px";
+    helper_text.style.display = "none";
+
+    // Append the helper text after the textarea
+    elm.parentNode.insertBefore(helper_text, elm.nextSibling);
+
+    elm.addEventListener('blur', function(event) {
+        is_valid = IPvalidation(elm.value);
+        helper_text.style.display = "none";
+    });
+
+    form.addEventListener('submit', function(event) {
+        if (is_valid == false){
+            event.preventDefault();
+            helper_text.style.display = "block";
+            elm.focus();
+        }
+    });
+
     <?php // mdsupport - Highlight search results ?>
     $('.srch div.control-label').wrapInner("<mark></mark>");
     $('.tab .row.srch :first-child').closest('.tab').each(function() {
@@ -808,13 +897,13 @@ $(function () {
     <?php
     if ($userMode) {
         for ($j = 0; $j <= $i; $j++) { ?>
-            $("#form_<?php echo $j ?>").change(function() {
+            $("input[name=form_<?php echo $j ?>]").change(function() {
                 $("#toggle_<?php echo $j ?>").prop('checked', false);
             });
             $("#toggle_<?php echo $j ?>").change(function() {
                 if ($('#toggle_<?php echo $j ?>').prop('checked')) {
                     var defaultGlobal = $("#globaldefault_<?php echo $j ?>").val();
-                    $("#form_<?php echo $j ?>").val(defaultGlobal);
+                    $("input[name=form_<?php echo $j ?>]").val(defaultGlobal);
                 }
             });
             <?php
