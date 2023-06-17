@@ -367,6 +367,9 @@ class RestControllerHelper
 
                 if (empty($capResource)) {
                     $capResource = new FHIRCapabilityStatementResource();
+                    // make it explicit that we do not let the user use their own resource ids to create a new resource
+                    // in the PUT/update operation.
+                    $capResource->setUpdateCreate(false);
                     $capResource->setType(new FHIRCode($type));
                     $capResource->setProfile(new FHIRCanonical($structureDefinition . $type));
 

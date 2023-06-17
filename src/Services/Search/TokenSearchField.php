@@ -26,6 +26,11 @@ class TokenSearchField extends BasicSearchField
         parent::__construct($field, SearchFieldType::TOKEN, $field, $values);
     }
 
+    public function isUuid()
+    {
+        return $this->isUUID;
+    }
+
     public function addValue(TokenSearchValue $value)
     {
         $values = $this->getValues();

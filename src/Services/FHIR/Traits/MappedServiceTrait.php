@@ -64,6 +64,21 @@ trait MappedServiceTrait
         return $processingResult;
     }
 
+    public function searchServices(array $services, $fhirSearchParams, $puuidBind)
+    {
+        $processingResult = new ProcessingResult();
+        foreach ($services as $service) {
+            $innerResult = $service->getAll($fhirSearchParams, $puuidBind);
+            $processingResult->addProcessingResult($innerResult);
+            if ($processingResult->hasErrors()) {
+                // clear our data out and just return the errors
+                $processingResult->clearData();
+                return $processingResult;
+            }
+        }
+        return $processingResult;
+    }
+
     public function searchAllServicesWithSupportedFields($fhirSearchParams, $puuidBind)
     {
         $processingResult = new ProcessingResult();
