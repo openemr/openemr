@@ -47,24 +47,26 @@ class NotificationEventListener implements EventSubscriberInterface
     {
         $id = $event->getPid();
         $data = $event->getEventData() ?? [];
-        $task = $data['event_task'] ?? '';
         $patient = $event->fetchPatientDetails($id);
         $recipientPhone = $patient['phone'];
         $message_template = $data['template_name'] ?? 'Default Notification';
+
         if (empty($data['alt_content'] ?? '')) {
             $message = $this->docClient->getTemplateListByCategory('notification_template', '-1', $message_template)['template_content'] ?? '';
         } else {
             $message = $data['alt_content'];
         }
 
-        $this->clientApp->sendSMS(
-            $recipientPhone,
-            "",
-            $message,
-            null // will get from phone from credentials
-        );
+        if ($patient['hipaa_allowsms'] == 'YES') {
+            $this->clientApp->sendSMS(
+                $recipientPhone,
+                "",
+                $message,
+                null // will get from phone from credentials
+            );
+        }
 
-        if (!empty($patient['email']) && ($data['include_email'] ?? false)) {
+        if (!empty($patient['email']) && ($data['include_email'] ?? false) && ($patient['hipaa_allowemail'] == 'YES')) {
             $this->emailNotification($patient['email'], $message);
         }
     }
@@ -74,7 +76,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
         $mail = new MyMailer();
         $from_name = text($from_name);
-        $from =  $GLOBALS["practice_return_email_path"];
+        $from = $GLOBALS["practice_return_email_path"];
         $mail->AddReplyTo($from, $from_name);
         $mail->SetFrom($from, $from);
         $to = $email;

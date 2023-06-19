@@ -131,8 +131,8 @@ $vendors = $boot->getVendorGlobals();
                         <label for="email_vendor" class="col-sm-6"><?php echo xlt("Enable Mail Client") ?></label>
                         <div class="col-sm-6" title="Enable Email Client Support.">
                             <select class="form-control persist" name="email_vendor" id="email_vendor">
-                                <option value="0" <?php echo $vendors['oefax_enable_mail_client'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
-                                <option value="1" <?php echo $vendors['oefax_enable_mail_client'] == '1' ? 'selected' : ''; ?>><?php echo xlt("Enabled"); ?></option>
+                                <option value="0" <?php echo $vendors['oe_enable_email'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
+                                <option value="1" <?php echo $vendors['oe_enable_email'] == '1' ? 'selected' : ''; ?>><?php echo xlt("Enabled"); ?></option>
                             </select>
                         </div>
                     </div>

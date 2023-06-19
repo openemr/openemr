@@ -31,7 +31,7 @@ class SendNotificationEvent extends Event
 {
     const ACTIONS_RENDER_NOTIFICATION_POST = 'sendNotification.actions.render.post';
     const JAVASCRIPT_READY_NOTIFICATION_POST = 'sendNotification.javascript.load.post';
-    const SEND_NOTIFICATION_BY_SERVICE = 'sendNotification.sendSMS';
+    const SEND_NOTIFICATION_BY_SERVICE = 'sendNotification.send';
 
     private mixed $pid;
     private array|bool $patientDetails;
@@ -50,7 +50,7 @@ class SendNotificationEvent extends Event
      */
     public function fetchPatientDetails($id): bool|array
     {
-        $query = "SELECT fname, lname, phone_cell as phone, email FROM patient_data WHERE pid = ?";
+        $query = "SELECT fname, lname, phone_cell as phone, email, hipaa_allowsms, hipaa_allowemail FROM patient_data WHERE pid = ?";
         $result = sqlQuery($query, array($id));
         return $result ?? false;
     }
