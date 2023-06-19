@@ -95,7 +95,7 @@ $vendors = $boot->getVendorGlobals();
             <?php } ?>
             <span class="checkbox text-light br-dark" title="Use Dialog or Panels">
                 <label for="dialog"><?php echo xlt("Render in dialog."); ?></label>
-                <input type="checkbox" class="checkbox" name="dialog" id="dialog" value="1" checked>
+                <input type="checkbox" class="checkbox" name="dialog" id="dialog" value="1">
             </span>
         </div>
         <!-- TODO refactor this to have vendor list a global array for future vendor additions -->
@@ -124,6 +124,15 @@ $vendors = $boot->getVendorGlobals();
                                 <option value="0" <?php echo $vendors['oefax_enable_fax'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
                                 <!-- Placeholder for RC or another service -->
                                 <option value="3" <?php echo $vendors['oefax_enable_fax'] == '3' ? 'selected' : ''; ?>><?php echo xlt("etherFAX"); ?></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label for="email_vendor" class="col-sm-6"><?php echo xlt("Enable Mail Client") ?></label>
+                        <div class="col-sm-6" title="Enable Email Client Support.">
+                            <select class="form-control persist" name="email_vendor" id="email_vendor">
+                                <option value="0" <?php echo $vendors['oefax_enable_mail_client'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
+                                <option value="1" <?php echo $vendors['oefax_enable_mail_client'] == '1' ? 'selected' : ''; ?>><?php echo xlt("Enabled"); ?></option>
                             </select>
                         </div>
                     </div>
