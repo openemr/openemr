@@ -200,7 +200,7 @@ INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_r
 #EndIf
 
 
-#IfNotTable `patient_settings`;
+#IfNotTable patient_settings
 CREATE TABLE `patient_settings` (
 `setting_patient`  bigint(20)   NOT NULL DEFAULT 0,
 `setting_label` varchar(100)  NOT NULL,
