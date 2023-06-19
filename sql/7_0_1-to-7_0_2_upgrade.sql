@@ -199,12 +199,15 @@ INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_r
 ('Email_Service', 'Email Service', 1, 0, '2021-01-18 11:25:10', 2, 'emailServiceRun', '/library/email_service_run.php', 100);
 #EndIf
 
-
-#IfNotTable `patient_settings`;
+#IfNotTable patient_settings
 CREATE TABLE `patient_settings` (
 `setting_patient`  bigint(20)   NOT NULL DEFAULT 0,
 `setting_label` varchar(100)  NOT NULL,
 `setting_value` varchar(255) NOT NULL DEFAULT '',
 PRIMARY KEY (`setting_patient`, `setting_label`)
 ) ENGINE=InnoDB;
+#EndIf
+
+#IfMissingColumn facility inactive
+ALTER TABLE `facility` ADD COLUMN `inactive` tinyint(1) NOT NULL DEFAULT '0';
 #EndIf

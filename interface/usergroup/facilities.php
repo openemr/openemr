@@ -202,6 +202,9 @@ $(function () {
                                 }
 
                                 foreach ($result2 as $iter3) {
+                                    if (!empty($iter3['inactive'])) {
+                                        continue;
+                                    }
                                     $varstreet = "";//these are assigned conditionally below,blank assignment is done so that old values doesn't get propagated to next level.
                                     $varcity = "";
                                     $varstate = "";
