@@ -103,7 +103,9 @@ input.list-group-item {
   color: $black;
 }
 
-.appMenu .appMenu > span:hover, .appMenu li:hover, .appMenu > span:hover {
+.appMenu .appMenu > span:hover,
+.appMenu li:hover,
+.appMenu > span:hover {
   background-color: #cbd8e7 !important;
   color: var(--white);
 }
