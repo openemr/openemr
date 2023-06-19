@@ -71,7 +71,7 @@ if (isset($_POST["mode"]) && ($_POST["mode"] == "facility") && (empty($_POST["ne
         "oid" => trim(isset($_POST["oid"]) ? $_POST["oid"] : ''),
         "iban" => trim(isset($_POST["iban"]) ? $_POST["iban"] : ''),
         "info" => trim(isset($_POST["info"]) ? $_POST["info"] : ''),
-        "facility_inactive" => trim(isset($_POST["facility_inactive"]) ? $_POST["facility_inactive"] : '')
+        "inactive" => trim(isset($_POST["inactive"]) ? $_POST["inactive"] : '')
     );
 
     $insert_id = $facilityService->insertFacility($newFacility);
@@ -113,7 +113,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] =
         "oid" => trim(isset($_POST["oid"]) ? $_POST["oid"] : ''),
         "iban" => trim(isset($_POST["iban"]) ? $_POST["iban"] : ''),
         "info" => trim(isset($_POST["info"]) ? $_POST["info"] : ''),
-        "inactive" => trim(isset($_POST["facility_inactive"]) ? $_POST["facility_inactive"] : '')
+        "inactive" => trim(isset($_POST["inactive"]) ? $_POST["inactive"] : '')
     );
 
     $facilityService->updateFacility($newFacility);
@@ -164,7 +164,7 @@ $(function () {
 
     $("#form_inactive").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
-        $(".facility_inactive").toggleClass('d-none');
+        $(".inactive").toggleClass('d-none');
     });
 
 });
@@ -242,7 +242,7 @@ $(function () {
                                         $varmstate = $iter3["mail_state"] . ",";
                                     }
                                     ?>
-                            <tr height="22" class="<?php echo ($iter3['inactive']) ? 'facility_inactive d-none' : '';?>">
+                            <tr height="22" class="<?php echo ($iter3['inactive']) ? 'inactive d-none' : '';?>">
                                  <td valign="top" class="text"><strong><a href="facility_admin.php?fid=<?php echo attr_url($iter3["id"]); ?>" class="medium_modal"><span><?php echo xlt($iter3["name"]);?></span></a></strong>&nbsp;</td>
                                  <td valign="top" class="text"><?php echo text($iter3["federal_ein"]); ?>&nbsp;</td>
                                  <td valign="top" class="text"><?php echo text($iter3["facility_npi"]); ?>&nbsp;</td>
@@ -268,7 +268,7 @@ $(function () {
         </div>
         <div class="row">
             <div class="col-6">
-                <button type ="button" class="btn-secondary" id="form_inactive" name='form_inactive'><?php echo xlt('Toggle inactive facilities'); ?></button>
+                <button type="button" class="btn-secondary" id="form_inactive" name='form_inactive'><?php echo xlt('Toggle Inactive Facilities'); ?></button>
             </div>
         </div>
     </div><!-- end of div container -->
