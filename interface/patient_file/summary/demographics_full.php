@@ -617,9 +617,12 @@ if (! $GLOBALS['simplified_demographics']) {
     } else {
         $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
         $insurance_info = array();
-        $insurance_info[1] = getInsuranceData($pid, "primary");
-        $insurance_info[2] = getInsuranceData($pid, "secondary");
-        $insurance_info[3] = getInsuranceData($pid, "tertiary");
+        //$test_ins_info = getInsuranceDataNew($pid, "primary");
+        $insurance_info = array_merge(
+            getInsuranceDataNew($pid, "primary"),
+            getInsuranceDataNew($pid, "secondary"),
+            getInsuranceDataNew($pid, "tertiary")
+        );
     }
 
 
@@ -630,26 +633,26 @@ if (! $GLOBALS['simplified_demographics']) {
     <div id="INSURANCE" class="insuranceEditContainer">
        <ul class="tabNav">
         <?php
-        foreach ($insurance_array as $instype) {
+        foreach ($insurance_info as $instype) {
             ?>
-            <li <?php echo $instype == 'primary' ? 'class="current"' : '' ?>><a href="#"><?php $CapInstype = ucfirst($instype);
+            <li <?php echo $instype['type'] == 'primary' ? 'class="current"' : '' ?>><a href="#"><?php $CapInstype = ucfirst($instype['type']);
             echo xlt($CapInstype); ?></a></li><?php } ?>
         </ul>
 
     <div class="tabContainer">
 
     <?php
-    for ($i = 1; $i <= 3; $i++) {
+    for ($i = 0; $i < count($insurance_info); $i++) {
         $result3 = $insurance_info[$i];
         ?>
 
-     <div class="tab <?php echo $i == 1 ? 'current' : '' ?> h-auto w-auto">
+     <div class="tab <?php echo $i == 0 ? 'current' : '' ?> h-auto w-auto">
       <div class="form-row">
         <div class="col-md-6"><!-- start left column -->
 
           <div class="form-row"><!-- start nested row -->
             <div class="col-md-3 label_custom pb-3">
-              <span class='required'><?php echo text($insurance_headings[$i - 1]); ?>:</span>
+              <span class='required'><?php echo text($insurance_info[$i]['type']); ?>:</span>
             </div>
             <div class="col-md-9">
               <a class="medium_modal btn btn-primary" href="../../practice/ins_search.php?ins=" role="button"
