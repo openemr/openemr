@@ -70,7 +70,8 @@ if (isset($_POST["mode"]) && ($_POST["mode"] == "facility") && (empty($_POST["ne
         "mail_zip" => trim(isset($_POST["mail_zip"]) ? $_POST["mail_zip"] : ''),
         "oid" => trim(isset($_POST["oid"]) ? $_POST["oid"] : ''),
         "iban" => trim(isset($_POST["iban"]) ? $_POST["iban"] : ''),
-        "info" => trim(isset($_POST["info"]) ? $_POST["info"] : '')
+        "info" => trim(isset($_POST["info"]) ? $_POST["info"] : ''),
+        "facility_inactive" => trim(isset($_POST["facility_inactive"]) ? $_POST["facility_inactive"] : '')
     );
 
     $insert_id = $facilityService->insertFacility($newFacility);
@@ -111,7 +112,8 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "facility" && $_POST["newmode"] =
         "mail_zip" => trim(isset($_POST["mail_zip"]) ? $_POST["mail_zip"] : ''),
         "oid" => trim(isset($_POST["oid"]) ? $_POST["oid"] : ''),
         "iban" => trim(isset($_POST["iban"]) ? $_POST["iban"] : ''),
-        "info" => trim(isset($_POST["info"]) ? $_POST["info"] : '')
+        "info" => trim(isset($_POST["info"]) ? $_POST["info"] : ''),
+        "inactive" => trim(isset($_POST["facility_inactive"]) ? $_POST["facility_inactive"] : '')
     );
 
     $facilityService->updateFacility($newFacility);
@@ -160,6 +162,11 @@ $(function () {
         });
     });
 
+    $("#form_inactive").on('click', function(e) {
+        e.preventDefault();e.stopPropagation();
+        $(".facility_inactive").toggleClass('d-none');
+    });
+
 });
 
 </script>
@@ -189,6 +196,7 @@ $(function () {
                                 <th><?php echo xlt('Billing Address'); ?></th>
                                 <th><?php echo xlt('Mailing Address'); ?></th>
                                 <th><?php echo xlt('Phone'); ?></th>
+                                <th><?php echo xlt('Inactive'); ?></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -202,9 +210,6 @@ $(function () {
                                 }
 
                                 foreach ($result2 as $iter3) {
-                                    if (!empty($iter3['inactive'])) {
-                                        continue;
-                                    }
                                     $varstreet = "";//these are assigned conditionally below,blank assignment is done so that old values doesn't get propagated to next level.
                                     $varcity = "";
                                     $varstate = "";
@@ -237,13 +242,14 @@ $(function () {
                                         $varmstate = $iter3["mail_state"] . ",";
                                     }
                                     ?>
-                            <tr height="22">
+                            <tr height="22" class="<?php echo ($iter3['inactive']) ? 'facility_inactive d-none' : '';?>">
                                  <td valign="top" class="text"><strong><a href="facility_admin.php?fid=<?php echo attr_url($iter3["id"]); ?>" class="medium_modal"><span><?php echo xlt($iter3["name"]);?></span></a></strong>&nbsp;</td>
                                  <td valign="top" class="text"><?php echo text($iter3["federal_ein"]); ?>&nbsp;</td>
                                  <td valign="top" class="text"><?php echo text($iter3["facility_npi"]); ?>&nbsp;</td>
                                  <td valign="top" class="text"><?php echo text($varstreet . $varcity . $varstate . $iter3["country_code"] . " " . $iter3["postal_code"]); ?>&nbsp;</td>
                                  <td valign="top" class="text"><?php echo text($varmstreet . $varmcity . $varmstate . $iter3['mail_zip']); ?></td>
                                  <td><?php echo text($iter3["phone"]);?>&nbsp;</td>
+                                 <td><?php echo ($iter3['inactive']) ? xlt('Yes') : xlt('No');?>&nbsp;</td>
                             </tr>
                                     <?php
                                 }
@@ -258,6 +264,11 @@ $(function () {
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">
+                <button type ="button" class="btn-secondary" id="form_inactive" name='form_inactive'><?php echo xlt('Toggle inactive facilities'); ?></button>
             </div>
         </div>
     </div><!-- end of div container -->
