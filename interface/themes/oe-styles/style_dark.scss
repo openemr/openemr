@@ -63,6 +63,10 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
   color: $ovr-dark;
 }
 
+.btn-secondary:hover {
+  color: $ovr-dark;
+}
+
 .btn-primary {
   color: $black;
 }
@@ -85,6 +89,10 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 
 lhc-item-question-text {
   color: $white;
+}
+
+.select2-container--bootstrap4 .select2-selection--multiple .select2-search__field {
+  color: #000 !important;
 }
 
 ul.tabNav a {
@@ -120,15 +128,6 @@ input.list-group-item {
 #mainBox .logo .emr-menu-logo > #blue-color,
 #mainBox_vertical .logo .emr-menu-logo > #blue-color {
   fill: $black;
-}
-
-/*
-Use conditional if wanting to change padding, margins etc.
-so as to not impact the compact styling.
-Colors should be the same for both.
-*/
-@if $compact-theme == false {
-
 }
 
 /*search any*/
