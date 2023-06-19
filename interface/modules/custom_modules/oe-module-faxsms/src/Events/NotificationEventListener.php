@@ -40,7 +40,7 @@ class NotificationEventListener implements EventSubscriberInterface
 
     public function subscribeToEvents(EventDispatcher $eventDispatcher)
     {
-        $eventDispatcher->addListener('sendNotification.sendSMS', [$this, 'onNotifyEvent']);
+        $eventDispatcher->addListener('sendNotification.send', [$this, 'onNotifyEvent']);
     }
 
     public function onNotifyEvent(SendNotificationEvent $event)
