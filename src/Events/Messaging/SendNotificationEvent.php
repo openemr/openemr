@@ -17,7 +17,8 @@ $event_data = [
     'template_name' => 'Before Appointment', // Create in Portal Dashboard templates
     'event_task' => 'before_appointment',
     'include_email' => true, // To also send an email with SMS
-    'alt_content' => '' // use if want to pass in message instead of a template.
+    'alt_content' => '', // use if want to pass in message instead of a template.
+    'recipient_phone' => '' // if included will override patient cell phone.
 ];
 $eventDispatcher->dispatch(new SendNotificationEvent($pid, $event_data), SendNotificationEvent::SEND_NOTIFICATION_BY_SERVICE);
 */

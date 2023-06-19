@@ -48,7 +48,8 @@ class NotificationEventListener implements EventSubscriberInterface
         $id = $event->getPid();
         $data = $event->getEventData() ?? [];
         $patient = $event->fetchPatientDetails($id);
-        $recipientPhone = $patient['phone'];
+        $data['recipient_phone'] = $data['recipient_phone'] ?? null;
+        $recipientPhone = $data['recipient_phone'] ?: $patient['phone'];
         $message_template = $data['template_name'] ?? 'Default Notification';
 
         if (empty($data['alt_content'] ?? '')) {
