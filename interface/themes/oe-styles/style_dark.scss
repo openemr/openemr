@@ -2,6 +2,7 @@
 *
 *   Dark Theme for OpenEMR
 *   @author Tyler Wrenn
+*   @author Jerry Padgett
 *
 *   Colors that are declared below have been inverted to show the dark theme.
 *
@@ -58,64 +59,77 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 @import "../navigation-slide/future-bootstrap";
 
 /* Overrides go here */
-@if $compact-theme == false {
-  .btn-secondary {
-    color: $ovr-dark;
-  }
+.btn-secondary {
+  color: $ovr-dark;
+}
 
-  .btn-primary {
-    color: $black;
-  }
+.btn-secondary:hover {
+  color: $ovr-dark;
+}
 
-  .btn-success {
-    color: $black;
-  }
+.btn-primary {
+  color: $black;
+}
 
-  .btn-danger {
-    color: $black;
-  }
+.btn-success {
+  color: $black;
+}
 
-  .btn-outline-primary {
-    color: $black;
-  }
+.btn-danger {
+  color: $black;
+}
 
-  .btn-outline-success {
-    color: $black;
-  }
+.btn-outline-primary {
+  color: $black;
+}
 
-  lhc-item-question-text {
-    color: $white;
-  }
+.btn-outline-success {
+  color: $black;
+}
 
-  ul.tabNav a {
-    color: $black;
-  }
+lhc-item-question-text {
+  color: $white;
+}
 
-  input.list-group-item {
-    color: $black;
-  }
+.select2-container--bootstrap4 .select2-selection--multiple .select2-search__field {
+  color: #000 !important;
+}
 
-  .menuEntries li .menuLabel:hover {
-    color: $light !important;
-  }
+ul.tabNav a {
+  color: $black;
+}
 
-  .menuDisabled {
-    color: $ovr-dark;
-  }
+input.list-group-item {
+  color: $black;
+}
 
-  .documents_list a {
-    color: $body-color;
-  }
+.appMenu .appMenu > span:hover,
+.appMenu li:hover,
+.appMenu > span:hover {
+  background-color: #cbd8e7 !important;
+  color: var(--white);
+}
 
-  /* Changes all SVG colors to white to match theme */
-  .about-review-image > #color {
-    fill: $black;
-  }
+.menuEntries li .menuLabel:hover {
+  color: $light !important;
+}
 
-  #mainBox .logo .emr-menu-logo > #blue-color,
-  #mainBox_vertical .logo .emr-menu-logo > #blue-color {
-    fill: $black;
-  }
+.menuDisabled {
+  color: $ovr-dark;
+}
+
+.documents_list a {
+  color: $body-color;
+}
+
+/* Changes all SVG colors to white to match theme */
+.about-review-image > #color {
+  fill: $black;
+}
+
+#mainBox .logo .emr-menu-logo > #blue-color,
+#mainBox_vertical .logo .emr-menu-logo > #blue-color {
+  fill: $black;
 }
 
 /*search any*/

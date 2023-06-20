@@ -208,3 +208,7 @@ CREATE TABLE `patient_settings` (
 PRIMARY KEY (`setting_patient`, `setting_label`)
 ) ENGINE=InnoDB;
 #EndIf
+
+#IfNotRow2D list_options list_id lists option_id notification_template
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','notification_template','Notification Template',105,0,0,'','','',0,0,1);
+#EndIf
