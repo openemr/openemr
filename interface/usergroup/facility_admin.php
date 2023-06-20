@@ -445,6 +445,13 @@ if (isset($_GET["fid"])) {
                 </div>
             </div>
 
+            <div class="form-row custom-control custom-switch my-2">
+                <div class="col">
+                    <input type='checkbox' class='custom-control-input' name='inactive' id='inactive' value='1' <?php echo ($facility['inactive'] != 0) ? 'checked' : ''; ?> />
+                    <label for='inactive' class='custom-control-label'><?php echo xlt('Facility Inactive'); ?></label>
+                </div>
+            </div>
+
             <p class="text"><span class="mandatory">*</span> <?php echo xlt('Required'); ?></p>
         </form>
         <div class="py-3">

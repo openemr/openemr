@@ -1,0 +1,28 @@
+[
+    {
+        "label": "Finder",
+        "menu_id": "fin0",
+        "target": "fin",
+        "url": "/interface/main/finder/dynamic_finder.php",
+        "children": [],
+        "requirement": 0,
+        "acl_req": [
+          "patients",
+          "demo"
+        ]
+    },
+    {
+        "label": "Report",
+        "menu_id": "report",
+        "target": "main",
+        "on_click": "top.restoreSession()",
+        "url": "/interface/patient_file/report/patient_report.php",
+        "pid": "false",
+        "children": [],
+        "requirement": 0,
+        "acl_req": [
+            "patients",
+            "pat_rep"
+        ]
+    }
+]

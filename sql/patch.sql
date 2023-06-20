@@ -112,6 +112,10 @@ ALTER TABLE `x12_partners` ADD COLUMN `x12_submitter_id` smallint(6) DEFAULT NUL
 INSERT INTO list_options (list_id, option_id, title, seq, option_value) VALUES ('abook_type', 'bill_svc', 'Billing Service', 125, 3);
 #EndIf
 
+#IfMissingColumn facility inactive
+ALTER TABLE `facility` ADD COLUMN `inactive` tinyint(1) NOT NULL DEFAULT '0';
+#EndIf
+
 #IfNotTable patient_settings
 CREATE TABLE `patient_settings` (
 `setting_patient`  bigint(20)   NOT NULL DEFAULT 0,

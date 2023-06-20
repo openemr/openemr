@@ -60,6 +60,7 @@ class GeneratorUB04X12 extends AbstractGenerator implements GeneratorInterface, 
 
     public function validateOnly(BillingClaim $claim)
     {
+        $this->printToScreen(xl("Successfully validated claim") . ": " . $claim->getId());
         return $this->updateBatch($claim);
     }
 

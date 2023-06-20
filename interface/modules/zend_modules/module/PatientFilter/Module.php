@@ -7,7 +7,7 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace PatientFilterEventHookTest;
+namespace PatientFilter;
 
 use OpenEMR\Events\Appointments\AppointmentsFilterEvent;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
@@ -22,7 +22,7 @@ use Laminas\Mvc\MvcEvent;
  * Module for creating a blacklist on the patient finder, which can restrict certain
  * users from accessing certain patients
  *
- * @package PatientFilterEventHookTest
+ * @package PatientFilter
  * @author Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2019 Ken Chapple <ken@mi-squared.com>
  */

@@ -227,8 +227,8 @@ class Claim
         $this->payers = array();
         $this->payers[0] = array();
         $query = "SELECT * FROM insurance_data WHERE pid = ? AND 
-            (date <= ? OR date IS NULL) ORDER BY type ASC, date DESC";
-        $dres = sqlStatement($query, array($this->pid, $encounter_date));
+            (date <= ? OR date IS NULL) AND (date_end >= ? OR date_end IS NULL) ORDER BY type ASC, date DESC";
+        $dres = sqlStatement($query, array($this->pid, $encounter_date, $encounter_date));
         $prevtype = '';
         while ($drow = sqlFetchArray($dres)) {
             if (strcmp($prevtype, $drow['type']) == 0) {

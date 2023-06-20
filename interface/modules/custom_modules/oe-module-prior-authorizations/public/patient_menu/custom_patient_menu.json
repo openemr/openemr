@@ -38,8 +38,8 @@
         "children": [],
         "requirement": 0,
         "acl_req": [
-            "admin",
-            "super"
+            "patients",
+            "pat_rep"
         ]
     },
     {

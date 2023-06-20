@@ -18,7 +18,15 @@ require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/report.inc.php");
 
 use OpenEMR\Billing\BillingReport;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+
+//ensure user has proper access
+if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Billing Manager")]);
+    exit;
+}
 
 //how many columns to use when displaying information
 $COLS = 6;

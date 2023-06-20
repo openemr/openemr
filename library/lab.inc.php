@@ -6,7 +6,7 @@
  * @package OpenEMR
  * @link    http://www.open-emr.org
  * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
- * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2016-2023 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2010 OpenEMR Support LLC
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -17,7 +17,7 @@
  * @param $encounter
  * @return mixed
  */
-function fetchProcedureId($pid, $encounter)
+function fetchProcedureId($pid, $encounter): mixed
 {
     $sql = "SELECT procedure_order_id FROM procedure_order WHERE patient_id = ? AND encounter_id = ?";
     $res = sqlQuery($sql, array($pid,$encounter));
@@ -30,16 +30,16 @@ function fetchProcedureId($pid, $encounter)
  * @param $encounter
  * @return array
  */
-function getProceduresInfo($oid, $encounter)
+function getProceduresInfo($oid, $encounter): array
 {
 
-    $sql = "SELECT pc.procedure_order_id, pc.procedure_order_seq, pc.procedure_code, pc.procedure_name, 
-	 pc.diagnoses, po.provider_id, po.date_collected,po.lab_id, po.clinical_hx, po.date_ordered, po.patient_instructions, po.specimen_type, 
+    $sql = "SELECT pc.procedure_order_id, pc.procedure_order_seq, pc.procedure_code, pc.procedure_name,
+	 pc.diagnoses, po.provider_id, po.date_collected,po.lab_id, po.clinical_hx, po.date_ordered, po.patient_instructions, po.specimen_type,
 	 po.specimen_location, po.specimen_volume
-     FROM procedure_order_code AS pc  
-     JOIN procedure_order AS po ON pc.procedure_order_id 
-	 AND po.procedure_order_id 
-     WHERE pc.procedure_order_id = ? 
+     FROM procedure_order_code AS pc
+     JOIN procedure_order AS po ON pc.procedure_order_id
+	 AND po.procedure_order_id
+     WHERE pc.procedure_order_id = ?
 	 AND po.encounter_id = ?
 	 AND po.procedure_order_id = ?";
 
@@ -72,7 +72,7 @@ function getProceduresInfo($oid, $encounter)
 
 function getSelfPay($pid)
 {
-    $sql = "SELECT subscriber_relationship FROM insurance_data WHERE pid = ?";
+    $sql = "SELECT `subscriber_relationship` FROM `insurance_data` WHERE pid = ?";
     $res = sqlQuery($sql, array($pid));
 
     return $res['subscriber_relationship'];
@@ -84,7 +84,7 @@ function getSelfPay($pid)
  */
 function getNPI($prov_id)
 {
-    $sql = "SELECT npi, upin FROM users WHERE id = ?";
+    $sql = "SELECT `npi`, `upin` FROM `users` WHERE `id` = ?";
     $res = sqlQuery($sql, array($prov_id));
     return array($res['npi'], $res['upin']);
 }
@@ -92,22 +92,20 @@ function getNPI($prov_id)
 /**
  * @return array
  */
-function getProcedureProvider($prov_id)
+function getProcedureProvider($prov_id): array|bool
 {
     $sql = "SELECT i.organization, i.street, i.city, i.state, i.zip, i.fax, i.phone, pi.lab_director " .
            "FROM users AS i, procedure_providers AS pi WHERE pi.ppid = ? AND pi.lab_director = i.id ";
 
     $res = sqlStatement($sql, array($prov_id));
-    $labs = sqlFetchArray($res);
-
-    return $labs;
+    return sqlFetchArray($res) ?? [];
 }
 
 /**
  * @param $prov_id
  * @return array|null
  */
-function getLabProviders($prov_id)
+function getLabProviders($prov_id): ?array
 {
 
     $sql = "select fname, lname from users where authorized = 1 and active = 1 and username != '' and id = ?";
@@ -120,25 +118,33 @@ function getLabProviders($prov_id)
 /*
 * This is going to be adjusted when there is more than one provider.
 */
-function getLabconfig()
+function getLabconfig(): bool|array|null
 {
     $sql = "SELECT recv_app_id, recv_fac_id FROM procedure_providers ";
     $res = sqlQuery($sql);
     return $res;
 }
 
-function saveBarCode($bar, $pid, $order)
+function saveBarCode($bar, $pid, $order): void
 {
     $sql = "INSERT INTO `requisition` (`id`, `req_id`, `pid`, `lab_id`) VALUES (NULL, ?, ?, ?)";
     $inarr = array($bar,$pid,$order);
     sqlStatement($sql, $inarr);
 }
 
-function getBarId($lab_id, $pid)
+function getBarId($lab_id, $pid): bool|array|string|null
 {
-    $sql = "SELECT req_id FROM requisition WHERE lab_id = ? AND pid = ?";
+    //housekeeping needs to be done.  -SG 2023-05-03
+    //lab orders can be deleted, and it does not reflect in the requisition table.
+    //the requisition needs to be removed if a lab order is deleted
+    $checkForLabOrder = "SELECT * FROM `procedure_order` WHERE `procedure_order_id` = ? AND `patient_id` = ?";
+    $sql = "SELECT `req_id` FROM `requisition` WHERE `lab_id` = ? AND `pid` = ?";
     $bar = sqlQuery($sql, array($lab_id,$pid));
-
+    $isOrder = sqlQuery($checkForLabOrder, array($lab_id,$pid));
+    if (empty($isOrder['procedure_order_id'])) {
+        sqlStatement("DELETE FROM `requisition` WHERE `lab_id` = ? AND `pid` = ?", array($lab_id,$pid));
+        return '';
+    }
     return $bar;
 }
 
@@ -147,13 +153,13 @@ function getBarId($lab_id, $pid)
  * @param <type> $facilityID
  * @return <type> the result set, false if the input is malformed
  */
-function getFacilityInfo($facilityID)
+function getFacilityInfo($facilityID): bool|array
 {
     // facility ID will be in the format XX_YY, where XX is the lab-assigned id, Y is the user.id record representing that lab facility, and the _ is a divider.
     $facility = explode("_", $facilityID);
 
     if (count($facility) > 1) {
-        $query = "SELECT title, fname, lname, street, city, state, zip, organization, phone FROM users WHERE id = ?";
+        $query = "SELECT `title`, `fname`, `lname`, `street`, `city`, `state`, `zip`, `organization`, `phone` FROM `users` WHERE `id` = ?";
 
         $res = sqlStatement($query, array($facility[1]));
         return sqlFetchArray($res);
@@ -162,7 +168,7 @@ function getFacilityInfo($facilityID)
     return false;
 }
 
-function formatPhone($phone)
+function formatPhone($phone): array|string|null
 {
     $phone = preg_replace("/[^0-9]/", "", $phone);
     if (strlen($phone) == 7) {

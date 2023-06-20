@@ -10,7 +10,7 @@
 /**
  * This is the data structure for creating a blacklist that restricts certain users' access to certain patients
  *
- * @package PatientFilterEventHookTest
+ * @package PatientFilter
  * @author Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2019 Ken Chapple <ken@mi-squared.com>
  */
