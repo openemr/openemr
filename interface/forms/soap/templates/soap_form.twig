@@ -1,0 +1,89 @@
+<html>
+<head>
+<title>{{ 'SOAP'|xlt }}</title>
+    {{ setupHeader() }}
+</head>
+<body>
+    <div class="container mt-3">
+        <div class="row">
+            <div class="col-12">
+                <h2>{{'SOAP'|xlt}}</h2>
+                <form name="soap" method="post" action="{{ FORM_ACTION | attr }}/interface/forms/soap/save.php" onsubmit="return top.restoreSession()">
+                    <input type="hidden" name="csrf_token_form" value="{{ csrfTokenRaw()|attr }}" />
+                    <fieldset>
+                        <legend>{{ 'Subjective' | xlt }}</legend>
+                        <div class="container">
+                            <div class="form-group" >
+                                <textarea name="subjective" class="form-control" cols="60" rows="6" onkeyup="top.isSoapEdit = true;">{{ data.get_subjective()|text }}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{{ 'Objective' | xlt }}</legend>
+                        <div class="container">
+                            <div class="form-group">
+                                <textarea name="objective" class="form-control" cols="60" rows="6" onkeyup="top.isSoapEdit = true;">{{ data.get_objective()|text }}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{{ 'Assessment'|xlt }}</legend>
+                        <div class="container">
+                            <div class="form-group">
+                                <textarea name="assessment" class="form-control" cols="60" rows="6" onkeyup="top.isSoapEdit = true;">{{ data.get_assessment()|text }}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>{{ 'Plan'|xlt }}</legend>
+                        <div class="container">
+                            <div class="form-group">
+                                <textarea name="plan" class="form-control" cols="60" rows="6" onkeyup="top.isSoapEdit = true;">{{ data.get_plan()|text }}</textarea>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="form-group">
+                        <div class="btn-group" role="group">
+                            <button type="submit" class="btn btn-primary btn-save" name="Submit">{{ 'Save'|xlt }}</button>
+                            <button type="button" class="btn btn-secondary btn-cancel" id="btnClose">{{ 'Cancel'|xlt }}</button>
+                        </div>
+                        <input type="hidden" name="id" value="{{ data.get_id()|attr }}" />
+                        <input type="hidden" name="activity" value="{{ data.get_activity()|attr }}" />
+                        <input type="hidden" name="pid" value="{{ data.get_pid()|attr }}" />
+                        <input type="hidden" name="process" value="true" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const close = function() {
+            if (top.isSoapEdit === true) {
+                dlgopen('', '', 450, 125, '', '<div class="text-danger">{{'Warning'|xlt}}</div>',
+                    {
+                    type: 'Alert',
+                    html: '<p>{{'Do you want to close the tabs?'|xla}}</p>',
+                    buttons: [
+                        { text: '{{'Cancel'|xla}}', close: true, style: 'default btn-sm' },
+                        { text: '{{'Close'|xla}}', close: true, style: 'danger btn-sm', click: closeSoap },
+                    ],
+                    allowDrag: false,
+                    allowResize: false,
+                });
+            } else {
+                top.restoreSession();
+                location.href = 'javascript:parent.closeTab(window.name, false)';
+            }
+        }
+
+        const closeSoap = function() {
+            top.isSoapEdit = false;
+            top.restoreSession();
+            location.href = 'javascript:parent.closeTab(window.name, false)';
+        }
+        $('#btnClose').click(close);
+    </script>
+
+</body>
+</html>

@@ -1,3 +1,5 @@
+# noinspection SqlNoDataSourceInspectionForFile
+
 --
 --  Comment Meta Language Constructs:
 --
@@ -112,4 +114,13 @@ INSERT INTO list_options (list_id, option_id, title, seq, option_value) VALUES (
 
 #IfMissingColumn facility inactive
 ALTER TABLE `facility` ADD COLUMN `inactive` tinyint(1) NOT NULL DEFAULT '0';
+#EndIf
+
+#IfNotTable patient_settings
+CREATE TABLE `patient_settings` (
+`setting_patient`  bigint(20)   NOT NULL DEFAULT 0,
+`setting_label` varchar(100)  NOT NULL,
+`setting_value` varchar(255) NOT NULL DEFAULT '',
+PRIMARY KEY (`setting_patient`, `setting_label`)
+) ENGINE=InnoDB;
 #EndIf
