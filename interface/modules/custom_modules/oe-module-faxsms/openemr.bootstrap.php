@@ -168,12 +168,12 @@ function oe_module_faxsms_document_render_javascript_fax_dialog(Event $event): v
 function oe_module_faxsms_sms_render_action_buttons(Event $event): void
 {
     ?>
-    <button type="button" class="sendsms btn btn-success btn-sm btn-send-msg"
+    <button type="button" class="sendsms btn btn-success btn-send-msg"
         onclick="sendSMS(
         <?php echo attr_js($event->getPid()); ?>,
         <?php echo attr_js($event->getRecipientPhone()); ?>
         );"
-        value="true"><?php echo xlt('Notify'); ?></button>
+        value="true"><?php echo xlt('Send SMS'); ?></button>
 <?php }
 
 function oe_module_faxsms_sms_render_javascript_post_load(Event $event): void
