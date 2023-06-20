@@ -199,7 +199,6 @@ INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_r
 ('Email_Service', 'Email Service', 1, 0, '2021-01-18 11:25:10', 2, 'emailServiceRun', '/library/email_service_run.php', 100);
 #EndIf
 
-
 #IfNotTable patient_settings
 CREATE TABLE `patient_settings` (
 `setting_patient`  bigint(20)   NOT NULL DEFAULT 0,
@@ -209,6 +208,11 @@ PRIMARY KEY (`setting_patient`, `setting_label`)
 ) ENGINE=InnoDB;
 #EndIf
 
+#IfMissingColumn facility inactive
+ALTER TABLE `facility` ADD COLUMN `inactive` tinyint(1) NOT NULL DEFAULT '0';
+#EndIf
+
 #IfNotRow2D list_options list_id Document_Template_Categories option_id notification_template
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','notification_template','Notification Template',105,0,0,'','','',0,0,1);
 #EndIf
+
