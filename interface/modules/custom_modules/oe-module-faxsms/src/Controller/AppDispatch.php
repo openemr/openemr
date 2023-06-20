@@ -12,7 +12,6 @@
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
-use Document;
 use MyMailer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionUtil;
@@ -474,7 +473,7 @@ abstract class AppDispatch
     public function getPatientDetails(): bool|string
     {
         $id = $this->getRequest('pid');
-        $query = "SELECT fname, lname, phone_cell FROM Patient_data WHERE pid = ?";
+        $query = "SELECT fname, lname, phone_cell, email FROM Patient_data WHERE pid = ?";
         $result = sqlQuery($query, array($id));
 
         return json_encode($result);

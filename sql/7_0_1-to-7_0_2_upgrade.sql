@@ -211,3 +211,8 @@ PRIMARY KEY (`setting_patient`, `setting_label`)
 #IfMissingColumn facility inactive
 ALTER TABLE `facility` ADD COLUMN `inactive` tinyint(1) NOT NULL DEFAULT '0';
 #EndIf
+
+#IfNotRow2D list_options list_id Document_Template_Categories option_id notification_template
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','notification_template','Notification Template',105,0,0,'','','',0,0,1);
+#EndIf
+
