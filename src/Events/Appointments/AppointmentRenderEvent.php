@@ -34,6 +34,11 @@ class AppointmentRenderEvent extends Event
     const RENDER_BELOW_PATIENT = 'appointment.render.below.patient';
 
     /**
+     * This event is triggered by allowing module writers to render just before the close of the appointment form.
+     */
+    const RENDER_BEFORE_ACTION_BAR = 'appointment.render.action-bar.before';
+
+    /**
      * @var
      */
     private $appt;
