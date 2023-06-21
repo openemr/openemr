@@ -539,7 +539,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                     $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['CALL']['html'];
                                     if (($appointment['allow_sms'] != "NO") && ($appointment['phone_cell'] > '')) {
                                         $icon_4_CALL = "<span class='input-group-addon'
-                                                              onclick='SMS_bot(" . $row['msg_pid'] . ");'>
+                                                              onclick='SMS_bot(" . attr_js($row['msg_pid']) . ");'>
                                                               <i class='fas fa-sms'></i>
                                                         </span>";
                                     }
