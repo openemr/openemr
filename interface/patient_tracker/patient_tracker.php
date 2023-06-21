@@ -474,7 +474,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             $icon_here = array();
                             $prog_text = '';
                             $FINAL = '';
-                        
+
                             $query = "SELECT * FROM medex_outgoing WHERE msg_pc_eid =? ORDER BY medex_uid asc";
                             $myMedEx = sqlStatement($query, array($appointment['eid']));
                             /**
@@ -536,7 +536,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 }
                                 //these are additional icons if present
                                 if ($row['msg_reply'] == "CALL") {
-                                    $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['CALL']['html'];    
+                                    $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['CALL']['html'];
                                     if (($appointment['allow_sms'] != "NO") && ($appointment['phone_cell'] > '')) {
                                         $icon_4_CALL = "<span class='input-group-addon'
                                                               onclick='SMS_bot(" . $row['msg_pid'] . ");'>
@@ -547,7 +547,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                     $icon2_here .= $icons[$row['msg_type']]['STOP']['html'];
                                 } elseif ($row['msg_reply'] == "Other") {
                                     $icon2_here .= $icons[$row['msg_type']]['Other']['html'];
-                                } 
+                                }
                             }
                             //if pc_apptstatus == '-', update it now to=status
                             if (!empty($other_title)) {
@@ -688,7 +688,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         if (($yestime == '1') && ($timecheck >= 1) && (strtotime($newarrive) != '')) {
                             echo text($timecheck . ' ' . ($timecheck >= 2 ? xl('minutes') : xl('minute')));
                         } elseif (($icon_here ?? null) || ($icon2_here ?? null)) {
-                            echo "<span style='font-size:0.7rem;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . implode($icon_here) . $icon2_here . "</span> ".$icon_4_CALL;
+                            echo "<span style='font-size:0.7rem;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . implode($icon_here) . $icon2_here . "</span> " . $icon_4_CALL;
                         } elseif ($logged_in ?? null) {
                             $pat = $MedEx->display->possibleModalities($appointment);
                             echo "<span style='font-size:0.7rem;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . $pat['SMS'] . $pat['AVM'] . $pat['EMAIL'] . "</span>";
