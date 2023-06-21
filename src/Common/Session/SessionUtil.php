@@ -75,20 +75,22 @@ class SessionUtil
     {
         // Note there is no system logger here since that class does not
         //  yet exist in this context.
-        session_start([
-            'read_and_close' => $read_only,
-            'cookie_samesite' => self::$use_cookie_samesite,
-            'cookie_secure' => self::$use_cookie_secure,
-            'name' => 'OpenEMR',
-            'cookie_httponly' => false,
-            'cookie_path' => ((!empty($web_root)) ? $web_root . '/' : '/'),
-            'gc_maxlifetime' => self::$gc_maxlifetime,
-            'sid_bits_per_character' => self::$sid_bits_per_character,
-            'sid_length' => self::$sid_length,
-            'use_strict_mode' => self::$use_strict_mode,
-            'use_cookies' => self::$use_cookies,
-            'use_only_cookies' => self::$use_only_cookies,
-        ]);
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start([
+                'read_and_close' => $read_only,
+                'cookie_samesite' => self::$use_cookie_samesite,
+                'cookie_secure' => self::$use_cookie_secure,
+                'name' => 'OpenEMR',
+                'cookie_httponly' => false,
+                'cookie_path' => ((!empty($web_root)) ? $web_root . '/' : '/'),
+                'gc_maxlifetime' => self::$gc_maxlifetime,
+                'sid_bits_per_character' => self::$sid_bits_per_character,
+                'sid_length' => self::$sid_length,
+                'use_strict_mode' => self::$use_strict_mode,
+                'use_cookies' => self::$use_cookies,
+                'use_only_cookies' => self::$use_only_cookies,
+            ]);
+        }
     }
 
     public static function setSession($session_key_or_array, $session_value = null): void
