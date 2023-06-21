@@ -167,7 +167,7 @@ abstract class AppDispatch
      * This is where we decide which Api to use.
      *
      * @param string $type
-     * @return EtherFaxActions|RCFaxClient|TwilioSMSClient|void|null
+     * @return EtherFaxActions|TwilioSMSClient|void|null
      */
     static function getApiService(string $type)
     {

@@ -25,7 +25,8 @@ if (!$clientApp->verifyAcl()) {
 $logged_in = $clientApp->authenticate();
 $isSMSEmail =  $clientApp->getRequest('isSMSEmail', 0);
 $isSMS = $clientApp->getRequest('isSMS', 0);
-$isForward = ($clientApp->getRequest('mode', null) == 'forward') ? 1 : 0;
+$isForward = 0;
+$isForward = ($clientApp->getRequest('mode', '') == 'forward') ? 1 : 0;
 $isSMTP = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
 $default_message = '';
 $interface_pid = null;
