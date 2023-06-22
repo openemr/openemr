@@ -1263,10 +1263,10 @@ class X125010837P
                 (strlen($claim->payerZip($ins)) == 5)
                 || (strlen($claim->payerZip() == 9))
             ) {
-                $out .= $claim->x12Zip($claim->payerZip($ins));
-            } else {
                 $log .= "*** Other payer zip is not 5 or 9 digits.\n";
             }
+
+            $out .= $claim->x12Zip($claim->payerZip($ins));
             $out .= "~\n";
 
             // Segment DTP*573 (Claim Check or Remittance Date) omitted.
