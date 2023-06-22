@@ -117,6 +117,8 @@
 
 namespace OpenEMR\Common\Acl;
 
+include 'library/sanitize.inc.php';
+
 use OpenEMR\Gacl\Gacl;
 
 class AclMain
@@ -225,7 +227,8 @@ class AclMain
             }
         }
 
-        $remoteAddr = $_SERVER['REMOTE_ADDR'] ?? null;
+        $ip = collectIpAddresses();
+        $remote_addr = $ip['ip_string'];
         $ips = explode("\r\n", $GLOBALS['white_list']);
         $valid_IP = false;
         for ($i = 0; $i < count($ips); $i++) {
@@ -233,14 +236,14 @@ class AclMain
 
             // Checks if user IP is within the range of a stored IP with CIDR notation
             if (count($parts) > 1) {
-                $bits_IP = ip2long($remoteAddr);
+                $bits_IP = ip2long($remote_addr);
                 $bits_CIDR = ip2long($parts[0]);
                 $mask = str_repeat('1', intval($parts[1])) . str_repeat('0', 32 - intval($parts[1]));
                 if (($bits_IP & bindec($mask)) == ($bits_CIDR & bindec($mask))) {
                     $valid_IP = true;
                 }
             } else {
-                if ($remoteAddr == $ips[$i]) {
+                if ($remote_addr == $ips[$i]) {
                     $valid_IP = true;
                 }
             }
@@ -248,7 +251,7 @@ class AclMain
 
         // Allows access when white list of IPs is empty or if the user IP is in the white list
         if (!empty($GLOBALS['white_list']) && !$valid_IP) {
-            exit();
+            $deny = true;
         }
 
         // Now decide whether user has access
