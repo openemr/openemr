@@ -45,6 +45,7 @@ require_once("./../lib/portal_mail.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\Messaging\SendSmsEvent;
 
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
     echo xlt('Patient Portal is turned off');
@@ -554,10 +555,14 @@ function getAuthPortalUsers()
                 $scope.message = function (idx) {
                     return items(idx);
                 };
-
             }]);   // end messageCtrl
-
         })(); // application end
+
+        <?php
+        if (IS_DASHBOARD) {
+            $GLOBALS['kernel']->getEventDispatcher()->dispatch(new SendSmsEvent($pid), SendSmsEvent::JAVASCRIPT_READY_SMS_POST);
+        }
+        ?>
     </script>
     <ng ng-app="emrMessageApp">
         <div class="container-fluid" id='main' style="display: none">
@@ -598,6 +603,12 @@ function getAuthPortalUsers()
                             <button class="btn btn-secondary" title="<?php echo xla("New Note"); ?>" data-mode="add" data-toggle="modal" data-target="#modalCompose">
                                 <span class="fa fa-edit fa-lg"></span>
                             </button>
+
+                            <?php
+                            if (IS_DASHBOARD) {
+                                $GLOBALS['kernel']->getEventDispatcher()->dispatch(new SendSmsEvent($_SESSION['pid'] ?? 0), SendSmsEvent::ACTIONS_RENDER_SMS_POST);
+                            }
+                            ?>
                             <div class="btn-group btn-group float-right">
                                 <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown"><?php echo xlt('Actions'); ?></button>
                                 <ul class="dropdown-menu dropdown-menu-right">
@@ -632,13 +643,13 @@ function getAuthPortalUsers()
                                 <tbody>
                                 <tr ng-repeat="item in pagedItems[currentPage]">
                                     <!--  | orderBy:sortingOrder:reverse -->
-                                    <td><span class="col-sm-1" style="max-width: 5px;"><input type="checkbox" checklist-model="item.deleted" value={{item.deleted}}></span>
+                                    <td role = "button" ng-click="readMessage($index)"><span class="col-sm-1" style="max-width: 5px;"><input type="checkbox" checklist-model="item.deleted" value={{item.deleted}}></span>
                                         <span class="col-sm-1 px-1" style="max-width: 8px;"><span ng-class="{strong: !item.read}">{{item.id}}</span></span>
-                                        <span class="col-sm-1 px-1" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}">{{item.message_status}}</span></span>
-                                        <span class="col-sm-2 px-1" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}">{{item.date | date:'yyyy-MM-dd hh:mm'}}</span></span>
-                                        <span class="col-sm-3 px-1" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}">{{item.sender_name}} to
-                                                {{item.recipient_name}}</span></span> <span class="col-sm-1" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}">{{item.title}}</span></span>
-                                        <span class="col-sm-4 px-1" ng-click="readMessage($index)"><span ng-class="{strong: !item.read}" ng-bind='(htmlToText(item.body) | limitTo:35)'></span></span>
+                                        <span class="col-sm-1 px-1"><span ng-class="{strong: !item.read}">{{item.message_status}}</span></span>
+                                        <span class="col-sm-2 px-1"><span ng-class="{strong: !item.read}">{{item.date | date:'yyyy-MM-dd hh:mm'}}</span></span>
+                                        <span class="col-sm-3 px-1"><span ng-class="{strong: !item.read}">{{item.sender_name}} to
+                                                {{item.recipient_name}}</span></span> <span class="col-sm-1"><span ng-class="{strong: !item.read}">{{item.title}}</span></span>
+                                        <span class="col-sm-4 px-1"><span ng-class="{strong: !item.read}" ng-bind='(htmlToText(item.body) | limitTo:35)'></span></span>
                                         <!-- below for attachments, eventually -->
                                         <!-- <span class="col-sm-1 " ng-click="readMessage($index)"><span ng-show="item.attachment"
                                     class="glyphicon glyphicon-paperclip float-right"></span> <span ng-show="item.priority==1"
@@ -674,12 +685,12 @@ function getAuthPortalUsers()
                                         <thead><?php echo xlt('Associated Messages in thread.');?></thead>
                                         <tbody>
                                         <tr class="animate-repeat" ng-repeat="item in allItems | Chained:selected.mail_chain">
-                                            <td>
-                                                <span class="col-sm" style="max-width: 8px;"><span ng-class="{strong: !item.read}">{{item.id}}</span></span> <span class="col-sm px-1" ng-click="readMessage($index)"><span>{{item.date | date:'yyyy-MM-dd hh:mm'}}</span></span>
-                                                <span class="col-sm" ng-click="readMessage($index)"><span>{{item.message_status}}</span></span>
-                                                <span class="col-sm px-1" ng-click="readMessage($index)"><span>{{item.sender_name}}
-                                                        to {{item.recipient_name}}</span></span> <span class="col-sm-1" ng-click="readMessage($index)"><span>{{item.title}}</span></span>
-                                                <span class="col-sm px-1" ng-hide="selected.id == item.id" ng-click="readMessage($index)"><span ng-bind-html='(htmlToText(item.body) | limitTo:35)'></span></span>
+                                            <td role = "button" ng-click="readMessage($index)">
+                                                <span class="col-sm" style="max-width: 8px;"><span ng-class="{strong: !item.read}">{{item.id}}</span></span> <span class="col-sm px-1"><span>{{item.date | date:'yyyy-MM-dd hh:mm'}}</span></span>
+                                                <span class="col-sm"><span>{{item.message_status}}</span></span>
+                                                <span class="col-sm px-1"><span>{{item.sender_name}}
+                                                        to {{item.recipient_name}}</span></span> <span class="col-sm-1"><span>{{item.title}}</span></span>
+                                                <span class="col-sm px-1" ng-hide="selected.id == item.id"><span ng-bind-html='(htmlToText(item.body) | limitTo:35)'></span></span>
                                                 <span class='btn-group float-right m-0'>
                                                     <button ng-show="selected.sender_id != cUserId && selected.id == item.id" class="btn btn-primary btn-small" title="<?php echo xla('Reply to this message'); ?>" data-toggle="modal" data-mode="reply" data-noteid='{{selected.id}}' data-whoto='{{selected.sender_id}}' data-mtitle='{{selected.title}}' data-username='{{selected.sender_name}}' data-mailchain='{{selected.mail_chain}}' data-target="#modalCompose"><i class="fa fa-reply"></i></button>
                                                     <button ng-show="selected.id == item.id && selected.sender_id != cUserId && !isPortal" class="btn btn-primary btn-small" title="<?php echo xla('Forward message to practice.'); ?>" data-toggle="modal" data-mode="forward" data-noteid='{{selected.id}}' data-whoto='{{selected.sender_id}}' data-mtitle='{{selected.title}}' data-username='{{selected.sender_name}}' data-mailchain='{{selected.mail_chain}}' data-target="#modalCompose"><i class="fa fa-share"></i></button>
