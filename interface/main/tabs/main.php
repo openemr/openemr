@@ -406,9 +406,11 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
             }
         });
         document.addEventListener('touchstart', {}); //specifically added for iOS devices, especially in iframes
-        $(function() {
-            goRepeaterServices();
-        });
+        <?php if (($_ENV['OPENEMR__NO_BACKGROUND_TASKS'] ?? 'false') !== 'true') { ?>
+            $(function () {
+                goRepeaterServices();
+            });
+        <?php } ?>
     </script>
     <?php
     // fire off an event here
