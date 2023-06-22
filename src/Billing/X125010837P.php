@@ -1200,13 +1200,13 @@ class X125010837P
             }
             $out .= "*";
             if (
-                strlen($claim->insuredZip($ins)) == 5
-                || strlen($claim->insuredZip($ins)) == 9
+                !(strlen($claim->payerZip($ins)) == 5)
+                || (strlen($claim->payerZip($ins) == 9))
             ) {
-                $out .= $claim->insuredZip($ins);
-            } else {
-                $log .= "*** Other insco insured zip is not 5 or 9 digits.\n";
+                $log .= "*** Other payer zip is not 5 or 9 digits.\n";
             }
+
+            $out .= $claim->x12Zip($claim->payerZip($ins));
             $out .= "~\n";
 
             // Segment REF (Other Subscriber Secondary Identification) omitted.
