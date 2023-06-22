@@ -208,3 +208,18 @@ CREATE TABLE `patient_settings` (
 PRIMARY KEY (`setting_patient`, `setting_label`)
 ) ENGINE=InnoDB;
 #EndIf
+
+#IfNotRow2D list_options list_id lists option_id default_open_tabs
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`)        VALUES ('lists', 'default_open_tabs', 'Default Open Tabs');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('default_open_tabs', 'main_info.php', 'Calendar', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('default_open_tabs', '../new/new.php', 'Patient Search / Add', 2);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('default_open_tabs', '../../interface/main/finder/dynamic_finder.php', 'Patient Finder', 3);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('default_open_tabs', '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1', 'Flow Board', 4);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('default_open_tabs', '../../interface/main/messages/messages.php?form_active=1', 'Message Inbox', 5);
+INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`)
+VALUES ('default_open_tabs', 0,
+    (SELECT GROUP_CONCAT(g.gl_value ORDER BY g.gl_name DESC SEPARATOR ';')
+     FROM globals g
+     WHERE g.gl_name = 'default_top_pane' OR g.gl_name = 'default_second_tab')
+);
+#EndIf
