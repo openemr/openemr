@@ -442,13 +442,18 @@ class DocumentTemplateService extends QuestionnaireService
 
     /**
      * @param null $category
-     * @param int  $pid
-     * @return array|null[]
+     * @param mixed $pid
+     * @return
      */
-    public function getTemplateListByCategory($category = null, $pid = 0): array
+    public function getTemplateListByCategory($category = null, $pid = 0, $name = null): bool|array|null
     {
+        // if pid is -1 then belongs to repository. 0 is default templates else is assigned to patient.
         $results = array($category => null);
-        $query_result = sqlStatement('SELECT * FROM `document_templates` WHERE category = ? AND pid = ?', array($category, $pid));
+        if (empty($name)) {
+            $query_result = sqlStatement('SELECT * FROM `document_templates` WHERE category = ? AND pid = ?', array($category, $pid));
+        } else {
+            return sqlQuery('SELECT * FROM `document_templates` WHERE category = ? AND pid = ? AND template_name = ? LIMIT 1', array($category, $pid, $name));
+        }
         while ($row = sqlFetchArray($query_result)) {
             if (is_array($row)) {
                 $results[$category][] = $row;
