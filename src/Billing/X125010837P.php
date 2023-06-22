@@ -1200,8 +1200,10 @@ class X125010837P
             }
             $out .= "*";
             if (
-                !((strlen($claim->insuredZip($ins)) == 5)
-                || (strlen($claim->insuredZip($ins) == 9)))
+                !(
+                    (strlen($claim->insuredZip($ins)) == 5)
+                    || (strlen($claim->insuredZip($ins) == 9))
+                )
             ) {
                 $log .= "*** Other insco insured zip is not 5 or 9 digits.\n";
             }
@@ -1260,8 +1262,10 @@ class X125010837P
             }
             $out .= "*";
             if (
-                !((strlen($claim->payerZip($ins)) == 5)
-                || (strlen($claim->payerZip() == 9)))
+                !(
+                    (strlen($claim->payerZip($ins)) == 5)
+                    || (strlen($claim->payerZip() == 9))
+                )
             ) {
                 $log .= "*** Other payer zip is not 5 or 9 digits.\n";
             }
