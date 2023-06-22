@@ -53,34 +53,41 @@ if (!empty($fldvalue)) {
     }
 }
 ?>
-<div class="gbl-field-multi-sorted-list-widget">
+<div class="gbl-field-multi-sorted-list-widget list-group list-group-flush">
     <template class="gbl-field-multi-sorted-list-item-template">
-        <li class="gbl-field-multi-sorted-list-item mb-2" data-option-id="">
+        <li class="gbl-field-multi-sorted-list-item list-group-item d-flex align-items-center justify-content-between" data-option-id="">
             <span class="text-label"></span>
-            <button class="btn btn-uparrow btn-sm btn-secondary"><i class="fa fa-arrow-up"></i></button>
-            <button class="btn btn-downarrow btn-sm btn-secondary"><i class="fa fa-arrow-down"></i></button>
-            <button class="btn-delete btn btn-danger btn-sm"></button>
+            <div class="btn-group btn-group-sm">
+                <button class="btn btn-uparrow btn-sm btn-secondary"><i class="fa fa-fw fa-arrow-up"></i></button>
+                <button class="btn btn-downarrow btn-sm btn-secondary"><i class="fa fa-fw fa-arrow-down"></i></button>
+                <button class="btn btn-delete btn-sm"></button>
+            </div>
         </li>
     </template>
     <div class="mb-2">
+        <select class="form-control gbl-field-multi-sorted-list-picker">
+            <option value=""><?php echo xlt("Select an item to add"); ?></option>
+            <?php foreach ($listOptions as $item) : ?>
+            <option value="<?php echo attr($item['option_id']); ?>"><?php echo xlt($item['title']); ?></option>
+            <?php endforeach; ?>
+        </select>
         <input class="gbl-field-multi-sorted-list-value" type="hidden" id='form_<?php echo attr($i); ?>' name="form_<?php echo attr($i); ?>" value="<?php echo attr($fldvalue); ?>" />
 
-        <p class="gbl-field-multi-sorted-list-empty <?php echo empty($selectedOptions) ? "" : "d-none" ?>""><?php echo xlt("No sorted sections selected"); ?></p>
-        <ul class="gbl-field-multi-sorted-list-container <?php echo empty($selectedOptions) ? "d-none" : "" ?>">
+        <ul class="gbl-field-multi-sorted-list-empty list-group list-group-flush <?php echo empty($selectedOptions) ? "" : "d-none" ?>"">
+            <li class="list-group-item"><?php echo xlt("No sorted sections selected"); ?></li>
+        </ul>
+        <ul class="gbl-field-multi-sorted-list-container list-group list-group-flush <?php echo empty($selectedOptions) ? "d-none" : "" ?>">
             <?php foreach ($selectedOptions as $option) : ?>
-            <li class="gbl-field-multi-sorted-list-item mb-2" data-option-id="<?php echo attr($option['option_id']); ?>">
+            <li class="gbl-field-multi-sorted-list-item list-group-item d-flex align-items-center justify-content-between" data-option-id="<?php echo attr($option['option_id']); ?>">
                 <span class="text-label"><?php echo xlt($option['title']); ?></span>
-                <button class="btn btn-uparrow btn-sm btn-secondary"><i class="fa fa-arrow-up"></i></button>
-                <button class="btn btn-downarrow btn-sm btn-secondary"><i class="fa fa-arrow-down"></i></button>
-                <button class="btn-delete btn btn-danger btn-sm"></button>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-uparrow btn-sm btn-secondary"><i class="fa fa-arrow-up"></i></button>
+                    <button class="btn btn-downarrow btn-sm btn-secondary"><i class="fa fa-arrow-down"></i></button>
+                    <button class="btn-delete btn btn-sm"></button>
+                </div>
             </li>
             <?php endforeach; ?>
         </ul>
     </div>
-    <select class="form-control gbl-field-multi-sorted-list-picker">
-        <option value=""><?php echo xlt("Select an item to add"); ?></option>
-        <?php foreach ($listOptions as $item) : ?>
-        <option value="<?php echo attr($item['option_id']); ?>"><?php echo xlt($item['title']); ?></option>
-        <?php endforeach; ?>
-    </select>
+
 </div>
