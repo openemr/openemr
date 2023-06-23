@@ -120,8 +120,9 @@ class AuthorizationController
 
     public function __construct($providerForm = true)
     {
-        $gbl = RestConfig::GetInstance();
-        if (empty($gbl)) {
+        if (is_callable([RestConfig::class, 'GetInstance'])) {
+            $gbl = RestConfig::GetInstance();
+        } else {
             $gbl = \RestConfig::GetInstance();
         }
         $this->restConfig = $gbl;
