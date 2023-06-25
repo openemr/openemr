@@ -65,9 +65,9 @@ class TwilioSMSClient extends AppDispatch
     {
         $credentials = appDispatch::getSetup();
 
-        $this->sid = $credentials['username'];
-        $this->appKey = $credentials['appKey'];
-        $this->appSecret = $credentials['appSecret'];
+        $this->sid = $credentials['username'] ?? '';
+        $this->appKey = $credentials['appKey'] ?? '';
+        $this->appSecret = $credentials['appSecret'] ?? '';
         $this->serverUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ?
                 "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
         $this->uriDir = $this->serverUrl . $this->uriDir;
@@ -174,6 +174,8 @@ class TwilioSMSClient extends AppDispatch
             }
 
             $responseMsgs = [];
+            $responseMsgs[0] = '';
+            $responseMsgs[1] = '';
             $responseMsgs[2] = xlt('Not Implemented');
             foreach ($messages as $messageStore) {
                 $id = $messageStore->sid;

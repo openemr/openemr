@@ -27,8 +27,6 @@ class NotificationEventListener implements EventSubscriberInterface
 
     public function __construct()
     {
-        $this->clientApp = AppDispatch::getApiService('sms');
-        $this->docClient = new DocumentTemplateService();
     }
 
     public static function getSubscribedEvents(): array
@@ -45,6 +43,8 @@ class NotificationEventListener implements EventSubscriberInterface
 
     public function onNotifyEvent(SendNotificationEvent $event)
     {
+        $this->clientApp = AppDispatch::getApiService('sms');
+        $this->docClient = new DocumentTemplateService();
         $id = $event->getPid();
         $data = $event->getEventData() ?? [];
         $patient = $event->fetchPatientDetails($id);
