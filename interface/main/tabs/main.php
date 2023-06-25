@@ -302,15 +302,19 @@ $esignApi = new Api();
     <?php $userQuery = sqlQuery("select * from users where username = ?", array($_SESSION['authUser'])); ?>
 
     <script>
-        <?php if (!empty($_SESSION['frame1url']) && !empty($_SESSION['frame1target'])) { ?>
-            // Use session variables and tabStatus object to set up initial/default first tab
-            app_view_model.application_data.tabs.tabsList.push(new tabStatus(<?php echo xlj("Loading"); ?> + "...", <?php echo json_encode("../" . $_SESSION['frame1url']); ?>, <?php echo json_encode($_SESSION['frame1target']); ?>, <?php echo xlj("Loading"); ?> + " " + <?php echo json_encode($_SESSION['frame1label']); ?>, true, true, false));
-        <?php } ?>
-
-        <?php if (!empty($_SESSION['frame2url']) && !empty($_SESSION['frame2target'])) { ?>
-            // Use session variables and tabStatus object to set up initial/default second tab, if none is set in globals, this tab will not be displayed initially
-            app_view_model.application_data.tabs.tabsList.push(new tabStatus(<?php echo xlj("Loading"); ?> + "...", <?php echo json_encode("../" . $_SESSION['frame2url']); ?>, <?php echo json_encode($_SESSION['frame2target']); ?>, <?php echo xlj("Loading"); ?> + " " + <?php echo json_encode($_SESSION['frame2label']); ?>, true, false, false));
-        <?php } ?>
+        <?php
+        if ($_SESSION['default_open_tabs']) :
+            $visible = "true";
+            foreach ($_SESSION['default_open_tabs'] as $tab) :
+                $url = json_encode("../" . $tab['notes']);
+                $target = json_encode($tab['option_id']);
+                $label = json_encode(xl("Loading") . " " . $tab['title']);
+                $loading = xlj("Loading");
+                echo "app_view_model.application_data.tabs.tabsList.push(new tabStatus($label, $url, $target, $loading, true, $visible, false));\n";
+                $visible = "false";
+            endforeach;
+        endif;
+        ?>
 
         app_view_model.application_data.user(new user_data_view_model(<?php echo json_encode($_SESSION["authUser"])
                                                                             . ',' . json_encode($userQuery['fname'])

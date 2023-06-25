@@ -1341,7 +1341,7 @@ function writeITLine($it_array)
                 echo xlt('ISO 639 Code');
             } elseif ($list_id == 'personal_relationship' || $list_id == 'religious_affiliation' || $list_id == 'ethnicity' || $list_id == 'race' || $list_id == 'drug_route') {
                 echo xlt('HL7-V3 Concept Code');
-            } elseif ($list_id == 'Immunization_Completion_Status') {
+            } elseif ($list_id == '') {
                 echo xlt('Treatment Completion Status');
             } elseif ($list_id == 'race') {
                 echo xlt('CDC Code');
@@ -1367,6 +1367,8 @@ function writeITLine($it_array)
                 echo xlt('Attributes');
             } elseif ($list_id == "external_patient_education") {
                 echo xlt('External URL');
+            } elseif ($list_id == "default_open_tabs") {
+                echo xlt("URL");
             } else {
                 echo xlt('Notes');
             } ?></th>
