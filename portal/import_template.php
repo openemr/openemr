@@ -508,11 +508,15 @@ function renderProfileHtml()
                             return true
                         },
                     },
+                    onAdd: function (evt) {
+                        let el = evt.item;
+                        el.getElementsByTagName('form')[0].classList.remove("d-none");
+                    },
                     animation: 150
                 });
             });
         });
-
+        top.restoreSession();
         function submitProfiles() {
             top.restoreSession();
             let target = document.getElementById('edit-profiles');
@@ -524,7 +528,7 @@ function renderProfileHtml()
                 let lists = ulItem.querySelectorAll('li');
                 lists.forEach((item, index) => {
                     //console.log({index, item})
-                    let pform = document.getElementById(ulItem.dataset.profile + '-form');
+                    let pform = item.getElementsByTagName('form')[0];
                     let formData = $(pform).serializeArray();
                     listData = {
                         'form': formData,
@@ -588,7 +592,46 @@ function renderProfileHtml()
                                     echo "<li class='list-group-item px-1 py-1 mb-2' data-id='$template_id' data-name='$this_name' data-category='$title_esc'>" .
                                         "<strong>" . text($file['template_name']) .
                                         '</strong>' . ' ' . xlt('in category') . ' ' .
-                                        '<strong>' . text($title) . '</strong>' . '</li>' . "\n";
+                                        '<strong>' . text($title) . '</strong>';
+                                    ?>
+                                    <form class='form form-inline bg-light text-dark py-1 pl-1 d-none'>
+                                        <label class='font-weight-bold mr-1'><?php echo xlt('Notify') ?></label>
+                                        <div class='input-group-prepend ml-auto'>
+                                            <input name="notify_days" type="text" style="width: 50px;" class='input-control-sm ml-1' placeholder="<?php echo xla('days') ?>" value="" />
+                                            <label class="mx-1"><?php echo xlt('Days') ?></label>
+                                        </div>
+                                        <div class='input-group-prepend'>
+                                            <select name="notify_when" class='input-control-sm mx-1'>
+                                                <option value=""><?php echo xlt('Unassigned'); ?></option>
+                                                <option value="new"><?php echo xlt('New'); ?></option>
+                                                <option value='before_appointment'><?php echo xlt('Before Appointment'); ?></option>
+                                                <option value='after_appointment'><?php echo xlt('After Appointment'); ?></option>
+                                                <option value="before_expires"><?php echo xlt('Before Expires'); ?></option>
+                                                <option value="in_edit"><?php echo xlt('In Edit'); ?></option>
+                                            </select>
+                                        </div>
+                                        <div class='input-group-prepend ml-auto'>
+                                            <label class="form-check-inline"><?php echo xlt('Recurring') ?>
+                                                <input name="recurring" type='checkbox' class="input-control ml-1 mt-1" />
+                                            </label>
+                                        </div>
+                                        <div class='input-group-prepend'>
+                                            <label><?php echo xlt('On') ?></label>
+                                            <select name="when" class='input-control-sm mx-1'>
+                                                <!--<option value=""><?php /*echo xlt('Unassigned') */ ?></option>-->
+                                                <option value="completed"><?php echo xlt('Completed') ?></option>
+                                                <option value='always'><?php echo xlt('Always') ?></option>
+                                                <option value='once'><?php echo xlt('One time') ?></option>
+                                            </select>
+                                        </div>
+                                        <div class='input-group-prepend'>
+                                            <label><?php echo xlt('Every') ?></label>
+                                            <input name="days" type="text" style="width: 50px;" class='input-control-sm ml-1' placeholder="<?php echo xla('days') ?>" value="" />
+                                            <label class="mx-1"><?php echo xlt('Days') ?></label>
+                                        </div>
+                                    </form>
+                                    <?php
+                                    echo '</li>' . "\n";
                                 }
                             }
                             ?>
@@ -601,34 +644,8 @@ function renderProfileHtml()
                         foreach ($profile_list as $profile => $profiles) {
                             $profile_items_list = $templateService->getTemplateListByProfile($profile);
                             $profile_esc = attr($profile);
-                            $events = $templateService->fetchAllProfileEvents();
-                            $recurring = attr($events[$profile]['recurring'] ?? '');
-                            $trigger = attr($events[$profile]['event_trigger'] ?? '');
-                            $days = attr($events[$profile]['period'] ?? '');
                             ?>
-                            <form id="<?php echo $profile_esc ?>-form" name="<?php echo $profile_esc; ?>" class='form form-inline bg-dark text-light py-1 pl-1'>
-                                <label class='mr-1'><?php echo xlt($profiles['title']) ?></label>
-                                <div class='input-group-prepend ml-auto'>
-                                    <label for="<?php echo $profile_esc ?>-recurring" class="form-check-inline"><?php echo xlt('Recurring') ?>
-                                        <input <?php echo $recurring ? 'checked' : '' ?> name="recurring" type='checkbox' class="input-control ml-1 mt-1" id="<?php echo $profile_esc ?>-recurring" />
-                                    </label>
-                                </div>
-                                <!-- @TODO Hide for now until sensible events can be determined. -->
-                                <div class='input-group-prepend d-none'>
-                                    <label for="<?php echo $profile_esc ?>-when"><?php echo xlt('On') ?></label>
-                                    <select name="when" class='input-control-sm mx-1' id="<?php echo $profile_esc ?>-when">
-                                        <!--<option value=""><?php /*echo xlt('Unassigned') */ ?></option>-->
-                                        <option <?php echo $trigger === 'completed' ? 'selected' : ''; ?> value="completed"><?php echo xlt('Completed') ?></option>
-                                        <option <?php echo $trigger === 'always' ? 'selected' : ''; ?> value='always'><?php echo xlt('Always') ?></option>
-                                        <option <?php echo $trigger === 'once' ? 'selected' : ''; ?> value='once'><?php echo xlt('One time') ?></option>
-                                    </select>
-                                </div>
-                                <div class='input-group-prepend'>
-                                    <label for="<?php echo $profile_esc ?>-days"><?php echo xlt('Every') ?></label>
-                                    <input name="days" type="text" style="width: 50px" class='input-control-sm ml-1' id="<?php echo $profile_esc ?>-days" placeholder="<?php echo xla('days') ?>" value="<?php echo $days ?>" />
-                                    <label class="mx-1" for="<?php echo $profile_esc ?>-days"><?php echo xlt('Days') ?></label>
-                                </div>
-                            </form>
+                            <div class='bg-dark text-light py-1 pl-1'><?php echo xlt($profiles['title']) ?></div>
                             <?php
                             echo "<ul id='$profile_esc' class='list-group mx-2 mb-2' data-profile='$profile_esc'>\n";
                             foreach ($profile_items_list as $cat => $files) {
@@ -640,11 +657,55 @@ function renderProfileHtml()
                                     $this_cat = attr($file['category']);
                                     $title = $category_list[$file['category']]['title'] ?: $cat;
                                     $this_name = attr($file['template_name']);
+                                    $events = $templateService->fetchTemplateEvent($profile, $template_id);
+                                    $recurring = attr($events['recurring'] ?? '');
+                                    $trigger = attr($events['event_trigger'] ?? ''); // max 32 char
+                                    $notify_trigger = attr($events['notify_trigger'] ?? ''); // max 32 char
+                                    $days = attr($events['period'] ?? '');
+                                    $notify_days = attr($events['notify_period'] ?? '');
                                     if ($file['mime'] === 'application/pdf') {
                                         continue;
                                     }
-                                    echo "<li class='list-group-item px-1 py-1 mb-2' data-id='$template_id' data-name='$this_name' data-category='$this_cat'>" .
-                                        text($file['template_name']) . ' ' . xlt('in category') . ' ' . text($title) . "</li>\n";
+                                    ?>
+                                    <li class='list-group-item px-1 py-1 mb-2' data-id="<?php echo $template_id; ?>" data-name="<?php echo $this_name; ?>" data-category="<?php echo $this_cat; ?>"><span class="bg-info p-1 font-weight-bold"><?php echo text($file['template_name']) . ' ' . xlt('in category') . ' ' . text($title); ?></span>
+                                        <form class='form form-inline bg-light text-dark py-1 pl-1'>
+                                            <label class='font-weight-bold mr-1'><?php echo xlt('Notify') ?></label>
+                                            <div class='input-group-prepend ml-auto'>
+                                                <input name="notify_days" type="text" style="width: 50px;" class='input-control-sm ml-1' placeholder="<?php echo xla('days') ?>" value="<?php echo $notify_days ?>" />
+                                                <label class="mx-1"><?php echo xlt('Days') ?></label>
+                                            </div>
+                                            <div class='input-group-prepend'>
+                                                <select name="notify_when" class='input-control-sm mx-1'>
+                                                    <option value=""><?php echo xlt('Unassigned'); ?></option>
+                                                    <option <?php echo $notify_trigger === 'new' ? 'selected' : ''; ?> value="new"><?php echo xlt('New'); ?></option>
+                                                    <option <?php echo $notify_trigger === 'before_appointment' ? 'selected' : ''; ?> value='before_appointment'><?php echo xlt('Before Appointment'); ?></option>
+                                                    <option <?php echo $notify_trigger === 'after_appointment' ? 'selected' : ''; ?> value='after_appointment'><?php echo xlt('After Appointment'); ?></option>
+                                                    <option <?php echo $notify_trigger === 'before_expires' ? 'selected' : ''; ?> value="before_expires"><?php echo xlt('Before Expires'); ?></option>
+                                                    <option <?php echo $notify_trigger === 'in_edit' ? 'selected' : ''; ?> value="in_edit"><?php echo xlt('In Edit'); ?></option>
+                                                </select>
+                                            </div>
+                                            <div class='input-group-prepend'>
+                                                <label class="form-check-inline"><?php echo xlt('Recurring') ?>
+                                                    <input <?php echo $recurring ? 'checked' : '' ?> name="recurring" type='checkbox' class="input-control ml-1 mt-1" />
+                                                </label>
+                                            </div>
+                                            <div class='input-group-prepend'>
+                                                <label><?php echo xlt('On') ?></label>
+                                                <select name="when" class='input-control-sm mx-1'>
+                                                    <!--<option value=""><?php /*echo xlt('Unassigned') */ ?></option>-->
+                                                    <option <?php echo $trigger === 'completed' ? 'selected' : ''; ?> value="completed"><?php echo xlt('Completed') ?></option>
+                                                    <option <?php echo $trigger === 'always' ? 'selected' : ''; ?> value='always'><?php echo xlt('Always') ?></option>
+                                                    <option <?php echo $trigger === 'once' ? 'selected' : ''; ?> value='once'><?php echo xlt('One time') ?></option>
+                                                </select>
+                                            </div>
+                                            <div class='input-group-prepend'>
+                                                <label><?php echo xlt('Every') ?></label>
+                                                <input name="days" type="text" style="width: 50px;" class='input-control-sm ml-1' placeholder="<?php echo xla('days') ?>" value="<?php echo $days ?>" />
+                                                <label class="mx-1" for="<?php echo $profile_esc ?>-days"><?php echo xlt('Days') ?></label>
+                                            </div>
+                                        </form>
+                                    </li>
+                                    <?php
                                 }
                             }
                             echo "</ul>\n";

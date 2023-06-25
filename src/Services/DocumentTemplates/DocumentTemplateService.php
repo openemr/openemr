@@ -175,24 +175,13 @@ class DocumentTemplateService extends QuestionnaireService
     }
 
     /**
-     * @return array
+     * @param     $profile
+     * @param int $tid
+     * @return bool|array|null
      */
-    public function fetchAllProfileEvents(): array
+    public function fetchTemplateEvent($profile, $tid = 0): bool|array|null
     {
-        $result = [];
-        $events = sqlStatement("SELECT `profile`, `recurring`, `event_trigger`, `period` FROM `document_template_profiles` WHERE `template_id` > '0' GROUP BY `profile`");
-        foreach ($events as $event) {
-            $result[$event['profile']] = $event;
-        }
-        return $result;
-    }
-
-    /**
-     * @return array
-     */
-    public function fetchProfileEvents($profile): array
-    {
-        return sqlQuery("SELECT `profile`, `recurring`, `event_trigger`, `period` FROM `document_template_profiles` WHERE `template_id` > '0' AND `profile` = ? GROUP BY `profile` LIMIT 1", array($profile));
+        return sqlQuery("SELECT * FROM `document_template_profiles` WHERE `template_id` = ? AND `profile` = ?", array($tid ?? 0, $profile ?? ''));
     }
 
 
@@ -200,7 +189,7 @@ class DocumentTemplateService extends QuestionnaireService
      * @param $template
      * @return mixed int|date
      */
-    public function showTemplateFromEvent($template, $show_due_date = false)
+    public function showTemplateFromEvent($template, $show_due_date = false): mixed
     {
         $in_review = false;
         $result = sqlQuery("SELECT * FROM `onsite_documents` WHERE `pid` = ? AND `file_path` = ? ORDER BY `create_date` DESC LIMIT 1", array($template['pid'], $template['id']));
@@ -216,14 +205,18 @@ class DocumentTemplateService extends QuestionnaireService
         if (!isset($template['trigger_event'])) {
             // these are sent templates. Not in group.
             if (!empty($template['profile'])) {
-                $event = $this->fetchProfileEvents($template['profile']);
+                $event = $this->fetchTemplateEvent($template['profile']);
                 $template['event_trigger'] = '';
-                $template['recurring'] = 1;
                 $template['period'] = 0;
+                $template['recurring'] = 1;
+                $template['notify_trigger'] = '';
+                $template['notify_period'] = 0;
                 if (is_array($event)) {
                     $template['event_trigger'] = $event['event_trigger'];
-                    $template['recurring'] = $event['recurring'];
                     $template['period'] = $event['period'];
+                    $template['recurring'] = $event['recurring'];
+                    $template['notify_trigger'] = $event['notify_trigger'];
+                    $template['notify_period'] = $event['nofify_period'];
                 }
             } else {
                 return true; // in review or locked so show default template. @todo possibly delete sent template.
@@ -770,10 +763,10 @@ class DocumentTemplateService extends QuestionnaireService
                 }
                 $rtn = sqlInsert(
                     "INSERT INTO `document_template_profiles`
-            (`template_id`, `profile`, `template_name`, `category`, `provider`, `recurring`, `event_trigger`, `period`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (`template_id`, `profile`, `template_name`, `category`, `provider`, `recurring`, `event_trigger`, `period`, `notify_trigger`, `notify_period`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     array($profile_array['id'], $profile_array['profile'],
                         $profile_array['name'], $profile_array['category'], ($_SESSION['authUserID'] ?? null),
-                        $form_data['recurring'] ? 1 : 0, $form_data['when'], $form_data['days'])
+                        $form_data['recurring'] ? 1 : 0, $form_data['when'], $form_data['days'], $form_data['notify_when'], $form_data['notify_days'])
                 );
             }
         } catch (Exception $e) {
