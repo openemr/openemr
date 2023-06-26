@@ -448,14 +448,12 @@ if ($is_expired) {
     $_tabs[] = [
         'notes' => $_notes,
         'id' => "pat",
-        'label' => xl("Patient Search/Add"),
+        'label' => xl("Dashboard"),
     ];
 } elseif (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
     // Load the calendar, at the end
     $_notes = "calendar/index.php?pid=" . attr_url($_GET['pid']);
-    if (isset($_GET['date'])) {
-        $_notes .= "&date=" . attr_url($_GET['date']);
-    }
+    $_notes = (isset($_GET['date'])) ? $_notes . "&date=" . attr_url($_GET['date']) : $_notes;
     $_tabs[] = [
         'notes' => $_notes,
         'id' => "cal",
