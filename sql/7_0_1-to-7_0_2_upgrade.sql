@@ -217,16 +217,14 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 #EndIf
 
 #IfNotRow2D list_options list_id lists option_id default_open_tabs
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`)        VALUES ('lists', 'default_open_tabs', 'Default Open Tabs');
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('default_open_tabs', 'main_info.php', 'Calendar', 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('default_open_tabs', '../new/new.php', 'Patient Search / Add', 2);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('default_open_tabs', '../../interface/main/finder/dynamic_finder.php', 'Patient Finder', 3);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('default_open_tabs', '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1', 'Flow Board', 4);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('default_open_tabs', '../../interface/main/messages/messages.php?form_active=1', 'Message Inbox', 5);
-INSERT INTO `globals` (`gl_name`, `gl_index`, `gl_value`)
-VALUES ('default_open_tabs', 0,
-    (SELECT GROUP_CONCAT(g.gl_value ORDER BY g.gl_name DESC SEPARATOR ';')
-     FROM globals g
-     WHERE g.gl_name = 'default_top_pane' OR g.gl_name = 'default_second_tab')
-);
+-- Create new list Default Open Tabs
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'default_open_tabs', 'Default Open Tabs');
+-- Populate list with sensible defaults based on previous optiosn in globals, assume no tabs are actually active
+INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', 'main_info.php', 'Calendar', 1, 'cal', '0');
+INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', '../new/new.php', 'Patient Search / Add', 2, 'pat', '0');
+INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', '../../interface/main/finder/dynamic_finder.php', 'Patient Finder', 3, 'fin', '0');
+INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1', 'Flow Board', 4, 'flb', '0');
+INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', '../../interface/main/messages/messages.php?form_active=1', 'Message Inbox', 5, 'msg', '0');
+-- Activate the 2 list options that were the previous default and second pane settings
+UPDATE `list_options` lo INNER JOIN globals g ON lo.notes = g.gl_value SET lo.activity = 1;
 #EndIf
