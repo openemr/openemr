@@ -1,5 +1,4 @@
 <?php
-use OpenEMR\Services\ListService;
 
 /**
  * The outside frame that holds all of the OpenEMR User Interface.
@@ -26,6 +25,7 @@ use OpenEMR\Common\Session\SessionTracker;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\ListService;
 use u2flib_server\U2F;
 
 ///////////////////////////////////////////////////////////////////////
