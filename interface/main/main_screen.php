@@ -427,7 +427,6 @@ if ((!AuthUtils::useActiveDirectory()) && ($GLOBALS['password_expiration_days'] 
     }
 }
 
-$defaultTabsArr = explode($GLOBALS['default_open_tabs'], ",");
 $listSvc = new ListService();
 $_tabs = $listSvc->getOptionsByListName('default_open_tabs', ['activity' => 1]);
 
@@ -436,30 +435,32 @@ if ($is_expired) {
     array_unshift($_tabs, [
         'notes' => "pwd_expires_alert.php?csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()),
         'id' => "adm",
-        "label" => "",
+        "label" => xl("Password Reset"),
     ]);
 } elseif (!empty($_POST['patientID'])) {
+    // Patient is open, so add this to the list of tabs, at the end
     $patientID = (int) $_POST['patientID'];
     $_notes = "../patient_file/summary/demographics.php?set_pid=" . attr_url($patientID);
     if (!empty($_POST['encounterID'])) {
         $encounterID = (int) $_POST['encounterID'];
         $_notes = $_notes . "&set_encounterid=" . attr_url($encounterID);
     }
-    array_unshift($_tabs, [
+    $_tabs[] = [
         'notes' => $_notes,
         'id' => "pat",
         'label' => xl("Patient Search/Add"),
-    ]);
+    ];
 } elseif (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
+    // Load the calendar, at the end
     $_notes = "calendar/index.php?pid=" . attr_url($_GET['pid']);
     if (isset($_GET['date'])) {
         $_notes .= "&date=" . attr_url($_GET['date']);
     }
-    array_unshift($_tabs, [
+    $_tabs[] = [
         'notes' => $_notes,
         'id' => "cal",
         "label" => xl("Calendar"),
-    ]);
+    ];
 }
 
 // Will set Session variables to communicate settings to tab layout

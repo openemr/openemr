@@ -304,6 +304,7 @@ $esignApi = new Api();
     <script>
         <?php
         if ($_SESSION['default_open_tabs']) :
+            // For now, only the first tab is visible, this could be improved upon by further customizing the list options in a future feature request
             $visible = "true";
             foreach ($_SESSION['default_open_tabs'] as $tab) :
                 $url = json_encode("../" . $tab['notes']);

@@ -177,14 +177,6 @@ $GLOBALS_METADATA = array(
     //
     'Appearance' => array(
 
-        'default_open_tabs' => [
-            xl('Default Open Tabs'),
-            'multi_sorted_list_selector',
-            '',
-            xl('Default open tabs'),
-            ['list_id' => 'default_open_tabs'],
-        ],
-
         'theme_tabs_layout' => array(
             xl('Tabs Layout Theme') . '*',
             'tabs_css',
