@@ -373,7 +373,7 @@ if (isset($_REQUEST['cktime'])) {
             for ($i = 0; $i < $slotcount; ++$i) {
                 $available = true;
                 for ($j = $i; $j < $i + $evslots; ++$j) {
-                    if ($slots[$j] >= 4) {
+                    if (($slots[$j] ?? null) >= 4) {
                         $available = false;
                     }
                 }
