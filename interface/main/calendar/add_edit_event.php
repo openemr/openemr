@@ -1518,7 +1518,7 @@ if ($_GET['group'] === true && $have_group_global_enabled) { ?>
             $defaultProvider = $_SESSION['authUserID'];
           // or, if we have chosen a provider in the calendar, default to them
           // choose the first one if multiple have been selected
-            if (is_array($_SESSION['pc_username'])) {
+            if (is_array($_SESSION['pc_username'] ?? null)) {
                 if (count($_SESSION['pc_username']) >= 1) {
                     // get the numeric ID of the first provider in the array
                     $pc_username = $_SESSION['pc_username'];
