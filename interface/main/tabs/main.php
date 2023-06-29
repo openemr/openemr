@@ -25,6 +25,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Services\LogoService;
+use Symfony\Component\Filesystem\Path;
 
 $logoService = new LogoService();
 $menuLogo = $logoService->getLogo('core/menu/primary/');
@@ -306,8 +307,13 @@ $esignApi = new Api();
         if ($_SESSION['default_open_tabs']) :
             // For now, only the first tab is visible, this could be improved upon by further customizing the list options in a future feature request
             $visible = "true";
-            foreach ($_SESSION['default_open_tabs'] as $tab) :
-                $url = json_encode("../" . $tab['notes']);
+            foreach ($_SESSION['default_open_tabs'] as $i => $tab) :
+                $_unsafe_url = Path::canonicalize($fileroot . DIRECTORY_SEPARATOR . $tab['notes']);
+                if (realpath($_unsafe_url) === false) {
+                    unset($_SESSION['default_open_tabs'][$i]);
+                    continue;
+                }
+                $url = json_encode($webroot . "/" . $tab['notes']);
                 $target = json_encode($tab['option_id']);
                 $label = json_encode(xl("Loading") . " " . $tab['title']);
                 $loading = xlj("Loading");
