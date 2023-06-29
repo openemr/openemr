@@ -1997,16 +1997,14 @@ function build_PMSFH($pid)
     // just like we are doing for Impression Plan.  Mybe we can piggybak onto one of the ROS tables already in OpenEMR?
 
     //define the ROS area to include = $given
-    $given = "ROSGENERAL, ROSHEENT, ROSCV, ROSPULM, ROSGI, ROSGU, ROSDERM, ROSNEURO, ROSPSYCH, ROSMUSCULO, ROSIMMUNO, ROSENDOCRINE, ROSCOMMENTS";
+    $given = "ROSGENERAL,ROSHEENT,ROSCV,ROSPULM,ROSGI,ROSGU,ROSDERM,ROSNEURO,ROSPSYCH,ROSMUSCULO,ROSIMMUNO,ROSENDOCRINE,ROSCOMMENTS";
     $ROS_table = "form_eye_ros";
     $query = "SELECT $given from " . $ROS_table . " where id = ?";
 
     $ROS = sqlStatement($query, array($form_id));
     while ($row = sqlFetchArray($ROS)) {
         foreach (explode(',', $given) as $item) {
-            if (!empty($PMSFH['ROS'][$item])) {
-                $PMSFH['ROS'][$item]['display'] = $row[$item];
-            }
+            $PMSFH['ROS'][$item]['display'] = $row[$item];
         }
     }
 

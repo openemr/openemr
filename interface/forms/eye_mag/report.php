@@ -84,6 +84,7 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag')
     global $form_folder;
     global $form_name;
     global $choice;
+    global $form_id;
 
   /**
    * openEMR note:  eye_mag Index is id,
