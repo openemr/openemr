@@ -2370,10 +2370,9 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                     if ($item['codetype'] > '') {
                         $item['code'] = $item['codetype'] . ": " . $item['code'];
                     }
-
-                    echo $item['plan'] . "</div><br />";
                 }
             }
+            echo $item['plan'] . "</div><br />";
         }
             $query = "SELECT * FROM form_eye_mag_orders where form_id=? and pid=? ORDER BY id ASC";
             $PLAN_results = sqlStatement($query, array($form_id, $pid));
@@ -2388,7 +2387,6 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                     while ($plan_row = sqlFetchArray($PLAN_results)) {
                         echo $plan_row['ORDER_DETAILS'] . "<br />";
                     }
-                    echo $item['plan'] . "</div><br />";
                     ?>
                 </div>
                 <?php
