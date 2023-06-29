@@ -200,6 +200,10 @@ class AllergyIntoleranceService extends BaseService
             $search['puuid'] = new TokenSearchField('puuid', $puuidBind, true);
         }
 
+        if (!empty($search['puuid'])) {
+            $search['puuid'] = new TokenSearchField('puuid', $search['puuid'], true);
+        }
+
         return $this->search($search, $isAndCondition);
     }
 

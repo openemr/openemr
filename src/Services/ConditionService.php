@@ -29,6 +29,11 @@ class ConditionService extends BaseService
     private const ENCOUNTER_TABLE = "form_encounter";
     private $conditionValidator;
 
+    public function getFields(): array
+    {
+        return array_merge(parent::getFields(), ['condition_uuid', 'puuid']);
+    }
+
     /**
      * Default constructor.
      */
@@ -68,7 +73,7 @@ class ConditionService extends BaseService
         LEFT JOIN issue_encounter as issue ON issue.list_id =lists.id
         LEFT JOIN form_encounter as encounter ON encounter.encounter =issue.encounter
         LEFT JOIN (
-                select 
+                select
                    id AS provider_id
                    ,uuid AS provider_uuid
                    ,npi AS provider_npi
@@ -94,7 +99,7 @@ class ConditionService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['condition_uuid', 'puuid', 'encounter_uuid', 'uuid', 'patient_uuid'];
+        return ['condition_uuid', 'puuid', 'encounter_uuid', 'uuid', 'patient_uuid', 'provider_uuid'];
     }
 
     public function createResultRecordFromDatabaseResult($row)
@@ -120,9 +125,13 @@ class ConditionService extends BaseService
     public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
     {
         $newSearch = [];
-        foreach ($search as $key => $value) {
+        foreach ($this->filterData($search) as $key => $value) {
             if (!$value instanceof ISearchField) {
-                $newSearch[] = new StringSearchField($key, [$value], SearchModifier::EXACT);
+                if (in_array($key, $this->getUuidFields())) {
+                    $newSearch[] = new TokenSearchField($key, [$value], true);
+                } else {
+                    $newSearch[] = new StringSearchField($key, [$value], SearchModifier::EXACT);
+                }
             } else {
                 $newSearch[$key] = $value;
             }

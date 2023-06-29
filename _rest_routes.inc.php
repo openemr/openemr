@@ -3579,7 +3579,7 @@ RestConfig::$ROUTE_MAP = array(
      */
     "GET /api/medical_problem" => function () {
         RestConfig::authorization_check("encounters", "notes");
-        $return = (new ConditionRestController())->getAll();
+        $return = (new ConditionRestController())->getAll($_GET);
         RestConfig::apiLog($return);
         return $return;
     },
@@ -3651,7 +3651,7 @@ RestConfig::$ROUTE_MAP = array(
      */
     "GET /api/patient/:puuid/medical_problem" => function ($puuid) {
         RestConfig::authorization_check("encounters", "notes");
-        $return = (new ConditionRestController())->getAll($puuid, "medical_problem");
+        $return = (new ConditionRestController())->getAll(['puuid' => $puuid], "medical_problem");
         RestConfig::apiLog($return);
         return $return;
     },
