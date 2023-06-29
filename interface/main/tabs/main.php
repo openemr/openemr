@@ -308,7 +308,7 @@ $esignApi = new Api();
             // For now, only the first tab is visible, this could be improved upon by further customizing the list options in a future feature request
             $visible = "true";
             foreach ($_SESSION['default_open_tabs'] as $i => $tab) :
-                $_unsafe_url = Path::canonicalize($fileroot . DIRECTORY_SEPARATOR . $tab['notes']);
+                $_unsafe_url = preg_replace('/(\?.*)/m', '', Path::canonicalize($fileroot . DIRECTORY_SEPARATOR . $tab['notes']));
                 if (realpath($_unsafe_url) === false) {
                     unset($_SESSION['default_open_tabs'][$i]);
                     continue;
