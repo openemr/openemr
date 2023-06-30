@@ -4019,7 +4019,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                           echo ">$uname</option>";
                                                       }
 
-                                                      if (!$got_selected && $currvalue) {
+                                                      if (!$got_selected && ($currvalue ?? null)) {
                                                           echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
                                                           echo "</select>";
                                                           echo "<span class='danger' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</span>";
@@ -4062,14 +4062,14 @@ if ($refresh and $refresh != 'fullscreen') {
                                           <tr>
                                               <td class="bold top"><?php echo xlt('Phone'); ?>:</td>
                                               <td>
-                                                  <span id="pcp_phone"><?php echo text($pcp_data['phonew1']); ?></span>
-                                                  <span id="pcp_phonew2"><?php if ($pcp_data['phonew2']) {
+                                                  <span id="pcp_phone"><?php echo text($pcp_data['phonew1'] ?? ''); ?></span>
+                                                  <span id="pcp_phonew2"><?php if ($pcp_data['phonew2'] ?? '') {
                                                         echo "<br />" . text($pcp_data['phonew2']);} ?>
                                                   </span>
                                               </td>
                                               <td>
                                                   <span id="ref_phone"><?php echo text($ref_data['phonew1'] ?? ''); ?></span>
-                                                  <span id="ref_phonew2"><?php if ($pcp_data['phonew2']) {
+                                                  <span id="ref_phonew2"><?php if ($pcp_data['phonew2'] ?? null) {
                                                         echo "<br />" . text($pcp_data['phonew2']);} ?>
                                                   </span>
                                               </td>
@@ -4078,7 +4078,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                               <td class="bold top"><?php echo xlt('Fax'); ?>:</td>
                                               <td class="bold">
                                                     <?php
-                                                    if ($pcp_data['fax'] > '') {
+                                                    if (($pcp_data['fax'] ?? '') > '') {
                                                         // does the fax already exist?
                                                         $query    = "SELECT * FROM form_taskman WHERE TO_ID=? and PATIENT_ID=? and ENC_ID=?";
                                                         $FAX_PCP  =  sqlQuery($query, array($pat_data['providerID'],$pid,$encounter));
@@ -4142,38 +4142,38 @@ if ($refresh and $refresh != 'fullscreen') {
                                               <td class="top">
                                                   <span id="pcp_address">
                                                         <?php
-                                                        if ($pcp_data['organization'] > '') {
+                                                        if (($pcp_data['organization'] ?? '') > '') {
                                                             echo text($pcp_data['organization']) . "<br />";
                                                         }
-                                                        if ($pcp_data['street'] > '') {
+                                                        if (($pcp_data['street'] ?? '') > '') {
                                                             echo text($pcp_data['street']) . "<br />";
                                                         }
-                                                        if ($pcp_data['streetb'] > '') {
+                                                        if (($pcp_data['streetb'] ?? '') > '') {
                                                             echo text($pcp_data['streetb']) . "<br />";
                                                         }
-                                                        if ($pcp_data['city'] > '') {
+                                                        if (($pcp_data['city'] ?? '') > '') {
                                                             echo text($pcp_data['city']) . ", ";
                                                         }
-                                                        if ($pcp_data['state'] > '') {
+                                                        if (($pcp_data['state'] ?? '') > '') {
                                                             echo text($pcp_data['state']) . " ";
                                                         }
-                                                        if ($pcp_data['zip'] > '') {
+                                                        if (($pcp_data['zip'] ?? '') > '') {
                                                             echo text($pcp_data['zip']) . "<br />";
                                                         }
 
-                                                        if ($pcp_data['street2'] > '') {
+                                                        if (($pcp_data['street2'] ?? '') > '') {
                                                             echo "<br />" . text($pcp_data['street2']) . "<br />";
                                                         }
-                                                        if ($pcp_data['streetb2'] > '') {
+                                                        if (($pcp_data['streetb2'] ?? '') > '') {
                                                             echo text($pcp_data['streetb2']) . "<br />";
                                                         }
-                                                        if ($pcp_data['city2'] > '') {
+                                                        if (($pcp_data['city2'] ?? '') > '') {
                                                             echo text($pcp_data['city2']) . ", ";
                                                         }
-                                                        if ($pcp_data['state2'] > '') {
+                                                        if (($pcp_data['state2'] ?? '') > '') {
                                                             echo text($pcp_data['state2']) . " ";
                                                         }
-                                                        if ($pcp_data['zip2'] > '') {
+                                                        if (($pcp_data['zip2'] ?? '') > '') {
                                                             echo text($pcp_data['zip2']) . "<br />";
                                                         }
                                                         ?>

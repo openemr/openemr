@@ -1968,7 +1968,7 @@ function build_PMSFH($pid)
     // $PMSFH['FH']['my_term']['display'] = (substr($result1['usertext11'],0,10));
     // $PMSFH['FH']['my_term']['short_title'] = xlt("My Term");
 
-    $PMSFH['FH']['glaucoma']['display'] = (substr($result1['usertext11'], 0, 100));
+    $PMSFH['FH']['glaucoma']['display'] = (substr($result1['usertext11'] ?? '', 0, 100));
     $PMSFH['FH']['glaucoma']['short_title'] = xlt("Glaucoma");
     $PMSFH['FH']['cataract']['display'] = (substr($result1['usertext12'], 0, 100));
     $PMSFH['FH']['cataract']['short_title'] = xlt("Cataract");
@@ -2264,8 +2264,8 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                 </tr>
         </table>
         <?php
-                echo $open_table;
-                $mentions_FH = '';
+        echo $open_table;
+        $mention_FH = '';
         if (count($PMSFH[0]['FH']) > 0) {
             foreach ($PMSFH[0]['FH'] as $item) {
                 if (($counter > $column_max) && ($row_count < $rows)) {
@@ -2278,14 +2278,13 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                     $counter++;
                     echo "<span name='QP_PMH_" . attr($item['rowid'] ?? '') . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid'] ?? '') . "'
                             onclick=\"alter_issue2('0','FH','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "</span><br />";
-                    $mentions_FH++;
+                    $mention_FH++;
                 }
             }
         }
 
-        if ($mentions_FH < '1') { ?>
-                <span href="#PMH_anchor"
-        onclick="alter_issue2('0','FH','');" style="text-align:right;"><?php echo xlt("Negative"); ?></span><br />
+        if (empty($mention_FH)) { ?>
+                <span href="#PMH_anchor" onclick="alter_issue2('0','FH','');" style="text-align:right;"><?php echo xlt("Negative"); ?></span><br />
                 <?php
                 $counter = $counter + 3;
         }
@@ -2309,7 +2308,8 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                 </tr>
                 </table>
                 <?php
-                    echo $open_table;
+                echo $open_table;
+                $mention_SOCH = '';
                 foreach ($PMSFH[0]['SOCH'] as $item) {
                     if (($counter > $column_max) && ($row_count < $rows)) {
                         echo $close_table . $div . $open_table;
@@ -2321,15 +2321,11 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                         echo "<span name='QP_PMH_" . ($item['rowid'] ?? '') . "' href='#PMH_anchor' id='QP_PMH_" . ($item['rowid'] ?? '') . "'
                                 onclick=\"alter_issue2('0','SOCH','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "</span><br />";
                         $counter++;
-                        if (!empty($mention_SOCH)) {
-                            $mentions_SOCH++;
-                        } else {
-                            $mentions_SOCH = 1;
-                        }
+                        $mention_SOCH++;
                     }
                 }
 
-                if (!($mentions_SOCH ?? null)) {
+                if (empty($mention_SOCH)) {
                     ?>
                     <span href="#PMH_anchor"
                     onclick="alter_issue2('0','SOCH','');" style="text-align:right;"><?php echo xlt("Not documented"); ?></span><br />
@@ -2356,7 +2352,9 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                 </tr>
             </table>
             <?php
-                    echo $open_table;
+            echo $open_table;
+            $mention = '';
+
             foreach ($PMSFH[0]['ROS'] as $item) {
                 if (($item['display'] ?? '') > '') {
                     if (($counter > $column_max) && ($row_count < $rows)) {
@@ -2368,17 +2366,17 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                     //xlt($item['short_title']) - for a list of short_titles, see the predefined ROS categories
                     echo "<span name='QP_PMH_" . attr($item['rowid'] ?? '') . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid'] ?? '') . "'
                              onclick=\"alter_issue2('0','ROS','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "</span><br />";
-                    (empty($mention)) ? 1 : $mention++;
+                    $mention++;
                     $counter++;
                 }
             }
 
-            if (($mention ?? null) < 1) {
+            if (empty($mention)) {
                 echo  xlt("Negative") . "<br />";
                 $counter = $counter++;
             }
 
-                    echo $close_table;
+            echo $close_table;
             ?>
         </div>
             <?php
@@ -2560,19 +2558,16 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     onclick="alter_issue2('0','SOCH','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?>
     </span><br />
     <?php
+    $mention_SOCH = '';
     foreach ($PMSFH[0]['SOCH'] as $k => $item) {
         if (($item['display']) && ($item['display'] != 'not_applicable')) {
             echo "<span name='QP_PMH_" . attr($item['rowid'] ?? '') . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid'] ?? '') . "'
         onclick=\"alter_issue2('0','SOCH','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "<br /></span>";
-            if (!empty($mention_SOCH)) {
-                $mention_SOCH++;
-            } else {
-                $mention_SOCH = 1;
-            }
+            $mention_SOCH++;
         }
     }
 
-    if (!($mention_SOCH ?? '')) {
+    if (empty($mention_SOCH)) {
         ?>
         <span href="#PMH_anchor"
         onclick="alter_issue2('0','SOCH','');" class="disabled_button"><?php echo xlt("Negative"); ?><br /></span>
@@ -2585,17 +2580,18 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     onclick="alter_issue2('0','FH','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span><br />
 
     <?php
+    $mention_FH = '';
     if (count($PMSFH[0]['FH']) > 0) {
         foreach ($PMSFH[0]['FH'] as $item) {
             if ($item['display'] > '') {
                 echo "<span name='QP_PMH_" . attr($item['rowid'] ?? '') . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid'] ?? '') . "'
                 onclick=\"alter_issue2('0','FH','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "<br /></span>";
-                (empty($mention_FH)) ? 1 : $mention_FH++;
+                $mention_FH++;
             }
         }
     }
 
-    if (!($mention_FH ?? '')) {
+    if (empty($mention_FH)) {
         ?>
         <span href="#PMH_anchor"
         onclick="alter_issue2('0','FH','');" class="disabled_button"><?php echo xlt("Negative"); ?><br /></span>
@@ -2607,15 +2603,16 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     onclick="alter_issue('0','ROS','');" style="text-align:right;font-size:8px;"><?php echo xlt("Add"); ?></span>
     <br />
     <?php
+    $mention_ROS = '';
     foreach ($PMSFH[0]['ROS'] as $item) {
         if ($item['display'] ?? '') {
             echo "<span name='QP_PMH_" . attr($item['rowid'] ?? '') . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid'] ?? '') . "'
             onclick=\"alter_issue2('0','ROS','');\">" . text($item['short_title']) . ": " . text($item['display']) . "</span><br />";
-            (empty($mention)) ? 1 : $mention++;
+            $mention_ROS++;
         }
     }
 
-    if (!($mention_ROS ?? '')) { ?>
+    if (empty($mention_ROS)) { ?>
         <span href="#PMH_anchor"
         onclick="alter_issue2('0','ROS','');" class="disabled_button"><?php echo xlt('Negative'); ?><br /></span>
         <?php
@@ -2860,19 +2857,16 @@ function show_PMSFH_report($PMSFH)
     ?>
     <br />
     <?php
+    $mention_PSOCH = '';
     foreach ($PMSFH[0]['SOCH'] as $k => $item) {
         if (($item['display']) && ($item['display'] != 'not_applicable')) {
             echo xlt($item['short_title']) . ": " . text($item['display']) . "<br />";
-            if (!empty($mention_PSOCH)) {
-                $mention_PSOCH++;
-            } else {
-                $mention_PSOCH = 1;
-            }
+            $mention_PSOCH++;
             $counter++;
         }
     }
 
-    if (!($mention_PSOCH ?? '')) {
+    if (empty($mention_PSOCH)) {
         echo xlt("Negative") . "<br />";
     }
 
@@ -2892,15 +2886,16 @@ function show_PMSFH_report($PMSFH)
     ?>
     <br />
     <?php
+    $mention_FH = '';
     foreach ($PMSFH[0]['FH'] as $item) {
         if ($item['display']) {
             echo xlt($item['short_title']) . ": " . text($item['display']) . "<br />";
-            (empty($mention_FH)) ? 1 : $mention_FH++;
+            $mention_FH++;
             $counter++;
         }
     }
 
-    if (!($mention_FH ?? '')) {
+    if (empty($mention_FH)) {
         echo xlt("Negative") . "<br />";
     }
 
@@ -2919,19 +2914,16 @@ function show_PMSFH_report($PMSFH)
     echo "<br /><span style='font-weight:bold;'>" . xlt("ROS{{Review of Systems}}") . ":</span>";
     ?><br />
     <?php
+    $mention_ROS = '';
     foreach ($PMSFH[0]['ROS'] as $item) {
         if ($item['display'] ?? '') {
             echo xlt($item['short_title']) . ": " . $item['display'] . "<br />";
-            if (!empty($mention_ROS)) {
-                $mention_ROS++;
-            } else {
-                $mention_ROS  = 1;
-            }
+            $mention_ROS++;
             $counter++;
         }
     }
 
-    if (($mention_ROS ?? null) < '1') {
+    if (empty($mention_ROS)) {
         echo xlt("Negative");
     }
 
@@ -4143,7 +4135,7 @@ function menu_overhaul_left($pid, $encounter)
                 <table style="border:1pt;font-size:1.0em;">
                     <tr>
                         <td class="right"><span style="font-weight:bold;"><?php echo xlt("PCP"); ?>:</span>&nbsp;</td>
-                        <td class="left"> <span id="pcp_name"><?php echo text($pcp_data['fname']) . " " . text($pcp_data['lname']); ?><?php if ($pcp_data['suffix']) {
+                        <td class="left"> <span id="pcp_name"><?php echo text($pcp_data['fname'] ?? '') . " " . text($pcp_data['lname'] ?? ''); ?><?php if ($pcp_data['suffix'] ?? '') {
                                     echo ", " . text($pcp_data['suffix']);} ?></span></td>
                         </td>
                     </tr>
@@ -5138,7 +5130,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                 ?>
                 <tr class="GFS_tr">
                     <td colspan="2" class="GFS_title"><?php echo xlt('Current Eye Meds'); ?>:</td>
-                        <?php  ($no_drugs) ? ($meds_here = '') : $meds_here = xlt('Start'); ?>
+                        <?php  ($no_drugs ?? null) ? ($meds_here = '') : $meds_here = xlt('Start'); ?>
                     <td class="GFS_title" style="text-align:center;"><?php echo $meds_here; ?></td>
                     <?php
                     if ($FAILED_drugs ?? null) {
@@ -5146,7 +5138,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     } ?>
                 </tr>
                 <?php
-                echo $current_drugs;
+                echo $current_drugs ?? '';
                 if ($FAILED_drugs ?? null) {
                     echo '<tr class="' . $hideme . '"><td class="GFS_title" colspan="1">' . xlt('Prior Eye Meds') . '</td><td class="GFS_title" style="text-align:center;">' . xlt('Start') . '</td><td  style="text-align:center;" class="GFS_title">End</td></tr>';
                 }
