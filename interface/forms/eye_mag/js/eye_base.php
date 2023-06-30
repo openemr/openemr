@@ -3406,7 +3406,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                             $result = sqlStatement($query, array("Eye_defaults_$providerID"));
 
                                             $list = sqlFetchArray($result);
-                                            $SEQ = $list['seq'];
+                                            $SEQ = $list['seq'] ?? '';
                                             if (!$SEQ) {
                                               // If there is no list for this provider, we create it here.
                                               // This list is part of the idea to create a way to add Eye_Defaults_$providerID specific to the
@@ -3418,6 +3418,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                 $sql = "SELECT * from list_options where list_id = 'Eye_Defaults_for_GENERAL'";
                                                 $start = sqlStatement($sql);
                                                 $add_fields = array();
+                                                $parameters = '';
                                                 while ($val = sqlFetchArray($start)) {
                                                     $parameters .= "(?, ?, ?, ?, ?, ?),";
                                                     array_push($add_fields, "Eye_defaults_" . $providerID, $val['option_id'], $val['title'], $val['notes'], '1', $val['seq']);

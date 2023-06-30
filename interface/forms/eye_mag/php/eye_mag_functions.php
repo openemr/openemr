@@ -1999,7 +1999,7 @@ function build_PMSFH($pid)
     //define the ROS area to include = $given
     $given = "ROSGENERAL,ROSHEENT,ROSCV,ROSPULM,ROSGI,ROSGU,ROSDERM,ROSNEURO,ROSPSYCH,ROSMUSCULO,ROSIMMUNO,ROSENDOCRINE,ROSCOMMENTS";
     $ROS_table = "form_eye_ros";
-    $query = "SELECT $given from " . $ROS_table . " where id=?";
+    $query = "SELECT $given from " . $ROS_table . " where id = ?";
 
     $ROS = sqlStatement($query, array($form_id));
     while ($row = sqlFetchArray($ROS)) {
@@ -2077,7 +2077,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
 
     //SOCH, FH and ROS are listed in $PMSFH even if negative, only count positives
     foreach ($PMSFH[0]['ROS'] as $key => $value) {
-        if ($value['display'] == '') {
+        if (empty($value['display'])) {
             if (!empty($total_PMSFH)) {
                 $total_PMSFH--;
             }
@@ -2276,7 +2276,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
 
                 if ($item['display'] > '') {
                     $counter++;
-                    echo "<span name='QP_PMH_" . $item['rowid'] . "' href='#PMH_anchor' id='QP_PMH_" . $item['rowid'] . "'
+                    echo "<span name='QP_PMH_" . attr($item['rowid'] ?? '') . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid'] ?? '') . "'
                             onclick=\"alter_issue2('0','FH','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "</span><br />";
                     $mentions_FH++;
                 }
@@ -2358,7 +2358,7 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
             <?php
                     echo $open_table;
             foreach ($PMSFH[0]['ROS'] as $item) {
-                if ($item['display'] > '') {
+                if (($item['display'] ?? '') > '') {
                     if (($counter > $column_max) && ($row_count < $rows)) {
                         echo $close_table . $div . $open_table;
                         $counter = "0";
@@ -2366,9 +2366,9 @@ function display_PMSFH($rows, $view = "pending", $min_height = "min-height:344px
                     }
 
                     //xlt($item['short_title']) - for a list of short_titles, see the predefined ROS categories
-                    echo "<span name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
+                    echo "<span name='QP_PMH_" . attr($item['rowid'] ?? '') . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid'] ?? '') . "'
                              onclick=\"alter_issue2('0','ROS','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "</span><br />";
-                    $mention++;
+                    (empty($mention)) ? 1 : $mention++;
                     $counter++;
                 }
             }
@@ -2588,9 +2588,9 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     if (count($PMSFH[0]['FH']) > 0) {
         foreach ($PMSFH[0]['FH'] as $item) {
             if ($item['display'] > '') {
-                echo "<span name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
+                echo "<span name='QP_PMH_" . attr($item['rowid'] ?? '') . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid'] ?? '') . "'
                 onclick=\"alter_issue2('0','FH','');\">" . xlt($item['short_title']) . ": " . text($item['display']) . "<br /></span>";
-                $mention_FH++;
+                (empty($mention_FH)) ? 1 : $mention_FH++;
             }
         }
     }
@@ -2608,10 +2608,10 @@ function show_PMSFH_panel($PMSFH, $columns = '1')
     <br />
     <?php
     foreach ($PMSFH[0]['ROS'] as $item) {
-        if ($item['display']) {
-            echo "<span name='QP_PMH_" . attr($item['rowid']) . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid']) . "'
+        if ($item['display'] ?? '') {
+            echo "<span name='QP_PMH_" . attr($item['rowid'] ?? '') . "' href='#PMH_anchor' id='QP_PMH_" . attr($item['rowid'] ?? '') . "'
             onclick=\"alter_issue2('0','ROS','');\">" . text($item['short_title']) . ": " . text($item['display']) . "</span><br />";
-            $mention_ROS++;
+            (empty($mention)) ? 1 : $mention++;
         }
     }
 
@@ -2895,7 +2895,7 @@ function show_PMSFH_report($PMSFH)
     foreach ($PMSFH[0]['FH'] as $item) {
         if ($item['display']) {
             echo xlt($item['short_title']) . ": " . text($item['display']) . "<br />";
-            $mention_FH++;
+            (empty($mention_FH)) ? 1 : $mention_FH++;
             $counter++;
         }
     }

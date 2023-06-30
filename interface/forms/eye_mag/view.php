@@ -3788,7 +3788,7 @@ if ($refresh and $refresh != 'fullscreen') {
 
                                                               $counter = '0';
                                                               $count = '0';
-                                                              $arrTESTS = explode("|", $Resource); //form_eye_mag:Resource = billable things (not visit code) performed today
+                                                              $arrTESTS = explode("|", $Resource ?? ''); //form_eye_mag:Resource = billable things (not visit code) performed today
                                                               $query = "select * from list_options where list_id=? and activity='1' order by seq";
                                                               $TODO_data = sqlStatement($query, array("Eye_todo_done_" . $provider_id));
                                                             while ($row = sqlFetchArray($TODO_data)) {
@@ -3972,7 +3972,7 @@ if ($refresh and $refresh != 'fullscreen') {
                                                 }
                                                 ?>
                                               <script>
-                                                  var PLANoptions = <?php echo json_encode($arrPLAN); ?>;
+                                                  var PLANoptions = <?php echo json_encode($arrPLAN ?? ''); ?>;
                                               </script>
                                           </td>
                                       </tr>

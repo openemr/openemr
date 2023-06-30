@@ -71,6 +71,7 @@ use OpenIDConnectServer\Entities\ClaimSetEntity;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
+use RestConfig;
 use RuntimeException;
 
 class AuthorizationController
@@ -113,13 +114,17 @@ class AuthorizationController
     private $trustedUserService;
 
     /**
-     * @var \RestConfig
+     * @var RestConfig
      */
     private $restConfig;
 
     public function __construct($providerForm = true)
     {
-        $gbl = \RestConfig::GetInstance();
+        if (is_callable([RestConfig::class, 'GetInstance'])) {
+            $gbl = RestConfig::GetInstance();
+        } else {
+            $gbl = \RestConfig::GetInstance();
+        }
         $this->restConfig = $gbl;
         $this->logger = new SystemLogger();
 
