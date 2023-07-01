@@ -71,7 +71,7 @@ class PatientPortalPDFDocumentCreator
         $pdf->writeHtml($htmlIn);
         return $pdf;
     }
-    public function createPdfDocument($cpid, $formFilename, $documentCategory, $htmlIn)
+    public function createPdfDocument($cpid, $formFilename, $documentCategory, $htmlIn): \Document
     {
 
         $pdf = $this->createPdfObject($htmlIn);
@@ -83,6 +83,10 @@ class PatientPortalPDFDocumentCreator
         $data = $pdf->Output($formFilename, 'S');
         $d = new \Document();
         $rc = $d->createDocument($cpid, $documentCategory, $formFilename, 'application/pdf', $data);
-        return $rc;
+        if (empty($rc)) {
+            return $d;
+        } else {
+            throw new \RuntimeException("Failed to create document: " . $rc);
+        }
     }
 }

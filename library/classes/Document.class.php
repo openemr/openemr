@@ -61,7 +61,7 @@ class Document extends ORDataObject
     public $id;
 
     /**
-     * @var Unique User Identifier that is for both external reference to this entity and for future offline use.
+     * @var string Binary of Unique User Identifier that is for both external reference to this entity and for future offline use.
      */
     public $uuid;
 
@@ -845,11 +845,14 @@ class Document extends ORDataObject
         return $this->couch_revid;
     }
 
-    function set_uuid($uuid)
+    function set_uuid(?string $uuid)
     {
         $this->uuid = $uuid;
     }
 
+    /**
+     * @return string Binary representation of the uuid for this document
+     */
     function get_uuid()
     {
         return $this->uuid;
