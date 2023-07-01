@@ -19,12 +19,15 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 class SMARTLaunchToken
 {
     public const INTENT_PATIENT_DEMOGRAPHICS_DIALOG = 'patient.demographics.dialog';
+
     public const VALID_INTENTS = [self::INTENT_PATIENT_DEMOGRAPHICS_DIALOG, self::INTENT_APPOINTMENT_DIALOG];
 
     // used on the appointment add/edit dialog, context will include the selected appointment
     // for now this intent is used by custom apps that consume the openemr.appointment.add_edit_event.close.before event
     // to present a SMART app as a 2nd step to the add/edit appointment workflow
     public const INTENT_APPOINTMENT_DIALOG = 'appointment.edit.dialog';
+
+    public const INTENT_ENCOUNTER_DIALOG = 'encounter.forms.dialog';
 
     /**
      * @var string|null The patient UUID If
@@ -37,6 +40,13 @@ class SMARTLaunchToken
      */
     private ?string $appointmentUuid;
 
+    private ?string $userUuid;
+
+    /**
+     * @var string The user type, either 'user' or 'patient' referring to coming from users table or patient_data
+     */
+    private string $userType;
+
     public function __construct($patientUUID = null, $encounterUUID = null)
     {
         if (isset($patientUUID) && !is_string($patientUUID)) {
@@ -48,6 +58,8 @@ class SMARTLaunchToken
         $this->patient = $patientUUID;
         $this->encounter = $encounterUUID;
         $this->appointmentUuid = null;
+        $this->userUuid = null;
+        $this->setUserType('user');
     }
 
     /**
@@ -116,6 +128,7 @@ class SMARTLaunchToken
         if (!empty($this->getAppointmentUuid())) {
             $context['apt'] = $this->getAppointmentUuid();
         }
+        $context['sub'] = $this->userType . '/' . $this->userUuid;
 
         // no security is really needed here... just need to be able to wrap
         // the current context into some kind of opaque id that the app will pass to the server and we can then
@@ -127,7 +140,7 @@ class SMARTLaunchToken
         return $launchParams;
     }
 
-    public static function deserializeToken($serialized)
+    public static function deserializeToken($serialized) : self
     {
         $token = new self();
         $token->deserialize($serialized);
@@ -157,6 +170,13 @@ class SMARTLaunchToken
         if (!empty($context['apt'])) {
             $this->setAppointmentUuid($context['apt']);
         }
+        $sub = $context['sub'] ?? '';
+        $subParts = explode('/', $sub);
+        if (count($subParts) !== 2) {
+            throw new \InvalidArgumentException("sub field in token must be in the format of 'user/uuid' or 'patient/uuid'");
+        }
+        $this->setUserType($subParts[0]);
+        $this->setUserUuid($subParts[1]);
     }
 
     public function isValidIntent($intent)
@@ -171,5 +191,25 @@ class SMARTLaunchToken
     public function getAppointmentUuid(): ?string
     {
         return $this->appointmentUuid;
+    }
+
+    public function setUserUuid(?string $userUuid)
+    {
+        $this->userUuid = $userUuid;
+    }
+
+    public function getUserUuid() : ?string{
+        return $this->userUuid;
+    }
+
+    public function getUserType() : string {
+        return $this->userType;
+    }
+
+    public function setUserType(string $userType) {
+        if ($userType !== 'patient') {
+            $userType = 'user';
+        }
+        $this->userType = $userType;
     }
 }

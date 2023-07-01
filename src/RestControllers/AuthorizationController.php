@@ -64,8 +64,11 @@ use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
+use OpenEMR\FHIR\SMART\SMARTLaunchToken;
 use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
+use OpenEMR\Services\BaseService;
 use OpenEMR\Services\TrustedUserService;
+use OpenEMR\Services\UserService;
 use OpenIDConnectServer\ClaimExtractor;
 use OpenIDConnectServer\Entities\ClaimSetEntity;
 use Psr\Http\Message\ResponseInterface;
@@ -480,6 +483,10 @@ class AuthorizationController
             $_SESSION['launch'] = $request->getQueryParams()['launch'] ?? null;
             $_SESSION['redirect_uri'] = $authRequest->getRedirectUri() ?? null;
             $this->logger->debug("AuthorizationController->oauthAuthorizationFlow() session updated", ['session' => $_SESSION]);
+            if (!empty($_SESSION['launch']) && $this->shouldSkipAuthorizationFlow($authRequest)) {
+                $this->processAuthorizeFlowForLaunch($authRequest, $request, $response);
+                exit;
+            }
             // If needed, serialize into a users session
             if ($this->providerForm) {
                 $this->serializeUserSession($authRequest, $request);
@@ -1351,5 +1358,71 @@ class AuthorizationController
         unset($_SESSION['csrf_private_key']); // gotta remove since binary and will break json_encode (not used for password granttype, so ok to remove)
         $session_cache = json_encode($_SESSION, JSON_THROW_ON_ERROR);
         $this->saveTrustedUser($_REQUEST['client_id'], $_SESSION['pass_user_id'], $_REQUEST['scope'], 0, $code, $session_cache, self::GRANT_TYPE_PASSWORD);
+    }
+
+    private function shouldSkipAuthorizationFlow(AuthorizationRequest $authRequest)
+    {
+        $skip = false;
+        $client = $authRequest->getClient();
+        // if don't allow our globals settings to allow skipping the authorization flow when inside an ehr launch
+        // we just return false
+        if ($GLOBALS['oauth_ehr_launch_authorization_flow_skip'] !== '1') {
+            return false;
+        }
+        if ($client instanceof ClientEntity) {
+            if ($client->shouldSkipEHRLaunchAuthorizationFlow()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private function processAuthorizeFlowForLaunch(AuthorizationRequest $authRequest, ServerRequestInterface $request, ResponseInterface $response)
+    {
+        $launch = $request->getQueryParams()['launch'];
+        $launchToken = SMARTLaunchToken::deserializeToken($launch);
+
+        $client = $authRequest->getClient();
+        // only authorize scopes specifically allowed by the client regardless of what is sent in the request
+        $scopes = $client->getScopes();
+        $scopesById = array_combine($scopes, $scopes);
+        $authRequest = $this->updateAuthRequestWithUserApprovedScopes($authRequest, $scopesById);
+        $include_refresh_token = $this->shouldIncludeRefreshTokenForScopes($authRequest->getScopes());
+        $server = $this->getAuthorizationServer($include_refresh_token);
+
+        // make sure we get our serialized session data
+        $this->serializeUserSession($authRequest, $request);
+        $apiSession = $_SESSION;
+
+        if (empty($launchToken->getUserUuid())) {
+            $this->logger->debug("AuthorizationController->processAuthorizeFlowForLaunch() no user logged in, redirecting to login page");
+            throw OAuthServerException::accessDenied("Access Denied");
+        }
+
+        $user = new UserEntity();
+        $user->setIdentifier($launchToken->getUserUuid());
+        $authRequest->setUser($user);
+        $authRequest->setAuthorizationApproved(true);
+        $result = $server->completeAuthorizationRequest($authRequest, $response);
+        $redirect = $result->getHeader('Location')[0];
+        $authorization = parse_url($redirect, PHP_URL_QUERY);
+        $code = [];
+        // parse scope as also a query param if needed
+        parse_str($authorization, $code);
+        $code = $code["code"];
+        $apiSession['launch'] = $launch;
+        $apiSession['client_id'] = $client->getIdentifier();
+        $apiSession['user_id'] = $launchToken->getUserUuid();
+        // scopes in the session are a single string.
+        $apiSession['scopes'] = implode(" ", $scopes);
+        $apiSession['persist_login'] = 0;
+        unset($apiSession['csrf_private_key']);
+        $session_cache = json_encode($apiSession, JSON_THROW_ON_ERROR);
+        // now we need to get our $_SESSION['user_id']
+        $this->saveTrustedUser($apiSession['client_id'], $apiSession['user_id'], $apiSession['scopes'], $apiSession['persist_login'], $code, $session_cache);
+
+        $this->logger->debug("AuthorizationController->processAuthorizeFlowForLaunch() sending server response");
+        SessionUtil::oauthSessionCookieDestroy();
+        $this->emitResponse($result);
     }
 }

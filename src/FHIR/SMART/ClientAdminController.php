@@ -139,6 +139,10 @@ class ClientAdminController
                 return $this->revokeAccessToken($clientId, $request);
             } else if ($subAction == self::REVOKE_REFRESH_TOKEN) {
                 return $this->revokeRefreshToken($clientId, $request);
+            } else if ($subAction == 'enable-authorization-flow-skip') {
+                return $this->enableAuthorizationFlowSkipAction($clientId, $request);
+            } else if ($subAction == 'disable-authorization-flow-skip') {
+                return $this->disableAuthorizationFlowSkipAction($clientId, $request);
             } else {
                 return $this->notFoundAction($request);
             }
@@ -369,8 +373,14 @@ class ClientAdminController
         $listAction = $this->getActionUrl(['list']);
         $disableClientLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'disable']);
         $enableClientLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'enable']);
-
+        $disableSkipAuthorizationFlowLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'disable-authorization-flow-skip']);
+        $enableSkipAuthorizationFlowLink = $this->getActionUrl(['edit', $client->getIdentifier(), 'enable-authorization-flow-skip']);
         $isEnabled = $client->isEnabled();
+        $allowSkipAuthSetting = $GLOBALS['oauth_ehr_launch_authorization_flow_skip'] === '1';
+        $skipAuthorizationFlow = $client->shouldSkipEHRLaunchAuthorizationFlow();
+        if (!$allowSkipAuthSetting) {
+            $skipAuthorizationFlow = false; // globals overrides this setting
+        }
         $scopes = $client->getScopes();
 
         $formValues = [
@@ -405,6 +415,12 @@ class ClientAdminController
                 , 'checked' => $isEnabled
                 , 'value' => 1
             ],
+            'skipEHRLaunchAuthorizationFlow' => [
+                'type' => 'checkbox'
+                ,'label' => xl('Skip EHR Launch Authorization Flow')
+                , 'checked' => $skipAuthorizationFlow
+                , 'value' => 1
+            ],
             'role' => [
                 'type' => 'text'
                 ,'label' => xl("Role")
@@ -432,6 +448,10 @@ class ClientAdminController
             ],
         ];
 
+        if (!$allowSkipAuthSetting) {
+            unset($formValues['skipEHRLaunchAuthorizationFlow']);
+        }
+
         ?>
         <a href="<?php echo attr($listAction); ?>" class="btn btn-sm btn-secondary" onclick="top.restoreSession()">&lt; <?php echo xlt("Back to Client List"); ?></a>
 
@@ -440,8 +460,15 @@ class ClientAdminController
                 <h2>
                     <?php echo xlt('Edit'); ?> <em><?php echo text($client->getName()); ?></em>
                     <div class="float-right">
+                        <?php if ($allowSkipAuthSetting) : ?>
+                            <?php if ($skipAuthorizationFlow) : ?>
+                            <a href="<?php echo attr($disableSkipAuthorizationFlowLink); ?>" class="btn btn-sm btn-primary" onclick="top.restoreSession()"><?php echo xlt('Enable EHR Launch Authorization Flow'); ?></a>
+                            <?php else : ?>
+                            <a href="<?php echo attr($enableSkipAuthorizationFlowLink); ?>" class="btn btn-sm btn-danger" onclick="top.restoreSession()"><?php echo xlt('Disable EHR Launch Authorization Flow'); ?></a>
+                            <?php endif; ?>
+                        <?php endif; ?>
                         <?php if ($isEnabled) : ?>
-                        <a href="<?php echo attr($disableClientLink); ?>" class="btn btn-sm btn-primary" onclick="top.restoreSession()"><?php echo xlt('Disable Client'); ?></a>
+                        <a href="<?php echo attr($disableClientLink); ?>" class="btn btn-sm btn-danger" onclick="top.restoreSession()"><?php echo xlt('Disable Client'); ?></a>
                         <?php else : ?>
                         <a href="<?php echo attr($enableClientLink); ?>" class="btn btn-sm btn-primary" onclick="top.restoreSession()"><?php echo xlt('Enable Client'); ?></a>
                         <?php endif; ?>
@@ -1110,5 +1137,45 @@ class ClientAdminController
         </div>
         <?php
         $this->renderFooter();
+    }
+    private function enableAuthorizationFlowSkipAction(string$clientId,array$request){
+         $client = $this->clientRepo->getClientEntity($clientId);
+        if ($client === false) {
+            $this->notFoundAction($request);
+            return;
+        }
+        $message = xl('Enabled Authorization Flow Skip') . " " . $client->getName();
+        $this->handleAuthorizationFlowSkipAction($client, true, $message);
+        exit;
+    }
+    private function disableAuthorizationFlowSkipAction(string $clientId ,array $request){
+         $client = $this->clientRepo->getClientEntity($clientId);
+        if ($client === false) {
+            $this->notFoundAction($request);
+            return;
+        }
+        $message = xl('Disabled Authorization Flow Skip') . " " . $client->getName();
+        $this->handleAuthorizationFlowSkipAction($client, false, $message);
+        exit;
+    }
+    private function handleAuthorizationFlowSkipAction(ClientEntity$client,bool $skipFlow,string $successMessage){
+        $client->setSkipEHRLaunchAuthorizationFlow($skipFlow);
+        try {
+            $this->clientRepo->saveSkipEHRLaunchFlow($client, $skipFlow);
+            $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $successMessage]]);
+            header("Location: " . $url);
+        } catch (\Exception $ex) {
+            $this->logger->error(
+                "Failed to save client",
+                [
+                    "exception" => $ex->getMessage(), "trace" => $ex->getTraceAsString()
+                    , 'client' => $client->getIdentifier()
+                ]
+            );
+
+            $message = xl('Client failed to save. Check system logs');
+            $url = $this->getActionUrl(['edit', $client->getIdentifier()], ["queryParams" => ['message' => $message]]);
+            header("Location: " . $url);
+        }
     }
 }

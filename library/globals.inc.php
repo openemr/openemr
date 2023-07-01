@@ -3233,6 +3233,12 @@ $GLOBALS_METADATA = array(
             '0',
             xl('Approval settings for 3rd party app/api access')
         ),
+        'oauth_ehr_launch_authorization_flow_skip' => array(
+            xl('OAuth2 EHR-Launch Authorization Flow Skip Enable App Setting'),
+            'bool',
+            '0',
+            xl('Enable an OAuth2 Client application to be configured to skip the login screen and the scope authorization screen if the user is already logged into the EHR.')
+        ),
 
         'cc_front_payments' => array(
             xl('Accept Credit Card transactions from Front Payments'),

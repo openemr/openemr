@@ -245,6 +245,9 @@ CREATE TABLE recent_patients (
     patients TEXT,
     PRIMARY KEY (user_id)
 ) ENGINE=InnoDB;
+
+#IfMissingColumn oauth_clients skip_ehr_launch_authorization_flow
+ALTER TABLE `oauth_clients` ADD COLUMN `skip_ehr_launch_authorization_flow` tinyint(1) NOT NULL DEFAULT '0';
 #EndIf
 
 #IfMissingColumn document_template_profiles notify_trigger
