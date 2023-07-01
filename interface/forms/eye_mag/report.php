@@ -478,7 +478,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
             <tr>
                 <td style="width:680px;text-align:center;margin:1 auto;">
                     <?php
-                        $PMSFH = build_PMSFH($pid);
+                    $PMSFH = build_PMSFH($pid);
                     if ($cols != 'Fax') {
                         show_PMSFH_report($PMSFH);
                     }
