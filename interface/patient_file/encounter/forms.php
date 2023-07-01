@@ -1018,7 +1018,7 @@ if ($dispatcher instanceof EventDispatcher) {
     $event = new EncounterFormsListRenderEvent($_SESSION['encounter'], $attendant_type);
     $event->setGroupId($groupId ?? null);
     $event->setPid($pid ?? null);
-    $dispatcher->dispatch($event, EncounterFormsListRenderEvent::EVENT_SECTION_RENDER_POST;
+    $dispatcher->dispatch($event, EncounterFormsListRenderEvent::EVENT_SECTION_RENDER_POST);
 }
 ?>
 
