@@ -41,12 +41,17 @@ class TwigContainer
     {
         $this->paths[] = $GLOBALS['fileroot'] . '/templates';
         if (!empty($path)) {
-            $this->paths[] = $path;
+            $this->addPath($path);
         }
 
         if ($kernel) {
             $this->kernel = $kernel;
         }
+    }
+
+    public function addPath(string $path): void
+    {
+        $this->paths[] = $path;
     }
 
     /**
