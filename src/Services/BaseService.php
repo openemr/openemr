@@ -265,7 +265,13 @@ class BaseService
             if ($value == 'YYYY-MM-DD' || $value == 'MM/DD/YYYY') {
                 $value = "";
             }
-            if ($value === null || $value === false) {
+            if (
+                (
+                    $value === null
+                    || $value === false
+                )
+                && (strpos($key, 'date') === false)
+            ) {
                 // in case unwanted values passed in.
                 continue;
             }
