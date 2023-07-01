@@ -309,7 +309,7 @@ $esignApi = new Api();
             $visible = "true";
             foreach ($_SESSION['default_open_tabs'] as $i => $tab) :
                 $_unsafe_url = preg_replace('/(\?.*)/m', '', Path::canonicalize($fileroot . DIRECTORY_SEPARATOR . $tab['notes']));
-                if (realpath($_unsafe_url) === false) {
+                if (realpath($_unsafe_url) === false || strpos($_unsafe_url, $fileroot) !== 0) {
                     unset($_SESSION['default_open_tabs'][$i]);
                     continue;
                 }
