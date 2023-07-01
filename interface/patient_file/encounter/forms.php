@@ -629,6 +629,15 @@ echo $t->render('encounter/forms/navbar.html.twig', [
 
 <div id="encounter_forms" class="mx-1">
 <div class='encounter-summary-container'>
+    <?php
+    $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+    if ($dispatcher instanceof EventDispatcher) {
+        $event = new EncounterFormsListRenderEvent($_SESSION['encounter'], $attendant_type);
+        $event->setGroupId($groupId ?? null);
+        $event->setPid($pid ?? null);
+        $dispatcher->dispatch($event, EncounterFormsListRenderEvent::EVENT_SECTION_RENDER_PRE);
+    }
+    ?>
     <div class='encounter-summary-column'>
         <div>
             <?php
@@ -663,12 +672,12 @@ echo $t->render('encounter/forms/navbar.html.twig', [
 
         </div>
     </div>
+
 <div class='encounter-summary-column'>
 <?php if ($esign->isLogViewable()) {
     $esign->renderLog();
 } ?>
 </div>
-
 <div class='encounter-summary-column'>
 <?php if ($GLOBALS['enable_amc_prompting']) { ?>
     <div class="float-right border border-dark mr-2">
@@ -791,15 +800,6 @@ if ($attendant_type == 'pid') {
 if (!empty($docs_list) && count($docs_list) > 0) {
     ?>
 <div class='enc_docs'>
-    <?php
-    $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
-    if ($dispatcher instanceof EventDispatcher) {
-        $event = new EncounterFormsListRenderEvent($_SESSION['encounter'], $attendant_type);
-        $event->setGroupId($groupId ?? null);
-        $event->setPid($pid ?? null);
-        $dispatcher->dispatch($event, EncounterFormsListRenderEvent::EVENT_SECTION_RENDER_PRE);
-    }
-    ?>
 <span class="font-weight-bold"><?php echo xlt("Document(s)"); ?>:</span>
     <?php
     $doc = new C_Document();

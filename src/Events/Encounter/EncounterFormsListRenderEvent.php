@@ -28,7 +28,7 @@ class EncounterFormsListRenderEvent
     /**
      * Allows screen output after all of the encounter forms have been rendered for the encounter/forms.php screen
      */
-    const EVENT_SECTION_RENDER_PRE = 'forms.encounter.list.render.post';
+    const EVENT_SECTION_RENDER_PRE = 'forms.encounter.list.render.pre';
 
     /**
      * Allows screen output after all of the encounter forms have been rendered for the encounter/forms.php screen
@@ -38,13 +38,17 @@ class EncounterFormsListRenderEvent
     public function __construct(?int $encounter = null, $attendantType = 'pid')
     {
         $this->encounter = $encounter;
-        $this->pid = null;
-        $this->groupId = null;
-        $this->attendantType = $attendantType == 'gid' ? 'gid' : 'pid';
+        $this->setPid(null);
+        $this->setGroupId(null);
+        $this->setAttendantType($attendantType);
+    }
+
+    public function getAttendantType() : string {
+        return $this->attendantType;
     }
 
     /**
-     * @param string $attendantType
+     * @param string $attendantType 'gid' or 'pid' The type of encounter that is being rendered, a group encounter (gid), or an individual patient encounter (pid)
      */
     public function setAttendantType(string $attendantType): void
     {
@@ -57,6 +61,14 @@ class EncounterFormsListRenderEvent
     public function setGroupId(?int $groupId): void
     {
         $this->groupId = $groupId;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getGroupId()
+    {
+        return $this->groupId;
     }
 
     /**
