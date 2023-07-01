@@ -266,6 +266,21 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 }
             ),
             new TwigFilter(
+                'oeDateTime',
+                function ($dateTime) {
+                    if ($dateTime instanceof \DateTime) {
+                        $string = $dateTime->format(\DateTime::ATOM);
+                    } else if (is_string($dateTime)) {
+                        $string = $dateTime;
+                    } else if (is_numeric($dateTime)) {
+                        $string = date(\DateTime::ATOM, $dateTime);
+                    } else {
+                        throw \InvalidArgumentException('Invalid date time value');
+                    }
+                    return oeFormatDateTime($string);
+                }
+            ),
+            new TwigFilter(
                 'xlDocCategory',
                 function ($string) {
                     return xl_document_category($string);
