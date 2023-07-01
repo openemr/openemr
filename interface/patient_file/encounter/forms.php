@@ -29,6 +29,7 @@ use OpenEMR\Events\Encounter\EncounterMenuEvent;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
 
 $expand_default = (int)$GLOBALS['expand_form'] ? 'show' : 'hide';
 $reviewMode = false;
@@ -64,7 +65,7 @@ if ($GLOBALS['kernel']->getEventDispatcher() instanceof EventDispatcher) {
 
 <?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
 
-<?php Header::setupHeader(['common','esign','dygraphs']); ?>
+<?php Header::setupHeader(['common','esign','dygraphs', 'utility']); ?>
 
 <?php
 $esignApi = new Api();
@@ -790,6 +791,15 @@ if ($attendant_type == 'pid') {
 if (!empty($docs_list) && count($docs_list) > 0) {
     ?>
 <div class='enc_docs'>
+    <?php
+    $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+    if ($dispatcher instanceof EventDispatcher) {
+        $event = new EncounterFormsListRenderEvent($_SESSION['encounter'], $attendant_type);
+        $event->setGroupId($groupId ?? null);
+        $event->setPid($pid ?? null);
+        $dispatcher->dispatch($event, EncounterFormsListRenderEvent::EVENT_SECTION_RENDER_PRE);
+    }
+    ?>
 <span class="font-weight-bold"><?php echo xlt("Document(s)"); ?>:</span>
     <?php
     $doc = new C_Document();
@@ -1001,6 +1011,14 @@ if (
 }
 if (!$pass_sens_squad) {
     echo xlt("Not authorized to view this encounter");
+}
+
+$dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+if ($dispatcher instanceof EventDispatcher) {
+    $event = new EncounterFormsListRenderEvent($_SESSION['encounter'], $attendant_type);
+    $event->setGroupId($groupId ?? null);
+    $event->setPid($pid ?? null);
+    $dispatcher->dispatch($event, EncounterFormsListRenderEvent::EVENT_SECTION_RENDER_POST;
 }
 ?>
 
