@@ -177,33 +177,6 @@ $GLOBALS_METADATA = array(
     //
     'Appearance' => array(
 
-        'default_top_pane' => array(
-            xl('Main Top Pane Screen(Or Default First Tab)'),       // descriptive name
-            array(
-                'main_info.php' => xl('Calendar Screen'),
-                '../new/new.php' => xl('Patient Search/Add Screen'),
-                '../../interface/main/finder/dynamic_finder.php' => xl('Patient Finder Screen'),
-                '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => xl('Patient Flow Board'),
-                '../../interface/main/messages/messages.php?form_active=1' => xl('Messages Screen')
-            ),
-            'main_info.php',                  // default = calendar
-            xl('Main Top Pane Screen(Or Default First Tab)')
-        ),
-
-        'default_second_tab' => array(
-            xl('Default Second Tab'),       // descriptive name
-            array(
-                '' => xl('None'),
-                '../../interface/main/messages/messages.php?form_active=1' => xl('Messages Screen'),
-                'main_info.php' => xl('Calendar Screen'),
-                '../new/new.php' => xl('Patient Search/Add Screen'),
-                '../../interface/main/finder/dynamic_finder.php' => xl('Patient Finder Screen'),
-                '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => xl('Patient Flow Board'),
-            ),
-            '../../interface/main/messages/messages.php?form_active=1',    // default = messages
-            xl('Default Second Tab')
-        ),
-
         'theme_tabs_layout' => array(
             xl('Tabs Layout Theme') . '*',
             'tabs_css',
