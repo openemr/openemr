@@ -21,6 +21,10 @@ use OpenEMR\Services\QuestionnaireService;
  */
 class DocumentTemplateService extends QuestionnaireService
 {
+    const DENIAL_STATUS_EDITING = "Editing";
+    const DENIAL_STATUS_IN_REVIEW = "In Review";
+    const DENIAL_STATUS_LOCKED = "Locked";
+
     public function __construct($base_table = null)
     {
         parent::__construct($base_table ?? null);
@@ -203,7 +207,7 @@ class DocumentTemplateService extends QuestionnaireService
         if (!$result) {
             return true;
         }
-        $in_review = $result['denial_reason'] === 'Locked' || $result['denial_reason'] === 'In Review';
+        $in_review = $result['denial_reason'] === self::DENIAL_STATUS_LOCKED || $result['denial_reason'] === self::DENIAL_STATUS_IN_REVIEW;
         // must be a saved doc pending review so don't show.
         // patient selects the edited doc from their history.
         if (!$in_review) {
@@ -222,7 +226,7 @@ class DocumentTemplateService extends QuestionnaireService
                     $template['period'] = $event['period'];
                 }
             } else {
-                return false; // in review or locked so don't show. @todo possibly delete sent template.
+                return true; // in review or locked so show default template. @todo possibly delete sent template.
             }
         }
         if ($template['event_trigger'] === 'once') {
@@ -438,13 +442,18 @@ class DocumentTemplateService extends QuestionnaireService
 
     /**
      * @param null $category
-     * @param int  $pid
-     * @return array|null[]
+     * @param mixed $pid
+     * @return
      */
-    public function getTemplateListByCategory($category = null, $pid = 0): array
+    public function getTemplateListByCategory($category = null, $pid = 0, $name = null): bool|array|null
     {
+        // if pid is -1 then belongs to repository. 0 is default templates else is assigned to patient.
         $results = array($category => null);
-        $query_result = sqlStatement('SELECT * FROM `document_templates` WHERE category = ? AND pid = ?', array($category, $pid));
+        if (empty($name)) {
+            $query_result = sqlStatement('SELECT * FROM `document_templates` WHERE category = ? AND pid = ?', array($category, $pid));
+        } else {
+            return sqlQuery('SELECT * FROM `document_templates` WHERE category = ? AND pid = ? AND template_name = ? LIMIT 1', array($category, $pid, $name));
+        }
         while ($row = sqlFetchArray($query_result)) {
             if (is_array($row)) {
                 $results[$category][] = $row;
@@ -595,9 +604,9 @@ class DocumentTemplateService extends QuestionnaireService
             $name = 'Repository';
         }
 
-        $sql = "INSERT INTO `document_templates` 
-            (`pid`, `provider`,`profile`, `category`, `template_name`, `location`, `status`, `template_content`, `size`, `mime`) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+        $sql = "INSERT INTO `document_templates`
+            (`pid`, `provider`,`profile`, `category`, `template_name`, `location`, `status`, `template_content`, `size`, `mime`)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON DUPLICATE KEY UPDATE `pid` = ?, `provider`= ?, `template_content`= ?, `size`= ?, `modified_date` = NOW(), `mime` = ?";
 
         return sqlInsert($sql, array($pid, ($_SESSION['authUserID'] ?? null), ($profile ?: ''), $category ?: '', $template, $name, 'New', $content, strlen($content), $mimetype, $pid, ($_SESSION['authUserID'] ?? null), $content, strlen($content), $mimetype));
@@ -760,7 +769,7 @@ class DocumentTemplateService extends QuestionnaireService
                     $form_data[$form['name']] = trim($form['value'] ?? '');
                 }
                 $rtn = sqlInsert(
-                    "INSERT INTO `document_template_profiles` 
+                    "INSERT INTO `document_template_profiles`
             (`template_id`, `profile`, `template_name`, `category`, `provider`, `recurring`, `event_trigger`, `period`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                     array($profile_array['id'], $profile_array['profile'],
                         $profile_array['name'], $profile_array['category'], ($_SESSION['authUserID'] ?? null),
@@ -895,7 +904,8 @@ class DocumentTemplateService extends QuestionnaireService
                     if ((int)$template['pid'] === 0) {
                         $template['pid'] = $current_patient;
                     }
-                    $in_edit = sqlQuery("Select `id`, `doc_type`, `denial_reason` From `onsite_documents` Where (`denial_reason` = 'Editing' Or `denial_reason` = 'In Review') And `pid` = ? And `file_path` = ? Limit 1", array($template['pid'], $template['id'])) ?? 0;
+                    $in_edit = sqlQuery("Select `id`, `doc_type`, `denial_reason` From `onsite_documents` Where (`denial_reason` = '"
+                    . self::DENIAL_STATUS_EDITING . "' Or `denial_reason` = '" . self::DENIAL_STATUS_IN_REVIEW . "') And `pid` = ? And `file_path` = ? Limit 1", array($template['pid'], $template['id'])) ?? 0;
                     if (empty($in_edit)) {
                         $test = $this->showTemplateFromEvent($template);
                         if (!$test) {

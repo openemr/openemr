@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Patient Portal
+ * Patient Portal Documents
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
- * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -31,6 +31,7 @@ $encounter = '';
 $include_auth = true;
 // for location assign
 $referer = $GLOBALS['web_root'] . "/controller.php?document&upload&patient_id=" . attr_url($pid) . "&parent_id=" . attr_url($category) . "&";
+$referer_portal = $GLOBALS['web_root'] . "/portal/quickstart_page.php";
 
 if (empty($is_module)) {
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Documents"));
@@ -84,7 +85,11 @@ $templateService = new DocumentTemplateService();
     // list of encounter form directories/names (that are patient portal compliant) that use for whitelisting (security)
     echo "<script>var formNamesWhitelist=" . json_encode(CoreFormToPortalUtility::getListPortalCompliantEncounterForms()) . ";</script>";
 
-    Header::setupHeader(['no_main-theme', 'patientportal-style', 'datetime-picker']);
+    if ($is_portal) {
+        Header::setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker']);
+    } else {
+        Header::setupHeader(['datetime-picker']);
+    }
     ?>
     <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
     <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
@@ -128,16 +133,17 @@ $templateService = new DocumentTemplateService();
                 $("#Help").click();
                 $(".helpHide").addClass("d-none");
 
-                $('#showNav').on('click', () => {
+                $(parent.document.getElementById('topNav')).addClass("d-none");
+                /*$('#showNav').on('click', () => {
                     let menuMsg;
                     if($(parent.document.getElementById('topNav')).is('.collapse:not(.show)')) {
-                        menuMsg = xl("Hide Top Menu");
+                        menuMsg = xl("Hide Top");
                     } else {
-                        menuMsg = xl("Show Top Menu");
+                        menuMsg = xl("Show Top");
                     }
                     document.getElementById("showNav").innerHTML = menuMsg;
                     parent.document.getElementById('topNav').classList.toggle('collapse');
-                });
+                });*/
             }
             console.log('init done template');
 
@@ -146,9 +152,19 @@ $templateService = new DocumentTemplateService();
                     page.init();
                     if (!pageAudit.isInitialized) {
                         pageAudit.init();
+                        console.log('secondary init done!');
                     }
                 }
             }, 2000);
+
+            $(function () {
+                $(window).bind('beforeunload', function () {
+                    if (page.inFormEdit) {
+                        // You have unsaved changes auto browser popup
+                        event.preventDefault();
+                    }
+                });
+            });
         });
 
         function printaDocHtml(divName) {
@@ -201,7 +217,7 @@ $templateService = new DocumentTemplateService();
             if (!printContents) {
                 printContents = document.getElementById(divName).innerHTML;
             }
-            request = new FormData;
+            const request = new FormData;
             request.append("handler", "fetch_pdf");
             request.append("docid", docid);
             request.append("content", printContents);
@@ -392,7 +408,7 @@ $templateService = new DocumentTemplateService();
                     </div>
                     <?php if (!empty($is_module) || !empty($is_portal)) { ?>
                         <div class="dropdown mb-1">
-                            <a class="dropdown-toggle nav-link btn btn-outline-success text-success" href="#" role="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a class="dropdown-toggle nav-link btn btn-outline-success" href="#" role="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <?php echo xlt('Select Documents') ?>
                             </a>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenu">
@@ -401,7 +417,7 @@ $templateService = new DocumentTemplateService();
                         </div>
                     <?php } ?>
                     <li class='nav-item mb-1'>
-                        <a class='nav-link text-success btn btn-outline-success' onclick="page.handleHistoryView()">
+                        <a class='nav-link btn btn-outline-success' onclick="page.handleHistoryView()">
                             <?php echo xlt('History') ?>
                             <i class="history-direction ml-1 fa fa-arrow-down"></i>
                         </a>
@@ -412,15 +428,20 @@ $templateService = new DocumentTemplateService();
                         </li>
                     <?php } else { ?>
                         <li class="nav-item mb-1">
-                            <a class="nav-link text-danger btn btn-secondary" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
+                            <a class="nav-link text-danger btn btn-outline-secondary" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
+                        </li>
+                    <?php } ?>
+                    <?php if (!empty($is_portal)) { ?>
+                        <li class="nav-item mb-1">
+                            <a class="nav-link text-danger btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer_portal ?>")'><?php echo xlt('Exit'); ?></a>
                         </li>
                     <?php } ?>
                     <li class='nav-item mb-1'>
-                        <a class='nav-link btn btn-secondary' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'> <span class='fa fa-sync fa-lg'></span></a>
+                        <a class='nav-link btn btn-outline-secondary' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'> <span class='fa fa-sync fa-lg'></span></a>
                     </li>
-                    <li class='nav-item mb-1'>
-                        <a id='showNav' class='nav-link btn btn-secondary'><span class='navbar-toggler-icon mr-1'></span><?php echo xlt('Top Menu'); ?></a>
-                    </li>
+                    <!--<li class='nav-item mb-1'>
+                        <a id='showNav' class='nav-link btn btn-outline-secondary'><?php /*echo xlt('Top Menu'); */?></a>
+                    </li>-->
                 </ul>
             </div>
         </nav>
@@ -435,10 +456,9 @@ $templateService = new DocumentTemplateService();
                 <script type="text/template" id="onsiteDocumentModelTemplate">
                     <div class="card m-0 p-0" id="docpanel">
                         <!-- Document edit container -->
-                        <span>
-                            <button id="dismissOnsiteDocumentButtonTop" class="dismissOnsiteDocumentButton btn btn-outline-primary float-right m-1" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
-                        </span>
-                        <header class="card-header bg-dark text-light helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?></header>
+                        <header class="card-header bg-dark text-light helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?>
+                            <button id="dismissOnsiteDocumentButtonTop" class="dismissOnsiteDocumentButton btn btn-outline-danger btn-sm float-right" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
+                        </header>
                         <!-- editor form -->
                         <form class="container-xl p-0" id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
                             <div id="templatediv" class="card-body border overflow-auto">
@@ -456,7 +476,7 @@ $templateService = new DocumentTemplateService();
                         </form>
                         <div class="clearfix">
                             <span>
-                                <button id="dismissOnsiteDocumentButton" class="dismissOnsiteDocumentButton btn btn-outline-primary float-right m-1" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
+                                <button id="dismissOnsiteDocumentButton" class="dismissOnsiteDocumentButton btn btn-sm btn-outline-danger float-right m-1" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
                             </span>
                             <!-- delete button is a separate form to prevent enter key from triggering a delete-->
                             <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
@@ -464,7 +484,7 @@ $templateService = new DocumentTemplateService();
                                     <div class="form-group">
                                         <label class="col-form-label"></label>
                                         <div class="controls">
-                                            <button id="deleteOnsiteDocumentButton" class="btn btn-sm btn-danger"><i class="icon-trash icon-white"></i><?php echo xlt('Delete Document'); ?></button>
+                                            <button id="deleteOnsiteDocumentButton" class="btn btn-delete btn-sm btn-danger mt-1"><?php echo xlt('Delete Document'); ?></button>
                                             <span id="confirmDeleteOnsiteDocumentContainer">
                                                 <button id="cancelDeleteOnsiteDocumentButton" class="btn btn-link btn-sm"><?php echo xlt('Cancel'); ?></button>
                                                 <button id="confirmDeleteOnsiteDocumentButton" class="btn btn-sm btn-danger"><?php echo xlt('Confirm'); ?></button>

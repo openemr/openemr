@@ -85,8 +85,12 @@ class OAuth2KeyConfig
             // collect the encryption key from database
             $this->oaEncryptionKey = $this->cryptoGen->decryptStandard($eKey['value']);
             if (empty($this->oaEncryptionKey)) {
+                if (($_ENV['OPENEMR__ENVIRONMENT'] ?? '') === 'dev') {
+                    // delete corrupted key if doesn't exist to regenerate on next attempt.
+                    sqlStatementNoLog("DELETE FROM `keys` WHERE `name` = 'oauth2key'");
+                }
                 // if decrypted key is empty, then critical error and must exit
-                throw new OAuth2KeyException("oauth2 key was blank after it was decrypted");
+                throw new OAuth2KeyException("oauth2 key problem after decrypted. Key is invalid, Try to restore the file key in sites from a backup.");
             }
         } else {
             // create a encryption key and store it in database

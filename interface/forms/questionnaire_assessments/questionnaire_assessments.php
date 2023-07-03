@@ -344,7 +344,7 @@ try {
         }
     </script>
 </head>
-<body>
+<body class="bg-light text-dark">
     <div class="container-xl my-2">
         <div class="title"><h3><?php if ($mode != 'new_form' && $mode != 'update') {
                     echo xlt("Create Encounter Questionnaires");
@@ -381,7 +381,7 @@ try {
             <div class="mb-3">
                 <div class="input-group isNew d-none">
                     <label for="loinc_item" class="font-weight-bold mt-2 mr-1"><?php echo xlt("Search and Select a LOINC form") . ': '; ?></label>
-                    <input class="form-control search_field" type="text" id="loinc_item" placeholder="<?php echo xla("Type to search"); ?>" autocomplete="off" role="combobox" aria-expanded="false">
+                    <input class="form-control search_field bg-light text-dark" type="text" id="loinc_item" placeholder="<?php echo xla("Type to search"); ?>" autocomplete="off" role="combobox" aria-expanded="false">
                 </div>
                 <div class="input-group isNew d-none mt-2">
                     <label for="select_item" class="font-weight-bold my-2 mr-1"><?php echo xlt("Select new from Questionnaire Repository") . ': '; ?></label>

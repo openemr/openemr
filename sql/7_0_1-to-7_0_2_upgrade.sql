@@ -198,3 +198,33 @@ KEY `sent` (`sent`)
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
 ('Email_Service', 'Email Service', 1, 0, '2021-01-18 11:25:10', 2, 'emailServiceRun', '/library/email_service_run.php', 100);
 #EndIf
+
+#IfNotTable patient_settings
+CREATE TABLE `patient_settings` (
+`setting_patient`  bigint(20)   NOT NULL DEFAULT 0,
+`setting_label` varchar(100)  NOT NULL,
+`setting_value` varchar(255) NOT NULL DEFAULT '',
+PRIMARY KEY (`setting_patient`, `setting_label`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfMissingColumn facility inactive
+ALTER TABLE `facility` ADD COLUMN `inactive` tinyint(1) NOT NULL DEFAULT '0';
+#EndIf
+
+#IfNotRow2D list_options list_id Document_Template_Categories option_id notification_template
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','notification_template','Notification Template',105,0,0,'','','',0,0,1);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id default_open_tabs
+-- Create new list Default Open Tabs
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'default_open_tabs', 'Default Open Tabs');
+-- Populate list with sensible defaults based on previous optiosn in globals, assume no tabs are actually active
+INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', 'interface/main/main_info.php', 'Calendar', 10, 'cal', '0');
+INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', 'interface/new/new.php', 'Patient Search / Add', 20, 'pat', '0');
+INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', 'interface/main/finder/dynamic_finder.php', 'Patient Finder', 30, 'fin', '0');
+INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', 'interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1', 'Flow Board', 40, 'flb', '0');
+INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', 'interface/main/messages/messages.php?form_active=1', 'Message Inbox', 50, 'msg', '0');
+-- Activate the 2 list options that were the previous default and second pane settings
+UPDATE `list_options` lo INNER JOIN globals g ON lo.notes = g.gl_value SET lo.activity = 1;
+#EndIf

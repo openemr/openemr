@@ -84,6 +84,7 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag')
     global $form_folder;
     global $form_name;
     global $choice;
+    global $form_id;
 
   /**
    * openEMR note:  eye_mag Index is id,
@@ -477,7 +478,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
             <tr>
                 <td style="width:680px;text-align:center;margin:1 auto;">
                     <?php
-                        $PMSFH = build_PMSFH($pid);
+                    $PMSFH = build_PMSFH($pid);
                     if ($cols != 'Fax') {
                         show_PMSFH_report($PMSFH);
                     }
@@ -2369,10 +2370,9 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                     if ($item['codetype'] > '') {
                         $item['code'] = $item['codetype'] . ": " . $item['code'];
                     }
-
-                    echo $item['plan'] . "</div><br />";
                 }
             }
+            echo $item['plan'] . "</div><br />";
         }
             $query = "SELECT * FROM form_eye_mag_orders where form_id=? and pid=? ORDER BY id ASC";
             $PLAN_results = sqlStatement($query, array($form_id, $pid));
@@ -2387,7 +2387,6 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                     while ($plan_row = sqlFetchArray($PLAN_results)) {
                         echo $plan_row['ORDER_DETAILS'] . "<br />";
                     }
-                    echo $item['plan'] . "</div><br />";
                     ?>
                 </div>
                 <?php

@@ -59,6 +59,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Utils\HttpUtils;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\Config\ServerConfig;
@@ -70,6 +71,7 @@ use OpenIDConnectServer\Entities\ClaimSetEntity;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
+use RestConfig;
 use RuntimeException;
 
 class AuthorizationController
@@ -112,13 +114,17 @@ class AuthorizationController
     private $trustedUserService;
 
     /**
-     * @var \RestConfig
+     * @var RestConfig
      */
     private $restConfig;
 
     public function __construct($providerForm = true)
     {
-        $gbl = \RestConfig::GetInstance();
+        if (is_callable([RestConfig::class, 'GetInstance'])) {
+            $gbl = RestConfig::GetInstance();
+        } else {
+            $gbl = \RestConfig::GetInstance();
+        }
         $this->restConfig = $gbl;
         $this->logger = new SystemLogger();
 
@@ -214,9 +220,10 @@ class AuthorizationController
                 // @see https://tools.ietf.org/html/rfc7591#section-2
                 'scope' => null
             );
-            $client_id = $this->base64url_encode(RandomGenUtils::produceRandomBytes(32));
-            $reg_token = $this->base64url_encode(RandomGenUtils::produceRandomBytes(32));
-            $reg_client_uri_path = $this->base64url_encode(RandomGenUtils::produceRandomBytes(16));
+            $clientRepository = new ClientRepository();
+            $client_id = $clientRepository->generateClientId();
+            $reg_token = $clientRepository->generateRegistrationAccessToken();
+            $reg_client_uri_path = $clientRepository->generateRegistrationClientUriPath();
             $params = array(
                 'client_id' => $client_id,
                 'client_id_issued_at' => time(),
@@ -228,7 +235,7 @@ class AuthorizationController
             // only include secret if a confidential app else force PKCE for native and web apps.
             $client_secret = '';
             if ($data['application_type'] === 'private') {
-                $client_secret = $this->base64url_encode(RandomGenUtils::produceRandomBytes(64));
+                $client_secret = $clientRepository->generateClientSecret();
                 $params['client_secret'] = $client_secret;
                 $params['client_role'] = 'user';
 
@@ -271,9 +278,10 @@ class AuthorizationController
                 throw new OAuthServerException('post_logout_redirect_uris is invalid', 0, 'invalid_client_metadata');
             }
             // save to oauth client table
-            $badSave = $this->newClientSave($client_id, $params);
-            if (!empty($badSave)) {
-                throw OAuthServerException::serverError("Try again. Unable to create account");
+            try {
+                $clientRepository->insertNewClient($client_id, $params, $this->siteId);
+            } catch (\Exception $exception) {
+                throw OAuthServerException::serverError("Try again. Unable to create account", $exception);
             }
             $reg_uri = $this->authBaseFullUrl . '/client/' . $reg_client_uri_path;
             unset($params['registration_client_uri_path']);
@@ -352,78 +360,13 @@ class AuthorizationController
 
     public function base64url_encode($data): string
     {
-        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+        return HttpUtils::base64url_encode($data);
     }
 
     public function base64url_decode($token)
     {
         $b64 = strtr($token, '-_', '+/');
         return base64_decode($b64);
-    }
-
-    public function newClientSave($clientId, $info): bool
-    {
-        $user = $_SESSION['authUserID'] ?? null; // future use for provider client.
-        $site = $this->siteId;
-        $is_confidential_client = empty($info['client_secret']) ? 0 : 1;
-
-        $contacts = $info['contacts'];
-        $redirects = $info['redirect_uris'];
-        $logout_redirect_uris = $info['post_logout_redirect_uris'] ?? null;
-        $info['client_secret'] = $info['client_secret'] ?? null; // just to be sure empty is null;
-        // set our list of default scopes for the registration if our scope is empty
-        // This is how a client can set if they support SMART apps and other stuff by passing in the 'launch'
-        // scope to the dynamic client registration.
-        // per RFC 7591 @see https://tools.ietf.org/html/rfc7591#section-2
-        // TODO: adunsulag do we need to reject the registration if there are certain scopes here we do not support
-        // TODO: adunsulag should we check these scopes against our '$this->supportedScopes'?
-        $info['scope'] = $info['scope'] ?? 'openid email phone address api:oemr api:fhir api:port';
-
-        $scopes = explode(" ", $info['scope']);
-        $scopeRepo = new ScopeRepository();
-
-        if ($scopeRepo->hasScopesThatRequireManualApproval($is_confidential_client == 1, $scopes)) {
-            $is_client_enabled = 0; // disabled
-        } else {
-            $is_client_enabled = 1; // enabled
-        }
-
-        // encrypt the client secret
-        if (!empty($info['client_secret'])) {
-            $info['client_secret'] = $this->cryptoGen->encryptStandard($info['client_secret']);
-        }
-
-
-        try {
-            // TODO: @adunsulag why do we skip over request_uris when we have it in the outer function?
-            $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`, `jwks_uri`, `jwks`, `initiate_login_uri`, `endorsements`, `policy_uri`, `tos_uri`, `is_enabled`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $i_vals = array(
-                $clientId,
-                $info['client_role'],
-                $info['client_name'],
-                $info['client_secret'],
-                $info['registration_access_token'],
-                $info['registration_client_uri_path'],
-                $contacts,
-                $redirects,
-                $info['scope'],
-                $user,
-                $site,
-                $is_confidential_client,
-                $logout_redirect_uris,
-                ($info['jwks_uri'] ?? null),
-                ($info['jwks'] ?? null),
-                ($info['initiate_login_uri'] ?? null),
-                ($info['endorsements'] ?? null),
-                ($info['policy_uri'] ?? null),
-                ($info['tos_uri'] ?? null),
-                $is_client_enabled
-            );
-
-            return sqlQueryNoLog($sql, $i_vals);
-        } catch (\RuntimeException $e) {
-            die($e);
-        }
     }
 
     public function emitResponse($response): void

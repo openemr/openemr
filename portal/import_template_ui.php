@@ -17,10 +17,10 @@ require_once("../interface/globals.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\QuestionnaireService;
 use OpenEMR\Events\Messaging\SendSmsEvent;
-use Symfony\Component\EventDispatcher\GenericEvent;
 
 
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
@@ -57,7 +57,7 @@ $none_message = xlt("Nothing to show for current actions.");
         let callBackCmd = null;
 
         <?php
-        $eventDispatcher->dispatch(new SendSmsEvent(), SendSmsEvent::JAVASCRIPT_READY_SMS_POST);
+        $eventDispatcher->dispatch(new SendNotificationEvent($pid), SendNotificationEvent::JAVASCRIPT_READY_NOTIFICATION_POST);
         ?>
         // a callback from dlgclose(fn) in render form
         function doImportSubmit() {
@@ -75,7 +75,7 @@ $none_message = xlt("Nothing to show for current actions.");
                 }
             }
             top.restoreSession();
-            callBack = '';
+            let callBack = '';
             let url = './questionnaire_render.php?mode=' + encodeURIComponent(mode);
             dlgopen(url, 'pop-questionnaire', 'modal-lg', 850, '', '', {
                 allowDrag: true,
@@ -508,7 +508,7 @@ $none_message = xlt("Nothing to show for current actions.");
                     </div>
                     <div class="form-group">
                         <div class='btn-group ml-1'>
-                            <button type='submit' class='btn btn-search btn-light'><i class="btn-refresh"></i></button>
+                            <button type='submit' class='btn btn-search btn-secondary'><i class="btn-refresh"></i></button>
                             <button type='button' id="send-button" class='btn btn-transmit btn-success d-none' onclick="return sendTemplate()">
                                 <?php echo xlt('Send'); ?>
                             </button>
@@ -892,7 +892,7 @@ $none_message = xlt("Nothing to show for current actions.");
                                     echo '<button type="button" id="patientDelete' . attr($template_id) .
                                         '" class="btn btn-sm btn-outline-danger" onclick="templateDelete(' . attr_js($template_id) . ')">' . xlt('Delete') . "</button>\n";
                                 }
-                                $eventDispatcher->dispatch(new SendSmsEvent($fetch_pid, $file['template_name']), SendSmsEvent::ACTIONS_RENDER_SMS_POST);
+                                $eventDispatcher->dispatch(new SendNotificationEvent($fetch_pid, $file), SendNotificationEvent::ACTIONS_RENDER_NOTIFICATION_POST);
 
                                 echo '</td><td>' . text($audit_status['denial_reason']) . '</td>';
                                 echo '<td>' . text(date('m/d/Y H:i:s', strtotime($audit_status['create_date']))) . '</td>';

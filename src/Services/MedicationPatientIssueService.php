@@ -78,9 +78,9 @@ class MedicationPatientIssueService extends BaseService
 
     public function getRecordByIssueListId($list_id)
     {
-        $records = $this->search(['list_id' => new TokenSearchField('list_id', [$list_id])]);
-        if (!empty($records->getData())) {
-            return array_pop($records->getData());
+        $records = $this->search(['list_id' => new TokenSearchField('list_id', [$list_id])])->getData();
+        if (!empty($records)) {
+            return array_pop($records);
         }
         return null;
     }

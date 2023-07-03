@@ -7,7 +7,7 @@
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
- * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -18,7 +18,13 @@ use OpenEMR\Core\Header;
 <!DOCTYPE html>
 <html>
     <head>
-        <?php Header::setupHeader(['no_main-theme', 'patientportal-style', 'datetime-picker']); ?>
+        <?php
+        if ($_SESSION['patient_portal_onsite_two'] ?? 0) {
+            Header::setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker']);
+        } else {
+            Header::setupHeader(['datetime-picker']);
+        }
+        ?>
         <title><?php $this->eprint($this->title); ?></title>
         <meta http-equiv="X-Frame-Options" content="deny" />
         <base href="<?php $this->eprint($this->ROOT_URL); ?>" />

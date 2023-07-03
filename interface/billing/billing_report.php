@@ -357,9 +357,6 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             top.restoreSession();
             paturl = 'patient_file/summary/demographics_full.php?pid=' + encodeURIComponent(pid);
             parent.left_nav.setPatient(pname, pid, pubpid, '', dobstr);
-            parent.left_nav.loadFrame('ens1', 'enc',
-                'patient_file/history/encounters.php?pid=' + encodeURIComponent(pid));
-            parent.left_nav.loadFrame('dem1', 'pat', paturl);
         }
 
         function popMBO(pid, enc, mboid) {
@@ -1118,13 +1115,15 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     "FROM insurance_data AS id, insurance_companies AS ic WHERE " .
                                     "ic.id = id.provider AND " .
                                     "id.pid = ? AND " .
-                                    "(id.date <= ? OR id.date IS NULL) " .
+                                    "(id.date <= ? OR id.date IS NULL) AND " .
+                                    "(id.date_end >= ? OR id.date_end IS NULL) " .
                                     "ORDER BY id.type ASC, id.date DESC";
 
                                     $result = sqlStatement(
                                         $query,
                                         array(
                                         $iter['enc_pid'],
+                                        $raw_encounter_date,
                                         $raw_encounter_date
                                         )
                                     );
@@ -1192,6 +1191,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                             "id.pid = ? AND " .
                                             "id.provider = ? AND " .
                                             "(id.date <= ? OR id.date IS NULL) AND " .
+                                            "(id.date_end >= ? OR id.date_end IS NULL) AND " .
                                             "ic.id = id.provider " .
                                             "ORDER BY id.type ASC, id.date DESC";
 
@@ -1200,6 +1200,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                             array(
                                             $iter['enc_pid'],
                                             $crow['payer_id'],
+                                            $raw_encounter_date,
                                             $raw_encounter_date
                                             )
                                         );
