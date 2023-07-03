@@ -18,7 +18,9 @@ namespace OpenEMR\Common\Twig;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Core\TwigEnvironmentEvent;
 use OpenEMR\Services\Globals\GlobalsService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 use Twig\Environment;
+use Twig\Extension\CoreExtension;
 use Twig\Extension\DebugExtension;
 use Twig\Loader\FilesystemLoader;
 
@@ -65,6 +67,13 @@ class TwigContainer
         $twigEnv = new Environment($twigLoader, ['autoescape' => false]);
         $globalsService = new GlobalsService($GLOBALS, [], []);
         $twigEnv->addExtension(new TwigExtension($globalsService, $this->kernel));
+
+        $coreExtension = $twigEnv->getExtension(CoreExtension::class);
+        // set our default date() twig render function if no format is specified
+        // we set our default date format to be the localized version of our dates and our time formats
+        // by default Twig uses 'F j, Y H:i' for the format which doesn't match our OpenEMR dates as configured from the globals
+        $dateFormat = DateFormatterUtils::getShortDateFormat() . " " . DateFormatterUtils::getTimeFormat();
+        $coreExtension->setDateFormat($dateFormat);
 
         if ($this->kernel) {
             if ($this->kernel->isDev()) {
