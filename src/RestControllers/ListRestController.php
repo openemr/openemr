@@ -12,8 +12,8 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\Services\ListService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\ListService;
 
 class ListRestController
 {
@@ -27,7 +27,7 @@ class ListRestController
     public function getAll($pid, $list_type)
     {
         $serviceResult = $this->listService->getAll($pid, $list_type);
-        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+        return RestControllerHelper::handleProcessingResult($serviceResult, 200, true);
     }
 
     public function getOne($pid, $list_type, $list_id)
@@ -46,15 +46,8 @@ class ListRestController
     {
         $data['type'] = $list_type;
         $data['pid'] = $pid;
-
-        $validationResult = $this->listService->validate($data);
-        $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
-        if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult;
-        }
-
         $serviceResult = $this->listService->insert($data);
-        return RestControllerHelper::responseHandler($serviceResult, array('id' => $serviceResult), 201);
+        return RestControllerHelper::handleProcessingResult($serviceResult, 200, true);
     }
 
     public function put($pid, $list_id, $list_type, $data)

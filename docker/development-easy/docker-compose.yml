@@ -13,6 +13,8 @@ services:
     - databasevolume:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
+    networks:
+        - openemrDev
   openemr:
     restart: always
     image: openemr/openemr:flex
@@ -68,13 +70,8 @@ services:
       OPENEMR_SETTING_gbl_ldap_dn: 'cn={login},dc=example,dc=org'
     depends_on:
     - mysql
-  phpmyadmin:
-    restart: always
-    image: phpmyadmin
-    ports:
-    - 8310:80
-    environment:
-      PMA_HOSTS: mysql
+    networks:
+        - openemrDev
   couchdb:
     restart: always
     image: couchdb
@@ -108,3 +105,5 @@ volumes:
   ccdanodemodules: {}
   logvolume: {}
   couchdbvolume: {}
+networks:
+    openemrDev:

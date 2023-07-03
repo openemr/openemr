@@ -14,44 +14,70 @@
 
 namespace OpenEMR\Services;
 
-use Particle\Validator\Validator;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\StringSearchField;
+use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\ListValidator;
+use OpenEMR\Validators\ProcessingResult;
 
+// TODO rewrite this using there new way!
 // TODO: @adunsulag should we rename this to be ListOptions service since that is the table it corresponds to?  The lists table is a patient issues table so this could confuse new developers
-class ListService
+class ListService extends BaseService
 {
+    private const LISTS_TABLE = "lists";
+    private const PATIENT_TABLE = "patient_data";
+
+    /**
+     * @var $listValidator ListValidator
+     */
+    private $listValidator;
+
+    public function getUuidFields(): array
+    {
+        //copy past from condition service
+        return ['condition_uuid', 'puuid', 'encounter_uuid', 'uuid', 'patient_uuid', 'provider_uuid'];
+    }
+
   /**
    * Default constructor.
    */
     public function __construct()
     {
+        parent::__construct(self::LISTS_TABLE);
+        UuidRegistry::createMissingUuidsForTables([self::LISTS_TABLE, self::PATIENT_TABLE]);
+        $this->listValidator = new ListValidator();
     }
 
-    public function validate($list)
+    public function getAll($pid, $list_type, $isAndCondition = true)
     {
-        $validator = new Validator();
+        $search = [];
+        $orderBy = " ORDER BY date DESC";
+        $sql = "SELECT * FROM lists";
 
-        $validator->required('title')->lengthBetween(2, 255);
-        $validator->required('type')->lengthBetween(2, 255);
-        $validator->required('pid')->numeric();
-        $validator->optional('diagnosis')->lengthBetween(2, 255);
-        $validator->required('begdate')->datetime('Y-m-d');
-        $validator->optional('enddate')->datetime('Y-m-d');
+        $search['type'] = new StringSearchField('type', [$list_type], SearchModifier::EXACT);
+        $search['pid'] = new StringSearchField('pid', [$pid], SearchModifier::EXACT);
 
-        return $validator->validate($list);
-    }
+        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
-    public function getAll($pid, $list_type)
-    {
-        $sql = "SELECT * FROM lists WHERE pid=? AND type=? ORDER BY date DESC";
+        $sql .= $whereClause->getFragment() . $orderBy;
 
-        $statementResults = sqlStatement($sql, array($pid, $list_type));
+        $sqlBindArray = $whereClause->getBoundValues();
 
-        $results = array();
+        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+
+        $processingResult = new ProcessingResult();
+
         while ($row = sqlFetchArray($statementResults)) {
-            array_push($results, $row);
+
+            $resultRecord = $this->createResultRecordFromDatabaseResult($row);
+
+            $processingResult->addData($resultRecord);
         }
 
-        return $results;
+        return $processingResult;
     }
 
     public function getOptionsByListName($list_name, $search = array())
@@ -106,27 +132,39 @@ class ListService
 
     public function insert($data)
     {
-        $sql  = " INSERT INTO lists SET";
-        $sql .= "     date=NOW(),";
-        $sql .= "     activity=1,";
-        $sql .= "     pid=?,";
-        $sql .= "     type=?,";
-        $sql .= "     title=?,";
-        $sql .= "     begdate=?,";
-        $sql .= "     enddate=?,";
-        $sql .= "     diagnosis=?";
-
-        return sqlInsert(
-            $sql,
-            array(
-                $data['pid'],
-                $data['type'],
-                $data["title"],
-                $data["begdate"],
-                $data["enddate"],
-                $data["diagnosis"]
-            )
+        $processingResult = $this->listValidator->validate(
+            $data,
+            BaseValidator::DATABASE_INSERT_CONTEXT
         );
+
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        $data['uuid'] = (new UuidRegistry(['table_name' => self::LISTS_TABLE]))->createUuid();
+
+        $query = $this->buildInsertColumns($data);
+
+        $sql  = " INSERT INTO lists SET";
+        $sql .= " date=NOW(),";
+        $sql .= " activity=1, ";
+        $sql .= $query['set'];
+
+        $results = sqlInsert(
+            $sql,
+            $query['bind']
+        );
+
+        if ($results) {
+            $processingResult->addData([
+                'id' => $results,
+                'uuid' => UuidRegistry::uuidToString($data['uuid'])
+            ]);
+        } else {
+            $processingResult->addInternalError("error processing SQL Insert");
+        }
+
+        return $processingResult;
     }
 
     public function update($data)
