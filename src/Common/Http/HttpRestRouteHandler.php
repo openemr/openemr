@@ -55,7 +55,7 @@ class HttpRestRouteHandler
         // this is already handled somewhere else.
         // let's quickly be able to enable our CORS at the PHP level.
         header("Access-Control-Allow-Credentials: true");
-        header("Access-Control-Allow-Headers: origin, authorization, accept, content-type, x-requested-with");
+        header("Access-Control-Allow-Headers: origin, authorization, accept, content-type, content-encoding, x-requested-with");
         header("Access-Control-Allow-Methods: GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS");
 //        header("Access-Control-Allow-Origin: *");
         // we have already validated the token which authenticates our client_id
