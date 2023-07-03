@@ -43,7 +43,8 @@ class EncounterFormsListRenderEvent
         $this->setAttendantType($attendantType);
     }
 
-    public function getAttendantType() : string {
+    public function getAttendantType(): string
+    {
         return $this->attendantType;
     }
 
