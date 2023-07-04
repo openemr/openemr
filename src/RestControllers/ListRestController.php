@@ -47,7 +47,7 @@ class ListRestController
         $data['type'] = $list_type;
         $data['pid'] = $pid;
         $serviceResult = $this->listService->insert($data);
-        return RestControllerHelper::handleProcessingResult($serviceResult, 200, true);
+        return RestControllerHelper::handleProcessingResult($serviceResult, 200);
     }
 
     public function put($pid, $list_id, $list_type, $data)
