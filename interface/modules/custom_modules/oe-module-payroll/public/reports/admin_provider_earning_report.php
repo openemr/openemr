@@ -394,7 +394,6 @@ if (!empty($_POST['form_refresh'])) {
         <?php
 
         if ($res) {
-
             $docrow = array('docname' => '', 'charges' => 0, 'copays' => 0, 'encounters' => 0);
 
             while ($row = sqlFetchArray($res)) {
