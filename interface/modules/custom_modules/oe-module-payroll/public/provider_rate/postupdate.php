@@ -1,6 +1,5 @@
 <?php
 
-
 /*
  *  package   OpenEMR
  *  link      http://www.open-emr.org
@@ -14,14 +13,13 @@ namespace Juggernaut\Modules\Payroll;
 
 require_once dirname(__FILE__, 6) . "/globals.php";
 
-
 if (!empty($_GET['userid'])) {
-$rate = new ProviderRates();
-$id = filter_input(INPUT_GET, 'userid', FILTER_VALIDATE_INT);
-$percent = filter_input(INPUT_GET, 'percent', FILTER_VALIDATE_FLOAT);
-$flat = filter_input(INPUT_GET, 'flat', FILTER_VALIDATE_FLOAT);
-$update = $rate->savePayrollData($id, $percent, $flat);
-echo $update;
+    $rate = new ProviderRates();
+    $id = filter_input(INPUT_GET, 'userid', FILTER_VALIDATE_INT);
+    $percent = filter_input(INPUT_GET, 'percent', FILTER_VALIDATE_FLOAT);
+    $flat = filter_input(INPUT_GET, 'flat', FILTER_VALIDATE_FLOAT);
+    $update = $rate->savePayrollData($id, $percent, $flat);
+    echo $update;
 } else {
     echo xlt("empty!!");
 }

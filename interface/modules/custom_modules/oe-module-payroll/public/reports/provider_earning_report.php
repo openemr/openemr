@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * This report cross-references appointments with encounters.
  * For a given date, show a line for each appointment with the
  * matching encounter, and also for each encounter that has no
@@ -56,12 +56,14 @@ $grand_total_encounters = 0;
 $grand_total_provider_payouts = [];
 $userid = '';
 
-function identity() {
+function identity(): string
+{
     $sql = "SELECT fname, lname  FROM users WHERE id = ? AND active = 1";
     $name = sqlQuery($sql, [$_SESSION['authUserID']]);
     return $name['lname'] . ", " . $name['fname'] ;
 }
-function getRate($userid) {
+function getRate($userid): bool|array|null
+{
     $sql = "SELECT percentage, flat FROM `module_payroll_data` WHERE userid = ?";
     return sqlQuery($sql, [$userid]);
 }
@@ -75,7 +77,8 @@ function postError($msg)
     $errmsg .= text($msg);
 }
 
-function getDocsList($enc) {
+function getDocsList($enc): void
+{
     $docs = '';
     $sql = "SELECT form_name FROM forms WHERE encounter = ? AND form_name != 'New Patient Encounter'";
     $list = sqlStatement($sql, [$enc]);
@@ -112,14 +115,14 @@ function endDoctor(&$docrow)
     echo "  </td>\n";
     echo "  <td>\n";
     echo "   &nbsp;";
-    if ($rate['flat'] !== NULL || $rate['flat'] > 0) {
+    if ($rate['flat'] !== null || $rate['flat'] > 0) {
         $pay = bucks($rate['flat'] * text($docrow['encounters']));
         $mpay = $rate['flat'] * $docrow['encounters'];
     } else {
         $pay = bucks($rate['percentage'] * $docrow['encounters']);
         $mpay = $rate['percentage'] * $docrow['encounters'];
     }
-    if ($rate['percentage'] !== NULL || $rate['percentage'] > 0) {
+    if ($rate['percentage'] !== null || $rate['percentage'] > 0) {
         echo   $rate['percentage'] . "% $" . $pay;
     } else {
         echo   $rate['flat'] . " $" . $pay;
@@ -217,7 +220,7 @@ if (!empty($_POST['form_refresh'])) {
         array_push($sqlBindArray, $form_facility);
     }
 
-    $query .= ") ORDER BY docname, IFNULL(pc_eventDate, encdate), pc_startTime"; //echo "<pre>";
+    $query .= ") ORDER BY docname, IFnull(pc_eventDate, encdate), pc_startTime"; //echo "<pre>";
 //var_dump($query); die;
     $res = sqlStatement($query, $sqlBindArray);
 }
@@ -390,6 +393,7 @@ if (!empty($_POST['form_refresh'])) {
 </thead>
 <tbody>
     <?php
+
     if ($res) {
 
         $docrow = array('docname' => '', 'charges' => 0, 'copays' => 0, 'encounters' => 0);
@@ -465,7 +469,7 @@ if (!empty($_POST['form_refresh'])) {
                             $query .= "modifier = ?";
                             array_push($sqlBindArray, $brow['modifier']);
                         } else {
-                            $query .= "(modifier IS NULL OR modifier = '')";
+                            $query .= "(modifier IS null OR modifier = '')";
                         }
 
                         $query .= " LIMIT 1";
@@ -554,12 +558,14 @@ if (!empty($_POST['form_refresh'])) {
    </td>
    <td>
       &nbsp;<?php
+
          /*****************************************************************
          if ($form_to_date) {
             echo $row['pc_eventDate'] . '<br />';
             echo substr($row['pc_startTime'], 0, 5);
          }
          *****************************************************************/
+
         if (empty($row['pc_eventDate'])) {
             echo text(oeFormatShortDate(substr($row['encdate'], 0, 10)));
         } else {

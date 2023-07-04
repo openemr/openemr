@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * @package OpenEMR
  *
  * @author Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -12,6 +12,7 @@ namespace Juggernaut\Modules\Payroll;
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Services\Globals\GlobalSetting;
+
 class GlobalConfig
 {
     const CONFIG_OPTION_TEXT = 'oe_payroll_config_option_text';

@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  *  package   OpenEMR
  *  link      http://www.open-emr.org
  *  author    Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -57,27 +57,27 @@ $providers = $providerdata->getProviders();
                     <th><?php echo xlt("Flat Rate") ?></th>
                     <th><?php echo xlt("Update") ?></th>
                 </tr>
-                <?php
-                    while ($row = sqlFetchArray($providers)) {
-                        $rate = $providerdata->retreiveRates($row['id']);
-                        print "<tr><td>" . text($row['id']) . "</td>";
-                        print "<td>" .  text($row['fname']) . " " . text($row['lname']) .
-                            "<input type='hidden' name='userid' value='" .
-                            text($row['id']) . "'></td>";
-                        print "<td><input type='text' id='percent_" . text($row['id']) . "' value='";
-                        if (!empty($rate['percentage'])) {
-                            print text($rate['percentage']);
-                        }
-                        print "' name='percentage' onkeyup='togglePercentRate(" . text($row['id']) . ")'></td>";
-                        print "<td><input type='text' id='flat_" . text($row['id']) . "' value='";
-                         if(!empty($rate['flat'])) {
-                            print text($rate['flat']);
-                        }
-                        print "' name='flat' onkeyup='toggleFlatRate(" . text($row['id']) . ")'></td>";
-                        print "<td><button onclick='saveLine(". text($row['id']) .")' id='submit'>" . xlt("Update") . "</button></td>";
-                        print "</tr>";
+            <?php
+                while ($row = sqlFetchArray($providers)) {
+                    $rate = $providerdata->retreiveRates($row['id']);
+                    print "<tr><td>" . text($row['id']) . "</td>";
+                    print "<td>" .  text($row['fname']) . " " . text($row['lname']) .
+                        "<input type='hidden' name='userid' value='" .
+                        text($row['id']) . "'></td>";
+                    print "<td><input type='text' id='percent_" . text($row['id']) . "' value='";
+                    if (!empty($rate['percentage'])) {
+                        print text($rate['percentage']);
                     }
-                ?>
+                    print "' name='percentage' onkeyup='togglePercentRate(" . text($row['id']) . ")'></td>";
+                    print "<td><input type='text' id='flat_" . text($row['id']) . "' value='";
+                     if (!empty($rate['flat'])) {
+                        print text($rate['flat']);
+                    }
+                    print "' name='flat' onkeyup='toggleFlatRate(" . text($row['id']) . ")'></td>";
+                    print "<td><button onclick='saveLine(" . text($row['id']) . ")' id='submit'>" . xlt("Update") . "</button></td>";
+                    print "</tr>";
+                }
+            ?>
             </table>
     </div>
 </div>

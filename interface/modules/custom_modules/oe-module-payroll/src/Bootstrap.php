@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * @package OpenEMR
  *
  * @author Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -11,10 +11,8 @@
 namespace Juggernaut\Modules\Payroll;
 
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
-use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Services\Globals\GlobalSetting;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -268,6 +266,4 @@ class Bootstrap
     {
         return $this->getPublicPath() . 'assets' . DIRECTORY_SEPARATOR;
     }
-
-
 }

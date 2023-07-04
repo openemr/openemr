@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * @package OpenEMR
  *
  * @author Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -16,6 +16,7 @@ use OpenEMR\Core\ModulesClassLoader;
 /**
  * @global OpenEMR\Core\ModulesClassLoader $classLoader
  */
+
 $classLoader->registerNamespaceIfNotExists('Juggernaut\\Modules\\Payroll\\', __DIR__ . DIRECTORY_SEPARATOR . 'src/');
 
 
