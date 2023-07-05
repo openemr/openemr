@@ -549,13 +549,13 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         }
 
         $issue = $_REQUEST['issue'];
-        $deletion = $_REQUEST['deletion'];
+        $deletion = $_REQUEST['deletion'] ?? '';
         $form_save = $_REQUEST['form_save'];
         $pid = $_SESSION['pid'];
         $encounter = $_SESSION['encounter'];
         $form_id = $_REQUEST['form_id'];
         $form_type = $_REQUEST['form_type'];
-        $r_PMSFH = $_REQUEST['r_PMSFH'];
+        $r_PMSFH = $_REQUEST['r_PMSFH'] ?? '';
         if ($deletion == 1) {
             row_delete("issue_encounter", "list_id = '" . add_escape_custom($issue) . "'");
             row_delete("lists", "id = '" . add_escape_custom($issue) . "'");
@@ -987,7 +987,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $_POST['PLAN'] = ' ';
     }
 
-    $tables = array('form_eye_hpi','form_eye_ros','form_eye_vitals',
+    $tables = array('form_eye_hpi','form_eye_vitals',
         'form_eye_acuity','form_eye_refraction','form_eye_biometrics',
         'form_eye_external', 'form_eye_antseg','form_eye_postseg',
         'form_eye_neuro','form_eye_locking');
