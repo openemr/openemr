@@ -6,7 +6,9 @@
  * @package OpenEMR
  * @link    http://www.open-emr.org
  * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Kofi Appiah <kkappiah@medsov.com>
  * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -25,6 +27,7 @@ class TransmitProperties
     private $subscriber;
     private $ncpdp;
     private $cryptoGen;
+    private $pharmacy;
 
     /**
      * AdminProperties constructor.
@@ -40,6 +43,7 @@ class TransmitProperties
                  $this->locid = $this->getFacilityInfo();
                $this->payload = $this->createJsonObject();
             $this->subscriber = $this->getSubscriber();
+            $this->pharmacy   = $this->getPharmacy();
     }
 
     /**
@@ -83,6 +87,9 @@ class TransmitProperties
         $wenObj['HeightWeightObservationDate'] = $heighDate[0];
         $wenObj["ResponsiblePartySameAsPatient"] = 'Y';
         $wenObj['PatientLocation'] = "Home";
+
+        $wenObj['PrimaryPharmacyNCPCP'] = $this->pharmacy['primary'];
+        $wenObj['AlternativePharmacyNCPCP'] = $this->pharmacy['alternate'];
         return json_encode($wenObj);
     }
 
@@ -93,7 +100,7 @@ class TransmitProperties
     {
         $provider_info = sqlQuery("select email from users where username=? ", [$_SESSION["authUser"]]);
         if (empty($provider_info['email'])) {
-            echo xlt('Provider email address is missing. Go to address book to add providers email address');
+            echo xlt('Provider email address is missing. Go to [Admin > Address Book] to add providers email address');
             exit;
         } else {
             return $provider_info;
@@ -109,10 +116,10 @@ class TransmitProperties
 
         if (empty($locid['weno_id'])) {
             //if not in an encounter then get the first facility location id as default
-            $default_facility = sqlQuery("select name, street, city, state, postal_code, phone, fax, weno_id from facility order by id asc limit 1");
+            $default_facility = sqlQuery("SELECT name, street, city, state, postal_code, phone, fax, weno_id from facility order by id asc limit 1");
 
             if (empty($default_facility)) {
-                echo xlt('Facility ID is missing');
+                echo xlt('Facility ID is missing. Headover to Admin -> Other -> Weno Management. Enter the Weno ID of your facility');
                 exit;
             } else {
                 return $default_facility;
@@ -135,31 +142,31 @@ class TransmitProperties
         $missing = 0;
         $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, postal_code, dob, sex, pid from patient_data where pid=?", [$_SESSION['pid']]);
         if (empty($patient['fname'])) {
-            echo xlt("First Name Missing") . "<br>";
+            echo xlt("First Name Missing, headover to the Patient Chart > Demographics > Who. Save and retry") . "<br>";
             ++$missing;
         }
         if (empty($patient['lname'])) {
-            echo xlt("Last Name Missing")  . "<br>";
+            echo xlt("Last Name Missing, headover to the Patient Chart > Demographics > Who. Save and retry")  . "<br>";
             ++$missing;
         }
         if (empty($patient['dob'])) {
-            echo xlt("Date of Birth Missing") . "<br>";
+            echo xlt("Date of Birth Missing, headover to the Patient Chart > Demographics > Who. Save and retry") . "<br>";
             ++$missing;
         }
         if (empty($patient['sex'])) {
-            echo xlt("Gender Missing") . "<br>";
+            echo xlt("Gender Missing, headover to the Patient Chart > Demographics > Who. Save and retry") . "<br>";
             ++$missing;
         }
         if (empty($patient['postal_code'])) {
-            echo xlt("Zip Code Missing") . "<br>";
+            echo xlt("Zip Code Missing, headover to the Patient Chart > Demographics > Contact > Postal Code. Save and retry") . "<br>";
             ++$missing;
         }
         if (empty($patient['street'])) {
-            echo xlt("Street Address incomplete Missing") . "<br>";
+            echo xlt("Street Address incomplete Missing, headover to the Patient Chart > Demographics > Contact. Save and retry") . "<br>";
             ++$missing;
         }
         if ($missing > 0) {
-            die('Pleasae add the missing data and try again');
+            die('Please add the missing data and try again');
         }
         return $patient;
     }
@@ -190,7 +197,7 @@ class TransmitProperties
         $uid = $_SESSION['authUserID'];
         $sql = "select setting_value from user_settings where setting_user = ? and setting_label = 'global:weno_provider_password'";
         $prov_pass = sqlQuery($sql, [$uid]);
-        if (!empty($prov_pass['setting_value'])) {
+        if (!empty($GLOBALS['weno_provider_password'])) {
             return $this->cryptoGen->decryptStandard($prov_pass['setting_value']);
         } else {
             echo xlt('Provider Password is missing');
@@ -201,7 +208,7 @@ class TransmitProperties
     /**
      * @return mixed
      */
-    private function getVitals()
+    public function getVitals()
     {
         $vitals = sqlQuery("select date, height, weight from form_vitals where pid = ? ORDER BY id DESC", [$_SESSION["pid"] ?? null]);
         return $vitals;
@@ -218,8 +225,82 @@ class TransmitProperties
      */
     public function getPharmacy()
     {
-        $sql = "SELECT p.ncpdp FROM pharmacies p JOIN patient_data pd ON p.id = pd.pharmacy_id WHERE pd.pid = ? ";
-        $give = sqlQuery($sql, [$_SESSION['pid'] ?? null]);
-        return $give['ncpdp'] ?? null;
+        $data = sqlQuery("SELECT * FROM weno_assigned_pharmacy WHERE pid = ? ", [$_SESSION["pid"]]);
+
+        if (empty($data)) {
+            die("Weno Pharmacies not set. Headover to Patient's Demographics > Choices > Weno Pharmacy Selector to Assign Pharmacies");
+        }
+        $response = array(
+            "primary"   => $data['primary_ncpdp'],
+            "alternate" => $data['alternate_ncpdp']
+        );
+
+        if (empty($response['primary'])) {
+            die("Weno Primary Pharmacy not set. Headover to Patient's Demographics > Choices > Weno Pharmacy Selector to Assign Primary Pharmacy");
+        }
+
+        if (empty($response['alternate'])) {
+            die("Weno Alternate Pharmacy not set. Headover to Patient's Demographics > Choices > Weno Pharmacy Selector to Assign Primary Pharmacy");
+        }
+        return $response;
+    }
+
+    public function wenoChr()
+    {
+        return
+            chr(0x0) .
+            chr(0x0) .
+            chr(0x0) .
+            chr(0x0) .
+            chr(0x0) .
+            chr(0x0) .
+            chr(0x0) .
+            chr(0x0) .
+            chr(0x0) .
+            chr(0x0) .
+            chr(0x0) .
+            chr(0x0) .
+            chr(0x0) .
+            chr(0x0) .
+            chr(0x0) .
+            chr(0x0);
+    }
+
+    public function wenoMethod(): string
+    {
+        return "aes-256-cbc";
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getProviderName()
+    {
+        $provider_info = sqlQuery("select fname, mname, lname from users where username=? ", [$_SESSION["authUser"]]);
+
+        return $provider_info['fname'] . " " . $provider_info['mname'] . " " . $provider_info['lname'];
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPatientName()
+    {
+        $patient_info = sqlQuery("select fname, mname, lname from patient_data where pid=? ", [$_SESSION["pid"]]);
+
+        return $patient_info['fname'] . " " . $patient_info['mname'] . " " . $patient_info['lname'];
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getWenoAltPharmacies()
+    {
+        $data = sqlQuery("SELECT * FROM weno_assigned_pharmacy WHERE pid = ? ", [$_SESSION["pid"]]);
+        $response = array(
+            "primary"   => $data['primary_ncpdp'],
+            "alternate" => $data['alternate_ncpdp']
+        );
+        return $response;
     }
 }
