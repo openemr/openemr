@@ -814,6 +814,11 @@ function generate_form_field($frow, $currvalue)
         } else {
             echo "</select>";
         }
+
+        //include here weno pharmacy selector once weno is enabled
+        if ($GLOBALS['weno_rx_enable']) {
+            include "templates/pharmacy_list_form.php";
+        }
     } elseif ($data_type == 13) { // squads
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
         echo " $lbfonchange $disabled>";
@@ -2502,6 +2507,9 @@ function generate_display_field($frow, $currvalue)
                 $prow['prefix'] . '-' . $prow['number'] . ' / ' .
                 $prow['line1'] . ' / ' . $prow['city'], ENT_NOQUOTES);
             }
+        }
+        if($GLOBALS['weno_rx_enable']) {
+            include "templates/pharmacy_list_display.php";
         }
     } elseif ($data_type == 13) { // squads
         $squads = AclExtended::aclGetSquads();
