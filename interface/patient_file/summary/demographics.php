@@ -481,6 +481,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 dialogId: 'editscripts',
                 type: 'iframe'
             });
+            return false;
         }
 
         /**
@@ -1026,7 +1027,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'title' => xl('Allergies'),
                             'card_container_class_list' => ['flex-fill', 'mx-1'],
                             'id' => 'allergies_ps_expand',
-                            'initiallyCollapsed' => true,
+                            'forceAlwaysOpen' => true,
                             'linkMethod' => "javascript",
                             'list' => $allergyList->getData(),
                             'auth' => true,
@@ -1045,7 +1046,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'title' => xl('Medical Problems'),
                             'card_container_class_list' => ['flex-fill', 'mx-1'],
                             'id' => 'medical_problem_ps_expand',
-                            'initiallyCollapsed' => true,
+                            'forceAlwaysOpen' => true,
                             'linkMethod' => "javascript",
                             'list' => $medProblemList->getData(),
                             'auth' => true,
@@ -1062,7 +1063,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'title' => xl('Medications'),
                             'card_container_class_list' => ['flex-fill', 'mx-1'],
                             'id' => 'medications_ps_expand',
-                            'initiallyCollapsed' => true,
+                            'forceAlwaysOpen' => true,
                             'linkMethod' => "javascript",
                             'list' => $medList->getData(),
                             'auth' => true,
@@ -1090,7 +1091,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $viewArgs = [
                                 'title' => xl('Current Medications'),
                                 'id' => $id,
-                                'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+                                'forceAlwaysOpen' => (getUserSetting($id) == 0) ? false : true,
                                 'auth' => false,
                                 'rxList' => $rxArr,
                             ];
@@ -1103,7 +1104,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'title' => xl("Prescriptions"),
                             'card_container_class_list' => ['flex-fill', 'mx-1'],
                             'id' => $id,
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+                            'forceAlwaysOpen' => (getUserSetting($id) == 0) ? false : true,
                             'btnLabel' => "Edit",
                             'auth' => AclMain::aclCheckCore('patients', 'rx', '', ['write', 'addonly']),
                         ];
@@ -1118,13 +1119,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $viewArgs['title'] = "WENO ComposeRx";
                             $viewArgs['btnLabel'] = 'Add';
                             $viewArgs['btnLink'] = "{$GLOBALS['webroot']}/interface/weno/indexrx.php";
-                            $viewArgs['btnClass'] = "iframe rx_modal";
+                            $viewArgs['btnClass'] = "iframe";
                             $viewArgs['linkMethod'] = "javascript";
                             $viewArgs['btnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
                         } else {
                             $viewArgs['btnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
                             $viewArgs['linkMethod'] = "javascript";
-                            $viewArgs['btnClass'] = "iframe rx_modal";
+                            $viewArgs['btnClass'] = "iframe";
                         }
 
                         $cwd = getcwd();
