@@ -17,6 +17,7 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\ContactService;
+use OpenEMR\Services\PharmacyService;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -94,6 +95,18 @@ if (!empty($addressFieldsToSave)) {
         $contactService = new ContactService();
         $contactService->saveContactsForPatient($pid, $addressFieldData);
     }
+}
+
+//saving weno pharmacies on update
+if($GLOBALS['weno_rx_enable'] && (!empty($_POST['primary_pharmacy']) || 
+    !empty($_POST['alternate_pharmacy']))){
+        
+    $data = array(
+        "primary_pharmacy" => $_POST['primary_pharmacy'],
+        "alternate_pharmacy" => $_POST['alternate_pharmacy']
+    );
+    $pharmacyService = new PharmacyService();
+    $pharmacyService->updatePatientWenoPharmacy($pid, $data);
 }
 
 $i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
