@@ -46,6 +46,10 @@ use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Patient\Cards\PortalCard;
 use OpenEMR\Reminder\BirthdayReminder;
+use OpenEMR\Services\AllergyIntoleranceService;
+use OpenEMR\Services\ConditionService;
+use OpenEMR\Services\ImmunizationService;
+use OpenEMR\Services\PatientIssuesService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 $twig = new TwigContainer(null, $GLOBALS['kernel']);
@@ -477,6 +481,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 dialogId: 'editscripts',
                 type: 'iframe'
             });
+            return false;
         }
 
         /**
@@ -1010,9 +1015,138 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <div class="main mb-5">
             <!-- start main content div -->
             <div class="row">
+                <div class="col-12 d-flex flex-row">
+                    <?php
+                    $t = $twig->getTwig();
+
+                    // ALLERGY CARD
+                    if (AclMain::aclCheckIssue('allergy')) {
+                        $allergyService = new AllergyIntoleranceService();
+                        $allergyList = $allergyService->getAll();
+                        $viewArgs = [
+                            'title' => xl('Allergies'),
+                            'card_container_class_list' => ['flex-fill', 'mx-1'],
+                            'id' => 'allergies_ps_expand',
+                            'forceAlwaysOpen' => true,
+                            'linkMethod' => "javascript",
+                            'list' => $allergyList->getData(),
+                            'auth' => true,
+                            'btnLabel' => 'Edit',
+                            'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=allergy')"
+                        ];
+                        echo $t->render('patient/card/allergies.html.twig', $viewArgs);
+                    }
+
+                    $patIssueService = new PatientIssuesService();
+
+                    // MEDICAL PROBLEMS CARD
+                    if (AclMain::aclCheckIssue('medical_problem')) {
+                        $medProblemList = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medical_problem']);
+                        $viewArgs = [
+                            'title' => xl('Medical Problems'),
+                            'card_container_class_list' => ['flex-fill', 'mx-1'],
+                            'id' => 'medical_problem_ps_expand',
+                            'forceAlwaysOpen' => true,
+                            'linkMethod' => "javascript",
+                            'list' => $medProblemList->getData(),
+                            'auth' => true,
+                            'btnLabel' => 'Edit',
+                            'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medical_problem')"
+                        ];
+                        echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
+                    }
+
+                    // MEDICATION CARD
+                    if (AclMain::aclCheckIssue('medication')) {
+                        $medList = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medication']);
+                        $viewArgs = [
+                            'title' => xl('Medications'),
+                            'card_container_class_list' => ['flex-fill', 'mx-1'],
+                            'id' => 'medications_ps_expand',
+                            'forceAlwaysOpen' => true,
+                            'linkMethod' => "javascript",
+                            'list' => $medList->getData(),
+                            'auth' => true,
+                            'btnLabel' => 'Edit',
+                            'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication')"
+                        ];
+                        echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
+                    }
+
+                    // Render the Prescriptions card if turned on
+                    if (!$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx')) :
+                        if ($GLOBALS['erx_enable'] && $display_current_medications_below == 1) {
+                            $sql = "SELECT * FROM prescriptions WHERE patient_id = ? AND active = '1'";
+                            $res = sqlStatement($sql, [$pid]);
+
+                            $rxArr = [];
+                            while ($row = sqlFetchArray($res)) {
+                                $row['unit'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_units'), $row['unit']);
+                                $row['form'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_form'), $row['form']);
+                                $row['route'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_route'), $row['route']);
+                                $row['interval'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_interval'), $row['interval']);
+                                $rxArr[] = $row;
+                            }
+                            $id = "current_prescriptions_ps_expand";
+                            $viewArgs = [
+                                'title' => xl('Current Medications'),
+                                'id' => $id,
+                                'forceAlwaysOpen' => (getUserSetting($id) == 0) ? false : true,
+                                'auth' => false,
+                                'rxList' => $rxArr,
+                            ];
+
+                            echo $t->render('patient/card/erx.html.twig', $viewArgs);
+                        }
+
+                        $id = "prescriptions_ps_expand";
+                        $viewArgs = [
+                            'title' => xl("Prescriptions"),
+                            'card_container_class_list' => ['flex-fill', 'mx-1'],
+                            'id' => $id,
+                            'forceAlwaysOpen' => (getUserSetting($id) == 0) ? false : true,
+                            'btnLabel' => "Edit",
+                            'auth' => AclMain::aclCheckCore('patients', 'rx', '', ['write', 'addonly']),
+                        ];
+
+                        if ($GLOBALS['erx_enable']) {
+                            $viewArgs['title'] = 'Prescription History';
+                            $viewArgs['btnLabel'] = 'Add';
+                            $viewArgs['btnLink'] = "{$GLOBALS['webroot']}/interface/eRx.php?page=compose";
+                        } elseif ($GLOBALS['weno_rx_enable']) {
+                            // weno plus button which opens their iframe
+                            $viewArgs['weno'] = true;
+                            $viewArgs['title'] = "WENO ComposeRx";
+                            $viewArgs['btnLabel'] = 'Add';
+                            $viewArgs['btnLink'] = "{$GLOBALS['webroot']}/interface/weno/indexrx.php";
+                            $viewArgs['btnClass'] = "iframe";
+                            $viewArgs['linkMethod'] = "javascript";
+                            $viewArgs['btnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
+                        } else {
+                            $viewArgs['btnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
+                            $viewArgs['linkMethod'] = "javascript";
+                            $viewArgs['btnClass'] = "iframe";
+                        }
+
+                        $cwd = getcwd();
+                        chdir("../../../");
+                        $c = new Controller();
+                        // This is a hacky way to get a Smarty template from the controller and injecting it into
+                        // a Twig template. This reduces the amount of refactoring that is required but ideally the
+                        // Smarty template should be upgraded to Twig
+                        ob_start();
+                        echo $c->act(['prescription' => '', 'fragment' => '', 'patient_id' => $pid]);
+                        $viewArgs['content'] = ob_get_contents();
+                        ob_end_clean();
+
+                        echo $t->render('patient/card/rx.html.twig', $viewArgs);
+                    endif;
+                    ?>
+                </div>
+            </div>
+            <div class="row">
                 <div class="col-md-8">
                     <?php
-
                     if ($deceased > 0) :
                         echo $twig->getTwig()->render('patient/partials/deceased.html.twig', [
                             'deceasedDays' => deceasedDays($deceased),
@@ -1021,8 +1155,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     $sectionRenderEvents = $ed->dispatch(new SectionEvent('primary'), SectionEvent::EVENT_HANDLE);
                     $sectionCards = $sectionRenderEvents->getCards();
-
-                    $t = $twig->getTwig();
 
                     foreach ($sectionCards as $card) {
                         $_auth = $card->getAcl();
