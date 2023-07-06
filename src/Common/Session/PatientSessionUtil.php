@@ -62,10 +62,16 @@ class PatientSessionUtil
             unset($rp[(string) $patient['pid']]);
         }
 
-        $whitelistCols = ['pid', 'fname', 'mname', 'lname', 'DOB'];
+        $query = "SELECT * FROM list_options WHERE list_id = 'recent_patient_columns' and activity = '1'";
+        $res = sqlStatement($query);
+        $cols = [];
+
+        while ($row = sqlFetchArray($res)) {
+            $cols[] = $row['option_id'];
+        }
 
         foreach ($patient as $k => $v) {
-            if (!in_array($k, $whitelistCols)) {
+            if (!in_array($k, $cols)) {
                 unset($patient[$k]);
             }
         }
@@ -74,7 +80,7 @@ class PatientSessionUtil
         $rp = [$patient['pid'] => $patient] + $rp;
 
         // Cap out at 10
-        if (count($rp) == 11) {
+        if (count($rp) == ($GLOBALS['recent_patient_count'] +1)) {
             array_pop($rp);
         }
 
