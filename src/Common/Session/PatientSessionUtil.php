@@ -80,7 +80,7 @@ class PatientSessionUtil
         $rp = [$patient['pid'] => $patient] + $rp;
 
         // Cap out at 10
-        if (count($rp) == ($GLOBALS['recent_patient_count'] +1)) {
+        if (count($rp) == ($GLOBALS['recent_patient_count'] + 1)) {
             array_pop($rp);
         }
 
