@@ -375,7 +375,7 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
             <?php } ?>
             <div>
                 <ul class="nav nav-tabs mt-3" id="finderTabs" role="tablist">
-                    <li class="nav-item" role="presentation"><button class="nav-link active" id="listTab" data-toggle="tab" data-target="#list" type="button" role="tab" aria-controls="list" aria-selected="true"><?php echo xl("Patient Lits"); ?></button></li>
+                    <li class="nav-item" role="presentation"><button class="nav-link active" id="listTab" data-toggle="tab" data-target="#list" type="button" role="tab" aria-controls="list" aria-selected="true"><?php echo xl("Patient List"); ?></button></li>
                     <li class="nav-item" role="presentation"><button class="nav-link" id="recentTab" data-toggle="tab" data-target="#recent" type="button" role="tab" aria-controls="recent" aria-selected="true"><?php echo xl("Recent Patients"); ?></button></li>
                 </ul>
                 <div class="tab-content" id="finderTabs">
