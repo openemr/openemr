@@ -32,6 +32,7 @@ require_once(__DIR__ . "/../../../library/appointments.inc.php");
 use OpenEMR\Billing\EDI270;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
@@ -50,6 +51,7 @@ use OpenEMR\Services\AllergyIntoleranceService;
 use OpenEMR\Services\ConditionService;
 use OpenEMR\Services\ImmunizationService;
 use OpenEMR\Services\PatientIssuesService;
+use OpenEMR\Services\PatientService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 $twig = new TwigContainer(null, $GLOBALS['kernel']);
@@ -58,6 +60,8 @@ $twig = new TwigContainer(null, $GLOBALS['kernel']);
 if (isset($_GET['set_pid'])) {
     require_once("$srcdir/pid.inc.php");
     setpid($_GET['set_pid']);
+    $ptService = new PatientService();
+    PatientSessionUtil::recentPatient($ptService->findByPid($pid));
     if (isset($_GET['set_encounterid']) && ((int)$_GET['set_encounterid'] > 0)) {
         $encounter = (int)$_GET['set_encounterid'];
         SessionUtil::setSession('encounter', $encounter);

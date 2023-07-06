@@ -52,4 +52,32 @@ class PatientSessionUtil
         $pid = $new_pid_int;
         EventAuditLogger::instance()->newEvent("view", $_SESSION["authUser"], $_SESSION["authProvider"], 1, '', $pid);
     }
+
+    public static function recentPatient($patient)
+    {
+        $rp = (array_key_exists('recentPatients', $_SESSION)) ? $_SESSION['recentPatients'] : [];
+
+        // In case we are returning to an already recently viewed patient, drop them from the current position
+        if (array_key_exists((string) $patient['pid'], $rp)) {
+            unset($rp[(string) $patient['pid']]);
+        }
+
+        $whitelistCols = ['pid', 'fname', 'mname', 'lname', 'DOB'];
+
+        foreach ($patient as $k => $v) {
+            if (!in_array($k, $whitelistCols)) {
+                unset($patient[$k]);
+            }
+        }
+
+        // Push the new patient to the front of the FIFO list
+        $rp = [$patient['pid'] => $patient] + $rp;
+
+        // Cap out at 10
+        if (count($rp) == 11) {
+            array_pop($rp);
+        }
+
+        SessionUtil::setUnsetSession(['recentPatients' => $rp], []);
+    }
 }
