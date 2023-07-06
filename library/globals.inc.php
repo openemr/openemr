@@ -386,7 +386,7 @@ $GLOBALS_METADATA = array(
         'recent_patient_count' => [
             xl('Maximum number of patients on Recent Patient list'),
             'num',
-            '10',
+            '20',
             xl('The maximum number of patients on the Recent Patient list'),
         ],
 

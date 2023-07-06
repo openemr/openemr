@@ -24,6 +24,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Services\PatientService;
 
 $uspfx = 'patient_finder.'; //substr(__FILE__, strlen($webserver_root)) . '.';
 $patient_finder_exact_search = prevSetting($uspfx, 'patient_finder_exact_search', 'patient_finder_exact_search', ' ');
@@ -373,25 +374,63 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
                 <button id="create_patient_btn1" class="btn btn-primary btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
             <?php } ?>
             <div>
-                <div id="dynamic"><!-- TBD: id seems unused, is this div required? -->
-                    <!-- Class "display" is defined in demo_table.css -->
-                    <div class="table-responsive">
-                        <table class="table" class="border-0 display" id="pt_table">
-                            <thead class="thead-dark">
-                                <tr id="advanced_search" class="hideaway d-none">
-                                    <?php echo $header0; ?>
-                                </tr>
-                                <tr class="">
-                                    <?php echo $header; ?>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <!-- Class "dataTables_empty" is defined in jquery.dataTables.css -->
-                                    <td class="dataTables_empty" colspan="<?php echo attr($colcount); ?>">...</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                <ul class="nav nav-tabs mt-3" id="finderTabs" role="tablist">
+                    <li class="nav-item" role="presentation"><button class="nav-link active" id="listTab" data-toggle="tab" data-target="#list" type="button" role="tab" aria-controls="list" aria-selected="true"><?php echo xl("Patient Lits"); ?></button></li>
+                    <li class="nav-item" role="presentation"><button class="nav-link" id="recentTab" data-toggle="tab" data-target="#recent" type="button" role="tab" aria-controls="recent" aria-selected="true"><?php echo xl("Recent Patients"); ?></button></li>
+                </ul>
+                <div class="tab-content" id="finderTabs">
+                    <div class="tab-pane show active" id="list" role="tabpanel" aria-labelledby="listTab">
+                        <div id="dynamic"><!-- TBD: id seems unused, is this div required? -->
+                            <!-- Class "display" is defined in demo_table.css -->
+                            <div class="table-responsive">
+                                <table class="table" class="border-0 display" id="pt_table">
+                                    <thead class="thead-dark">
+                                        <tr id="advanced_search" class="hideaway d-none">
+                                            <?php echo $header0; ?>
+                                        </tr>
+                                        <tr class="">
+                                            <?php echo $header; ?>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <!-- Class "dataTables_empty" is defined in jquery.dataTables.css -->
+                                            <td class="dataTables_empty" colspan="<?php echo attr($colcount); ?>">...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="recent" role="tabpanel" aria-labelledby="recentTab">
+                        <div class="table mt-2">
+                            <table class="table-striped w-100">
+                                <?php
+                                $sql = "SELECT option_id, title FROM list_options WHERE list_id = 'recent_patient_columns' AND activity = '1' ORDER BY seq ASC";
+                                $res = sqlStatement($sql);
+                                $headers = [];
+                                echo "<thead class=\"thead-dark\"><tr>";
+                                while ($row = sqlFetchArray($res)) {
+                                    $headers[] = $row;
+                                    echo "<th scope=\"col\">" . $row['title'] . "</th>";
+                                }
+                                echo "</tr></thead>";
+                                $patientService = new PatientService();
+                                $rp = $patientService->getRecentPatientList();
+                                foreach ($rp as $p) {
+                                    echo "<tr>";
+                                    foreach ($headers as $h) {
+                                        if ($h['option_id'] == "pid") {
+                                            continue;
+                                        }
+                                        echo "<td><a href=\"#\" onclick=\"javascript:top.RTop.location = '/interface/patient_file/summary/demographics.php?set_pid=" . attr($p['pid']) . "'\">" . $p[$h['option_id']] . "</a></td>";
+                                    }
+                                    echo "</tr>";
+                                }
+                                echo "</tbody>";
+                                ?>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>

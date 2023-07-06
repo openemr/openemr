@@ -61,7 +61,8 @@ if (isset($_GET['set_pid'])) {
     require_once("$srcdir/pid.inc.php");
     setpid($_GET['set_pid']);
     $ptService = new PatientService();
-    PatientSessionUtil::recentPatient($ptService->findByPid($pid));
+    $newPatient = $ptService->findByPid($pid);
+    $ptService->touchRecentPatientList($newPatient);
     if (isset($_GET['set_encounterid']) && ((int)$_GET['set_encounterid'] > 0)) {
         $encounter = (int)$_GET['set_encounterid'];
         SessionUtil::setSession('encounter', $encounter);
