@@ -969,8 +969,12 @@ class PatientService extends BaseService
         return $this->patientSuffixKeys;
     }
 
-    public function touchRecentPatientList(array $patient)
+    public function touchRecentPatientList($patient)
     {
+        if(!is_array($patient)) {
+            return false;
+        }
+
         $user = new UserService();
         $curUser = $user->getCurrentlyLoggedInUser();
 
