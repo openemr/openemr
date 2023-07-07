@@ -49,7 +49,7 @@
     "napa": "3.0.0",
     "postcss": "8.4.21",
     "replace-in-file": "6.3.5",
-    "stylelint": "14.16.1",
+    "stylelint": "15.10.1",
     "stylelint-config-sass-guidelines": "9.0.1",
     "stylelint-config-standard": "29.0.0",
     "stylelint-order": "6.0.3",
