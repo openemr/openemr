@@ -1031,7 +1031,7 @@ class PatientService extends BaseService
      * @param int $user_id The id of a given user, defaults to the currently logged in user
      * @return array
      */
-    public function getRecentPatientList(int $user_id = 0): Array
+    public function getRecentPatientList(int $user_id = 0): array
     {
         $user = new UserService();
         $currUser = ($user_id > 0) ? ['id' => $user_id] : $user->getCurrentlyLoggedInUser();
