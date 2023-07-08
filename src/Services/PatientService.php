@@ -39,11 +39,6 @@ class PatientService extends BaseService
     private const PATIENT_HISTORY_TABLE = "patient_history";
 
     /**
-     * @var Array
-     */
-    private $recentPatientArray = [];
-
-    /**
      * In the case where a patient doesn't have a picture uploaded,
      * this value will be returned so that the document controller
      * can return an empty response.
