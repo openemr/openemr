@@ -179,7 +179,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             ),
             new TwigFunction(
                 'aclCore',
-                function($section, $value, $user = '', $return_value = '') {
+                function ($section, $value, $user = '', $return_value = ''){
                     return AclMain::aclCheckCore($section, $value, $user, $return_value);
                 }
             )

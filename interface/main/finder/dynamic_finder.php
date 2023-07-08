@@ -369,7 +369,8 @@ $loading = "";
 <body>
 <?php
 
-function rp() {
+function rp()
+{
     $sql = "SELECT option_id, title FROM list_options WHERE list_id = 'recent_patient_columns' AND activity = '1' ORDER BY seq ASC";
     $res = sqlStatement($sql);
     $headers = [];

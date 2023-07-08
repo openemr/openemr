@@ -13330,6 +13330,6 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('rec
 
 CREATE TABLE recent_patients (
     user_id varchar(40) NOT NULL,
-    patients TEXT NULL,
+    patients TEXT,
     PRIMARY KEY (user_id)
 ) ENGINE=InnoDB;

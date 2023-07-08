@@ -969,27 +969,34 @@ class PatientService extends BaseService
         return $this->patientSuffixKeys;
     }
 
-    public function touchRecentPatientList($patient)
+    /**
+     * Add the provided patient to the list of recent patients.
+     *
+     * If the patient already exists in the list, the old row gets dropped and
+     * the patient is added to the front of the array to provide a first in,
+     * first out list.
+     *
+     * @param Array $patient
+     * @return void
+     */
+    public function touchRecentPatientList(array $patient): void
     {
-        if(!is_array($patient)) {
-            return false;
-        }
-
         $user = new UserService();
         $curUser = $user->getCurrentlyLoggedInUser();
 
         $query = "SELECT patients FROM recent_patients WHERE user_id = ?";
-        $res = sqlStatement($query, $curUser['id']);
-        $row = sqlFetchArray($res);
+        $row = sqlQuery($query, $curUser['id']);
         $rp = ($row) ? unserialize($row['patients']) : [];
 
         // In case we are returning to an already recently viewed patient, drop them from the current position
-        if (array_key_exists((string) $patient['pid'], $rp)) {
-            unset($rp[(string) $patient['pid']]);
+        foreach ($rp as $k => $p) {
+            if ($p['pid'] == $patient['pid']) {
+                unset($rp[$k]);
+            }
         }
 
         // Get the columns we are storing
-        $query = "SELECT * FROM list_options WHERE list_id = 'recent_patient_columns' and activity = '1'";
+        $query = "SELECT option_id FROM list_options WHERE list_id = 'recent_patient_columns' and activity = '1'";
         $res = sqlStatement($query);
         $cols = ['pid'];
         while ($row = sqlFetchArray($res)) {
@@ -1005,27 +1012,31 @@ class PatientService extends BaseService
 
         // Push the new patient to the front of the FIFO list
         array_unshift($rp, $patient);
-
         // Cap out at max count as set in globals
-        if (count($rp) == ($GLOBALS['recent_patient_count'] + 1)) {
-            array_pop($rp);
-        }
-
+        $rp = array_slice($rp, 0, $GLOBALS['recent_patient_count']);
         $_rp = serialize($rp);
 
         $sql = "INSERT INTO recent_patients (user_id, patients) VALUES (?, ?) ON DUPLICATE KEY UPDATE patients=?";
         $res = sqlStatement($sql, [$curUser['id'], $_rp, $_rp]);
-
-        return null;
     }
 
-    public function getRecentPatientList()
+    /**
+     * Get an array of recent patients based for a given user
+     *
+     * Control the columns returned by modifying the
+     * Recent Patient Column List. Set the maximum number of patients to be
+     * store by setting the global variable recent_patient_count in
+     * Admin > Config > Appearance.
+     *
+     * @param int $user_id The id of a given user, defaults to the currently logged in user
+     * @return array
+     */
+    public function getRecentPatientList(int $user_id = 0): Array
     {
         $user = new UserService();
-        $currUser = $user->getCurrentlyLoggedInUser();
+        $currUser = ($user_id > 0) ? ['id' => $user_id] : $user->getCurrentlyLoggedInUser();
         $sql = "SELECT patients FROM recent_patients WHERE user_id = ?";
-        $res = sqlStatement($sql, [$currUser['id']]);
-        $ret = sqlFetchArray($res);
-        return unserialize($ret['patients']);
+        $res = sqlQuery($sql, [$currUser['id']]);
+        return ($res) ? unserialize($res['patients']) : [];
     }
 }
