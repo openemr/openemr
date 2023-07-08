@@ -50,6 +50,7 @@ use OpenEMR\Services\AllergyIntoleranceService;
 use OpenEMR\Services\ConditionService;
 use OpenEMR\Services\ImmunizationService;
 use OpenEMR\Services\PatientIssuesService;
+use OpenEMR\Services\PatientService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 $twig = new TwigContainer(null, $GLOBALS['kernel']);
@@ -58,6 +59,9 @@ $twig = new TwigContainer(null, $GLOBALS['kernel']);
 if (isset($_GET['set_pid'])) {
     require_once("$srcdir/pid.inc.php");
     setpid($_GET['set_pid']);
+    $ptService = new PatientService();
+    $newPatient = $ptService->findByPid($pid);
+    $ptService->touchRecentPatientList($newPatient);
     if (isset($_GET['set_encounterid']) && ((int)$_GET['set_encounterid'] > 0)) {
         $encounter = (int)$_GET['set_encounterid'];
         SessionUtil::setSession('encounter', $encounter);
