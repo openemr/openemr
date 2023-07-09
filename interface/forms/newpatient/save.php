@@ -119,7 +119,7 @@ if ($mode == 'new') {
     $sql = sprintf("INSERT INTO form_encounter SET %s", $col_string);
     $enc_id = sqlInsert($sql, array_values($data));
 
-    addForm($encounter, "New Patient Encounter", $enc_id, "newpatient", $pid, $userauthorized,$date);
+    addForm($encounter, "New Patient Encounter", $enc_id, "newpatient", $pid, $userauthorized, $date);
 } elseif ($mode == 'update') {
     $id = $_POST["id"];
     $result = sqlQuery("SELECT encounter, sensitivity FROM form_encounter WHERE id = ?", array($id));
