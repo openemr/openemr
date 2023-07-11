@@ -130,6 +130,15 @@ $old_key = "";
 $display_current_medications_below = 1;
 
 // Process Medical Problems, Allergies, and Medications
+$reducedIssueTypes = $ISSUE_TYPES;
+$refactoredIssues = ['allergy', 'medication', 'medical_problem'];
+
+foreach ($refactoredIssues as $i) {
+    if (array_key_exists($i, $reducedIssueTypes)) {
+        unset($ISSUE_TYPES[$i]);
+    }
+}
+
 foreach ($ISSUE_TYPES as $key => $arr) {
     // Skip if user has no access to this issue type.
     if (!AclMain::aclCheckIssue($key)) {
@@ -297,76 +306,6 @@ if (!$GLOBALS['disable_immunizations'] && !$GLOBALS['weight_loss_clinic']) :
         'imx' => $imxList,
     ]);
 endif; // End immunizations
-
-// Render the Prescriptions card if turned on
-if (!$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx')) :
-    if ($GLOBALS['erx_enable'] && $display_current_medications_below == 1) {
-        $sql = "SELECT * FROM prescriptions WHERE patient_id = ? AND active = '1'";
-        $res = sqlStatement($sql, [$pid]);
-
-        $rxArr = [];
-        while ($row = sqlFetchArray($res)) {
-            $row['unit'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_units'), $row['unit']);
-            $row['form'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_form'), $row['form']);
-            $row['route'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_route'), $row['route']);
-            $row['interval'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_interval'), $row['interval']);
-            $rxArr[] = $row;
-        }
-        $id = "current_prescriptions_ps_expand";
-        $viewArgs = [
-            'title' => xl('Current Medications'),
-            'id' => $id,
-            'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
-            'auth' => false,
-            'rxList' => $rxArr,
-        ];
-
-        echo $t->render('patient/card/erx.html.twig', $viewArgs);
-    }
-
-    $id = "prescriptions_ps_expand";
-    $viewArgs = [
-        'title' => xl("Prescriptions"),
-        'id' => $id,
-        'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
-        'linkMethod' => "html",
-        'btnLabel' => "Edit",
-        'auth' => AclMain::aclCheckCore('patients', 'rx', '', ['write', 'addonly']),
-    ];
-
-    if ($GLOBALS['erx_enable']) {
-        $viewArgs['title'] = 'Prescription History';
-        $viewArgs['btnLabel'] = 'Add';
-        $viewArgs['btnLink'] = "{$GLOBALS['webroot']}/interface/eRx.php?page=compose";
-    } elseif ($GLOBALS['weno_rx_enable']) {
-        // weno plus button which opens their iframe
-        $viewArgs['weno'] = true;
-        $viewArgs['title'] = "WENO ComposeRx";
-        $viewArgs['btnLabel'] = 'Add';
-        $viewArgs['btnLink'] = "{$GLOBALS['webroot']}/interface/weno/indexrx.php";
-        $viewArgs['oemrBtnClass'] = "iframe rx_modal";
-        $viewArgs['oemrLinkMethod'] = "javascript";
-        $viewArgs['oemrBtnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
-        $viewArgs['oemrBtnIcon'] = "fa-pencil-alt";
-    } else {
-        $viewArgs['btnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
-        $viewArgs['linkMethod'] = "javascript";
-        $viewArgs['btnClass'] = "iframe rx_modal";
-    }
-
-    $cwd = getcwd();
-    chdir("../../../");
-    $c = new Controller();
-    // This is a hacky way to get a Smarty template from the controller and injecting it into
-    // a Twig template. This reduces the amount of refactoring that is required but ideally the
-    // Smarty template should be upgraded to Twig
-    ob_start();
-    echo $c->act(['prescription' => '', 'fragment' => '', 'patient_id' => $pid]);
-    $viewArgs['content'] = ob_get_contents();
-    ob_end_clean();
-
-    echo $t->render('patient/card/rx.html.twig', $viewArgs);
-endif;
 
 // Render Old Medications card
 if ($erx_upload_complete == 1) {

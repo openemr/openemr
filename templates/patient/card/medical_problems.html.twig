@@ -6,11 +6,7 @@
 {% if list|length == 0 %}
     {% if listTouched == true %}
         <div class="list-group-item p-0 pl-1">
-            {% if id == "allergy_ps_expand" %}
-                {{ "No Known Allergies"|xlt }}
-            {% else %}
-                {{ "None{{Issues}}"|xlt }}
-            {% endif %}
+            {{ "None{{Issues}}"|xlt }}
         </div>
     {% else %}
     <div class="list-group-item p-0 pl-1">
@@ -19,22 +15,7 @@
     {% endif %}
 {% else %}
     {% for l in list %}
-        {% if l.critical is defined %}
-            {% set classes = "bg-danger text-light font-weight-bold" %}
-        {% endif %}
-        <div class="list-group-item p-1 {{ classes|attr }}">
-            <div class="d-flex w-100 justify-content-between">
-                <div class="flex-fill">
-                    {{ l.title|text }}
-                    {% if id == "allergy_ps_expand" %}
-                        <small class="d-block">{{ l.reactionTitle|text }}</small>
-                    {% endif %}
-                </div>
-                {% if id == "allergy_ps_expand" %}
-                    <div class="flex-fill text-right">{{ l.severity|text }}</div>
-                {% endif %}
-            </div>
-        </div>
+        {{ l.title|text }}{% if loop.index < list|length %}, {% endif %}
     {% endfor %}
 {% endif %}
 </div>

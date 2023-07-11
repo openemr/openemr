@@ -15,6 +15,7 @@
 
 namespace OpenEMR\Common\Twig;
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\Header;
@@ -56,6 +57,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             'rootdir' => $this->globals['rootdir'],
             'webroot' => $this->globals['webroot'],
             'assetVersion' => $this->globals['v_js_includes'],
+            'session' => $_SESSION,
         ];
     }
 
@@ -129,8 +131,8 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             ),
             new TwigFunction(
                 'csrfToken',
-                function ($subject = 'default') {
-                    return sprintf('<input type="hidden" name="_token" value="%s">', attr(CsrfUtils::collectCsrfToken($subject)));
+                function ($subject = 'default', $fieldName = "_token") {
+                    return sprintf('<input type="hidden" name="%s" value="%s">', $fieldName, attr(CsrfUtils::collectCsrfToken($subject)));
                 }
             ),
             new TwigFunction(
@@ -173,6 +175,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     // this setups a variable called $help_icon... strange
                     require $GLOBALS['srcdir'] . "/display_help_icon_inc.php";
                     return $help_icon ?? '';
+                }
+            ),
+            new TwigFunction(
+                'aclCore',
+                function ($section, $value, $user = '', $return_value = '') {
+                    return AclMain::aclCheckCore($section, $value, $user, $return_value);
                 }
             )
         ];
