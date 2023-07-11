@@ -88,11 +88,11 @@ class ProcessingResult
 
     /**
      * Appends a new data item to the current instance.
-     * @param $newData The new data item.
+     * @param $newData array The new data item.
      */
     public function addData($newData)
     {
-        array_push($this->data, $newData);
+        $this->data[] = $newData;
     }
 
     /**

@@ -80,11 +80,11 @@ abstract class BaseValidator
     /**
      * Validates that a ID exists in the database.
      *
-     * @param $field The identifier field in database
-     * @param $table The table in database
-     * @param $lookupId The identifier to validateId
-     * @param $isUuid true if the lookupId is UUID, otherwise false
-     * @return true if the lookupId is a valid existing id, otherwise Validation Message
+     * @param $field string The identifier field in database
+     * @param $table string The table in database
+     * @param $lookupId mixed The identifier to validateId
+     * @param $isUuid bool true if the lookupId is UUID, otherwise false
+     * @return ProcessingResult|bool true if the lookupId is a valid existing id, otherwise Validation Message
      */
     public static function validateId($field, $table, $lookupId, $isUuid = false)
     {

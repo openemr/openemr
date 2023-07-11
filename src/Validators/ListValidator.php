@@ -17,5 +17,23 @@ class ListValidator extends BaseValidator
             $context->required('begdate')->datetime('Y-m-d');
             $context->optional('enddate')->datetime('Y-m-d');
         });
+
+        $this->validator->context(
+            self::DATABASE_UPDATE_CONTEXT,
+            function (Validator $context) {
+                $context->copyContext(
+                    self::DATABASE_INSERT_CONTEXT,
+                    function ($rules) {
+                        foreach ($rules as $chain) {
+                            $chain->required(false);
+                        }
+                    }
+                );
+
+                $context->required("id", "Surgery ID")->callback(function ($value) {
+                    return $this->validateId("id", "lists", $value);
+                })->integer();
+            }
+        );
     }
 }

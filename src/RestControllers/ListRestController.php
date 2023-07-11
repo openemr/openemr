@@ -12,12 +12,21 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\ListService;
 
 class ListRestController
 {
     private $listService;
+    /**
+     * White list of search/insert fields
+     */
+
+    private const WHITELISTED_FIELDS = array(
+        'title',
+        'begdate',
+        'enddate',
+        'diagnosis'
+    );
 
     public function __construct()
     {
@@ -33,7 +42,7 @@ class ListRestController
     public function getOne($pid, $list_type, $list_id)
     {
         $serviceResult = $this->listService->getOne($pid, $list_type, $list_id);
-        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+        return RestControllerHelper::handleProcessingResult($serviceResult, 200);
     }
 
     public function getOptions($list_name)
@@ -52,24 +61,16 @@ class ListRestController
 
     public function put($pid, $list_id, $list_type, $data)
     {
-        $data['type'] = $list_type;
-        $data['pid'] = $pid;
-        $data['id'] = $list_id;
+        $filteredData = $this->listService->filterData($data, self::WHITELISTED_FIELDS);
 
-        $validationResult = $this->listService->validate($data);
-        $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
-        if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult;
-        }
+        $serviceResult = $this->listService->update($pid, $list_id, $list_type, $filteredData);
 
-
-        $serviceResult = $this->listService->update($data);
-        return RestControllerHelper::responseHandler($serviceResult, array('id' => $list_id), 200);
+        return RestControllerHelper::handleProcessingResult($serviceResult, 200);
     }
 
     public function delete($pid, $list_id, $list_type)
     {
         $serviceResult = $this->listService->delete($pid, $list_id, $list_type);
-        return RestControllerHelper::responseHandler($serviceResult, true, 200);
+        return RestControllerHelper::handleProcessingResult($serviceResult, 200);
     }
 }

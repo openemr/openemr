@@ -228,12 +228,13 @@ class ConditionService extends BaseService
             $data,
             ConditionValidator::DATABASE_UPDATE_CONTEXT
         );
+
         if (!$processingResult->isValid()) {
             return $processingResult;
         }
 
         $query = $this->buildUpdateColumns($data);
-        $sql = " UPDATE lists SET ";
+        $sql = "UPDATE lists SET ";
         $sql .= $query['set'];
         $sql .= " WHERE `uuid` = ?";
         $sql .= "       AND `type` = 'medical_problem'";
@@ -243,7 +244,7 @@ class ConditionService extends BaseService
         $sqlResult = sqlStatement($sql, $query['bind']);
 
         if (!$sqlResult) {
-            $processingResult->addErrorMessage("error processing SQL Update");
+            $processingResult->setValidationMessages("error processing SQL Update");
         } else {
             $processingResult = $this->getOne($uuid);
         }

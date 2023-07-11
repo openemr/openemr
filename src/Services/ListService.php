@@ -127,7 +127,16 @@ class ListService extends BaseService
     {
         $sql = "SELECT * FROM lists WHERE pid=? AND type=? AND id=? ORDER BY date DESC";
 
-        return sqlQuery($sql, array($pid, $list_type, $list_id));
+        $statementResults =  QueryUtils::sqlStatementThrowException($sql, [$pid, $list_type, $list_id]);
+
+        $processingResult = new ProcessingResult();
+
+        while ($row = sqlFetchArray($statementResults)) {
+            $resultRecord = $this->createResultRecordFromDatabaseResult($row);
+            $processingResult->addData($resultRecord);
+        }
+
+        return $processingResult;
     }
 
     public function insert($data)
@@ -167,31 +176,86 @@ class ListService extends BaseService
         return $processingResult;
     }
 
-    public function update($data)
+    public function update($pid, $list_id, $list_type, $data)
     {
-        $sql  = " UPDATE lists SET";
-        $sql .= "     title=?,";
-        $sql .= "     begdate=?,";
-        $sql .= "     enddate=?,";
-        $sql .= "     diagnosis=?";
-        $sql .= " WHERE id=?";
+        if (empty($data)) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages("Invalid Data");
+            return $processingResult;
+        }
 
-        return sqlStatement(
+        $data['pid'] = $pid;
+
+        $data['id'] = $list_id;
+
+        $processingResult = $this->listValidator->validate(
+            $data,
+            BaseValidator::DATABASE_UPDATE_CONTEXT
+        );
+
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        $query = $this->buildUpdateColumns($data);
+
+        $sql = "UPDATE lists SET ";
+        $sql .= $query['set'];
+        $sql .= "WHERE `pid` = ?";
+        $sql .= " AND `type` = ?";
+        $sql .= " AND `id` = ?";
+
+        $sqlResult = sqlStatement(
             $sql,
-            array(
-                $data["title"],
-                $data["begdate"],
-                $data["enddate"],
-                $data["diagnosis"],
-                $data["id"]
+            array_merge(
+                $query['bind'],
+                [
+                    $pid,
+                    $list_type,
+                    $list_id
+                ]
             )
         );
+
+        if (!$sqlResult) {
+            $processingResult->setValidationMessages("error processing SQL Update");
+        } else {
+            $processingResult = $this->getOne($pid, $list_type, $list_id);
+        }
+        return $processingResult;
+
     }
 
     public function delete($pid, $list_id, $list_type)
     {
-        $sql  = "DELETE FROM lists WHERE pid=? AND id=? AND type=?";
+        $processingResult = new ProcessingResult();
 
-        return sqlStatement($sql, array($pid, $list_id, $list_type));
+        $isValidList = $this->listValidator->validateId('id', self::LISTS_TABLE, $list_id);
+
+        $isPatientValid = $this->listValidator->validateId('pid', self::LISTS_TABLE, $pid);
+
+        if ($isValidList !== true) {
+            $processingResult->setValidationMessages(['sid' => $isValidList->getValidationMessages()['id']]);
+            return $processingResult;
+        }
+
+        if ($isPatientValid !== true) {
+            $processingResult->setValidationMessages($isPatientValid->getValidationMessages());
+            return $processingResult;
+        }
+
+        $sql = "DELETE FROM lists WHERE pid=? AND id=? AND type=?";
+
+        $result = sqlStatement($sql, [$pid, $list_id, $list_type]);
+
+        if ($result) {
+            $processingResult->addData([
+                'id' => (int)$list_id
+            ]);
+        } else {
+            $processingResult->addInternalError("error processing SQL Insert");
+        }
+
+        return $processingResult;
     }
 }
