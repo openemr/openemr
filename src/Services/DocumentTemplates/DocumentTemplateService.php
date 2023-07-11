@@ -205,7 +205,7 @@ class DocumentTemplateService extends QuestionnaireService
         if (!isset($template['trigger_event'])) {
             // these are sent templates. Not in group.
             if (!empty($template['profile'])) {
-                $event = $this->fetchTemplateEvent($template['profile']);
+                $event = $this->fetchTemplateEvent($template['profile'], $template['id'] ?? 0);
                 $template['event_trigger'] = '';
                 $template['period'] = 0;
                 $template['recurring'] = 1;
@@ -216,7 +216,7 @@ class DocumentTemplateService extends QuestionnaireService
                     $template['period'] = $event['period'];
                     $template['recurring'] = $event['recurring'];
                     $template['notify_trigger'] = $event['notify_trigger'];
-                    $template['notify_period'] = $event['nofify_period'];
+                    $template['notify_period'] = $event['notify_period'];
                 }
             } else {
                 return true; // in review or locked so show default template. @todo possibly delete sent template.
@@ -484,38 +484,6 @@ class DocumentTemplateService extends QuestionnaireService
                     $row['content'] = ''; // not needed in views.
                 }
                 $results[$row['location']][] = $row;
-            }
-        }
-        return $results;
-    }
-
-// can delete
-
-    /**
-     * @param null $pid
-     * @param null $category
-     * @return array
-     */
-    public function getTemplateCategoriesByPatient($pid = null, $category = null): array
-    {
-        $results = array();
-        $bind = array();
-        if (empty($pid)) {
-            $where = 'WHERE pid > ?';
-            $bind = array($pid ?? 0);
-        } else {
-            $where = 'WHERE pid = ?';
-            $bind = array($pid);
-        }
-        if (!empty($category)) {
-            $where .= ' AND category = ?';
-            $bind[] = $category;
-        }
-        $sql = "SELECT * FROM `document_templates` $where ORDER BY pid, category";
-        $query_result = sqlStatement($sql, $bind);
-        while ($row = sqlFetchArray($query_result)) {
-            if (is_array($row)) {
-                $results[$row['category']][] = $row;
             }
         }
         return $results;
