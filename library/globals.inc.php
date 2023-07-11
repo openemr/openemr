@@ -177,33 +177,6 @@ $GLOBALS_METADATA = array(
     //
     'Appearance' => array(
 
-        'default_top_pane' => array(
-            xl('Main Top Pane Screen(Or Default First Tab)'),       // descriptive name
-            array(
-                'main_info.php' => xl('Calendar Screen'),
-                '../new/new.php' => xl('Patient Search/Add Screen'),
-                '../../interface/main/finder/dynamic_finder.php' => xl('Patient Finder Screen'),
-                '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => xl('Patient Flow Board'),
-                '../../interface/main/messages/messages.php?form_active=1' => xl('Messages Screen')
-            ),
-            'main_info.php',                  // default = calendar
-            xl('Main Top Pane Screen(Or Default First Tab)')
-        ),
-
-        'default_second_tab' => array(
-            xl('Default Second Tab'),       // descriptive name
-            array(
-                '' => xl('None'),
-                '../../interface/main/messages/messages.php?form_active=1' => xl('Messages Screen'),
-                'main_info.php' => xl('Calendar Screen'),
-                '../new/new.php' => xl('Patient Search/Add Screen'),
-                '../../interface/main/finder/dynamic_finder.php' => xl('Patient Finder Screen'),
-                '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => xl('Patient Flow Board'),
-            ),
-            '../../interface/main/messages/messages.php?form_active=1',    // default = messages
-            xl('Default Second Tab')
-        ),
-
         'theme_tabs_layout' => array(
             xl('Tabs Layout Theme') . '*',
             'tabs_css',
@@ -409,6 +382,13 @@ $GLOBALS_METADATA = array(
             '3',
             xl('This is the number of messages that will be displayed in the messages widget in the patient summary screen.')
         ),
+
+        'recent_patient_count' => [
+            xl('Maximum number of patients on Recent Patient list'),
+            'num',
+            '20',
+            xl('The maximum number of patients on the Recent Patient list'),
+        ],
 
         'gbl_vitals_options' => array(
             xl('Vitals Form Options'),

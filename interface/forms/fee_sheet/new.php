@@ -1259,7 +1259,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         if ($institutional) {
                                             $revenue_code   = trim($iter["revenue_code"]);
                                         }
-                                        $modifier   = trim($iter["modifier"]);
+                                        $modifier   = trim($iter["modifier"] ?? '');
                                         $units      = $iter["units"];
                                         $fee        = $iter["fee"];
                                         $authorized = $iter["authorized"];

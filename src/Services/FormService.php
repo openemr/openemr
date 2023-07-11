@@ -52,6 +52,7 @@ class FormService
             $all[$iter] = $row;
         }
 
+        // TODO: @adunsulag fire off a module filter event here letting us modify / restrict / add data to the form list.
         return $all;
     }
 
