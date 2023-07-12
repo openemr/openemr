@@ -383,6 +383,13 @@ $GLOBALS_METADATA = array(
             xl('This is the number of messages that will be displayed in the messages widget in the patient summary screen.')
         ),
 
+        'recent_patient_count' => [
+            xl('Maximum number of patients on Recent Patient list'),
+            'num',
+            '20',
+            xl('The maximum number of patients on the Recent Patient list'),
+        ],
+
         'gbl_vitals_options' => array(
             xl('Vitals Form Options'),
             array(
