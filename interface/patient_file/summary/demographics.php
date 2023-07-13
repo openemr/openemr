@@ -1579,8 +1579,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <div class="col-md-4">
                     <!-- start right column div -->
                     <?php
-                    // it's important enough to always show it
-                    $portalCard = new PortalCard($GLOBALS);
+                    if ($GLOBALS['portal_onsite_two_enable']) {
+                        $portalCard = new PortalCard($GLOBALS);
+                    }
 
                     $sectionRenderEvents = $ed->dispatch(new SectionEvent('secondary'), SectionEvent::EVENT_HANDLE);
                     $sectionCards = $sectionRenderEvents->getCards();
