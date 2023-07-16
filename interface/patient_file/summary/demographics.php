@@ -1070,13 +1070,23 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     if (AclMain::aclCheckIssue('allergy')) {
                         $allergyService = new AllergyIntoleranceService();
                         $_rawAllergies = $allergyService->getAll()->getData();
+                        $_priority = [];
+                        $_standard = [];
+                        foreach ($_rawAllergies as $_) {
+                            if (in_array($_['severity_al'], ['severe', 'life_threatening_severity', 'fatal'])) {
+                                $_priority[] = $_;
+                            } else {
+                                $_standard[] = $_;
+                            }
+                        }
+
                         $viewArgs = [
                             'title' => xl('Allergies'),
                             'card_container_class_list' => ['flex-fill', 'mx-1'],
                             'id' => 'allergies_ps_expand',
-                            'forceAlwaysOpen' => true,
+                            'forceAlwaysOpen' => false,
                             'linkMethod' => "javascript",
-                            'list' => filterActiveIssues($_rawAllergies),
+                            'list' => ['priority' => $_priority, 'standard' => $_standard],
                             'auth' => true,
                             'btnLabel' => 'Edit',
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=allergy')"
@@ -1095,7 +1105,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'title' => xl('Medical Problems'),
                             'card_container_class_list' => ['flex-fill', 'mx-1'],
                             'id' => 'medical_problem_ps_expand',
-                            'forceAlwaysOpen' => true,
+                            'forceAlwaysOpen' => false,
                             'linkMethod' => "javascript",
                             'list' => filterActiveIssues($_rawPL),
                             'auth' => true,
@@ -1114,7 +1124,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'title' => xl('Medications'),
                             'card_container_class_list' => ['flex-fill', 'mx-1'],
                             'id' => 'medications_ps_expand',
-                            'forceAlwaysOpen' => true,
+                            'forceAlwaysOpen' => false,
                             'linkMethod' => "javascript",
                             'list' => filterActiveIssues($_rawMedList),
                             'auth' => true,

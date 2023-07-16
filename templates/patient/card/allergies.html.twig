@@ -2,6 +2,10 @@
 
 {% block content %}
 
+{% for a in list.priority %}
+    <small class="bg-warning d-inline-block text-dark font-weight-bold rounded py-1 px-2 m-1" title="{{ a.reaction_title|text }}, {{ a.severity_al }}">{{ a.title|text}}</small>
+{% endfor %}
+
 <div class="{{ list_group_container_class_list|default(['list-group', 'list-group-flush', 'pami-list'])|join(' ') }}">
 {% if list|length == 0 %}
     {% if listTouched == true %}
@@ -14,10 +18,8 @@
     </div>
     {% endif %}
 {% else %}
-    {% set severityAlarms = ["severe", "life_threatening_severity", "fatal"] %}
-    {% for l in list %}
-        {% set classes = (l.severity_al in severityAlarms) ? 'bg-danger text-white font-weight-bold' : '' %}
-        <div class="list-group-item p-1 {{ classes|attr }}">
+    {% for l in list.standard %}
+        <div class="list-group-item p-1">
             <div class="d-flex w-100 justify-content-between">
                 <div class="flex-fill">
                     {{ l.title|text }}&nbsp;({{ l.reaction_title|text }})
