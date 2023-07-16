@@ -14,8 +14,9 @@
     </div>
     {% endif %}
 {% else %}
+    {% set severityAlarms = ["severe", "life_threatening_severity", "fatal"] %}
     {% for l in list %}
-        {% set classes = (l.severity_al == "severe") ? 'bg-danger text-light font-weight-bold' : '' %}
+        {% set classes = (l.severity_al in severityAlarms) ? 'bg-danger text-white font-weight-bold' : '' %}
         <div class="list-group-item p-1 {{ classes|attr }}">
             <div class="d-flex w-100 justify-content-between">
                 <div class="flex-fill">
