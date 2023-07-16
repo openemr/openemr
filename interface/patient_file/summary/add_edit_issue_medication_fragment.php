@@ -19,19 +19,16 @@ $medication = $irow['medication'] ?? [];
 $usage_category = $medication['usage_category'] ?? null;
 $request_intent = $medication['request_intent'] ?? null;
 ?>
-<div class="form-group col-12">
+<div class="form-group col-sm-12 col-md-6">
     <label class="col-form-label" for="medication[usage_category]"><?php echo xlt('Medication Usage'); ?>:</label>
     <?php
-    generate_form_field(array('data_type' => 1, 'field_id' => 'medication[usage_category]', 'list_id' => 'medication-usage-category', 'empty_title' => 'SKIP'), $usage_category);
-    ?>
-</div>
-<div class="form-group col-12">
+    generate_form_field(['data_type' => 1, 'field_id' => 'medication[usage_category]', 'list_id' => 'medication-usage-category', 'empty_title' => 'SKIP'], $usage_category); ?>
     <label class="col-form-label" for="medication[request_intent]"><?php echo xlt('Medication Request Intent'); ?>:</label>
     <?php
-    generate_form_field(array('data_type' => 1, 'field_id' => 'medication[request_intent]', 'list_id' => 'medication-request-intent'), $request_intent);
+    generate_form_field(['data_type' => 1, 'field_id' => 'medication[request_intent]', 'list_id' => 'medication-request-intent'], $request_intent);
     ?>
 </div>
-<div class="form-group col-12">
+<div class="form-group col-sm-12 col-md-6">
     <label class="col-form-label" for="form_medication[drug_dosage_instructions]"><?php echo xlt('Medication Dosage Instructions'); ?>:</label>
     <textarea class="form-control" name='form_medication[drug_dosage_instructions]' id='form_medication[drug_dosage_instructions]'
               rows="4"><?php echo text($medication['drug_dosage_instructions'] ?? '') ?></textarea>
