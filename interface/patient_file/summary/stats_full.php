@@ -186,7 +186,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 </head>
 
 <body class="patient-medical-issues">
-    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?> mt-3">
+    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
         <div class="row">
             <div class="col-sm-12">
                 <?php require_once("$include_root/patient_file/summary/dashboard_header.php") ?>
@@ -203,7 +203,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <form method='post' action='stats_full.php' onsubmit='return top.restoreSession()'>
                 <div class="table-responsive">
                     <table class="table">
-
                         <?php
                         $encount = 0;
                         $first = 1; // flag for first section
@@ -225,10 +224,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 echo "</table>";
                             }
 
-                            // Show header
-                            $disptype = $focustitles[0];
-                            echo "<div class='mb-3'><span class='title mr-2'>" . text($disptype) . "</span>\n";
-
                             if (AclMain::aclCheckIssue($focustype, '', array('write', 'addonly'))) {
                                 if (($focustype == 'allergy' || $focustype == 'medication') && $GLOBALS['erx_enable']) {
                                     echo "<a href='../../eRx.php?page=medentry' class='btn btn-primary btn-sm' onclick='top.restoreSession()' >" .
@@ -246,11 +241,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     onclick='deleteSelectedIssues(" . attr_js($focustype)  . ")'>" . xlt('Delete') . "</button>\n";
                             }
 
+                            // Show header
+                            $disptype = $focustitles[0];
+                            echo "<div class=''><span class='title'>" . text($disptype) . "</span>\n";
+
                             echo "</div>";
 
                             $canSelect = $canDelete;
 
-                            echo "<div class='table-responsive'><table id='" . $focustype . "' class='table mb-3'>";
+                            echo "<div class='table-responsive'><table id='" . $focustype . "' class='table'>";
                             ?>
 
                             <thead>
