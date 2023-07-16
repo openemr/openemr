@@ -206,7 +206,8 @@ function generate_select_list(
                         LIMIT 1), lo.title) AS title
                 FROM list_options AS lo
                 WHERE lo.list_id = ? AND lo.activity = ?
-                ORDER BY {$order_by_sql}", [$lang_id, $list_id, $active]
+                ORDER BY {$order_by_sql}"
+                , [$lang_id, $list_id, $active]
             );
         }
 
@@ -325,7 +326,7 @@ function generate_select_list(
     $optionString = implode("\n", $_parsedOptions);
 
     $_parsedAttributes = [];
-    foreach($attributes as $attr => $val) {
+    foreach ($attributes as $attr => $val) {
         $_parsedAttributes[] = sprintf('%s="%s"', $attr, $val);
     }
     $attributeString = implode("\n", $_parsedAttributes);
