@@ -1,9 +1,32 @@
+{#
+The Allergy card for the MRD
+
+This template renders a card for the Medical Record Dashboard displaying active
+allergies a patient has. The card provides a direct link to the Issues page,
+showing just the allergies. Some allergies may not be visible without scrolling.
+Any allergy with a severity of severe, life threatening, or fatal is always
+rendered at the top of the card, regardless of the overflow of the list.
+
+To modify how a critical allergy is displayed, provide an array of strings to
+critical_allergy_item_class_list from the rendering page. To modify the classes
+used to render each non-priority allergy, override
+list_group_container_class_list with an array of strings representing class names.
+
+@package OpenEMR
+@subpackage Patient
+@author Robert Down <robertdown@live.com
+@copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2023 Providence Healthtech
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
 {% extends "patient/card/card_base.html.twig" %}
 
 {% block content %}
 
 {% for a in list.priority %}
-    <small class="bg-warning d-inline-block text-dark font-weight-bold rounded py-1 px-2 m-1" title="{{ a.reaction_title|text }}, {{ a.severity_al }}">{{ a.title|text}}</small>
+    {% set _critAllergyClasses = ['bg-warning', 'd-inline-block', 'text-dark', 'font-weight-bold', 'rounded', 'px-1', 'm-1'] %}
+    {% set _tooltip = a.reaction_title|attr ~ " " ~ a.severity_al|attr %}
+    <small class="{{ critical_allergy_item_class_list|default(_critAllergyClasses)|join(' ') }}" title="{{ _tooltip }}">{{ a.title|text}}</small>
 {% endfor %}
 
 <div class="{{ list_group_container_class_list|default(['list-group', 'list-group-flush', 'pami-list'])|join(' ') }}">
@@ -13,9 +36,9 @@
             {{ "No Known Allergies"|xlt }}
         </div>
     {% else %}
-    <div class="list-group-item p-0 pl-1">
-        {{ "Nothing Recorded"|xlt }}
-    </div>
+        <div class="list-group-item p-0 pl-1">
+            {{ "Nothing Recorded"|xlt }}
+        </div>
     {% endif %}
 {% else %}
     {% for l in list.standard %}
