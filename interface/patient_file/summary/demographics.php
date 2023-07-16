@@ -1045,14 +1045,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     // MEDICAL PROBLEMS CARD
                     if (AclMain::aclCheckIssue('medical_problem')) {
-                        $medProblemList = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medical_problem']);
+                        $_rawPL = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medical_problem'])->getData();
+                        $activeProblems = array_filter($_rawPL, function($p) {
+                            return $p['outcome'] == 0;
+                        });
                         $viewArgs = [
                             'title' => xl('Medical Problems'),
                             'card_container_class_list' => ['flex-fill', 'mx-1'],
                             'id' => 'medical_problem_ps_expand',
                             'forceAlwaysOpen' => true,
                             'linkMethod' => "javascript",
-                            'list' => $medProblemList->getData(),
+                            'list' => $activeProblems,
                             'auth' => true,
                             'btnLabel' => 'Edit',
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medical_problem')"
