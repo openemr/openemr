@@ -1579,8 +1579,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <div class="col-md-4">
                     <!-- start right column div -->
                     <?php
-                    if ($GLOBALS['portal_onsite_two_enable']) {
-                        $portalCard = new PortalCard($GLOBALS);
+                    $_extAccess = [
+                        $GLOBALS['portal_onsite_two_enable'],
+                        $GLOBALS['rest_fhir_api'],
+                        $GLOBALS['rest_api'],
+                        $GLOBALS['rest_portal_api'],
+                    ];
+                    foreach ($_extAccess as $_) {
+                        if ($_) {
+                            $portalCard = new PortalCard($GLOBALS);
+                            break;
+                        }
                     }
 
                     $sectionRenderEvents = $ed->dispatch(new SectionEvent('secondary'), SectionEvent::EVENT_HANDLE);
