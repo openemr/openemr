@@ -1016,12 +1016,35 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name'], 3);
         }
         ?>
-        <div class="main mb-5">
+        <div class="main mb-1">
             <!-- start main content div -->
             <div class="row">
-                <div class="col-12 d-flex flex-row">
                     <?php
                     $t = $twig->getTwig();
+
+                    $allergy = (AclMain::aclCheckIssue('allergy')) ? 1 : 0;
+                    $pl = (AclMain::aclCheckIssue('medical_problem')) ? 1 : 0;
+                    $meds = (AclMain::aclCheckIssue('medication')) ? 1 : 0;
+                    $cards = $allergy + $pl + $meds;
+                    $col = "p-1 ";
+
+                    switch ($cards) {
+                        case '1':
+                            $col .= "col-12";
+                            break;
+
+                        case '2':
+                            $col .= "col-6";
+                            break;
+
+                        case '3':
+                            $col .= "col-4";
+                            break;
+
+                        default:
+                            $col .= "col";
+                            break;
+                    }
 
                     // ALLERGY CARD
                     if (AclMain::aclCheckIssue('allergy')) {
@@ -1038,7 +1061,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'btnLabel' => 'Edit',
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=allergy')"
                         ];
+                        echo "<div class=\"$col\">";
                         echo $t->render('patient/card/allergies.html.twig', $viewArgs);
+                        echo "</div>";
                     }
 
                     $patIssueService = new PatientIssuesService();
@@ -1060,7 +1085,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'btnLabel' => 'Edit',
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medical_problem')"
                         ];
+                        echo "<div class=\"$col\">";
                         echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
+                        echo "</div>";
                     }
 
                     // MEDICATION CARD
@@ -1077,7 +1104,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'btnLabel' => 'Edit',
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication')"
                         ];
-                        echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
+                        echo "<div class=\"$col\">";
+                        echo $t->render('patient/card/medication.html.twig', $viewArgs);
+                        echo "</div>";
                     }
 
                     // Render the Prescriptions card if turned on
@@ -1553,8 +1582,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <div class="col-md-4">
                     <!-- start right column div -->
                     <?php
-                    // it's important enough to always show it
-                    $portalCard = new PortalCard($GLOBALS);
+                    if ($GLOBALS['portal_onsite_two_enable']) {
+                        $portalCard = new PortalCard($GLOBALS);
+                    }
 
                     $sectionRenderEvents = $ed->dispatch(new SectionEvent('secondary'), SectionEvent::EVENT_HANDLE);
                     $sectionCards = $sectionRenderEvents->getCards();
