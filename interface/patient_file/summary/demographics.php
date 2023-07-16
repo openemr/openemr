@@ -1059,7 +1059,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                      * @param array $i An array of issues
                      * @return array
                      */
-                    function filterActiveIssues(array $i) : array {
+                    function filterActiveIssues(array $i) : array
+                    {
                         return array_filter($i, function($_i) {
                             return $_i['outcome'] != 1;
                         });
