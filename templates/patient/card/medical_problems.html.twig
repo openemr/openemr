@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<div class="{{ list_group_container_class_list|default(['list-group', 'list-group-flush', 'problem-list'])|join(' ') }}">
+<div class="{{ list_group_container_class_list|default(['list-group', 'list-group-flush', 'pami-list'])|join(' ') }}">
 {% if list|length == 0 %}
     {% if listTouched == true %}
         <div class="list-group-item p-0 pl-1">
