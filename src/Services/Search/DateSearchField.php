@@ -229,7 +229,7 @@ class DateSearchField extends BasicSearchField
         // Not sure how we want to handle timezone
         // we create a DateTime object as not all search fields are a DateTime so we go as precise as we can
         // and let the services go more imprecise if needed.
-        $stringDate = sprintf("%d-%02d-%02dT%02d:%02d:%02d.%04d%s", $datetime['y'], $datetime['m'], $datetime['d'], $datetime['H'], $datetime['i'], $datetime['s'], $datetime['ms'],$datetime['tz']);
+        $stringDate = sprintf("%d-%02d-%02dT%02d:%02d:%02d.%04d%s", $datetime['y'], $datetime['m'], $datetime['d'], $datetime['H'], $datetime['i'], $datetime['s'], $datetime['ms'], $datetime['tz']);
         // 'n' & 'j' don't have leading zeros
         $dateValue = \DateTime::createFromFormat(self::DATE_ATOM_MILLISECONDS, $stringDate);
         return $dateValue;
