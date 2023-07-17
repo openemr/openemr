@@ -6,11 +6,14 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 /** import supporting libraries */
+
+use OpenEMR\Services\DocumentTemplates\DocumentTemplateRender;
+
 require_once("AppBasePortalController.php");
 require_once("Model/OnsiteDocument.php");
 
@@ -20,7 +23,7 @@ require_once("Model/OnsiteDocument.php");
  * the model as necessary and displaying the appropriate view.
  *
  * @package Patient Portal::Controller
- * @author ClassBuilder
+ * @author  ClassBuilder
  * @version 1.0
  */
 class OnsiteDocumentController extends AppBasePortalController
@@ -40,7 +43,7 @@ class OnsiteDocumentController extends AppBasePortalController
      */
     public function ListView()
     {
-        $recid = $pid = $user = $encounter =  0;
+        $recid = $pid = $user = $encounter = 0;
         $is_module = $catid = 0;
         $is_portal = GlobalConfig::$PORTAL;
         $docid = $new_filename = "";
@@ -48,7 +51,7 @@ class OnsiteDocumentController extends AppBasePortalController
         $help_id = sqlQuery('SELECT * FROM `document_templates` WHERE `template_name` = ? Order By modified_date DESC Limit 1', array('Help'))['id'] ?? 0;
 
         if (isset($_GET['pid'])) {
-            $pid = (int) $_GET['pid'];
+            $pid = (int)$_GET['pid'];
         }
 
         // only allow patient to see themselves
@@ -65,11 +68,11 @@ class OnsiteDocumentController extends AppBasePortalController
         }
 
         if (isset($_GET['enc'])) {
-            $encounter = (int) $_GET['enc'];
+            $encounter = (int)$_GET['enc'];
         }
 
         if (isset($_GET['recid'])) {
-            $recid = (int) $_GET['recid'];
+            $recid = (int)$_GET['recid'];
         }
 
         if (isset($_GET['is_module'])) {
@@ -79,6 +82,7 @@ class OnsiteDocumentController extends AppBasePortalController
         if (isset($_GET['catid'])) {
             $catid = $_GET['catid'];
         }
+
         if (isset($_GET['new'])) {
             $new_filename = $_GET['new'];
         }
@@ -97,6 +101,8 @@ class OnsiteDocumentController extends AppBasePortalController
 
     /**
      * API Method queries for OnsiteDocument records and render as JSON
+     * Basically the CRUD for the History table.
+     * Or custom searches.
      */
     public function Query()
     {
@@ -181,11 +187,11 @@ class OnsiteDocumentController extends AppBasePortalController
     {
         $rid = $pid = $user = $encounter = 0;
         if (isset($_GET['id'])) {
-            $rid = (int) $_GET['id'];
+            $rid = (int)$_GET['id'];
         }
 
         if (isset($_GET['pid'])) {
-            $pid = (int) $_GET['pid'];
+            $pid = (int)$_GET['pid'];
         }
 
         // only allow patient to see themself
@@ -207,6 +213,7 @@ class OnsiteDocumentController extends AppBasePortalController
         $this->Assign('encounter', $encounter);
         $this->Render();
     }
+
     /**
      * API Method retrieves a single OnsiteDocument record and render as JSON
      */
@@ -224,6 +231,17 @@ class OnsiteDocumentController extends AppBasePortalController
                 }
             }
 
+            $isLegacy = stripos($onsitedocument->FullDocument, 'portal_version') === false;
+            if (!empty($onsitedocument->TemplateData) && !$isLegacy) {
+                $templateRender = new DocumentTemplateRender($onsitedocument->Pid, $onsitedocument->Provider, $onsitedocument->Encounter);
+                // use original template saved in create/insert or get new raw template so same version stay with edits.
+                // document data will save separately then repopulate this document on edit fetch.
+                $prepared_doc = $templateRender->doRender(null, $onsitedocument->FullDocument, $onsitedocument->TemplateData);
+                $onsitedocument->FullDocument = $prepared_doc;
+            } else {
+                // Is legacy document but lets be sure.
+            }
+            // Send back to UI collection.
             $this->RenderJSON($onsitedocument, $this->JSONPCallback(), true, $this->SimpleObjectParams());
         } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
@@ -232,6 +250,7 @@ class OnsiteDocumentController extends AppBasePortalController
 
     /**
      * API Method inserts a new OnsiteDocument record and render response as JSON
+     *
      */
     public function Create()
     {
@@ -251,13 +270,6 @@ class OnsiteDocumentController extends AppBasePortalController
                 $onsitedocument->Pid = $this->SafeGetVal($json, 'pid');
             }
 
-            // removing for testing
-            /* if (!empty($_SESSION["patient_portal_onsite_two"] ?? null)) {
-                $decode = $this->SafeGetVal($json, 'fullDocument');
-                $k = (int)$this->SafeGetVal($json, 'csrf_token_form')[0];
-                $json->fullDocument = $this->decode($decode, $k);
-            } */
-
             $onsitedocument->Facility = $this->SafeGetVal($json, 'facility');
             $onsitedocument->Provider = $this->SafeGetVal($json, 'provider');
             $onsitedocument->Encounter = $this->SafeGetVal($json, 'encounter');
@@ -272,22 +284,30 @@ class OnsiteDocumentController extends AppBasePortalController
             $onsitedocument->DenialReason = $this->SafeGetVal($json, 'denialReason');
             $onsitedocument->AuthorizedSignature = $this->SafeGetVal($json, 'authorizedSignature');
             $onsitedocument->PatientSignature = $this->SafeGetVal($json, 'patientSignature');
-            $onsitedocument->FullDocument = $this->SafeGetVal($json, 'fullDocument');
-            $onsitedocument->FileName = $this->SafeGetVal($json, 'fileName');
-            $onsitedocument->FilePath = $this->SafeGetVal($json, 'filePath');
+            $onsitedocument->FullDocument = null; // Prevent unauth'ed templates from interface.
+            $onsitedocument->FileName = $this->SafeGetVal($json, 'fileName', '');
+            $onsitedocument->FilePath = $this->SafeGetVal($json, 'filePath', '');
+            $onsitedocument->TemplateData = $this->SafeGetVal($json, 'templateData', null);
+            $version = $this->SafeGetVal($json, 'version');
 
             $onsitedocument->Validate();
             $errors = $onsitedocument->GetValidationErrors();
 
-            if (count($errors) > 0) {
+            if (count($errors ?? []) > 0) {
                 $this->RenderErrorJSON('Please check the form for errors', $errors);
             } else {
-                $new_data = $onsitedocument->FullDocument;
-                // use a custom diff function to look for changing tags only with html
-                if ($new_data != strip_tags($new_data)) {
-                    $old_data = $json->fullDocument;
-                    $onsitedocument->FullDocument = $this->htmlDiff($old_data, $new_data);
+                // fetch and save original template so the same version will stay with edits.
+                // TODO It may be useful to also store a rendered version for reports etc.
+                // TODO In this case doc can be populated from JS.
+                $templateRender = new DocumentTemplateRender($onsitedocument->Pid, $onsitedocument->Provider, $onsitedocument->Encounter);
+                // Add raw template to table for this version.
+                $template_raw = $templateRender->fetchTemplateDocument($onsitedocument->FilePath)['template_content'];
+                // if versioned then is new templating.
+                if ($version == 'New') {
+                    $template_raw = $template_raw . "<input id='portal_version' name='portal_version' type='hidden' value='New' />";
                 }
+                $onsitedocument->FullDocument = $template_raw; // persist original for life of document.
+
                 $onsitedocument->Save();
                 $this->RenderJSON($onsitedocument, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
@@ -309,7 +329,7 @@ class OnsiteDocumentController extends AppBasePortalController
             }
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
-            $old_data = $onsitedocument->FullDocument;
+            $existing_template = $onsitedocument->FullDocument;
 
             // only allow patient to update themselves (part 1)
             if (!empty($GLOBALS['bootstrap_pid'])) {
@@ -318,21 +338,13 @@ class OnsiteDocumentController extends AppBasePortalController
                     throw new Exception($error);
                 }
             }
-
             // only allow patient to update themselves (part 2)
             if (!empty($GLOBALS['bootstrap_pid'])) {
                 $onsitedocument->Pid = $GLOBALS['bootstrap_pid'];
             } else {
                 $onsitedocument->Pid = $this->SafeGetVal($json, 'pid', $onsitedocument->Pid);
             }
-
-            // removing for testing
-            /* if (!empty($_SESSION["patient_portal_onsite_two"] ?? null)) {
-                $decode = $this->SafeGetVal($json, 'fullDocument');
-                $k = (int)$this->SafeGetVal($json, 'csrf_token_form')[0];
-                $json->fullDocument = $this->decode($decode, $k);
-            } */
-
+            // Set values from API interface.
             $onsitedocument->Facility = $this->SafeGetVal($json, 'facility', $onsitedocument->Facility);
             $onsitedocument->Provider = $this->SafeGetVal($json, 'provider', $onsitedocument->Provider);
             $onsitedocument->Encounter = $this->SafeGetVal($json, 'encounter', $onsitedocument->Encounter);
@@ -347,21 +359,18 @@ class OnsiteDocumentController extends AppBasePortalController
             $onsitedocument->DenialReason = $this->SafeGetVal($json, 'denialReason', $onsitedocument->DenialReason);
             $onsitedocument->AuthorizedSignature = $this->SafeGetVal($json, 'authorizedSignature', $onsitedocument->AuthorizedSignature);
             $onsitedocument->PatientSignature = $this->SafeGetVal($json, 'patientSignature', $onsitedocument->PatientSignature);
-            $onsitedocument->FullDocument = $this->SafeGetVal($json, 'fullDocument', $onsitedocument->FullDocument);
+            // leave original template that was populated during create save. API Collection value is now excluded.
+            $onsitedocument->FullDocument = $existing_template; // Previous version from record.
             $onsitedocument->FileName = $this->SafeGetVal($json, 'fileName', $onsitedocument->FileName);
             $onsitedocument->FilePath = $this->SafeGetVal($json, 'filePath', $onsitedocument->FilePath);
+            $onsitedocument->TemplateData = $this->SafeGetVal($json, 'templateData', $onsitedocument->TemplateData);
+            $version = $this->SafeGetVal($json, 'version');
 
             $onsitedocument->Validate();
             $errors = $onsitedocument->GetValidationErrors();
-
             if (count($errors) > 0) {
                 $this->RenderErrorJSON('Please check the form for errors', $errors);
             } else {
-                // use a custom diff function to look for changing tags only with html
-                $new_data = $onsitedocument->FullDocument;
-                if ($new_data != strip_tags($new_data)) {
-                    $onsitedocument->FullDocument = $this->htmlDiff($old_data, $new_data);
-                }
                 $onsitedocument->Save();
                 $this->RenderJSON($onsitedocument, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
@@ -377,7 +386,6 @@ class OnsiteDocumentController extends AppBasePortalController
     {
         try {
             // TODO: if a soft delete is prefered, change this to update the deleted flag instead of hard-deleting
-
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
 
@@ -399,62 +407,45 @@ class OnsiteDocumentController extends AppBasePortalController
         }
     }
 
-    // removing for testing
-    /*
-     * @param $encoded
-     * @param $v
-     * @return bool|string
+    // TODO Eventually remove but I want to keep around for a bit as it's a pretty clever routine.
+    // TODO I may find a use for it!
+    /* private function diff($old, $new): array
+     {
+         $matrix = array();
+         $maxlen = 0;
+         foreach ($old as $oindex => $ovalue) {
+             $nkeys = array_keys($new, $ovalue);
+             foreach ($nkeys as $nindex) {
+                 $matrix[$oindex][$nindex] = isset($matrix[$oindex - 1][$nindex - 1]) ?
+                     $matrix[$oindex - 1][$nindex - 1] + 1 : 1;
+                 if ($matrix[$oindex][$nindex] > $maxlen) {
+                     $maxlen = $matrix[$oindex][$nindex];
+                     $omax = $oindex + 1 - $maxlen;
+                     $nmax = $nindex + 1 - $maxlen;
+                 }
+             }
+         }
+         if ($maxlen == 0) {
+             return array(array('d' => $old, 'i' => $new));
+         }
+         return array_merge(
+             $this->diff(array_slice($old, 0, $omax), array_slice($new, 0, $nmax)),
+             array_slice($new, $nmax, $maxlen),
+             $this->diff(array_slice($old, $omax + $maxlen), array_slice($new, $nmax + $maxlen))
+         );
+     }
 
-    private function decode($encoded, $v): bool|string
-    {
-        $encoded = base64_decode($encoded);
-        $decoded = "";
-        for ($i = 0; $i < strlen($encoded); $i++) {
-            $b = ord($encoded[$i]);
-            $a = $b ^ $v;
-            $decoded .= chr($a);
-        }
-        return base64_decode(base64_decode($decoded));
-    }
-    */
-
-    private function diff($old, $new): array
-    {
-        $matrix = array();
-        $maxlen = 0;
-        foreach ($old as $oindex => $ovalue) {
-            $nkeys = array_keys($new, $ovalue);
-            foreach ($nkeys as $nindex) {
-                $matrix[$oindex][$nindex] = isset($matrix[$oindex - 1][$nindex - 1]) ?
-                    $matrix[$oindex - 1][$nindex - 1] + 1 : 1;
-                if ($matrix[$oindex][$nindex] > $maxlen) {
-                    $maxlen = $matrix[$oindex][$nindex];
-                    $omax = $oindex + 1 - $maxlen;
-                    $nmax = $nindex + 1 - $maxlen;
-                }
-            }
-        }
-        if ($maxlen == 0) {
-            return array(array('d' => $old, 'i' => $new));
-        }
-        return array_merge(
-            $this->diff(array_slice($old, 0, $omax), array_slice($new, 0, $nmax)),
-            array_slice($new, $nmax, $maxlen),
-            $this->diff(array_slice($old, $omax + $maxlen), array_slice($new, $nmax + $maxlen))
-        );
-    }
-
-    private function htmlDiff($old, $new): string
-    {
-        $ret = '';
-        $diff = $this->diff(preg_split("/[\s]+/", $old), preg_split("/[\s]+/", $new));
-        foreach ($diff as $k) {
-            if (is_array($k)) {
-                $ret .= (!empty($k['i']) ? attr(implode(' ', $k['i'])) : '');
-            } else {
-                $ret .= $k . ' ';
-            }
-        }
-        return $ret;
-    }
+     private function htmlDiff($old, $new): string
+     {
+         $ret = '';
+         $diff = $this->diff(preg_split("/[\s]+/", $old), preg_split("/[\s]+/", $new));
+         foreach ($diff as $k) {
+             if (is_array($k)) {
+                 $ret .= (!empty($k['i']) ? attr(implode(' ', $k['i'])) : '');
+             } else {
+                 $ret .= $k . ' ';
+             }
+         }
+         return $ret;
+     }*/
 }

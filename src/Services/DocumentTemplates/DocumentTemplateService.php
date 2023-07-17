@@ -296,18 +296,18 @@ class DocumentTemplateService extends QuestionnaireService
     }
 
     /**
-     * @param      $id
-     * @param null $template_name
+     * @param mixed $id numeric id or template name
      * @return array|false|null
      */
-    public function fetchTemplate($id, $template_name = null)
+    public function fetchTemplate(mixed $id): bool|array|null
     {
-        $return = null;
-        if (!empty($id)) {
+        $isFetchById = is_numeric($id);
+        if (!empty($id && $isFetchById)) {
             $return = sqlQuery('SELECT * FROM `document_templates` WHERE `id` = ?', array($id));
-        } elseif (!empty($template_name)) {
-            $return = sqlQuery('SELECT * FROM `document_templates` WHERE `template_name` = ?', array($template_name));
+        } else {
+            $return = sqlQuery('SELECT * FROM `document_templates` WHERE `template_name` = ?', array($id));
         }
+
         return $return;
     }
 

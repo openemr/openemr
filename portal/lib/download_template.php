@@ -30,6 +30,15 @@ $form_id = $_POST['template_id'] ?? null;
 $pid = $_POST['pid'] ?? 0;
 $user = $_SESSION['authUserID'] ?? $_SESSION['sessionUser']; // $_SESSION['sessionUser'] is '-patient-'
 $templateRender = new DocumentTemplateRender($pid, $user);
-$prepared_doc = $templateRender->doRender($form_id);
+$prepared_doc = $templateRender->doRender($form_id, null, null);
+
+if (!$prepared_doc) {
+    throw new RuntimeException(xlt("Fetch failed in download template. No content to render in template render."));
+}
+// add a version to template
+if (stripos($prepared_doc, 'portal_version') === false) {
+    $prepared_doc = $prepared_doc . "<input style='display: none;' id='portal_version' name='portal_version' type='hidden' value='New' />\n";
+}
+
 echo $prepared_doc;
 exit;

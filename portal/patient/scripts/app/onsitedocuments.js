@@ -34,7 +34,8 @@ var page = {
     presentAdminSignature: false,
     presentWitnessSignature: false,
     signaturesRequired: false,
-    inFormEdit: false,
+    isFlattened: false,
+    version: '',
     init: function () {
         // ensure initialization only occurs once
         if (page.isInitialized || page.isInitializing) {
@@ -108,6 +109,7 @@ var page = {
             if (page.isDashboard) {
                 $('table.collection tbody tr:first').click();
             }
+
         });
 // ---------  Get Collection ------------------------//
         this.fetchOnsiteDocuments(page.fetchParams);
@@ -157,12 +159,10 @@ var page = {
                     timepicker: true
                 });
             });
-
             docid = page.onsiteDocument.get('docType');
             page.isLocked = (page.onsiteDocument.get('denialReason') === 'Locked');
             (page.isLocked) ? $("#printTemplate").show() : $("#printTemplate").hide();
             $("#chartHistory").hide();
-
 
             page.getDocument(page.onsiteDocument.get('docType'), cpid, page.onsiteDocument.get('filePath'));
             if (page.isDashboard) { // review
@@ -384,6 +384,7 @@ var page = {
                         } else {
                             page.onsiteDocument.set('denialReason', 'Editing');
                             pageAudit.onsitePortalActivity.set('status', 'editing');
+                            pageAudit.onsitePortalActivity.set('pendingAction', 'patient submission');
                         }
                         // save lbf iframe template
                         page.updateModel(true);
@@ -396,6 +397,7 @@ var page = {
                     } else {
                         page.onsiteDocument.set('denialReason', 'Editing');
                         pageAudit.onsitePortalActivity.set('status', 'editing');
+                        pageAudit.onsitePortalActivity.set('pendingAction', 'patient submission');
                     }
                     page.updateModel(true);
                 }
@@ -424,8 +426,9 @@ var page = {
                     formFrame.contentWindow.postMessage({submitForm: true}, window.location.origin);
                 } else {
                     model.reloadCollectionOnModelUpdate = false;
-                    var documentContents = document.getElementById('templatecontent').innerHTML;
-                    $("#content").val(documentContents);
+                    // @TODO do we need to save the template in data array? Security
+                    // let documentContents = document.getElementById('templatecontent').innerHTML;
+                    // $("#content").val(documentContents);
                     pageAudit.onsitePortalActivity.set('status', 'waiting');
                     page.onsiteDocument.set('denialReason', 'In Review');
                     page.updateModel(true);
@@ -442,6 +445,7 @@ var page = {
                 }
                 var documentContents = document.getElementById('templatecontent').innerHTML;
                 $("#docid").val(docid);
+                // @TODO PHP submit will use hidden content embedded in form object.
                 $("#content").val(documentContents);
 
                 $("#template").submit();
@@ -469,7 +473,6 @@ var page = {
             $('.navCollapse .dropdown-menu>a').on('click', function () {
                 $('.navbar-collapse').collapse('hide');
             });
-
             $('.navCollapse li.nav-item>a').on('click', function () {
                 $('.navbar-collapse').collapse('hide');
             });
@@ -480,6 +483,15 @@ var page = {
             newFilename = '';
         }
 
+        page.isFlattened = false;
+        page.isSaved = true;
+        $(window).bind('beforeunload', function () {
+            if (page.isSaved == false) {
+                // You have unsaved changes auto browser popup
+                event.preventDefault();
+                event.returnValue = '';
+            }
+        });
         page.formOrigin = isPortal ? 0 : isModule ? 2 : 1;
     },
 // page scoped functions
@@ -602,6 +614,10 @@ var page = {
         $('#docid').val('docid');
         $('#template_id').val('template_id');
         $('#status').val('New');
+        page.isSaved = true;
+        if (docid !== 'Help') {
+            page.isSaved = false;
+        }
         page.showDetailDialog(m); // saved in rendered event
     },
 
@@ -615,7 +631,9 @@ var page = {
         }
         let currentNameStyled = currentName.substr(0, currentName.lastIndexOf('.')) || currentName;
         currentNameStyled = currentNameStyled.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
+        page.isSaved = false;
         if (currentName === 'Help') {
+            page.isSaved = true;
             $(".dismissOnsiteDocumentButton").addClass("d-none");
         } else {
             $(".dismissOnsiteDocumentButton").removeClass("d-none");
@@ -623,8 +641,7 @@ var page = {
         page.isFrameForm = 0;
         page.encounterFormId = 0;
         page.encounterFormName = '';
-        if (docid !== 'Help') {
-            page.inFormEdit = true;
+        if (currentName !== 'Help') {
             $("#topnav").hide();
         }
         if (currentName === templateName && currentName && !page.isNewDoc) {
@@ -634,6 +651,7 @@ var page = {
             let templateContents = page.onsiteDocument.get('fullDocument');
             page.encounterFormId = page.onsiteDocument.get("encounter") ?? 0;
             page.isFrameForm = templateContents.includes("</iframe>");
+
             if (page.isFrameForm) {
                 $("#saveTemplate").show();
                 // modify the iFrames url in embedded content
@@ -650,8 +668,10 @@ var page = {
             }
             // init editor. if a frame, will use iframe src href.
             $('#templatecontent').html(templateContents);
-            // normal text/html template directives are still valid with visit LBF.
-            restoreDocumentEdits();
+            page.version = $("#portal_version").val() ? $("#portal_version").val() : 'Legacy';
+            if (page.version === 'Legacy') {
+                restoreDocumentEdits();
+            }
             $('.signature').each(function () {
                 // set/reset cursor default for all
                 $(this).css('cursor', 'pointer');
@@ -662,21 +682,21 @@ var page = {
             });
             initSignerApi();
         } else { // this makes it a new template
-            var liburl = webRoot + '/portal/lib/download_template.php';
+            const libUrl = webRoot + '/portal/lib/download_template.php';
             $.ajax({
                 type: "POST",
-                url: liburl,
+                url: libUrl,
                 data: {template_id: template_id, docid: templateName, pid: pid, isModule: isModule},
                 error: function (qXHR, textStatus, errorThrow) {
                     console.log("There was an error: Get Document");
                 },
-                success: function (templateHtml, textStatus, jqXHR) {
+                success: function (templateHtml) {
                     $("#docid").val(templateName);
                     page.onsiteDocument.set('fileName', templateName);
                     $('#templatecontent').html(templateHtml);
+                    page.version = $("#portal_version").val() ? $("#portal_version").val() : 'Legacy';
                     if (page.isNewDoc) {
                         page.isNewDoc = false;
-                        page.isSaved = false;
                         $("#printTemplate").hide();
                         $("#submitTemplate").hide();
                         page.onsiteDocument.set('fullDocument', templateHtml);
@@ -689,7 +709,6 @@ var page = {
                         if (typeof bindFetch == 'function') {
                             bindFetch();
                         }
-
                         // new encounter form
                         // lbf has own signer instance. no binding here.
                         // page.encounterFormName & page.isFrameForm is set from template directive
@@ -737,8 +756,8 @@ var page = {
         if (cnt !== -1) {
             cdate = cdate.toString().substring(0, cnt);
         }
-        $('#docPanelHeader').append('&nbsp;<span class="bg-light text-dark px-2">' + jsText(currentNameStyled) + '</span>&nbsp;' +
-            jsText(' Dated: ' + cdate + ' Status: ' + status));
+        $('#docPanelHeader').append('<span class="bg-light text-dark px-1">' + jsText(currentNameStyled) + '</span>' +
+            jsText( ' ' + page.version + ' Version:' + ' Dated:' + cdate + ' Status:' + status));
     }
     ,
     /**
@@ -759,6 +778,7 @@ var page = {
                     } else {
                         page.renderModelView(true);
                     }
+                    page.version = $("#portal_version").val() ? $("#portal_version").val() : 'Legacy';
                 },
                 error: function (m, r) {
                     app.appendAlert(app.getErrorMessage(r), 'alert-error', 0, 'modelAlert');
@@ -827,7 +847,7 @@ var page = {
         if (isWitnessLink !== -1) {
             $('#witnessSignature').attr('src', signhere);
         }
-        var ptsignature = $('#patientSignature').attr('src');
+        let ptsignature = $('#patientSignature').attr('src');
         if (ptsignature == signhere) {
             if (page.signaturesRequired && page.presentPatientSignature) {
                 signerAlertMsg(signMsg, 6000, 'danger');
@@ -835,7 +855,7 @@ var page = {
             }
             ptsignature = "";
         }
-        var wtsignature = $('#witnessSignature').attr('src');
+        let wtsignature = $('#witnessSignature').attr('src');
         if (wtsignature == signhere) {
             wtsignature = "";
         }
@@ -848,10 +868,10 @@ var page = {
             // no frame content is maintained in onsite document activity but template directives are.
             templateContent = templateContent.replace("id=0", "id=" + page.encounterFormId);
         }
-        // removing for testing
-        /* if (isPortal) {
-            templateContent = page.encode(templateContent, parseInt(csrfTokenDoclib[0]));
-        } */
+
+        page.version = $('#portal_version').val() !== 'undefined' ? $('#portal_version').val() : '';
+        let data = page.fetchTempateElements(event);
+
         page.onsiteDocument.save({
             'pid': cpid,
             'facility': page.formOrigin, /* 0 portal, 1 dashboard, 2 patient documents */
@@ -868,10 +888,11 @@ var page = {
             'denialReason': page.onsiteDocument.get('denialReason'),
             'authorizedSignature': page.onsiteDocument.get('authorizedSignature'),
             'patientSignature': ptsignature,
-            'fullDocument': templateContent,
+            'fullDocument': '', // TODO templateContent,
             'fileName': page.onsiteDocument.get('fileName'),
             'filePath': page.onsiteDocument.get('filePath'),
-            'csrf_token_form': csrfTokenDoclib
+            'templateData': data,
+            'version': page.version
         }, {
             wait: true,
             success: function () {
@@ -907,11 +928,11 @@ var page = {
                     page.showDetailDialog(page.onsiteDocument);
                 }
                 signerAlertMsg(msgSuccess, 2000, 'success');
-                page.inFormEdit = false;
                 if (page.isCharted && isModule) {
                     $("#a_docReturn").click();
                     return;
                 }
+                page.isSaved = true;
                 if (reload) {
                     setTimeout("location.reload(true);", 3000);
                 }
@@ -949,6 +970,7 @@ var page = {
                 if (model.reloadCollectionOnModelUpdate) {
                     // re-fetch and render the collection after the model has been updated
                     page.fetchOnsiteDocuments(page.fetchParams, true);
+                    page.isSaved = true;
                     setTimeout("location.reload(true);", 3000);
                 }
             },
@@ -957,5 +979,33 @@ var page = {
                 app.hideProgress('modelLoader');
             }
         });
+    },
+    fetchTempateElements: function (event) {
+        const form = document.getElementById('template');
+        let formData = new FormData(form);
+        let objectArray = [];
+        // iterate form pairs and return those with populated values only.
+        for (const [key, value] of formData) {
+            objectArray.push({
+                'name': key,
+                'value': value
+            });
+        }
+        // Save signatures.
+        let imgElements = document.querySelectorAll('.signature');
+        imgElements.forEach(function (signature) {
+            if (signature.src !== signhere && signature.src) {
+                if (!signature.name) {
+                    next;
+                }
+                objectArray.push({
+                    'name': signature.name,
+                    'value': signature.src
+                });
+            }
+        });
+
+        // will send to controller.
+        return JSON.stringify(objectArray);
     }
 };

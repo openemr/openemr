@@ -21,6 +21,8 @@ namespace OpenEMR\Services\DocumentTemplates;
 
 use HTMLPurifier;
 use HTMLPurifier_Config;
+use RuntimeException;
+use OpenEMR\Services\VersionService;
 
 require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
@@ -30,7 +32,7 @@ class DocumentTemplateRender
     private $pid;
     private $user;
     private int $nextLocation = 0; // offset to resume scanning
-    private $keyLocation = false; // offset of a potential {string} to replace
+    private mixed $keyLocation = false; // offset of a potential {string} to replace
     private int $keyLength = 0; // length of {string} to replace
     private int $groupLevel = 0; // 0 if not in a {GRP} section
     private int $groupCount = 0; // 0 if no items in the group yet
@@ -38,17 +40,23 @@ class DocumentTemplateRender
     private $ptrow = null;
     private $enrow = null;
     private $hisrow = null;
-    private int $grcnt = 0;
-    private int $ckcnt = 0;
+    private int $inputs_cnt = -1;
+    private int $obj_cnt = -1;
+    private int $grp_cnt = -1;
+    private int $chk_cnt = -1;
+    private int $ta_cnt = -1;
+    private int $signed_cnt = -1;
     private bool $html_flag = false;
     private mixed $encounter;
+    public $version;
     private DocumentTemplateService $templateService;
 
-    public function __construct($pid, $user)
+    public function __construct($pid, $user, $encounter = null)
     {
         $this->pid = $pid;
         $this->user = $user;
-        $this->encounter = $GLOBALS['encounter'];
+        $this->encounter = $encounter ?: $GLOBALS['encounter'];
+        $this->version = (new VersionService())->asString();
         $this->templateService = new DocumentTemplateService();
     }
 
@@ -57,10 +65,12 @@ class DocumentTemplateRender
      *
      * @param $template_id
      * @param $template_content
+     * @param $json_data
      * @return string
      */
-    public function doRender($template_id, $template_content = null): string
+    public function doRender($template_id, $template_content = null, $json_data = null): string
     {
+        $formData = [];
         // Get patient demographic info. pd.ref_providerID
         $this->ptrow = sqlQuery("SELECT pd.*, " . "ur.fname AS ur_fname, ur.mname AS ur_mname, ur.lname AS ur_lname, ur.title AS ur_title, ur.specialty AS ur_specialty " . "FROM patient_data AS pd " . "LEFT JOIN users AS ur ON ur.id = ? " . "WHERE pd.pid = ?", array($this->user, $this->pid));
 
@@ -76,17 +86,27 @@ class DocumentTemplateRender
                 $this->encounter
             ));
         }
-
         // From database
         if (!empty($template_id)) {
             $template = $this->templateService->fetchTemplate($template_id)['template_content'];
-        } else {
+        } elseif (!empty($template_content)) {
             $template = $template_content;
+        } else {
+            throw new RuntimeException(xlt("No content to render in template render."));
+        }
+        if ($json_data) {
+            // prepare and include data array from form data by javascript
+            // of format [{"name":"","value":"","type":""}] for PHP rendering.
+            $jsData = json_decode($json_data, true);
+            foreach ($jsData as $e) {
+                $formData[$e['name']] = $e['value'];
+            }
         }
         // snatch style tag content to replace after content purified. Ho-hum!
         $style_flag = preg_match('#<\s*?style\b[^>]*>(.*?)</style\b[^>]*>#s', $template, $style_matches);
         $style = str_replace('<style type="text/css">', '<style>', $style_matches);
         // purify html (and remove js)
+        $isLegacy = stripos($template, 'portal_version') === false;
         $config = HTMLPurifier_Config::createDefault();
         $purify = new HTMLPurifier($config);
         $edata = $purify->purify($template);
@@ -99,8 +119,11 @@ class DocumentTemplateRender
         $edata = str_replace('%7B', '{', $edata);
         $edata = str_replace('%7D', '}', $edata);
         // do the substitutions (ie. magic)
-        $edata = $this->doSubs($edata);
-
+        $edata = $this->doSubs($edata, $formData);
+        if (!$isLegacy) {
+            // ony inserts when a new template is fetched.
+            $edata = $edata . "<input id='portal_version' name='portal_version' type='hidden' value='New' />";
+        }
         if ($this->html_flag) { // return raw minified html template
             $html = trim(str_replace(["\r\n", "\r", "\n"], '', $edata));
         } else { // add br for lf in text template
@@ -116,29 +139,27 @@ class DocumentTemplateRender
      * @param $s
      * @return mixed|string
      */
-    private function doSubs($s): mixed
+    private function doSubs($s, $formData): mixed
     {
         $this->nextLocation = 0;
         $this->groupLevel = 0;
         $this->groupCount = 0;
+        $version = text($this->version);
 
         while (($this->keyLocation = strpos($s, '{', $this->nextLocation)) !== false) {
             $this->nextLocation = $this->keyLocation + 1;
 
             if ($this->keySearch($s, '{PatientSignature}')) {
-                $sigfld = '<script>page.presentPatientSignature=true;</script><span>';
-                $sigfld .= '<img class="signature" id="patientSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$this->pid) . '" data-user="' . attr($this->user) . '" src="">';
-                $sigfld .= '</span>';
+                $sigfld = '<script>page.presentPatientSignature=true;</script>';
+                $sigfld .= '<img class="signature bg-light" name="patient_signature' . ++$this->signed_cnt . '" id="patientSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$this->pid) . '" data-user="' . attr($this->user) . '" src="' . attr($formData['patient_signature' . $this->signed_cnt] ?? '') . '" />';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{AdminSignature}')) {
-                $sigfld = '<script>page.presentAdminSignature=true;</script><span>';
-                $sigfld .= '<img class="signature" id="adminSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$this->pid) . '" data-user="' . attr($this->user) . '" src="">';
-                $sigfld .= '</span>';
+                $sigfld = '<script>page.presentAdminSignature=true;</script>';
+                $sigfld .= '<img class="signature bg-light" name="admin_signature' . ++$this->signed_cnt . '" id="adminSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$this->pid) . '" data-user="' . attr($this->user) . '" src="' . attr($formData['admin_signature' . $this->signed_cnt] ?? '') . '" />';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{WitnessSignature}')) {
-                $sigfld = '<script>page.presentWitnessSignature=true;</script><span>';
-                $sigfld .= '<img class="signature" id="witnessSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="witness-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$this->pid) . '" data-user="' . attr((int)$this->user) . '" src="">';
-                $sigfld .= '</span>';
+                $sigfld = '<script>page.presentWitnessSignature=true;</script>';
+                $sigfld .= '<img class="signature bg-light" name="witness_signature' . ++$this->signed_cnt . '" id="witnessSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="witness-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$this->pid) . '" data-user="' . attr($this->user) . '" src="' . attr($formData['witness_signature' . $this->signed_cnt] ?? '') . '" />';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{SignaturesRequired}')) {
                 $sigfld = '<script>page.signaturesRequired=true;var signMsg=' . xlj("A signature is required for this document. Please sign document where required") . ';</script>' . "\n";
@@ -159,8 +180,8 @@ class DocumentTemplateRender
                 $sigfld = "<script>page.isFrameForm=1;page.isQuestionnaire=1;page.encounterFormName=" . js_escape($q_id) . "</script>";
                 $sigfld .= "<iframe id='encounterForm' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . attr($src) . "'></iframe>";
                 $s = $this->keyReplace($s, $sigfld);
-            } elseif (preg_match('/^{(AcknowledgePdf):(.*):(.*)}/', substr($s, $this->keyLocation), $matches)) {
-                global $templateService;
+            }
+            if (preg_match('/^{(AcknowledgePdf):(.*):(.*)}/', substr($s, $this->keyLocation), $matches)) {
                 $this->keyLength = strlen($matches[0]);
                 $formname = $matches[2];
                 $form_id = null;
@@ -169,11 +190,11 @@ class DocumentTemplateRender
                     $formname = '';
                 }
                 $formtitle = text($formname . ' ' . $matches[3]);
-                $content = $templateService->fetchTemplate($form_id, $formname)['template_content'];
-                $content = 'data:application/pdf;base64,' . base64_encode($content);
+                $content_fetch = $this->templateService->fetchTemplate($form_id, $formname)['template_content'];
+                $content = 'data:application/pdf;base64,' . base64_encode($content_fetch);
                 $sigfld = '<script>page.pdfFormName=' . js_escape($formname) . '</script>';
                 $sigfld .= "<div class='d-none' id='showPdf'>\n";
-                $sigfld .= "<object data='$content' type='application/pdf' width='100%' height='675em'></object>\n";
+                $sigfld .= "<object data='$content' name='object_pdf'" . ++$this->obj_cnt . " type='application/pdf' width='100%' height='675em'></object>\n";
                 $sigfld .= '</div>';
                 $sigfld .= "<a class='btn btn-link' id='pdfView' onclick='" . 'document.getElementById("showPdf").classList.toggle("d-none")' . "'>" . $formtitle . "</a>";
                 $s = $this->keyReplace($s, $sigfld);
@@ -194,64 +215,78 @@ class DocumentTemplateRender
                 $cols = $matches[3];
                 $this->keyLength = strlen($matches[0]);
                 $sigfld = '<span>';
-                $sigfld .= '<textarea class="templateInput" rows="' . attr($rows) . '" cols="' . attr($cols) . '" style="margin:2px 2px;" data-textvalue="" onblur="templateText(this);"></textarea>';
+                $sigfld .= '<textarea name="text_area' . ++$this->ta_cnt . '" class="templateInput" rows="' . attr($rows) . '" cols="' . attr($cols) . '">' . text($formData['text_area' . $this->ta_cnt] ?? '') .
+                    '</textarea>';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{TextBox}')) { // legacy 03by040
                 $sigfld = '<span>';
-                $sigfld .= '<textarea class="templateInput" rows="3" cols="40" style="margin:2px 2px;" data-textvalue="" onblur="templateText(this);"></textarea>';
+                $sigfld .= '<textarea name="text_area' . ++$this->ta_cnt . '" class="templateInput mx-1 my-1" rows="3" cols="40">' . text($formData['text_area' . $this->ta_cnt] ?? '') . '</textarea>';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{TextInput}')) {
                 $sigfld = '<span>';
-                $sigfld .= '<input class="templateInput" type="text" style="margin:2px 2px;" data-textvalue="" onblur="templateText(this);">';
+                $sigfld .= '<input class="templateInput" type="text" name="text_input' . ++$this->inputs_cnt . '" style="margin:2px 2px;" value="' . attr($formData['text_input' . $this->inputs_cnt] ?? '') . '">';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{smTextInput}')) {
                 $sigfld = '<span>';
-                $sigfld .= '<input class="templateInput" type="text" style="margin:2px 2px;max-width:50px;" data-textvalue="" onblur="templateText(this);">';
+                $sigfld .= '<input class="templateInput" type="text" style="margin:2px 2px;max-width:50px;" name="text_input' . ++$this->inputs_cnt . '"  value="' . attr($formData['text_input' . $this->inputs_cnt] ?? '') . '">';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif (preg_match('/^\{(sizedTextInput):(\w+)\}/', substr($s, $this->keyLocation), $matches)) {
                 $len = $matches[2];
                 $this->keyLength = strlen($matches[0]);
                 $sigfld = '<span>';
-                $sigfld .= '<input class="templateInput" type="text" style="margin:2px 2px;min-width:' . $len . ';" data-textvalue="" onblur="templateText(this);">';
+                $sigfld .= '<input class="templateInput" type="text" name="text_input' . ++$this->inputs_cnt . '" style="margin:2px 2px;min-width:' . $len . ';" value="' . attr($formData['text_input' . $this->inputs_cnt] ?? '') . '">';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{StandardDatePicker}')) {
                 $sigfld = '<span>';
-                $sigfld .= '<input class="templateInput" type="date" maxlength="10" size="10" style="margin:2px 2px;" data-textvalue="" onblur="templateText(this);">';
+                $sigfld .= '<input class="templateInput" type="date" name="text_input' . ++$this->inputs_cnt . '" maxlength="10" size="10" style="margin:2px 2px;" value="' . attr($formData['text_input' . $this->inputs_cnt] ?? '') . '">';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{DatePicker}')) {
                 $sigfld = '<span>';
-                $sigfld .= '<input class="templateInput datepicker" type="text" maxlength="10" size="10" style="margin:2px 2px;" data-textvalue="" onblur="templateText(this);">';
+                $sigfld .= '<input class="templateInput datepicker" type="text" name="text_input' . ++$this->inputs_cnt . '" maxlength="10" size="10" style="margin:2px 2px;" value="' . attr($formData['text_input' . $this->inputs_cnt] ?? '') . '">';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{DateTimePicker}')) {
                 $sigfld = '<span>';
-                $sigfld .= '<input class="templateInput datetimepicker" type="text" maxlength="18" size="18" style="margin:2px 2px;" data-textvalue="" onblur="templateText(this);">';
+                $sigfld .= '<input class="templateInput datetimepicker" type="text" name="text_input' . ++$this->inputs_cnt . '" maxlength="18" size="18" style="margin:2px 2px;" value="' . attr($formData['text_input' . $this->inputs_cnt] ?? '') . '">';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{CheckMark}')) {
-                $this->ckcnt++;
-                $sigfld = '<span class="checkMark" data-id="check' . $this->ckcnt . '">';
-                $sigfld .= '<input type="checkbox"  id="check' . $this->ckcnt . '" data-value="" onclick="templateCheckMark(this);">';
+                $this->chk_cnt++;
+                $checked = !empty($formData['check' . $this->chk_cnt] ?? '') ? "checked" : '';
+                $sigfld = '<span>';
+                $sigfld .= '<input class="mx-1" type="checkbox" name="check' . $this->chk_cnt . '" ' . $checked . ' />';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{ynRadioGroup}')) {
-                $this->grcnt++;
-                $sigfld = '<span class="ynuGroup" data-value="false" data-id="' . $this->grcnt . '" id="rgrp' . $this->grcnt . '">';
-                $sigfld .= '<label class="ml-1 mr-2"><input class="mr-1" onclick="templateRadio(this)" type="radio" name="ynradio' . $this->grcnt . '" data-id="' . $this->grcnt . '" value="Yes">' . xlt("Yes") . '</label>';
-                $sigfld .= '<label><input class="mr-1" onclick="templateRadio(this)" type="radio" name="ynradio' . $this->grcnt . '" data-id="' . $this->grcnt . '" value="No">' . xlt("No") . '</label>';
+                $this->grp_cnt++;
+                $true = ($formData['ynradio' . $this->grp_cnt] ?? '') == 'Yes' ? "checked" : '';
+                $false = ($formData['ynradio' . $this->grp_cnt] ?? '') == 'No' ? "checked" : '';
+                $sigfld = '<span>';
+                $sigfld .= '<label class="ml-1 mr-2">' .
+                    '<input class="ynuGroup mr-1" type="radio" ' . $true . ' name="ynradio' . $this->grp_cnt . '" value="Yes" />' . xlt("Yes") .
+                    '</label>';
+                $sigfld .= '<label>' .
+                    '<input class="mr-1" type="radio" ' . $false . ' name="ynradio' . $this->grp_cnt . '" value="No" />' . xlt("No") .
+                    '</label>';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{TrueFalseRadioGroup}')) {
-                $this->grcnt++;
-                $sigfld = '<span class="tfuGroup" data-value="False" data-id="' . $this->grcnt . '" id="tfrgrp' . $this->grcnt . '">';
-                $sigfld .= '<label class="ml-1 mr-2"><input class="mr-1" onclick="tfTemplateRadio(this)" type="radio" name="tfradio' . $this->grcnt . '" data-id="' . $this->grcnt . '" value="True">' . xlt("True") . '</label>';
-                $sigfld .= '<label><input class="mr-1" onclick="tfTemplateRadio(this)" type="radio" name="tfradio' . $this->grcnt . '" data-id="' . $this->grcnt . '" value="False">' . xlt("False") . '</label>';
+                $this->grp_cnt++;
+                $true = ($formData['tfradio' . $this->grp_cnt] ?? '') == 'True' ? "checked" : '';
+                $false = ($formData['tfradio' . $this->grp_cnt] ?? '') == 'False' ? "checked" : '';
+                $sigfld = '<span>';
+                $sigfld .= '<label class="ml-1 mr-2">' .
+                    '<input class="tfuGroup mr-1" type="radio" ' . $true . ' name="tfradio' . $this->grp_cnt . '" value="True" />' . xlt("True") .
+                    '</label>';
+                $sigfld .= '<label>' .
+                    '<input class="tfuGroup mr-1" type="radio"' . $false . ' name="tfradio' . $this->grp_cnt . '" value="False" />' . xlt("False") .
+                    '</label>';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{PatientName}')) {
@@ -474,7 +509,7 @@ class DocumentTemplateRender
      * @param $data
      * @return string
      */
-    private function keyReplace(&$s, $data): string
+    private function keyReplace($s, $data): string
     {
         $this->nextLocation = $this->keyLocation + strlen($data);
         return substr($s, 0, $this->keyLocation) . $data . substr($s, $this->keyLocation + $this->keyLength);
@@ -535,5 +570,44 @@ class DocumentTemplateRender
         }
 
         return $tmp;
+    }
+
+    /**
+     * Un-tested for future purpose of calling templates for one time usages.
+     * I have intention to add a submit button to templates for this purpose.
+     * Fetch a new or existing template record.
+     * Also may return rendered template if needed.
+     *
+     * @param mixed  $template_id record id or by name of template
+     * @param string $source      'exists' = 'onsite_documents' or 'new' = 'document_templates'
+     * @param bool   $render      false returns raw template with directives in place;
+     * @return array
+     */
+    public function fetchTemplateDocument(mixed $template_id, string $source = 'new', bool $render = false): array
+    {
+        $isFetchById = is_numeric($template_id);
+        if (!empty($template_id) && $source == 'new') {
+            $return = $this->templateService->fetchTemplate($template_id);
+            $template = $return['template_content'];
+            if ($render) {
+                $template = $this->doRender(null, $return['template_content']);
+                $return['template_content'] = $template;
+            }
+        } elseif (!empty($template_id) && $source == 'exists') {
+            if ($isFetchById) {
+                $return = sqlQuery('SELECT * FROM `onsite_documents` WHERE `id` = ?', array($template_id));
+            } else { // by name
+                $return = sqlQuery('SELECT * FROM `onsite_documents` WHERE `file_name` = ?', array($template_id));
+                $template = $return['full_document'];
+            }
+            if ($render) {
+                $template = $this->doRender(null, $return['file_content'], $return['template_data']);
+                $return['file_content'] = $template;
+            }
+        } else {
+            throw new RuntimeException(xlt("Nothing to give! Missing valid fetch data."));
+        }
+
+        return $return;
     }
 }

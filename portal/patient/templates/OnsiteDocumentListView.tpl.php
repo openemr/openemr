@@ -134,16 +134,6 @@ $templateService = new DocumentTemplateService();
                 $(".helpHide").addClass("d-none");
 
                 $(parent.document.getElementById('topNav')).addClass("d-none");
-                /*$('#showNav').on('click', () => {
-                    let menuMsg;
-                    if($(parent.document.getElementById('topNav')).is('.collapse:not(.show)')) {
-                        menuMsg = xl("Hide Top");
-                    } else {
-                        menuMsg = xl("Show Top");
-                    }
-                    document.getElementById("showNav").innerHTML = menuMsg;
-                    parent.document.getElementById('topNav').classList.toggle('collapse');
-                });*/
             }
             console.log('init done template');
 
@@ -157,19 +147,20 @@ $templateService = new DocumentTemplateService();
                 }
             }, 2000);
 
-            $(function () {
+            /*$(function () {
                 $(window).bind('beforeunload', function () {
-                    if (page.inFormEdit) {
+                    if (getFormSaveStatus() == false) {
                         // You have unsaved changes auto browser popup
                         event.preventDefault();
                     }
+                    return false;
                 });
-            });
+            });*/
         });
 
         function printaDocHtml(divName) {
             page.updateModel();
-            setTimeout("flattenDocument();", 4000);
+            setTimeout("flattenDocument();", 3000);
             divName = 'templatediv';
             let printContents = document.getElementById(divName).innerHTML;
             let originalContents = document.body.innerHTML;
@@ -277,7 +268,7 @@ $templateService = new DocumentTemplateService();
         }
 
         function templateRadio(el) {
-            var rid = $(el).data('id')
+            let rid = $(el).data('id')
             $('#rgrp' + rid).data('value', $(el).val());
             $('#rgrp' + rid).attr('data-value', $(el).val());
             $(el).prop('checked', true)
@@ -285,7 +276,7 @@ $templateService = new DocumentTemplateService();
         }
 
         function tfTemplateRadio(el) {
-            var rid = $(el).data('id')
+            let rid = $(el).data('id')
             $('#tfrgrp' + rid).data('value', $(el).val());
             $('#tfrgrp' + rid).attr('data-value', $(el).val());
             $(el).prop('checked', true);
@@ -294,31 +285,31 @@ $templateService = new DocumentTemplateService();
 
         function replaceTextInputs() {
             $('.templateInput').each(function () {
-                var rv = $(this).data('textvalue');
+                let rv = $(this).data('textvalue');
                 $(this).replaceWith(jsText(rv));
             });
         }
 
         function replaceRadioValues() {
             $('.ynuGroup').each(function () {
-                var gid = $(this).data('id');
-                var grpid = $(this).prop('id');
-                var rv = $('input:radio[name="ynradio' + jsAttr(gid) + '"]:checked').val();
+                let gid = $(this).data('id');
+                let grpid = $(this).prop('id');
+                let rv = $('input:radio[name="ynradio' + jsAttr(gid) + '"]:checked').val();
                 $(this).replaceWith(rv);
             });
 
             $('.tfuGroup').each(function () {
-                var gid = $(this).data('id');
-                var grpid = $(this).prop('id');
-                var rv = $('input:radio[name="tfradio' + jsAttr(gid) + '"]:checked').val();
+                let gid = $(this).data('id');
+                let grpid = $(this).prop('id');
+                let rv = $('input:radio[name="tfradio' + jsAttr(gid) + '"]:checked').val();
                 $(this).replaceWith(rv);
             });
         }
 
         function replaceCheckMarks() {
             $('.checkMark').each(function () {
-                var ckid = $(this).data('id');
-                var v = $('#' + ckid).data('value');
+                let ckid = $(this).data('id');
+                let v = $('#' + ckid).data('value');
                 if (v === 'Yes')
                     $(this).replaceWith('[\u2713]')
                 else {
@@ -329,30 +320,30 @@ $templateService = new DocumentTemplateService();
 
         function restoreTextInputs() {
             $('.templateInput').each(function () {
-                var rv = $(this).data('textvalue');
+                let rv = $(this).data('textvalue');
                 $(this).val(rv)
             });
         }
 
         function restoreRadioValues() {
             $('.ynuGroup').each(function () {
-                var gid = $(this).data('id');
-                var grpid = $(this).prop('id');
-                var value = $(this).data('value');
+                let gid = $(this).data('id');
+                let grpid = $(this).prop('id');
+                let value = $(this).data('value');
                 $("input[name=ynradio" + gid + "][value='" + value + "']").prop('checked', true);
             });
 
             $('.tfuGroup').each(function () {
-                var gid = $(this).data('id');
-                var grpid = $(this).prop('id');
-                var value = $(this).data('value');
+                let gid = $(this).data('id');
+                let grpid = $(this).prop('id');
+                let value = $(this).data('value');
                 $("input[name=tfradio" + gid + "][value='" + value + "']").prop('checked', true);
             });
         }
 
         function restoreCheckMarks() {
             $('.checkMark').each(function () {
-                var ckid = $(this).data('id');
+                let ckid = $(this).data('id');
                 if ($('#' + ckid).data('value') === 'Yes')
                     $('#' + ckid).prop('checked', true);
                 else
@@ -362,7 +353,6 @@ $templateService = new DocumentTemplateService();
 
         function replaceSignatures() {
             $('.signature').each(function () {
-                let type = $(this).data('type');
                 if ($(this).attr('src') !== signhere && $(this).attr('src')) {
                     $(this).removeAttr('data-action');
                 }
@@ -377,13 +367,17 @@ $templateService = new DocumentTemplateService();
             replaceRadioValues();
             replaceTextInputs();
             replaceSignatures();
+            page.isFlattened = true;
         }
 
         function restoreDocumentEdits() {
             restoreCheckMarks();
             restoreRadioValues();
             restoreTextInputs();
+            page.isFlatten = false;
+            page.isSaved = false;
         }
+
     </script>
     <div class="container-xl px-1">
         <nav id="verytop" class="navbar navbar-expand-lg navbar-light bg-light px-1 pt-3 pb-1 m-0 sticky-top" style="z-index:1030;">
@@ -456,7 +450,7 @@ $templateService = new DocumentTemplateService();
                 <script type="text/template" id="onsiteDocumentModelTemplate">
                     <div class="card m-0 p-0" id="docpanel">
                         <!-- Document edit container -->
-                        <header class="card-header bg-dark text-light helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?>
+                        <header class="card-header font-weight-bold bg-dark text-light p-1 helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?>
                             <button id="dismissOnsiteDocumentButtonTop" class="dismissOnsiteDocumentButton btn btn-outline-danger btn-sm float-right" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
                         </header>
                         <!-- editor form -->
