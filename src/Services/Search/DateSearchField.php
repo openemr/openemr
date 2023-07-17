@@ -36,7 +36,26 @@ class DateSearchField extends BasicSearchField
     // This regex pattern was adopted from the Asymmetrik/node-fhir-server-mongo project.  It can be seen here
     // https://github.com/Asymmetrik/node-fhir-server-mongo/blob/104037de07a1a1a49adb3de45beb1ae1283f67bb/src/utils/querybuilder.util.js#L273
     // This line is licensed under the MIT license and was last accessed on April 20th 2021
-    private const COMPARATOR_MATCH = "/^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(Z|(\+|-)(\d{2}):(\d{2}))?$/";
+    // This line was updated on July 6th 2023 to support the fractional seconds (represented in milliseconds) component of the ISO8601 standard
+    // per the https://build.fhir.org/search.html#date parameter format yyyy-mm-ddThh:mm:ss.ssss[Z|(+|-)hh:mm]
+    private const COMPARATOR_MATCH = "/^(\D{2})?(\d{4})(-\d{2})?(-\d{2})?(?:(T\d{2}:\d{2})(:\d{2})?)?(\.\d{1,4})?(Z|(\+|-)(\d{2}):(\d{2}))?$/";
+
+    // php's DATE_ATOM does not handle milliseconds so we have to add them in manually
+    private const DATE_ATOM_MILLISECONDS = 'Y-m-d\TH:i:s.uP';
+
+    private const COMPARATOR_INDEX_FULL = 0;
+
+    private const COMPARATOR_INDEX_COMPARATOR = 1;
+    private const COMPARATOR_INDEX_YEAR = 2;
+    private const COMPARATOR_INDEX_MONTH = 3;
+    private const COMPARATOR_INDEX_DAY = 4;
+    private const COMPARATOR_INDEX_HOUR_MINUTE = 5;
+    private const COMPARATOR_INDEX_SECONDS = 6;
+    private const COMPARATOR_INDEX_MILLISECONDS = 7;
+    private const COMPARATOR_INDEX_TIMEZONE = 8;
+    private const COMPARATOR_INDEX_TIMEZONE_SIGN = 9;
+    private const COMPARATOR_INDEX_TIMEZONE_HOUR = 10;
+    private const COMPARATOR_INDEX_TIMEZONE_MINUTE = 11;
 
     /**
      * The different types of dates that are available
@@ -117,34 +136,35 @@ class DateSearchField extends BasicSearchField
         if (preg_match(self::COMPARATOR_MATCH, $value, $matches, PREG_UNMATCHED_AS_NULL) !== 1) {
             throw new \InvalidArgumentException("Date format invalid must match ISO8610 format and values SHALL be populated from left to right");
         }
-        if (empty($matches[2])) {
+        if (empty($matches[self::COMPARATOR_INDEX_YEAR])) {
             throw new \InvalidArgumentException("Date format requires the year to be specified");
         }
 
+        // TODO: @adunsulag how did this ever trigger? seconds is optional, this forces seconds to be used...
         if (!empty($matches[5]) && empty($matches[6])) {
             throw new \InvalidArgumentException("Date format requires minutes to be specified if an hour is provided");
         }
 
-        $comparator = $matches[1] ?? SearchComparator::EQUALS;
+        $comparator = $matches[self::COMPARATOR_INDEX_COMPARATOR] ?? SearchComparator::EQUALS;
         if (!SearchComparator::isValidComparator($comparator)) {
             // TODO: adunsulag should we make this a specific Search Exception so we can report back an Operation Outcome?
             throw new \InvalidArgumentException("Invalid comparator found for value " . $value);
         }
 
-        $lowerBoundRange = ['y' => $matches[2], 'm' => 1, 'd' => 1, 'H' => 0, 'i' => 0, 's' => 0, 'tz' => date('P')];
-        $upperBoundRange = ['y' => $matches[2], 'm' => 12, 'd' => 31, 'H' => 23, 'i' => 59, 's' => 59, 'tz' => date('P')];
+        $lowerBoundRange = ['y' => $matches[self::COMPARATOR_INDEX_YEAR], 'm' => 1, 'd' => 1, 'H' => 0, 'i' => 0, 's' => 0, 'ms' => 0, 'tz' => date('P')];
+        $upperBoundRange = ['y' => $matches[self::COMPARATOR_INDEX_YEAR], 'm' => 12, 'd' => 31, 'H' => 23, 'i' => 59, 's' => 59, 'ms' => 999, 'tz' => date('P')];
 
         // month
-        if (!empty($matches[3])) {
-            $month = intval(substr($matches[3], 1));
+        if (!empty($matches[self::COMPARATOR_INDEX_MONTH])) {
+            $month = intval(substr($matches[self::COMPARATOR_INDEX_MONTH], 1));
             $month = min([max([$month, 1]), 12]);
             $lowerBoundRange['m'] = $month;
             $upperBoundRange['m'] = $month;
         }
 
         // day
-        if (!empty($matches[4])) {
-            $day = intval(substr($matches[4], 1));
+        if (!empty($matches[self::COMPARATOR_INDEX_DAY])) {
+            $day = intval(substr($matches[self::COMPARATOR_INDEX_DAY], 1));
             $day = min([max([$day, 1]), cal_days_in_month(CAL_GREGORIAN, $upperBoundRange['m'], $upperBoundRange['y'])]);
             $lowerBoundRange['d'] = $day;
             $upperBoundRange['d'] = $day;
@@ -153,8 +173,8 @@ class DateSearchField extends BasicSearchField
         }
 
         // hour:minutes
-        if (!empty($matches[5])) {
-            $parts = explode(":", $matches[5]);
+        if (!empty($matches[self::COMPARATOR_INDEX_HOUR_MINUTE])) {
+            $parts = explode(":", $matches[self::COMPARATOR_INDEX_HOUR_MINUTE]);
             // remove the T and grab the value for the hour
             $hour = intval(substr($parts[0], 1));
             // hours: 0 <= hours <= 23
@@ -170,23 +190,33 @@ class DateSearchField extends BasicSearchField
         }
 
         // seconds
-        if (!empty($matches[6])) {
+        if (!empty($matches[self::COMPARATOR_INDEX_SECONDS])) {
             // remove the ':'
-            $seconds = intval(substr($matches[6], 1));
+            $seconds = intval(substr($matches[self::COMPARATOR_INDEX_SECONDS], 1));
             $seconds = min([max([$seconds, 0]), 59]);
             $lowerBoundRange['s'] = $seconds;
             $upperBoundRange['s'] = $seconds;
         }
 
+        if (!empty($matches[self::COMPARATOR_INDEX_MILLISECONDS])) {
+            // remove the '.'
+            $milliseconds = intval(substr($matches[self::COMPARATOR_INDEX_MILLISECONDS], 1));
+            $milliseconds = min([max([$milliseconds, 0]), 999]);
+            $lowerBoundRange['ms'] = $milliseconds;
+            $upperBoundRange['ms'] = $milliseconds;
+        }
+
         // we need to handle the timezone component if they send it, otherwise it defaults to the local timezone
-        if (!empty($matches[7])) {
-            $lowerBoundRange['tz'] = $matches[7];
-            $upperBoundRange['tz'] = $matches[7];
+        if (!empty($matches[self::COMPARATOR_INDEX_TIMEZONE])) {
+            $lowerBoundRange['tz'] = $matches[self::COMPARATOR_INDEX_TIMEZONE];
+            $upperBoundRange['tz'] = $matches[self::COMPARATOR_INDEX_TIMEZONE];
         }
 
         $startRange = $this->createDateTimeFromArray($lowerBoundRange);
         $endRange = $this->createDateTimeFromArray($upperBoundRange);
-
+        if ($startRange === false || $endRange === false) {
+            throw new \InvalidArgumentException("Invalid ISO8601 date");
+        }
         // not sure if the date period lazy creates the interval traversal or not so we will go with the maximum interval
         // we can think of.  We just are leveraging an existing PHP object that represents a pair of start/end dates
         $datePeriod = new \DatePeriod($startRange, new \DateInterval('P1Y'), $endRange);
@@ -199,9 +229,9 @@ class DateSearchField extends BasicSearchField
         // Not sure how we want to handle timezone
         // we create a DateTime object as not all search fields are a DateTime so we go as precise as we can
         // and let the services go more imprecise if needed.
-        $stringDate = sprintf("%d-%02d-%02dT%02d:%02d:%02d%s", $datetime['y'], $datetime['m'], $datetime['d'], $datetime['H'], $datetime['i'], $datetime['s'], $datetime['tz']);
+        $stringDate = sprintf("%d-%02d-%02dT%02d:%02d:%02d.%04d%s", $datetime['y'], $datetime['m'], $datetime['d'], $datetime['H'], $datetime['i'], $datetime['s'], $datetime['ms'],$datetime['tz']);
         // 'n' & 'j' don't have leading zeros
-        $dateValue = \DateTime::createFromFormat(DATE_ATOM, $stringDate);
+        $dateValue = \DateTime::createFromFormat(self::DATE_ATOM_MILLISECONDS, $stringDate);
         return $dateValue;
     }
 }
