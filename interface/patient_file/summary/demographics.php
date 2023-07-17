@@ -916,6 +916,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             border-radius: 0;
         }
 
+        /* Short term fix. This ensures the problem list, allergies, medications, and immunization cards handle long lists without interuppting
+           the UI. This should be configurable and should go in a more appropriate place */
+        .pami-list {
+            max-height: 200px;
+            overflow-y: scroll;
+        }
+
         <?php
         if (!empty($GLOBALS['right_justify_labels_demographics']) && ($_SESSION['language_direction'] == 'ltr')) { ?>
         div.tab td.label_custom, div.label_custom {
@@ -1046,17 +1053,40 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             break;
                     }
 
+                    /**
+                     * Helper function to return only issues with an outcome not equal to resolved
+                     *
+                     * @param array $i An array of issues
+                     * @return array
+                     */
+                    function filterActiveIssues(array $i): array
+                    {
+                        return array_filter($i, function ($_i) {
+                            return $_i['outcome'] != 1;
+                        });
+                    }
+
                     // ALLERGY CARD
                     if (AclMain::aclCheckIssue('allergy')) {
                         $allergyService = new AllergyIntoleranceService();
-                        $allergyList = $allergyService->getAll();
+                        $_rawAllergies = filterActiveIssues($allergyService->getAll()->getData());
+                        $_priority = [];
+                        $_standard = [];
+                        foreach ($_rawAllergies as $_) {
+                            if (in_array($_['severity_al'], ['severe', 'life_threatening_severity', 'fatal'])) {
+                                $_priority[] = $_;
+                            } else {
+                                $_standard[] = $_;
+                            }
+                        }
+
                         $viewArgs = [
                             'title' => xl('Allergies'),
                             'card_container_class_list' => ['flex-fill', 'mx-1'],
                             'id' => 'allergies_ps_expand',
-                            'forceAlwaysOpen' => true,
+                            'forceAlwaysOpen' => false,
                             'linkMethod' => "javascript",
-                            'list' => $allergyList->getData(),
+                            'list' => ['priority' => $_priority, 'standard' => $_standard],
                             'auth' => true,
                             'btnLabel' => 'Edit',
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=allergy')"
@@ -1070,14 +1100,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     // MEDICAL PROBLEMS CARD
                     if (AclMain::aclCheckIssue('medical_problem')) {
-                        $medProblemList = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medical_problem']);
+                        $_rawPL = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medical_problem'])->getData();
                         $viewArgs = [
                             'title' => xl('Medical Problems'),
                             'card_container_class_list' => ['flex-fill', 'mx-1'],
                             'id' => 'medical_problem_ps_expand',
-                            'forceAlwaysOpen' => true,
+                            'forceAlwaysOpen' => false,
                             'linkMethod' => "javascript",
-                            'list' => $medProblemList->getData(),
+                            'list' => filterActiveIssues($_rawPL),
                             'auth' => true,
                             'btnLabel' => 'Edit',
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medical_problem')"
@@ -1089,14 +1119,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     // MEDICATION CARD
                     if (AclMain::aclCheckIssue('medication')) {
-                        $medList = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medication']);
+                        $_rawMedList = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medication'])->getData();
                         $viewArgs = [
                             'title' => xl('Medications'),
                             'card_container_class_list' => ['flex-fill', 'mx-1'],
                             'id' => 'medications_ps_expand',
-                            'forceAlwaysOpen' => true,
+                            'forceAlwaysOpen' => false,
                             'linkMethod' => "javascript",
-                            'list' => $medList->getData(),
+                            'list' => filterActiveIssues($_rawMedList),
                             'auth' => true,
                             'btnLabel' => 'Edit',
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication')"
@@ -1579,8 +1609,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <div class="col-md-4">
                     <!-- start right column div -->
                     <?php
-                    if ($GLOBALS['portal_onsite_two_enable']) {
-                        $portalCard = new PortalCard($GLOBALS);
+                    $_extAccess = [
+                        $GLOBALS['portal_onsite_two_enable'],
+                        $GLOBALS['rest_fhir_api'],
+                        $GLOBALS['rest_api'],
+                        $GLOBALS['rest_portal_api'],
+                    ];
+                    foreach ($_extAccess as $_) {
+                        if ($_) {
+                            $portalCard = new PortalCard($GLOBALS);
+                            break;
+                        }
                     }
 
                     $sectionRenderEvents = $ed->dispatch(new SectionEvent('secondary'), SectionEvent::EVENT_HANDLE);
