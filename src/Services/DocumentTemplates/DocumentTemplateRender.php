@@ -54,7 +54,7 @@ class DocumentTemplateRender
     public function __construct($pid, $user, $encounter = null)
     {
         $this->pid = $pid;
-        $this->user = $user;
+        $this->user = $user ?: $_SESSION['authUserID'] ?? 0;
         $this->encounter = $encounter ?: $GLOBALS['encounter'];
         $this->version = (new VersionService())->asString();
         $this->templateService = new DocumentTemplateService();
@@ -151,15 +151,15 @@ class DocumentTemplateRender
 
             if ($this->keySearch($s, '{PatientSignature}')) {
                 $sigfld = '<script>page.presentPatientSignature=true;</script>';
-                $sigfld .= '<img class="signature bg-light" name="patient_signature' . ++$this->signed_cnt . '" id="patientSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$this->pid) . '" data-user="' . attr($this->user) . '" src="' . attr($formData['patient_signature' . $this->signed_cnt] ?? '') . '" />';
+                $sigfld .= '<img class="signature bg-light m-1" name="patient_signature' . ++$this->signed_cnt . '" id="patientSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$this->pid) . '" data-user="' . attr($this->user) . '" src="' . attr($formData['patient_signature' . $this->signed_cnt] ?? '') . '" />';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{AdminSignature}')) {
                 $sigfld = '<script>page.presentAdminSignature=true;</script>';
-                $sigfld .= '<img class="signature bg-light" name="admin_signature' . ++$this->signed_cnt . '" id="adminSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$this->pid) . '" data-user="' . attr($this->user) . '" src="' . attr($formData['admin_signature' . $this->signed_cnt] ?? '') . '" />';
+                $sigfld .= '<img class="signature bg-light m-1" name="admin_signature' . ++$this->signed_cnt . '" id="adminSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$this->pid) . '" data-user="' . attr($this->user) . '" src="' . attr($formData['admin_signature' . $this->signed_cnt] ?? '') . '" />';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{WitnessSignature}')) {
                 $sigfld = '<script>page.presentWitnessSignature=true;</script>';
-                $sigfld .= '<img class="signature bg-light" name="witness_signature' . ++$this->signed_cnt . '" id="witnessSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="witness-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$this->pid) . '" data-user="' . attr($this->user) . '" src="' . attr($formData['witness_signature' . $this->signed_cnt] ?? '') . '" />';
+                $sigfld .= '<img class="signature bg-light m-1" name="witness_signature' . ++$this->signed_cnt . '" id="witnessSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="witness-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$this->pid) . '" data-user="' . attr($this->user) . '" src="' . attr($formData['witness_signature' . $this->signed_cnt] ?? '') . '" />';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{SignaturesRequired}')) {
                 $sigfld = '<script>page.signaturesRequired=true;var signMsg=' . xlj("A signature is required for this document. Please sign document where required") . ';</script>' . "\n";
@@ -214,65 +214,65 @@ class DocumentTemplateRender
                 $rows = $matches[2];
                 $cols = $matches[3];
                 $this->keyLength = strlen($matches[0]);
-                $sigfld = '<span>';
+                $sigfld = '<span class="m-1">';
                 $sigfld .= '<textarea name="text_area' . ++$this->ta_cnt . '" class="templateInput" rows="' . attr($rows) . '" cols="' . attr($cols) . '">' . text($formData['text_area' . $this->ta_cnt] ?? '') .
                     '</textarea>';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{TextBox}')) { // legacy 03by040
-                $sigfld = '<span>';
-                $sigfld .= '<textarea name="text_area' . ++$this->ta_cnt . '" class="templateInput mx-1 my-1" rows="3" cols="40">' . text($formData['text_area' . $this->ta_cnt] ?? '') . '</textarea>';
+                $sigfld = '<span class="m-1">';
+                $sigfld .= '<textarea name="text_area' . ++$this->ta_cnt . '" class="templateInput" rows="3" cols="40">' . text($formData['text_area' . $this->ta_cnt] ?? '') . '</textarea>';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{TextInput}')) {
-                $sigfld = '<span>';
+                $sigfld = '<span class="m-1">';
                 $sigfld .= '<input class="templateInput" type="text" name="text_input' . ++$this->inputs_cnt . '" style="margin:2px 2px;" value="' . attr($formData['text_input' . $this->inputs_cnt] ?? '') . '">';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{smTextInput}')) {
-                $sigfld = '<span>';
+                $sigfld = '<span class="m-1">';
                 $sigfld .= '<input class="templateInput" type="text" style="margin:2px 2px;max-width:50px;" name="text_input' . ++$this->inputs_cnt . '"  value="' . attr($formData['text_input' . $this->inputs_cnt] ?? '') . '">';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif (preg_match('/^\{(sizedTextInput):(\w+)\}/', substr($s, $this->keyLocation), $matches)) {
                 $len = $matches[2];
                 $this->keyLength = strlen($matches[0]);
-                $sigfld = '<span>';
+                $sigfld = '<span class="m-1">';
                 $sigfld .= '<input class="templateInput" type="text" name="text_input' . ++$this->inputs_cnt . '" style="margin:2px 2px;min-width:' . $len . ';" value="' . attr($formData['text_input' . $this->inputs_cnt] ?? '') . '">';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{StandardDatePicker}')) {
-                $sigfld = '<span>';
+                $sigfld = '<span class="m-1">';
                 $sigfld .= '<input class="templateInput" type="date" name="text_input' . ++$this->inputs_cnt . '" maxlength="10" size="10" style="margin:2px 2px;" value="' . attr($formData['text_input' . $this->inputs_cnt] ?? '') . '">';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{DatePicker}')) {
-                $sigfld = '<span>';
+                $sigfld = '<span class="m-1">';
                 $sigfld .= '<input class="templateInput datepicker" type="text" name="text_input' . ++$this->inputs_cnt . '" maxlength="10" size="10" style="margin:2px 2px;" value="' . attr($formData['text_input' . $this->inputs_cnt] ?? '') . '">';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{DateTimePicker}')) {
-                $sigfld = '<span>';
+                $sigfld = '<span class="m-1">';
                 $sigfld .= '<input class="templateInput datetimepicker" type="text" name="text_input' . ++$this->inputs_cnt . '" maxlength="18" size="18" style="margin:2px 2px;" value="' . attr($formData['text_input' . $this->inputs_cnt] ?? '') . '">';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{CheckMark}')) {
                 $this->chk_cnt++;
                 $checked = !empty($formData['check' . $this->chk_cnt] ?? '') ? "checked" : '';
-                $sigfld = '<span>';
-                $sigfld .= '<input class="mx-1" type="checkbox" name="check' . $this->chk_cnt . '" ' . $checked . ' />';
+                $sigfld = '<span mx-1>';
+                $sigfld .= '<input class="checkMark" type="checkbox" name="check' . $this->chk_cnt . '" ' . $checked . ' />';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
             } elseif ($this->keySearch($s, '{ynRadioGroup}')) {
                 $this->grp_cnt++;
                 $true = ($formData['ynradio' . $this->grp_cnt] ?? '') == 'Yes' ? "checked" : '';
                 $false = ($formData['ynradio' . $this->grp_cnt] ?? '') == 'No' ? "checked" : '';
-                $sigfld = '<span>';
-                $sigfld .= '<label class="ml-1 mr-2">' .
-                    '<input class="ynuGroup mr-1" type="radio" ' . $true . ' name="ynradio' . $this->grp_cnt . '" value="Yes" />' . xlt("Yes") .
+                $sigfld = '<span class="ynuGroup mr-1" id="ynradio' . $this->grp_cnt . '">';
+                $sigfld .= '<label class="mr-1">' .
+                    '<input class="ynRadio mr-1" type="radio" ' . $true . ' name="ynradio' . $this->grp_cnt . '" value="Yes" />' . xlt("Yes") .
                     '</label>';
                 $sigfld .= '<label>' .
-                    '<input class="mr-1" type="radio" ' . $false . ' name="ynradio' . $this->grp_cnt . '" value="No" />' . xlt("No") .
+                    '<input class="ynRadio mr-1" type="radio" ' . $false . ' name="ynradio' . $this->grp_cnt . '" value="No" />' . xlt("No") .
                     '</label>';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
@@ -280,12 +280,12 @@ class DocumentTemplateRender
                 $this->grp_cnt++;
                 $true = ($formData['tfradio' . $this->grp_cnt] ?? '') == 'True' ? "checked" : '';
                 $false = ($formData['tfradio' . $this->grp_cnt] ?? '') == 'False' ? "checked" : '';
-                $sigfld = '<span>';
-                $sigfld .= '<label class="ml-1 mr-2">' .
-                    '<input class="tfuGroup mr-1" type="radio" ' . $true . ' name="tfradio' . $this->grp_cnt . '" value="True" />' . xlt("True") .
+                $sigfld = '<span class="tfuGroup mx-1" id="tfradio' . $this->grp_cnt . '">';
+                $sigfld .= '<label class="mr-1">' .
+                    '<input class="tfuRadio mr-1" type="radio" ' . $true . ' name="tfradio' . $this->grp_cnt . '" value="True" />' . xlt("True") .
                     '</label>';
                 $sigfld .= '<label>' .
-                    '<input class="tfuGroup mr-1" type="radio"' . $false . ' name="tfradio' . $this->grp_cnt . '" value="False" />' . xlt("False") .
+                    '<input class="tfuRadio mr-1" type="radio" ' . $false . ' name="tfradio' . $this->grp_cnt . '" value="False" />' . xlt("False") .
                     '</label>';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);

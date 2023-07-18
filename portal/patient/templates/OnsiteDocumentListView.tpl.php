@@ -146,16 +146,6 @@ $templateService = new DocumentTemplateService();
                     }
                 }
             }, 2000);
-
-            /*$(function () {
-                $(window).bind('beforeunload', function () {
-                    if (getFormSaveStatus() == false) {
-                        // You have unsaved changes auto browser popup
-                        event.preventDefault();
-                    }
-                    return false;
-                });
-            });*/
         });
 
         function printaDocHtml(divName) {
@@ -346,8 +336,9 @@ $templateService = new DocumentTemplateService();
                 let ckid = $(this).data('id');
                 if ($('#' + ckid).data('value') === 'Yes')
                     $('#' + ckid).prop('checked', true);
-                else
+                else {
                     $('#' + ckid).prop('checked', false);
+                }
             });
         }
 
@@ -362,11 +353,51 @@ $templateService = new DocumentTemplateService();
             });
         }
 
+        function formReplaceCheckMarks() {
+            $('.checkMark').each(function () {
+                let v = $(this).val();
+                if (v === 'on')
+                    $(this).replaceWith(' [\u2713] ')
+                else {
+                    $(this).replaceWith(" [ ] ")
+                }
+            });
+        }
+
+        function formReplaceRadioValues() {
+            $('.ynuGroup').each(function () {
+                let name = $(this).prop('id');
+                let rv = $('input:radio[name="' + jsAttr(name) + '"]:checked').val();
+                $(this).replaceWith(rv);
+            });
+
+            $('.tfuGroup').each(function () {
+                let name = $(this).prop('id');
+                let rv = $('input:radio[name="' + jsAttr(name) + '"]:checked').val();
+                $(this).replaceWith(rv);
+            });
+        }
+
+        function formReplaceTextInputs() {
+            $('.templateInput').each(function () {
+                let rv = $(this).val();
+                $(this).replaceWith(jsText(rv));
+            });
+        }
+
+        // These functions are now deprecated and will stay for kegacy.
         function flattenDocument() {
-            replaceCheckMarks();
-            replaceRadioValues();
-            replaceTextInputs();
-            replaceSignatures();
+            if (page.version === 'Legacy') {
+                replaceCheckMarks();
+                replaceRadioValues();
+                replaceTextInputs();
+                replaceSignatures();
+            } else {
+                formReplaceTextInputs();
+                formReplaceCheckMarks();
+                formReplaceRadioValues();
+                replaceSignatures()
+            }
             page.isFlattened = true;
         }
 
@@ -377,7 +408,6 @@ $templateService = new DocumentTemplateService();
             page.isFlatten = false;
             page.isSaved = false;
         }
-
     </script>
     <div class="container-xl px-1">
         <nav id="verytop" class="navbar navbar-expand-lg navbar-light bg-light px-1 pt-3 pb-1 m-0 sticky-top" style="z-index:1030;">

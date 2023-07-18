@@ -109,7 +109,6 @@ var page = {
             if (page.isDashboard) {
                 $('table.collection tbody tr:first').click();
             }
-
         });
 // ---------  Get Collection ------------------------//
         this.fetchOnsiteDocuments(page.fetchParams);
@@ -361,11 +360,16 @@ var page = {
                 $("#downloadTemplate").hide();
                 $("#chartTemplate").hide();
                 $("#chartHistory").hide();
-                page.isLocked ? $("#saveTemplate").hide() : $("#saveTemplate").show();
-                page.isLocked ? $("#sendTemplate").hide() : $("#sendTemplate").show();
-                page.isLocked ? $("#submitTemplate").show() : $("#submitTemplate").hide();
+                if (page.version === 'Legacy') {
+                    $("#saveTemplate").hide();
+                    $("#sendTemplate").hide();
+                    $("#submitTemplate").hide();
+                } else {
+                    page.isLocked ? $("#saveTemplate").hide() : $("#saveTemplate").show();
+                    page.isLocked ? $("#sendTemplate").hide() : $("#sendTemplate").show();
+                    page.isLocked ? $("#submitTemplate").show() : $("#submitTemplate").hide();
+                }
             }
-
             $("#saveTemplate").unbind().on('click', function (e) {
                 e.preventDefault();
                 if (page.isFrameForm) {
@@ -402,7 +406,6 @@ var page = {
                     page.updateModel(true);
                 }
             });
-
             // send to review and save current
             $("#sendTemplate").unbind().on('click', function (e) {
                 e.preventDefault();
@@ -434,7 +437,6 @@ var page = {
                     page.updateModel(true);
                 }
             });
-
             // download from portal
             $("#submitTemplate").unbind().on('click', function () {
                 if (page.onsiteDocument.get('denialReason') === 'In Review') {
@@ -452,7 +454,6 @@ var page = {
 
                 page.updateModel();
             });
-
             $("#chartHistory").unbind().on('click', function () {
                 if (page.isFrameForm) {
                     let formFrame = document.getElementById('encounterForm');
@@ -469,24 +470,29 @@ var page = {
                     formFrame.contentWindow.postMessage({submitForm: true}, window.location.origin);
                 }
             });
-
             $('.navCollapse .dropdown-menu>a').on('click', function () {
                 $('.navbar-collapse').collapse('hide');
             });
             $('.navCollapse li.nav-item>a').on('click', function () {
                 $('.navbar-collapse').collapse('hide');
             });
+            if (page.version === 'Legacy' && isPortal) {
+                alert(page.onsiteDocument.get('docType') + " is no longer available for edits." + "\n" +
+                    "If the document has been submitted it will still be reviewed.\n" +
+                    "Otherwise please delete this document and start again."
+                )
+            }
         });
 
         if (newFilename) { // autoload new on init. once only.
             page.newDocument(cpid, cuser, newFilename, id);
             newFilename = '';
         }
-
+        // These are set on init for save alerts
         page.isFlattened = false;
         page.isSaved = true;
         $(window).bind('beforeunload', function () {
-            if (page.isSaved == false) {
+            if (page.isSaved === false) {
                 // You have unsaved changes auto browser popup
                 event.preventDefault();
                 event.returnValue = '';
@@ -794,7 +800,6 @@ var page = {
     renderModelView: function (showDeleteButton) {
         page.modelView.render();
         app.hideProgress('modelLoader');
-
         // initialize any special controls
         if (showDeleteButton) {
             // attach click handlers to the delete buttons
@@ -823,7 +828,7 @@ var page = {
     /**
      * update the model that is currently displayed in the dialog
      */
-    updateModel: function (reload = false) {
+    updateModel: function (reload = false, saveType = '') {
         // reset any previous errors
         $('#modelAlert').html('');
         $('.control-group').removeClass('error');
@@ -871,7 +876,7 @@ var page = {
 
         page.version = $('#portal_version').val() !== 'undefined' ? $('#portal_version').val() : '';
         let data = page.fetchTempateElements(event);
-
+        // This uses the framework routing.
         page.onsiteDocument.save({
             'pid': cpid,
             'facility': page.formOrigin, /* 0 portal, 1 dashboard, 2 patient documents */
@@ -892,7 +897,8 @@ var page = {
             'fileName': page.onsiteDocument.get('fileName'),
             'filePath': page.onsiteDocument.get('filePath'),
             'templateData': data,
-            'version': page.version
+            'version': page.version,
+            'type': saveType
         }, {
             wait: true,
             success: function () {
@@ -980,6 +986,9 @@ var page = {
             }
         });
     },
+    /**
+     *  Fetch form data to send back to controller.
+     */
     fetchTempateElements: function (event) {
         const form = document.getElementById('template');
         let formData = new FormData(form);
@@ -996,7 +1005,7 @@ var page = {
         imgElements.forEach(function (signature) {
             if (signature.src !== signhere && signature.src) {
                 if (!signature.name) {
-                    next;
+                    return;
                 }
                 objectArray.push({
                     'name': signature.name,
@@ -1004,7 +1013,6 @@ var page = {
                 });
             }
         });
-
         // will send to controller.
         return JSON.stringify(objectArray);
     }
