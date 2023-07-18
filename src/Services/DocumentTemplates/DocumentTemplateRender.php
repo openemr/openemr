@@ -102,18 +102,17 @@ class DocumentTemplateRender
                 $formData[$e['name']] = $e['value'];
             }
         }
-        // snatch style tag content to replace after content purified. Ho-hum!
-        $style_flag = preg_match('#<\s*?style\b[^>]*>(.*?)</style\b[^>]*>#s', $template, $style_matches);
-        $style = str_replace('<style type="text/css">', '<style>', $style_matches);
+        // test for new style directive replace for legacy.
+        $template = str_replace('<style type="text/css">', '{styleBlockStart}', $template);
+        $template = str_replace('<style>', '{styleBlockStart}', $template);
+        $template = str_replace('</style>', '{styleBlockEnd}', $template);
         // purify html (and remove js)
         $isLegacy = stripos($template, 'portal_version') === false;
         $config = HTMLPurifier_Config::createDefault();
+        $config->set('Core.Encoding', 'UTF-8');
+        $config->set('CSS.AllowedProperties', '*');
         $purify = new HTMLPurifier($config);
         $edata = $purify->purify($template);
-        // insert style tag from raw template content
-        if ($style_flag && !empty($style[0] ?? '')) {
-            $edata = $style[0] . $edata;
-        }
         // Purify escapes URIs.
         // Add back escaped directive delimiters so any directives in a URL will be parsed by our engine.
         $edata = str_replace('%7B', '{', $edata);
@@ -204,6 +203,12 @@ class DocumentTemplateRender
             } elseif ($this->keySearch($s, '{ParseAsText}')) {
                 $this->html_flag = false;
                 $s = $this->keyReplace($s, '');
+            } elseif ($this->keySearch($s, '{styleBlockStart}')) {
+                $sigfld = "<style>";
+                $s = $this->keyReplace($s, $sigfld);
+            } elseif ($this->keySearch($s, '{styleBlockEnd}')) {
+                $sigfld = "</style>";
+                $s = $this->keyReplace($s, $sigfld);
             } elseif (preg_match('/^\{(EncounterForm):(\w+)\}/', substr($s, $this->keyLocation), $matches)) {
                 $formname = $matches[2];
                 $this->keyLength = strlen($matches[0]);
