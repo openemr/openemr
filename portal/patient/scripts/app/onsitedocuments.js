@@ -165,7 +165,9 @@ var page = {
 
             page.getDocument(page.onsiteDocument.get('docType'), cpid, page.onsiteDocument.get('filePath'));
             if (page.isDashboard) { // review
-                flattenDocument();
+                flattenDocument().then(r => {
+                });
+                page.isFlattened = true;
             }
             pageAudit.fetchParams.doc = page.onsiteDocument.get('id');
             pageAudit.fetchOnsitePortalActivities(pageAudit.fetchParams);
@@ -252,7 +254,8 @@ var page = {
                                 }
                                 return response.json()
                             }).then(content => {
-                                flattenDocument();
+                                flattenDocument().then(r => {
+                                });
                                 let templateContents = document.getElementById('templatecontent').innerHTML;
                                 templateContents = templateContents.replace(/<script.*?>.*?<\/script>/ig, '');
                                 templateContents = templateContents.replace(/(<\/iframe>)/g, '');
@@ -268,7 +271,7 @@ var page = {
                         // request a save for lbf
                         formFrame.contentWindow.postMessage({submitForm: true}, window.location.origin);
                     } else {
-                        page.chartTemplate('', 'flat');
+                        page.chartTemplate('', 'flatten');
                     }
                 });
 
@@ -323,19 +326,19 @@ var page = {
                             }).then(documentContents => {
                                 if (documentContents) {
                                     page.updateModel();
-                                    flattenDocument();
+                                    // will flatten for download but form editing remains.
+                                    flattenDocument().then(rv => {
+                                    });
                                     $("#cpid").val(cpid);
                                     $("#docid").val(docid);
                                     $("#handler").val('download');
                                     $("#status").val('downloaded');
-
                                     let templateContents = document.getElementById('templatecontent').innerHTML;
                                     templateContents = templateContents.replace(/(<\/iframe>)/g, '')
                                     documentContents = templateContents.replace(/(<iframe[^>]+>)/g, documentContents);
                                     $("#content").val(documentContents);
                                     signerAlertMsg("Waiting for Download.", 6500, "info");
                                     $("#template").submit();
-
                                     page.renderModelView(false);
                                 }
                             }).catch(error => {
@@ -347,12 +350,12 @@ var page = {
                         formFrame.contentWindow.postMessage({submitForm: true}, window.location.origin);
                     } else {
                         // don't save let charting do that.
-                        flattenDocument();
+                        flattenDocument().then(rv => {
+                        });
                         let documentContents = document.getElementById('templatecontent').innerHTML;
                         $("#content").val(documentContents);
                         $("#template").submit();
                         signerAlertMsg(xl('Downloading Document!'), 1000, 'success', 'lg');
-
                         page.renderModelView(false);
                     }
                 });
@@ -362,8 +365,6 @@ var page = {
                 $("#chartHistory").hide();
                 if (page.version === 'Legacy') {
                     $("#saveTemplate").hide();
-                    $("#sendTemplate").hide();
-                    $("#submitTemplate").hide();
                 } else {
                     page.isLocked ? $("#saveTemplate").hide() : $("#saveTemplate").show();
                     page.isLocked ? $("#sendTemplate").hide() : $("#sendTemplate").show();
@@ -429,7 +430,7 @@ var page = {
                     formFrame.contentWindow.postMessage({submitForm: true}, window.location.origin);
                 } else {
                     model.reloadCollectionOnModelUpdate = false;
-                    // @TODO do we need to save the template in data array? Security
+                    // @TODO only need is for downloads and pdf
                     // let documentContents = document.getElementById('templatecontent').innerHTML;
                     // $("#content").val(documentContents);
                     pageAudit.onsitePortalActivity.set('status', 'waiting');
@@ -443,15 +444,14 @@ var page = {
                     pageAudit.onsitePortalActivity.set('status', 'waiting');
                 } else {
                     pageAudit.onsitePortalActivity.set('status', 'editing');
-                    flattenDocument();
+                    flattenDocument().then(r => {
+                    });
                 }
-                var documentContents = document.getElementById('templatecontent').innerHTML;
+                let documentContents = document.getElementById('templatecontent').innerHTML;
                 $("#docid").val(docid);
                 // @TODO PHP submit will use hidden content embedded in form object.
                 $("#content").val(documentContents);
-
                 $("#template").submit();
-
                 page.updateModel();
             });
             $("#chartHistory").unbind().on('click', function () {
@@ -477,9 +477,9 @@ var page = {
                 $('.navbar-collapse').collapse('hide');
             });
             if (page.version === 'Legacy' && isPortal) {
-                alert(page.onsiteDocument.get('docType') + " is no longer available for edits." + "\n" +
-                    "If the document has been submitted it will still be reviewed.\n" +
-                    "Otherwise please delete this document and start again."
+                alert(page.onsiteDocument.get('docType') + " is available for one last edit." + "\n" +
+                    "Then must be deleted and redone or submitted for review. This is due to our new document workflow.\n" +
+                    "We appreciate your patience."
                 )
             }
         });
@@ -537,22 +537,18 @@ var page = {
         let formFrame = document.getElementById('encounterForm');
         formFrame.contentWindow.postMessage({submitForm: 'history'}, window.location.origin);
     },
-    chartTemplate: function (documentContents = '', type = '') {
-        if (type === 'flat') {
-            flattenDocument();
-            documentContents = document.getElementById('templatecontent').innerHTML;
-        }
+    postTemplate: function (documentContents) {
         $("#docid").val(docid);
         $("#handler").val('chart');
         $("#status").val('charted');
-
         signerAlertMsg(alertMsg1, 3000, "warning");
         let posting = $.post("./../lib/doc_lib.php", {
             csrf_token_form: csrfTokenDoclib,
             cpid: cpid,
             docid: docid,
-            catid: catid,
+            catid: catid || '',
             content: documentContents,
+            type: type,
             handler: "chart"
         });
         posting.done(function (rtn) {
@@ -573,6 +569,17 @@ var page = {
             $('#templatecontent').html(documentContents);
             page.updateModel();
         });
+    },
+    chartTemplate: function (documentContents = '', type = '') {
+        if (type === 'flatten' || page.version === 'Legacy') {
+            flattenDocument().then(r => {
+                documentContents = document.getElementById('templatecontent').innerHTML;
+                page.postTemplate(documentContents);
+            });
+        } else {
+            page.postTemplate(documentContents);
+        }
+
     },
     /**
      * Fetch the collection data from the server
@@ -657,7 +664,6 @@ var page = {
             let templateContents = page.onsiteDocument.get('fullDocument');
             page.encounterFormId = page.onsiteDocument.get("encounter") ?? 0;
             page.isFrameForm = templateContents.includes("</iframe>");
-
             if (page.isFrameForm) {
                 $("#saveTemplate").show();
                 // modify the iFrames url in embedded content
@@ -763,7 +769,7 @@ var page = {
             cdate = cdate.toString().substring(0, cnt);
         }
         $('#docPanelHeader').append('<span class="bg-light text-dark px-1">' + jsText(currentNameStyled) + '</span>' +
-            jsText( ' ' + page.version + ' Version:' + ' Dated:' + cdate + ' Status:' + status));
+            jsText(' ' + page.version + ' Version:' + ' Dated:' + cdate + ' Status:' + status));
     }
     ,
     /**
@@ -780,7 +786,11 @@ var page = {
             page.onsiteDocument.fetch({
                 success: function () {
                     if (page.isDashboard || page.onsiteDocument.get('denialReason') === 'Locked') {
-                        page.renderModelView(false); // @todo TBD when should delete be allowed?
+                        if (page.isDashboard) {
+                            page.renderModelView(true); // allow admin to delete
+                        } else {
+                            page.renderModelView(false);
+                        }
                     } else {
                         page.renderModelView(true);
                     }
@@ -876,6 +886,7 @@ var page = {
 
         page.version = $('#portal_version').val() !== 'undefined' ? $('#portal_version').val() : '';
         let data = page.fetchTempateElements(event);
+        saveType = saveType !== '' ? saveType : page.isFlattened ? 'flattened' : '';
         // This uses the framework routing.
         page.onsiteDocument.save({
             'pid': cpid,
@@ -893,12 +904,14 @@ var page = {
             'denialReason': page.onsiteDocument.get('denialReason'),
             'authorizedSignature': page.onsiteDocument.get('authorizedSignature'),
             'patientSignature': ptsignature,
-            'fullDocument': '', // TODO templateContent,
+            // flattened document save if flattened after admin review
+            // controller will run it through purifier because flatten converts elements.
+            'fullDocument': page.isFlattened ? templateContent : '',
             'fileName': page.onsiteDocument.get('fileName'),
             'filePath': page.onsiteDocument.get('filePath'),
             'templateData': data,
             'version': page.version,
-            'type': saveType
+            'type': page.isFlattened ? 'flattened' : saveType // just being sure!
         }, {
             wait: true,
             success: function () {

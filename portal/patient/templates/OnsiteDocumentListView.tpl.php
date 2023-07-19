@@ -240,6 +240,7 @@ $templateService = new DocumentTemplateService();
             });
         }
 
+        // Many of these functions are now deprecated and will stay for legacy.
         function templateText(el) {
             $(el).data('textvalue', $(el).val());
             $(el).attr("data-textvalue", $(el).val())
@@ -355,8 +356,8 @@ $templateService = new DocumentTemplateService();
 
         function formReplaceCheckMarks() {
             $('.checkMark').each(function () {
-                let v = $(this).val();
-                if (v === 'on')
+                let v = $(this).is(':checked');
+                if (v)
                     $(this).replaceWith(' [\u2713] ')
                 else {
                     $(this).replaceWith(" [ ] ")
@@ -385,8 +386,8 @@ $templateService = new DocumentTemplateService();
             });
         }
 
-        // These functions are now deprecated and will stay for kegacy.
-        function flattenDocument() {
+        // A simple (being facetious!) await!.
+        const flattenDocumentAsync = async () => {
             if (page.version === 'Legacy') {
                 replaceCheckMarks();
                 replaceRadioValues();
@@ -398,6 +399,11 @@ $templateService = new DocumentTemplateService();
                 formReplaceRadioValues();
                 replaceSignatures()
             }
+            page.isFlattened = true;
+        }
+
+        const flattenDocument = async () =>  {
+            await flattenDocumentAsync();
             page.isFlattened = true;
         }
 

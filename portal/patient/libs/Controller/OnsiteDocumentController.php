@@ -239,7 +239,7 @@ class OnsiteDocumentController extends AppBasePortalController
                 $prepared_doc = $templateRender->doRender(null, $onsitedocument->FullDocument, $onsitedocument->TemplateData);
                 $onsitedocument->FullDocument = $prepared_doc;
             } else {
-                // Is legacy document but lets be sure.
+                // Is legacy document.
             }
             // Send back to UI collection.
             $this->RenderJSON($onsitedocument, $this->JSONPCallback(), true, $this->SimpleObjectParams());
@@ -321,6 +321,7 @@ class OnsiteDocumentController extends AppBasePortalController
      */
     public function Update()
     {
+        $is_portal = GlobalConfig::$PORTAL;
         try {
             $json = json_decode(RequestUtil::GetBody());
 
@@ -329,7 +330,35 @@ class OnsiteDocumentController extends AppBasePortalController
             }
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
+
             $existing_template = $onsitedocument->FullDocument;
+
+            $hasVersion = stripos($existing_template, 'portal_version') !== false;
+            if ($this->SafeGetVal($json, 'type') == 'flattened') {
+                $existing = $this->SafeGetVal($json, 'fullDocument');
+                if (!empty($existing)) {
+                    $config = HTMLPurifier_Config::createDefault();
+                    $config->set('Core.Encoding', 'UTF-8');
+                    $config->set('CSS.AllowedProperties', '*');
+                    // purifier will only allow base64 data urls in img tag.
+                    // all other element will be removed. Flatten document have already been sanitized
+                    // by replacing all inputs, checks and radios tags to their answers.
+                    // Thus Enter Comment: <input name="element" value="This is my comment I don't like purifier" />
+                    // renders to Enter Comment: 'This is my comment I don't like purifier in document.'
+                    $config->set('URI.AllowedSchemes', array('data' => true));
+                    $purify = new HTMLPurifier($config);
+                    $existing_template = $purify->purify($existing);
+                    // since this is a flatten document won't need to track legacy or not.
+                    if (!$hasVersion) {
+                        $existing_template = $existing_template . "<input id='portal_version' name='portal_version' type='hidden' value='New' />";
+                    }
+                }
+            } elseif (!empty($this->SafeGetVal($json, 'fullDocument'))) { // test if an unexpected document is sent.
+                // the only time a document is allow from interface is fo flattened documents
+                // which should be flagged and even still if flagged HTMLPurifier will blow it up.
+                error_log(xlt("Invalid save attempt. Suspected portal document attack!"));
+                throw new Exception(xlt("Invalid save attempt"));
+            }
 
             // only allow patient to update themselves (part 1)
             if (!empty($GLOBALS['bootstrap_pid'])) {
@@ -359,8 +388,7 @@ class OnsiteDocumentController extends AppBasePortalController
             $onsitedocument->DenialReason = $this->SafeGetVal($json, 'denialReason', $onsitedocument->DenialReason);
             $onsitedocument->AuthorizedSignature = $this->SafeGetVal($json, 'authorizedSignature', $onsitedocument->AuthorizedSignature);
             $onsitedocument->PatientSignature = $this->SafeGetVal($json, 'patientSignature', $onsitedocument->PatientSignature);
-            // leave original template that was populated during create save. API Collection value is now excluded.
-            $onsitedocument->FullDocument = $existing_template; // Previous version from record.
+            $onsitedocument->FullDocument = $existing_template; // retain original template that was populated during create save.
             $onsitedocument->FileName = $this->SafeGetVal($json, 'fileName', $onsitedocument->FileName);
             $onsitedocument->FilePath = $this->SafeGetVal($json, 'filePath', $onsitedocument->FilePath);
             $onsitedocument->TemplateData = $this->SafeGetVal($json, 'templateData', $onsitedocument->TemplateData);

@@ -37,9 +37,9 @@ class DocumentTemplateRender
     private int $groupLevel = 0; // 0 if not in a {GRP} section
     private int $groupCount = 0; // 0 if no items in the group yet
     private string $itemSeparator = '; '; // separator between group items
-    private $ptrow = null;
-    private $enrow = null;
-    private $hisrow = null;
+    private $ptrow = [];
+    private $enrow = [];
+    private $hisrow = [];
     private int $inputs_cnt = -1;
     private int $obj_cnt = -1;
     private int $grp_cnt = -1;
@@ -143,7 +143,6 @@ class DocumentTemplateRender
         $this->nextLocation = 0;
         $this->groupLevel = 0;
         $this->groupCount = 0;
-        $version = text($this->version);
 
         while (($this->keyLocation = strpos($s, '{', $this->nextLocation)) !== false) {
             $this->nextLocation = $this->keyLocation + 1;
@@ -264,7 +263,7 @@ class DocumentTemplateRender
             } elseif ($this->keySearch($s, '{CheckMark}')) {
                 $this->chk_cnt++;
                 $checked = !empty($formData['check' . $this->chk_cnt] ?? '') ? "checked" : '';
-                $sigfld = '<span mx-1>';
+                $sigfld = '<span class="mx-1">';
                 $sigfld .= '<input class="checkMark" type="checkbox" name="check' . $this->chk_cnt . '" ' . $checked . ' />';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
@@ -273,7 +272,7 @@ class DocumentTemplateRender
                 $true = ($formData['ynradio' . $this->grp_cnt] ?? '') == 'Yes' ? "checked" : '';
                 $false = ($formData['ynradio' . $this->grp_cnt] ?? '') == 'No' ? "checked" : '';
                 $sigfld = '<span class="ynuGroup mr-1" id="ynradio' . $this->grp_cnt . '">';
-                $sigfld .= '<label class="mr-1">' .
+                $sigfld .= '<label class="mx-1">' .
                     '<input class="ynRadio mr-1" type="radio" ' . $true . ' name="ynradio' . $this->grp_cnt . '" value="Yes" />' . xlt("Yes") .
                     '</label>';
                 $sigfld .= '<label>' .
@@ -342,6 +341,10 @@ class DocumentTemplateRender
                 // $s = @$this->keyReplace($s, $this->dataFixup(oeFormatShortDate(substr($this->enrow['date'], 0, 10)), xl('Service Date')));     // changed DOS to todays date- add future enc DOS
                 $s = @$this->keyReplace($s, $this->dataFixup(oeFormatShortDate(substr(date("Y-m-d"), 0, 10)), xl('Service Date')));
             } elseif ($this->keySearch($s, '{ChiefComplaint}')) {
+                if (empty($this->enrow ?? null)) {
+                    $s = $this->keyReplace($s, '');
+                    continue;
+                }
                 $cc = $this->enrow['reason'];
                 $patientid = $this->ptrow['pid'];
                 $DOS = substr($this->enrow['date'], 0, 10);
