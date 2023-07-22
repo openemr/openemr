@@ -916,6 +916,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             border-radius: 0;
         }
 
+        /* Short term fix. This ensures the problem list, allergies, medications, and immunization cards handle long lists without interuppting
+           the UI. This should be configurable and should go in a more appropriate place */
+        .pami-list {
+            max-height: 200px;
+            overflow-y: scroll;
+        }
+
         <?php
         if (!empty($GLOBALS['right_justify_labels_demographics']) && ($_SESSION['language_direction'] == 'ltr')) { ?>
         div.tab td.label_custom, div.label_custom {
@@ -1016,65 +1023,117 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             $idcard_doc_id = get_document_by_catg($pid, $GLOBALS['patient_id_category_name'], 3);
         }
         ?>
-        <div class="main mb-5">
+        <div class="main mb-1">
             <!-- start main content div -->
             <div class="row">
-                <div class="col-12 d-flex flex-row">
                     <?php
                     $t = $twig->getTwig();
+
+                    $allergy = (AclMain::aclCheckIssue('allergy')) ? 1 : 0;
+                    $pl = (AclMain::aclCheckIssue('medical_problem')) ? 1 : 0;
+                    $meds = (AclMain::aclCheckIssue('medication')) ? 1 : 0;
+                    $cards = $allergy + $pl + $meds;
+                    $col = "p-1 ";
+
+                    switch ($cards) {
+                        case '1':
+                            $col .= "col-12";
+                            break;
+
+                        case '2':
+                            $col .= "col-6";
+                            break;
+
+                        case '3':
+                            $col .= "col-4";
+                            break;
+
+                        default:
+                            $col .= "col";
+                            break;
+                    }
+
+                    /**
+                     * Helper function to return only issues with an outcome not equal to resolved
+                     *
+                     * @param array $i An array of issues
+                     * @return array
+                     */
+                    function filterActiveIssues(array $i): array
+                    {
+                        return array_filter($i, function ($_i) {
+                            return $_i['outcome'] != 1;
+                        });
+                    }
 
                     // ALLERGY CARD
                     if (AclMain::aclCheckIssue('allergy')) {
                         $allergyService = new AllergyIntoleranceService();
-                        $allergyList = $allergyService->getAll();
+                        $_rawAllergies = filterActiveIssues($allergyService->getAll()->getData());
+                        $_priority = [];
+                        $_standard = [];
+                        foreach ($_rawAllergies as $_) {
+                            if (in_array($_['severity_al'], ['severe', 'life_threatening_severity', 'fatal'])) {
+                                $_priority[] = $_;
+                            } else {
+                                $_standard[] = $_;
+                            }
+                        }
+
                         $viewArgs = [
                             'title' => xl('Allergies'),
                             'card_container_class_list' => ['flex-fill', 'mx-1'],
                             'id' => 'allergies_ps_expand',
-                            'forceAlwaysOpen' => true,
+                            'forceAlwaysOpen' => false,
                             'linkMethod' => "javascript",
-                            'list' => $allergyList->getData(),
+                            'list' => ['priority' => $_priority, 'standard' => $_standard],
                             'auth' => true,
                             'btnLabel' => 'Edit',
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=allergy')"
                         ];
+                        echo "<div class=\"$col\">";
                         echo $t->render('patient/card/allergies.html.twig', $viewArgs);
+                        echo "</div>";
                     }
 
                     $patIssueService = new PatientIssuesService();
 
                     // MEDICAL PROBLEMS CARD
                     if (AclMain::aclCheckIssue('medical_problem')) {
-                        $medProblemList = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medical_problem']);
+                        $_rawPL = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medical_problem'])->getData();
                         $viewArgs = [
                             'title' => xl('Medical Problems'),
                             'card_container_class_list' => ['flex-fill', 'mx-1'],
                             'id' => 'medical_problem_ps_expand',
-                            'forceAlwaysOpen' => true,
+                            'forceAlwaysOpen' => false,
                             'linkMethod' => "javascript",
-                            'list' => $medProblemList->getData(),
+                            'list' => filterActiveIssues($_rawPL),
                             'auth' => true,
                             'btnLabel' => 'Edit',
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medical_problem')"
                         ];
+                        echo "<div class=\"$col\">";
                         echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
+                        echo "</div>";
                     }
 
                     // MEDICATION CARD
                     if (AclMain::aclCheckIssue('medication')) {
-                        $medList = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medication']);
+                        $_rawMedList = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medication'])->getData();
                         $viewArgs = [
                             'title' => xl('Medications'),
                             'card_container_class_list' => ['flex-fill', 'mx-1'],
                             'id' => 'medications_ps_expand',
-                            'forceAlwaysOpen' => true,
+                            'forceAlwaysOpen' => false,
                             'linkMethod' => "javascript",
-                            'list' => $medList->getData(),
+                            'list' => filterActiveIssues($_rawMedList),
                             'auth' => true,
                             'btnLabel' => 'Edit',
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication')"
                         ];
-                        echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
+                        echo "<div class=\"$col\">";
+                        echo $t->render('patient/card/medication.html.twig', $viewArgs);
+                        echo "</div>";
                     }
 
                     // Render the Prescriptions card if turned on
@@ -1550,8 +1609,18 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 <div class="col-md-4">
                     <!-- start right column div -->
                     <?php
-                    // it's important enough to always show it
-                    $portalCard = new PortalCard($GLOBALS);
+                    $_extAccess = [
+                        $GLOBALS['portal_onsite_two_enable'],
+                        $GLOBALS['rest_fhir_api'],
+                        $GLOBALS['rest_api'],
+                        $GLOBALS['rest_portal_api'],
+                    ];
+                    foreach ($_extAccess as $_) {
+                        if ($_) {
+                            $portalCard = new PortalCard($GLOBALS);
+                            break;
+                        }
+                    }
 
                     $sectionRenderEvents = $ed->dispatch(new SectionEvent('secondary'), SectionEvent::EVENT_HANDLE);
                     $sectionCards = $sectionRenderEvents->getCards();
