@@ -227,7 +227,7 @@ function generate_select_list(
             // the xl_list_label() function here
             $optionLabel = text($lrow ['title']);
 
-            $_tmp= [
+            $_tmp = [
                 'label' => $optionLabel,
                 'value' => $optionValue,
                 'isSelected' => $isSelected,
