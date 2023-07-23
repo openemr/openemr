@@ -546,6 +546,13 @@ $GLOBALS_METADATA = array(
             xl('Show Title on Login')
         ),
 
+        'show_primary_logo' => [
+            xl('Show primary logo on login'),
+            'bool',
+            '1',
+            xl('Show primary logo on login'),
+        ],
+
         'extra_logo_login' => array(
             xl('Show Secondary Logo on Login'),
             'bool',                           // data type

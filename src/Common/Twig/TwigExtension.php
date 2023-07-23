@@ -22,6 +22,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\Kernel;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\GlobalsService;
+use OpenEMR\Services\LogoService;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
@@ -208,6 +209,13 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 'aclCore',
                 function ($section, $value, $user = '', $return_value = '') {
                     return AclMain::aclCheckCore($section, $value, $user, $return_value);
+                }
+            ),
+            new TwigFunction(
+                'getLogo',
+                function (string $type, string $filename = "logo.*") {
+                    $ls = new LogoService();
+                    return $ls->getLogo($type, $filename);
                 }
             )
         ];

@@ -284,6 +284,7 @@ class QuestionnaireResponseService extends BaseService
                 FROM questionnaire_response
              ) qr "
             . " LEFT JOIN form_questionnaire_assessments fqa ON fqa.response_id = qr.response_id " // TODO: @adunsulag is this field indexed?
+            . " LEFT JOIN (SELECT uuid AS questionnaire_uuid,id AS q_repo_id FROM questionnaire_repository)  q_repo ON qr.questionnaire_foreign_id = q_repo.q_repo_id "
             . " LEFT JOIN forms f ON fqa.id = f.form_id AND f.formdir='questionnaire_assessments' "
             . " LEFT JOIN (
                     SELECT
@@ -309,7 +310,7 @@ class QuestionnaireResponseService extends BaseService
             // this makes sure we grab the entire patient record and associated data
             $whereClause = " WHERE qr.questionnaire_response_uuid IN (" . implode(",", array_map(function ($uuid) {
                     return "?";
-            }, $uuidResults)) . ")";
+            }, $uuidResults)) . ") ORDER BY qr.create_time DESC ";
             $statementResults = QueryUtils::sqlStatementThrowException($sqlSelectData . $sql . $whereClause, $uuidResults);
             $processingResult = new ProcessingResult();
             foreach ($statementResults as $record) {
