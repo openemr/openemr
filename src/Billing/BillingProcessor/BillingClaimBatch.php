@@ -35,6 +35,7 @@ class BillingClaimBatch
     protected $bat_icn;
     protected $bat_filename;
     protected $bat_filedir;
+    protected $bat_gs06;
 
     /**
      * Array of claims contained in this batch
@@ -194,8 +195,13 @@ class BillingClaimBatch
         return $unique_x12_partners;
     }
 
-    public function append_claim(&$segs)
+    public function append_claim(&$segs, $hcfa_txt = false)
     {
+        if ($hcfa_txt) {
+            $this->bat_content .= $segs;
+            return;
+        }
+
         foreach ($segs as $seg) {
             if (!$seg) {
                 continue;

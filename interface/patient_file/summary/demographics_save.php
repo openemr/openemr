@@ -11,11 +11,12 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Services\ContactService;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -50,6 +51,8 @@ $newdata['patient_data']['id'] = $_POST['db_id'];
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'DEM' AND uor > 0 AND field_id != '' " .
   "ORDER BY group_id, seq");
+
+$addressFieldsToSave = array();
 while ($frow = sqlFetchArray($fres)) {
     $data_type = $frow['data_type'];
     if ((int)$data_type === 52) {
@@ -67,20 +70,41 @@ while ($frow = sqlFetchArray($fres)) {
     // Get value only if field exist in $_POST (prevent deleting of field with disabled attribute)
     // *unless* the data_type is a checkbox ("21"), because if the checkbox is unchecked, then it will not
     // have a value set on the form, it will be empty.
-    if (isset($_POST["form_$field_id"]) || $data_type == 21) {
+    if ($data_type == 54) { // address list
+        $addressFieldsToSave[$field_id] = get_layout_form_value($frow);
+    } elseif (isset($_POST["form_$field_id"]) || $data_type == 21) {
         $newdata[$table][$colname] = get_layout_form_value($frow);
     }
 }
 
+// TODO: All of this should be bundled up inside a transaction...
+
 updatePatientData($pid, $newdata['patient_data']);
-updateEmployerData($pid, $newdata['employer_data']);
+if (!$GLOBALS['omit_employers']) {
+    updateEmployerData($pid, $newdata['employer_data']);
+}
+
+if (!empty($addressFieldsToSave)) {
+    // TODO: we would handle other types of address fields here,
+    // for now we will just go through and populate the patient
+    // address information
+    // TODO: how are error messages supposed to display if the save fails?
+    foreach ($addressFieldsToSave as $field => $addressFieldData) {
+        // if we need to save other kinds of addresses we could do that here with our field column...
+        $contactService = new ContactService();
+        $contactService->saveContactsForPatient($pid, $addressFieldData);
+    }
+}
 
 $i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
 $i1date = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date"));
+$i1date_end = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date_end"));
 
+$swap_value = $_POST['isSwapClicked'] ?? null;
+$type = ($swap_value == '2') ? "secondary" : "primary";
 newInsuranceData(
     $pid,
-    "primary",
+    $type,
     filter_input(INPUT_POST, "i1provider"),
     filter_input(INPUT_POST, "i1policy_number"),
     filter_input(INPUT_POST, "i1group_number"),
@@ -107,18 +131,28 @@ newInsuranceData(
     filter_input(INPUT_POST, 'form_i1subscriber_sex'),
     $i1date,
     filter_input(INPUT_POST, 'i1accept_assignment'),
-    filter_input(INPUT_POST, 'i1policy_type')
+    filter_input(INPUT_POST, 'i1policy_type'),
+    $i1date_end
 );
 
 //Dont save more than one insurance since only one is allowed / save space in DB
 if (!$GLOBALS['insurance_only_one']) {
     $i2dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i2subscriber_DOB"));
     $i2date = DateToYYYYMMDD(filter_input(INPUT_POST, "i2effective_date"));
+    $i2date_end = DateToYYYYMMDD(filter_input(INPUT_POST, "i2effective_date_end"));
 
+    // secondary swaps with primary, tertiary with secondary
+    if ($swap_value == '2') {
+        $type = "primary";
+    } elseif ($swap_value == '3') {
+        $type = "tertiary";
+    } else {
+        $type = "secondary";
+    }
 
     newInsuranceData(
         $pid,
-        "secondary",
+        $type,
         filter_input(INPUT_POST, "i2provider"),
         filter_input(INPUT_POST, "i2policy_number"),
         filter_input(INPUT_POST, "i2group_number"),
@@ -145,15 +179,19 @@ if (!$GLOBALS['insurance_only_one']) {
         filter_input(INPUT_POST, 'form_i2subscriber_sex'),
         $i2date,
         filter_input(INPUT_POST, 'i2accept_assignment'),
-        filter_input(INPUT_POST, 'i2policy_type')
+        filter_input(INPUT_POST, 'i2policy_type'),
+        $i2date_end
     );
 
     $i3dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i3subscriber_DOB"));
     $i3date = DateToYYYYMMDD(filter_input(INPUT_POST, "i3effective_date"));
+    $i3date_end = DateToYYYYMMDD(filter_input(INPUT_POST, "i3effective_date_end"));
+
+    $type = ($swap_value == '3') ? "secondary" : "tertiary";
 
     newInsuranceData(
         $pid,
-        "tertiary",
+        $type,
         filter_input(INPUT_POST, "i3provider"),
         filter_input(INPUT_POST, "i3policy_number"),
         filter_input(INPUT_POST, "i3group_number"),
@@ -180,7 +218,8 @@ if (!$GLOBALS['insurance_only_one']) {
         filter_input(INPUT_POST, 'form_i3subscriber_sex'),
         $i3date,
         filter_input(INPUT_POST, 'i3accept_assignment'),
-        filter_input(INPUT_POST, 'i3policy_type')
+        filter_input(INPUT_POST, 'i3policy_type'),
+        $i3date_end
     );
 }
 

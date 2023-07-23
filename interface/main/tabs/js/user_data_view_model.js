@@ -10,24 +10,27 @@
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2016-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
- * @copyright Copyright (c) 2018-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2018-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-function user_data_view_model(username,fname,lname,authGrp)
-{
-    var self=this;
-    self.username=ko.observable(username);
-    self.fname=ko.observable(fname);
-    self.lname=ko.observable(lname);
-    self.authorization_group=ko.observable(authGrp);
-    self.messages=ko.observable(false);
-    self.portal=ko.observable(isPortalEnabled);
-    self.portalAlerts=ko.observable("");
-    self.portalAudits=ko.observable("");
-    self.portalMail=ko.observable("");
-    self.portalChats=ko.observable("");
-    self.portalPayments=ko.observable("");
+function user_data_view_model(username, fname, lname, authGrp) {
+    const self = this;
+    self.username = ko.observable(username);
+    self.fname = ko.observable(fname);
+    self.lname = ko.observable(lname);
+    self.authorization_group = ko.observable(authGrp);
+    self.messages = ko.observable(false);
+    self.portal = ko.observable(isPortalEnabled);
+    self.portalAlerts = ko.observable("");
+    self.portalAudits = ko.observable("");
+    self.portalMail = ko.observable("");
+    self.portalChats = ko.observable("");
+    self.portalPayments = ko.observable("");
+    self.servicesOther = ko.observable(isServicesOther);
+    self.serviceAlerts = ko.observable("");
+    self.smsAlerts = ko.observable("");
+    self.faxAlerts = ko.observable("");
 
     return this;
 
@@ -138,4 +141,18 @@ function timeoutLogout()
 {
     top.restoreSession();
     document.getElementById("logoutinnerframe").src=webroot_url+"/interface/logout.php?timeout=1";
+}
+
+function viewSmsCount()
+{
+    navigateTab(webroot_url+"/interface/modules/custom_modules/oe-module-faxsms/messageUI.php?type=sms","sms", function () {
+        activateTabByName("sms",true);
+    });
+}
+
+function viewFaxCount()
+{
+    navigateTab(webroot_url+"/interface/modules/custom_modules/oe-module-faxsms/messageUI.php?type=fax","fax", function () {
+        activateTabByName("fax",true);
+    });
 }

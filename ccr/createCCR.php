@@ -33,7 +33,7 @@ if (isset($_GET['portal_auth'])) {
 }
 
 require_once(dirname(__FILE__) . "/../interface/globals.php");
-require_once(dirname(__FILE__) . "/../library/sql-ccr.inc");
+require_once(dirname(__FILE__) . "/../library/sql-ccr.inc.php");
 require_once(dirname(__FILE__) . "/uuid.php");
 require_once(dirname(__FILE__) . "/transmitCCD.php");
 require_once(dirname(__FILE__) . "/../custom/code_types.inc.php");
@@ -186,7 +186,8 @@ function gnrtCCR($ccr, $raw = "no", $requested_by = "")
         }
     } elseif (substr($raw, 0, 4) == "send") {
         $recipient = trim(stripslashes(substr($raw, 5)));
-        $result = transmitCCD($ccr, $recipient, $requested_by, "CCR");
+        $ccd_out = $ccr->saveXml();
+        $result = transmitCCD($pid, $ccd_out, $recipient, $requested_by, "CCR");
         echo htmlspecialchars($result, ENT_NOQUOTES);
         return;
     } else {
@@ -286,7 +287,8 @@ function viewCCD($ccr, $raw = "no", $requested_by = "")
 
     if (substr($raw, 0, 4) == "send") {
         $recipient = trim(stripslashes(substr($raw, 5)));
-        $result = transmitCCD($ccd, $recipient, $requested_by);
+        $ccd_out = $ccd->saveXml();
+        $result = transmitCCD($pid, $ccd_out, $recipient, $requested_by);
         echo htmlspecialchars($result, ENT_NOQUOTES);
         return;
     }

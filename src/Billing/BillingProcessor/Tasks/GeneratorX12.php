@@ -66,8 +66,20 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
     protected function updateBatchFile(BillingClaim $claim)
     {
         // Generate the file
-        $log = '';
-        $segs = explode("~\n", X125010837P::genX12837P($claim->getPid(), $claim->getEncounter(), $log, $this->encounter_claim));
+        $log = 'X12 ' . $claim->action . ' ';
+        $hlCount = 1;
+        $segs = explode(
+            "~\n",
+            X125010837P::genX12837P(
+                $claim->getPid(),
+                $claim->getEncounter(),
+                $claim->getPartner(),
+                $log,
+                $this->encounter_claim,
+                false,
+                $hlCount
+            )
+        );
         $this->appendToLog($log);
         $this->batch->append_claim($segs);
 
@@ -96,6 +108,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
     public function validateOnly(BillingClaim $claim)
     {
         $this->updateBatchFile($claim);
+        $this->printToScreen(xl("Successfully validated claim") . ": " . $claim->getId());
     }
 
     /**
@@ -124,6 +137,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
 
         // Update the batch file content with this claim's data
         $this->updateBatchFile($claim);
+        $this->printToScreen(xl("Successfully marked claim") . ": " . $claim->getId() .  " " . xl("as billed"));
     }
 
     /**
@@ -196,11 +210,13 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
         }
 
         // Tell the billing_process.php script to initiate a download of this file
-        // that's in the edi directory
-        $this->logger->setLogCompleteCallback(function () {
-            // This uses our parent's method to print the JS that automatically initiates
-            // the download of this file, after the screen bill_log messages have printed
-            $this->printDownloadClaimFileJS($this->batch->getBatFilename());
-        });
+        // that's in the edi directory unless it's going to be sent via sftp
+        if (!$GLOBALS['auto_sftp_claims_to_x12_partner']) {
+            $this->logger->setLogCompleteCallback(function () {
+                // This uses our parent's method to print the JS that automatically initiates
+                // the download of this file, after the screen bill_log messages have printed
+                $this->printDownloadClaimFileJS($this->batch->getBatFilename());
+            });
+        }
     }
 }

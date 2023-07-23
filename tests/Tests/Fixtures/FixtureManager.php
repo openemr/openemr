@@ -28,6 +28,9 @@ class FixtureManager
 
     private $patientFixtures;
     private $fhirPatientFixtures;
+    private $addressFixtures;
+    private $contactFixtures;
+    private $contactAddressFixtures;
 
     /**
      * @var
@@ -36,6 +39,9 @@ class FixtureManager
 
     public function __construct()
     {
+        $this->addressFixtures = $this->loadJsonFile("addresses.json");
+        $this->contactAddressFixtures = $this->loadJsonFile("contact-addresses.json");
+        $this->contactFixtures = $this->loadJsonFile("contacts.json");
         $this->patientFixtures = $this->loadJsonFile("patients.json");
         $this->fhirPatientFixtures = $this->loadJsonFile("FHIR/patients.json");
     }
@@ -172,6 +178,21 @@ class FixtureManager
     public function getSinglePatientFixture()
     {
         return $this->getSingleEntry($this->patientFixtures);
+    }
+
+    public function getSinglePatientFixtureWithAddressInformation()
+    {
+        $entry = $this->getSingleEntry($this->patientFixtures);
+        $address = $this->getSingleEntry($this->addressFixtures);
+        $contactAddress = $this->getSingleEntry($this->contactAddressFixtures);
+        $contactAddress['contact_id'] = hexdec(uniqid()); // just need a random unique id
+        unset($contactAddress['address_id']);
+
+        // now combine our contact address and address for our unique address information
+        $entry['addresses'] = [
+            array_merge($address, $contactAddress)
+        ];
+        return $entry;
     }
 
     /**

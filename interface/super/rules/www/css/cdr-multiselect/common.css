@@ -4,15 +4,10 @@
 	http://developer.yahoo.net/yui/license.txt
 	version: 2.2.0
 	*/
-body {
-  font: 13px "Helvetica", arial, clean, sans-serif;
-  *font: x-small;
-  *font-size: small;
-}
 
 table {
-  font: 100%;
-  font-size: inherit;
+  font-size: 100%;
+  *font-size: inherit;
 }
 
 select,
@@ -108,7 +103,7 @@ acronym {
 /* end of yahoo reset and fonts */
 
 body {
-  background: #232f2e;
+  background: #fff;
   color: #333;
   line-height: 1.3;
 }

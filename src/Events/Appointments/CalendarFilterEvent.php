@@ -9,7 +9,7 @@
 
 namespace OpenEMR\Events\Appointments;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Event object for creating custom filters on calendar events

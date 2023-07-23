@@ -383,6 +383,11 @@ function clearPatient()
         activateTabByName('fin',true);
     });
 
+    if (WindowTitleAddPatient) 
+    {
+        top.document.title = WindowTitleBase;
+    }
+ 
     //Ajax call to clear active patient in session
     $.ajax({
         type: "POST",

@@ -1,28 +1,31 @@
 <?php
 
 /**
-* Sql functions/classes for OpenEMR.
-*
-* Things related to layout based forms in general.
-*
-* Copyright (C) 2017-2021 Rod Roark <rod@sunsetsystems.com>
-*
-* LICENSE: This program is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
-*
-* @package   OpenEMR
-* @link      http://www.open-emr.org
-*/
+ * Sql functions/classes for OpenEMR.
+ *
+ * Things related to layout based forms in general.
+ *
+ * Copyright (C) 2017-2021 Rod Roark <rod@sunsetsystems.com>
+ * Copyright (c) 2022 Stephen Nielson <snielson@discoverandchange.com>
+ * Copyright (c) 2022 David Eschelbacher <psoas@tampabay.rr.com>
+ *
+ * LICENSE: This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://opensource.org/licenses/gpl-license.php>.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ */
 
 // array of the data_types of the fields
+// TODO: Move these all to a statically typed class with constants that can be referenced throughout the codebase!
 $datatypes = array(
     "1"  => xl("List box"),
     "2"  => xl("Textbox"),
@@ -60,6 +63,8 @@ $datatypes = array(
     "46" => xl("List box w/comment"),
     "51" => xl("Patient"),
     "52" => xl("Previous Names"),
+    "53" => xl("Patient Encounters List"),
+    "54" => xl("Address List")
 );
 
 // These are the data types that can reference a list.

@@ -48,6 +48,7 @@ exports.mentalStatusObservation = {
             dataKey: "value",
             existsWhen: condition.codeOrDisplayname
         }
+        ,fieldLevel.author
     ]
 };
 
@@ -92,6 +93,7 @@ var functionalStatusObservation = {
             dataKey: "value",
             existsWhen: condition.codeOrDisplayname
         }
+        ,fieldLevel.author
     ]
 };
 
@@ -120,6 +122,7 @@ var functionalStatusSelfCareObservation = {
                 displayName: "Independent"
             }
         }
+        ,fieldLevel.author
     ]
 };
 
@@ -147,8 +150,9 @@ exports.functionalStatusOrganizer = {
             attributes: {
                 code: leafLevel.inputProperty("status")
             }
-        },
-        [{
+        }
+        ,fieldLevel.author
+        ,[{
             key: "component",
             content: functionalStatusObservation,
             dataKey: "observation",

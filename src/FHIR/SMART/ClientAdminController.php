@@ -387,7 +387,7 @@ class ClientAdminController
             'contacts' => [
                 'type' => 'text'
                 ,'label' => xl("Contacts")
-                ,'value' => $client->getContacts()
+                ,'value' => implode("|", $client->getContacts())
             ],
             'registrationDate' => [
                 'type' => 'text'
@@ -413,7 +413,7 @@ class ClientAdminController
             'redirectUri' => [
                 'type' => 'text'
                 ,'label' => xl("Redirect URI")
-                ,'value' => $client->getRedirectUri()
+                ,'value' => implode("|", $client->getRedirectUri())
             ],
             'launchUri' => [
                 'type' => 'text'
@@ -812,6 +812,7 @@ class ClientAdminController
                         <h2>
                             <?php echo text($title); ?>
                             <a class="btn btn-secondary btn-sm float-right" href="<?php echo attr($this->getActionUrl([self::TOKEN_TOOLS_ACTION])); ?>" onclick="top.restoreSession()"><?php echo xlt("Token Tools"); ?></a>
+                            <a class="btn btn-secondary btn-sm float-right mr-2" href="<?php echo $GLOBALS['webroot']; ?>/interface/smart/register-app.php" onclick="top.restoreSession()"><?php echo xlt("Register New App"); ?></a>
                         </h2>
                     </div>
                 </div>

@@ -23,9 +23,10 @@
  * 07-2015: Ensoftek: Edited for MU2 170.314(b)(5)(A)
  */
 
-require_once($GLOBALS['srcdir'] . "/forms.inc");
-require_once($GLOBALS['srcdir'] . "/pnotes.inc");
+require_once($GLOBALS['srcdir'] . "/forms.inc.php");
+require_once($GLOBALS['srcdir'] . "/pnotes.inc.php");
 
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use phpseclib\Net\SFTP;
 
@@ -59,7 +60,8 @@ function parseZPS($segment)
         $zps[$pos]['lab_clia']
     ] = $composites;
     $labdir = $zps[0]['lab_director'][0] . " " . $zps[0]['lab_director'][1] . ", " . $zps[0]['lab_director'][2];
-    $address = $zps[0]['lab_address'][0] . "\n" . $zps[0]['lab_address'][2] . " " . $zps[0]['lab_address'][3] . " " . $zps[0]['lab_address'][4];
+    $address = $zps[0]['lab_address'][0] . "\n" . $zps[0]['lab_address'][2] . " " . $zps[0]['lab_address'][3] .
+        " " . $zps[0]['lab_address'][4];
     $r = $zps[0]['lab_name'] . "\n" . $address . "\n" . $zps[0]['lab_phone'] . "\n" . $labdir . "\n";
     return $r;
 }
@@ -70,7 +72,13 @@ function rhl7LogMsg($msg, $fatal = true)
     if ($fatal) {
         $rhl7_return['mssgs'][] = '*' . $msg;
         $rhl7_return['fatal'] = true;
-        EventAuditLogger::instance()->newEvent("lab-results-error", $_SESSION['authUser'], $_SESSION['authProvider'], 0, $msg);
+        EventAuditLogger::instance()->newEvent(
+            "lab-results-error",
+            $_SESSION['authUser'],
+            $_SESSION['authProvider'],
+            0,
+            $msg
+        );
     } else {
         $rhl7_return['mssgs'][] = '>' . $msg;
     }
@@ -416,8 +424,8 @@ function getPerformingOrganizationDetails($obx23, $obx24, $obx25, $componentdeli
         if (!empty($obx24)) {
             $obx24 = str_replace('~', ' ', $obx24);
             $obx24_segs = explode($componentdelimiter, $obx24);
-            //$s .= "$obx24_segs[0] $obx24_segs[1], $obx24_segs[2], $obx24_segs[3], $obx24_segs[4], $obx24_segs[5]" . $commentdelim;
-            $s .= "$obx24_segs[0]$commentdelim$obx24_segs[1]$commentdelim$obx24_segs[2], $obx24_segs[3] $obx24_segs[4]$commentdelim$obx24_segs[5]$commentdelim";
+            $s .= "$obx24_segs[0]$commentdelim$obx24_segs[1]$commentdelim$obx24_segs[2], " .
+                "$obx24_segs[3] $obx24_segs[4]$commentdelim$obx24_segs[5]$commentdelim";
             if (!empty($obx24_segs[6])) {
                 $s .= "$obx24_segs[6]$commentdelim";
             }
@@ -507,6 +515,7 @@ function match_lab(&$hl7, $send_acct, $lab_acct = '', $lab_app = '', $lab_npi = 
     }
 
     unset($segs);
+    // CMS has deactivated NPI 1891752424, not sure who AMMON is
     if ($lab_npi == '1891752424' || strtoupper($lab_npi) == 'AMMON') {
         if (strtoupper(trim($a[5])) == strtoupper(trim($send_acct))) {
             $srch = '|' . strtoupper(trim($send_acct)) . '-';
@@ -551,7 +560,8 @@ function create_encounter($pid, $provider_id, $order_date, $lab_name)
     addForm(
         $encounter,
         "Auto Generated Lab Encounter",
-        sqlInsert("INSERT INTO form_encounter SET " .
+        sqlInsert(
+            "INSERT INTO form_encounter SET " .
             "date = ?, " .
             "onset_date = '', " .
             "reason = ?, " .
@@ -559,7 +569,15 @@ function create_encounter($pid, $provider_id, $order_date, $lab_name)
             "referral_source = '', " .
             "pid = ?, " .
             "encounter = ?, " .
-            "provider_id = ?", array(date('Y-m-d H:i:s', strtotime($order_date)), "Generated encounter for " . strtoupper($lab_name) . " result", $pid, $encounter, ($provider_id ?? ''))),
+            "provider_id = ?",
+            array(
+                date('Y-m-d H:i:s', strtotime($order_date)),
+                "Generated encounter for " . strtoupper($lab_name) . " result",
+                $pid,
+                $encounter,
+                ($provider_id ?? '')
+            )
+        ),
         "newpatient",
         $pid,
         0,
@@ -597,7 +615,18 @@ function labNotice($pid, $newtext, $assigned_to = 'admin', $datetime = '', $labn
     return sqlInsert(
         "INSERT INTO pnotes (date, body, pid, user, groupname, " .
         "authorized, activity, title, assigned_to, message_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        array($datetime, $body, $pid, $message_sender, $message_group, $authorized, $activity, $title, $notify, $message_status)
+        array(
+            $datetime,
+            $body,
+            $pid,
+            $message_sender,
+            $message_group,
+            $authorized,
+            $activity,
+            $title,
+            $notify,
+            $message_status
+        )
     );
 }
 
@@ -796,7 +825,9 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
         if (empty($seg)) {
             continue;
         }
-
+        if ($seg == chr(28)) {
+            continue;
+        }
         // echo "<!-- $dryrun $seg -->\n"; // debugging
 
         ++$rhl7_segnum;
@@ -864,6 +895,8 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $in_orderid = 0;
             $in_ssn = preg_replace('/[^0-9]/', '', $a[4]);
             $in_dob = rhl7Date($a[7]);
+            // foreign MRN
+            $in_pubpid = rhl7Text($a[3] ?? '');
             $tmp = explode($d2, $a[11]);
             $in_street = rhl7Text($tmp[0]) ?? '';
             $in_street1 = rhl7Text($tmp[1] ?? '');
@@ -904,7 +937,8 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     'city' => $in_city,
                     'state' => $in_state,
                     'postal_code' => $in_zip,
-                    'phone_home' => $in_phone
+                    'phone_home' => $in_phone,
+                    'pubpid' => $in_pubpid
                 );
                 $patient_id = match_patient($ptarr);
                 if ($patient_id == -1) {
@@ -1058,6 +1092,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     $date_report = substr($datetime_report, 0, 10) . ' 00:00:00';
                     $encounter_id = 0;
                     $provider_id = 0;
+                    $external_id = rhl7Text($a[3]) ?? null;
                     // Look for the most recent encounter within 30 days of the report date.
                     $encrow = sqlQuery(
                         "SELECT encounter FROM form_encounter WHERE " .
@@ -1082,24 +1117,36 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     if (!$dryrun) {
                         // create an encounter. I mean, why not...
                         if (empty($encrow) && !$encounter_id) {
-                            $encounter_id = create_encounter($patient_id, $provider_id, $datetime_report, $in_message_lab_name);
+                            $encounter_id = create_encounter(
+                                $patient_id,
+                                $provider_id,
+                                $datetime_report,
+                                $in_message_lab_name
+                            );
                         }
                         // Now create the procedure order.
                         $in_orderid = sqlInsert(
                             "INSERT INTO procedure_order SET " .
-                            "date_ordered   = ?, " .
-                            "provider_id    = ?, " .
-                            "lab_id         = ?, " .
-                            "date_collected = ?, " .
-                            "date_transmitted = ?, " .
-                            "patient_id     = ?, " .
-                            "encounter_id   = ?, " .
-                            "control_id     = ?",
-                            array($datetime_report, $provider_id, $lab_id, rhl7DateTime($a[22]),
+                                "date_ordered   = ?, " .
+                                "provider_id    = ?, " .
+                                "lab_id         = ?, " .
+                                "date_collected = ?, " .
+                                "date_transmitted = ?, " .
+                                "patient_id     = ?, " .
+                                "encounter_id   = ?, " .
+                                "control_id     = ?, " .
+                                "external_id    = ?",
+                            array(
+                                $datetime_report,
+                                $provider_id,
+                                $lab_id,
+                                rhl7DateTime($a[22]),
                                 rhl7DateTime($a[7]),
                                 $patient_id,
                                 $encounter_id,
-                                $external_order_id)
+                                $external_order_id,
+                                $external_id
+                            )
                         );
                         // If an encounter was identified then link the order to it.
                         $form_name = ($lab_npi > '' ? $lab_npi : "Auto Result") . "-" . $in_orderid;
@@ -1108,10 +1155,11 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                         }
                         // create a note to provider about these actions
                         $txdate = rhl7DateTime($a[7]);
-                        $ptext = "$orphanLog $form_name Order ordered by $provider_username with lab result file creation date on " .
-                            "$datetime_report and specimen collections on $txdate has been created. " .
+                        $ptext = "$orphanLog $form_name Order ordered by" .  ($provider_username ?? '') .
+                            " with lab result file " .
+                            "creation date on $datetime_report and specimen collections on $txdate has been created. " .
                             "Please review these items to ensure proper resolution of order results.";
-                        $dumb = labNotice($patient_id, $ptext, $provider_username, '', $in_message_lab_name);
+                        $dumb = labNotice($patient_id, $ptext, ($provider_username ?? ''), '', $in_message_lab_name);
                     }
                 } // end no $porow
             } // end results-only
@@ -1173,7 +1221,11 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     $code_type = ($lkup['procedure_type'] ?? '') ? trim($lkup['procedure_type']) : '';
                     $code_transport = ($lkup['transport'] ?? '') ? trim($lkup['transport']) : '';
                     sqlBeginTrans();
-                    $procedure_order_seq = sqlQuery("SELECT IFNULL(MAX(procedure_order_seq),0) + 1 AS increment FROM procedure_order_code WHERE procedure_order_id = ? ", array($in_orderid));
+                    $procedure_order_seq = sqlQuery(
+                        "SELECT IFNULL(MAX(procedure_order_seq),0) + 1 AS increment FROM procedure_order_code " .
+                        "WHERE procedure_order_id = ? ",
+                        array($in_orderid)
+                    );
                     sqlInsert(
                         "INSERT INTO procedure_order_code SET " .
                         "procedure_order_id = ?, " .
@@ -1183,7 +1235,14 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                         "procedure_type = ?, " .
                         "transport = ?, " .
                         "procedure_source = '2'",
-                        array($in_orderid, $procedure_order_seq['increment'], $in_procedure_code, $in_procedure_name, $code_type, $code_transport)
+                        array(
+                            $in_orderid,
+                            $procedure_order_seq['increment'],
+                            $in_procedure_code,
+                            $in_procedure_name,
+                            $code_type,
+                            $code_transport
+                        )
                     );
                     $pcrow = sqlQuery($pcquery, $pcqueryargs);
                     sqlCommitTrans();
@@ -1255,7 +1314,11 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 && $amain[$i]['res'][$j]['result_status'] == rhl7ReportStatus($a[11] ?? '')
             ) {
                 $amain[$i]['res'][$j]['comments'] =
-                    substr($amain[$i]['res'][$j]['comments'], 0, strlen($amain[$i]['res'][$j]['comments'])) . rhl7Text($a[5] ?? '') . $commentdelim;
+                    substr(
+                        $amain[$i]['res'][$j]['comments'],
+                        0,
+                        strlen($amain[$i]['res'][$j]['comments'])
+                    ) . rhl7Text($a[5] ?? '') . $commentdelim;
                 continue;
             }
 
@@ -1324,9 +1387,16 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $ares['abnormal'] = rhl7Abnormal($a[8] ?? ''); // values are lab dependent
             $ares['result_status'] = rhl7ReportStatus($a[11] ?? '');
 
-            // Ensoftek: Performing Organization Details. Goes into "Pending Review/Patient Results--->Notes--->Facility" section.
+            // Ensoftek: Performing Organization Details.
+            // Goes into "Pending Review/Patient Results--->Notes--->Facility" section.
             if (empty($obrPerformingOrganization)) {
-                $performingOrganization = getPerformingOrganizationDetails($a[23] ?? '', $a[24] ?? '', $a[25] ?? '', $d2, $commentdelim);
+                $performingOrganization = getPerformingOrganizationDetails(
+                    $a[23] ?? '',
+                    $a[24] ?? '',
+                    $a[25] ?? '',
+                    $d2,
+                    $commentdelim
+                );
             } else {
                 $performingOrganization = $obrPerformingOrganization;
             }
@@ -1418,7 +1488,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 $amain[$alast]['res'][0]['facility'] .= $performingOrganization . $commentdelim;
             }
         } else {
-            return rhl7LogMsg(xl('Segment name') . " '${a[0]}' " . xl('is misplaced or unknown'));
+            return rhl7LogMsg(xl('Segment name') . " '{$a[0]}' " . xl('is misplaced or unknown'));
         }
     }
 
@@ -1470,7 +1540,7 @@ function poll_hl7_results(&$info, $labs = 0)
 
     $filecount = 0;
     $badcount = 0;
-    $maxdl = $_REQUEST['form_max_results'];
+    $maxdl = $_REQUEST['form_max_results'] ?? 9999; // in case to prevent not running report.
     if (!isset($info['match'])) {
         $info['match'] = array(); // match requests
     }
@@ -1482,7 +1552,7 @@ function poll_hl7_results(&$info, $labs = 0)
     $ppres = sqlStatement("SELECT * FROM procedure_providers ORDER BY name");
 
     while ($pprow = sqlFetchArray($ppres)) {
-        $ppid = 0 + $pprow['ppid'];
+        $ppid = (int)$pprow['ppid'];
         $protocol = $pprow['protocol'];
         $remote_host = $pprow['remote_host'];
         $send_account = $pprow['send_fac_id'];
@@ -1490,7 +1560,7 @@ function poll_hl7_results(&$info, $labs = 0)
         $lab_app = $pprow['recv_app_id'];
         $lab_name = $pprow['name'];
         $lab_npi = strtoupper(trim($pprow['npi']));
-        $debug = trim($pprow['DorP']) === 'D' ? true : false;
+        $debug = trim($pprow['DorP']) === 'D';
         $hl7 = '';
         $orphanLog = '';
         $log = '';
@@ -1511,7 +1581,7 @@ function poll_hl7_results(&$info, $labs = 0)
             $remote_port = 22;
             // Hostname may have ":port" appended to specify a nonstandard port number.
             if ($i = strrpos($remote_host, ':')) {
-                $remote_port = 0 + substr($remote_host, $i + 1);
+                $remote_port = (int)substr($remote_host, $i + 1);
                 $remote_host = substr($remote_host, 0, $i);
             }
 
@@ -1529,7 +1599,7 @@ function poll_hl7_results(&$info, $labs = 0)
 
             $files = $sftp->nlist($pathname);
             foreach ($files as $file) {
-                if (substr($file, 0, 1) === '.') {
+                if (str_starts_with($file, '.')) {
                     continue;
                 }
 
@@ -1554,10 +1624,13 @@ function poll_hl7_results(&$info, $labs = 0)
 
                 // Get file contents.
                 $hl7 = $sftp->get("$pathname/$file");
+
                 ++$filecount;
                 $fh = fopen("$prpath/$file", 'w');
                 if ($fh) {
-                    fwrite($fh, $hl7);
+                    // Store the file, encrypted when enabled
+                    $hl7_crypt = hl7Crypt($hl7);
+                    fwrite($fh, $hl7_crypt);
                     fclose($fh);
                     $log .= "Retrieved and Saved File #$filecount: $file\n";
                 } else {
@@ -1569,7 +1642,8 @@ function poll_hl7_results(&$info, $labs = 0)
                 if (!empty($info["$lab_name/$ppid/$file"]['delete'])) {
                     $fh = fopen("$prpath/$file.rejected", 'w');
                     if ($fh) {
-                        fwrite($fh, $hl7);
+                        $hl7_crypt = hl7Crypt($hl7);
+                        fwrite($fh, $hl7_crypt);
                         fclose($fh);
                     } else {
                         $log .= "Retrieved but Couldn't Save Rejected File #$filecount: $file\n";
@@ -1593,7 +1667,8 @@ function poll_hl7_results(&$info, $labs = 0)
                 }
                 // Do a dry run of its contents and check for errors and match requests.
                 $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $pprow['direction'], true, $info['select']);
-                $log .= "Lab matched account $send_account. Results Dry Run Parse for Errors: " . $tmp['mssgs'] ? print_r($tmp['mssgs'], true) : "None" . "\n";
+                $log .= "Lab matched account $send_account. Results Dry Run Parse for Errors: " .
+                    $tmp['mssgs'] ? print_r($tmp['mssgs'], true) : "None" . "\n";
 
                 $info["$lab_name/$ppid/$file"]['mssgs'] = $tmp['mssgs'];
                 // $info["$lab_name/$ppid/$file"]['match'] = $tmp['match'];
@@ -1610,7 +1685,8 @@ function poll_hl7_results(&$info, $labs = 0)
                     // It worked, archive and delete the file.
                     $fh = fopen("$prpath/$file", 'w');
                     if ($fh) {
-                        fwrite($fh, $hl7);
+                        $hl7_crypt = hl7Crypt($hl7);
+                        fwrite($fh, $hl7_crypt);
                         fclose($fh);
                         $log .= "Success Saved Results #$filecount to: $file\n";
                     } else {
@@ -1647,13 +1723,14 @@ function poll_hl7_results(&$info, $labs = 0)
             // Sort by filename just because.
             $files = array();
             while (false !== ($file = readdir($dh))) {
-                if (substr($file, 0, 1) == '.') {
+                if (str_starts_with($file, '.')) {
                     continue;
                 }
-
+                if (is_dir($file)) {
+                    continue;
+                }
                 $files[$file] = $file;
             }
-
             closedir($dh);
             ksort($files);
             // For each file...
@@ -1675,10 +1752,17 @@ function poll_hl7_results(&$info, $labs = 0)
 
                 // Get file contents.
                 $hl7 = file_get_contents("$pathname/$file");
+
                 ++$filecount;
+                if (empty($hl7)) {
+                    $log .= "Result file empty for some reason. #$filecount: $file\n";
+                    continue;
+                }
+
                 $fh = fopen("$prpath/$file", 'w');
                 if ($fh) {
-                    fwrite($fh, $hl7);
+                    $hl7_crypt = hl7Crypt($hl7);
+                    fwrite($fh, $hl7_crypt);
                     fclose($fh);
                     $log .= "Retrieved and Saved File #$filecount: $file\n";
                 }
@@ -1686,7 +1770,8 @@ function poll_hl7_results(&$info, $labs = 0)
                 if (!empty($info["$lab_name/$ppid/$file"]['delete'])) {
                     $fh = fopen("$prpath/$file.rejected", 'w');
                     if ($fh) {
-                        fwrite($fh, $hl7);
+                        $hl7_crypt = hl7Crypt($hl7);
+                        fwrite($fh, $hl7_crypt);
                         fclose($fh);
                     } else {
                         return xl('Cannot create file') . ' "' . "$prpath/$file.rejected" . '"';
@@ -1710,7 +1795,8 @@ function poll_hl7_results(&$info, $labs = 0)
                 // Do a dry run of its contents and check for errors and match requests.
                 $tmp = receive_hl7_results($hl7, $info['match'], $ppid, $pprow['direction'], true, $info['select']);
                 if (!empty($tmp['mssgs'])) {
-                    $log .= "Lab matched account $send_account. Results Dry Run Parse for Errors: " . $tmp['mssgs'] ? print_r($tmp['mssgs'], true) : "None" . "\n";
+                    $log .= "Lab matched account $send_account. Results Dry Run Parse for Errors: " .
+                        $tmp['mssgs'] ? print_r($tmp['mssgs'][0], true) : "None" . "\n";
                 }
 
                 $info["$lab_name/$ppid/$file"]['mssgs'] = $tmp['mssgs'];
@@ -1728,7 +1814,8 @@ function poll_hl7_results(&$info, $labs = 0)
                     // It worked, archive and delete the file.
                     $fh = fopen("$prpath/$file", 'w');
                     if ($fh) {
-                        fwrite($fh, $hl7);
+                        $hl7_crypt = hl7Crypt($hl7);
+                        fwrite($fh, $hl7_crypt);
                         fclose($fh);
                         $log .= "Success Saved Results #$filecount to: $prpath/$file\n";
                     } else {
@@ -1814,7 +1901,8 @@ function poll_hl7_results(&$info, $labs = 0)
                 if (!empty($info["$lab_name/$ppid/$file"]['delete'])) {
                     $fh = fopen("$prpath/$file.rejected", 'w');
                     if ($fh) {
-                        fwrite($fh, $hl7);
+                        $hl7_crypt = hl7Crypt($hl7);
+                        fwrite($fh, $hl7_crypt);
                         fclose($fh);
                     } else {
                         return xl('Cannot create file') . ' "' . "$prpath/$file.rejected" . '"';
@@ -1846,7 +1934,8 @@ function poll_hl7_results(&$info, $labs = 0)
                     // It worked, archive and delete the file.
                     $fh = fopen("$prpath/$file", 'w');
                     if ($fh) {
-                        fwrite($fh, $hl7);
+                        $hl7_crypt = hl7Crypt($hl7);
+                        fwrite($fh, $hl7_crypt);
                         fclose($fh);
                     } else {
                         return xl('Cannot create file') . ' "' . "$prpath/$file" . '"';
@@ -1865,4 +1954,18 @@ function poll_hl7_results(&$info, $labs = 0)
 
     return '';
 }
-// PHP end tag omitted intentionally.
+
+/**
+ * Encrypt the content of the hl7 file if the global is turned on.
+ *
+ * @param string $content The unencrypted content of the hl7.
+ * @return string         The encrypted content of the hl7 if the global is set.
+ */
+function hl7Crypt($content)
+{
+    if ($GLOBALS['drive_encryption']) {
+        $content = (new CryptoGen())->encryptStandard($content, null, 'database');
+    }
+
+    return $content;
+}

@@ -1,18 +1,21 @@
 <?php
 
 /**
- * Patient Portal
+ * Patient Portal Documents
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
- * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 
 $pid = $this->cpid;
 $recid = $this->recid;
@@ -28,6 +31,7 @@ $encounter = '';
 $include_auth = true;
 // for location assign
 $referer = $GLOBALS['web_root'] . "/controller.php?document&upload&patient_id=" . attr_url($pid) . "&parent_id=" . attr_url($category) . "&";
+$referer_portal = $GLOBALS['web_root'] . "/portal/quickstart_page.php";
 
 if (empty($is_module)) {
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Documents"));
@@ -50,6 +54,8 @@ if (!$docid) {
 $isnew = false;
 $ptName = $_SESSION['ptName'] ?? $pid;
 $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
+
+$templateService = new DocumentTemplateService();
 ?>
 <!DOCTYPE html>
 <html>
@@ -71,13 +77,19 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
         ";var catid=" . js_escape($category) . ";var catname=" . js_escape($catname) . ";</script>";
     echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) . ";var help_id=" . js_escape($help_id) . ";</script>";
     echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";var webroot_url = webRoot;</script>";
+    echo "<script>var csrfTokenDoclib=" . js_escape(CsrfUtils::collectCsrfToken('doc-lib')) . ";</script>";
     // translations
     echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": " . attr($catname) . "';</script>";
     echo "<script>var msgSuccess='" . xlt("Updates Successful") . "';</script>";
     echo "<script>var msgDelete='" . xlt("Delete Successful") . "';</script>";
+    // list of encounter form directories/names (that are patient portal compliant) that use for whitelisting (security)
+    echo "<script>var formNamesWhitelist=" . json_encode(CoreFormToPortalUtility::getListPortalCompliantEncounterForms()) . ";</script>";
 
-    Header::setupHeader(['no_main-theme', 'patientportal-style', 'datetime-picker', 'jspdf']);
-
+    if ($is_portal) {
+        Header::setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker']);
+    } else {
+        Header::setupHeader(['datetime-picker']);
+    }
     ?>
     <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
     <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
@@ -98,7 +110,6 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
           width: 1220px;
         }
       }
-
       .nav-pills-ovr > li > a {
         border: 1px solid !important;
         border-radius: .25rem !important;
@@ -122,12 +133,17 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                 $("#Help").click();
                 $(".helpHide").addClass("d-none");
 
-                $('#showNav').on('click', () => {
+                $(parent.document.getElementById('topNav')).addClass("d-none");
+                /*$('#showNav').on('click', () => {
+                    let menuMsg;
+                    if($(parent.document.getElementById('topNav')).is('.collapse:not(.show)')) {
+                        menuMsg = xl("Hide Top");
+                    } else {
+                        menuMsg = xl("Show Top");
+                    }
+                    document.getElementById("showNav").innerHTML = menuMsg;
                     parent.document.getElementById('topNav').classList.toggle('collapse');
-                    var rect = parent.document.getElementById('patdocuments').getBoundingClientRect();
-                    var offsetTop = rect.top + parent.document.body.scrollTop;
-                    parent.window.scrollTo(0, offsetTop);
-                });
+                });*/
             }
             console.log('init done template');
 
@@ -136,13 +152,24 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                     page.init();
                     if (!pageAudit.isInitialized) {
                         pageAudit.init();
+                        console.log('secondary init done!');
                     }
                 }
             }, 2000);
+
+            $(function () {
+                $(window).bind('beforeunload', function () {
+                    if (page.inFormEdit) {
+                        // You have unsaved changes auto browser popup
+                        event.preventDefault();
+                    }
+                });
+            });
         });
 
-        function printaDoc(divName) {
-            flattenDocument();
+        function printaDocHtml(divName) {
+            page.updateModel();
+            setTimeout("flattenDocument();", 4000);
             divName = 'templatediv';
             let printContents = document.getElementById(divName).innerHTML;
             let originalContents = document.body.innerHTML;
@@ -150,6 +177,86 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
             window.print();
             document.body.innerHTML = originalContents;
             location.reload();
+        }
+
+        function printaDoc(divName) {
+            // We'll return to the same editing state as before print
+            // In dashboard document is already flatten to prevent
+            // auditor from changing patient entries!
+            if (page.isQuestionnaire && !isPortal) {
+                url = webroot_url +
+                    "/interface/forms/questionnaire_assessments/patient_portal.php" +
+                    "?formid=" + encodeURIComponent(page.encounterFormId);
+                fetch(url).then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network Error.');
+                    }
+                    return response.json()
+                }).then(content => {
+                    if (content) {
+                        let docid = document.getElementById('docid').value;
+                        fetchPdf(divName, docid, content);
+                    }
+                }).catch(error => {
+                    console.error('Error:', error);
+                    alert(error);
+                });
+            } else {
+                let docid = document.getElementById('docid').value;
+                fetchPdf(divName, docid);
+            }
+        }
+
+        function fetchPdf(divName, docid, printContents = null) {
+            let csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken('doc-lib')); ?>;
+            top.restoreSession();
+            if (document.getElementById('tempFrame')) {
+                let killFrame = document.getElementById('tempFrame');
+                killFrame.parentNode.removeChild(killFrame);
+            }
+            if (!printContents) {
+                printContents = document.getElementById(divName).innerHTML;
+            }
+            const request = new FormData;
+            request.append("handler", "fetch_pdf");
+            request.append("docid", docid);
+            request.append("content", printContents);
+            request.append("csrf_token_form", csrf_token_js);
+            fetch(webroot_url + "/portal/lib/doc_lib.php", {
+                method: 'POST',
+                credentials: 'same-origin',
+                body: request
+            }).then((response) => {
+                if (response.status !== 200) {
+                    console.log('Background Service start failed. Status Code: ' + response.status);
+                }
+                return response.text();
+            }).then((base64) => {
+                const binary = atob(base64.replace(/\s/g, ''));
+                const len = binary.length;
+                const buffer = new ArrayBuffer(len);
+                const view = new Uint8Array(buffer);
+                for (let i = 0; i < len; i++) {
+                    view[i] = binary.charCodeAt(i);
+                }
+                const blob = new Blob([view], {type: "application/pdf"});
+                const url = URL.createObjectURL(blob);
+                let iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.width = '0';
+                iframe.height = '0';
+                iframe.id = 'tempFrame';
+                document.body.appendChild(iframe);
+                iframe.onload = function() {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                }
+                // write the content
+                iframe.src = url;
+            }).catch(function(error) {
+                console.log('PHP PDF Background Service Request failed: ', error);
+                return false;
+            });
         }
 
         function templateText(el) {
@@ -188,7 +295,7 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
         function replaceTextInputs() {
             $('.templateInput').each(function () {
                 var rv = $(this).data('textvalue');
-                $(this).replaceWith(rv);
+                $(this).replaceWith(jsText(rv));
             });
         }
 
@@ -196,14 +303,14 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
             $('.ynuGroup').each(function () {
                 var gid = $(this).data('id');
                 var grpid = $(this).prop('id');
-                var rv = $('input:radio[name="ynradio' + gid + '"]:checked').val();
+                var rv = $('input:radio[name="ynradio' + jsAttr(gid) + '"]:checked').val();
                 $(this).replaceWith(rv);
             });
 
             $('.tfuGroup').each(function () {
                 var gid = $(this).data('id');
                 var grpid = $(this).prop('id');
-                var rv = $('input:radio[name="tfradio' + gid + '"]:checked').val();
+                var rv = $('input:radio[name="tfradio' + jsAttr(gid) + '"]:checked').val();
                 $(this).replaceWith(rv);
             });
         }
@@ -278,99 +385,88 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
             restoreTextInputs();
         }
     </script>
-    <div class="container-fluid">
-        <nav id="verytop" class="nav navbar-light bg-light navbar-expand pt-4 pb-2 m-0 sticky-top">
-            <!--<a id='showNav' class='btn btn-secondary ml-auto' onclick='parent.document.getElementById("topNav").classList.toggle("collapse");'><?php /*echo xlt('View Mode'); */?></a>-->
-            <a class="navbar-brand ml-auto"><h3><?php echo xlt("Document Center") ?></h3></a>
-            <div id="topmenu" class="mr-auto">
-                <ul class="navbar-nav mr-auto">
+    <div class="container-xl px-1">
+        <nav id="verytop" class="navbar navbar-expand-lg navbar-light bg-light px-1 pt-3 pb-1 m-0 sticky-top" style="z-index:1030;">
+            <a class="navbar-brand mt-1 mr-1"><h3><?php echo xlt("Document Actions") ?></h3></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#topmenu" aria-controls="topmenu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div id="topmenu" class="collapse navbar-collapse">
+                <ul class="navbar-nav navCollapse mr-auto">
                     <!-- Sticky actions toolbar -->
-                    <div class='nav helpHide d-none'>
-                        <!--<a id='docTitle' class='navbar-brand' href='#'><?php /*echo xlt('Form Actions') */ ?></a>-->
+                    <div class='helpHide d-none'>
                         <ul class="navbar-nav">
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="signTemplate" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal" data-type="patient-signature"><?php echo xlt('Edit Signature'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="saveTemplate" href="#"><?php echo xlt('Save'); ?></a></li>
-                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="printTemplate" href="javascript:;" onclick="printaDoc('templatecontent');"><?php echo xlt('Print'); ?></a></li>
+                            <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="printTemplate" href="javascript:" onclick="printaDoc('templatecontent');"><?php echo xlt('Print'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="submitTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="sendTemplate" href="#"><?php echo xlt('Submit Document'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="chartTemplate" href="#"><?php echo xlt('Chart to') . ' ' . text($catname); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="downloadTemplate" href="#"><?php echo xlt('Download'); ?></a></li>
                             <li class="nav-item"><a class="nav-link btn btn-outline-primary" id="chartHistory" href="#"><?php echo xlt('Chart History'); ?></a></li>
-                            <?php if (empty($is_module)) { ?>
-                                <!-- future popout -->
-                                <!--<li class="nav-item">
-                                    <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='history.go(0);'><?php /*echo xlt('Dismiss'); */ ?></a>
-                                </li>-->
-                            <?php } else { ?>
-                                <li class="nav-item">
-                                    <a class="nav-link text-danger" id="homeTemplate" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
-                                </li>
-                            <?php } ?>
                         </ul>
                     </div>
+                    <?php if (!empty($is_module) || !empty($is_portal)) { ?>
+                        <div class="dropdown mb-1">
+                            <a class="dropdown-toggle nav-link btn btn-outline-success" href="#" role="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <?php echo xlt('Select Documents') ?>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenu">
+                                <?php echo $templateService->renderPortalTemplateMenu($pid, $cuser, true); ?>
+                            </div>
+                        </div>
+                    <?php } ?>
                     <li class='nav-item mb-1'>
-                        <a class='nav-link text-success btn btn-outline-success' onclick="$('.historyHide').toggleClass('d-none');document.getElementById('historyTable').scrollIntoView({behavior: 'smooth'})"></i><?php echo xlt('History') ?>
+                        <a class='nav-link btn btn-outline-success' onclick="page.handleHistoryView()">
+                            <?php echo xlt('History') ?>
+                            <i class="history-direction ml-1 fa fa-arrow-down"></i>
                         </a>
                     </li>
                     <?php if (empty($is_module)) { ?>
                         <li class="nav-item mb-1">
                             <a id="Help" class="nav-link text-primary btn btn-outline-primary d-none" onclick='page.newDocument(cpid, cuser, "Help", help_id);'><?php echo xlt('Help'); ?></a>
                         </li>
-                        <!-- future popout-->
-                        <!--<li class="nav-item mb-1">
-                        <a class="nav-link text-danger btn btn-outline-danger" onclick='window.location.replace("./../home.php")'><?php /*echo xlt('Home'); */ ?></a>
-                    </li>-->
                     <?php } else { ?>
                         <li class="nav-item mb-1">
-                            <a class="nav-link text-danger btn btn-secondary" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
+                            <a class="nav-link text-danger btn btn-outline-secondary" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
+                        </li>
+                    <?php } ?>
+                    <?php if (!empty($is_portal)) { ?>
+                        <li class="nav-item mb-1">
+                            <a class="nav-link text-danger btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer_portal ?>")'><?php echo xlt('Exit'); ?></a>
                         </li>
                     <?php } ?>
                     <li class='nav-item mb-1'>
-                        <a class='nav-link btn btn-secondary' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'> <span class='fa fa-sync fa-lg'></span></a>
+                        <a class='nav-link btn btn-outline-secondary' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'> <span class='fa fa-sync fa-lg'></span></a>
                     </li>
-                    <li class='nav-item mb-1'>
-                        <a id='showNav' class='nav-link btn btn-secondary'><span class='navbar-toggler-icon mr-1'></span><?php echo xlt('Menu'); ?></a>
-                    </li>
+                    <!--<li class='nav-item mb-1'>
+                        <a id='showNav' class='nav-link btn btn-outline-secondary'><?php /*echo xlt('Top Menu'); */?></a>
+                    </li>-->
                 </ul>
             </div>
         </nav>
-        <div class="d-flex flex-row justify-content-start">
-            <!-- Pending documents menu left -->
-            <div class="align-self-start sticky-top" id="topnav">
-                <ul class="nav flex-column nav-pills nav-pills-ovr">
-                    <div class="navbar-header mt-3">
-                        <a class="navbar-brand mx-1 mb-2 text-primary" href="#"><h4><i class="fa fa-edit mr-2 ml-0"></i><?php echo xla('Pending') ?></h4></a>
-                    </div>
-                    <?php require_once __DIR__ . '/../../lib/template_menu.php'; ?>
-                    <?php if (empty($is_module)) { ?>
-                        <!-- will use later for pop out -->
-                        <!--<strong><hr class="mb-2 mt-1" /></strong>
-                    <li class="nav-item mb-1">
-                        <a class="nav-link text-danger btn btn-outline-danger" onclick='window.location.replace("./../home.php")'><?php /*echo xlt('Home'); */ ?></a>
-                    </li>-->
-                    <?php } else { ?>
-                        <li class="nav-item mb-1">
-                            <a class="nav-link text-danger btn btn-secondary" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
-                        </li>
-                    <?php } ?>
-                </ul>
+        <div class="d-flex flex-row justify-content-center">
+            <!-- Pending documents left menu Deprecated and removed 01/13/22 -->
+            <div class="clearfix" id="topnav">
                 <div id="collectionAlert"></div>
-            </div><!-- close left pending -->
+            </div>
             <!-- Right editor container -->
-            <div class="flex-column col-md-10 col-lg-10">
+            <div id="editorContainer" class="d-flex flex-column w-100 h-auto">
                 <!-- document editor and action toolbar template -->
                 <script type="text/template" id="onsiteDocumentModelTemplate">
-                    <div class="card p-2 m-1" id="docpanel">
-
+                    <div class="card m-0 p-0" id="docpanel">
                         <!-- Document edit container -->
-                        <header class="card-header bg-dark text-light helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?></header>
+                        <header class="card-header bg-dark text-light helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?>
+                            <button id="dismissOnsiteDocumentButtonTop" class="dismissOnsiteDocumentButton btn btn-outline-danger btn-sm float-right" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
+                        </header>
                         <!-- editor form -->
-                        <form id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
-                            <div id="templatediv" class="card-body border p-2 m-1 bg-white h-100 overflow-auto">
-                                <div id="templatecontent" class="template-body bg-white">
-                                    <div class="text-center"><i class="fa fa-circle-notch fa-spin fa-3x ml-auto"></i></div>
+                        <form class="container-xl p-0" id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
+                            <div id="templatediv" class="card-body border overflow-auto">
+                                <div id="templatecontent" class="template-body">
+                                    <div class="text-center overflow-hidden"><i class="fa fa-circle-notch fa-spin fa-2x ml-auto"></i></div>
                                 </div>
                             </div>
+                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('doc-lib')); ?>" />
                             <input type="hidden" name="content" id="content" value="" />
                             <input type="hidden" name="cpid" id="cpid" value="" />
                             <input type="hidden" name="docid" id="docid" value="" />
@@ -380,7 +476,7 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                         </form>
                         <div class="clearfix">
                             <span>
-                                <button id="dismissOnsiteDocumentButton" class="btn btn-sm btn-link float-right" onclick="history.go(0);"><?php echo xlt('Dismiss Form'); ?></button>
+                                <button id="dismissOnsiteDocumentButton" class="dismissOnsiteDocumentButton btn btn-sm btn-outline-danger float-right m-1" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
                             </span>
                             <!-- delete button is a separate form to prevent enter key from triggering a delete-->
                             <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
@@ -388,11 +484,11 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                                     <div class="form-group">
                                         <label class="col-form-label"></label>
                                         <div class="controls">
-                                            <button id="deleteOnsiteDocumentButton" class="btn btn-sm btn-danger"><i class="icon-trash icon-white"></i><?php echo xlt('Delete Document'); ?></button>
+                                            <button id="deleteOnsiteDocumentButton" class="btn btn-delete btn-sm btn-danger mt-1"><?php echo xlt('Delete Document'); ?></button>
                                             <span id="confirmDeleteOnsiteDocumentContainer">
-                                <button id="cancelDeleteOnsiteDocumentButton" class="btn btn-link btn-sm"><?php echo xlt('Cancel'); ?></button>
-                                <button id="confirmDeleteOnsiteDocumentButton" class="btn btn-sm btn-danger"><?php echo xlt('Confirm'); ?></button>
-                          </span>
+                                                <button id="cancelDeleteOnsiteDocumentButton" class="btn btn-link btn-sm"><?php echo xlt('Cancel'); ?></button>
+                                                <button id="confirmDeleteOnsiteDocumentButton" class="btn btn-sm btn-danger"><?php echo xlt('Confirm'); ?></button>
+                                          </span>
                                         </div>
                                     </div>
                                 </fieldset>
@@ -422,9 +518,7 @@ $cuser = $_SESSION['sessionUser'] ?? $_SESSION['authUserID'];
                     </tr>
                     </thead>
                     <tbody>
-                    <% items.each(function(item) {
-                    // if ((!isPortal && item.get('denialReason') == 'Locked')) return;
-                    %>
+                    <% items.each(function(item) {  %>
                     <tr id="<%= _.escape(item.get('id')) %>">
                         <th scope="row"><%= _.escape(item.get('id') || '') %></th>
                         <td>

@@ -1,5 +1,8 @@
 <?php
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
+
 // TODO: @adunsulag move these into src/
 class Controller extends Smarty
 {
@@ -7,6 +10,7 @@ class Controller extends Smarty
     public $_current_action;
     public $_state;
     public $_args = array();
+    protected $form = null;
 
     public function __construct()
     {
@@ -14,9 +18,9 @@ class Controller extends Smarty
          $this->template_mod = "general";
          $this->_current_action = "";
          $this->_state = true;
-         $this->compile_dir = $GLOBALS['OE_SITE_DIR'] . '/documents/smarty/main';
-         $this->compile_check = true;
-         $this->plugins_dir = array(__DIR__ . "/../smarty/plugins", $GLOBALS['vendor_dir'] . "/smarty/smarty/libs/plugins");
+         $this->setCompileDir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/main');
+         $this->setCompileCheck(true);
+         $this->setPluginsDir([__DIR__ . "/../smarty/plugins", $GLOBALS['vendor_dir'] . "/smarty/smarty/libs/plugins"]);
          $this->assign("PROCESS", "true");
          $this->assign("HEADER", "<html><head></head><body>");
          $this->assign("FOOTER", "</body></html>");
@@ -72,6 +76,19 @@ class Controller extends Smarty
 
     public function act($qarray)
     {
+        if ((array_key_first($qarray) ?? '') == 'practice_settings') {
+            if (!AclMain::aclCheckCore('admin', 'practice')) {
+                echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Practice Settings")]);
+                exit;
+            }
+        }
+
+        if ((array_key_first($qarray) ?? '') == 'prescription') {
+            if (!AclMain::aclCheckCore('patients', 'rx')) {
+                echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Prescriptions")]);
+                exit;
+            }
+        }
 
         if (isset($_GET['process'])) {
             unset($_GET['process']);
@@ -121,8 +138,11 @@ class Controller extends Smarty
 
             $output = "";
             //print_r($args_array);
+        // can no longer rely on is_callable since smarty 4 invokes a __call function deep within
+        //  its classes, thus is_callable() is always true. so need to do both the is_callable
+        //  and a method_exists() check.
         if (isset($_POST['process']) && ($_POST['process'] == "true")) {
-            if (is_callable(array(&$c_obj,$c_action . "_action_process"))) {
+            if (is_callable(array(&$c_obj, $c_action . "_action_process")) && method_exists($c_obj, $c_action . "_action_process")) {
                 //echo "ca: " . $c_action . "_action_process";
                 $output .= call_user_func_array(array(&$c_obj,$c_action . "_action_process"), $args_array);
                 if ($c_obj->_state == false) {
@@ -132,7 +152,7 @@ class Controller extends Smarty
 
             //echo "ca: " . $c_action . "_action";
             $output .=  call_user_func_array(array(&$c_obj,$c_action . "_action"), $args_array);
-        } elseif (is_callable(array(&$c_obj,$c_action . "_action"))) {
+        } elseif (is_callable(array(&$c_obj, $c_action . "_action")) && method_exists($c_obj, $c_action . "_action")) {
             //echo "ca: " . $c_action . "_action";
             $output .=  call_user_func_array(array(&$c_obj,$c_action . "_action"), $args_array);
         } else {

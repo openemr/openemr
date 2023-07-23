@@ -2,7 +2,7 @@
 
 $GLOBALS['OE_SITE_DIR'] = "/var/www/openemr/sites/default";
 set_include_path(get_include_path() . PATH_SEPARATOR . "/var/www/openemr");
-require_once("library/sql.inc");
+require_once("library/sql.inc.php");
 require_once("library/htmlspecialchars.inc.php");
 require_once("library/translation.inc.php");
 require_once("custom/code_types.inc.php");

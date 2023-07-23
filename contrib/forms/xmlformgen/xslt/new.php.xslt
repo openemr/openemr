@@ -29,10 +29,10 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 /* for $GLOBALS[], ?? */
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'].'/api.inc');
+require_once($GLOBALS['srcdir'].'/api.inc.php');
 /* for generate_form_field, ?? */
 require_once($GLOBALS['srcdir'].'/options.inc.php');
-/* note that we cannot include options_listadd.inc here, as it generates code before the <html> tag */
+/* note that we cannot include options_listadd.inc.php here, as it generates code before the <html> tag */
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
@@ -94,7 +94,7 @@ function submitme() {
 <xsl:text disable-output-escaping="yes"><![CDATA[<?php
 
 /* support for the list-add selectbox feature. must be included inside of the <html> tags. */
-require_once($GLOBALS['srcdir'].'/options_listadd.inc');
+require_once($GLOBALS['srcdir'].'/options_listadd.inc.php');
 
 ?>]]></xsl:text>
 </xsl:if>

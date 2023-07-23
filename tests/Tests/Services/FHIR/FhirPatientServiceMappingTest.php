@@ -5,6 +5,7 @@ namespace OpenEMR\Tests\Services\FHIR;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\Services\FHIR\Serialization\FhirPatientSerializer;
+use OpenEMR\Services\PatientService;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Services\FHIR\FhirPatientService;
@@ -38,7 +39,7 @@ class FhirPatientServiceMappingTest extends TestCase
     protected function setUp(): void
     {
         $this->fixtureManager = new FixtureManager();
-        $this->patientFixture = (array) $this->fixtureManager->getSinglePatientFixture();
+        $this->patientFixture = (array) $this->fixtureManager->getSinglePatientFixtureWithAddressInformation();
         $fixture = (array) $this->fixtureManager->getSingleFhirPatientFixture();
 //        var_dump($fixture);
         $this->fhirPatientFixture = FhirPatientSerializer::deserialize($fixture);
@@ -80,10 +81,14 @@ class FhirPatientServiceMappingTest extends TestCase
         $this->assertEquals(1, count($fhirPatientResource->getAddress()));
         $actualAddress = $fhirPatientResource->getAddress()[0];
         $this->assertEquals(1, count($actualAddress->getLine()));
-        $this->assertEquals($sourcePatientRecord['street'], $actualAddress->getLine()[0]);
-        $this->assertEquals($sourcePatientRecord['city'], $actualAddress->getCity());
-        $this->assertEquals($sourcePatientRecord['state'], $actualAddress->getState());
-        $this->assertEquals($sourcePatientRecord['postal_code'], $actualAddress->getPostalCode());
+        $patientAddress = $sourcePatientRecord['addresses'][0];
+        // TODO: we should add period validation here...
+        $this->assertEquals($patientAddress['use'], $actualAddress->getUse());
+        $this->assertEquals($patientAddress['type'], $actualAddress->getType());
+        $this->assertEquals($patientAddress['line1'], $actualAddress->getLine()[0]);
+        $this->assertEquals($patientAddress['city'], $actualAddress->getCity());
+        $this->assertEquals($patientAddress['state'], $actualAddress->getState());
+        $this->assertEquals($patientAddress['postal_code'], $actualAddress->getPostalCode());
 
         $actualTelecoms = $fhirPatientResource->getTelecom();
         $this->assertFhirPatientTelecom('phone', 'home', $sourcePatientRecord['phone_home'], $actualTelecoms);

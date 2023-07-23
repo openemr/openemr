@@ -17,7 +17,7 @@
  */
 
 require_once("../../interface/globals.php");
-require_once("$srcdir/user.inc");
+require_once("$srcdir/user.inc.php");
 
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
@@ -90,7 +90,7 @@ if ($_POST["control"] == "membership") {
         }
 
         // check if user is protected. If so, then state message unable to remove from admin group.
-        $userNametoID = (new $userService())->getIdByUsername($_POST["name"]);
+        $userNametoID = (new UserService())->getIdByUsername($_POST["name"]);
         if (checkUserSetting("gacl_protect", "1", $userNametoID) || ($_POST["name"] == "admin")) {
              $gacl_protect = true;
         } else {

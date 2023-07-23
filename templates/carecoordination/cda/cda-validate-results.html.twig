@@ -1,0 +1,29 @@
+{# Note we use the cda-validate-results and data-error-count as a means for html consumers to grab information from the html #}
+<div class='control-group cda-validate-results' data-error-count="{{ validation.xsd|length + validation.errorCount|attr }}">
+    <h5 class='text-info' style='padding: 0 0;'>{{ 'Schema Definition Errors'|xlt}} - ({{ validation.xsd|length }})</h5><hr style='margin: 0 0 10px;' />
+    {% if validation.xsd|length <= 1 %}
+        <p class='text-success'>{{"Passed XSD testing."|xlt}}</p><hr style='margin: 0 0 10px;' />
+    {% else %}
+        {% for error in validation.xsd %}
+            <blockquote style='margin: 0 0 2px;padding: 0px 5px 0 5px;'>
+                <p class='text-error' style='font-size:12px;'>{{ error|text }}</p>
+            </blockquote><hr style='margin: 0 0 10px;' />
+        {% endfor %}
+    {% endif %}
+
+    <h5 class='text-info'>{{ 'Schematron Errors'|xlt }} - ({{ validation.errorCount|text }})</h5><hr style='margin: 0 0 10px;' />
+    {% if validation.errorCount <= 0 %}
+        <p class='text-success'>{{ "Passed Schematron testing."|xlt}}</p><hr style='margin: 0 0 10px;' />
+    {% else %}
+        {% for error in validation.errors %}
+            <blockquote style='margin: 0 0 2px;padding: 0px 5px 0 5px;'>
+                <p class='text-error' style='font-size:12px;'>
+                    <span style='color: red;padding-right: 2px;'>{{ 'Error'|xlt }}: </span>{{ error.description|text }}
+                    <br /><span style='color: red;margin-right: 2px;'>{{ 'Error Context'|xlt }}: </span>{{ error.context|text }}
+                    <br /><span style='color: red;margin-right: 2px;'>{{ 'Where'|xlt }}: </span>{{ error.path|text }}
+                    <br /><span style='color: red;margin-right: 2px;'>{{ 'Line'|xlt }}# </span>{{ error.line|text }}
+                </p>
+            </blockquote><hr style='margin: 0 0 10px;' />
+        {% endfor %}
+    {% endif %}
+</div>

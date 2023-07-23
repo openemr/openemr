@@ -36,15 +36,15 @@ body.loading .modal {
 }
 
 .delete_button {
-  background-color: none;
+  background-color: transparent;
   background-image: url("trash_icon.png");
   background-position: 0 0;
   background-repeat: no-repeat;
   border: 0;
   cursor: pointer;
-  height: 20px;
-  outline: 1;
-  width: 20px;
+  height: 25px;
+  outline: 0;
+  width: 25px;
 }
 
 .delete_button:hover {

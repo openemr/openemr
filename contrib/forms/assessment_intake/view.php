@@ -13,7 +13,7 @@
  * @copyright Copyright (c) 2005-2007 sunsetsystems <sunsetsystems>
  * @copyright Copyright (c) 2011 cornfeed <jdough823@gmail.com>
  * @copyright Copyright (c) 2012 fndtn357 <fndtn357@gmail.com>
- * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2017-2023 Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -34,7 +34,7 @@ use OpenEMR\Core\Header;
 </head>
 <body class="body_top m-0">
 <?php
-require_once("$srcdir/api.inc");
+require_once("$srcdir/api.inc.php");
 
 $obj = formFetch("form_assessment_intake", $_GET["id"]);
 

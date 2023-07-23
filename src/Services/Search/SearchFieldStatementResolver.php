@@ -85,6 +85,10 @@ class SearchFieldStatementResolver
                 throw new SearchFieldException($searchField->getField(), "DateSearchField contained value that was not a DatePeriod or DateTime object");
             }
 
+            // make sure we are going to use the local server time adjusted from the timezone the caller requested.
+            $lowerBoundDateRange = self::adjustTimezoneToLocalTime($lowerBoundDateRange);
+            $upperBoundDateRange = self::adjustTimezoneToLocalTime($upperBoundDateRange);
+
             switch ($comparableValue->getComparator()) {
                 case SearchComparator::LESS_THAN:
                 case SearchComparator::ENDS_BEFORE:
@@ -296,5 +300,21 @@ class SearchFieldStatementResolver
             $format = "Y-m-d";
         }
         return $format;
+    }
+
+    /**
+     * Given a datetimeinterface attempt to adjust the timezone component from what was given in the search request
+     * to the local timezone that the server is set for so we can make sure we are retrieving the correct data.
+     * @param \DateTimeInterface $dateTime
+     * @return \DateTimeInterface
+     */
+    private static function adjustTimezoneToLocalTime(\DateTimeInterface $dateTime)
+    {
+        if ($dateTime instanceof \DateTimeImmutable || $dateTime instanceof \DateTime) {
+            $dateTime->setTimezone(new \DateTimeZone(date('P')));
+        }
+
+        // either we return the original date, or we return the locally formatted timezone date.
+        return $dateTime;
     }
 }

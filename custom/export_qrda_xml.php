@@ -24,10 +24,10 @@
 
 require_once("../interface/globals.php");
 require_once("../ccr/uuid.php");
-require_once("../library/patient.inc");
+require_once("../library/patient.inc.php");
 require_once "../library/options.inc.php";
 require_once("../library/clinical_rules.php");
-require_once "$srcdir/report_database.inc";
+require_once "$srcdir/report_database.inc.php";
 require_once "qrda_functions.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;

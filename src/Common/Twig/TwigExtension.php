@@ -15,14 +15,19 @@
 
 namespace OpenEMR\Common\Twig;
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\Kernel;
+use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\GlobalsService;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
+use Twig\TwigTest;
 
 class TwigExtension extends AbstractExtension implements GlobalsInterface
 {
@@ -52,6 +57,16 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             'rootdir' => $this->globals['rootdir'],
             'webroot' => $this->globals['webroot'],
             'assetVersion' => $this->globals['v_js_includes'],
+            'session' => $_SESSION,
+        ];
+    }
+
+    public function getTests(): array
+    {
+        return [
+            // can be used like {% if is numeric %}...{% endif %}
+            new TwigTest('numeric', function ($value) {
+                return is_numeric($value); })
         ];
     }
 
@@ -113,6 +128,60 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     $this->kernel->getEventDispatcher()->dispatch(new GenericEvent($eventName, $eventData), $eventName);
                     return ob_get_clean();
                 }
+            ),
+            new TwigFunction(
+                'csrfToken',
+                function ($subject = 'default', $fieldName = "_token") {
+                    return sprintf('<input type="hidden" name="%s" value="%s">', $fieldName, attr(CsrfUtils::collectCsrfToken($subject)));
+                }
+            ),
+            new TwigFunction(
+                'csrfTokenRaw',
+                function ($subject = 'default') {
+                    return CsrfUtils::collectCsrfToken($subject);
+                }
+            ),
+            new TwigFunction(
+                'jqueryDateTimePicker',
+                function ($domSelector, $datetimepicker_timepicker = true, $datetimepicker_showseconds = true, $datetimepicker_formatInput = true) {
+                    ob_start();
+                    echo "$('" . $domSelector . "').datetimepicker({";
+
+                    require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
+                    echo "})";
+                    return ob_get_clean();
+                }
+            ),
+            new TwigFunction(
+                'DateToYYYYMMDD_js',
+                function () {
+                    ob_start();
+                    require $GLOBALS['srcdir'] . "/formatting_DateToYYYYMMDD_js.js.php";
+                    return ob_get_clean();
+                }
+            ),
+            new TwigFunction(
+                'oemrUiBelowContainerDiv',
+                function ($oemr_settings) {
+                    $oemrUi = new OemrUI($oemr_settings);
+                    ob_start();
+                    $oemrUi->oeBelowContainerDiv();
+                    return ob_get_clean();
+                }
+            ),
+            new TwigFunction(
+                'oemHelpIcon',
+                function () {
+                    // this setups a variable called $help_icon... strange
+                    require $GLOBALS['srcdir'] . "/display_help_icon_inc.php";
+                    return $help_icon ?? '';
+                }
+            ),
+            new TwigFunction(
+                'aclCore',
+                function ($section, $value, $user = '', $return_value = '') {
+                    return AclMain::aclCheckCore($section, $value, $user, $return_value);
+                }
             )
         ];
     }
@@ -154,6 +223,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 'js_url',
                 function ($string) {
                     return js_url($string);
+                }
+            ),
+            new TwigFilter(
+                'javascriptStringRemove',
+                function ($string) {
+                    return javascriptStringRemove($string);
                 }
             ),
             new TwigFilter(
@@ -209,6 +284,20 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 'xlFormTitle',
                 function ($string) {
                     return xl_form_title($string);
+                }
+            ),
+            // we have some weirdness if we have a date string in the format of YmdHi, it blows things up so we have
+            // to pass our date filters through this dateToTime function.  Hopefully we can figure this out later.
+            new TwigFilter(
+                'dateToTime',
+                function ($str) {
+                    return strtotime($str);
+                }
+            ),
+            new TwigFilter(
+                'addCacheParam',
+                function ($path) {
+                    return CacheUtils::addAssetCacheParamToPath($path);
                 }
             )
         ];

@@ -1,0 +1,56 @@
+<entry>
+  <observation classCode="OBS" moodCode="EVN" {{{negation_ind}}}>
+    <!-- Procedure Activity Procedure (Consolidation) template -->
+    <templateId root="2.16.840.1.113883.10.20.22.4.13" extension="2014-06-09"/>
+    <!-- Physical Exam, Performed template -->
+    <templateId root="2.16.840.1.113883.10.20.24.3.59" extension="2019-12-01"/>
+    <id root="1.3.6.1.4.1.115" extension="{{object_id}}"/>
+    <!-- QDM Attribute: Code -->
+    {{> _codes}}
+    <text>{{description}}</text>
+    <statusCode code="completed"/>
+    {{{relevant_date_period_or_null_flavor}}}
+    {{#result}}
+    <!-- QDM Attribute: Result -->
+    {{{result_value}}}
+    {{/result}}
+    {{^result}}
+    <!-- QDM Attribute: Result -->
+    <value xsi:type="CD" nullFlavor="UNK"/>
+    {{/result}}
+    {{#method}}
+      <!-- QDM Attribute: Method -->
+      {{> qrda_templates/template_partials/_method}}
+    {{/method}}
+    {{#anatomicalLocationSite}}
+      <!-- QDM Attribute: Anatomical Location Site -->
+      {{> qrda_templates/template_partials/_anatomical_location_site}}
+    {{/anatomicalLocationSite}}
+    {{#authorDatetime}}
+      <!-- QDM Attribute: Author dateTime -->
+      {{> qrda_templates/template_partials/_author}}
+    {{/authorDatetime}}
+    {{#performer}}
+      <!-- QDM Attribute: Performer -->
+      <participant typeCode="PRF">
+        {{> qrda_templates/template_partials/_entity}}
+      </participant>
+    {{/performer}}
+    {{#reason}}
+      <!-- QDM Attribute: Reason -->
+      {{> qrda_templates/template_partials/_reason}}
+    {{/reason}}
+    {{#negationRationale}}
+      <!-- QDM Attribute: Negation Rationale -->
+      {{> qrda_templates/template_partials/_reason}}
+    {{/negationRationale}}
+    {{#components}}
+      <!-- QDM Attribute: Components -->
+      {{> qrda_templates/template_partials/_component}}
+    {{/components}}
+    {{#encounter_id}}
+      <!-- QDM Attribute: relatedTo -->
+      {{> qrda_templates/template_partials/_related_to}}
+    {{/encounter_id}}
+  </observation>
+</entry>

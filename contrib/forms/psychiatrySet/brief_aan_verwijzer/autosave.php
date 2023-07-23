@@ -9,8 +9,8 @@
 
 //local includes
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
 
 
 /////////////////
@@ -20,7 +20,7 @@ $vectAutosave = sqlQuery("SELECT id, autosave_flag, autosave_datetime FROM form_
                             AND groupname= ?
                             AND user= ? AND
                             authorized= ? AND activity=1
-                            AND autosave_flag=1 
+                            AND autosave_flag=1
                             ORDER by id DESC limit 1", array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized));
 
 // if yes then update this else insert
@@ -32,16 +32,16 @@ if ($vectAutosave['autosave_flag'] == 1 || $_POST["mode"] == "update") {
     }
 
     $strSql = "UPDATE form_brief_aan_verwijzer
-                SET pid = ?, groupname=?, user=?, 
-                authorized=?, activity=1, date = NOW(), 
+                SET pid = ?, groupname=?, user=?,
+                authorized=?, activity=1, date = NOW(),
                 introductie=?,
-                reden_van_aanmelding=?, 
+                reden_van_aanmelding=?,
                 anamnese=?,
                 psychiatrisch_onderzoek=?,
                 beschrijvend_conclusie=?,
                 advies_beleid=?,
-                autosave_flag=1, 
-                autosave_datetime=NOW() 
+                autosave_flag=1,
+                autosave_datetime=NOW()
                   WHERE id = ?;";
 
     sqlQuery($strSql, array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized, $_POST["introductie"], $_POST["reden_van_aanmelding"],
@@ -62,7 +62,7 @@ $result = sqlQuery("SELECT autosave_datetime FROM form_brief_aan_verwijzer
                             AND groupname= ?
                             AND user= ? AND
                             authorized= ? AND activity=1 AND id=?
-                            AND autosave_flag=1 
+                            AND autosave_flag=1
                             ORDER by id DESC limit 1", array($_SESSION["pid"], $_SESSION["authProvider"], $_SESSION["authUser"], $userauthorized, $id));
 
 //$timestamp = mysql_result($result, 0);

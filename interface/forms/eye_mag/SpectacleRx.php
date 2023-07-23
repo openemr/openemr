@@ -13,12 +13,12 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
-require_once("$srcdir/lists.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
+require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/patient.inc");
-require_once("$srcdir/report.inc");
+require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/report.inc.php");
 
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Core\Header;
@@ -66,12 +66,12 @@ $query = "select  *,form_encounter.date as encounter_date
     $data = sqlQuery($query, array($_REQUEST['encounter'], $_REQUEST['pid']));
     $data['ODMPDD'] = $data['ODPDMeasured'];
     $data['OSMPDD'] = $data['OSPDMeasured'];
-    $data['BPDD']   = $data['ODMPDD'] + $data['OSMPDD'];
+    $data['BPDD']   = (int) $data['ODMPDD'] + (int) $data['OSMPDD'];
     @extract($data);
 
     $ODMPDD     = $ODPDMeasured;
     $OSMPDD     = $OSPDMeasured;
-    $BPDD       = $ODMPDD + $OSMPDD;
+    $BPDD       = (int) $ODMPDD + (int) $OSMPDD;
 
     $query      = "SELECT * FROM users where id = ?";
     $prov_data  = sqlQuery($query, array($data['provider_id']));

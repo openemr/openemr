@@ -25,7 +25,7 @@ General Helpers
 <?php function render_select($args)
 {
     ?>
-<select class="form-control" data-grp-tgt="<?php echo attr($args['target']); ?>" type="dropdown" name="<?php echo attr($args['name']); ?>" id="<?php echo attr($args['id']); ?>">
+<select class="form-control" data-grp-tgt="<?php echo attr($args['target']); ?>" type="dropdown" name="<?php echo attr($args['name']); ?>" id="<?php echo attr($args['id'] ?? ''); ?>">
 
     <!-- default option -->
     <option id="" value="">--<?php echo xlt('Select'); ?>--</option>
@@ -48,11 +48,12 @@ General Helpers
 <?php function textfield_row($args)
 {
     ?>
-<p class="row">
+<p class="form-row">
     <span class="left_col colhead req" data-field="<?php echo attr($args['name']); ?>"><?php echo text($args['title']); ?></span>
     <span class="end_col">
-        <input id="<?php echo $args['id'] ? attr($args['id']) : ""?>" data-grp-tgt="<?php echo attr($args['target']); ?>" class="form-control field <?php echo attr($args['class']); ?>" type="text" name="<?php echo attr($args['name']); ?>" value="<?php echo attr($args['value']);?>" />
+        <input id="<?php echo $args['id'] ? attr($args['id']) : "" ?>" data-grp-tgt="<?php echo attr($args['target'] ?? ''); ?>" class="form-control field <?php echo attr($args['class'] ?? ''); ?>" type="text" name="<?php echo attr($args['name']); ?>" value="<?php echo attr($args['value']);?>" />
     </span>
+    <span class="ml-1"><?php echo $args['render_link'] ?? ""; ?></span>
 </p>
 <?php } ?>
 
@@ -69,7 +70,7 @@ Compound Helpers
 {
     ?>
     <?php $criteria = $args['criteria'];  ?>
-    <p class="row">
+    <p class="form-row">
         <span class="left_col colhead req" data-field="fld_optional"><?php echo xlt('Optional'); ?></span>
         <span class="end_col">
             <input id="fld_optional" type="radio" name="fld_optional" class="field" value="yes"
@@ -79,7 +80,7 @@ Compound Helpers
         </span>
     </p>
 
-    <p class="row">
+    <p class="form-row">
         <span class="left_col colhead req" data-field="fld_inclusion"><?php echo xlt('Inclusion'); ?></span>
         <span class="end_col">
             <input id="fld_inclusion" type="radio" name="fld_inclusion" class="field" value="yes"
@@ -90,7 +91,7 @@ Compound Helpers
     </p>
 
     <?php if ($criteria->interval && $criteria->intervalType) { ?>
-    <p class="row">
+    <p class="form-row">
         <span class="left_col colhead req" data-field="fld_target_interval"><?php echo xlt('Interval'); ?></span>
         <span class="end_col">
             <input data-grp-tgt="flt_target_interval" class="form-control field short" type="text" name="fld_target_interval" value="<?php echo xlt($criteria->interval); ?>" />
@@ -111,12 +112,12 @@ Compound Helpers
     return generate_select_list(
         $args['name'],
         $args['context'],
-        $args['value']->code,
+        $args['value']->code ?? null,
         $args['name'],
         '',
         '',
         '',
-        $args['id'],
+        $args['id'] ?? '',
         array( "data-grp-tgt" => $args['target'] )
     );
 } ?>

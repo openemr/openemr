@@ -1,0 +1,12 @@
+(function(window, comlink) {
+
+    // call our init function with our variables
+    let teleHealthProviders = {{ providers|json_encode }};
+    let telehealthCategories = {{ categories|json_encode }};
+    let jsAppointmentEventNames = {{ jsAppointmentEventNames|json_encode }};
+    if (comlink.initAppointmentWithTelehealth) {
+        window.document.addEventListener("DOMContentLoaded", function() {
+            comlink.initAppointmentWithTelehealth(teleHealthProviders, telehealthCategories, jsAppointmentEventNames);
+        });
+    }
+})(window, window.comlink || {});

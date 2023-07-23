@@ -21,16 +21,19 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
-use OpenEMR\Services\Search\SearchFieldException;
-use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Services\Search\{
+    DateSearchField,
+    FhirSearchWhereClauseBuilder,
+    SearchFieldException,
+    TokenSearchField,
+    TokenSearchValue
+};
 use OpenEMR\Validators\EncounterValidator;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Validator;
 
-require_once dirname(__FILE__) . "/../../library/forms.inc";
-require_once dirname(__FILE__) . "/../../library/encounter.inc";
+require_once dirname(__FILE__) . "/../../library/forms.inc.php";
+require_once dirname(__FILE__) . "/../../library/encounter.inc.php";
 
 class EncounterService extends BaseService
 {
@@ -39,7 +42,7 @@ class EncounterService extends BaseService
      */
     private $encounterValidator;
 
-    private const ENCOUNTER_TABLE = "form_encounter";
+    public const ENCOUNTER_TABLE = "form_encounter";
     private const PATIENT_TABLE = "patient_data";
     private const PROVIDER_TABLE = "users";
     private const FACILITY_TABLE = "facility";
@@ -107,7 +110,7 @@ class EncounterService extends BaseService
     public function getUuidFields(): array
     {
         return ['provider_uuid', 'facility_uuid', 'euuid', 'puuid', 'billing_facility_uuid'
-            , 'facility_location_uuid', 'billing_location_uuid'];
+            , 'facility_location_uuid', 'billing_location_uuid', 'referrer_uuid'];
     }
 
     /**
@@ -208,13 +211,16 @@ class EncounterService extends BaseService
                        fa.billing_facility_uuid,
                        fa.billing_facility_name,
                        fa.billing_location_uuid,
-                
+
                        fe.provider_id,
+                       fe.referring_provider_id,
                        providers.provider_uuid,
                        providers.provider_username,
+                       referrers.referrer_uuid,
+                       referrers.referrer_username,
                        fe.discharge_disposition,
                        discharge_list.discharge_disposition_text
-                       
+
 
                        FROM (
                            select
@@ -240,7 +246,8 @@ class EncounterService extends BaseService
                                class_code,
                                facility_id,
                                discharge_disposition,
-                               pid as encounter_pid
+                               pid as encounter_pid,
+                               referring_provider_id
                            FROM form_encounter
                        ) fe
                        LEFT JOIN openemr_postcalendar_categories as opc
@@ -253,7 +260,7 @@ class EncounterService extends BaseService
                                 ,facility.`name` AS billing_facility_name
                                 ,locations.uuid AS billing_location_uuid
                            from facility
-                           LEFT JOIN uuid_mapping AS locations 
+                           LEFT JOIN uuid_mapping AS locations
                                ON locations.target_uuid = facility.uuid AND locations.resource='Location'
                        ) fa ON fa.billing_facility_id = fe.billing_facility
                        LEFT JOIN (
@@ -273,12 +280,21 @@ class EncounterService extends BaseService
                        ) providers ON fe.provider_id = providers.provider_provider_id
                        LEFT JOIN (
                            select
+                                id AS referring_provider_id
+                                ,uuid AS referrer_uuid
+                                ,`username` AS referrer_username
+                            FROM users
+                            WHERE
+                                npi IS NOT NULL and npi != ''
+                       ) referrers ON fe.referring_provider_id = referrers.referring_provider_id
+                       LEFT JOIN (
+                           select
                                 facility.id AS facility_id
                                 ,facility.uuid AS facility_uuid
                                 ,facility.`name` AS facility_name
                                 ,`locations`.`uuid` AS facility_location_uuid
                            from facility
-                           LEFT JOIN uuid_mapping AS locations 
+                           LEFT JOIN uuid_mapping AS locations
                                ON locations.target_uuid = facility.uuid AND locations.resource='Location'
                        ) facilities ON facilities.facility_id = fe.facility_id
                        LEFT JOIN (
@@ -346,7 +362,9 @@ class EncounterService extends BaseService
         $encounter = generate_id();
         $data['encounter'] = $encounter;
         $data['uuid'] = UuidRegistry::getRegistryForTable(self::ENCOUNTER_TABLE)->createUuid();
-        $data['date'] = date("Y-m-d");
+        if (empty($data['date'])) {
+            $data['date'] = date("Y-m-d");
+        }
         $puuidBytes = UuidRegistry::uuidToBytes($puuid);
         $data['pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
         $query = $this->buildInsertColumns($data);
@@ -367,7 +385,8 @@ class EncounterService extends BaseService
             $data["provider_id"],
             $data["date"],
             $data['user'],
-            $data['group']
+            $data['group'],
+            $data['referring_provider_id']
         );
 
         if ($results) {
@@ -669,6 +688,40 @@ class EncounterService extends BaseService
         $encounterResult = $this->search(['pid' => $pid, 'eid' => $encounter_id], $options = ['limit' => '1']);
         if ($encounterResult->hasData()) {
             return $encounterResult->getData()[0]['sensitivity'];
+        }
+        return [];
+    }
+
+    /**
+     * Returns the referring provider for the encounter matching the patient and encounter identifier.
+     *
+     * @param  $pid          The legacy identifier of particular patient
+     * @param  $encounter_id The identifier of a particular encounter
+     * @return string        referring provider of first row of encounter data (it's an id from the users table)
+     */
+    public function getReferringProviderID($pid, $encounter_id)
+    {
+        $encounterResult = $this->search(['pid' => $pid, 'eid' => $encounter_id], $options = ['limit' => '1']);
+        if ($encounterResult->hasData()) {
+            return $encounterResult->getData()[0]['referring_provider_id'] ?? '';
+        }
+        return [];
+    }
+
+    /**
+     * Return an array of encounters within a date range
+     *
+     * @param  $start_date  Any encounter starting on this date
+     * @param  $end_date  Any encounter ending on this date
+     * @return Array Encounter data payload.
+     */
+    public function getEncountersByDateRange($startDate, $endDate)
+    {
+        $dateField = new DateSearchField('date', ['ge' . $startDate, 'le' . $endDate], DateSearchField::DATE_TYPE_DATE, $isAnd = true);
+        $encounterResult = $this->search(['date' => $dateField]);
+        if ($encounterResult->hasData()) {
+            $result = $encounterResult->getData();
+            return $result;
         }
         return [];
     }

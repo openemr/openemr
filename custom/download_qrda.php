@@ -13,9 +13,9 @@
  */
 
 require_once("../interface/globals.php");
-require_once "$srcdir/report_database.inc";
+require_once "$srcdir/report_database.inc.php";
 require_once("$srcdir/options.inc.php");
-require_once("qrda_category1.inc");
+require_once("qrda_category1.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;

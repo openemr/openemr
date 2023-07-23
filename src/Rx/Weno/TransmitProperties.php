@@ -105,7 +105,7 @@ class TransmitProperties
      */
     public function getFacilityInfo()
     {
-        $locid = sqlQuery("select name, street, city, state, postal_code, phone, fax, weno_id from facility where id = ?", [$_SESSION['facilityId']]);
+        $locid = sqlQuery("select name, street, city, state, postal_code, phone, fax, weno_id from facility where id = ?", [$_SESSION['facilityId'] ?? null]);
 
         if (empty($locid['weno_id'])) {
             //if not in an encounter then get the first facility location id as default
@@ -203,7 +203,7 @@ class TransmitProperties
      */
     private function getVitals()
     {
-        $vitals = sqlQuery("select date, height, weight from form_vitals where pid = ? ORDER BY id DESC", [$_SESSION["pid"]]);
+        $vitals = sqlQuery("select date, height, weight from form_vitals where pid = ? ORDER BY id DESC", [$_SESSION["pid"] ?? null]);
         return $vitals;
     }
 
@@ -219,7 +219,7 @@ class TransmitProperties
     public function getPharmacy()
     {
         $sql = "SELECT p.ncpdp FROM pharmacies p JOIN patient_data pd ON p.id = pd.pharmacy_id WHERE pd.pid = ? ";
-        $give = sqlQuery($sql, [$_SESSION['pid']]);
-        return $give['ncpdp'];
+        $give = sqlQuery($sql, [$_SESSION['pid'] ?? null]);
+        return $give['ncpdp'] ?? null;
     }
 }

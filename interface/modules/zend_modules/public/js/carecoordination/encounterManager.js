@@ -176,6 +176,9 @@ $(function () {
 
 
 function clearCount(){
+    $('#downloadqrda').val('');
+    $('#downloadqrda3').val('');
+    $('#downloadccda').val('');
 	document.getElementById('form_current_page').value=1;
 	document.getElementById('form_new_search').value=1;
 }

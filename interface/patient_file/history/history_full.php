@@ -12,7 +12,7 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once("history.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/options.js.php");
@@ -240,7 +240,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 </head>
 <body>
 
-<div id="container_div" class="container-fluid mt-3">
+<div id="container_div" class="container-xl mt-3">
     <div class="row">
         <div class="col-12">
             <?php require_once("$include_root/patient_file/summary/dashboard_header.php"); ?>
@@ -287,7 +287,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             </form>
 
             <!-- include support for the list-add selectbox feature -->
-            <?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
+            <?php require $GLOBALS['fileroot'] . "/library/options_listadd.inc.php"; ?>
         </div>
     </div>
 </div><!--end of container div-->

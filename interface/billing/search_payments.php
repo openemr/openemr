@@ -19,12 +19,19 @@
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/payment.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+
+if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Search Payment")]);
+    exit;
+}
 
 //===============================================================================
 //Deletion of payment and its corresponding distributions.
@@ -526,7 +533,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             </td>
                                             <td>
                                                 <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"><?php echo $Payer == '' ? '&nbsp;' : htmlspecialchars($Payer); ?></a>-->
-                                                <a class="medium_modal" data-target="#myModal1" data-toggle="modal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>"><?php echo $Payer == '' ? '&nbsp;' : text($Payer); ?></a><!--link to iframe-->
+                                                <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo $Payer == '' ? '&nbsp;' : text($Payer); ?></a><!--link to iframe-->
                                             </td>
                                             <td>
                                                 <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'><?php echo $RowSearch['payer_id'] * 1 > 0 ? text($RowSearch['payer_id']) : '&nbsp;'; ?></a>
@@ -601,10 +608,5 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </div>
     </div><!--end of container div-->
 <?php $oemr_ui->oeBelowContainerDiv(); ?>
-<script>
-function loadiframe(htmlHref) { //load iframe
-    document.getElementById('targetiframe1').src = htmlHref;
-}
-</script>
 </body>
 </html>

@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class InterventionPerformed extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -56,6 +55,11 @@ class InterventionPerformed extends QDMBaseType
     public $performer = null;
 
     /**
+     * @property string $qdmTitle
+     */
+    public $qdmTitle = 'Intervention, Performed';
+
+    /**
      * @property string $hqmfOid
      */
     public $hqmfOid = '2.16.840.1.113883.10.20.28.4.36';
@@ -77,3 +81,4 @@ class InterventionPerformed extends QDMBaseType
 
     public $_type = 'QDM::InterventionPerformed';
 }
+

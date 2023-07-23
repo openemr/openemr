@@ -1,0 +1,105 @@
+{#
+* Portal Login Print Page
+*
+* @package   OpenEMR
+* @link      http://www.open-emr.org
+* @author    Stephen Nielson <snielson@discoverandchange.com>
+* @copyright Copyright (c) 2022 Discover and Change, Inc.
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<html>
+<head>
+
+    {% block head %}
+        {{ setupHeader(['opener']) }}
+    {% endblock %}
+    <style>
+        @media print {
+            body {
+                font-size: 22pt !important;
+            }
+            .alert {
+                border: 0 !important;
+            }
+            .alert-success {
+                color: #000 !important;
+                background-color: #fff !important;
+            }
+        }
+    </style>
+    <script>
+        function transmit(){
+            // get a public key to encrypt the password info and send
+            document.getElementById('form_save').value='submit';
+            document.forms[0].submit();
+        }
+        {% if (credMessage is not empty) %}
+        // <?php if (!empty($credMessage)) { ?>
+            $(function () {
+                top.printLogPrint(window);
+            });
+        {% endif %}
+        // <?php } ?>
+        {% if extensionsJavascript is not empty %}
+            {% for file, data in extensionsJavascript %}
+                {# Extension writers can overload the patient/partials in their module and include their own data #}
+                {% include 'patient/partials/' ~ file ~ '.js.twig' with data %}
+            {% endfor %}
+        {% endif %}
+    </script>
+</head>
+<body class="body_top">
+<div class="container-fluid">
+
+    {% if (credMessage is not empty) %}
+    <div class="alert alert-success" role="alert">
+        <p class="font-weight-bold">{{  "Portal Credential Information"|xlt }}</p>
+        {{ credMessage }}
+    </div>
+    {% else %}
+    <form name="portallogin" action="" method="post">
+        <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+
+        <p class="text-center font-weight-bold">{{ "Generate Username And Password For"|xlt }} {{ fname|text }}</p>
+
+        <div class="form-group">
+            <label class="font-weight-bold" for="uname">{{ "Account Name"|xlt}}:</label>
+            <input type="text" class="form-control" name="uname" id="uname" value="{{ uname|attr }}" size="10" readonly />
+        </div>
+        <div class="form-group">
+            <label class="font-weight-bold" for="login_uname">{{ 'Login User Name'|xlt }}:</label>
+            <input type="text" class="form-control" name="login_uname" id="login_uname" value="{{ login_uname }}" readonly />
+        </div>
+        <label class="font-weight-bold" for="pwd">{{ 'Password'|xlt }}:</label>
+        <div class="input-group">
+            <input type="text" class="form-control" name="pwd" id="pwd" value="{{ pwd|attr }}" size="14" />
+            <div class="input-group-append">
+                <a href="#" class="btn btn-primary" onclick="top.restoreSession(); javascript:document.location.reload()">{{ 'Change'|xlt }}</a>
+            </div>
+        </div>
+        {% if enforce_signin_email %}
+        <div class="form-group">
+            <label class="font-weight-bold" for="email_direct">{{ "Login Trusted Email"|xlt  }}:</label>
+            {% if email_direct is not empty %}
+            {{  email_direct|text }}
+            {% else %}
+                {{ "Is Required. Please Add in Contacts."|xlt}}
+            {% endif %}
+        </div>
+        {% endif %}
+        <hr />
+        {% if extensionsFormFields is not empty %}
+            {% for file, data in extensionsFormFields %}
+                {# Extension writers can overload the patient/partials in their module and include their own data #}
+                {% include 'patient/partials/' ~ file ~ '.html.twig' with data %}
+            {% endfor %}
+        {% endif %}
+        <input type="hidden" name="form_save" id="form_save" />
+        <a href="#" class="btn btn-primary" onclick="return transmit()">{{ 'Save'|xlt }}</a>
+        <input type="hidden" name="form_cancel" id="form_cancel" />
+        <a href="#" class="btn btn-secondary" onclick="top.restoreSession(); dlgclose();">{{ 'Cancel'|xlt }}</a>
+    </form>
+    {% endif %}
+</div>
+</body>
+</html>

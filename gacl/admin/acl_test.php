@@ -11,16 +11,17 @@ if (!empty($_GET['debug'])) {
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'acl')) {
-            echo xlt('ACL Administration Not Authorized');
-            exit;
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("ACL Administration")]);
+    exit;
 }
 
 @set_time_limit(600);
 
-require_once('../profiler.inc');
+require_once('../profiler.inc.php');
 $profiler = new Profiler(true,true);
 
 require_once("gacl_admin.inc.php");

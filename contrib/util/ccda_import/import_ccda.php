@@ -93,7 +93,7 @@ foreach (glob($dir) as $file) {
         // development-mode is on (note step 1 and step 2 are bypassed)
         // 3. import as new patient (note need to escape ' characters in the filename)
         $file = str_replace("'", "\'", $file);
-        exec("php " . $openemrPath . "/interface/modules/zend_modules/public/index.php ccda-newpatient-import --site=" . $_SESSION['site_id'] . " --document=" . $file);
+        exec("php " . $openemrPath . "/bin/console openemr:ccda-newpatient-import --site=" . $_SESSION['site_id'] . " --document=" . $file);
     } else {
         // development mode is off
         //  1. import ccda document
@@ -103,10 +103,10 @@ foreach (glob($dir) as $file) {
         $document->createDocument('00', 13, basename($file), 'text/xml', $fileContents);
         $documentId = $document->get_id();
         //  2. import to ccda table
-        exec("php " . $openemrPath . "/interface/modules/zend_modules/public/index.php ccda-import --site=" . $_SESSION['site_id'] . " --document_id=" . $documentId);
+        exec("php " . $openemrPath . "/bin/console openemr:ccda-import --site=" . $_SESSION['site_id'] . " --document_id=" . $documentId);
         $auditId = sqlQueryNoLog("SELECT max(`id`) as `maxid` FROM `audit_master`")['maxid'];
         //  3. import as new patient
-        exec("php " . $openemrPath . "/interface/modules/zend_modules/public/index.php ccda-newpatient --site=" . $_SESSION['site_id'] . " --am_id=" . $auditId . " --document_id=" . $documentId);
+        exec("php " . $openemrPath . "/bin/console openemr:ccda-newpatient --site=" . $_SESSION['site_id'] . " --am_id=" . $auditId . " --document_id=" . $documentId);
     }
     $counter++;
     $incrementCounter = 50; // echo every 50 records imported

@@ -35,10 +35,17 @@
 
 require_once("../../globals.php");
 require_once("../../../library/options.inc.php");
-require_once($GLOBALS["srcdir"] . "/api.inc");
+require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('patients', 'lab')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Labs")]);
+    exit;
+}
 
 // Set the path to this script
 $path_to_this_script = $rootdir . "/patient_file/summary/labdata.php";

@@ -10,18 +10,20 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS['fileroot'] . "/library/forms.inc");
-require_once($GLOBALS['fileroot'] . "/library/patient.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
+require_once($GLOBALS['fileroot'] . "/library/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Common\Forms\FormVitalDetails;
+use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\VitalsService;
 use OpenEMR\Services\ListService;
+use OpenEMR\Common\Twig\TwigContainer;
 
-class C_FormVitals extends Controller
+class C_FormVitals
 {
     /**
      * @var FormVitals
@@ -30,7 +32,9 @@ class C_FormVitals extends Controller
 
     var $template_dir;
     var $form_id;
-
+    var $units_of_measurement;
+    var $template_mod;
+    var $context;
 
     const OMIT_CIRCUMFERENCES_NO = 0;
     const OMIT_CIRCUMFERENCES_YES = 1;
@@ -40,32 +44,13 @@ class C_FormVitals extends Controller
      */
     private $interpretationsList = [];
 
-    public function __construct($template_mod = "general")
+    public function __construct($template_mod = "general", $context = '')
     {
-        parent::__construct();
         $this->units_of_measurement = $GLOBALS['units_of_measurement'];
         $this->interpretationsList = $this->get_interpretation_list_options();
-
-        $returnurl = 'encounter_top.php';
         $this->template_mod = $template_mod;
         $this->template_dir = __DIR__ . "/templates/vitals/";
-        $this->assign("FORM_ACTION", $GLOBALS['web_root']);
-        $this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
-        $this->assign("STYLE", $GLOBALS['style']);
-
-      // Options for units of measurement and things to omit.
-        $this->assign("units_of_measurement", $this->units_of_measurement);
-
-        $this->assign("MEASUREMENT_METRIC_ONLY", FormVitals::MEASUREMENT_METRIC_ONLY);
-        $this->assign("MEASUREMENT_USA_ONLY", FormVitals::MEASUREMENT_USA_ONLY);
-        $this->assign("MEASUREMENT_PERSIST_IN_METRIC", FormVitals::MEASUREMENT_PERSIST_IN_METRIC);
-        $this->assign("MEASUREMENT_PERSIST_IN_USA", FormVitals::MEASUREMENT_PERSIST_IN_USA);
-
-//        $this->assign("gbl_vitals_options", $GLOBALS['gbl_vitals_options']);
-        $this->assign("hide_circumferences", $GLOBALS['gbl_vitals_options'] > 0);
-
-        // Assign the CSRF_TOKEN_FORM
-        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+        $this->context = $context;
     }
 
     public function setFormId($form_id)
@@ -96,8 +81,6 @@ class C_FormVitals extends Controller
         $patient_data = getPatientData($GLOBALS['pid']);
         $patient_dob = $patient_data['DOB'];
         $patient_age = getPatientAge($patient_dob);
-        $this->assign("patient_age", $patient_age);
-        $this->assign("patient_dob", $patient_dob);
 
         $i = 1;
         // eventually we want this just to use the service search date but we will move this here.
@@ -113,13 +96,272 @@ class C_FormVitals extends Controller
             $i++;
         }
 
-        $this->assign("vitals", $vitals);
-        $this->assign("results", ($results ?? null));
+        // For the demographics page and $form_id === 0
+        if (
+            $form_id === 0
+            && $this->context == 'dashboard'
+            && is_countable($results)
+        ) {
+            $vitals_history_count = count($results);
+            $vitals = $results[$vitals_history_count];
+            if (isset($vitals->uuid)) {
+                $vitals->uuid = UuidRegistry::uuidToBytes($vitals->uuid);
+            }
+        }
 
-        $this->assign('interpretation_options', $this->interpretationsList);
+        $reasonCodeStatii = ReasonStatusCodes::getCodesWithDescriptions();
+        $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status code");
 
-        $this->assign("VIEW", true);
-        return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
+        $show_pediatric_fields = ($patient_age <= 20 || (preg_match('/month/', $patient_age)));
+        $vitalFields = [
+            [
+                'type' => 'textbox_conversion'
+                ,'title' => xl('Weight')
+                ,'input' => 'weight'
+                // eventually we could just grab the raw values...
+                ,'vitalsValue' => "get_weight"
+                ,'vitalsValueMetric' => "get_weight_metric"
+                ,'unit' => 'lbs'
+                ,'unitMetric' => 'kg'
+                ,'unitLabel' => xl('lbs')
+                ,'unitMetricLabel' => xl('kg')
+                ,'precision' => 2
+                ,'vitalsValueUSAHelpTitle' => xl("Decimal pounds or pounds and ounces separated by #(e.g. 5#4)")
+                ,'codes' => 'LOINC:29463-7'
+            ]
+            ,[
+                'type' => 'textbox_conversion'
+                ,'title' => xl('Height/Length')
+                // eventually we could just grab the raw values...
+                ,'vitalsValue' => "get_height"
+                ,'vitalsValueMetric' => "get_height_metric"
+                ,'input' => 'height'
+                ,'unit' => 'in'
+                ,'unitMetric' => 'cm'
+                ,'unitLabel' => xl('in')
+                ,'unitMetricLabel' => xl('cm')
+                ,'precision' => 2
+                ,'codes' => 'LOINC:8302-2'
+            ]
+            ,[
+                'type' => 'textbox'
+                ,'title' => xl('BP Systolic')
+                // eventually we could just grab the raw values...
+                ,'vitalsValue' => "get_bps"
+                ,'input' => 'bps'
+                ,'unit' => 'mmHg'
+                ,'unitLabel' => xl('mmHg')
+                ,'codes' => 'LOINC:8480-6'
+            ]
+            ,[
+                'type' => 'textbox'
+                ,'title' => xl('BP Diastolic')
+                // eventually we could just grab the raw values...
+                ,'vitalsValue' => "get_bpd"
+                ,'input' => 'bpd'
+                ,'unit' => 'mmHg'
+                ,'unitLabel' => xl('mmHg')
+                ,'codes' => 'LOINC:8462-4'
+            ]
+            ,[
+                'type' => 'textbox'
+                ,'title' => xl('Pulse')
+                // eventually we could just grab the raw values...
+                ,'vitalsValue' => "get_pulse"
+                ,'precision' => 0
+                ,'input' => 'pulse'
+                ,'unit' => 'per min'
+                ,'unitLabel' => xl('per min')
+                ,'codes' => 'LOINC:8867-4'
+            ]
+            ,[
+                'type' => 'textbox'
+                ,'title' => xl('Respiration')
+                // eventually we could just grab the raw values...
+                ,'vitalsValue' => "get_respiration"
+                ,'precision' => 0
+                ,'input' => 'respiration'
+                ,'unit' => 'per min'
+                ,'unitLabel' => xl('per min')
+                ,'codes' => 'LOINC:9279-1'
+            ]
+            ,[
+                'type' => 'textbox_conversion'
+                ,'title' => xl('Temperature')
+                // eventually we could just grab the raw values...
+                ,'vitalsValue' => "get_temperature"
+                ,'vitalsValueMetric' => "get_temperature_metric"
+                ,'input' => 'temperature'
+                ,'unit' => 'F'
+                ,'unitMetric' => 'C'
+                ,'unitLabel' => xl('F')
+                ,'unitMetricLabel' => xl('C')
+                ,'precision' => 2
+                ,'codes' => 'LOINC:8310-5'
+            ]
+            ,[
+                'type' => 'template'
+                ,'templateName' => 'vitals_temp_method.html.twig'
+            ]
+            ,[
+                'type' => 'textbox'
+                ,'title' => xl('Oxygen Saturation')
+                // eventually we could just grab the raw values...
+                ,'vitalsValue' => "get_oxygen_saturation"
+                ,'precision' => 2
+                ,'input' => 'oxygen_saturation'
+                ,'unit' => '%'
+                ,'unitLabel' => '%'
+                ,'codes' => 'LOINC:59408-5'
+            ]
+            ,[
+                'type' => 'textbox'
+                ,'title' => xl('Oxygen Flow Rate')
+                // eventually we could just grab the raw values...
+                ,'vitalsValue' => "get_oxygen_flow_rate"
+                ,'precision' => 2
+                ,'input' => 'oxygen_flow_rate'
+                ,'unit' => 'l/min'
+                ,'unitLabel' => xl('l/min')
+                ,'codes' => 'LOINC:3151-8'
+            ]
+            ,[
+                'type' => 'textbox'
+                ,'title' => xl('Inhaled Oxygen Concentration')
+                // eventually we could just grab the raw values...
+                ,'vitalsValue' => "get_inhaled_oxygen_concentration"
+                ,'precision' => 0
+                ,'input' => 'inhaled_oxygen_concentration'
+                ,'unit' => '%'
+                ,'unitLabel' => '%'
+                ,'codes' => 'LOINC:3150-0'
+            ]
+            ,[
+                'type' => 'textbox_conversion'
+                ,'title' => xl('Head Circumference')
+                // eventually we could just grab the raw values...
+                ,'vitalsValue' => "get_head_circ"
+                ,'vitalsValueMetric' => "get_head_circ_metric"
+                ,'input' => 'head_circ'
+                ,'unit' => 'in'
+                ,'unitMetric' => 'cm'
+                ,'unitLabel' => xl('in')
+                ,'unitMetricLabel' => xl('cm')
+                ,'precision' => 2
+                // hide_circumferences
+                ,'hide' => $GLOBALS['gbl_vitals_options'] > 0
+                ,'codes' => "LOINC:9843-4"
+            ]
+            ,[
+                'type' => 'textbox_conversion'
+                ,'title' => xl('Waist Circumference')
+                // eventually we could just grab the raw values...
+                ,'vitalsValue' => "get_waist_circ"
+                ,'vitalsValueMetric' => "get_waist_circ_metric"
+                ,'input' => 'waist_circ'
+                ,'unit' => 'in'
+                ,'unitMetric' => 'cm'
+                ,'unitLabel' => xl('in')
+                ,'unitMetricLabel' => xl('cm')
+                ,'precision' => 2
+                // hide_circumferences
+                ,'hide' => $GLOBALS['gbl_vitals_options'] > 0
+                ,'codes' => "LOINC:9843-4"
+            ]
+            ,[
+                'type' => 'template'
+                ,'templateName' => 'vitals_bmi.html.twig'
+            ]
+            ,[
+                'type' => 'template'
+                ,'templateName' => 'vitals_bmi_status.html.twig'
+            ]
+            ,[
+                'type' => 'textbox'
+                ,'title' => xl('Pediatric Weight Height Percentile')
+                // eventually we could just grab the raw values...
+                ,'vitalsValue' => "get_ped_weight_height"
+                ,'input' => 'ped_weight_height'
+                ,'unit' => '%'
+                ,'unitLabel' => '%'
+                ,'codes' => 'LOINC:77606-2'
+                ,'hide' => !$show_pediatric_fields
+            ]
+            ,[
+                'type' => 'textbox'
+                ,'title' => xl('Pediatric BMI Percentile')
+                // eventually we could just grab the raw values...
+                ,'vitalsValue' => "get_ped_bmi"
+                ,'input' => 'ped_bmi'
+                ,'unit' => '%'
+                ,'unitLabel' => '%'
+                ,'codes' => 'LOINC:59576-9'
+                ,'hide' => !$show_pediatric_fields
+            ]
+            ,[
+                'type' => 'textbox'
+                ,'title' => xl('Pediatric Head Circumference Percentile')
+                // eventually we could just grab the raw values...
+                ,'vitalsValue' => "get_ped_head_circ"
+                ,'input' => 'ped_head_circ'
+                ,'unit' => '%'
+                ,'unitLabel' => '%'
+                ,'codes' => 'LOINC:8289-1'
+                ,'hide' => !$show_pediatric_fields
+            ]
+            ,[
+                'type' => 'template'
+                ,'templateName' => 'vitals_notes.html.twig'
+                ,'title' => xl('Other Notes')
+                ,'input' => 'note'
+                ,'vitalsValue' => 'get_note'
+            ]
+            ,[
+                'type' => 'template'
+                ,'templateName' => 'vitals_growthchart_actions.html.twig'
+                ,'hide' => !$show_pediatric_fields
+            ]
+        ];
+
+        $resultsCount = count($results ?? []);
+        $hasMoreVitals = false;
+        $vitalsHistoryLookback = [];
+        $maxHistoryCols = $GLOBALS['gbl_vitals_max_history_cols'] ?? 2;
+        if ($maxHistoryCols > 0 && $resultsCount > $maxHistoryCols) {
+            $vitalsHistoryLookback = array_slice($results, 0, $maxHistoryCols);
+            $hasMoreVitals = true;
+        } else {
+            $vitalsHistoryLookback = $results ?? null;
+        }
+
+        $data = [
+            'vitals' => $vitals
+            ,'vitalFields' => $vitalFields
+            ,'FORM_ACTION' => $GLOBALS['web_root']
+            ,'DONT_SAVE_LINK' => $GLOBALS['form_exit_url']
+            ,'STYLE' => $GLOBALS['style']
+            ,'units_of_measurement' => $this->units_of_measurement
+            ,'MEASUREMENT_METRIC_ONLY' => FormVitals::MEASUREMENT_METRIC_ONLY
+            ,'MEASUREMENT_USA_ONLY' => FormVitals::MEASUREMENT_USA_ONLY
+            ,'MEASUREMENT_PERSIST_IN_METRIC' => FormVitals::MEASUREMENT_PERSIST_IN_METRIC
+            ,'MEASUREMENT_PERSIST_IN_USA' => FormVitals::MEASUREMENT_PERSIST_IN_USA
+            ,'hide_circumferences' => $GLOBALS['gbl_vitals_options'] > 0
+            ,'CSRF_TOKEN_FORM' => CsrfUtils::collectCsrfToken()
+            ,'results' => $results ?? null
+            ,'vitalsHistoryLookback' => $vitalsHistoryLookback
+            ,'hasMoreVitals' => $hasMoreVitals
+            ,'results_count' => count(($results ?? []))
+            ,'reasonCodeStatii' => $reasonCodeStatii
+            ,'interpretation_options' => $this->interpretationsList
+            ,'VIEW' => true
+            ,'patient_age' => $patient_age
+            ,'patient_dob' => $patient_dob
+            ,'show_pediatric_fields' => ($patient_age <= 20 || (preg_match('/month/', $patient_age)))
+            ,'has_id' => $form_id
+        ];
+        $twig = (new TwigContainer($this->template_dir, $GLOBALS['kernel']))->getTwig();
+
+        echo $twig->render("vitals.html.twig", $data);
     }
 
     private function get_interpretation_list_options()
@@ -200,7 +442,20 @@ class C_FormVitals extends Controller
 
     public function populate_object(&$obj)
     {
-        parent::populate_object($obj);
+        if (!is_object($obj)) {
+            throw new \InvalidArgumentException("populate_object called with invalid argument");
+        }
+
+        // so we can get rid of smarty we are going to bring this from the controller class in here
+        foreach ($_POST as $varname => $var) {
+            $varname = preg_replace("/[^A-Za-z0-9_]/", "", $varname);
+            $func = "set_" . $varname;
+            if ((!(str_starts_with("_", $varname))) && is_callable(array($obj,$func))) {
+                //echo "c: $func on w: "  . $var . "<br />";
+
+                $obj->$func($var, $_POST);
+            }
+        }
 
         $this->populate_session_user_information($obj);
 
@@ -228,7 +483,7 @@ class C_FormVitals extends Controller
 
                 if (empty($value)) {
                     $details->clear_interpretation();
-                } else if (isset($interpretationList[$value])) {
+                } elseif (isset($interpretationList[$value])) {
                     $interpretation = $interpretationList[$value];
 
                     // we save off both the code and the text value here which duplicates the data.  However, since
@@ -248,6 +503,25 @@ class C_FormVitals extends Controller
                     $details->clear_interpretation();
                 }
 
+                $details->set_vitals_column($column);
+                $detailsToUpdate[$column] = $details;
+            }
+        }
+
+        // now let's populate our reason codes if we have them.  Requires a reason code and a status code
+        if (isset($_POST['reasonCode'])) {
+            foreach ($_POST['reasonCode'] as $column => $value) {
+                $details = $detailsToUpdate[$column] ?? $this->vitals->get_details_for_column($column) ?? new FormVitalDetails();
+                if (empty($value) && empty($_POST['reasonCodeStatus'][$column]) && empty($details->get_id())) {
+                    continue; // nothing to do here if we don't have a code and a status
+                }
+                if (empty($value) || empty($_POST['reasonCodeStatus'][$column])) {
+                    $details->clear_reason();
+                } else {
+                    $details->set_reason_code($value);
+                    $details->set_reason_status($_POST['reasonCodeStatus'][$column] ?? '');
+                    $details->set_reason_description($_POST['reasonCodeText'][$column] ?? '');
+                }
                 $details->set_vitals_column($column);
                 $detailsToUpdate[$column] = $details;
             }

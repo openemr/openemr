@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PositiveSubstanceRecommended extends SubstanceRecommended
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class PositiveSubstanceRecommended extends SubstanceRecommended
 
     public $_type = 'QDM::PositiveSubstanceRecommended';
 }
+

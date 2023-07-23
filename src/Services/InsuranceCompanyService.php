@@ -14,23 +14,27 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
-use OpenEMR\Services\Search\SearchFieldException;
+use OpenEMR\Services\{
+    AddressService,
+    PhoneNumberService,
+    Search\FhirSearchWhereClauseBuilder,
+    Search\SearchFieldException
+};
+use OpenEMR\Validators\InsuranceCompanyValidator;
 use OpenEMR\Validators\ProcessingResult;
-use OpenEMR\Services\AddressService;
-use OpenEMR\Validators\InsuranceValidator;
-use OpenEMR\Common\Database\QueryUtils;
 
 class InsuranceCompanyService extends BaseService
 {
     private const INSURANCE_TABLE = "insurance_companies";
-    private $insuranceValidator;
+    private $insuranceCompanyValidator;
     private $addressService = null;
-    const TYPE_FAX = 5;
-    const TYPE_WORK = 2;
+    private $phoneNumberService = null;
+    public const TYPE_FAX = 5;
+    public const TYPE_WORK = 2;
 
 
     /**
@@ -39,8 +43,9 @@ class InsuranceCompanyService extends BaseService
     public function __construct()
     {
         $this->addressService = new AddressService();
+        $this->phoneNumberService = new PhoneNumberService();
         UuidRegistry::createMissingUuidsForTables([self::INSURANCE_TABLE]);
-        $this->insuranceValidator = new InsuranceValidator();
+        $this->insuranceCompanyValidator = new InsuranceCompanyValidator();
         parent::__construct(self::INSURANCE_TABLE);
     }
 
@@ -51,7 +56,7 @@ class InsuranceCompanyService extends BaseService
 
     public function search($search, $isAndCondition = true)
     {
-        $sql  = " SELECT i.id,";
+        $sql = " SELECT i.id,";
         $sql .= "        i.uuid,";
         $sql .= "        i.name,";
         $sql .= "        i.attn,";
@@ -81,7 +86,8 @@ class InsuranceCompanyService extends BaseService
         $sql .= "        a.country";
         $sql .= " FROM insurance_companies i ";
         $sql .= " JOIN addresses a ON i.id = a.foreign_id";
-        // the foreign_id here is a globally unique sequence so there is no conflict.  I don't like the assumption here as it should be more explicit what table we are pulling
+        // the foreign_id here is a globally unique sequence so there is no conflict.
+        // I don't like the assumption here as it should be more explicit what table we are pulling
         // from since OpenEMR mixes a bunch of paradigms.  I initially worried about data corruption as phone_numbers
         // foreign id could be ambigious here... but since the sequence is globally unique @see \generate_id() we can
         // join here safely...
@@ -111,7 +117,11 @@ class InsuranceCompanyService extends BaseService
             (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             $processingResult->addInternalError("Error selecting data from database");
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'field' => $exception->getField()]);
+            (new SystemLogger())->error(
+                $exception->getMessage(),
+                ['trace' => $exception->getTraceAsString(),
+                 'field' => $exception->getField()]
+            );
             $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
         return $processingResult;
@@ -121,7 +131,7 @@ class InsuranceCompanyService extends BaseService
     {
         // Validating and Converting UUID to ID
         if (isset($search['id'])) {
-            $isValidcondition = $this->insuranceValidator->validateId(
+            $isValidcondition = $this->insuranceCompanyValidator->validateId(
                 'uuid',
                 self::INSURANCE_TABLE,
                 $search['id'],
@@ -135,7 +145,7 @@ class InsuranceCompanyService extends BaseService
         }
 
         $sqlBindArray = array();
-        $sql  = " SELECT i.id,";
+        $sql = " SELECT i.id,";
         $sql .= "        i.uuid,";
         $sql .= "        i.name,";
         $sql .= "        i.attn,";
@@ -178,7 +188,7 @@ class InsuranceCompanyService extends BaseService
     public function getOneById($id)
     {
         // TODO: this should be refactored to use getAll but its selecting all the columns and for backwards
-        // compatibility we will live this here.
+        // compatibility we will leave this here.
         $sql = "SELECT * FROM insurance_companies WHERE id=?";
         return sqlQuery($sql, array($id));
     }
@@ -212,11 +222,26 @@ class InsuranceCompanyService extends BaseService
         return $claim_types;
     }
 
+    public function getInsuranceCqmSop()
+    {
+        $cqm_sop = sqlStatement(
+            "SELECT distinct code, description FROM `valueset` WHERE `valueset` = '2.16.840.1.114222.4.11.3591';"
+        );
+
+        $cqm_sops = [];
+        while ($row = sqlFetchArray($cqm_sop)) {
+            $cqm_sops[$row['code']] = $row['description'];
+        }
+        return $cqm_sops;
+    }
+
     public function insert($data)
     {
-        $freshId = $this->getFreshId("id", "insurance_companies");
+        // insurance companies need to use sequences table since they share the
+        // addresses table with pharmacies
+        $freshId = generate_id();
 
-        $sql  = " INSERT INTO insurance_companies SET";
+        $sql = " INSERT INTO insurance_companies SET";
         $sql .= "     id=?,";
         $sql .= "     name=?,";
         $sql .= "     attn=?,";
@@ -224,9 +249,10 @@ class InsuranceCompanyService extends BaseService
         $sql .= "     ins_type_code=?,";
         $sql .= "     x12_receiver_id=?,";
         $sql .= "     x12_default_partner_id=?,";
-        $sql .= "     alt_cms_id=?";
+        $sql .= "     alt_cms_id=?,";
+        $sql .= "     cqm_sop=?";
 
-        $insuranceResults = sqlInsert(
+        sqlInsert(
             $sql,
             array(
                 $freshId,
@@ -235,19 +261,18 @@ class InsuranceCompanyService extends BaseService
                 $data["cms_id"],
                 $data["ins_type_code"],
                 $data["x12_receiver_id"],
-                $data["x12_default_partner_id"],
-                $data["alt_cms_id"]
+                $data["x12_default_partner_id"] ?? '',
+                $data["alt_cms_id"],
+                $data["cqm_sop"] ?? null,
             )
         );
 
-        if (!$insuranceResults) {
-            return false;
+        if (!empty($data["city"] ?? null) && !empty($data["state"] ?? null)) {
+            $this->addressService->insert($data, $freshId);
         }
 
-        $addressesResults = $this->addressService->insert($data, $freshId);
-
-        if (!$addressesResults) {
-            return false;
+        if (!empty($data["phone"] ?? null)) {
+            $this->phoneNumberService->insert($data, $freshId);
         }
 
         return $freshId;
@@ -255,14 +280,15 @@ class InsuranceCompanyService extends BaseService
 
     public function update($data, $iid)
     {
-        $sql  = " UPDATE insurance_companies SET";
+        $sql = " UPDATE insurance_companies SET";
         $sql .= "     name=?,";
         $sql .= "     attn=?,";
         $sql .= "     cms_id=?,";
         $sql .= "     ins_type_code=?,";
         $sql .= "     x12_receiver_id=?,";
         $sql .= "     x12_default_partner_id=?,";
-        $sql .= "     alt_cms_id=?";
+        $sql .= "     alt_cms_id=?,";
+        $sql .= "     cqm_sop=?";
         $sql .= "     WHERE id = ?";
 
         $insuranceResults = sqlStatement(
@@ -273,8 +299,9 @@ class InsuranceCompanyService extends BaseService
                 $data["cms_id"],
                 $data["ins_type_code"],
                 $data["x12_receiver_id"],
-                $data["x12_default_partner_id"],
+                $data["x12_default_partner_id"] ?? null,
                 $data["alt_cms_id"],
+                $data["cqm_sop"],
                 $iid
             )
         );
@@ -289,6 +316,27 @@ class InsuranceCompanyService extends BaseService
             return false;
         }
 
+        $phoneNumberResults = $this->phoneNumberService->update($data, $iid);
+
+        if (!$phoneNumberResults) {
+            return false;
+        }
+
         return $iid;
+    }
+
+    /**
+     * Return an array of insurance companies with the same payer id
+     *
+     * @param  $cms_id  Insurance company payer id (assigned by clearinghouses)
+     * @return Array Insurance company data payload.
+     */
+    public function getAllByPayerID($cms_id)
+    {
+        $insuranceCompanyResult = $this->search(['cms_id' => $cms_id]);
+        if ($insuranceCompanyResult->hasData()) {
+            $result = $insuranceCompanyResult->getData();
+        }
+        return $result;
     }
 }

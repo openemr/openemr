@@ -8,28 +8,27 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2009-2021 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2009-2022 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-if (isset($_GET['isPortal']) && (int)$_GET['isPortal'] !== 0) {
-    require_once(__DIR__ . "/../../../src/Common/Session/SessionUtil.php");
-    OpenEMR\Common\Session\SessionUtil::portalSessionStart();
-    if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
-        $ignoreAuth_onsite_portal = true;
-    } else {
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-        exit;
-    }
+// since need this class before autoloader, need to manually include it and then set it in line below with use command
+require_once(__DIR__ . "/../../../src/Common/Forms/CoreFormToPortalUtility.php");
+use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+
+// block of code to securely support use by the patient portal
+$patientPortalSession = CoreFormToPortalUtility::isPatientPortalSession($_GET);
+if ($patientPortalSession) {
+    $ignoreAuth_onsite_portal = true;
 }
 
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 require_once("$srcdir/FeeSheetHtml.class.php");
 
@@ -115,6 +114,15 @@ if ($form_origin !== null) {
 }
 $is_core = !($portal_form_pid || $patient_portal || $is_portal_dashboard || $is_portal_module);
 
+if ($patientPortalSession && !empty($formid)) {
+    $pidForm = sqlQuery("SELECT `pid` FROM `forms` WHERE `form_id` = ? AND `formdir` = ?", [$formid, $formname])['pid'];
+    if (empty($pidForm) || ($pidForm != $_SESSION['pid'])) {
+        echo xlt("illegal Action");
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        exit;
+    }
+}
+
 $visitid = (int)(empty($_GET['visitid']) ? $encounter : $_GET['visitid']);
 
 // If necessary get the encounter from the forms table entry for this form.
@@ -193,7 +201,7 @@ if (isset($LBF_SERVICES_SECTION) || isset($LBF_PRODUCTS_SECTION) || isset($LBF_D
 }
 
 if (!$from_trend_form) {
-    $fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/$formname.plugin.php";
+    $fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/" . check_file_dir_name($formname) . ".plugin.php";
     if (file_exists($fname)) {
         include_once($fname);
     }
@@ -237,6 +245,7 @@ if (
         );
     }
 
+    $newhistorydata = array();
     $sets = "";
     $fres = sqlStatement("SELECT * FROM layout_options " .
         "WHERE form_id = ? AND uor > 0 AND field_id != '' AND " .
@@ -265,8 +274,9 @@ if (
         if ($source == 'D' || $source == 'H') {
             // Save to patient_data, employer_data or history_data.
             if ($source == 'H') {
-                $new = array($field_id => $value);
-                updateHistoryData($pid, $new);
+                // Do not call updateHistoryData() here! That would create multiple rows
+                // in the history_data table for a single form save.
+                $newhistorydata[$field_id] = $value;
             } elseif (strpos($field_id, 'em_') === 0) {
                 $field_id = substr($field_id, 3);
                 $new = array($field_id => $value);
@@ -322,6 +332,11 @@ if (
             }
         }
     } // end while save
+
+    // Save any history data that was collected above.
+    if (!empty($newhistorydata)) {
+        updateHistoryData($pid, $newhistorydata);
+    }
 
     if ($portalid) {
         // Delete the request from the portal.
@@ -658,7 +673,7 @@ if (
                 top.restoreSession();
             }
 
-            return true;
+            return errMsgs.length == 0;
         }
 
         // Called to open the data entry form of a specified encounter form instance.
@@ -872,9 +887,9 @@ if (
 </head>
 
 <body class="body_top"<?php if ($from_issue_form) {
-    echo " style='background-color:var(--white)'";
-                      } ?>>
-    <div class="container-fluid">
+    echo " style='background-color:var(--white)'"; } ?>>
+    <!-- Set as a container until xl breakpoint then make fluid. -->
+    <div class="container-xl">
         <?php
         // form-inline is more consistent with the fact that LBFs are not designed for
         // small devices. In particular we prefer horizontal arrangement of multiple
@@ -885,7 +900,7 @@ if (
         ?>
         <!-- row width will size to col content width -->
         <!-- We need all possible viewport width sjp w-100 -->
-        <div class="row w-100">
+        <div class="row w-100 overflow-auto">
             <div class="col-12">
                 <?php
                 $cmsportal_login = '';
@@ -915,7 +930,7 @@ if (
                                 array($formname, $formid)
                             );
                             $form_issue_id = empty($firow['issue_id']) ? 0 : intval($firow['issue_id']);
-                            $default = empty($firow['provider_id']) ? $_SESSION['authUserID'] : intval($firow['provider_id']);
+                            $default = empty($firow['provider_id']) ? ($_SESSION['authUserID'] ?? null) : intval($firow['provider_id']);
 
                             if (!$patient_portal) {
                                 // Provider selector.
@@ -1137,7 +1152,7 @@ if (
                                 // There is a group subtitle so show it.
                                 $bs_cols = $CPR * intval(12 / $CPR);
                                 echo "<div class='row mb-2'>";
-                                echo "<div class='<?php echo $BS_COL_CLASS; ?>-$bs_cols font-weight-bold text-primary'>" . text($subtitle) . "</div>";
+                                echo "<div class='$BS_COL_CLASS-$bs_cols font-weight-bold text-primary'>" . text($subtitle) . "</div>";
                                 echo "</div>\n";
                             }
                         } else {
@@ -1260,7 +1275,7 @@ if (
 
                     ++$item_count;
 
-                    echo "<strong>";
+                    // This gets a font-weight-bold class so removed strong
                     if ($frow['title']) {
                         $tmp = xl_layout_label($frow['title']);
                         echo text($tmp);
@@ -1271,7 +1286,7 @@ if (
                     } else {
                         echo "&nbsp;";
                     }
-                    echo "</strong>";
+
                     // Note the labels are not repeated in the history columns.
 
                     // Handle starting of a new data cell.
@@ -1428,7 +1443,7 @@ if (
                     echo "<select class='form-control' name='form_fs_provid'>";
                     echo FeeSheetHtml::genProviderOptionList(
                         ' ',
-                        tmp_provider_id
+                        $tmp_provider_id
                     );
                     echo "</select>\n";
                     echo "\n";
@@ -1819,7 +1834,7 @@ if (
 
                 <?php if (!$from_trend_form) { // end row and container divs ?>
                     <p style='text-align:center' class='small'>
-                        <?php echo text(xl('Rev.') . ' ' . substr($grp_last_update, 0, 10)); ?>
+                        <?php echo text(xl('Rev.') . ' ' . substr($grp_last_update ?? '', 0, 10)); ?>
                     </p>
 
                 <?php } ?>
@@ -1831,7 +1846,7 @@ if (
                 } ?>
 
                 <!-- include support for the list-add selectbox feature -->
-                <?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
+                <?php require $GLOBALS['fileroot'] . "/library/options_listadd.inc.php"; ?>
 
                 <script>
                     // Array of action conditions for the checkSkipConditions() function.

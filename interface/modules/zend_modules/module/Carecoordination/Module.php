@@ -1,21 +1,29 @@
 <?php
 
+/**
+ * Module is responsible for setting up the configuration of the module and any events it listens to.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Vinish K <vinish@zhservices.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2015 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace Carecoordination;
 
-use Carecoordination\Model\CarecoordinationTable;
-use Carecoordination\Model\SetupTable;
-use Carecoordination\Model\EncounterccdadispatchTable;
-use Carecoordination\Model\EncountermanagerTable;
-use Laminas\Db\ResultSet\ResultSet;
-use Laminas\Db\TableGateway\TableGateway;
 use Laminas\ModuleManager\ModuleManager;
+use Laminas\Mvc\MvcEvent;
 use Laminas\View\Helper\Openemr\Emr;
 use Laminas\View\Helper\Openemr\Menu;
 use Carecoordination\Model\Progressnote;
 use Carecoordination\Model\ProgressnoteTable;
 use Carecoordination\Model\Continuitycaredocument;
 use Carecoordination\Model\ContinuitycaredocumentTable;
-use Carecoordination\Model\CcdTable;
+use Carecoordination\Listener\CCDAEventsSubscriber;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class Module
 {
@@ -51,5 +59,16 @@ class Module
                     'current_action' => $route->getParam('action'),
                 ));
         }, 100);
+    }
+
+    public function onBootstrap(MvcEvent $e)
+    {
+        // we grab the OpenEMR event listener (which is injected as Laminas has its own dispatcher)
+        $serviceManager = $e->getApplication()->getServiceManager();
+        $oemrDispatcher = $serviceManager->get(EventDispatcherInterface::class);
+
+        // now we can listen to our module events
+        $menuSubscriber = $serviceManager->get(CCDAEventsSubscriber::class);
+        $oemrDispatcher->addSubscriber($menuSubscriber);
     }
 }

@@ -27,6 +27,8 @@ class GlobalSetting
     const DATA_TYPE_PASS = "pass";
     // used for encrypted field values
     const DATA_TYPE_ENCRYPTED = "encrypted";
+    // used for encrypted hash field values
+    const DATA_TYPE_ENCRYPTED_HASH = "encrypted_hash";
     // generates a random uuid if the value is an empty string
     const DATA_TYPE_DEFAULT_RANDOM_UUID = "if_empty_create_random_uuid";
     // 15 character maximum number string
@@ -51,6 +53,37 @@ class GlobalSetting
     // textbox
     const DATA_TYPE_TEXT = "text";
 
+    // html display section
+    const DATA_TYPE_HTML_DISPLAY_SECTION = "html_display_section";
+
+    /**
+     * Multiple list box with a dropdown selector to add list items.  Items can be re-arranged in order.  Selected
+     * list items save the options property of the list into the globals setting.  Multiple values are separated by a
+     * semi-colon (;).  Pass in a field option of 'list_id' => '<list-name-goes-here>' to the setting to choose the list
+     */
+    const DATA_TYPE_MULTI_SORTED_LIST_SELECTOR = "multi_sorted_list_selector";
+
+    /**
+     * Add to this list if the field supports options
+     */
+    const DATA_TYPES_WITH_OPTIONS = [self::DATA_TYPE_MULTI_SORTED_LIST_SELECTOR, self::DATA_TYPE_HTML_DISPLAY_SECTION];
+
+    /**
+     * Mappings of the data types and the options they support
+     */
+    const DATA_TYPE_FIELD_OPTIONS_SUPPORTED = [
+        self::DATA_TYPE_MULTI_SORTED_LIST_SELECTOR => [
+            self::DATA_TYPE_OPTION_LIST_ID
+        ]
+        ,self::DATA_TYPE_HTML_DISPLAY_SECTION => [
+            self::DATA_TYPE_OPTION_RENDER_CALLBACK
+        ]
+    ];
+
+    const DATA_TYPE_OPTION_LIST_ID = 'list_id';
+
+    const DATA_TYPE_OPTION_RENDER_CALLBACK = 'render_callback';
+
     protected $label = null;
     /**
      * @var string The field type that this value can be.  Valid options include 'bool', 'color_code',
@@ -59,6 +92,11 @@ class GlobalSetting
     protected $default = null;
     protected $description = null;
     protected $isUserSetting = false;
+
+    /**
+     * @var array Any specific field options such as
+     */
+    protected $fieldOptions = [];
 
     public function __construct($label, $dataType, $default, $description, $isUserSetting = false)
     {
@@ -72,16 +110,54 @@ class GlobalSetting
 
     public function format()
     {
-        return [
+        $result = [
             $this->label,
             $this->dataType,
             $this->default,
-            $this->description
+            $this->description,
         ];
+        if (!empty($this->fieldOptions)) {
+            $result[] = $this->fieldOptions;
+        }
+        return $result;
     }
 
     public function isUserSetting()
     {
         return $this->isUserSetting;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFieldOptions(): array
+    {
+        return $this->fieldOptions;
+    }
+
+    public function addFieldOption($key, $option)
+    {
+        // here we can do any validation that we want.  For now we only support list_id with
+        // the DATA_TYPE_MULTI_SORTED_LIST_SELECTOR
+        if (!$this->dataTypeSupportsOptions($this->dataType)) {
+            throw new \InvalidArgumentException("Data type does not support field options");
+        }
+        if (!$this->dataTypeSupportsOptionKey($this->dataType, $key)) {
+            throw new \InvalidArgumentException("Data type does not support field option key " . $key);
+        }
+        $this->fieldOptions[$key] = $option;
+    }
+
+    public function dataTypeSupportsOptions($datatype)
+    {
+        return in_array($datatype, self::DATA_TYPES_WITH_OPTIONS);
+    }
+
+    public function dataTypeSupportsOptionKey($datatype, $key)
+    {
+        if ($this->dataTypeSupportsOptions($datatype)) {
+            return in_array($key, self::DATA_TYPE_FIELD_OPTIONS_SUPPORTED[$datatype]);
+        }
+        return false;
     }
 }

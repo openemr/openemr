@@ -98,17 +98,32 @@ var actpage = {
 				var m = actpage.onsiteActivityViews.get(this.id);
 				var cpid = m.get('patientId');
 				var activity = m.get('activity');
+				let eventData = {
+					activity: activity
+					, cpid: cpid
+					, modelAttributes: m.attributes
+				};
+				let node = document.createElement("tr");
+				// note this is a synchronous operation! event consumers should not do anything that takes a long time
+				// or they should fire off async work and return immediately
+				let event = new CustomEvent('openemr:portal:provider:onsiteactivityview:click',
+					{bubbles: true, detail: eventData, cancelable: true});
+				let continueExecution = e.target.dispatchEvent(event);
+				if (!continueExecution) { // prevent default was called
+					return;
+				}
+
 				if(activity == 'document') {
-                    let recid = m.get('tableArgs');
-                    showDocumentModal(cpid, recid);
-                }
+                    			let recid = m.get('tableArgs');
+			        	showDocumentModal(cpid, recid);
+                		}
 				else if(activity == 'profile') {
-                    showProfileModal(cpid);
-                }
+                    			showProfileModal(cpid);
+                		}
 				else if(activity == 'payment') {
-                    let recid = m.get('id');
-                    showPaymentModal(cpid, recid);
-                }
+                    			let recid = m.get('id');
+                    			showPaymentModal(cpid, recid);
+                		}
 			});
 
 			// make the headers clickable for sorting

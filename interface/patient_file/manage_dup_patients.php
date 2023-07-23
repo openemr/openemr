@@ -11,11 +11,12 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
@@ -121,7 +122,8 @@ if (!empty($_POST)) {
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    die(xlt("Unauthorized access."));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Duplicate Patient Management")]);
+    exit;
 }
 
 $scorecalc = getDupScoreSQL();

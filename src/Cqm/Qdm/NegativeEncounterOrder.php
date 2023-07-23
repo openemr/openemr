@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class NegativeEncounterOrder extends EncounterOrder
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class NegativeEncounterOrder extends EncounterOrder
 
     public $_type = 'QDM::NegativeEncounterOrder';
 }
+

@@ -17,13 +17,14 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once(__DIR__ . "/../../orders/qoe.inc.php");
 require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Core\Header;
 
 if (!$encounter) { // comes from globals.php
@@ -38,7 +39,7 @@ $row = array(
     //'date_collected' => date('Y-m-d H:i'),
 );
 
-if ($_POST['bn_save_ereq']) { //labcorp
+if ($_POST['bn_save_ereq'] ?? null) { //labcorp
     $_POST['bn_xmit'] = "transmit";
 }
 
@@ -50,11 +51,11 @@ function get_lab_name($id): string
 {
     global $gbl_lab_title, $gbl_lab, $gbl_client_acct, $gbl_use_codes;
     $tmp = sqlQuery("SELECT name, send_fac_id as clientid, npi FROM procedure_providers Where ppid = ?", array($id));
-    $gbl_lab = stripos($tmp['name'], 'quest') !== false ? 'quest' : 'ammon';
-    $gbl_lab = stripos($tmp['name'], 'labcorp') !== false ? 'labcorp' : $gbl_lab;
-    $gbl_lab = stripos($tmp['name'], 'clarity') !== false ? 'clarity' : $gbl_lab;
-    $gbl_lab_title = trim($tmp['name']);
-    $gbl_client_acct = trim($tmp['clientid']);
+    $gbl_lab = stripos($tmp['name'] ?? '', 'quest') !== false ? 'quest' : 'ammon';
+    $gbl_lab = stripos($tmp['name'] ?? '', 'labcorp') !== false ? 'labcorp' : $gbl_lab;
+    $gbl_lab = stripos($tmp['name'] ?? '', 'clarity') !== false ? 'clarity' : $gbl_lab;
+    $gbl_lab_title = trim($tmp['name'] ?? '');
+    $gbl_client_acct = trim($tmp['clientid'] ?? '');
 
     return $gbl_lab;
 }
@@ -123,7 +124,7 @@ $reqStr = "";
 
 // If Save or Transmit was clicked, save the info.
 //
-if ($_POST['bn_save'] || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exit'])) {
+if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exit'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -248,6 +249,26 @@ if ($_POST['bn_save'] || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exi
 
         sqlBeginTrans();
         $procedure_order_seq = sqlQuery("SELECT IFNULL(MAX(procedure_order_seq),0) + 1 AS increment FROM procedure_order_code WHERE procedure_order_id = ? ", array($formid));
+        $reason_code = trim($_POST['form_proc_reason_code'][$i] ?? '');
+        $reason_description = trim($_POST['form_proc_reason_description'][$i] ?? '');
+        $reason_date_low = trim($_POST['form_proc_reason_date_low'][$i] ?? '');
+        $reason_date_high = trim($_POST['form_proc_reason_date_high'][$i] ?? '');
+        $reason_status = trim($_POST['form_proc_reason_status'][$i] ?? '');
+
+        if (empty($reason_code)) {
+            $reason_description = null;
+            $reason_date_low = null;
+            $reason_date_high = null;
+            $reason_status = null;
+        }
+        // set these values to null if they are empty as we don't want it to use 0000-00-00 00:00:00 for the datetime
+        if (empty($reason_date_low)) {
+            $reason_date_low = null;
+        }
+        if (empty($reason_date_high)) {
+            $reason_date_high = null;
+        }
+
         $poseq = sqlInsert(
             "INSERT INTO procedure_order_code SET " .
             "procedure_order_id = ?, " .
@@ -257,6 +278,11 @@ if ($_POST['bn_save'] || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exi
             "procedure_code = (SELECT procedure_code FROM procedure_type WHERE procedure_type_id = ?), " .
             "procedure_name = (SELECT name FROM procedure_type WHERE procedure_type_id = ?)," .
             "procedure_type = ?, " .
+            "reason_code = ?, " .
+            "reason_description = ?, " .
+            "reason_date_low = ?, " .
+            "reason_date_high = ?, " .
+            "reason_status = ?, " .
             "procedure_order_seq = ? ",
             array(
                 $formid,
@@ -266,6 +292,11 @@ if ($_POST['bn_save'] || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exi
                 $ptid,
                 $ptid,
                 trim($_POST['form_procedure_type'][$i] ?: $_POST['procedure_type_names'] ?? ''),
+                $reason_code,
+                $reason_description,
+                $reason_date_low,
+                $reason_date_high,
+                $reason_status,
                 $procedure_order_seq['increment']
             )
         );
@@ -324,7 +355,7 @@ if ($_POST['bn_save'] || !empty($_POST['bn_xmit']) || !empty($_POST['bn_save_exi
 
     if (isset($_POST['bn_save_exit'])) {
         formHeader("Redirecting....");
-        if ($alertmsg) {
+        if ($alertmsg ?? '') {
             $msg = xl('Transmit failed') . ': ' . $alertmsg;
             echo "\n<script>alert(" . js_escape($msg) . ")</script>\n";
         }
@@ -447,8 +478,8 @@ $enrow = sqlQuery(
     array($pid, $encounter)
 );
 
-$bill_type = $row['billing_type'];
-$gbl_lab = get_lab_name($row['lab_id']);
+$bill_type = $row['billing_type'] ?? '';
+$gbl_lab = get_lab_name($row['lab_id'] ?? '');
 
 if ($formid) {
     $location = sqlQueryNoLog("SELECT f.id, f.facility_code, f.name FROM facility as f " .
@@ -457,9 +488,9 @@ if ($formid) {
     $location = sqlQueryNoLog("SELECT f.id, f.facility_code, f.name FROM users as u " .
         "INNER JOIN facility as f ON u.facility_id = f.id WHERE u.id = ?", array($row['provider_id']));
 }
-$account = $location['facility_code'];
-$account_name = $location['name'];
-$account_facility = $location['id'];
+$account = $location['facility_code'] ?? '';
+$account_name = $location['name'] ?? '';
+$account_facility = $location['id'] ?? '';
 if (!empty($row['lab_id'])) {
     $log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name(get_lab_name($row['lab_id'])) . "/logs/";
 
@@ -478,16 +509,28 @@ if (!empty($row['lab_id'])) {
 <!DOCTYPE html>
 <html>
 <head>
-    <?php Header::setupHeader(['datetime-picker']); ?>
+    <?php Header::setupHeader(['datetime-picker', 'reason-code-widget']); ?>
 
     <script>
         // Some JS Globals that will be useful.
         var gbl_formseq;
-        var currentLabId = <?php echo js_escape($row['lab_id']); ?>;
+        var currentLabId = <?php echo js_escape($row['lab_id'] ?? ''); ?>;
         var currentLab = <?php echo js_escape($gbl_lab); ?>;
         var currentLabTitle = <?php echo js_escape($gbl_lab_title); ?>;
         var viewmode = <?php echo !empty($viewmode) ? 1 : 0 ?>;
         var refreshForm = <?php echo js_escape($reload_url); ?>;
+
+
+        // we want to setup our reason code widgets
+        window.addEventListener('DOMContentLoaded', function() {
+            if (oeUI.reasonCodeWidget) {
+                oeUI.reasonCodeWidget.init(<?php echo js_url($GLOBALS['webroot']); ?>, <?php echo js_url(collect_codetypes("problem", "csv")) ?>);
+            } else {
+                console.error("Missing required dependency reasonCodeWidget");
+                return;
+            }
+        });
+
 
         function processSubmit(od) { // not used yet
             $("#form_order_abn").val(od.order_abn);
@@ -496,7 +539,7 @@ if (!empty($row['lab_id'])) {
 
         function initCalendars() {
             var datepicker = {
-                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
@@ -615,36 +658,114 @@ if (!empty($row['lab_id'])) {
         }
 
         function addProcLine(flag = false) {
-            let f = document.forms[0];
-            let i = 0;
-            for (; f['form_proc_type[' + i + ']']; ++i) ;
-            // build new item html.. a hidden html block to clone may be better here.
-            let cell = "<table class='table table-sm proc-table'><tr>" +
-                "<input type='hidden' name='form_proc_code[" + i + "]' value= />" +
-                "<td onclick='deleteRow(event)' class='itemDelete'><i class='fa fa-trash'></i></td>" +
-                "<td class='itemTransport quest'><input readonly class='itemTransport form-control' type='text' onclick='getDetails(event, " + i + ")' name='form_transport[" + i + "]' value=''></td>" +
-                "<td class='procedure-div'><input type='hidden' name='form_proc_order_title[" + i + "]' value=procedure>" +
-                "<div class='input-group-prepend'><button type='button' class='btn btn-secondary btn-search' onclick='selectProcedureCode(" + i + ")' title='<?php echo xla('Click to use procedure code from code popup'); ?>'></button>" +
-                "<input type='hidden' name='form_procedure_type[" + i + "]' value='' />" +
-                "<input type='text' class='form-control c-hand' name='form_proc_type_desc[" + i + "]' onclick='sel_proc_type(" + i + ")' " +
-                "onfocus='this.blur()' title='<?php echo xla('Click to select the desired procedure'); ?>' readonly /> " +
-                "<input type='hidden' name='form_proc_type[" + i + "]' value='-1' /></div></td>" +
-                "<td class='diagnosis-div input-group'>" +
-                "<div class='input-group-prepend'><span class='btn btn-secondary input-group-text'>" +
-                "<i onclick='current_diagnoses(this)' class='fa fa-search fa-lg' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i></span></div>" +
-                "<input type='text' class='form-control c-hand' name='form_proc_type_diag[" + i + "]' onclick='sel_related(this.name)'" +
-                "title='<?php echo xla('Click to add diagnosis for this test'); ?>' onfocus='this.blur()' readonly /></td>" +
-                "<td><div class='table-responsive' id='qoetable[" + i + "]'></div></td></tr></table>";
+            if (!('content' in document.createElement('template'))) {
+                console.error("Old browser detected as template content property is not supported");
+                return;
+            }
 
-            $(".procedure-order-container").append(cell); // add the new item to procedures list
+            let template = document.getElementById('procedure_order_code_template');
+            if (!template) {
+                console.error("Cannot add procedure line due to missing template node with id procedure_order_code_template");
+                return;
+            }
+            // grab our content, update all our ids, setup any event listeners and add the item in
+            let node = template.content.cloneNode(true);
+
+            // now we need to update our procedure key names here
+            let lineCountNodes = document.querySelectorAll(".procedure-order-container .proc-table-main");
+            let lineCount = 0;
+            if (lineCountNodes && lineCountNodes.length) {
+                lineCount = lineCountNodes.length;
+            }
+
+            // now we are going to rename all of our templated nodes to be our newest index.
+            let remapArrayIndex = function(value) {
+                if (value && value.indexOf("[")) {
+                    let parts = value.split("[");
+                    return parts[0] + "[" + lineCount + "]";
+                } else {
+                    return value;
+                }
+            };
+            let remapNames = function(node) {
+                node.name = remapArrayIndex(node.name);
+            };
+            // wierdly all of our mapped ids use array indexes as part of the id.
+            let remapIds = function(node) {
+                node.id= remapArrayIndex(node.id);
+            };
+            let remapSelectors = function(selector, map)
+            {
+                let mapNodes = node.querySelectorAll(selector);
+                if (mapNodes && mapNodes.length) {
+                    mapNodes.forEach(map);
+                }
+            };
+            remapSelectors('input,select', remapNames);
+            remapSelectors('.qoe-table-sel-procedure', remapIds);
+            remapSelectors('[data-toggle-container]', function(node) {
+                node.dataset.toggleContainer = "reason_code_" + lineCount;
+            });
+            remapSelectors('.reasonCodeContainer', function(node) {
+                node.id = "reason_code_" + lineCount;
+            });
+
+            // now we need to add our events
+            let nullableFunction = function(selector, event, callback) {
+                let nodeForCallback = node.querySelector(selector);
+                if (nodeForCallback) {
+                    nodeForCallback.addEventListener(event, callback);
+                } else {
+                    console.error("Failed to find node with selector ", selector);
+                }
+            };
+            // once our node is in the DOM, we need to add event listeners to it.
+            nullableFunction('.itemTransport', 'click', function(event) {
+                // we have to bind to our lineCount at the time of instantiation in case addProcLine is called again
+                // and we curry against the outer lineCount
+                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are wierd
+                getDetails(event, boundLineCount);
+            });
+            nullableFunction('.btn-secondary.btn-search', 'click', function(event) {
+                // we have to bind to our lineCount at the time of instantiation in case addProcLine is called again
+                // and we curry against the outer lineCount
+                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are wierd
+                selectProcedureCode(boundLineCount);
+            });
+            nullableFunction('.search-current-diagnoses', 'click', function(event) {
+                current_diagnoses(event.currentTarget); // use the bound target
+            });
+
+            nullableFunction('.add-diagnosis-sel-related', 'click', function(event) {
+                sel_related(event.currentTarget.name);
+            });
+
+            nullableFunction('.add-diagnosis-sel-related', 'focus', function(event) {
+                event.currentTarget.blur();
+            });
+
+            nullableFunction('.sel-proc-type', 'click', function(event) {
+                var boundLineCount = lineCount + 0; // should be copy by value, but some JS contexts are wierd
+                sel_proc_type(boundLineCount);
+            });
+            nullableFunction('.sel-proc-type', 'focus', function(event) {
+                event.currentTarget.blur();
+            });
+
+            nullableFunction('.itemDelete', 'click', deleteRow);
+
+            // now we will take all the children of the doc fragment and stuff it into the DOM
+            $(".procedure-order-container").append(node);
+
 
             initForm();
 
             if (!flag) {// flag true indicates add procedure item from custom group callback with current index.
-                sel_proc_type(i);
+                // note the proc type order id is -1 for a new row... this makes the popup happy, not sure why this was originally set to -1.
+                sel_proc_type(lineCount);
                 return false;
             } else {
-                return i;
+                return lineCount;
             }
         }
 
@@ -664,7 +785,7 @@ if (!empty($row['lab_id'])) {
             targetProcedure = f.elements['form_proc_code[' + offset + ']'];
             targetElement = f.elements['form_proc_type_desc[' + offset + ']'];
             let title = <?php echo xlj('Select Procedure Code'); ?>;
-            let url = top.webroot_url + '/interface/patient_file/encounter/find_code_dynamic.php?codetype=LOINC,SNOMED-CT,SNOMED,RXCUI,CPT4,VALUESET&singleCodeSelection=1';
+            let url = top.webroot_url + '/interface/patient_file/encounter/find_code_dynamic.php?codetype=LOINC,SNOMED-CT,SNOMED,RXCUI,CPT4,VALUESET,OID&singleCodeSelection=1';
             dlgopen(url, '_blank', 985, 750, '', title, {
                 resolvePromiseOn: 'close'
             }).then(dialogObject => {
@@ -779,7 +900,7 @@ if (!empty($row['lab_id'])) {
                 })
                 return false;
             });
-            <?php if ($row['date_transmitted']) { ?>
+            <?php if ($row['date_transmitted'] ?? '') { ?>
             $("#summary").collapse("toggle");
             <?php } ?>
         });
@@ -821,6 +942,9 @@ if (!empty($row['lab_id'])) {
                 $(".clarity").show();
             } else if (currentLab === '') {
                 $(".defaultProcedure").show();
+            }
+            if (oeUI.reasonCodeWidget) {
+                oeUI.reasonCodeWidget.reload();
             }
         }
 
@@ -906,6 +1030,8 @@ $name = $enrow['fname'] . ' ';
 $name .= (!empty($enrow['mname'])) ? $enrow['mname'] . ' ' . $enrow['lname'] : $enrow['lname'];
 $date = xl('on') . ' ' . oeFormatShortDate(substr($enrow['date'], 0, 10));
 $title = array(xl('Order for'), $name, $date);
+$reasonCodeStatii = ReasonStatusCodes::getCodesWithDescriptions();
+$reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status code");
 ?>
 <body class="body_top" onsubmit="doWait(event)">
     <div class="container">
@@ -942,7 +1068,7 @@ $title = array(xl('Order for'), $name, $date);
                                     $ppres = sqlStatement("SELECT `ppid`, name FROM `procedure_providers` WHERE `active` = 1 ORDER BY name, ppid");
                                     while ($pprow = sqlFetchArray($ppres)) {
                                         echo "<option value='" . attr($pprow['ppid']) . "'";
-                                        if ($pprow['ppid'] == $row['lab_id']) {
+                                        if ($pprow['ppid'] == ($row['lab_id'] ?? '')) {
                                             echo " selected";
                                             $gbl_lab = get_lab_name($pprow['ppid']);
                                         }
@@ -962,7 +1088,7 @@ $title = array(xl('Order for'), $name, $date);
                                     'field_id' => 'order_psc',
                                     'list_id' => 'boolean'
                                 );
-                                generate_form_field($pscOrderOpts, $row['order_psc']);
+                                generate_form_field($pscOrderOpts, $row['order_psc'] ?? '');
                                 ?>
                             </div>
                             <label for="form_date_collected" class="col-form-label col-md-2"><?php echo xlt('Time Collected'); ?></label>
@@ -971,7 +1097,7 @@ $title = array(xl('Order for'), $name, $date);
                                     type='text'
                                     name='form_date_collected'
                                     id='form_date_collected'
-                                    value="<?php echo attr(substr($row['date_collected'], 0, 16)); ?>"
+                                    value="<?php echo attr(substr($row['date_collected'] ?? '', 0, 16)); ?>"
                                     title="<?php echo xla('Date and time that the sample was collected'); ?>" />
                             </div>
                             <label for="form_account_facility" class="col-form-label col-md-2 labcorp"><?php echo xlt('Sending From'); ?></label>
@@ -1007,19 +1133,19 @@ $title = array(xl('Order for'), $name, $date);
                             <div class="col-md-2">
                                 <?php
                                 generate_form_field(array('data_type' => 1, 'field_id' => 'specimen_fasting',
-                                    'list_id' => 'yesno'), $row['specimen_fasting']);
+                                    'list_id' => 'yesno'), $row['specimen_fasting'] ?? '');
                                 ?>
                             </div>
                             <label for="collector_id" class="col-form-label col-md-2"><?php echo xlt('Collected By'); ?></label>
                             <div class="col-md-2">
-                                <?php generate_form_field(array('data_type' => 10, 'field_id' => 'collector_id'), $row['collector_id']); ?>
+                                <?php generate_form_field(array('data_type' => 10, 'field_id' => 'collector_id'), $row['collector_id'] ?? ''); ?>
                             </div>
                             <label for='form_order_abn' class="col-form-label col-md-2"><?php echo xlt('ABN Status'); ?></label>
                             <div class="col-md-2">
                                 <select name='form_order_abn' id='form_order_abn' class='form-control'>
-                                    <option value="not_required" <?php echo $row['order_abn'] === 'not_required' ? ' selected' : '' ?>><?php echo xlt('Not Required'); ?></option>
-                                    <option value="required" <?php echo $row['order_abn'] === 'required' ? ' selected' : '' ?>><?php echo xlt('Required'); ?></option>
-                                    <option value="signed" <?php echo $row['order_abn'] === 'signed' ? ' selected' : '' ?>><?php echo xlt('Signed'); ?></option>
+                                    <option value="not_required" <?php echo $row['order_abn'] ?? '' === 'not_required' ? ' selected' : '' ?>><?php echo xlt('Not Required'); ?></option>
+                                    <option value="required" <?php echo $row['order_abn'] ?? '' === 'required' ? ' selected' : '' ?>><?php echo xlt('Required'); ?></option>
+                                    <option value="signed" <?php echo $row['order_abn'] ?? '' === 'signed' ? ' selected' : '' ?>><?php echo xlt('Signed'); ?></option>
                                 </select>
                             </div>
                             <div class="clearfix"></div>
@@ -1030,7 +1156,7 @@ $title = array(xl('Order for'), $name, $date);
                             <div class="col-md-2">
                                 <?php
                                 generate_form_field(array('data_type' => 1, 'field_id' => 'order_priority',
-                                    'list_id' => 'ord_priority'), $row['order_priority']);
+                                    'list_id' => 'ord_priority'), $row['order_priority'] ?? '');
                                 ?>
                             </div>
                             <label for="form_order_status"
@@ -1038,7 +1164,7 @@ $title = array(xl('Order for'), $name, $date);
                             <div class="col-md-2">
                                 <?php
                                 generate_form_field(array('data_type' => 1, 'field_id' => 'order_status',
-                                    'list_id' => 'ord_status'), $row['order_status']);
+                                    'list_id' => 'ord_status'), $row['order_status'] ?? '');
                                 ?>
                             </div>
                             <label for="form_billing_type"
@@ -1046,7 +1172,7 @@ $title = array(xl('Order for'), $name, $date);
                             <div class="col-md-2">
                                 <?php
                                 generate_form_field(array('data_type' => 1, 'field_id' => 'billing_type',
-                                    'list_id' => 'procedure_billing'), $row['billing_type']);
+                                    'list_id' => 'procedure_billing'), $row['billing_type'] ?? '');
                                 ?>
                             </div>
                             <div class="clearfix"></div>
@@ -1061,7 +1187,7 @@ $title = array(xl('Order for'), $name, $date);
                                     'field_id' => 'history_order',
                                     'list_id' => 'boolean'
                                 );
-                                generate_form_field($historyOrderOpts, $row['history_order']); ?>
+                                generate_form_field($historyOrderOpts, $row['history_order'] ?? ''); ?>
                             </div>
                             <div class="clearfix"></div>
                         </div>
@@ -1069,12 +1195,12 @@ $title = array(xl('Order for'), $name, $date);
                             <div class="col-md-6">
                                 <label for='form_clinical_hx' class='col-form-label'><?php echo xlt('Clinical History'); ?></label>
                                 <textarea class='form-control text' rows='2' cols='60' wrap='hard'
-                                    name="form_clinical_hx" id="form_clinical_hx"><?php echo text($row['clinical_hx']); ?></textarea>
+                                    name="form_clinical_hx" id="form_clinical_hx"><?php echo text($row['clinical_hx'] ?? ''); ?></textarea>
                             </div>
                             <div class="col-md-6">
                                 <label for='form_data_ordered' class='col-form-label'><?php echo xlt('Patient Instructions'); ?></label>
                                 <textarea class='form-control text' rows='2' cols="60" wrap="hard" id='form_patient_instructions'
-                                    name='form_patient_instructions'><?php echo text($row['patient_instructions']) ?></textarea>
+                                    name='form_patient_instructions'><?php echo text($row['patient_instructions'] ?? '') ?></textarea>
                             </div>
                         </div>
                     </div>
@@ -1084,7 +1210,7 @@ $title = array(xl('Order for'), $name, $date);
                             ($gbl_lab === "labcorp" ? "Location Account: $account_name $account" : "") . "</span>";
                         echo xlt('Procedure Order Details') . " " . text($gbl_lab_title) . " " . $t; ?>
                     </legend>
-                    <?php if ($order_data) { ?>
+                    <?php if ($order_data ?? null) { ?>
                         <div id="errorAlerts" class="alert alert-danger alert-dismissible col-6 offset-3" role="alert">
                             <button type="button" class="close" data-dismiss="alert"><span class="text-dark">&times;</span></button>
                             <p>
@@ -1113,7 +1239,7 @@ $title = array(xl('Order for'), $name, $date);
                                     }
                                 } ?>
                                 <input class='form-control c-hand' type='text' name='form_order_diagnosis' id='form_order_diagnosis'
-                                    value='<?php echo $problem_diags ? attr($problem_diags) : attr($row['order_diagnosis']) ?>'
+                                    value='<?php echo $problem_diags ?? '' ? attr($problem_diags) : attr($row['order_diagnosis'] ?? '') ?>'
                                     onclick='sel_related(this.name)'
                                     title='<?php echo xla('Required Primary Diagnosis for Order. This will be automatically added to any missing test order diagnosis.'); ?>'
                                     readonly onfocus='this.blur()' />
@@ -1124,7 +1250,7 @@ $title = array(xl('Order for'), $name, $date);
                                 <select name="procedure_type_names" id="procedure_type_names" class='form-control'>
                                     <?php foreach ($procedure_order_type as $ordered_types) { ?>
                                         <option value="<?php echo attr($ordered_types['option_id']); ?>"
-                                            <?php echo $ordered_types['option_id'] == $row['procedure_order_type'] ? " selected" : ""; ?>><?php echo text(xl_list_label($ordered_types['title'])); ?>
+                                            <?php echo $ordered_types['option_id'] == ($row['procedure_order_type'] ?? '') ? " selected" : ""; ?>><?php echo text(xl_list_label($ordered_types['title'])); ?>
                                         </option>
                                     <?php } ?>
                                 </select>
@@ -1153,6 +1279,7 @@ $title = array(xl('Order for'), $name, $date);
                             $opres = sqlStatement(
                                 "SELECT " .
                                 "pc.procedure_order_seq, pc.procedure_code, pc.procedure_name, " .
+                                "pc.reason_code, pc.reason_description, pc.reason_status, pc.reason_date_low, pc.reason_date_high, " .
                                 "pc.diagnoses, pc.procedure_order_title, pc.transport, pc.procedure_type, " .
                                 // In case of duplicate procedure codes this gets just one.
                                 "(SELECT pt.procedure_type_id FROM procedure_type AS pt WHERE " .
@@ -1188,6 +1315,78 @@ $title = array(xl('Order for'), $name, $date);
                             $oparr[] = array('procedure_name' => '');
                         }
                         ?>
+
+                        <?php
+                        $i = -1;
+                        // we need to generate our template here
+                        ?>
+                        <template id="procedure_order_code_template">
+                            <table class="table table-sm proc-table proc-table-main">
+                                <tbody>
+                                <tr>
+                                    <input type='hidden' name='form_proc_code[<?php echo $i; ?>]' value='' />
+                                    <td class="itemDelete"><i class="fa fa-trash fa-lg"></i></td>
+                                    <td class="itemTransport quest">
+                                        <input class="itemTransport form-control" readonly
+                                               name='form_transport[]'
+                                               placeholder='<?php echo xla('Click to review the Directory of Service for this test'); ?>'
+                                               value=''>
+                                    </td>
+                                    <td class="procedure-div">
+                                        <?php if (empty($formid) || empty($oprow['procedure_order_title'])) : ?>
+                                            <input type="hidden" name="form_proc_order_title[<?php echo $i; ?>]"
+                                                   value="procedure">
+                                        <?php else : ?>
+                                            <input type='hidden' name='form_proc_order_title[<?php echo $i; ?>]'
+                                                   value=''>
+                                        <?php endif; ?>
+                                        <div class='input-group-prepend'>
+                                            <button type="button" class='btn btn-secondary btn-search' title='<?php echo xla('Click to use procedure code from code popup'); ?>'>
+                                            </button>
+                                            <input type='hidden' name='form_procedure_type[<?php echo $i; ?>]' value='' />
+                                            <input type='text' name='form_proc_type_desc[<?php echo $i; ?>]'
+                                                   value=''
+                                                   title='<?php echo xla('Click to select the desired procedure'); ?>'
+                                                   placeholder='<?php echo xla('Click to select the desired procedure'); ?>'
+                                                   class='form-control c-hand sel-proc-type' readonly />
+                                            <!-- the configuration type id -->
+                                            <input type='hidden' name='form_proc_type[<?php echo $i; ?>]' value='-1' />
+                                        </div>
+                                    </td>
+                                    <td class='diagnosis-div input-group'>
+                                        <div class='input-group-prepend'>
+                                            <span class='btn btn-secondary input-group-text'>
+                                                <i class='fa fa-search fa-lg search-current-diagnoses' title='<?php echo xla('Click to search past and current diagnoses history'); ?>'></i>
+                                            </span>
+                                        </div>
+                                        <input class='form-control c-hand add-diagnosis-sel-related' type='text'
+                                               name='form_proc_type_diag[<?php echo $i; ?>]'
+                                               value=''
+                                               title='<?php echo xla('Click to add diagnosis for this test'); ?>'
+                                               readonly />
+                                    </td>
+                                    <td>
+                                        <!-- MSIE innerHTML property for a TABLE element is read-only, so using a DIV here. -->
+                                        <div class="table-responsive qoe-table-sel-procedure" id='qoetable[<?php echo attr($i); ?>]'>
+                                            <?php
+                                            $qoe_init_javascript = '';
+                                            echo generate_qoe_html($ptid ?? '', $formid, null, $i);
+                                            if ($qoe_init_javascript) {
+                                                echo "<script>$qoe_init_javascript</script>";
+                                            }
+                                            ?>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-secondary reason-code-btn mt-2"
+                                                title='<?php echo xla('Click here to provide an explanation for procedure order (or why an order was not performed)'); ?>'
+                                                data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-asterisk"></i></button>
+                                    </td>
+                                </tr>
+                                <?php include "templates/procedure_reason_row.php" ?>
+                                </tbody>
+                            </table>
+                        </template>
                         <?php
                         $i = 0;
                         foreach ($oparr as $oprow) {
@@ -1196,7 +1395,7 @@ $title = array(xl('Order for'), $name, $date);
                                 $ptid = $oprow['procedure_type_id'];
                             }
                             ?>
-                            <table class="table table-sm proc-table" id="procedures_item_<?php echo (string)attr($i) ?>">
+                            <table class="table table-sm proc-table proc-table-main" id="procedures_item_<?php echo (string)attr($i) ?>">
                                 <?php if ($i < 1) { ?>
                                     <thead>
                                     <tr>
@@ -1205,18 +1404,19 @@ $title = array(xl('Order for'), $name, $date);
                                         <th><?php echo xlt('Procedure Test'); ?></th>
                                         <th><?php echo xlt('Diagnosis Codes'); ?></th>
                                         <th><?php echo xlt("Order Questions"); ?></th>
+                                        <th><?php echo xlt("Actions"); ?></th>
                                     </tr>
                                     </thead>
                                 <?php } ?>
                                 <tbody>
                                 <tr>
-                                    <input type='hidden' name='form_proc_code[<?php echo $i; ?>]' value='<?php echo attr($oprow['procedure_code']) ?>' />
+                                    <input type='hidden' name='form_proc_code[<?php echo $i; ?>]' value='<?php echo attr($oprow['procedure_code'] ?? '') ?>' />
                                     <td class="itemDelete"><i class="fa fa-trash fa-lg"></i></td>
                                     <td class="itemTransport quest">
                                         <input class="itemTransport form-control" readonly
                                             name='form_transport[<?php echo $i; ?>]' onclick='getDetails(event, <?php echo $i; ?>)'
                                             placeholder='<?php echo xla('Click to review the Directory of Service for this test'); ?>'
-                                            value='<?php echo attr($oprow['transport']) ?>'>
+                                            value='<?php echo attr($oprow['transport'] ?? '') ?>'>
                                     </td>
                                     <td class="procedure-div">
                                         <?php if (empty($formid) || empty($oprow['procedure_order_title'])) : ?>
@@ -1229,7 +1429,7 @@ $title = array(xl('Order for'), $name, $date);
                                         <div class='input-group-prepend'>
                                             <button type="button" class='btn btn-secondary btn-search' onclick='selectProcedureCode(<?php echo $i; ?>)' title='<?php echo xla('Click to use procedure code from code popup'); ?>'>
                                             </button>
-                                            <input type='hidden' name='form_procedure_type[<?php echo $i; ?>]' value='<?php echo attr($oprow['procedure_type']); ?>' />
+                                            <input type='hidden' name='form_procedure_type[<?php echo $i; ?>]' value='<?php echo attr($oprow['procedure_type'] ?? ''); ?>' />
                                             <input type='text' name='form_proc_type_desc[<?php echo $i; ?>]'
                                                 value='<?php echo attr($oprow['procedure_name']) ?>'
                                                 onclick="sel_proc_type(<?php echo $i; ?>)"
@@ -1249,7 +1449,7 @@ $title = array(xl('Order for'), $name, $date);
                                         </div>
                                         <input class='form-control c-hand' type='text'
                                             name='form_proc_type_diag[<?php echo $i; ?>]'
-                                            value='<?php echo attr($oprow['diagnoses']) ?>'
+                                            value='<?php echo attr($oprow['diagnoses'] ?? '') ?>'
                                             onclick='sel_related(this.name)'
                                             title='<?php echo xla('Click to add diagnosis for this test'); ?>'
                                             onfocus='this.blur()' readonly />
@@ -1266,7 +1466,13 @@ $title = array(xl('Order for'), $name, $date);
                                             ?>
                                         </div>
                                     </td>
+                                    <td>
+                                        <button class="btn btn-secondary reason-code-btn mt-2"
+                                                title='<?php echo xla('Click here to provide an explanation for procedure order (or why an order was not performed)'); ?>'
+                                                data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-asterisk"></i></button>
+                                    </td>
                                 </tr>
+                                <?php include "templates/procedure_reason_row.php" ?>
                                 </tbody>
                             </table>
                             <?php
@@ -1290,11 +1496,14 @@ $title = array(xl('Order for'), $name, $date);
                                 <legend class="bg-dark text-light"><?php echo xlt("Order Documents"); ?></legend>
                                 <div class="btn-group" role="group">
                                     <?php
-                                    foreach ($req as $reqdoc) {
-                                        $title = $reqdoc['name'];
-                                        $rpath = $reqdoc['url']; ?>
-                                        <a class="btn btn-outline-primary" href="<?php echo attr($rpath); ?>"><?php echo text($title) ?></a>
-                                    <?php } ?>
+                                    if (!empty($req)) {
+                                        foreach ($req as $reqdoc) {
+                                            $title = $reqdoc['name'];
+                                            $rpath = $reqdoc['url']; ?>
+                                            <a class="btn btn-outline-primary"
+                                            href="<?php echo attr($rpath); ?>"><?php echo text($title) ?></a>
+                                        <?php }
+                                    } ?>
                                     <a class='btn btn-success ml-1' href='#'
                                         onclick="createLabels(event, this)"><?php echo xlt('Labels'); ?></a>
                                     <?php
@@ -1317,7 +1526,7 @@ $title = array(xl('Order for'), $name, $date);
                                 if (!empty($order_log)) {
                                     $alertmsg = $order_log;
                                 } else {
-                                    $order_log = $alertmsg;
+                                    $order_log = $alertmsg ?? '';
                                 }
                                 if (!empty($alertmsg)) {
                                     echo nl2br(text($alertmsg));

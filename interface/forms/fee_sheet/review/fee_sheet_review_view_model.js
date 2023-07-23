@@ -111,7 +111,8 @@ function request_encounter_data(model_data, mode, prev_encounter) {
         pid: pid,
         encounter: enc,
         mode: mode,
-        task: "retrieve"
+        task: "retrieve",
+        csrf_token_form: csrf_token_js
     };
     if (prev_encounter != null) {
         request.prev_encounter = prev_encounter;
@@ -205,7 +206,8 @@ function add_review(data, event) {
             encounter: enc,
             task: 'add_diags',
             diags: JSON.stringify(diag_list),
-            procs: JSON.stringify(proc_list)
+            procs: JSON.stringify(proc_list),
+            csrf_token_form: csrf_token_js
         },
         function (data) {
             refresh_codes();

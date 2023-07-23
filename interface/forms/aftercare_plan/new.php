@@ -13,8 +13,8 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -22,7 +22,7 @@ use OpenEMR\Core\Header;
 
 formHeader("Form:AfterCare Planning");
 $returnurl = 'encounter_top.php';
-$formid = 0 + (isset($_GET['id']) ? $_GET['id'] : 0);
+$formid = (int) (isset($_GET['id']) ? $_GET['id'] : 0);
 $obj = $formid ? formFetch("form_aftercare_plan", $formid) : array();
 
 ?>

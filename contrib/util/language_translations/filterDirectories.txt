@@ -3,6 +3,7 @@ openemr/contrib/forms
 openemr/.git
 openemr/contrib/icd10
 openemr/contrib/icd9
+openemr/contrib/util/language_translations
 openemr/vendor
 openemr/public
 openemr/images

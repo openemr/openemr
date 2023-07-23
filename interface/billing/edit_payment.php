@@ -21,13 +21,19 @@
 
 
 require_once("../globals.php");
-require_once("$srcdir/auth.inc");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/payment.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Confirm Payment")]);
+    exit;
+}
 
 $screen = 'edit_payment';
 
@@ -134,7 +140,7 @@ if (isset($_POST["mode"])) {
                     "'";
 
                 $where = "$where1 AND pay_amount > 0";
-                if (isset($_POST["Payment$CountRow"]) && $_POST["Payment$CountRow"] * 1 > 0) {
+                if (!empty($_POST["Payment$CountRow"])) {
                     if (trim($_POST['type_name']) == 'insurance') {
                         if (trim($_POST["HiddenIns$CountRow"]) == 1) {
                             $AccountCode = "IPP";
@@ -181,7 +187,7 @@ if (isset($_POST["mode"])) {
                 //==============================================================================================================================
 
                 $where = "$where1 AND adj_amount != 0";
-                if (isset($_POST["AdjAmount$CountRow"]) && $_POST["AdjAmount$CountRow"] * 1 !== 0) {
+                if (isset($_POST["AdjAmount$CountRow"]) && floatval($_POST["AdjAmount$CountRow"]) !== 0) {
                     if (trim($_POST['type_name']) == 'insurance') {
                         $AdjustString = "Ins adjust Ins" . trim($_POST["HiddenIns$CountRow"]);
                         $AccountCode = "IA";
@@ -220,7 +226,7 @@ if (isset($_POST["mode"])) {
                 //==============================================================================================================================
 
                 $where = "$where1 AND (memo LIKE 'Deductable%' OR memo LIKE 'Deductible%')";
-                if (isset($_POST["Deductible$CountRow"]) && $_POST["Deductible$CountRow"] * 1 > 0) {
+                if (!empty($_POST["Deductible$CountRow"])) {
                     $resPayment = sqlStatement("SELECT  * from ar_activity $where");
                     if (sqlNumRows($resPayment) > 0) {
                         sqlStatement("update ar_activity set deleted = NOW() $where");
@@ -252,7 +258,7 @@ if (isset($_POST["mode"])) {
                 //==============================================================================================================================
 
                 $where = "$where1 AND pay_amount < 0";
-                if (isset($_POST["Takeback$CountRow"]) && $_POST["Takeback$CountRow"] * 1 > 0) {
+                if (!empty($_POST["Takeback$CountRow"])) {
                     $resPayment = sqlStatement("SELECT  * from ar_activity $where");
                     if (sqlNumRows($resPayment) > 0) {
                         sqlStatement("update ar_activity set deleted = NOW() $where");
@@ -330,7 +336,10 @@ if (isset($_POST["mode"])) {
         }
 
         if ($_REQUEST['global_amount'] == 'yes') {
-            sqlStatement("update ar_session set global_amount=? where session_id =?", [(isset($_POST["HidUnappliedAmount"]) ? trim($_POST["HidUnappliedAmount"]) * 1 : ''), $payment_id]);
+            sqlStatement(
+                "update ar_session set global_amount=? where session_id =?",
+                [(isset($_POST["HidUnappliedAmount"]) ? floatval($_POST["HidUnappliedAmount"]) : 0), $payment_id]
+            );
         } elseif ($_REQUEST['global_reset'] == '-0.00') {
             sqlStatement("update ar_session set global_amount=? where session_id =?", [0, $payment_id]);
         }
@@ -347,7 +356,7 @@ if (isset($_POST["mode"])) {
 //==============================================================================
 //Search Code
 //===============================================================================
-$payment_id = $payment_id * 1 > 0 ? $payment_id : $_REQUEST['payment_id'];
+$payment_id = !empty($payment_id) ? (int) $payment_id : (int) $_REQUEST['payment_id'];
 $ResultSearchSub = sqlStatement(
     "SELECT DISTINCT encounter, code_type, code, modifier, pid " .
     "FROM ar_activity WHERE deleted IS NULL AND session_id = ? " .
@@ -587,7 +596,7 @@ $ResultSearchSub = sqlStatement(
 <body class="body_top" onload="OnloadAction()">
     <div class="container-fluid">
         <?php
-        if ($_REQUEST['ParentPage'] == 'new_payment') {
+        if ($_REQUEST['ParentPage'] ?? '' == 'new_payment') {
             ?>
             <div class="row">
                 <div class="col-12">
@@ -618,7 +627,7 @@ $ResultSearchSub = sqlStatement(
         }
         ?>
         <?php
-        if ($payment_id * 1 == 0) {
+        if (empty($payment_id)) {
             $onclick = "top.restoreSession();return SavePayment();";
         } else {
             $onclick = "return false;";
@@ -626,14 +635,14 @@ $ResultSearchSub = sqlStatement(
         ?>
         <form class="form" name='new_payment' method='post' action="edit_payment.php" onsubmit='<?php echo $onclick; ?>'>
             <?php
-            if ($payment_id * 1 > 0) { ?>
+            if (!empty($payment_id)) { ?>
             <fieldset>
                 <?php
                 require_once("payment_master.inc.php");  //Check/cash details are entered here.
                 ?>
                 <?php }//End of if($payment_id*1>0) ?>
                 <?php
-                if ($payment_id * 1 > 0) {//Distribution rows already in the database are displayed.
+                if (!empty($payment_id)) {//Distribution rows already in the database are displayed.
                     ?>
                     <?php //
                     $resCount = sqlStatement(
@@ -877,8 +886,7 @@ $ResultSearchSub = sqlStatement(
                                         [$payment_id, $PId, $Encounter, $Codetype, $Code, $Modifier]
                                     );
                                     $rowPayment = sqlFetchArray($resPayment);
-                                    $PaymentDB = $rowPayment['pay_amount'] * 1;
-                                    $PaymentDB = $PaymentDB == 0 ? '' : $PaymentDB;
+                                    $PaymentDB = floatval($rowPayment['pay_amount'] ?? null);
 
                                     $resPayment = sqlStatement(
                                         "SELECT pay_amount FROM ar_activity WHERE " .
@@ -887,8 +895,7 @@ $ResultSearchSub = sqlStatement(
                                         [$payment_id, $PId, $Encounter, $Codetype, $Code, $Modifier]
                                     );
                                     $rowPayment = sqlFetchArray($resPayment);
-                                    $TakebackDB = $rowPayment['pay_amount'] * -1;
-                                    $TakebackDB = $TakebackDB == 0 ? '' : $TakebackDB;
+                                    $TakebackDB = floatval($rowPayment['pay_amount'] ?? null);
 
                                     $resPayment = sqlStatement(
                                         "SELECT adj_amount FROM ar_activity WHERE " .
@@ -897,8 +904,7 @@ $ResultSearchSub = sqlStatement(
                                         [$payment_id, $PId, $Encounter, $Codetype, $Code, $Modifier]
                                     );
                                     $rowPayment = sqlFetchArray($resPayment);
-                                    $AdjAmountDB = $rowPayment['adj_amount'] * 1;
-                                    $AdjAmountDB = $AdjAmountDB == 0 ? '' : $AdjAmountDB;
+                                    $AdjAmountDB = floatval($rowPayment['adj_amount'] ?? null);
 
                                     $resPayment = sqlStatement(
                                         "SELECT memo FROM ar_activity WHERE " .
@@ -908,7 +914,7 @@ $ResultSearchSub = sqlStatement(
                                         [$payment_id, $PId, $Encounter, $Codetype, $Code, $Modifier]
                                     );
                                     $rowPayment = sqlFetchArray($resPayment);
-                                    $DeductibleDB = $rowPayment['memo'];
+                                    $DeductibleDB = $rowPayment['memo'] ?? '';
                                     $DeductibleDB = str_replace('Deductable $', '', $DeductibleDB);
                                     $DeductibleDB = str_replace('Deductible $', '', $DeductibleDB);
 
@@ -919,8 +925,8 @@ $ResultSearchSub = sqlStatement(
                                         [$payment_id, $PId, $Encounter, $Codetype, $Code, $Modifier]
                                     );
                                     $rowPayment = sqlFetchArray($resPayment);
-                                    $FollowUpDB = $rowPayment['follow_up'];
-                                    $FollowUpReasonDB = $rowPayment['follow_up_note'];
+                                    $FollowUpDB = $rowPayment['follow_up'] ?? '';
+                                    $FollowUpReasonDB = $rowPayment['follow_up_note'] ?? '';
 
                                     $resPayment = sqlStatement(
                                         "SELECT reason_code FROM ar_activity WHERE " .
@@ -932,11 +938,10 @@ $ResultSearchSub = sqlStatement(
                                     $ReasonCodeDB = $rowPayment['reason_code'];
 
                                     if ($Ins == 1) {
-                                        $AllowedDB = number_format($Fee - $AdjAmountDB, 2);
+                                        $AllowedDB = number_format($Fee - floatval($AdjAmountDB), 2);
                                     } else {
                                         $AllowedDB = 0;
                                     }
-                                    $AllowedDB = $AllowedDB === 0 ? '' : $AllowedDB;
 
                                     if ($Ins == 1) {
                                         $bgcolor = '#ddddff';
@@ -947,11 +952,11 @@ $ResultSearchSub = sqlStatement(
                                     } elseif ($Ins == 0) {
                                         $bgcolor = '#AAFFFF';
                                     }
-                                    $paymenttot = $paymenttot + $PaymentDB;
-                                    $adjamttot = $adjamttot + $AdjAmountDB;
-                                    $deductibletot = $deductibletot + $DeductibleDB;
-                                    $takebacktot = $takebacktot + $TakebackDB;
-                                    $allowedtot = $allowedtot + $AllowedDB;
+                                    $paymenttot = $paymenttot + floatval($PaymentDB);
+                                    $adjamttot = $adjamttot + floatval($AdjAmountDB);
+                                    $deductibletot = $deductibletot + floatval($DeductibleDB);
+                                    $takebacktot = $takebacktot + floatval($TakebackDB);
+                                    $allowedtot = $allowedtot + floatval($AllowedDB);
                                     ?>
 
                                 <tr class="border-dark" bgcolor='<?php echo attr($bgcolor); ?>' class="text" id="trCharges<?php echo attr($CountIndex); ?>">
@@ -1056,18 +1061,18 @@ $ResultSearchSub = sqlStatement(
                     </div>
                 </div>
                 <div class="row">
-                    <input type="hidden" name="hidden_patient_code" id="hidden_patient_code" value="<?php echo attr($hidden_patient_code); ?>" />
+                    <input type="hidden" name="hidden_patient_code" id="hidden_patient_code" value="<?php echo attr($hidden_patient_code ?? ''); ?>" />
                     <input type='hidden' name='mode' id='mode' value='' />
                     <input type='hidden' name='ajax_mode' id='ajax_mode' value='' />
-                    <input type="hidden" name="after_value" id="after_value" value="<?php echo attr($_POST["mode"]); ?>" />
+                    <input type="hidden" name="after_value" id="after_value" value="<?php echo attr($_POST["mode"] ?? ''); ?>" />
                     <input type="hidden" name="payment_id" id="payment_id" value="<?php echo attr($payment_id); ?>" />
                     <input type="hidden" name="hidden_type_code" id="hidden_type_code" value="<?php echo attr($TypeCode); ?>" />
                     <input type='hidden' name='global_amount' id='global_amount' value='' />
                     <input type='hidden' name='DeletePaymentDistributionId' id='DeletePaymentDistributionId' value='' />
-                    <input type="hidden" name="ActionStatus" id="ActionStatus" value="<?php echo attr($Message); ?>" />
-                    <input type='hidden' name='CountIndexAbove' id='CountIndexAbove' value='<?php echo attr($CountIndexAbove * 1); ?>' />
-                    <input type='hidden' name='CountIndexBelow' id='CountIndexBelow' value='<?php echo attr($CountIndexBelow * 1); ?>' />
-                    <input type="hidden" name="ParentPage" id="ParentPage" value="<?php echo attr($_REQUEST['ParentPage']); ?>" />
+                    <input type="hidden" name="ActionStatus" id="ActionStatus" value="<?php echo attr($Message ?? ''); ?>" />
+                    <input type='hidden' name='CountIndexAbove' id='CountIndexAbove' value='<?php echo (int) attr($CountIndexAbove); ?>' />
+                    <input type='hidden' name='CountIndexBelow' id='CountIndexBelow' value='<?php echo (int) attr($CountIndexBelow); ?>' />
+                    <input type="hidden" name="ParentPage" id="ParentPage" value="<?php echo attr($_REQUEST['ParentPage'] ?? ''); ?>" />
                 </div>
         </form>
     </div><!-- End of container div-->

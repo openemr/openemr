@@ -12,6 +12,7 @@
 
 namespace Application\Model;
 
+use Laminas\Db\Adapter\ExceptionInterface;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use Laminas\Db\ResultSet\ResultSet;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -61,7 +62,7 @@ class ApplicationTable extends AbstractTableGateway
             $statement  = $this->adapter->query($sql);
             $return     = $statement->execute($params);
             $result     = true;
-        } catch (\Laminas\Db\Adapter\ExceptionInterface $e) {
+        } catch (ExceptionInterface $e) {
             if ($error) {
                 $this->errorHandler($e, $sql, $params);
             }
@@ -91,7 +92,7 @@ class ApplicationTable extends AbstractTableGateway
      * All error display and log
      * Display the Error, Line and File
      * Same behavior of HelpfulDie fuction in OpenEMR
-     * Path /library/sql.inc
+     * Path /library/sql.inc.php
      *
      * @param type    $e
      * @param string  $sql
@@ -315,10 +316,10 @@ class ApplicationTable extends AbstractTableGateway
 
                                       ));
         } elseif (strtolower($searchType) == 'emrdirect') {
-            $sql = "SELECT fname, mname, lname,email,id FROM users
+            $sql = "SELECT fname, mname, lname,email_direct AS 'email',id FROM users
                 WHERE (CONCAT(fname, ' ', lname) LIKE ?
                 OR  CONCAT(lname, ' ', fname) LIKE ?
-                OR email LIKE ?)
+                OR email_direct LIKE ?)
                 AND abook_type = 'emr_direct'
                 AND active = 1
                 ORDER BY fname ";
@@ -357,11 +358,32 @@ class ApplicationTable extends AbstractTableGateway
     public static function dateFormat($format = null)
     {
         if ($format == "0") {
-            $date_format = 'yyyy/mm/dd';
+            $date_format = 'yyyy-mm-dd';
         } elseif ($format == 1) {
             $date_format = 'mm/dd/yyyy';
         } elseif ($format == 2) {
             $date_format = 'dd/mm/yyyy';
+        } else {
+            $date_format = $format;
+        }
+
+        return $date_format;
+    }
+
+    /*
+    * Retrive the data format from GLOBALS
+    *
+    * @param    Date format set in GLOBALS
+    * @return   Date format in datepicker
+    **/
+    public static function datePickerFormat($format = null)
+    {
+        if ($format == "0") {
+            $date_format = 'yy-mm-dd';
+        } elseif ($format == 1) {
+            $date_format = 'mm/dd/yy';
+        } elseif ($format == 2) {
+            $date_format = 'dd/mm/yy';
         } else {
             $date_format = $format;
         }
@@ -411,7 +433,7 @@ class ApplicationTable extends AbstractTableGateway
     }
 
     /*
-    * Using generate id function from OpenEMR sql.inc library file
+    * Using generate id function from OpenEMR sql.inc.php library file
     * @param  string  $seqname     table name containing sequence (default is adodbseq)
     * @param  integer $startID     id to start with for a new sequence (default is 1)
     * @return integer              returns the sequence integer

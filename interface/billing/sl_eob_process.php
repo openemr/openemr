@@ -106,9 +106,9 @@ function writeDetailLine(
 
     $dline =
     " <tr bgcolor='" . attr($bgcolor) . "'>\n" .
-    "  <td class='" . attr($class) . "'>" . text($ptname) . "</td>\n" .
-    "  <td class='" . attr($class) . "'>" . text($invnumber) . "</td>\n" .
-    "  <td class='" . attr($class) . "'>" . text($code) . "</td>\n" .
+    "  <td class='" . attr($class) . "'>" . (($ptname == '&nbsp;') ? '' : text($ptname)) . "</td>\n" .
+    "  <td class='" . attr($class) . "'>" . (($invnumber == '&nbsp;') ? '' : text($invnumber)) . "</td>\n" .
+    "  <td class='" . attr($class) . "'>" . (($code == '&nbsp;') ? '' : text($code)) . "</td>\n" .
     "  <td class='" . attr($class) . "'>" . text(oeFormatShortDate($date)) . "</td>\n" .
     "  <td class='" . attr($class) . "'>" . text($description) . "</td>\n" .
     "  <td class='" . attr($class) . "' align='right'>" . text(oeFormatMoney($amount)) . "</td>\n" .
@@ -133,7 +133,7 @@ function writeOldDetail(&$prev, $ptname, $invnumber, $dos, $code, $bgcolor)
             $description = 'Service Item';
         }
 
-        $amount = sprintf("%.2f", (int)($ddata['chg'] ?? '') - (int)($ddata['pmt'] ?? ''));
+        $amount = sprintf("%.2f", (floatval($ddata['chg'] ?? '')) - (floatval($ddata['pmt'] ?? '')));
         $invoice_total = sprintf("%.2f", $invoice_total + $amount);
         writeDetailLine(
             $bgcolor,
@@ -376,7 +376,7 @@ function era_callback(&$out)
                 $codetype = $codes[$codekey]['code_type']; //store code type
                 writeOldDetail($prev, $patient_name, $invnumber, $service_date, $codekey, $bgcolor);
                 // Check for sanity in amount charged.
-                $prevchg = sprintf("%.2f", $prev['chg'] + $prev['adj']);
+                $prevchg = sprintf("%.2f", $prev['chg'] + ($prev['adj'] ?? null));
                 if ($prevchg != abs($svc['chg'])) {
                     writeMessageLine(
                         $bgcolor,
@@ -469,7 +469,9 @@ function era_callback(&$out)
                         $out['check_number'],
                         $debug,
                         '',
-                        $codetype
+                        $codetype,
+                        $date ?? null,
+                        $out['payer_claim_id']
                     );
                     $invoice_total -= $svc['paid'];
                 }
@@ -495,8 +497,8 @@ function era_callback(&$out)
             // Post and report adjustments from this ERA.  Posted adjustment reasons
             // must be 25 characters or less in order to fit on patient statements.
             foreach ($svc['adj'] as $adj) {
-                $description = $adj['reason_code'] . ': ' .
-                    BillingUtilities::CLAIM_ADJUSTMENT_REASON_CODES[$adj['reason_code']];
+                $description = ($adj['reason_code'] ?? '') . ': ' .
+                    BillingUtilities::CLAIM_ADJUSTMENT_REASON_CODES[$adj['reason_code'] ?? ''];
                 if ($adj['group_code'] == 'PR' || !$primary) {
                     // Group code PR is Patient Responsibility.  Enter these as zero
                     // adjustments to retain the note without crediting the claim.
@@ -537,7 +539,8 @@ function era_callback(&$out)
                             $reason,
                             $debug,
                             '',
-                            $codetype
+                            $codetype,
+                            $out['payer_claim_id']
                         );
                     }
 
@@ -555,7 +558,8 @@ function era_callback(&$out)
                             "Adjust code " . $adj['reason_code'],
                             $debug,
                             '',
-                            $codetype ?? ''
+                            $codetype ?? '',
+                            $out['payer_claim_id']
                         );
                         $invoice_total -= $adj['amount'];
                     }
@@ -584,7 +588,7 @@ function era_callback(&$out)
             writeOldDetail($prev, $patient_name, $invnumber, $service_date, $code, $bgcolor);
             $got_response = false;
             foreach ($prev['dtl'] as $ddata) {
-                if ($ddata['pmt'] || $ddata['rsn']) {
+                if ($ddata['pmt'] ?? '' || ($ddata['rsn'] ?? '')) {
                     $got_response = true;
                 }
             }

@@ -16,8 +16,8 @@
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/patient.inc");
-require_once("$srcdir/encounter.inc");
+require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/encounter.inc.php");
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
 use Mpdf\Mpdf;
@@ -31,7 +31,7 @@ $formname = isset($_GET['formname']) ? $_GET['formname'] : '';
 
 $patientid = empty($_REQUEST['patientid']) ? 0 : (0 + $_REQUEST['patientid']);
 if ($patientid < 0) {
-    $patientid = 0 + $pid; // -1 means current pid
+    $patientid = (int) $pid; // -1 means current pid
 }
 // PDF header information
 $patientname = getPatientName($patientid);
@@ -40,7 +40,7 @@ $dateofservice = fetchDateService($encounter);
 
 $visitid = empty($_REQUEST['visitid']) ? 0 : (0 + $_REQUEST['visitid']);
 if ($visitid < 0) {
-    $visitid = 0 + $encounter; // -1 means current encounter
+    $visitid = (int) $encounter; // -1 means current encounter
 }
 
 $formid = empty($_REQUEST['formid']) ? 0 : (0 + $_REQUEST['formid']);
@@ -97,10 +97,10 @@ if ($PDF_OUTPUT) {
         'default_font' => '',
         'margin_left' => $GLOBALS['pdf_left_margin'],
         'margin_right' => $GLOBALS['pdf_right_margin'],
-        'margin_top' => $GLOBALS['pdf_top_margin'],
-        'margin_bottom' => $GLOBALS['pdf_bottom_margin'],
-        'margin_header' => '',
-        'margin_footer' => '',
+        'margin_top' => $GLOBALS['pdf_top_margin'] * 2,
+        'margin_bottom' => $GLOBALS['pdf_bottom_margin'] * 2,
+        'margin_header' => $GLOBALS['pdf_top_margin'],
+        'margin_footer' => $GLOBALS['pdf_bottom_margin'],
         'orientation' => $GLOBALS['pdf_layout'],
         'shrink_tables_to_fit' => 1,
         'use_kwt' => true,
@@ -108,15 +108,6 @@ if ($PDF_OUTPUT) {
         'keep_table_proportions' => true
     );
     $pdf = new mPDF($config_mpdf);
-    $pdf->SetHTMLHeader('
-		<div style="text-align: right; font-weight: bold;">
-			' . $patientname . ' DOB: ' . oeFormatShortDate($patientdob["DOB"]) . ' DOS: ' . oeFormatShortDate($dateofservice) . '
-		</div>');
-    $pdf->SetHTMLFooter('
-			<div style="float: right; width:33% text-align: left;">' . oeFormatDateTime(date("Y-m-d H:i:s")) . '</div>
-			<div style="float: right; width:33%; text-align: center; ">{PAGENO}/{nbpg}</div>
-			<div style="float: right; width:33%; text-align: right; ">' . $patientname . '</div>
-			');
     $pdf->SetDisplayMode('real');
     if ($_SESSION['language_direction'] == 'rtl') {
         $pdf->SetDirectionality('rtl');
@@ -280,13 +271,14 @@ for ($lcols = 1; $lcols < $CPR; ++$lcols) {
 $logo = '';
 $ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
 if (is_file("$webserver_root/$ma_logo_path")) {
-    // Would use max-height here but html2pdf does not support it.
-    // TODO - now use mPDF, so should test if still need this fix
-    $logo = "<img src='$web_root/$ma_logo_path' style='height:" . attr(round($FONTSIZE * 5.14)) . "pt' />";
-} else {
-    $logo = "<!-- '$ma_logo_path' does not exist. -->";
+    $logo = "$web_root/$ma_logo_path";
 }
+
 echo genFacilityTitle($formtitle, -1, $logo);
+
+if ($PDF_OUTPUT) {
+    echo genPatientHeaderFooter($pid, $DOS = $dateofservice);
+}
 ?>
 
 <?php if ($isblankform) { ?>

@@ -40,9 +40,11 @@ class Controller_edit extends BaseController
         $funding = _post('fld_funding_source');
         $release = _post('fld_release');
         $web_ref = _post('fld_web_reference');
-        if (is_null($rule_id)) {
+        $bibliographic_citation = _post('fld_bibliographic_citation');
+        $linked_referential_cds = _post('fld_linked_referential_cds');
+        if (is_null($rule_id ?? null)) {
             // its a new rule submit
-            $ruleId = $this->getRuleManager()->updateSummary($ruleId, $types, $title, $developer, $funding, $release, $web_ref);
+            $ruleId = $this->getRuleManager()->updateSummary($ruleId, $types, $title, $developer, $funding, $release, $web_ref, $bibliographic_citation, $linked_referential_cds);
             // redirect to the intervals page
             $this->redirect("index.php?action=edit!intervals&id=" . urlencode($ruleId));
         } else {
@@ -283,7 +285,7 @@ class Controller_edit extends BaseController
         $action->customRulesInput = $customOption;
         $action->reminderLink = $link;
         $action->reminderMessage = $message;
-        $action->targetCriteria = $fld_target_criteria;
+        $action->targetCriteria = $fld_target_criteria ?? null;
 
         $this->getRuleManager()->updateRuleAction($action);
         $this->redirect("index.php?action=detail!view&id=" . urlencode($ruleId));

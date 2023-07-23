@@ -60,7 +60,10 @@ class PractitionerRoleService extends BaseService
                 role_codes.role_code,
                 role_codes.role_title,
                 specialty_codes.specialty_code,
-                specialty_codes.specialty_title
+                specialty_codes.specialty_title,
+                physician_types.physician_type_codes,
+                physician_types.physician_type,
+                physician_types.physician_type_title
                 FROM (
                     select
                         facility_user_ids.uuid AS facility_role_uuid,
@@ -72,6 +75,7 @@ class PractitionerRoleService extends BaseService
                         -- TODO: @adunsulag figure out whether we should actually be using the user entered provider_id
                         uid AS provider_id,
                         users.uuid AS provider_uuid,
+                        users.physician_type,
                         CONCAT(COALESCE(users.fname,''),
                            IF(users.mname IS NULL OR users.mname = '','',' '),COALESCE(users.mname,''),
                            IF(users.lname IS NULL OR users.lname = '','',' '),COALESCE(users.lname,'')
@@ -124,7 +128,15 @@ class PractitionerRoleService extends BaseService
                         field_id='specialty_code'
                         AND specialty.list_id='us-core-provider-specialty'
                 ) specialty_codes ON
-                    providers.user_id = specialty_codes.user_id AND providers.facility_id = specialty_codes.facility_id AND specialty_codes.field_id='specialty_code'";
+                    providers.user_id = specialty_codes.user_id AND providers.facility_id = specialty_codes.facility_id AND specialty_codes.field_id='specialty_code'
+                LEFT JOIN (
+                    select
+                           codes AS physician_type_codes
+                           ,option_id AS physician_type
+                           ,title AS physician_type_title
+                    FROM list_options types
+                    WHERE types.list_id = 'physician_type'
+                ) physician_types ON physician_types.physician_type = providers.physician_type ";
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
         $sql .= $whereClause->getFragment();

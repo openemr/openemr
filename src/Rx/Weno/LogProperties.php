@@ -71,7 +71,7 @@ class LogProperties
     /**
      * @return string
      */
-    public function logEcps()
+    public function logEpcs()
     {
         $email = $this->provider->getProviderEmail();
         $prov_pass =  $this->provider->getProviderPassword();                // gets the password stored for the
@@ -128,7 +128,7 @@ class LogProperties
     {
         $provider_info = $this->provider->getProviderEmail();
 
-        $logurlparam = $this->logEcps();
+        $logurlparam = $this->logEpcs();
         $syncLogs = "https://online.wenoexchange.com/en/EPCS/DownloadNewRxSyncDataVal?useremail=";
         if ($logurlparam == 'error') {
             echo xlt("Cipher failure check encryption key");
@@ -150,9 +150,9 @@ class LogProperties
         if ($statusCode == 200) {
             file_put_contents($this->rxsynclog, $rpt);
             $logstring = "prescription log import initiated successfully";
-            EventAuditLogger::instance()->newEvent("prescritions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$logstring");
+            EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$logstring");
         } else {
-            EventAuditLogger::instance()->newEvent("prescritions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$statusCode");
+            EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$statusCode");
         }
 
         if (file_exists($this->rxsynclog)) {

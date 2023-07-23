@@ -83,8 +83,10 @@ class ReportTypes
         "send_sum_stage1_amc" => array( ReportTypes::AMC, "AMC_304i_STG1" ), //Stage 1 Summary of care
         "send_sum_1_stage2_amc" => array( ReportTypes::AMC, "AMC_304i_STG1" ), //Stage 2 Summary of care Measure A(Same as Stage1)
         "send_sum_stage2_amc" => array( ReportTypes::AMC, "AMC_304i_STG2" ), //Stage 2 Summary of care Measure B
+        "send_sum_2015_amc" => array(ReportTypes::AMC, "AMC_315g_7"), // 2015 Summary of Care
         "e_prescribe_stage1_amc" => array( ReportTypes::AMC, "AMC_304b_STG1" ),//Stage 1 eRx
         "e_prescribe_1_stage2_amc" => array( ReportTypes::AMC, "AMC_304b_1_STG2" ),//Stage 2 eRx(Controlled Substances)
         "e_prescribe_2_stage2_amc" => array( ReportTypes::AMC, "AMC_304b_2_STG2" ),//Stage 2 eRx(UnControlled Substances)
+        "patient_access_amc" => array(ReportTypes::AMC, AMC_315g_2c::class)
     );
 }

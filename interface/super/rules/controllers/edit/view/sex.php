@@ -13,7 +13,7 @@
  */
 
 ?>
-<p class="row">
+<p class="form-row">
     <span class="left_col colhead req" data-fld="fld_sex"><?php echo xlt('Sex');?></span>
     <span class="end_col">
     <?php echo render_select(array( "target"   =>  "fld_sex",

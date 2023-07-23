@@ -125,7 +125,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(gmdate('c'));
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $medRequestResource->setMeta($meta);
 
         $id = new FHIRId();
@@ -180,6 +180,17 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         $medRequestResource->setReportedBoolean(self::MEDICATION_REQUEST_REPORTED_PRIMARY_SOURCE);
 
         // medication[x] required
+        /**
+         * US Core Requirements
+         * The MedicationRequest resources can represent a medication using either a code, or reference a Medication resource.
+         * When referencing a Medication resource, the resource may be contained or an external resource.
+         * The server systems are not required to support both a code and a reference, but SHALL support at least one of these methods.
+         * If an external reference to Medication is used, the server SHALL support the _include parameter for searching this element.
+         * The client application SHALL support all methods.
+         *
+         * NOTE: for our requirements we support ONLY the medicationCodeableConcept requirement ie code option and NOT the
+         * embedded medication.
+         */
         if (!empty($dataRecord['drugcode'])) {
 //            $rxnormCoding = new FHIRCoding();
             $rxnormCode = UtilsService::createCodeableConcept($dataRecord['drugcode'], FhirCodeSystemConstants::RXNORM);
@@ -211,7 +222,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         // authoredOn must support
         if (!empty($dataRecord['date_added'])) {
             $authored_on = new FHIRDateTime();
-            $authored_on->setValue(gmdate('c', strtotime($dataRecord['date_added'])));
+            $authored_on->setValue(UtilsService::getLocalDateAsUTC($dataRecord['date_added']));
             $medRequestResource->setAuthoredOn($authored_on);
         }
 

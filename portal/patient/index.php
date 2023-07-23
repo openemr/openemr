@@ -9,9 +9,9 @@
 
 //require_once ("./../verify_session.php");
 /* GlobalConfig object contains all configuration information for the app */
-include_once("_global_config.php");
-include_once("_app_config.php");
-@include_once("_machine_config.php"); // This include auth any framework calls
+require_once("_global_config.php");
+require_once("_app_config.php");
+require_once("_machine_config.php"); // This include auth any framework calls
 
 if (!GlobalConfig::$CONNECTION_SETTING) {
     throw new Exception('GlobalConfig::$CONNECTION_SETTING is not configured.  Are you missing _machine_config.php?');

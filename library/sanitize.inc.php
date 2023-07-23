@@ -14,6 +14,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Events\Core\Sanitize\IsAcceptedFileFilterEvent;
 
 // Function to collect ip address(es)
 function collectIpAddresses()
@@ -107,20 +108,33 @@ function isWhiteFile($file)
         while ($lrow = sqlFetchArray($lres)) {
             $white_list[] = $lrow['option_id'];
         }
+        // allow module writers to modify the white list... this only gets executed the first time this function runs
+        $event = new IsAcceptedFileFilterEvent($file, $white_list);
+        $resultEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, IsAcceptedFileFilterEvent::EVENT_GET_ACCEPTED_LIST);
+        $white_list = $resultEvent->getAcceptedList();
     }
 
     $mimetype  = mime_content_type($file);
+    $isAllowedFile = false;
     if (in_array($mimetype, $white_list)) {
-        return true;
+        $isAllowedFile = true;
     } else {
         $splitMimeType = explode('/', $mimetype);
         $categoryType = $splitMimeType[0];
         if (in_array($categoryType . '/*', $white_list)) {
-            return true;
+            $isAllowedFile = true;
+        } else if (isset($GLOBALS['kernel'])) {
+            // we can fire off an event
+            // allow module writers to modify the isWhiteFile on the fly.
+            $event = new IsAcceptedFileFilterEvent($file, $white_list);
+            $event->setAllowedFile(false);
+            $event->setMimeType($mimetype);
+            $resultEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, IsAcceptedFileFilterEvent::EVENT_FILTER_IS_ACCEPTED_FILE);
+            $isAllowedFile = $resultEvent->isAllowedFile();
         }
     }
 
-    return false;
+    return $isAllowedFile;
 }
 
 // Sanitize a value to ensure it is a number.

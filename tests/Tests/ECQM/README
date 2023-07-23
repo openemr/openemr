@@ -1,0 +1,6 @@
+The MeasureResultsTest runs by comparing data in the measure_result_map.csv to the results that are calculated dynamically
+by the test.
+
+XML QRDA input files come from Cypress https://cypressdemo.healthit.gov
+
+Import the test files using care coordination module, then you can run the tests.

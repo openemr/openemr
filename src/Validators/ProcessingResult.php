@@ -129,4 +129,12 @@ class ProcessingResult
     {
         return !$this->isValid() || $this->hasInternalErrors();
     }
+
+    public static function extractDataArray(ProcessingResult $result): ?array
+    {
+        if ($result->hasData()) {
+            return $result->getData();
+        }
+        return null;
+    }
 }

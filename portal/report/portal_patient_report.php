@@ -34,9 +34,9 @@ $ignoreAuth_onsite_portal = true;
 global $ignoreAuth_onsite_portal;
 
 require_once('../../interface/globals.php');
-require_once("$srcdir/lists.inc");
-require_once("$srcdir/forms.inc");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/lists.inc.php");
+require_once("$srcdir/forms.inc.php");
+require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Core\Header;
 
@@ -470,7 +470,7 @@ while ($prow = sqlFetchArray($pres)) {
         if ($result["form_name"] == "New Patient Encounter") {
             if ($isfirst == 0) {
                 foreach ($registry_form_name as $var) {
-                    if ($toprint = $html_strings[$var]) {
+                    if ($toprint = ($html_strings[$var] ?? '')) {
                         foreach ($toprint as $var) {
                             print $var;
                         }
@@ -526,7 +526,7 @@ while ($prow = sqlFetchArray($pres)) {
                 }
             }
 
-            if (!is_array($html_strings[$form_name])) {
+            if (!is_array($html_strings[$form_name] ?? null)) {
                 $html_strings[$form_name] = array();
             }
 
@@ -540,7 +540,7 @@ while ($prow = sqlFetchArray($pres)) {
     }
 
     foreach ($registry_form_name as $var) {
-        if ($toprint = $html_strings[$var]) {
+        if ($toprint = $html_strings[$var] ?? null) {
             foreach ($toprint as $var) {
                 print $var;
             }
@@ -653,7 +653,7 @@ initReport = function(){
          });
     $(".genpdfrep").click(function() {  document.report_form.pdf.value = 1; $("#report_form").submit(); });
     $(".genportal").click(function() {  document.report_form.pdf.value = 2; $("#report_form").submit(); });
-    $("#genfullreport").click(function() { location.href='<?php echo "$rootdir/patient_file/encounter/$returnurl";?>'; });
+    $("#genfullreport").click(function() { location.href='<?php echo (!empty($returnurl)) ? "$rootdir/patient_file/encounter/$returnurl"  : '';?>'; });
     //$("#printform").click(function() { PrintForm(); });
     $(".issuecheckbox").click(function() { issueClick(this); });
 

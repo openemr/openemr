@@ -20,7 +20,7 @@
 require_once(__DIR__ . "/../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
-require_once("./../library/pnotes.inc");
+require_once("./../library/pnotes.inc.php");
 
 //landing page definition -- where to go if something goes wrong
 $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
@@ -39,19 +39,48 @@ $ignoreAuth_onsite_portal = true;
 global $ignoreAuth_onsite_portal;
 
 require_once("../interface/globals.php");
-require_once("$srcdir/patient.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/forms.inc.php");
+require_once("$srcdir/appointments.inc.php");
 
-use OpenEMR\Core\Header;
+use OpenEMR\Services\AppointmentService;
 
 // Things that might be passed by our opener.
 //
-$eid = $_GET['eid'];         // only for existing events
-$date = $_GET['date'];        // this and below only for new events
-$userid = $_GET['userid'];
-$default_catid = $_GET['catid'] ? $_GET['catid'] : '5';
-$patientid = $_GET['patid'];
+$eid = $_GET['eid'] ?? null;         // only for existing events
+$date = $_GET['date'] ?? null;        // this and below only for new events
+$userid = $_GET['userid'] ?? null;
+$default_catid = ($_GET['catid'] ?? null) ? $_GET['catid'] : '5';
+$patientid = $_GET['patid'] ?? null;
 //
+
+// did someone tamper with eid?
+$checkEidInAppt = false;
+$patient_appointments = fetchAppointments('1970-01-01', '2382-12-31', $_SESSION['pid']);
+$checkEidInAppt = array_search($eid, array_column($patient_appointments, 'pc_eid'));
+
+if (!empty($eid) && !$checkEidInAppt) {
+    echo js_escape("error");
+    exit();
+}
+
+if (!empty($_POST['form_pid'])) {
+    if ($_POST['form_pid'] != $_SESSION['pid']) {
+        echo js_escape("error");
+        exit();
+    }
+
+    if (! getAvailableSlots($_POST['form_date'], date('Y-m-d', strtotime("+1 year " . $_POST['form_date'])), $_POST['form_provider_ae'])) {
+        echo js_escape("error");
+        exit();
+    }
+
+    $appointment_service = (new AppointmentService())->getOneCalendarCategory($_POST['form_category']);
+    if (($_POST['form_duration'] * 60) != ($appointment_service[0]['pc_duration'])) {
+        echo js_escape("error");
+        exit();
+    }
+}
 
 if ($date) {
     $date = substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6);
@@ -118,13 +147,13 @@ if ($eid) {
 
 // If we are saving, then save and close the window.
 //
-if ($_POST['form_action'] == "save") {
+if (($_POST['form_action'] ?? null) == "save") {
 //print_r($_POST);
 //exit();
     $event_date = fixDate($_POST['form_date']);
 
 // Compute start and end time strings to be saved.
-    if ($_POST['form_allday']) {
+    if ($_POST['form_allday'] ?? null) {
         $tmph = 0;
         $tmpm = 0;
         $duration = 24 * 60;
@@ -154,7 +183,7 @@ if ($_POST['form_action'] == "save") {
 
 // More garbage, but this time 1 character of it is used to save the
 // repeat type.
-    if ($_POST['form_repeat']) {
+    if ($_POST['form_repeat'] ?? null) {
         $recurrspec = 'a:5:{' .
             's:17:"event_repeat_freq";s:1:"' . $_POST['form_repeat_freq'] . '";' .
             's:22:"event_repeat_freq_type";s:1:"' . $_POST['form_repeat_type'] . '";' .
@@ -174,7 +203,7 @@ if ($_POST['form_action'] == "save") {
 //for example monday, or thursday. We set the start date on the first day of the week
 //that the event is scheduled. For example if you set the event to repeat on each monday
 //the start date of the event will be set on the first monday after the day the event is scheduled
-    if ($_POST['form_repeat_type'] == 5) {
+    if (($_POST['form_repeat_type'] ?? null) == 5) {
         $exploded_date = explode("-", $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Tue") {
@@ -190,7 +219,7 @@ if ($_POST['form_action'] == "save") {
         } elseif ($edate == "Sun") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
         }
-    } elseif ($_POST['form_repeat_type'] == 6) {
+    } elseif (($_POST['form_repeat_type'] ?? null) == 6) {
         $exploded_date = explode("-", $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Wed") {
@@ -206,7 +235,7 @@ if ($_POST['form_action'] == "save") {
         } elseif ($edate == "Mon") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
         }
-    } elseif ($_POST['form_repeat_type'] == 7) {
+    } elseif (($_POST['form_repeat_type'] ?? null) == 7) {
         $exploded_date = explode("-", $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Thu") {
@@ -222,7 +251,7 @@ if ($_POST['form_action'] == "save") {
         } elseif ($edate == "Tue") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
         }
-    } elseif ($_POST['form_repeat_type'] == 8) {
+    } elseif (($_POST['form_repeat_type'] ?? null) == 8) {
         $exploded_date = explode("-", $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Fri") {
@@ -238,7 +267,7 @@ if ($_POST['form_action'] == "save") {
         } elseif ($edate == "Wed") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
         }
-    } elseif ($_POST['form_repeat_type'] == 9) {
+    } elseif (($_POST['form_repeat_type'] ?? null) == 9) {
         $exploded_date = explode("-", $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Sat") {
@@ -294,7 +323,7 @@ if ($_POST['form_action'] == "save") {
                         "'" . add_escape_custom($_POST['form_category']) . "', " .
                         "'" . add_escape_custom($row['pc_multiple']) . "', " .
                         "'" . add_escape_custom($to_be_inserted) . "', " .
-                        "'" . add_escape_custom($_POST['form_pid']) . "', " .
+                        "'" . add_escape_custom($_SESSION['pid']) . "', " .
                         "'" . add_escape_custom($_POST['form_title']) . "', " .
                         "NOW(), " .
                         "'" . add_escape_custom($_POST['form_comments']) . "', " .
@@ -321,7 +350,7 @@ if ($_POST['form_action'] == "save") {
             foreach ($_POST['form_provider_ae'] as $provider) {
                 sqlStatement("UPDATE openemr_postcalendar_events SET " .
                     "pc_catid = '" . add_escape_custom($_POST['form_category']) . "', " .
-                    "pc_pid = '" . add_escape_custom($_POST['form_pid']) . "', " .
+                    "pc_pid = '" . add_escape_custom($_SESSION['pid']) . "', " .
                     "pc_title = '" . add_escape_custom($_POST['form_title']) . "', " .
                     "pc_time = NOW(), " .
                     "pc_hometext = '" . add_escape_custom($_POST['form_comments']) . "', " .
@@ -354,22 +383,22 @@ if ($_POST['form_action'] == "save") {
             sqlStatement("UPDATE openemr_postcalendar_events SET " .
                 "pc_catid = '" . add_escape_custom($_POST['form_category']) . "', " .
                 "pc_aid = '" . add_escape_custom($prov) . "', " .
-                "pc_pid = '" . add_escape_custom($_POST['form_pid']) . "', " .
+                "pc_pid = '" . add_escape_custom($_SESSION['pid']) . "', " .
                 "pc_title = '" . add_escape_custom($_POST['form_title']) . "', " .
                 "pc_time = NOW(), " .
                 "pc_hometext = '" . add_escape_custom($_POST['form_comments']) . "', " .
                 "pc_informant = '" . add_escape_custom($_SESSION['providerId']) . "', " .
                 "pc_eventDate = '" . add_escape_custom($event_date) . "', " .
-                "pc_endDate = '" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
+                "pc_endDate = '" . add_escape_custom(fixDate($_POST['form_enddate'] ?? '')) . "', " .
                 "pc_duration = '" . add_escape_custom(($duration * 60)) . "', " .
-                "pc_recurrtype = '" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
+                "pc_recurrtype = '" . (($_POST['form_repeat'] ?? null) ? '1' : '0') . "', " .
                 "pc_recurrspec = '" . add_escape_custom($recurrspec) . "', " .
                 "pc_startTime = '" . add_escape_custom($starttime) . "', " .
                 "pc_endTime = '" . add_escape_custom($endtime) . "', " .
-                "pc_alldayevent = '" . add_escape_custom($_POST['form_allday']) . "', " .
+                "pc_alldayevent = '" . add_escape_custom(($_POST['form_allday'] ?? '')) . "', " .
                 "pc_apptstatus = '" . add_escape_custom($_POST['form_apptstatus']) . "', " .
-                "pc_prefcatid = '" . add_escape_custom($_POST['form_prefcat']) . "', " .
-                "pc_facility = '" . (int)$_POST['facility'] . "' " . // FF stuff
+                "pc_prefcatid = '" . add_escape_custom(($_POST['form_prefcat'] ?? '')) . "', " .
+                "pc_facility = '" . (int)($_POST['facility'] ?? null) . "' " . // FF stuff
                 "WHERE pc_eid = '" . add_escape_custom($eid) . "'");
         }
 
@@ -405,7 +434,7 @@ if ($_POST['form_action'] == "save") {
                     "'" . add_escape_custom($_POST['form_category']) . "', " .
                     "'" . add_escape_custom($new_multiple_value) . "', " .
                     "'" . add_escape_custom($provider) . "', " .
-                    "'" . add_escape_custom($_POST['form_pid']) . "', " .
+                    "'" . add_escape_custom($_SESSION['pid']) . "', " .
                     "'" . add_escape_custom($_POST['form_title']) . "', " .
                     "NOW(), " .
                     "'" . add_escape_custom($_POST['form_comments']) . "', " .
@@ -435,27 +464,27 @@ if ($_POST['form_action'] == "save") {
                 ") VALUES ( " .
                 "'" . add_escape_custom($_POST['form_category']) . "', " .
                 "'" . add_escape_custom($_POST['form_provider_ae']) . "', " .
-                "'" . add_escape_custom($_POST['form_pid']) . "', " .
+                "'" . add_escape_custom($_SESSION['pid']) . "', " .
                 "'" . add_escape_custom($_POST['form_title']) . "', " .
                 "NOW(), " .
                 "'" . add_escape_custom($_POST['form_comments']) . "', " .
                 "'" . add_escape_custom($_SESSION['providerId']) . "', " .
                 "'" . add_escape_custom($event_date) . "', " .
-                "'" . add_escape_custom(fixDate($_POST['form_enddate'])) . "', " .
+                "'" . add_escape_custom(fixDate(($_POST['form_enddate'] ?? ''))) . "', " .
                 "'" . add_escape_custom(($duration * 60)) . "', " .
-                "'" . ($_POST['form_repeat'] ? '1' : '0') . "', " .
+                "'" . (($_POST['form_repeat'] ?? null) ? '1' : '0') . "', " .
                 "'" . add_escape_custom($recurrspec) . "', " .
                 "'" . add_escape_custom($starttime) . "', " .
                 "'" . add_escape_custom($endtime) . "', " .
-                "'" . add_escape_custom($_POST['form_allday']) . "', " .
+                "'" . add_escape_custom(($_POST['form_allday'] ?? '')) . "', " .
                 "'" . add_escape_custom($_POST['form_apptstatus']) . "', " .
-                "'" . add_escape_custom($_POST['form_prefcat']) . "', " .
+                "'" . add_escape_custom(($_POST['form_prefcat'] ?? null)) . "', " .
                 "'" . add_escape_custom($locationspec) . "', " .
                 "1, " .
-                "1, " . (int)$_POST['facility'] . ")"); // FF stuff
+                "1, " . (int)($_POST['facility'] ?? null) . ")"); // FF stuff
         } // INSERT single
     } // else - insert
-} elseif ($_POST['form_action'] == "delete") {
+} elseif (($_POST['form_action'] ?? null) == "delete") {
 // =======================================
 //  multi providers case
 // =======================================
@@ -485,10 +514,9 @@ if (!empty($_POST['form_action'])) {
     $note .= ". " . xl("Use Portal Dashboard to confirm with patient.");
     $title = xl("Patient Reminders");
     $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", array($_POST['form_provider_ae']));
-    $rtn = addPnote($_POST['form_pid'], $note, 1, 1, $title, $user['username'], '', 'New');
+    $rtn = addPnote($_SESSION['pid'], $note, 1, 1, $title, $user['username'], '', 'New');
 
-
-    OpenEMR\Common\Session\SessionUtil::setSession('whereto', '#appointmentcard');
+    $_SESSION['whereto'] = '#appointmentcard';
     header('Location:./home.php');
     exit();
 }
@@ -560,8 +588,8 @@ if ($patientid) {
 }
 
 // Get the providers list.
-$ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE " .
-    "authorized != 0 AND active = 1 ORDER BY lname, fname");
+$ures = sqlStatement("SELECT `id`, `username`, `fname`, `lname`, `mname` FROM `users` WHERE " .
+    "`authorized` != 0 AND `active` = 1 AND `username` > '' ORDER BY `lname`, `fname`");
 
 //Set default facility for a new event based on the given 'userid'
 if ($userid) {
@@ -643,93 +671,88 @@ if ($userid) {
     ?>
 </script>
 <body class="skin-blue">
-    <div class="card">
+    <div class="container-fluid">
         <form method='post' name='theaddform' id='theaddform' action='add_edit_event_user.php?eid=<?php echo attr_url($eid); ?>'>
-            <input type="hidden" name="form_action" id="form_action" value="" />
-            <input type='hidden' name='form_title' id='form_title' value='<?php echo $row['pc_catid'] ? attr($row['pc_title']) : xla("Office Visit"); ?>' />
-            <input type='hidden' name='form_apptstatus' id='form_apptstatus' value='<?php echo $row['pc_apptstatus'] ? attr($row['pc_apptstatus']) : "^" ?>' />
-
-            <div class="form-row my-1">
-              <label for="form_category" class="col-2 col-form-label"><?php echo xlt('Visit'); ?>:</label>
-              <div class="col">
-                <select class="form-control" onchange='set_category()' id='form_category' name='form_category' value='<?php echo ($row['pc_catid'] > "") ? attr($row['pc_catid']) : '5'; ?>'>
-                  <?php echo $catoptions ?>
-                </select>
-              </div>
-              <label for="form_date" class="col-1 col-form-label"><?php echo xlt('Date'); ?>:</label>
-              <div class="col">
-                <input class="form-control" type='text' name='form_date' readonly id='form_date' value='<?php echo (isset($eid) && $eid) ? attr($row['pc_eventDate']) : attr($date); ?>' />
-              </div>
-            </div>
-            <div class="form-row my-1">
-              <label class="col-2 col-form-label"><?php echo xlt('Time'); ?>:</label>
-              <div class="col form-inline">
-                <input class="form-control" type='text' name='form_hour' size='2' value='<?php echo (isset($eid)) ? $starttimeh : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
-                <span>:</span>
-                <input class="form-control" type='text' name='form_minute' size='2' value='<?php echo (isset($eid)) ? $starttimem : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
-                <select class="form-control" name='form_ampm' title='Note: 12:00 noon is PM, not AM' readonly>
-                    <option value='1'><?php echo xlt('AM'); ?></option>
-                    <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
-                </select>
-              </div>
-              <label for="form_patient" class="col-1 col-form-label"><?php echo xlt('Patient'); ?>:</label>
-              <div class="col">
-                <input class="form-control" type='text' id='form_patient' name='form_patient' value='<?php echo attr($patientname); ?>' title='Patient' readonly />
-                <input type='hidden' name='form_pid' value='<?php echo attr($patientid); ?>' />
-              </div>
-            </div>
-            <div class="form-row my-1">
-              <label for="form_duration" class="col-2 col-form-label"><?php echo xlt('Duration'); ?></label>
-              <div class="col">
-                <div class="input-group">
-                  <input class="form-control" type='text' size='1' id='form_duration' name='form_duration' value='<?php echo $row['pc_duration'] ? ($row['pc_duration'] * 1 / 60) : attr($thisduration) ?>' readonly />
-                  <div class="input-group-append">
-                    <span class="input-group-text"><?php echo "&nbsp;" . xlt('minutes'); ?></span>
-                  </div>
+            <div class="col-12">
+                <input type="hidden" name="form_action" id="form_action" value="" />
+                <input type='hidden' name='form_title' id='form_title' value='<?php echo ($row['pc_catid'] ?? '') ? attr($row['pc_title']) : xla("Office Visit"); ?>' />
+                <input type='hidden' name='form_apptstatus' id='form_apptstatus' value='<?php echo ($row['pc_apptstatus'] ?? '') ? attr($row['pc_apptstatus'] ?? '') : "^" ?>' />
+                <div class="row form-group">
+                    <div class="input-group col-12 col-md-6">
+                        <label class="mr-2" for="form_category"><?php echo xlt('Visit'); ?>:</label>
+                        <select class="form-control mb-1" onchange='set_category()' id='form_category' name='form_category' value='<?php echo (($row['pc_catid'] ?? '') > "") ? attr($row['pc_catid']) : '5'; ?>'>
+                            <?php echo $catoptions ?>
+                        </select>
+                    </div>
+                    <div class="input-group col-12 col-md-6">
+                        <label class="mr-2" for="form_date"><?php echo xlt('Date'); ?>:</label>
+                        <input class="form-control mb-1" type='text' name='form_date' readonly id='form_date' value='<?php echo (isset($eid) && $eid) ? attr($row['pc_eventDate']) : attr($date); ?>' />
+                    </div>
                 </div>
-              </div>
-            </div>
-            <div class="form-row my-1">
-              <label for="form_provider_ae" class="col-2 col-form-label"><?php echo xlt('Provider'); ?>:</label>
-              <div class="col-8">
-                <select class="form-control" name='form_provider_ae' id='form_provider_ae' onchange='change_provider();'>
-                    <?php
-                    // present a list of providers to choose from
-                    // default to the currently logged-in user
-                    while ($urow = sqlFetchArray($ures)) {
-                        echo "    <option value='" . attr($urow['id']) . "'";
-                        if (($urow['id'] == $_GET['userid']) || ($urow['id'] == $userid)) {
-                            echo " selected";
-                        }
-
-                        echo ">" . text($urow['lname']);
-                        if ($urow['fname']) {
-                            echo ", " . text($urow['fname']);
-                        }
-
-                        echo "</option>\n";
-                    }
-                    ?>
-                </select>
-              </div>
-              <div class="col text-right">
-                <input type='button' class='btn btn-success' value='<?php echo xla('Openings'); ?>' onclick='find_available()' />
-              </div>
-            </div>
-            <div class="form-row my-1">
-              <label class="col-2 col-form-label"><?php echo xlt('Reason'); ?>:</label>
-              <div class="col">
-                <input class="form-control" type='text' size='40' name='form_comments' value='<?php echo attr($hometext); ?>' title='<?php echo xla('Optional information about this event'); ?>' />
-              </div>
-            </div>
-
-            <div class="form-group">
-                <br />
-                <?php if ($_GET['eid'] && $row['pc_apptstatus'] !== 'x') { ?>
-                    <input type='button' id='form_cancel' class='btn btn-danger' onsubmit='return false' value='<?php echo xla('Cancel Appointment'); ?>' onclick="cancel_appointment()" />
-                <?php } ?>
-                <input type='button' name='form_save' class='btn btn-success' onsubmit='return false' value='<?php echo xla('Save'); ?>' onclick="validate()" />
-
+                <div class="row">
+                    <div class="form-group form-inline col-12">
+                        <div class="input-group mb-1">
+                            <label class="mr-2"><?php echo xlt('Time'); ?>:</label>
+                            <input class="form-control col-2 col-md-3" type='text' name='form_hour' size='2' value='<?php echo (isset($eid)) ? $starttimeh : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
+                            <input class="form-control col-2 col-md-3" type='text' name='form_minute' size='2' value='<?php echo (isset($eid)) ? $starttimem : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
+                            <select class="form-control col-3 col-md-4" name='form_ampm' title='Note: 12:00 noon is PM, not AM' readonly>
+                                <option value='1'><?php echo xlt('AM'); ?></option>
+                                <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label class="mr-2" for="form_duration"><?php echo xlt('Duration'); ?></label>
+                            <input class="form-control" type='text' size='1' id='form_duration' name='form_duration' value='<?php echo ($row['pc_duration'] ?? '') ? ($row['pc_duration'] * 1 / 60) : attr($thisduration) ?>' readonly />
+                            <span class="input-group-append">
+                            <span class="input-group-text"><?php echo "&nbsp;" . xlt('minutes'); ?></span>
+                        </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-group col-12 mb-1">
+                        <label class="mr-2" for="form_patient"><?php echo xlt('Patient'); ?>:</label>
+                        <input class="form-control" type='text' id='form_patient' name='form_patient' value='<?php echo attr($patientname); ?>' title='Patient' readonly />
+                        <input type='hidden' name='form_pid' value='<?php echo attr($patientid); ?>' />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-group col-12 mb-1">
+                        <label class="mr-2" for="form_provider_ae"><?php echo xlt('Provider'); ?>:</label>
+                        <select class="form-control" name='form_provider_ae' id='form_provider_ae' onchange='change_provider();'>
+                            <?php
+                            // present a list of providers to choose from
+                            // default to the currently logged-in user
+                            while ($urow = sqlFetchArray($ures)) {
+                                echo "<option value='" . attr($urow['id']) . "'";
+                                if (($urow['id'] == ($_GET['userid'] ?? null)) || ($urow['id'] == $userid)) {
+                                    echo " selected";
+                                }
+                                echo ">" . text($urow['lname']);
+                                if ($urow['fname']) {
+                                    echo ", " . text($urow['fname']);
+                                }
+                                echo "</option>\n";
+                            }
+                            ?>
+                        </select>
+                        <div class="text-right">
+                            <input type='button' class='btn btn-success' value='<?php echo xla('Openings'); ?>' onclick='find_available()' />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-group col-12">
+                        <label class="mr-2"><?php echo xlt('Reason'); ?>:</label>
+                        <input class="form-control" type='text' size='40' name='form_comments' value='<?php echo attr($hometext); ?>' title='<?php echo xla('Optional information about this event'); ?>' />
+                    </div>
+                </div>
+                <div class="row input-group my-1">
+                    <?php if (($_GET['eid'] ?? null) && $row['pc_apptstatus'] !== 'x') { ?>
+                        <input type='button' id='form_cancel' class='btn btn-danger' onsubmit='return false' value='<?php echo xla('Cancel Appointment'); ?>' onclick="cancel_appointment()" />
+                    <?php } ?>
+                    <input type='button' name='form_save' class='btn btn-success' onsubmit='return false' value='<?php echo xla('Save'); ?>' onclick="validate()" />
+                </div>
             </div>
         </form>
         <script>
@@ -790,15 +813,14 @@ if ($userid) {
                     ('' + (mday + 100)).substring(1);
                 f.form_ampm.selectedIndex = (hours > 12) ? 1 : 0;
                 if (hours == 0) {
-                  f.form_hour.value = 12;
+                    f.form_hour.value = 12;
                 } else {
-                  f.form_hour.value = (hours >= 13) ? hours - 12 : hours;
+                    f.form_hour.value = (hours >= 13) ? hours - 12 : hours;
                 }
                 f.form_minute.value = minutes;
             }
 
-            function get_form_category_value()
-            {
+            function get_form_category_value() {
                 var catid = 0;
                 var f = document.forms.namedItem("theaddform");
                 var s = f.form_category;

@@ -15,12 +15,18 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('acct', 'rep') && !AclMain::aclCheckCore('acct', 'rep_a')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Sales by Item")]);
+    exit;
+}
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -29,6 +35,11 @@ if (!empty($_POST)) {
 }
 
 $form_provider  = $_POST['form_provider'] ?? null;
+if (!AclMain::aclCheckCore('acct', 'rep_a')) {
+    // only allow user to see their encounter information
+    $form_provider = $_SESSION['authUserID'];
+}
+
 if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     $form_details = (!empty($_POST['form_details'])) ? true : false;
 } else {
@@ -247,10 +258,6 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
     $catqty       += $qty;
     $grandqty     += $qty;
 } // end function
-
-if (! AclMain::aclCheckCore('acct', 'rep')) {
-    die(xlt("Unauthorized access."));
-}
 
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
 $form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');

@@ -20,6 +20,7 @@ namespace OpenEMR\Services\Utils;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
+use OpenEMR\Events\Core\SQLUpgradeEvent;
 
 class SQLUpgradeService
 {
@@ -197,6 +198,14 @@ class SQLUpgradeService
      *  desc: populate name field with document names.
      *  arguments: none
      *
+     * #IfUpdateEditOptionsNeeded
+     *  desc: Change Layout edit options.
+     *  arguments: mode(add or remove) layout_form_id the_edit_option comma_seperated_list_of_field_ids
+     *
+     * #IfVitalsDatesNeeded
+     *  desc: Change date from zeroes to date of vitals form creation.
+     *  arguments: none
+     *
      * #EndIf
      *   all blocks are terminated with a #EndIf statement.
      *
@@ -205,6 +214,14 @@ class SQLUpgradeService
     function upgradeFromSqlFile($filename, $path = '')
     {
         global $webserver_root;
+
+        // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
+        // or any manual processing that needs to occur.
+        if (!empty($GLOBALS['kernel'])) {
+            $sqlUpgradeEvent = new SQLUpgradeEvent($filename, $path, $this);
+            $GLOBALS['kernel']->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_PRE);
+        }
+
         $skip_msg = xlt("Skipping section");
 
         $this->flush();
@@ -617,6 +634,28 @@ class SQLUpgradeService
                 if ($skipping) {
                     $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
                 }
+            } elseif (preg_match('/^#IfUpdateEditOptionsNeeded\s+(\S+)\s+(\S+)\s+(\S+)\s+(.+)/', $line, $matches)) {
+                $skipping = $this->updateLayoutEditOptions($matches[1], $matches[2], $matches[3], $matches[4]);
+                if ($skipping) {
+                    $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
+                }
+            } elseif (preg_match('/^#IfVitalsDatesNeeded/', $line)) {
+                $emptyDates = sqlStatementNoLog("SELECT fv.id as vitals_id, f.date as new_date FROM form_vitals fv LEFT JOIN forms f on fv.id = f.form_id WHERE fv.date = '0000-00-00 00:00:00' AND f.form_name = 'Vitals'");
+                if (sqlNumRows($emptyDates) > 0) {
+                    $this->echo("<p>Converting empty vital dates.</p>\n");
+                    $this->flush_echo();
+                    while ($row = sqlFetchArray($emptyDates)) {
+                        sqlStatementNoLog("UPDATE `form_vitals` SET `date` = ? WHERE `id` = ?", [$row['new_date'], $row['vitals_id']]);
+                    }
+                    $this->echo("<p class='text-success'>Completed conversion of empty vital dates</p>\n");
+                    $this->flush_echo();
+                    $skipping = false;
+                } else {
+                    $skipping = true;
+                }
+                if ($skipping) {
+                    $this->echo("<p class='text-success'>$skip_msg $line</p>\n");
+                }
             } elseif (preg_match('/^#EndIf/', $line)) {
                 $skipping = false;
             }
@@ -671,6 +710,13 @@ class SQLUpgradeService
         }
 
         $this->flush();
+
+        // let's fire off an event so people can listen if needed and handle any module upgrading, version checks,
+        // or any manual processing that needs to occur.
+        if (!empty($GLOBALS['kernel'])) {
+            $sqlUpgradeEvent = new SQLUpgradeEvent($filename, $path, $this);
+            $GLOBALS['kernel']->getEventDispatcher()->dispatch($sqlUpgradeEvent, SQLUpgradeEvent::EVENT_UPGRADE_POST);
+        }
     } // end function
 
     public function flush_echo($string = '')
@@ -1242,5 +1288,64 @@ class SQLUpgradeService
                 sqlStatement($query, $sqlvars);
             } // end group
         } // end form
+    }
+
+    private function updateLayoutEditOptions($mode, $form_id, $add_option, $values): bool
+    {
+        $flag = true;
+        $subject = explode(',', str_replace(' ', '', $values));
+        if (empty($subject)) {
+            $this->echo("<p class='text-danger'>Missing field ids for update " . text($mode) . ".</p>");
+            return true;
+        }
+        $sql = "SELECT `field_id`, `edit_options`, `seq` FROM `layout_options` WHERE `form_id` = ? ";
+        $result = sqlStatementNoLog($sql, array($form_id));
+        if (empty(sqlNumRows($result))) {
+            $this->echo("<p class='text-danger'>No results returned for " . text($form_id) . ".</p>");
+            return true;
+        }
+
+        sqlStatementNoLog('SET autocommit=0');
+        sqlStatementNoLog('START TRANSACTION');
+        try {
+            while ($row = sqlFetchArray($result)) {
+                if (in_array($row['field_id'], $subject)) {
+                    $options = json_decode($row['edit_options'], true) ?? [];
+                    if (!in_array($add_option, $options) && stripos($mode, 'add') !== false) {
+                        $options[] = $add_option;
+                    } elseif (in_array($add_option, $options) && stripos($mode, 'remove') !== false) {
+                        $key = array_search($add_option, $options);
+                        unset($options[$key]);
+                    } else {
+                        continue;
+                    }
+                    if ($flag) {
+                        // just show this prior first change (so will be not shown if this is "skipped")
+                        $this->echo("<p class='text-success'>Start Layouts Edit Options " . text($mode) . " " . text($add_option) . " update.</p>");
+                    }
+                    $new_options = json_encode($options);
+                    $update_sql = "UPDATE `layout_options` SET `edit_options` = ? WHERE `form_id` = 'DEM' AND `field_id` = ? AND `seq` = ? ";
+                    $this->echo('Setting new edit options ' . text($row['field_id']) . ' to ' . text($new_options) . "<br />");
+                    sqlStatementNoLog($update_sql, array($new_options, $row['field_id'], $row['seq']));
+                    $flag = false;
+                }
+            }
+        } catch (SqlQueryException $e) {
+            $this->echo("<p class='text-danger'>The above statement failed: " .
+                text(getSqlLastError()) . "<br />Upgrading will continue.<br /></p>\n");
+            $this->flush_echo();
+            if ($this->isThrowExceptionOnError()) {
+                throw $e;
+            }
+        }
+        sqlStatementNoLog('COMMIT');
+        sqlStatementNoLog('SET autocommit=1');
+        if (!$flag) {
+            // so will be not shown if this is "skipped"
+            $this->echo("<p class='text-success'>Layout Edit Options " . text($mode) . " " . text($add_option) . " done.</p><br />");
+            $this->flush_echo();
+        }
+
+        return $flag;
     }
 }

@@ -121,7 +121,7 @@ START
 my $new_php =<<'START';
 <?php
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
+require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -151,7 +151,7 @@ START
 my $print_php=<<'START';
 <?php
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
+require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -179,7 +179,7 @@ my $report_php=<<'START';
 <?php
 //------------report.php
 require_once("../../globals.php");
-require_once($GLOBALS["srcdir"]."/api.inc");
+require_once($GLOBALS["srcdir"]."/api.inc.php");
 function FORM_NAME_report( $pid, $encounter, $cols, $id) {
 $count = 0;
 $data = formFetch("form_FORM_NAME", $id);
@@ -213,8 +213,8 @@ my $save_php=<<'START';
 <?php
 //------------This file inserts your field data into the MySQL database
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 
@@ -320,13 +320,13 @@ my $view_php =<<'START';
 <!-- view.php -->
 <?php
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
+require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 formHeader("Form: FORM_NAME");
-$obj = formFetch("form_FORM_NAME", $_GET["id"]);  //#Use the formFetch function from api.inc to get values for existing form.
+$obj = formFetch("form_FORM_NAME", $_GET["id"]);  //#Use the formFetch function from api.inc.php to get values for existing form.
 
 function chkdata_Txt(&$obj, $var) {
         return attr($obj{"$var"});

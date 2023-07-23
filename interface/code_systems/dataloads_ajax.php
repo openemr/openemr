@@ -19,6 +19,7 @@
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Ensure script doesn't time out
@@ -26,7 +27,7 @@ set_time_limit(0);
 
 // Control access
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo xlt('Not Authorized');
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("External Data Loads")]);
     exit;
 }
 
@@ -63,10 +64,10 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
         padding: 20px;
         background-color: var(--gray200);
     }
-    <!-- Keeping empty classes for jquery hooks -->    
-    .inst_dets {               
+    <!-- Keeping empty classes for jquery hooks -->
+    .inst_dets {
     }
-    .stg_dets {        
+    .stg_dets {
     }
     .stg {
         font-size: 0.8rem;
@@ -130,7 +131,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
     //
     // placemaker for when support DSMIV
     //$db_list = array("DSMIV", "ICD9", "ICD10", "RXNORM", "SNOMED");
-    $db_list = array("ICD9", "ICD10", "RXNORM", "SNOMED","CQM_VALUESET");
+    $db_list = array("ICD10", "RXNORM", "SNOMED","CQM_VALUESET");
     foreach ($db_list as $db) {
         ?>
         <div class="card">

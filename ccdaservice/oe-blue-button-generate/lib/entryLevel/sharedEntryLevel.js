@@ -250,7 +250,9 @@ exports.encDiagnosis = {
                 displayName: "ENCOUNTER DIAGNOSIS"
             }
         },
-        fieldLevel.effectiveTime, {
+        fieldLevel.effectiveTime,
+        fieldLevel.author,
+        {
             key: "entryRelationship",
             attributes: {
                 typeCode: "SUBJ",

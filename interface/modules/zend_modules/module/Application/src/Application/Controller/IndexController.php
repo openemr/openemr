@@ -19,6 +19,9 @@ use Application\Listener\Listener;
 
 class IndexController extends AbstractActionController
 {
+    /**
+     * @var \Application\Model\ApplicationTable
+     */
     protected $applicationTable;
     protected $listenerObject;
 

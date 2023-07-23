@@ -13,7 +13,7 @@
 
 namespace OpenEMR\Events\Appointments;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Event object for know what type of appointment has been set on the calendar

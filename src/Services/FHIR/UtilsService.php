@@ -11,7 +11,14 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\ORDataObject\ContactAddress;
+use OpenEMR\FHIR\Config\ServerConfig;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationOutcome;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRAddressType;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRAddressUse;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
@@ -19,11 +26,15 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueType;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 class UtilsService
 {
@@ -39,6 +50,55 @@ class UtilsService
             $reference->setDisplay($displayName);
         }
         return $reference;
+    }
+
+    public static function createCanonicalUrlForResource($resourceType, $uuid): FHIRCanonical
+    {
+
+        $siteConfig = new ServerConfig();
+        $fhirUrl = $siteConfig->getFhirUrl() ?? "";
+        if (strrpos("/", $fhirUrl) != strlen($fhirUrl)) {
+            $fhirUrl .= "/";
+        }
+        $url = $fhirUrl . $resourceType . '/' . $uuid;
+        $cannonical = new FHIRCanonical();
+        $cannonical->setValue($url);
+        return $cannonical;
+    }
+
+    public static function parseCanonicalUrl(?string $url)
+    {
+        $parsed_url = [
+            'localResource' => false
+            ,'validUrl' => false
+            ,'resource' => null
+            ,'uuid' => null
+        ];
+        if (empty($url)) {
+            return $parsed_url;
+        }
+
+        $parsed_url['validUrl'] = true;
+        $oauthAddress = (new ServerConfig())->getOauthAddress();
+        $oauthHost = parse_url($oauthAddress, PHP_URL_HOST);
+        $parts = parse_url($url);
+        $parsed_url['localResource'] = $parts['host'] == $oauthHost;
+        $splitParts = explode("/", $parts['path']);
+        if (count($splitParts) >= 2) {
+            $uuid = array_pop($splitParts);
+            $resource = array_pop($splitParts);
+            $resourceClassCheck = 'OpenEMR\\FHIR\\R4\\FHIRDomainResource\\FHIR' . $resource;
+            // we should always be getting canonical urls to a specific resource id, but just in case we are going
+            // to
+            $idClassCheck = 'OpenEMR\\FHIR\\R4\\FHIRElement\\' . $uuid;
+            if (class_exists($resourceClassCheck)) {
+                $parsed_url['resource'] = $resource;
+                $parsed_url['uuid'] = $uuid;
+            } else if (class_exists($idClassCheck)) {
+                $parsed_url['resource'] = $uuid; // root level resource at the end
+            }
+        }
+        return $parsed_url;
     }
 
     public static function getUuidFromReference(FHIRReference $reference)
@@ -63,12 +123,13 @@ class UtilsService
     public static function createCoding($code, $display, $system): FHIRCoding
     {
         if (!is_string($code)) {
-            $code = "$code"; // FHIR expects a string
+            $code = trim("$code"); // FHIR expects a string
         }
+        // make sure there are no whitespaces.
         $coding = new FHIRCoding();
         $coding->setCode($code);
-        $coding->setDisplay($display);
-        $coding->setSystem($system);
+        $coding->setDisplay(trim($display ?? ""));
+        $coding->setSystem(trim($system ?? ""));
         return $coding;
     }
 
@@ -111,32 +172,73 @@ class UtilsService
     public static function createAddressFromRecord($dataRecord): ?FHIRAddress
     {
         $address = new FHIRAddress();
-        // TODO: we don't track start and end periods for dates so what value should go here...?
         $addressPeriod = new FHIRPeriod();
-        $start = new \DateTime();
-        $start->sub(new \DateInterval('P1Y')); // subtract one year
-        $end = new \DateTime();
-        $addressPeriod->setStart(new FHIRDateTime($start->format(\DateTime::RFC3339_EXTENDED)));
-        // if there's an end date we provide one here, but for now we just go back one year
-//        $addressPeriod->setEnd(new FHIRDateTime($end->format(\DateTime::RFC3339_EXTENDED)));
+
+        if (!empty($dataRecord['type'])) {
+            // TODO: do we want to do any validation on this?  If people add 'types' we will have issues, downside is a code change if we need to support newer standards
+            $address->setType(new FHIRAddressType(['value' => $dataRecord['type']]));
+        }
+        if (!empty($dataRecord['use'])) {
+            // TODO: do we want to do any validation on this?  If people add 'uses' we will have issues, downside is a code change if we need to support newer standards
+            $address->setUse(new FHIRAddressUse(['value' => $dataRecord['use']]));
+        }
+
+        if (!empty($dataRecord['period_start'])) {
+            $date = DateFormatterUtils::dateStringToDateTime($dataRecord['period_start']);
+            if ($date === false) {
+                (new SystemLogger())->errorLogCaller(
+                    "Failed to format date record with date format ",
+                    ['start' => $dataRecord['period_start'], 'contact_address_id' => ($dataRecord['contact_address_id'] ?? null)]
+                );
+                $date = new \DateTime('now', new \DateTimeZone(date('P')));
+            }
+            $addressPeriod->setStart($date->format(\DateTime::RFC3339_EXTENDED));
+        } else {
+            // we should always have a start period, but if we don't, we will go one year before
+            $start = new \DateTime();
+            $start->sub(new \DateInterval('P1Y')); // subtract one year
+            $addressPeriod->setStart(new FHIRDateTime($start->format(\DateTime::RFC3339_EXTENDED)));
+        }
+
+        if (!empty($dataRecord['period_end'])) {
+            $date = DateFormatterUtils::dateStringToDateTime($dataRecord['period_end']);
+            if ($date === false) {
+                (new SystemLogger())->errorLogCaller(
+                    "Failed to format date record with date format ",
+                    ['date' => $dataRecord['period_end'], 'contact_address_id' => ($dataRecord['contact_address_id'] ?? null)]
+                );
+                $date = new \DateTime();
+            }
+            // if we have an end date we need to set our use to be old
+            // TODO: when FHIR R4 5.0.1 is the standard, it has proposed to go off the 'end' date instead of the use column for an old address
+            // for ONC R4 3.1.1 we have to populate the use column as old (which removes the fact that the address was a 'home' or a 'work' address)
+            $addressPeriod->setEnd($date->format(\DateTime::RFC3339_EXTENDED));
+            $address->setUse(new FHIRAddressUse(['value' => ContactAddress::USE_OLD]));
+        }
+
         $address->setPeriod($addressPeriod);
         $hasAddress = false;
-        if (!empty($dataRecord['line1'])) {
-            $address->addLine($dataRecord['line1']);
-            $hasAddress = true;
-        } else if (!empty($dataRecord['street'])) {
-            $address->addLine($dataRecord['street']);
+        $line1 = $dataRecord['line1'] ?? $dataRecord['street'] ?? null;
+        if (!empty($line1)) {
+            $address->addLine($line1);
             $hasAddress = true;
         }
 
-        if (!empty($dataRecord['line2'])) {
-            $address->addLine($dataRecord['line2']);
+        $line2 = $dataRecord['line2'] ?? $dataRecord['street_line_2'] ?? null;
+        if (!empty($line2)) {
+            $address->addLine($line2);
         }
 
         if (!empty($dataRecord['city'])) {
             $address->setCity($dataRecord['city']);
             $hasAddress = true;
         }
+        $district = $dataRecord['county'] ?? $dataRecord['district'] ?? null;
+        if (!empty($district)) {
+            $address->setDistrict($district);
+            $hasAddress = true;
+        }
+
         if (!empty($dataRecord['state'])) {
             $address->setState($dataRecord['state']);
             $hasAddress = true;
@@ -241,5 +343,82 @@ class UtilsService
         $narrative->setStatus($code);
         $narrative->setDiv($div);
         return $narrative;
+    }
+
+    public static function getDateFormattedAsUTC(): string
+    {
+        return (new \DateTime())->format(DATE_ATOM);
+    }
+
+    public static function getLocalDateAsUTC($date)
+    {
+        // make this assumption explicit that we are using the current timezone specified in PHP
+        // when we use strtotime or gmdate we get bad behavior when dealing with DST
+        // we really should be storing dates internally as UTC instead of local time... but until that happens we have
+        // to do this.
+        // note this is what we were using before
+        // $date = gmdate('c', strtotime($dataRecord['date']));
+        // w/ DST the date 2015-06-22 00:00:00 server time becomes 2015-06-22T04:00:00+00:00 w/o DST the server time becomes 2015-06-22T00:00:00-04:00
+        $date = new \DateTime($date, new \DateTimeZone(date('P')));
+        $utcDate = $date->format(DATE_ATOM);
+        return $utcDate;
+    }
+
+    public static function createOperationOutcomeSuccess(string $resourceType, int|string $id)
+    {
+        $operation = self::createOperationOutcomeResource('success', 'success');
+        // TODO: if we wanted to put the resource path we would do that here
+        return $operation;
+    }
+
+    public static function createOperationOutcomeResource(
+        $severity_value,
+        $code_value,
+        $details_value = ''
+    ) {
+        $resource = new FHIROperationOutcome();
+        $issue = new FHIROperationOutcomeIssue();
+        $severity = new FHIRIssueSeverity();
+        $severity->setValue($severity_value);
+        $issue->setSeverity($severity);
+        $code = new FHIRIssueType();
+        $code->setValue($code_value);
+        $issue->setCode($code);
+        if ($details_value) {
+            $details = new FHIRCodeableConcept();
+            $details->setText($details_value);
+            $issue->setDetails($details);
+        }
+        $resource->addIssue($issue);
+        return $resource;
+    }
+
+    public static function parseReference(?FHIRReference $reference)
+    {
+        $parsed_reference = [
+            'localResource' => false
+            ,'uuid' => null
+            ,'type' => null
+        ];
+        if (empty($parsed_reference) || empty($reference->getReference())) {
+            return $parsed_reference;
+        }
+
+        $oauthAddress = (new ServerConfig())->getOauthAddress();
+        $oauthHost = parse_url($oauthAddress, PHP_URL_HOST);
+        $parts = parse_url($reference->getReference());
+
+        // if all we have is a path then we skip the host check
+        if (isset($parts['host'])) {
+            $parsed_reference['localResource'] = $parts['host'] == $oauthHost;
+        } else {
+            $parsed_reference['localResource'] = true;
+        }
+        $splitParts = explode("/", $parts['path']);
+        if (count($splitParts) >= 2) {
+            $parsed_reference['uuid'] = array_pop($splitParts);
+            $parsed_reference['type'] = array_pop($splitParts);
+        }
+        return $parsed_reference;
     }
 }

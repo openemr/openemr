@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class FamilyHistory extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -57,3 +56,4 @@ class FamilyHistory extends QDMBaseType
 
     public $_type = 'QDM::FamilyHistory';
 }
+

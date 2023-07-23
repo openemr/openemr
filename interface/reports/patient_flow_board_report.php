@@ -16,7 +16,7 @@
  */
 
 require_once("../globals.php");
-require_once("../../library/patient.inc");
+require_once("../../library/patient.inc.php");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/appointments.inc.php";
 require_once("$srcdir/patient_tracker.inc.php");
@@ -525,7 +525,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
                     <?php
                 # get the verbiage for the status code
-                    $track_stat = $tracker_elements[$i][status];
+                    $track_stat = $tracker_elements[$i]['status'];
                 # Get Interval alert time and status color.
                     $colorevents = (collectApptStatusSettings($track_stat));
                     $alert_time = '0';
@@ -546,22 +546,22 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                     <?php
                     if (is_checkin($track_stat) || is_checkout($track_stat)) {  #bold the check in and check out times in this block.
                         ?>
-             <td class="detail"><b>&nbsp;<?php echo text(substr($tracker_elements[$i][start_datetime], 11)); ?></b></td>
+             <td class="detail"><b>&nbsp;<?php echo text(substr($tracker_elements[$i]['start_datetime'], 11)); ?></b></td>
                         <?php
                     } else { ?>
-            <td class="detail">&nbsp;<?php echo text(substr($tracker_elements[$i][start_datetime], 11)); ?></td>
+            <td class="detail">&nbsp;<?php echo text(substr($tracker_elements[$i]['start_datetime'], 11)); ?></td>
                         <?php # figure out the next time of the status
                     }
 
                     $k = $i + 1;
                     if ($k < $last_seq) {
                     # get the start time of the next status to determine the total time in this status
-                        $start_tracker_time = $tracker_elements[$i][start_datetime];
-                        $next_tracker_time = $tracker_elements[$k][start_datetime];
+                        $start_tracker_time = $tracker_elements[$i]['start_datetime'];
+                        $next_tracker_time = $tracker_elements[$k]['start_datetime'];
                     } else {
                     # since this is the last status the start and end are equal
-                        $start_tracker_time = $tracker_elements[$i][start_datetime];
-                        $next_tracker_time = $tracker_elements[$i][start_datetime];
+                        $start_tracker_time = $tracker_elements[$i]['start_datetime'];
+                        $next_tracker_time = $tracker_elements[$i]['start_datetime'];
                     }
 
                     if (is_checkin($track_stat) || is_checkout($track_stat)) {  #bold the check in and check out times in this block. ?>

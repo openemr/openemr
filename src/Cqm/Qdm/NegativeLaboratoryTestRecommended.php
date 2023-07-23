@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class NegativeLaboratoryTestRecommended extends LaboratoryTestRecommended
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class NegativeLaboratoryTestRecommended extends LaboratoryTestRecommended
 
     public $_type = 'QDM::NegativeLaboratoryTestRecommended';
 }
+

@@ -15,11 +15,22 @@ OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
 $is_portal = isset($_SESSION['portal_init']) ? 1 : $_GET['isPortal'];
 if (empty($is_portal)) {
-    session_destroy();
-    require_once(__DIR__ . '/../../../interface/globals.php');
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
 } else {
-    require_once __DIR__ . "/../../verify_session.php";
+    //landing page definition -- where to go if something goes wrong
+    $landingpage = "index.php?site=" . urlencode($_SESSION['site_id'] ?? null);
+    //
+    if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
+        $pid = $_SESSION['pid'];
+    } else {
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        header('Location: ' . $landingpage . '&w');
+        exit;
+    }
+    $ignoreAuth_onsite_portal = true;
 }
+
+require_once(__DIR__ . '/../../../interface/globals.php');
 
 $aud = "admin-signature";
 $cuser = attr($_SESSION['authUserID'] ?? "-patient-");
@@ -54,7 +65,7 @@ if ($is_portal) {
 // short & sweet dynamic modal
 $modal = <<<MODAL
 $vars
-<div id='openSignModal' class='modal fade' role='document' tabindex='-1'>
+<div id='openSignModal' class='modal fade' role='dialog' tabindex='-1'>
     <div class='modal-dialog modal-xl'>
         <div class='modal-content signature-pad'>
             <div class='modal-body signature-pad-body'><span class='sigNav'><label style='display: none;'>
@@ -68,7 +79,6 @@ $vars
                         <div class='btn-group signature-pad-actions bg-light'>
                                 <button type='button' class='btn btn-secondary btn-sm clear' data-action='clear'>$msg5</button>
                                 <button type='button' class='btn btn-secondary btn-sm' data-action='place' data-type='$aud' id='signatureModal'>$msg1</button>
-                                <button type='button' class='btn btn-secondary btn-sm send' data-action='send_signature' style='display: none'>$msg6</button>
                                 <button type='button' class='btn btn-danger btn-sm' data-dismiss='modal'>$msg2</button>
                                 <button type='button' class='btn btn-success btn-sm save' data-action='save_signature'>$msg6</button>
                                 <span><h6 id='labelName'></h6></span>

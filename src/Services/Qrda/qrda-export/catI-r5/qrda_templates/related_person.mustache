@@ -1,0 +1,18 @@
+<entry>
+  <observation classCode="OBS" moodCode="EVN">
+    <!-- Related Person -->
+    <templateId root="2.16.840.1.113883.10.20.24.3.170" extension="2019-12-01"/>
+    <id root="1.3.6.1.4.1.115" extension="{{object_id}}"/>
+    <code code="444018008" codeSystem="2.16.840.1.113883.6.96" displayName="Person with characteristic related to subject of record"/>
+    <!-- QDM Attribute: Code -->
+    {{> qrda_templates/template_partials/_data_element_codes_as_values}}
+    {{#identifier}}
+    <participant typeCode="PRF">
+      <participantRole classCode="PAT">
+        <!-- QDM Attribute: LinkedPatientId -->
+        <id root="{{{namingSystem}}}" extension="{{{value}}}"/>
+      </participantRole>
+    </participant>
+    {{/identifier}}
+  </observation>
+</entry>

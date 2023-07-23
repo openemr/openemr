@@ -1,10 +1,11 @@
 <?php
 
 /**
- * Document - This class is the logical representation of a physical file on some system somewhere that can be referenced with a URL
- * of some type. This URL is not necessarily a web url, it could be a file URL or reference to a BLOB in a db.
- * It is implicit that a document can have other related tables to it at least a one document to many notes which join on a documents
- * id and categories which do the same.
+ * Document - This class is the logical representation of a physical file on some system somewhere
+ * that can be referenced with a URL of some type. This URL is not necessarily a web url,
+ * it could be a file URL or reference to a BLOB in a db.
+ * It is implicit that a document can have other related tables to it at least a one document to many notes
+ *  which join on a documents id and categories which do the same.
  *
  * @package openemr
  * @link      http://www.open-emr.org
@@ -16,7 +17,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../pnotes.inc");
+require_once(__DIR__ . "/../pnotes.inc.php");
 require_once(__DIR__ . "/../gprelations.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
@@ -26,30 +27,32 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 
 class Document extends ORDataObject
 {
+    public const TABLE_NAME = "documents";
+
     /**
      * Use the native filesystem to store files at
      */
-    const STORAGE_METHOD_FILESYSTEM = 0;
+    public const STORAGE_METHOD_FILESYSTEM = 0;
 
     /**
      * Use CouchDb to store files at
      */
-    const STORAGE_METHOD_COUCHDB = 1;
+    public const STORAGE_METHOD_COUCHDB = 1;
 
     /**
      * Flag that the encryption is on.
      */
-    const ENCRYPTED_ON = 1;
+    public const ENCRYPTED_ON = 1;
 
     /**
      * Flag the encryption is off.
      */
-    const ENCRYPTED_OFF = 0;
+    public const ENCRYPTED_OFF = 0;
 
     /**
      * Date format for the expires field
      */
-    const EXPIRES_DATE_FORMAT = 'Y-m-d H:i:s';
+    public const EXPIRES_DATE_FORMAT = 'Y-m-d H:i:s';
 
     /*
     *   Database unique identifier
@@ -58,7 +61,7 @@ class Document extends ORDataObject
     public $id;
 
     /**
-     * @var Unique User Identifier that is for both external reference to this entity and for future offline use.
+     * @var string Binary of Unique User Identifier that is for both external reference to this entity and for future offline use.
      */
     public $uuid;
 
@@ -133,7 +136,8 @@ class Document extends ORDataObject
     public $mimetype;
 
     /*
-    *   If the document is a multi-page format like tiff and has at least 1 page this will be 1 or greater, if a non-multi-page format this should be null or empty
+    *   If the document is a multi-page format like tiff and has at least 1 page this will be 1 or greater,
+    *   if a non-multi-page format this should be null or empty
     *   @public int
     */
     public $pages;
@@ -146,7 +150,8 @@ class Document extends ORDataObject
     public $owner;
 
     /*
-    *   Timestamp of the last time the document was changed and persisted, auto maintained by DB, manually change at your own peril
+    *   Timestamp of the last time the document was changed and persisted, auto maintained by DB,
+    *   manually change at your own peril
     *   @public int
     */
     public $revision;
@@ -220,9 +225,10 @@ class Document extends ORDataObject
 
         //shore up the most basic ORDataObject bits
         $this->id = $id;
-        $this->_table = "documents";
+        $this->_table = self::TABLE_NAME;
 
-        //load the enum type from the db using the parent helper function, this uses psuedo-class variables so it is really cheap
+        //load the enum type from the db using the parent helper function,
+        //this uses psuedo-class variables so it is really cheap
         $this->type_array = $this->_load_enum("type");
 
         $this->type = $this->type_array[0] ?? '';
@@ -253,12 +259,12 @@ class Document extends ORDataObject
             return [];
         }
 
-        $categories = "Select `id`, `name`, `value`, `parent`, `lft`, `rght`, `aco_spec` FROM `categories` "
+        $categories = "Select `id`, `name`, `value`, `parent`, `lft`, `rght`, `aco_spec`,`codes` FROM `categories` "
         . "JOIN `categories_to_documents` `ctd` ON `ctd`.`category_id` = `categories`.`id` "
         . "WHERE `ctd`.`document_id` = ? ";
         $resultSet = sqlStatement($categories, [$this->get_id()]);
         $categories = [];
-        while ($category = sqlGetAssoc($resultSet)) {
+        while ($category = sqlFetchArray($resultSet)) {
             $categories[] = $category;
         }
         return $categories;
@@ -277,15 +283,26 @@ class Document extends ORDataObject
         return false;
     }
 
+    public function can_patient_access($pid)
+    {
+        $foreignId = $this->get_foreign_id();
+        // TODO: if any information blocking rule checks were to be applied, they can be done here
+        if (!empty($foreignId) && $foreignId == $pid) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Checks whether the passed in $user can access the document or not.  It checks against all of the access
      * permissions for the categories the document is in.  If there are any categories that the document is tied to
      * that the owner does NOT have access rights to, the request is denied.  If there are no categories tied to the
      * document, default access is granted.
-     * @param int|null $user  The user we are checking.  If no user is provided it checks against the currently logged in user
+     * @param string|null $username The user (username) we are checking.
+     *                              If no user is provided it checks against the currently logged in user
      * @return bool True if the passed in user or current user can access this document, false otherwise.
      */
-    public function can_access($user = null)
+    public function can_access($username = null)
     {
         $categories = $this->get_categories();
 
@@ -296,7 +313,7 @@ class Document extends ORDataObject
 
         // verify that we can access every single category this document is tied to
         foreach ($categories as $category) {
-            if (AclMain::aclCheckAcoSpec($category['aco_spec'], $user) === false) {
+            if (AclMain::aclCheckAcoSpec($category['aco_spec'], $username) === false) {
                 return false;
             }
         }
@@ -342,8 +359,10 @@ class Document extends ORDataObject
 
     /**
      * Convenience function to get an array of many document objects that are linked to a patient
-     * For really large numbers of documents there is a way more efficient way to do this by overwriting the populate method
-     * @param int $foreign_id optional id use to limit array on to a specific relation, otherwise every document object is returned
+     * For really large numbers of documents there is a way more efficient way to do this
+     * by overwriting the populate method
+     * @param int $foreign_id optional id use to limit array on to a specific relation,
+     *                        otherwise every document object is returned
      */
     function documents_factory($foreign_id = "")
     {
@@ -394,7 +413,11 @@ class Document extends ORDataObject
         $sql = "SELECT id FROM " . escape_table_name($d->_table) . " WHERE foreign_reference_table = ? "
         . "AND foreign_reference_id " . $foreign_reference_id_sql;
 
-        (new \OpenEMR\Common\Logging\SystemLogger())->debug("documents_factory_for_foreign_reference", ['sql' => $sql, 'sqlArray' => $sqlArray]);
+        (new \OpenEMR\Common\Logging\SystemLogger())->debug(
+            "documents_factory_for_foreign_reference",
+            ['sql' => $sql,
+            'sqlArray' => $sqlArray]
+        );
 
         $result = $d->_db->Execute($sql, $sqlArray);
 
@@ -404,6 +427,16 @@ class Document extends ORDataObject
         }
 
         return $documents;
+    }
+    public static function getDocumentForUuid($uuid)
+    {
+        $sql = "SELECT id from " . escape_table_name(self::TABLE_NAME) . " WHERE uuid = ?";
+        $id = \OpenEMR\Common\Database\QueryUtils::fetchSingleValue($sql, 'id', [UuidRegistry::uuidToBytes($uuid)]);
+        if (!empty($id)) {
+            return new Document($id);
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -695,6 +728,11 @@ class Document extends ORDataObject
     {
         $this->name = $name;
     }
+
+    /**
+     * Returns the database human readable filename of the document
+     * @return string|null
+     */
     function get_name()
     {
         return $this->name;
@@ -726,7 +764,12 @@ class Document extends ORDataObject
 
     function get_ccr_type($doc_id)
     {
-        $type = sqlQuery("SELECT c.name FROM categories AS c LEFT JOIN categories_to_documents AS ctd ON c.id = ctd.category_id WHERE ctd.document_id = ?", array($doc_id));
+        $type = sqlQuery(
+            "SELECT c.name FROM categories AS c
+             LEFT JOIN categories_to_documents AS ctd ON c.id = ctd.category_id
+             WHERE ctd.document_id = ?",
+            array($doc_id)
+        );
         return $type['name'];
     }
     function set_imported($imported)
@@ -802,11 +845,14 @@ class Document extends ORDataObject
         return $this->couch_revid;
     }
 
-    function set_uuid($uuid)
+    function set_uuid(?string $uuid)
     {
         $this->uuid = $uuid;
     }
 
+    /**
+     * @return string Binary representation of the uuid for this document
+     */
     function get_uuid()
     {
         return $this->uuid;
@@ -953,7 +999,8 @@ class Document extends ORDataObject
                 $path_depth = 2;
                 $patient_id = 0;
             } else {
-                // This is the default action where the patient is used as one level directory structure in documents directory.
+                // This is the default action where the patient is used as one level directory structure
+                // in documents directory.
                 $filepath = $repository . $patient_id . '/';
                 $path_depth = 1;
             }
@@ -981,7 +1028,7 @@ class Document extends ORDataObject
                 $storedData = $data;
             }
             if (file_exists($filepath . $filenameUuid)) {
-                // this should never happend with current uuid mechanism
+                // this should never happen with current uuid mechanism
                 return xl('Failed since file already exists') . " $filepath$filenameUuid";
             }
             if (file_put_contents($filepath . $filenameUuid, $storedData) === false) {
@@ -1000,13 +1047,21 @@ class Document extends ORDataObject
                     // this should never happend with current uuid mechanism
                     return xl('Failed since file already exists') .  $filepath . $this->get_thumb_name($filenameUuid);
                 }
-                if (file_put_contents($filepath . $this->get_thumb_name($filenameUuid), $storedThumbnailData) === false) {
+                if (
+                    file_put_contents(
+                        $filepath . $this->get_thumb_name($filenameUuid),
+                        $storedThumbnailData
+                    ) === false
+                ) {
                     return xl('Failed to create') .  $filepath . $this->get_thumb_name($filenameUuid);
                 }
             }
         }
 
-        if (($GLOBALS['drive_encryption'] && ($this->storagemethod != 1)) || ($GLOBALS['couchdb_encryption'] && ($this->storagemethod == 1))) {
+        if (
+            ($GLOBALS['drive_encryption'] && ($this->storagemethod != 1))
+            || ($GLOBALS['couchdb_encryption'] && ($this->storagemethod == 1))
+        ) {
             $this->set_encrypted(self::ENCRYPTED_ON);
         } else {
             $this->set_encrypted(self::ENCRYPTED_OFF);
@@ -1035,8 +1090,10 @@ class Document extends ORDataObject
      * Retrieves the document data that has been saved to the filesystem or couch db.  If the $force_no_decrypt flag is
      * set to true, it will return the encrypted version of the data for the document.
      * @param bool $force_no_decrypt True if the document should have its data returned encrypted, false otherwise
-     * @throws BadMethodCallException Thrown if the method is called when the document has been marked as deleted or expired
-     * @return false|string Returns false if the data failed to decrypt, or a string if the data decrypts or is unencrypted.
+     * @throws BadMethodCallException Thrown if the method is called when the document has been marked as deleted
+     *                                or expired
+     * @return false|string Returns false if the data failed to decrypt, or a string if the data decrypts
+     *                      or is unencrypted.
      */
     function get_data($force_no_decrypt = false)
     {
@@ -1103,14 +1160,21 @@ class Document extends ORDataObject
     {
         $path = $this->get_filesystem_filepath();
         if (empty($path)) {
-            throw new BadMethodCallException("Attempted to retrieve the content from the filesystem for a file that uses a different storage mechanism");
+            throw new BadMethodCallException(
+                "Attempted to retrieve the content from the filesystem " .
+                "for a file that uses a different storage mechanism"
+            );
         }
         if (!file_exists($path)) {
             throw new RuntimeException("Saved filepath does not exist at location " . $path);
         }
         $data = file_get_contents($path);
         if ($data === false) {
-            throw new RuntimeException("The data could not be retrieved for the file at " . $path . " Check that access rights to the file have been granted");
+            throw new RuntimeException(
+                "The data could not be retrieved for the file at " .
+                $path .
+                " Check that access rights to the file have been granted"
+            );
         }
         return $data;
     }
@@ -1159,4 +1223,5 @@ class Document extends ORDataObject
     {
         return (Note::notes_factory($this->get_id()));
     }
-} // end of Document
+// end of Document
+}

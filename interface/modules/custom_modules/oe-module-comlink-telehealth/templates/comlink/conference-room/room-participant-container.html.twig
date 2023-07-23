@@ -1,0 +1,26 @@
+{#
+ # The html for the javascript ATSlot on the frontend conference room session
+ #
+ # @package openemr
+ # @link      http://www.open-emr.org
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div class="w-100 bg-black participant-container{% if template %} d-none participant-list-template-node{% endif %}">
+    <video class="participant-video w-100" autoplay="true" muted="muted"
+           playsinline="true" preload="none" class="w-100"
+           {% if videoSrc %}
+               src="{{ videoSrc|attr }}"
+           {% endif %}
+    ></video>
+    <button class="video-control video-control-pin btn btn-default bg-dark text-light">
+        <i class="fa fa-map-pin"></i>
+    </button>
+    {# when we have more options for this participant we can show the ellipsis#}
+    <button class="video-control video-control-more btn btn-default bg-dark text-light d-none">
+        <i class="fa fa-ellipsis"></i>
+    </button>
+    <div class="participant-label-bg bg-dark"></div>
+    <span class="participant-label text-light text-right pr-2 pb-2">{{ callerName|default("")|text }}</span>
+</div>

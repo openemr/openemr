@@ -62,12 +62,12 @@ class MainMenuRole extends MenuRole
         }
 
         $this->menuUpdateEntries($menu_parsed);
-        $updatedMenuEvent = $this->dispatcher->dispatch(MenuEvent::MENU_UPDATE, new MenuEvent($menu_parsed));
+        $updatedMenuEvent = $this->dispatcher->dispatch(new MenuEvent($menu_parsed), MenuEvent::MENU_UPDATE);
 
         $menu_restrictions = array();
         $tmp = $updatedMenuEvent->getMenu();
         $this->menuApplyRestrictions($tmp, $menu_restrictions);
-        $updatedRestrictions = $this->dispatcher->dispatch(MenuEvent::MENU_RESTRICT, new MenuEvent($menu_restrictions));
+        $updatedRestrictions = $this->dispatcher->dispatch(new MenuEvent($menu_restrictions), MenuEvent::MENU_RESTRICT);
 
         return $updatedRestrictions->getMenu();
     }
@@ -131,7 +131,7 @@ class MainMenuRole extends MenuRole
         $regrows = getFormsByCategory('1', false);
         foreach ($regrows as $entry) {
             $option_id = $entry['directory'];
-            $title = trim($entry['nickname']);
+            $title = trim($entry['nickname'] ?? '');
             if (empty($title)) {
                 $title = $entry['name'];
             }
@@ -182,7 +182,7 @@ class MainMenuRole extends MenuRole
         $regrows = getFormsByCategory('1', true);
         foreach ($regrows as $entry) {
             $option_id = $entry['directory'];
-            $title = trim($entry['nickname']);
+            $title = trim($entry['nickname'] ?? '');
             if (empty($title)) {
                 $title = $entry['name'];
             }

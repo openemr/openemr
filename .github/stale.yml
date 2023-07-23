@@ -3,10 +3,16 @@
 daysUntilStale: 90
 # Number of days of inactivity before a stale issue is closed
 daysUntilClose: 7
+# Only close triaged issues that lack reproduction / clear next steps
+onlyLabels:
+    - WaitingForInfo
+# Set to true to ignore issues with an assignee (defaults to false)
+exemptAssignees: true
 # Issues with these labels will never be considered stale
 exemptLabels:
   - pinned
   - Security
+  - stalebot-ignore
 # Label to use when marking an issue as stale
 staleLabel: Stale
 # Set to true to ignore issues in a milestone (defaults to false)

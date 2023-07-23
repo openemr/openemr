@@ -13,6 +13,7 @@
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
 require_once(dirname(__FILE__) . "/../clinical_rules.php");
 
+use OpenEMR\ClinicialDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -44,19 +45,31 @@ if (!empty($_POST['execute_report_id'])) {
     $options = array();
     $array_date = array();
 
-    if (($rule_filter == "amc") || ($rule_filter == "amc_2011") || ($rule_filter == "amc_2014")  || ($rule_filter == "amc_2014_stage1") || ($rule_filter == "amc_2014_stage2")) {
+    // all 'amc' reports start with 'amc_', will need to make sure a user can't define their own rule with this pattern
+    if (CertificationReportTypes::isAMCReportType($rule_filter)) {
         // For AMC:
         //   need to make $target_date an array with two elements ('dateBegin' and 'dateTarget')
         //   need to send a manual data entry option (number of labs)
-        $array_date['dateBegin'] = $_POST['date_begin'];
+        $array_date['dateBegin'] = $_POST['date_begin'] ?? null;
         $array_date['dateTarget'] = $target_date;
-        $options = array('labs_manual' => $_POST['labs']);
+        $options = array('labs_manual' => $_POST['labs'] ?? 0);
     } else {
         // For others, use the unmodified target date array and send an empty options array
         $array_date = $target_date;
     }
 
-    test_rules_clinic_batch_method($provider, $rule_filter, $array_date, "report", $plan_filter, $organize_method, $options, $pat_prov_rel, '', $_POST['execute_report_id']);
+    test_rules_clinic_batch_method(
+        $provider,
+        $rule_filter,
+        $array_date,
+        "report",
+        $plan_filter,
+        $organize_method,
+        $options,
+        $pat_prov_rel,
+        '',
+        $_POST['execute_report_id']
+    );
 } else {
     echo "ERROR";
 }

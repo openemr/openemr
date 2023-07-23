@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PatientCharacteristicEthnicity extends QDMBaseType
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -42,3 +41,4 @@ class PatientCharacteristicEthnicity extends QDMBaseType
 
     public $_type = 'QDM::PatientCharacteristicEthnicity';
 }
+

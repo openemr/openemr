@@ -9,7 +9,7 @@
 
 namespace OpenEMR\Events;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Event object template for creating bound filter events

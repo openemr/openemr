@@ -11,7 +11,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2004 Nikolai Vitsyn
  * @copyright Copyright (c) 2008 cfapress <cfapress>
- * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2017-2023 Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -27,7 +27,7 @@ use OpenEMR\Core\Header;
 </head>
 <body class="body_top">
 <?php
-require_once("$srcdir/api.inc");
+require_once("$srcdir/api.inc.php");
 $obj = formFetch("form_ankleinjury", $_GET["id"]);
 ?>
 <form method=post action="<?php echo $rootdir?>/forms/ankleinjury/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">

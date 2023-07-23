@@ -12,7 +12,7 @@
 
 namespace OpenEMR\Events\PatientDocuments;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class PatientDocumentEvent extends Event
 {

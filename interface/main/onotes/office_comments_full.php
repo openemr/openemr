@@ -14,12 +14,13 @@ require_once("../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\ONoteService;
 
 // Control access
 if (!AclMain::aclCheckCore('encounters', 'notes')) {
-    echo xlt('Not Authorized');
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Office Notes")]);
     exit;
 }
 

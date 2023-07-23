@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class DiagnosisComponent extends \OpenEMR\Cqm\Qdm\BaseTypes\Any
 {
-
     /**
      * @property BaseTypes\Code $code
      */
@@ -37,3 +36,4 @@ class DiagnosisComponent extends \OpenEMR\Cqm\Qdm\BaseTypes\Any
 
     public $_type = 'QDM::DiagnosisComponent';
 }
+

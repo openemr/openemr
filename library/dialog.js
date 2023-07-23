@@ -338,8 +338,8 @@ if (typeof alertMsg !== "function") {
         let mHtml = '<div id="alertmsg" class="alert alert-' + type + ' alert-dismissable">' +
             '<button type="button" class="btn btn-link ' + oHidden + '" id="dontShowAgain" data-dismiss="alert">' +
             gotIt + '&nbsp;<i class="fa fa-thumbs-up"></i></button>' +
-            '<h4 class="alert-heading text-center">' + title + '!</h4><hr>' + '<p style="color:#000;">' + message + '</p>' +
-            '<button type="button" class="pull-right btn btn-link" data-dismiss="alert">' + dismiss + '</button><br /></div>';
+            '<h4 class="alert-heading text-center">' + title + '!</h4><hr>' + '<p class="bg-light text-dark">' + message + '</p>' +
+            '<button type="button" id="alertDismissButton" class="pull-right btn btn-link" data-dismiss="alert">' + dismiss + '</button><br /></div>';
         $('#alert_box').append(mHtml);
         $('#alertmsg').on('closed.bs.alert', function () {
             clearTimeout(AlertMsg);
@@ -347,7 +347,13 @@ if (typeof alertMsg !== "function") {
             return false;
         });
         $('#dontShowAgain').on('click', function (e) {
+            clearTimeout(AlertMsg);
+            $('#alert_box').remove();
             persistUserOption(persist, 1);
+        });
+        $('#alertDismissButton').on('click', function (e) {
+            clearTimeout(AlertMsg);
+            $('#alert_box').remove();
         });
         let AlertMsg = setTimeout(function () {
             $('#alertmsg').fadeOut(800, function () {
@@ -510,7 +516,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         onClosed: false,
         allowExternal: false, // allow a dialog window to a URL that is external to the current url
         callBack: false, // use {call: 'functionName, args: args, args} if known or use dlgclose.
-        resolvePromiseOn: '' // this may be useful. values are init, shown, show, confirm, alert and closed which coincide with dialog events.
+        resolvePromiseOn: '' // this may be useful. values are init, shown, show, confirm, alert and close which coincide with dialog events.
     };
 
     if (!opts) {
@@ -546,8 +552,8 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
     winname = (winname === "_blank" || !winname) ? dialogID() : winname;
 
     // for small screens or request width is larger than viewport.
-    if (where.innerWidth <= 768) {
-        width = "modal-xl";
+    if (where.innerWidth <= 1080) {
+        width = "modal-full";
     }
     // Convert dialog size to percentages and/or css class.
     var sizeChoices = ['modal-sm', 'modal-md', 'modal-mlg', 'modal-lg', 'modal-xl', 'modal-full'];
@@ -720,8 +726,10 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                     console.log('Doing callBack:[' + opts.callBack.call + '|' + opts.callBack.args + ']');
                     if (opts.callBack.call === 'reload') {
                         window.location.reload();
-                    } else {
+                    } else if (typeof opts.callBack.call == 'string') {
                         window[opts.callBack.call](opts.callBack.args);
+                    } else {
+                        opts.callBack.call(opts.callBack.args);
                     }
                 }
 

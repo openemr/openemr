@@ -66,24 +66,9 @@ assets:
     pdf-style:
         basePath: '%webroot%/public/themes/'
         link: style_pdf.css
-    patientportal-base:
-        basePath: '%webroot%/public/themes/'
-        link: patientportal-base.css
-        rtl:
-            basePath: '%webroot%/public/themes/'
-            link: rtl_patientportal-base.css
-    patientportal-register:
-        basePath: '%webroot%/public/themes/'
-        link: patientportal-register.css
-        rtl:
-            basePath: '%webroot%/public/themes/'
-            link: rtl_patientportal-register.css
-    patientportal-style:
-        basePath: '%webroot%/public/themes/'
-        link: patientportal-style.css
-        rtl:
-            basePath: '%webroot%/public/themes/'
-            link: rtl_patientportal-style.css
+    portal-theme:
+      alreadyBuilt: true
+      link: '%portal_css_header%'
     knockout:
         basePath: '%assets_static_relative%/knockout/build/output/'
         script: knockout-latest.js
@@ -114,10 +99,6 @@ assets:
     jquery-ui-excite-bike:
         basePath: '%assets_static_relative%/jquery-ui-themes/themes/excite-bike/'
         link: jquery-ui.min.css
-    jquery-gritter:
-        basePath: '%assets_static_relative%/gritter/'
-        link: css/jquery.gritter.css
-        script: js/jquery.gritter.min.js
     datatables:
         basePath: '%assets_static_relative%/datatables.net/js/'
         script: jquery.dataTables.min.js
@@ -247,3 +228,16 @@ assets:
     sortablejs:
       basePath: '%assets_static_relative%/sortablejs/'
       script: Sortable.min.js
+    hotkeys:
+        basePath: '%assets_static_relative%/hotkeys-js/'
+        script:
+            - dist/hotkeys.min.js
+    reason-code-widget:
+        basePath: '%webroot%/library/js/'
+        script: reasonCodeWidget.js
+    erx:
+        basePath: '%webroot%/library/js/'
+        script: erx_javascript.js
+    checkpwd_validation:
+        basePath: '%webroot%/interface/usergroup/'
+        script: checkpwd_validation.js

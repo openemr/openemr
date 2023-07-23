@@ -1,0 +1,1984 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ @package OpenEMR
+  ~ @link      http://www.open-emr.org
+  ~ @author    Ken Chapple <ken@mi-squared.com>
+  ~ @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
+  ~ @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
+  -->
+
+<ClinicalDocument xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="urn:hl7-org:v3" xmlns:voc="urn:hl7-org:v3/voc" xmlns:sdtc="urn:hl7-org:sdtc">
+
+<!-- QRDA Header -->
+<realmCode code="US"/>
+<typeId root="2.16.840.1.113883.1.3" extension="POCD_HD000040"/>
+<!-- US Realm Header Template Id -->
+<templateId root="2.16.840.1.113883.10.20.22.1.1" extension="2015-08-01"/>
+<!-- QRDA templateId -->
+<templateId root="2.16.840.1.113883.10.20.24.1.1" extension="2017-08-01"/>
+<!-- QDM-based QRDA templateId -->
+<templateId root="2.16.840.1.113883.10.20.24.1.2" extension="2019-12-01"/>
+<!-- CMS QRDA templateId -->
+<templateId root="2.16.840.1.113883.10.20.24.1.3" extension="2020-02-01"/>
+<!-- This is the globally unique identifier for this QRDA document -->
+<id root="1b99c930-bb26-0139-606d-0eca209bc306"/>
+<!-- QRDA document type code -->
+<code code="55182-0" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Quality Measure Report"/>
+<title>QRDA Incidence Report</title>
+<!-- This is the document creation time -->
+<effectiveTime value="20210629163641"/>
+<confidentialityCode code="N" codeSystem="2.16.840.1.113883.5.25"/>
+<languageCode code="en"/>
+<!-- reported patient -->
+<recordTarget>
+  <patientRole>
+    <id extension="604f6484dfe4bd03c5e79694" root="1.3.6.1.4.1.115" />
+      <addr use="HP">
+          <streetAddressLine>202 Burlington Rd.</streetAddressLine>
+        <city>Bedford</city>
+        <state>MA</state>
+        <postalCode>01730</postalCode>
+        <country>US</country>
+      </addr>
+      <telecom use="HP" value="tel:555-555-2003"/>
+    <patient>
+        <name>
+          <given>1</given>
+          <family>Pregnancy Adult</family>
+        </name>
+          <administrativeGenderCode code="F" codeSystem="2.16.840.1.113883.5.1" codeSystemName="AdministrativeGender"/>
+        <birthTime value='19961101010000'/>
+          <raceCode code="2106-3" codeSystem="2.16.840.1.113883.6.238" codeSystemName="CDCREC"/>
+          <ethnicGroupCode code="2186-5" codeSystem="2.16.840.1.113883.6.238" codeSystemName="CDCREC"/>
+      <languageCommunication>
+        <templateId root="2.16.840.1.113883.3.88.11.83.2" assigningAuthorityName="HITSP/C83"/>
+        <templateId root="1.3.6.1.4.1.19376.1.5.3.1.2.1" assigningAuthorityName="IHE/PCC"/>
+        <languageCode code="eng"/>
+      </languageCommunication>
+    </patient>
+  </patientRole>
+</recordTarget>
+<author>
+  <time value="20210629163641"/>
+  <assignedAuthor>
+    <!-- NPI -->
+      <id extension="1982671962" root="2.16.840.1.113883.4.6"/>
+    <addr>
+      <streetAddressLine>202 Burlington Rd.</streetAddressLine>
+      <city>Bedford</city>
+      <state>MA</state>
+      <postalCode>01730</postalCode>
+      <country>US</country>
+    </addr>
+    <telecom use="WP" value="tel:(781)271-3000"/>
+    <assignedAuthoringDevice>
+      <manufacturerModelName>Cypress</manufacturerModelName>
+      <softwareName>Cypress</softwareName>
+    </assignedAuthoringDevice>
+  </assignedAuthor>
+</author><custodian>
+  <assignedCustodian>
+    <representedCustodianOrganization>
+      <id extension="800890" root="2.16.840.1.113883.4.336"/>
+      <name>Cypress Test Deck</name>
+      <telecom use="WP" value="tel:(781)271-3000"/>
+      <addr>
+        <streetAddressLine>202 Burlington Rd.</streetAddressLine>
+        <city>Bedford</city>
+        <state>MA</state>
+        <postalCode>01730</postalCode>
+        <country>US</country>
+      </addr>
+    </representedCustodianOrganization>
+  </assignedCustodian>
+</custodian>
+<legalAuthenticator>
+  <time value="20210629163641"/>
+  <signatureCode code="S"/>
+  <assignedEntity>
+    <id root="bc01a5d1-3a34-4286-82cc-43eb04c972a7"/>
+    <addr>
+      <streetAddressLine>202 Burlington Rd.</streetAddressLine>
+      <city>Bedford</city>
+      <state>MA</state>
+      <postalCode>01730</postalCode>
+      <country>US</country>
+    </addr>
+    <telecom use="WP" value="tel:(781)271-3000"/>
+    <assignedPerson>
+      <name>
+        <given>Henry</given>
+        <family>Seven</family>
+      </name>
+    </assignedPerson>
+    <representedOrganization>
+      <id root="2.16.840.1.113883.19.5"/>
+      <name>Cypress</name>
+    </representedOrganization>
+  </assignedEntity>
+</legalAuthenticator><participant typeCode="DEV">
+  <associatedEntity classCode="RGPR">
+    <!-- CMS EHR Certification Number (formerly known as Office of the
+        National Coordinator Certification Number) -->
+    <id extension="123456789" root="2.16.840.1.113883.3.2074.1"/>
+  </associatedEntity>
+</participant><documentationOf typeCode="DOC">
+  <serviceEvent classCode="PCPR">
+    <!-- care provision -->
+    <effectiveTime>
+      <low nullFlavor="UNK"/>
+      <high nullFlavor="UNK"/>
+    </effectiveTime>
+    <!-- You can include multiple performers, each with an NPI, TIN, CCN. -->
+    <performer typeCode="PRF">
+      <time>
+        <low nullFlavor="UNK"/>
+        <high nullFlavor="UNK"/>
+      </time>
+      <assignedEntity>
+        <id extension="1982671962" root="2.16.840.1.113883.4.6"/>
+        <id extension="463132" root="2.16.840.1.113883.4.336"/>
+        <code code="282N00000X" codeSystem="2.16.840.1.113883.6.101" codeSystemName="Healthcare Provider Taxonomy (HIPAA)"/>
+        <addr use="HP">
+          <streetAddressLine>16432 Jayme Viaduct Manor</streetAddressLine>
+          <city>Clairland</city>
+          <state>MS</state>
+          <postalCode>38796</postalCode>
+          <country>US</country>
+        </addr>
+        <assignedPerson>
+          <name>
+            <given>Daryl</given>
+            <family>Carroll</family>
+          </name>
+        </assignedPerson>
+        <representedOrganization>
+          <id extension="695939209" root="2.16.840.1.113883.4.2"/>
+          <addr use="HP">
+            <streetAddressLine>16432 Jayme Viaduct Manor</streetAddressLine>
+            <city>Clairland</city>
+            <state>MS</state>
+            <postalCode>38796</postalCode>
+            <country>US</country>
+          </addr>
+        </representedOrganization>
+      </assignedEntity>
+    </performer>
+  </serviceEvent>
+</documentationOf>
+<component>
+  <structuredBody>
+    <component>
+      <section>
+        <!--
+          *****************************************************************
+          Measure Section
+          *****************************************************************
+        -->
+        <!-- This is the templateId for Measure Section -->
+        <templateId root="2.16.840.1.113883.10.20.24.2.2"/>
+        <!-- This is the templateId for Measure Section QDM -->
+        <templateId root="2.16.840.1.113883.10.20.24.2.3"/>
+        <!-- This is the LOINC code for "Measure document". This stays the same for all measure section required by QRDA standard -->
+        <code code="55186-1" codeSystem="2.16.840.1.113883.6.1"/>
+        <title>Measure Section</title>
+        <text>
+          <table border="1" width="100%">
+            <thead>
+              <tr>
+                <th>eMeasure Title</th>
+                <th>Version specific identifier</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Percentage of patients aged 18 years and older with a diagnosis of diabetic retinopathy who had a dilated macular or fundus exam performed with documented communication to the physician who manages the ongoing care of the patient with diabetes mellitus regarding the findings of the macular or fundus exam at least once within 12 months</td>
+                <td>2C928085-7198-38EE-0171-99A391370450</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patient visits for patients aged 18 years and older seen during the measurement period who were screened for high blood pressure AND a recommended follow-up plan is documented, as indicated, if blood pressure is pre-hypertensive or hypertensive</td>
+                <td>2C928085-7198-38EE-0171-996316C403A1</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of female patients 50 to 64 years of age without select risk factors for osteoporotic fracture who received an order for a dual-energy x-ray absorptiometry (DXA) scan during the measurement period</td>
+                <td>2C928085-7198-38EE-0171-9876B21E0093</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>The percentage of adolescent patients 12 to 17 years of age and adult patients 18 years of age or older with major depression or dysthymia who reached remission 12 months (+/- 60 days) after an index event.</td>
+                <td>2C928085-7198-38EE-0171-9E951AE1097E</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Patients determined as having prostate cancer who are currently starting or undergoing androgen deprivation therapy (ADT), for an anticipated period of 12 months or greater and who receive an initial bone density evaluation. The bone density evaluation must be prior to the start of ADT or within 3 months of the start of ADT.</td>
+                <td>2C928085-7198-38EE-0171-991E164E0307</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Ischemic stroke patients who are prescribed or continuing to take statin medication at hospital discharge</td>
+                <td>2C928082-70F5-3309-0171-07BE80D709DD</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients aged 18 years and older who were screened for tobacco use one or more times within 12 months AND who received tobacco cessation intervention if identified as a tobacco user
+
+Three rates are reported:
+a. Percentage of patients aged 18 years and older who were screened for tobacco use one or more times within 12 months
+b. Percentage of patients aged 18 years and older who were identified as a tobacco user who received tobacco cessation intervention
+c. Percentage of patients aged 18 years and older who were screened for tobacco use one or more times within 12 months AND who received tobacco cessation intervention if identified as a tobacco user</td>
+                <td>2C928085-7198-38EE-0171-99AA63300462</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients aged 18 years and older with a diagnosis of heart failure (HF) with a current or prior left ventricular ejection fraction (LVEF) &lt; 40% who were prescribed beta-blocker therapy either within a 12-month period when seen in the outpatient setting OR at each hospital discharge</td>
+                <td>2C928085-7198-38EE-0171-98972D42011E</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Ischemic stroke patients with atrial fibrillation/flutter who are prescribed or continuing to take anticoagulation therapy at hospital discharge</td>
+                <td>2C928085-7198-38EE-0171-9D0DAD670517</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of women 50-74 years of age who had a mammogram to screen for breast cancer in the 27 months prior to the end of the Measurement Period</td>
+                <td>2C928085-7198-38EE-0171-9D6793EC0657</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients 65 years of age and older who have ever received a pneumococcal vaccine</td>
+                <td>2C928085-7198-38EE-0171-9D81C756070C</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients 18 years of age and older with congestive heart failure who completed initial and follow-up patient-reported functional status assessments</td>
+                <td>2C928085-7198-38EE-0171-9E6FC13D08F2</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>The percentage of episodes for patients 3 years and older with a diagnosis of pharyngitis that resulted in an antibiotic dispensing event and a group A streptococcus (strep) test</td>
+                <td>2C928085-7198-38EE-0171-9E37B26F089A</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients aged 15-65 at the start of the measurement period who were between 15-65 years old when tested for HIV</td>
+                <td>2C928085-7198-38EE-0171-98E8F5530275</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients 18-85 years of age who had a diagnosis of hypertension overlapping the measurement period or the year prior to the measurement period, and whose most recent blood pressure was adequately controlled (&lt;140/90mmHg) during the measurement period</td>
+                <td>2C928085-7198-38EE-0171-9DA6456007AB</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients 65 years of age and older who were screened for future fall risk during the measurement period</td>
+                <td>2C928085-7198-38EE-0171-9D9AA4F50774</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Proportion of inpatient hospitalizations for patients 18 years of age and older prescribed, or continued on, two or more opioids or an opioid and benzodiazepine concurrently at discharge</td>
+                <td>2C928085-7198-38EE-0171-9D7DEDF906E7</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Ischemic stroke patients prescribed or continuing to take antithrombotic therapy at hospital discharge</td>
+                <td>2C928082-70F5-3309-0171-07BCC00C09D0</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients aged 18 years and older with a diagnosis of primary open-angle glaucoma (POAG) who have an optic nerve head evaluation during one or more office visits within 12 months</td>
+                <td>2C928085-7198-38EE-0171-9999E27A042B</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients 18-75 years of age with diabetes who had hemoglobin A1c &gt; 9.0% during the measurement period</td>
+                <td>2C928085-7198-38EE-0171-9D78A0D406B3</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients 18 years of age and older who received an elective primary total knee arthroplasty (TKA) and completed a functional status assessment within 90 days prior to the surgery and in the 270-365 days after the surgery</td>
+                <td>2C928085-7198-38EE-0171-9D4B226A05D0</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients, regardless of age, with a diagnosis of prostate cancer at low (or very low) risk of recurrence receiving interstitial prostate brachytherapy, OR external beam radiotherapy to the prostate, OR radical prostatectomy who did not have a bone scan performed at any time since diagnosis of prostate cancer</td>
+                <td>2C928085-7198-38EE-0171-988AB12A00B7</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients aged 12 years and older screened for depression on the date of the encounter or up to 14 days prior to the date of the encounter using an age-appropriate standardized depression screening tool AND if positive, a follow-up plan is documented on the date of the eligible encounter</td>
+                <td>2C928085-7198-38EE-0171-9989A2CF03D2</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients aged 18 years and older with a diagnosis of coronary artery disease seen within a 12-month period who also have a prior MI or a current or prior LVEF &lt;40% who were prescribed beta-blocker therapy</td>
+                <td>2C928085-7198-38EE-0171-98988F540135</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of women 21-64 years of age who were screened for cervical cancer using either of the following criteria:
+*  Women age 21-64 who had cervical cytology performed within the last 3 years
+*  Women age 30-64 who had cervical human papillomavirus (HPV) testing performed within the last 5 years</td>
+                <td>2C928085-7198-38EE-0171-9D8C44FE0746</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>All patient visits during which a new diagnosis of MDD or a new diagnosis of recurrent MDD was identified for patients aged 18 years and older with a suicide risk assessment completed during the visit</td>
+                <td>2C928085-7198-38EE-0171-98AB3DC7018B</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>This measure assesses the number of patients who received VTE prophylaxis or have documentation why no VTE prophylaxis was given the day of or the day after the initial admission (or transfer) to the Intensive Care Unit (ICU) or surgery end date for surgeries that start the day of or the day after ICU admission (or transfer)</td>
+                <td>2C928085-7198-38EE-0171-98DC136D0236</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients 18 years of age and older who were treated with antidepressant medication, had a diagnosis of major depression, and who remained on an antidepressant medication treatment. Two rates are reported.
+a. Percentage of patients who remained on an antidepressant medication for at least 84 days (12 weeks).
+b. Percentage of patients who remained on an antidepressant medication for at least 180 days (6 months).</td>
+                <td>2C928085-7198-38EE-0171-9D7F304F06EE</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients, regardless of age, with a diagnosis of dementia for whom an assessment of cognition is performed and the results reviewed at least once within a 12-month period</td>
+                <td>2C928085-7198-38EE-0171-98A9D3BF017A</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of children, 6 months - 20 years of age, who have had tooth decay or cavities during the measurement period</td>
+                <td>2C928085-7198-38EE-0171-9D56875005F8</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients 18-75 years of age with diabetes and an active diagnosis of retinopathy overlapping the measurement period who had a retinal or dilated eye exam by an eye care professional during the measurement period or diabetics with no diagnosis of retinopathy overlapping the measurement period who had a retinal or dilated eye exam by an eye care professional during the measurement period or in the 12 months prior to the measurement period</td>
+                <td>2C928085-7198-38EE-0171-9D72A6EC0692</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of cataract surgeries for patients aged 18 and older with a diagnosis of uncomplicated cataract and no significant ocular conditions impacting the visual outcome of surgery and had best-corrected visual acuity of 20/40 or better (distance or near) achieved in the operative eye within 90 days following the cataract surgery</td>
+                <td>2C928085-7198-38EE-0171-999D514F043E</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients with an office visit within the measurement period and with a new diagnosis of clinically significant Benign Prostatic Hyperplasia who have International Prostate Symptoms Score (IPSS) or American Urological Association (AUA) Symptom Index (SI) documented at time of diagnosis and again 6-12 months later with an improvement of 3 points</td>
+                <td>2C928085-7198-38EE-0171-996032910386</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>PC-05 Exclusive breast milk feeding during the newborn&#39;s entire hospitalization.
+
+The measure is reported as an overall rate which includes all newborns that were exclusively fed breast milk during the entire hospitalization.</td>
+                <td>2C928085-7198-38EE-0171-98E19CDF024A</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of children 2 years of age who had four diphtheria, tetanus and acellular pertussis (DTaP); three polio (IPV), one measles, mumps and rubella (MMR); three or four H influenza type B (Hib); three hepatitis B (Hep B); one chicken pox (VZV); four pneumococcal conjugate (PCV); one hepatitis A (Hep A); two or three rotavirus (RV); and two influenza (flu) vaccines by their second birthday</td>
+                <td>2C928085-7198-38EE-0171-9D6E75580676</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients 65 years of age and older who were ordered at least two of the same high-risk medications.</td>
+                <td>2C928085-7198-38EE-0171-9D752D1A069E</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients 13 years of age and older with a new episode of alcohol or other drug abuse or (AOD) dependence who received the following. Two rates are reported.
+
+a. Percentage of patients who initiated treatment including either an intervention or medication for the treatment of AOD abuse or dependence within 14 days of the diagnosis
+b. Percentage of patients who engaged in ongoing treatment including two additional interventions or a medication for the treatment of AOD abuse or dependence within 34 days of the initiation visit. For patients who initiated treatment with a medication, at least one of the two engagement events must be a treatment intervention.</td>
+                <td>2C928085-7198-38EE-0171-9D81B6570705</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>This measure assesses the number of patients who received VTE prophylaxis or have documentation why no VTE prophylaxis was given the day of or the day after hospital admission or surgery end date for surgeries that start the day of or the day after hospital admission</td>
+                <td>2C928085-7198-38EE-0171-98D769C40223</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients aged 18 years and older with a diagnosis of heart failure (HF) with a current or prior left ventricular ejection fraction (LVEF) &lt; 40% who were prescribed ACE inhibitor or ARB or ARNI therapy either within a 12-month period when seen in the outpatient setting OR at each hospital discharge</td>
+                <td>2C928085-7198-38EE-0171-9895226D00FE</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of episodes for patients 3 months of age and older with a diagnosis of upper respiratory infection (URI) that did not result in an antibiotic dispensing event.</td>
+                <td>2C928085-7198-38EE-0171-9D9305330758</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Median time (in minutes) from admit decision time to time of departure from the emergency department for emergency department patients admitted to inpatient status</td>
+                <td>2C928082-70F5-3309-0170-F874334F0382</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patient visits for those patients aged 6 through 17 years with a diagnosis of major depressive disorder with an assessment for suicide risk</td>
+                <td>2C928085-7198-38EE-0171-98ABF9C0019D</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of women 16-24 years of age who were identified as sexually active and who had at least one test for chlamydia during the measurement period</td>
+                <td>2C928085-7198-38EE-0171-9D4E202E05E3</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of children, 6 months - 20 years of age, who received a fluoride varnish application during the measurement period</td>
+                <td>2C928085-7198-38EE-0171-9D602FC3061A</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>This logic is intended to extract electronic clinical data. This is not an electronic clinical quality measure and this logic will not produce measure results. Instead, it will produce a file containing the data that CMS will link with administrative claims to risk adjust the Hybrid HWR outcome measure. It is designed to extract the first resulted set of vital signs and basic laboratory results obtained from encounters for adult Medicare Fee-For-Service patients admitted to acute care short stay hospitals.</td>
+                <td>2C928085-7198-38EE-0171-9D44015105A3</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients with referrals, regardless of age, for which the referring provider receives a report from the provider to whom the patient was referred</td>
+                <td>2C928085-7198-38EE-0171-9983F7B003C1</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of adults 50-75 years of age who had appropriate screening for colorectal cancer</td>
+                <td>2C928085-7198-38EE-0171-9D6E026B066B</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>The percentage of patients 18-75 years of age with diabetes who had a nephropathy screening test or evidence of nephropathy during the measurement period</td>
+                <td>2C928085-7198-38EE-0171-9D7C32A106D4</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of visits for patients aged 18 years and older for which the eligible professional or eligible clinician attests to documenting a list of current medications using all immediate resources available on the date of the encounter</td>
+                <td>2C928085-7198-38EE-0171-999107E803FD</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients aged 18 years and older with a BMI documented during the current encounter or within the previous twelve months AND who had a follow-up plan documented if most recent BMI was outside of normal parameters</td>
+                <td>2C928085-7198-38EE-0171-9995E1F90412</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients 3-17 years of age who had an outpatient visit with a Primary Care Physician (PCP) or Obstetrician/Gynecologist (OB/GYN) and who had evidence of the following during the measurement period. Three rates are reported.
+
+ - Percentage of patients with height, weight, and body mass index (BMI) percentile documentation
+ - Percentage of patients with counseling for nutrition
+ - Percentage of patients with counseling for physical activity</td>
+                <td>2C928085-7198-38EE-0171-9DA0C2CD078A</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients 18 years of age and older who received an elective primary total hip arthroplasty (THA) and completed a functional status assessment within 90 days prior to the surgery and in the 270-365 days after the surgery</td>
+                <td>2C928085-7198-38EE-0171-9D3BA3B30572</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patients aged 6 months and older seen for a visit between October 1 and March 31 who received an influenza immunization OR who reported previous receipt of an influenza immunization</td>
+                <td>2C928085-7198-38EE-0171-98A8EA4D0169</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of patient visits, regardless of patient age, with a diagnosis of cancer currently receiving chemotherapy or radiation therapy in which pain intensity is quantified</td>
+                <td>2C928085-7198-38EE-0171-988D211D00D6</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of the following patients - all considered at high risk of cardiovascular events - who were prescribed or were on statin therapy during the measurement period:
+*Adults aged &gt;= 21 years who were previously diagnosed with or currently have an active diagnosis of clinical atherosclerotic cardiovascular disease (ASCVD); OR
+*Adults aged &gt;= 21 years who have ever had a fasting or direct low-density lipoprotein cholesterol (LDL-C) level &gt;= 190 mg/dL or were previously diagnosed with or currently have an active diagnosis of familial or pure hypercholesterolemia; OR
+*Adults aged 40-75 years with a diagnosis of diabetes with a fasting or direct LDL-C level of 70-189 mg/dL</td>
+                <td>2C928085-7198-38EE-0171-989A534A0146</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Percentage of children 6-12 years of age and newly dispensed a medication for attention-deficit/hyperactivity disorder (ADHD) who had appropriate follow-up care.  Two rates are reported.
+a. Percentage of children who had one follow-up visit with a practitioner with prescribing authority during the 30-Day Initiation Phase.
+b. Percentage of children who remained on ADHD medication for at least 210 days and who, in addition to the visit in the Initiation Phase, had at least two additional follow-up visits with a practitioner within 270 days (9 months) after the Initiation Phase ended.</td>
+                <td>2C928085-7198-38EE-0171-9DAB7A4B07C4</td>
+                <td/>
+              </tr>
+              <tr>
+                <td>Ischemic stroke patients administered antithrombotic therapy by the end of hospital day 2</td>
+                <td>2C928082-70F5-3309-0171-07BA385809C2</td>
+                <td/>
+              </tr>
+            </tbody>
+          </table>
+        </text>
+        <!-- 1..* Organizers, each containing a reference to an eMeasure -->
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c09f7c0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-99A391370450" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients aged 18 years and older with a diagnosis of diabetic retinopathy who had a dilated macular or fundus exam performed with documented communication to the physician who manages the ongoing care of the patient with diabetes mellitus regarding the findings of the macular or fundus exam at least once within 12 months</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="53D6D7C3-43FB-4D24-8099-17E74C022C05"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c09f9d0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-996316C403A1" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patient visits for patients aged 18 years and older seen during the measurement period who were screened for high blood pressure AND a recommended follow-up plan is documented, as indicated, if blood pressure is pre-hypertensive or hypertensive</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="9A033A94-3D9B-11E1-8634-00237D5BF174"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c09fa60-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9876B21E0093" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of female patients 50 to 64 years of age without select risk factors for osteoporotic fracture who received an order for a dual-energy x-ray absorptiometry (DXA) scan during the measurement period</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="A3CE125D-C238-42CE-862E-DBA0055DFC66"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c09faf0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9E951AE1097E" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>The percentage of adolescent patients 12 to 17 years of age and adult patients 18 years of age or older with major depression or dysthymia who reached remission 12 months (+/- 60 days) after an index event.</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="8455CD3E-DBB9-4E0C-8084-3ECE4068FE94"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c09fb70-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-991E164E0307" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Patients determined as having prostate cancer who are currently starting or undergoing androgen deprivation therapy (ADT), for an anticipated period of 12 months or greater and who receive an initial bone density evaluation. The bone density evaluation must be prior to the start of ADT or within 3 months of the start of ADT.</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="977B302E-CDF3-4BA2-8020-5E099D93AD18"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c09fbf0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928082-70F5-3309-0171-07BE80D709DD" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Ischemic stroke patients who are prescribed or continuing to take statin medication at hospital discharge</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="1F503318-BB8D-4B91-AF63-223AE0A2328E"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c09fc60-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-99AA63300462" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients aged 18 years and older who were screened for tobacco use one or more times within 12 months AND who received tobacco cessation intervention if identified as a tobacco user
+
+Three rates are reported:
+a. Percentage of patients aged 18 years and older who were screened for tobacco use one or more times within 12 months
+b. Percentage of patients aged 18 years and older who were identified as a tobacco user who received tobacco cessation intervention
+c. Percentage of patients aged 18 years and older who were screened for tobacco use one or more times within 12 months AND who received tobacco cessation intervention if identified as a tobacco user</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="E35791DF-5B25-41BB-B260-673337BC44A8"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c09fcf0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-98972D42011E" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients aged 18 years and older with a diagnosis of heart failure (HF) with a current or prior left ventricular ejection fraction (LVEF) &lt; 40% who were prescribed beta-blocker therapy either within a 12-month period when seen in the outpatient setting OR at each hospital discharge</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="8439F671-2932-4D4C-88CA-EA5FAEACC89A"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c09fd70-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9D0DAD670517" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Ischemic stroke patients with atrial fibrillation/flutter who are prescribed or continuing to take anticoagulation therapy at hospital discharge</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="03876D69-085B-415C-AE9D-9924171040C2"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c09fe30-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9D6793EC0657" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of women 50-74 years of age who had a mammogram to screen for breast cancer in the 27 months prior to the end of the Measurement Period</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="19783C1B-4FD1-46C1-8A96-A2F192B97EE0"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c09fea0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9D81C756070C" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients 65 years of age and older who have ever received a pneumococcal vaccine</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="59657B9B-01BF-4979-A090-8534DA1D0516"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c09ff10-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9E6FC13D08F2" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients 18 years of age and older with congestive heart failure who completed initial and follow-up patient-reported functional status assessments</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="BB9B8EF7-0354-40E0-BEC7-D6891B7DF519"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c09ff80-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9E37B26F089A" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>The percentage of episodes for patients 3 years and older with a diagnosis of pharyngitis that resulted in an antibiotic dispensing event and a group A streptococcus (strep) test</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="BEB1C33C-2549-4E7F-9567-05ED38448464"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0000-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-98E8F5530275" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients aged 15-65 at the start of the measurement period who were between 15-65 years old when tested for HIV</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="ED78899D-2375-4D68-AA63-58E1734F5694"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0070-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9DA6456007AB" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients 18-85 years of age who had a diagnosis of hypertension overlapping the measurement period or the year prior to the measurement period, and whose most recent blood pressure was adequately controlled (&lt;140/90mmHg) during the measurement period</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="ABDC37CC-BAC6-4156-9B91-D1BE2C8B7268"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a00f0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9D9AA4F50774" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients 65 years of age and older who were screened for future fall risk during the measurement period</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="BC5B4A57-B964-4399-9D40-667C896F31EA"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0150-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9D7DEDF906E7" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Proportion of inpatient hospitalizations for patients 18 years of age and older prescribed, or continued on, two or more opioids or an opioid and benzodiazepine concurrently at discharge</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="33B40C00-909A-4490-8093-999FBCDC3480"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a01d0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928082-70F5-3309-0171-07BCC00C09D0" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Ischemic stroke patients prescribed or continuing to take antithrombotic therapy at hospital discharge</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="42BF391F-38A3-4C0F-9ECE-DCD47E9609D9"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0280-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9999E27A042B" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients aged 18 years and older with a diagnosis of primary open-angle glaucoma (POAG) who have an optic nerve head evaluation during one or more office visits within 12 months</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="DB9D9F09-6B6A-4749-A8B2-8C1FDB018823"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0300-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9D78A0D406B3" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients 18-75 years of age with diabetes who had hemoglobin A1c &gt; 9.0% during the measurement period</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="F2986519-5A4E-4149-A8F2-AF0A1DC7F6BC"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0370-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9D4B226A05D0" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients 18 years of age and older who received an elective primary total knee arthroplasty (TKA) and completed a functional status assessment within 90 days prior to the surgery and in the 270-365 days after the surgery</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="BE8D9655-1194-46EF-B43E-4B1D0C36AB71"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a03f0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-988AB12A00B7" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients, regardless of age, with a diagnosis of prostate cancer at low (or very low) risk of recurrence receiving interstitial prostate brachytherapy, OR external beam radiotherapy to the prostate, OR radical prostatectomy who did not have a bone scan performed at any time since diagnosis of prostate cancer</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="1635C14D-E612-4FA6-96CD-285361AA7F7B"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0460-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9989A2CF03D2" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients aged 12 years and older screened for depression on the date of the encounter or up to 14 days prior to the date of the encounter using an age-appropriate standardized depression screening tool AND if positive, a follow-up plan is documented on the date of the eligible encounter</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="9A031E24-3D9B-11E1-8634-00237D5BF174"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a04e0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-98988F540135" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients aged 18 years and older with a diagnosis of coronary artery disease seen within a 12-month period who also have a prior MI or a current or prior LVEF &lt;40% who were prescribed beta-blocker therapy</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="80744AE2-DE81-4B16-A71D-69522EB865C5"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0550-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9D8C44FE0746" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of women 21-64 years of age who were screened for cervical cancer using either of the following criteria:
+*  Women age 21-64 who had cervical cytology performed within the last 3 years
+*  Women age 30-64 who had cervical human papillomavirus (HPV) testing performed within the last 5 years</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="42E7E489-790F-427A-A1A6-D6E807F65A6D"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a05c0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-98AB3DC7018B" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>All patient visits during which a new diagnosis of MDD or a new diagnosis of recurrent MDD was identified for patients aged 18 years and older with a suicide risk assessment completed during the visit</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="60176FBF-BFDC-4892-9C9E-604F206553C8"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0680-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-98DC136D0236" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>This measure assesses the number of patients who received VTE prophylaxis or have documentation why no VTE prophylaxis was given the day of or the day after the initial admission (or transfer) to the Intensive Care Unit (ICU) or surgery end date for surgeries that start the day of or the day after ICU admission (or transfer)</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="FA91BA68-1E66-4A23-8EB2-BAA8E6DF2F2F"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a06f0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9D7F304F06EE" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients 18 years of age and older who were treated with antidepressant medication, had a diagnosis of major depression, and who remained on an antidepressant medication treatment. Two rates are reported.
+a. Percentage of patients who remained on an antidepressant medication for at least 84 days (12 weeks).
+b. Percentage of patients who remained on an antidepressant medication for at least 180 days (6 months).</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="8924F2B3-EC06-4650-B634-D70A53DEE577"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0770-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-98A9D3BF017A" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients, regardless of age, with a diagnosis of dementia for whom an assessment of cognition is performed and the results reviewed at least once within a 12-month period</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="7C443B9B-1AD1-4467-B527-DEFC445701FF"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a07f0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9D56875005F8" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of children, 6 months - 20 years of age, who have had tooth decay or cavities during the measurement period</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="61947125-4376-4A7B-AB7A-AC2BE9BD9138"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0860-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9D72A6EC0692" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients 18-75 years of age with diabetes and an active diagnosis of retinopathy overlapping the measurement period who had a retinal or dilated eye exam by an eye care professional during the measurement period or diabetics with no diagnosis of retinopathy overlapping the measurement period who had a retinal or dilated eye exam by an eye care professional during the measurement period or in the 12 months prior to the measurement period</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="D90BDAB4-B9D2-4329-9993-5C34E2C0DC66"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a08e0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-999D514F043E" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of cataract surgeries for patients aged 18 and older with a diagnosis of uncomplicated cataract and no significant ocular conditions impacting the visual outcome of surgery and had best-corrected visual acuity of 20/40 or better (distance or near) achieved in the operative eye within 90 days following the cataract surgery</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="39E0424A-1727-4629-89E2-C46C2FBB3F5F"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0950-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-996032910386" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients with an office visit within the measurement period and with a new diagnosis of clinically significant Benign Prostatic Hyperplasia who have International Prostate Symptoms Score (IPSS) or American Urological Association (AUA) Symptom Index (SI) documented at time of diagnosis and again 6-12 months later with an improvement of 3 points</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="1C05C6C0-8099-4270-83CE-292CF6E35C51"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a09d0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-98E19CDF024A" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>PC-05 Exclusive breast milk feeding during the newborn&#39;s entire hospitalization.
+
+The measure is reported as an overall rate which includes all newborns that were exclusively fed breast milk during the entire hospitalization.</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="7D374C6A-3821-4333-A1BC-4531005D77B8"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0a40-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9D6E75580676" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of children 2 years of age who had four diphtheria, tetanus and acellular pertussis (DTaP); three polio (IPV), one measles, mumps and rubella (MMR); three or four H influenza type B (Hib); three hepatitis B (Hep B); one chicken pox (VZV); four pneumococcal conjugate (PCV); one hepatitis A (Hep A); two or three rotavirus (RV); and two influenza (flu) vaccines by their second birthday</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="B2802B7A-3580-4BE8-9458-921AEA62B78C"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0af0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9D752D1A069E" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients 65 years of age and older who were ordered at least two of the same high-risk medications.</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="A3837FF8-1ABC-4BA9-800E-FD4E7953ADBD"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0b60-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9D81B6570705" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients 13 years of age and older with a new episode of alcohol or other drug abuse or (AOD) dependence who received the following. Two rates are reported.
+
+a. Percentage of patients who initiated treatment including either an intervention or medication for the treatment of AOD abuse or dependence within 14 days of the diagnosis
+b. Percentage of patients who engaged in ongoing treatment including two additional interventions or a medication for the treatment of AOD abuse or dependence within 34 days of the initiation visit. For patients who initiated treatment with a medication, at least one of the two engagement events must be a treatment intervention.</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="C3657D72-21B4-4675-820A-86C7FE293BF5"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0bd0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-98D769C40223" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>This measure assesses the number of patients who received VTE prophylaxis or have documentation why no VTE prophylaxis was given the day of or the day after hospital admission or surgery end date for surgeries that start the day of or the day after hospital admission</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="38B0B5EC-0F63-466F-8FE3-2CD20DDD1622"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0c50-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9895226D00FE" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients aged 18 years and older with a diagnosis of heart failure (HF) with a current or prior left ventricular ejection fraction (LVEF) &lt; 40% who were prescribed ACE inhibitor or ARB or ARNI therapy either within a 12-month period when seen in the outpatient setting OR at each hospital discharge</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="430FFC53-4122-4421-88CC-2EDD8117BB3C"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0cc0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9D9305330758" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of episodes for patients 3 months of age and older with a diagnosis of upper respiratory infection (URI) that did not result in an antibiotic dispensing event.</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="E455FAC0-F2CB-4074-A351-1E68A90FB7CF"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0d30-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928082-70F5-3309-0170-F874334F0382" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Median time (in minutes) from admit decision time to time of departure from the emergency department for emergency department patients admitted to inpatient status</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="979F21BD-3F93-4CDD-8273-B23DFE9C0513"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0da0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-98ABF9C0019D" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patient visits for those patients aged 6 through 17 years with a diagnosis of major depressive disorder with an assessment for suicide risk</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="848D09DE-7E6B-43C4-BEDD-5A2957CCFFE3"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0e60-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9D4E202E05E3" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of women 16-24 years of age who were identified as sexually active and who had at least one test for chlamydia during the measurement period</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="C9930664-BE3D-4FFE-AE4A-5CF4933ECB89"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0ec0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9D602FC3061A" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of children, 6 months - 20 years of age, who received a fluoride varnish application during the measurement period</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="0B81B6BA-3B30-41BF-A2F3-95BDC9F558F2"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0f30-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9D44015105A3" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>This logic is intended to extract electronic clinical data. This is not an electronic clinical quality measure and this logic will not produce measure results. Instead, it will produce a file containing the data that CMS will link with administrative claims to risk adjust the Hybrid HWR outcome measure. It is designed to extract the first resulted set of vital signs and basic laboratory results obtained from encounters for adult Medicare Fee-For-Service patients admitted to acute care short stay hospitals.</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="FA75DE85-A934-45D7-A2F7-C700A756078B"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a0fb0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9983F7B003C1" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients with referrals, regardless of age, for which the referring provider receives a report from the provider to whom the patient was referred</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="F58FC0D6-EDF5-416A-8D29-79AFBFD24DEA"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a1020-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9D6E026B066B" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of adults 50-75 years of age who had appropriate screening for colorectal cancer</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="AA2A4BBC-864F-45EE-B17A-7EBCC62E6AAC"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a1090-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9D7C32A106D4" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>The percentage of patients 18-75 years of age with diabetes who had a nephropathy screening test or evidence of nephropathy during the measurement period</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="7B2A9277-43DA-4D99-9BEE-6AC271A07747"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a1100-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-999107E803FD" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of visits for patients aged 18 years and older for which the eligible professional or eligible clinician attests to documenting a list of current medications using all immediate resources available on the date of the encounter</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="9A032D9C-3D9B-11E1-8634-00237D5BF174"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a1170-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9995E1F90412" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients aged 18 years and older with a BMI documented during the current encounter or within the previous twelve months AND who had a follow-up plan documented if most recent BMI was outside of normal parameters</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="9A031BB8-3D9B-11E1-8634-00237D5BF174"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a11e0-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9DA0C2CD078A" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients 3-17 years of age who had an outpatient visit with a Primary Care Physician (PCP) or Obstetrician/Gynecologist (OB/GYN) and who had evidence of the following during the measurement period. Three rates are reported.
+
+ - Percentage of patients with height, weight, and body mass index (BMI) percentile documentation
+ - Percentage of patients with counseling for nutrition
+ - Percentage of patients with counseling for physical activity</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="0B63F730-25D6-4248-B11F-8C09C66A04EB"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a1260-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9D3BA3B30572" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients 18 years of age and older who received an elective primary total hip arthroplasty (THA) and completed a functional status assessment within 90 days prior to the surgery and in the 270-365 days after the surgery</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="2F291003-3F2F-48AF-BEF9-E5AACB95AC3E"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a1320-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-98A8EA4D0169" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patients aged 6 months and older seen for a visit between October 1 and March 31 who received an influenza immunization OR who reported previous receipt of an influenza immunization</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="A244AA29-7D11-4616-888A-86E376BFCC6F"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a1390-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-988D211D00D6" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of patient visits, regardless of patient age, with a diagnosis of cancer currently receiving chemotherapy or radiation therapy in which pain intensity is quantified</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="9A0330D0-3D9B-11E1-8634-00237D5BF174"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a1400-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-989A534A0146" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of the following patients - all considered at high risk of cardiovascular events - who were prescribed or were on statin therapy during the measurement period:
+*Adults aged &gt;= 21 years who were previously diagnosed with or currently have an active diagnosis of clinical atherosclerotic cardiovascular disease (ASCVD); OR
+*Adults aged &gt;= 21 years who have ever had a fasting or direct low-density lipoprotein cholesterol (LDL-C) level &gt;= 190 mg/dL or were previously diagnosed with or currently have an active diagnosis of familial or pure hypercholesterolemia; OR
+*Adults aged 40-75 years with a diagnosis of diabetes with a fasting or direct LDL-C level of 70-189 mg/dL</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="5375D6A9-203B-4FFF-B851-AFA9B68D2AC2"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a1480-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928085-7198-38EE-0171-9DAB7A4B07C4" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Percentage of children 6-12 years of age and newly dispensed a medication for attention-deficit/hyperactivity disorder (ADHD) who had appropriate follow-up care.  Two rates are reported.
+a. Percentage of children who had one follow-up visit with a practitioner with prescribing authority during the 30-Day Initiation Phase.
+b. Percentage of children who remained on ADHD medication for at least 210 days and who, in addition to the visit in the Initiation Phase, had at least two additional follow-up visits with a practitioner within 270 days (9 months) after the Initiation Phase ended.</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="703CC49B-B653-4885-80E8-245A057F5AE9"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+        <entry>
+          <organizer classCode="CLUSTER" moodCode="EVN">
+            <!-- This is the templateId for Measure Reference -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+            <!-- This is the templateId for eMeasure Reference QDM -->
+            <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+            <id extension="1c0a1500-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <statusCode code="completed"/>
+            <!-- Containing isBranch external references -->
+            <reference typeCode="REFR">
+              <externalDocument classCode="DOC" moodCode="EVN">
+                <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+                <id extension="2C928082-70F5-3309-0171-07BA385809C2" root="2.16.840.1.113883.4.738"/>
+                <!-- SHOULD This is the title of the eMeasure -->
+                <text>Ischemic stroke patients administered antithrombotic therapy by the end of hospital day 2</text>
+                <!-- SHOULD: setId is the eMeasure version neutral id  -->
+                <setId root="93F3479F-75D8-4731-9A3F-B7749D8BCD37"/>
+              </externalDocument>
+            </reference>
+          </organizer>
+        </entry>
+      </section>
+    </component>    <component>
+      <section>
+        <!-- This is the templateId for Reporting Parameters section -->
+        <templateId root="2.16.840.1.113883.10.20.17.2.1"/>
+        <templateId extension="2016-03-01" root="2.16.840.1.113883.10.20.17.2.1.1"/>
+        <code code="55187-9" codeSystem="2.16.840.1.113883.6.1"/>
+        <title>Reporting Parameters</title>
+        <text></text>
+        <entry typeCode="DRIV">
+          <act classCode="ACT" moodCode="EVN">
+            <!-- This is the templateId for Reporting Parameteres Act -->
+            <templateId root="2.16.840.1.113883.10.20.17.3.8"/>
+            <templateId extension="2016-03-01" root="2.16.840.1.113883.10.20.17.3.8.1"/>
+            <id extension="1c0a2960-bb26-0139-606d-0eca209bc306" root="1.3.6.1.4.1.115"/>
+            <code code="252116004" codeSystem="2.16.840.1.113883.6.96" displayName="Observation Parameters"/>
+            <effectiveTime>
+              <low value="20190101000000"/>
+              <high value="20200101000000"/>
+            </effectiveTime>
+          </act>
+        </entry>
+      </section>
+    </component>    <component>
+        <section>
+          <!-- This is the templateId for Patient Data section -->
+          <templateId root="2.16.840.1.113883.10.20.17.2.4"/>
+          <!-- This is the templateId for Patient Data QDM section -->
+          <templateId extension="2019-12-01" root="2.16.840.1.113883.10.20.24.2.1"/>
+          <templateId extension="2020-02-01" root="2.16.840.1.113883.10.20.24.2.1.1"/>
+          <code code="55188-7" codeSystem="2.16.840.1.113883.6.1"/>
+          <title>Patient Data</title>
+          <text/>
+
+
+
+
+
+
+
+            <entry>
+              <act classCode="ACT" moodCode="EVN">
+                <!-- Conforms to C-CDA 2.1 Problem Concern Act (V3) -->
+                <templateId root="2.16.840.1.113883.10.20.22.4.3" extension="2015-08-01" />
+                <!-- Diagnosis Concern Act -->
+                <templateId root="2.16.840.1.113883.10.20.24.3.137" extension="2019-12-01"/>
+                <id root="1.3.6.1.4.1.115" extension="604f6484dfe4bd03c5e7968d"/>
+                <code code="CONC" codeSystem="2.16.840.1.113883.5.6" displayName="Concern" />
+                <statusCode code="completed" />
+                <effectiveTime><low value='20181004080000'/><high value='20190706084500'/></effectiveTime>
+                <entryRelationship typeCode="SUBJ">
+                  <observation classCode="OBS" moodCode="EVN">
+                    <!-- Conforms to C-CDA R2.1 Problem Observation (V3) -->
+                    <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01" />
+                    <!-- Diagnosis template -->
+                    <templateId root="2.16.840.1.113883.10.20.24.3.135" extension="2019-12-01" />
+                    <id root="1.3.6.1.4.1.115" extension="604f6484dfe4bd03c5e7968d"/>
+                    <code code="29308-4" codeSystem="2.16.840.1.113883.6.1">
+                      <translation code="282291009" codeSystem="2.16.840.1.113883.6.96"/>
+                    </code>
+                    <statusCode code="completed" />
+                    <effectiveTime><low value='20181004080000'/><high value='20190706084500'/></effectiveTime>
+                    <!-- QDM Attribute: Code -->
+                      <value xsi:type="CD" code="169565003" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMEDCT">
+                      <translation code="Z34.00" codeSystem="2.16.840.1.113883.6.90" codeSystemName="ICD10CM"/>
+                      </value>
+                  </observation>
+                </entryRelationship>
+              </act>
+            </entry>
+            <entry>
+              <act classCode="ACT" moodCode="EVN">
+                <!-- Conforms to C-CDA 2.1 Problem Concern Act (V3) -->
+                <templateId root="2.16.840.1.113883.10.20.22.4.3" extension="2015-08-01" />
+                <!-- Diagnosis Concern Act -->
+                <templateId root="2.16.840.1.113883.10.20.24.3.137" extension="2019-12-01"/>
+                <id root="1.3.6.1.4.1.115" extension="604f6484dfe4bd03c5e7968e"/>
+                <code code="CONC" codeSystem="2.16.840.1.113883.5.6" displayName="Concern" />
+                <statusCode code="active" />
+                <effectiveTime><low value='20181105080000'/><high nullFlavor='UNK'/></effectiveTime>
+                <entryRelationship typeCode="SUBJ">
+                  <observation classCode="OBS" moodCode="EVN">
+                    <!-- Conforms to C-CDA R2.1 Problem Observation (V3) -->
+                    <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01" />
+                    <!-- Diagnosis template -->
+                    <templateId root="2.16.840.1.113883.10.20.24.3.135" extension="2019-12-01" />
+                    <id root="1.3.6.1.4.1.115" extension="604f6484dfe4bd03c5e7968e"/>
+                    <code code="29308-4" codeSystem="2.16.840.1.113883.6.1">
+                      <translation code="282291009" codeSystem="2.16.840.1.113883.6.96"/>
+                    </code>
+                    <statusCode code="completed" />
+                    <effectiveTime><low value='20181105080000'/><high nullFlavor='UNK'/></effectiveTime>
+                    <!-- QDM Attribute: Code -->
+                      <value xsi:type="CD" code="194828000" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMEDCT">
+                      <translation code="I20.9" codeSystem="2.16.840.1.113883.6.90" codeSystemName="ICD10CM"/>
+                      </value>
+                  </observation>
+                </entryRelationship>
+              </act>
+            </entry>
+            <entry>
+              <act classCode="ACT" moodCode="EVN">
+                <!-- Conforms to C-CDA 2.1 Problem Concern Act (V3) -->
+                <templateId root="2.16.840.1.113883.10.20.22.4.3" extension="2015-08-01" />
+                <!-- Diagnosis Concern Act -->
+                <templateId root="2.16.840.1.113883.10.20.24.3.137" extension="2019-12-01"/>
+                <id root="1.3.6.1.4.1.115" extension="604f6484dfe4bd03c5e7968f"/>
+                <code code="CONC" codeSystem="2.16.840.1.113883.5.6" displayName="Concern" />
+                <statusCode code="active" />
+                <effectiveTime><low value='20181105080000'/><high nullFlavor='UNK'/></effectiveTime>
+                <entryRelationship typeCode="SUBJ">
+                  <observation classCode="OBS" moodCode="EVN">
+                    <!-- Conforms to C-CDA R2.1 Problem Observation (V3) -->
+                    <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01" />
+                    <!-- Diagnosis template -->
+                    <templateId root="2.16.840.1.113883.10.20.24.3.135" extension="2019-12-01" />
+                    <id root="1.3.6.1.4.1.115" extension="604f6484dfe4bd03c5e7968f"/>
+                    <code code="29308-4" codeSystem="2.16.840.1.113883.6.1">
+                      <translation code="282291009" codeSystem="2.16.840.1.113883.6.96"/>
+                    </code>
+                    <statusCode code="completed" />
+                    <effectiveTime><low value='20181105080000'/><high nullFlavor='UNK'/></effectiveTime>
+                    <!-- QDM Attribute: Code -->
+                      <value xsi:type="CD" code="186639003" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMEDCT">
+                      <translation code="B18.1" codeSystem="2.16.840.1.113883.6.90" codeSystemName="ICD10CM"/>
+                      </value>
+                  </observation>
+                </entryRelationship>
+              </act>
+            </entry>
+            <entry>
+              <act classCode="ACT" moodCode="EVN">
+                <!-- Conforms to C-CDA 2.1 Problem Concern Act (V3) -->
+                <templateId root="2.16.840.1.113883.10.20.22.4.3" extension="2015-08-01" />
+                <!-- Diagnosis Concern Act -->
+                <templateId root="2.16.840.1.113883.10.20.24.3.137" extension="2019-12-01"/>
+                <id root="1.3.6.1.4.1.115" extension="604f6484dfe4bd03c5e79690"/>
+                <code code="CONC" codeSystem="2.16.840.1.113883.5.6" displayName="Concern" />
+                <statusCode code="completed" />
+                <effectiveTime><low value='20190706080000'/><high value='20190706084500'/></effectiveTime>
+                <entryRelationship typeCode="SUBJ">
+                  <observation classCode="OBS" moodCode="EVN">
+                    <!-- Conforms to C-CDA R2.1 Problem Observation (V3) -->
+                    <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01" />
+                    <!-- Diagnosis template -->
+                    <templateId root="2.16.840.1.113883.10.20.24.3.135" extension="2019-12-01" />
+                    <id root="1.3.6.1.4.1.115" extension="604f6484dfe4bd03c5e79690"/>
+                    <code code="29308-4" codeSystem="2.16.840.1.113883.6.1">
+                      <translation code="282291009" codeSystem="2.16.840.1.113883.6.96"/>
+                    </code>
+                    <statusCode code="completed" />
+                    <effectiveTime><low value='20190706080000'/><high value='20190706084500'/></effectiveTime>
+                    <!-- QDM Attribute: Code -->
+                      <value xsi:type="CD" code="200146002" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMEDCT"/>
+                  </observation>
+                </entryRelationship>
+              </act>
+            </entry>
+
+
+
+
+
+
+
+
+            <entry>
+              <act classCode="ACT" moodCode="EVN" >
+                <!--Encounter performed Act -->
+                <templateId extension="2019-12-01" root="2.16.840.1.113883.10.20.24.3.133"/>
+                <code code="ENC" codeSystem="2.16.840.1.113883.5.6" codeSystemName="ActClass" displayName="Encounter"/>
+                <entryRelationship typeCode="SUBJ">
+                  <encounter classCode="ENC" moodCode="EVN">
+                    <!--  Encounter activities template -->
+                    <templateId extension="2015-08-01" root="2.16.840.1.113883.10.20.22.4.49"/>
+                    <!-- Encounter performed template -->
+                    <templateId extension="2019-12-01" root="2.16.840.1.113883.10.20.24.3.23"/>
+                    <id extension="604f6484dfe4bd03c5e79691" root="1.3.6.1.4.1.115"/>
+                    <!-- QDM Attribute: Code -->
+                      <code code="99204" codeSystem="2.16.840.1.113883.6.12" codeSystemName="CPT"/>
+                    <text></text>
+                    <statusCode code="completed"/>
+                      <!-- QDM Attribute: Relevant Period -->
+                      <effectiveTime><low value='20190105080000'/><high value='20190105083000'/></effectiveTime>
+                  </encounter>
+                </entryRelationship>
+              </act>
+            </entry>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            <entry>
+              <procedure classCode="PROC" moodCode="EVN" >
+                <!--  Procedure performed template -->
+                <templateId root="2.16.840.1.113883.10.20.24.3.64" extension="2019-12-01"/>
+                <!-- Procedure Activity Procedure-->
+                <templateId root="2.16.840.1.113883.10.20.22.4.14" extension="2014-06-09"/>
+                <id root="1.3.6.1.4.1.115" extension="604f6484dfe4bd03c5e79693"/>
+                  <code code="59515" codeSystem="2.16.840.1.113883.6.12" codeSystemName="CPT">
+                  <translation code="177141003" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMEDCT"/><translation code="10D00Z1" codeSystem="2.16.840.1.113883.6.4" codeSystemName="ICD10PCS"/>
+                  </code>
+                <text></text>
+                <statusCode code="completed"/>
+                <effectiveTime value='20190706080000'/>
+                  <!-- QDM Attribute: Rank -->
+                  <entryRelationship typeCode="REFR">
+                    <observation classCode="OBS" moodCode="EVN">
+                      <templateId root="2.16.840.1.113883.10.20.24.3.166" extension="2019-12-01"/>
+                      <code code="263486008" displayName="Rank" codeSystem="2.16.840.1.113883.6.96"/>
+                      <value xsi:type="INT" value="1"/>
+                    </observation>
+                  </entryRelationship>              </procedure>
+            </entry>
+
+
+
+
+
+
+
+
+
+
+            <entry>
+              <!-- Patient Characteristic Payer -->
+              <observation classCode="OBS" moodCode="EVN">
+                <templateId root="2.16.840.1.113883.10.20.24.3.55"/>
+                <id root="1c0d2da0-bb26-0139-606d-0eca209bc306"/>
+                <code code="48768-6" codeSystemName="LOINC" codeSystem="2.16.840.1.113883.6.1" displayName="Payment source"/>
+                <statusCode code="completed"/>
+                  <!-- QDM Attribute: Relevant Period -->
+                  <effectiveTime><low value='19961101010000'/><high nullFlavor='UNK'/></effectiveTime>
+                  <value xsi:type="CD" code="1" codeSystem="2.16.840.1.113883.3.221.5" codeSystemName="Source of Payment Typology"/>
+              </observation>
+            </entry>
+        </section>
+      </component>
+    </structuredBody>
+  </component>
+</ClinicalDocument>

@@ -11,9 +11,8 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/lists.inc");
+require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/sql.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -35,10 +34,21 @@ $t = $twigContainer->getTwig();
  */
 function getListData($pid, $type)
 {
-    $sqlArr = [
-        "SELECT * FROM lists WHERE pid = ? AND type = ? AND",
-        dateEmptySql('enddate')
-    ];
+    if ($type == "medication") {
+        $sqlArr = [
+            "SELECT lists.*, medications.list_id, medications.drug_dosage_instructions FROM lists",
+            "LEFT JOIN ( SELECT id AS lists_medication_id, list_id, drug_dosage_instructions FROM lists_medication )",
+            "medications ON medications.list_id = id",
+            "WHERE pid = ? AND type = ? AND",
+            dateEmptySql('enddate')
+        ];
+    } else {
+        $sqlArr = [
+            "SELECT * FROM lists WHERE pid = ? AND type = ? AND",
+            dateEmptySql('enddate')
+        ];
+    }
+
 
     if ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $type == 'medication') {
         $sqlArr[] = "and erx_uploaded != '1'";
@@ -120,6 +130,15 @@ $old_key = "";
 $display_current_medications_below = 1;
 
 // Process Medical Problems, Allergies, and Medications
+$reducedIssueTypes = $ISSUE_TYPES;
+$refactoredIssues = ['allergy', 'medication', 'medical_problem'];
+
+foreach ($refactoredIssues as $i) {
+    if (array_key_exists($i, $reducedIssueTypes)) {
+        unset($ISSUE_TYPES[$i]);
+    }
+}
+
 foreach ($ISSUE_TYPES as $key => $arr) {
     // Skip if user has no access to this issue type.
     if (!AclMain::aclCheckIssue($key)) {
@@ -127,11 +146,12 @@ foreach ($ISSUE_TYPES as $key => $arr) {
     }
 
     if ($old_key == "medication" && $GLOBALS['erx_enable'] && $erx_upload_complete == 1) {
-        $display_current_medications_below = 1;
+        $display_current_medications_below = 0;
 
         if ($GLOBALS['erx_enable']) {
             $res = sqlStatement("SELECT * FROM prescriptions WHERE patient_id=? AND active='1'", [$pid]);
             $list = [];
+            $rxArr = [];
             while ($row = sqlFetchArray($res)) {
                 $row['unit'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_units'), $row['unit']);
                 $row['form'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_form'), $row['form']);
@@ -201,7 +221,11 @@ foreach ($ISSUE_TYPES as $key => $arr) {
             $viewArgs['listTouched'] = (getListTouch($pid, $key)) ? true : false;
         }
 
-        echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
+        if ($id == "medication_ps_expand") {
+            echo $t->render('patient/card/medication.html.twig', $viewArgs);
+        } else {
+            echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
+        }
     }
 }
 
@@ -283,66 +307,6 @@ if (!$GLOBALS['disable_immunizations'] && !$GLOBALS['weight_loss_clinic']) :
     ]);
 endif; // End immunizations
 
-// Render the Prescriptions card if turned on
-if (!$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx')) :
-    if ($GLOBALS['erx_enable'] && $display_current_medications_below == 1) {
-        $sql = "SELECT * FROM prescriptions WHERE patient_id = ? AND active = '1'";
-        $res = sqlStatement($sql, [$pid]);
-
-        $rxArr = [];
-        while ($row = sqlFetchArray($res)) {
-            $row['unit'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_units'), $row['unit']);
-            $row['form'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_form'), $row['form']);
-            $row['route'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_route'), $row['route']);
-            $row['interval'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_interval'), $row['interval']);
-            $rxArr[] = $row;
-        }
-        $id = "current_prescriptions_ps_expand";
-        $viewArgs = [
-            'title' => xl('Current Medications'),
-            'id' => $id,
-            'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
-            'auth' => false,
-            'rxList' => $rxArr,
-        ];
-
-        echo $t->render('patient/card/erx.html.twig', $viewArgs);
-    }
-
-    $id = "prescriptions_ps_expand";
-    $viewArgs = [
-        'title' => xl("Prescriptions"),
-        'id' => $id,
-        'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
-        'linkMethod' => "html",
-        'btnLabel' => "Edit",
-        'auth' => AclMain::aclCheckCore('patients', 'rx', '', ['write', 'addonly']),
-    ];
-
-    if ($GLOBALS['erx_enable']) {
-        $viewArgs['title'] = 'Prescription History';
-        $viewArgs['btnLabel'] = 'Add/Edit eRx';
-        $viewArgs['btnLink'] = "{$GLOBALS['webroot']}/interface/eRx.php?page=compose";
-    } else {
-        $viewArgs['btnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
-        $viewArgs['linkMethod'] = "javascript";
-        $viewArgs['btnClass'] = "iframe rx_modal";
-    }
-
-    $cwd = getcwd();
-    chdir("../../../");
-    $c = new Controller();
-    // This is a hacky way to get a Smarty template from the controller and injecting it into
-    // a Twig template. This reduces the amount of refactoring that is required but ideally the
-    // Smarty template should be upgraded to Twig
-    ob_start();
-    echo $c->act(['prescription' => '', 'fragment' => '', 'patient_id' => $pid]);
-    $viewArgs['content'] = ob_get_contents();
-    ob_end_clean();
-
-    echo $t->render('patient/card/rx.html.twig', $viewArgs);
-endif;
-
 // Render Old Medications card
 if ($erx_upload_complete == 1) {
     $sql = [
@@ -363,7 +327,7 @@ if ($erx_upload_complete == 1) {
         'label' => $id,
         'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
         'btnLabel' => 'Edit',
-        'btnLink' => "return load_location(\"${GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication\")",
+        'btnLink' => "return load_location(\"{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication\")",
         'linkMethod' => 'javascript',
         'auth' => true,
         'list' => $rxList,

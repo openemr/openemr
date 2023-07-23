@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class Participation extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\Interval $participationPeriod
      */
@@ -52,3 +51,4 @@ class Participation extends QDMBaseType
 
     public $_type = 'QDM::Participation';
 }
+

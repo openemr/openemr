@@ -69,6 +69,12 @@ class FormVitalDetails extends ORDataObject
      */
     private $interpretation_codes;
 
+    private $reason_code;
+
+    private $reason_status;
+
+    private $reason_description;
+
     public function __construct()
     {
         parent::__construct(self::TABLE_NAME);
@@ -222,5 +228,69 @@ class FormVitalDetails extends ORDataObject
     public function get_form_id(): ?int
     {
         return $this->form_id;
+    }
+
+    /**
+     * @return string
+     */
+    public function get_reason_code()
+    {
+        return $this->reason_code;
+    }
+
+    /**
+     * @param string $reason_code
+     * @return FormVitalDetails
+     */
+    public function set_reason_code($reason_code)
+    {
+        $this->reason_code = $reason_code;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function get_reason_status()
+    {
+        return $this->reason_status;
+    }
+
+    /**
+     * @param string $reason_status
+     * @return FormVitalDetails
+     */
+    public function set_reason_status($reason_status)
+    {
+        $this->reason_status = $reason_status;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function get_reason_description()
+    {
+        return $this->reason_description;
+    }
+
+    /**
+     * @param string $reason_status_code
+     * @return FormVitalDetails
+     */
+    public function set_reason_description($reason_description)
+    {
+        $this->reason_description = $reason_description;
+        return $this;
+    }
+
+    /**
+     * Removes all of the reason code, status, and text data
+     */
+    public function clear_reason()
+    {
+        $this->reason_code = null;
+        $this->reason_status = null;
+        $this->reason_description = null;
     }
 }

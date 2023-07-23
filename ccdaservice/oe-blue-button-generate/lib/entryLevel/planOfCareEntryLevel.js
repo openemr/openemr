@@ -29,7 +29,8 @@ exports.healthConcernObservation = {
                 displayName: "Health Status"
             },
         },
-        fieldLevel.statusCodeCompleted, {
+        fieldLevel.statusCodeCompleted,
+        {
             key: "value",
             attributes: [
                 leafLevel.typeCD,
@@ -38,7 +39,8 @@ exports.healthConcernObservation = {
             dataKey: "value",
             existsWhen: condition.codeOrDisplayname
         },
-        fieldLevel.effectiveTime
+        fieldLevel.effectiveTime,
+        fieldLevel.author,
     ],
 
 }
@@ -62,6 +64,7 @@ exports.healthConcernActivityAct = {
             },
         },
         fieldLevel.statusCodeActive,
+        fieldLevel.author,
         [{
             key: "entryRelationship",
             attributes: {
@@ -108,7 +111,8 @@ exports.planOfCareActivityAct = {
             dataKey: "plan"
         },
         fieldLevel.statusCodeActive,
-        fieldLevel.effectiveTime
+        fieldLevel.effectiveTime,
+        fieldLevel.author,
     ],
     existsWhen: function (input) {
         return input.type === "act";
@@ -130,7 +134,15 @@ exports.planOfCareActivityObservation = {
             dataKey: "plan"
         },
         fieldLevel.statusCodeActive,
-        fieldLevel.effectiveTime
+        fieldLevel.effectiveTime,
+        {
+            key: "value",
+            attributes: {
+                "xsi:type": "ST"
+            },
+            text: leafLevel.inputProperty("name")
+        },
+        fieldLevel.author
     ],
     existsWhen: function (input) {
         return input.type === "observation";
@@ -152,7 +164,8 @@ exports.planOfCareActivityProcedure = {
             dataKey: "plan"
         },
         fieldLevel.statusCodeActive,
-        fieldLevel.effectiveTime
+        fieldLevel.effectiveTime,
+        fieldLevel.author,
     ],
     existsWhen: function (input) {
         return input.type === "procedure";
@@ -272,7 +285,8 @@ exports.planOfCareActivitySupply = {
             dataKey: "plan"
         },
         fieldLevel.statusCodeActive,
-        fieldLevel.effectiveTime
+        fieldLevel.effectiveTime,
+        fieldLevel.author
     ],
     existsWhen: function (input) {
         return input.type === "supply";
@@ -331,7 +345,9 @@ exports.planOfCareActivityInstructions = {
             }],
             dataKey: "severity"
         },
-        fieldLevel.effectiveTime, {
+        fieldLevel.effectiveTime,
+        fieldLevel.author,
+        {
             key: "entryRelationship",
             attributes: {
                 typeCode: "COMP"

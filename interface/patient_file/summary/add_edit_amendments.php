@@ -17,7 +17,17 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+
+
+//ensure user has proper access
+if (!AclMain::aclCheckCore('patients', 'amendment')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendments")]);
+    exit;
+}
+$editAccess = AclMain::aclCheckCore('patients', 'amendment', '', 'write');
+$addAccess = ($editAccess || AclMain::aclCheckCore('patients', 'amendment', '', 'addonly'));
 
 if (isset($_POST['mode'])) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -28,6 +38,10 @@ if (isset($_POST['mode'])) {
     $created_time = date('Y-m-d H:i');
     if ($_POST["amendment_id"] == "") {
         // New. Insert
+        if (!$addAccess) {
+            echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendment Add")]);
+            exit;
+        }
         $query = "INSERT INTO amendments SET
 			amendment_date = ?,
 			amendment_by = ?,
@@ -50,6 +64,10 @@ if (isset($_POST['mode'])) {
     } else {
         $amendment_id = $_POST['amendment_id'];
         // Existing. Update
+        if (!$editAccess) {
+            echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Amendment Edit")]);
+            exit;
+        }
         $query = "UPDATE amendments SET
 			amendment_date = ?,
 			amendment_by = ?,
@@ -102,18 +120,17 @@ if (!empty($amendment_id)) {
     $resultSet = sqlStatement($query, array($amendment_id));
 }
 
-// Check the ACL
-$haveAccess = AclMain::aclCheckCore('patients', 'trans');
-$onlyRead = ( $haveAccess ) ? 0 : 1;
+$onlyRead = ( $editAccess || ($addAccess && empty($amendment_id)) ) ? 0 : 1;
 $onlyRead = ( $onlyRead || (!empty($amendment_status)) ) ? 1 : 0;
 $customAttributes = ( $onlyRead ) ? array("disabled" => "true") : null;
-
 ?>
 
 <html>
 <head>
 
-<?php Header::setupHeader('datetime-picker'); ?>
+<?php Header::setupHeader('datetime-picker');
+echo "<title>" . xlt('Amendments') . "</title>";
+?>
 
 <script>
 

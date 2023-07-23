@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class NegativeProcedurePerformed extends ProcedurePerformed
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class NegativeProcedurePerformed extends ProcedurePerformed
 
     public $_type = 'QDM::NegativeProcedurePerformed';
 }
+

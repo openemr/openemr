@@ -22,23 +22,30 @@
 // any questions contact Daniel Pflieger at daniel@growlingflea.com
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/appointments.inc.php");
 require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/../controllers/C_Document.class.php");
 require_once("$srcdir/documents.php");
 require_once("$srcdir/options.inc.php");
-require_once "$srcdir/user.inc";
+require_once "$srcdir/user.inc.php";
 
 use Mpdf\Mpdf;
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+
+if (!AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("EOB Posting - Search")]);
+    exit;
+}
 
 $DEBUG = 0; // set to 0 for production, 1 to test
 $alertmsg = '';
@@ -52,7 +59,7 @@ $form_cb = false;
 /* Load dependencies only if we need them */
 if (!empty($GLOBALS['portal_onsite_two_enable'])) {
     /* Addition of onsite portal patient notify of invoice and reformated invoice - sjpadgett 01/2017 */
-    require_once("../../portal/lib/portal_mail.inc");
+    require_once("../../portal/lib/portal_mail.inc.php");
     require_once("../../portal/lib/appsql.class.php");
 
     function is_auth_portal($pid = 0)
@@ -1021,7 +1028,7 @@ if (
                             // Notes that as of release 4.1.1 the copays are stored
                             // in the ar_activity table marked with a PCP in the account_code column.
                             $query = "SELECT f.id, f.pid, f.encounter, f.date, " .
-                            "f.last_level_billed, f.last_level_closed, f.last_stmt_date, f.stmt_count, " .
+                            "f.last_level_billed, f.last_level_closed, f.last_stmt_date, f.stmt_count, f.in_collection, " .
                             "p.fname, p.mname, p.lname, p.pubpid, p.billing_note, " .
                             "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
                             "b.pid = f.pid AND b.encounter = f.encounter AND " .
@@ -1091,7 +1098,8 @@ if (
                                 // Determine if customer is in collections.
                                 //
                                 $billnote = $row['billing_note'];
-                                $in_collections = stristr($billnote, 'IN COLLECTIONS') !== false;
+                                $in_collections = stristr($billnote, 'IN COLLECTIONS') !== false
+                                    || $row['in_collection'] == 1;
 
                                 // $duncount was originally supposed to be the number of times that
                                 // the patient was sent a statement for this invoice.

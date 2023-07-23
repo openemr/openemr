@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: 'OpenEMR API'
-  version: 6.1.0
+  version: 7.0.0
 servers:
   -
     url: /apis/default/
@@ -2498,6 +2498,9 @@ paths:
                 pc_billing_location:
                   description: 'The billinag location id of the appointment.'
                   type: string
+                pc_aid:
+                  description: 'The provider id for the appointment.'
+                  type: string
               type: object
               example:
                 pc_catid: '5'
@@ -2509,6 +2512,7 @@ paths:
                 pc_startTime: '09:00'
                 pc_facility: '9'
                 pc_billing_location: '10'
+                pc_aid: '1'
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -3022,6 +3026,86 @@ paths:
       security:
         -
           openemr_auth: []
+  '/api/patient/{pid}/transaction':
+    get:
+      tags:
+        - standard
+      description: 'Get Transactions for a patient'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - standard
+      description: 'Submits a transaction'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The pid for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_transaction_request'
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  '/api/transaction/{tid}':
+    put:
+      tags:
+        - standard
+      description: 'Updates a transaction'
+      parameters:
+        -
+          name: tid
+          in: path
+          description: 'The id for the transaction.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_transaction_request'
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
   '/api/patient/{pid}/message/{mid}':
     put:
       tags:
@@ -3521,6 +3605,80 @@ paths:
       security:
         -
           openemr_auth: []
+  /fhir/Appointment:
+    get:
+      tags:
+        - fhir
+      description: 'Returns a list of Appointment resources.'
+      parameters:
+        -
+          name: _id
+          in: query
+          description: 'The uuid for the Appointment resource.'
+          required: false
+          schema:
+            type: string
+        -
+          name: patient
+          in: query
+          description: 'The uuid for the patient.'
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/AllergyIntolerance' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  '/fhir/Appointment/{uuid}':
+    get:
+      tags:
+        - fhir
+      description: 'Returns a single Appointment resource.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the Appointment resource.'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example: []
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: []
   /fhir/CarePlan:
     get:
       tags:
@@ -3844,7 +4002,20 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  id: 960d5f10-edc6-4c65-a6d4-39a1e1da87a8
+                  meta: { versionId: '1', lastUpdated: '2022-04-14T07:58:45+00:00' }
+                  resourceType: Coverage
+                  status: active
+                  beneficiary: { reference: Patient/960d5f08-9fdf-4bdc-9108-84a149e28bac }
+                  relationship: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/subscriber-relationship', code: '' }] }
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -4109,6 +4280,53 @@ paths:
       security:
         -
           openemr_auth: []
+  /fhir/DocumentReference/$docref:
+    post:
+      tags:
+        - fhir
+      description: 'The $docref operation is used to request the server generates a document based on the specified parameters. If no additional parameters are specified then a DocumentReference to the patient''s most current Clinical Summary of Care Document (CCD) is returned. The document itself is retrieved using the DocumentReference.content.attachment.url element.  See <a href=''http://hl7.org/fhir/us/core/OperationDefinition-docref.html'' target=''_blank'' rel=''noopener''>http://hl7.org/fhir/us/core/OperationDefinition-docref.html</a> for more details.'
+      externalDocs:
+        description: 'Detailed documentation on this operation'
+        url: 'https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'
+      parameters:
+        -
+          name: patient
+          in: query
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: start
+          in: query
+          description: 'The datetime refers to care dates not record currency dates.  All records relating to care provided in a certain date range.  If no start date is provided then all documents prior to the end date are in scope.  If no start and end date are provided, the most recent or current document is in scope.'
+          required: false
+          schema:
+            type: string
+        -
+          name: end
+          in: query
+          description: 'The datetime refers to care dates not record currency dates.  All records relating to care provided in a certain date range.  If no end date is provided then all documents subsequent to the start date are in scope.  If no start and end date are provided, the most recent or current document is in scope.'
+          required: false
+          schema:
+            type: string
+        -
+          name: type
+          in: query
+          description: 'The type refers to the document type.  This is a LOINC code from the valueset of <a href=''http://hl7.org/fhir/R4/valueset-c80-doc-typecodes.html'' target=''_blank'' rel=''noopener''>http://hl7.org/fhir/R4/valueset-c80-doc-typecodes.html</a>. The server currently only supports the LOINC code of 34133-9 (Summary of episode node).'
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'A search bundle of DocumentReferences is returned'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
   '/fhir/DocumentReference/{uuid}':
     get:
       tags:
@@ -4142,7 +4360,7 @@ paths:
                   subject: { reference: Patient/946da619-c631-431a-a282-487cd6fb7802, type: Patient }
                   date: '2021-09-19T03:15:56+00:00'
                   author: [null]
-                  content: [{ attachment: { contentType: image/gif, url: 'https://localhost:9300/apis/default/fhir/Document/7/Binary' }, format: { system: 'http://ihe.net/fhir/ValueSet/IHE.FormatCode.codesystem', code: 'urn:ihe:iti:xds:2017:mimeTypeSufficient', display: 'mimeType Sufficient' } }]
+                  content: [{ attachment: { contentType: image/gif, url: 'https://localhost:9300/apis/default/fhir/Binary/7' }, format: { system: 'http://ihe.net/fhir/ValueSet/IHE.FormatCode.codesystem', code: 'urn:ihe:iti:xds:2017:mimeTypeSufficient', display: 'mimeType Sufficient' } }]
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -4152,11 +4370,11 @@ paths:
       security:
         -
           openemr_auth: []
-  '/fhir/Document/{id}/Binary':
+  '/fhir/Binary/{id}':
     get:
       tags:
         - fhir
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+      description: 'Used for downloading binary documents generated either with BULK FHIR Export or with the $docref CCD export operation.  Documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
       parameters:
         -
           name: id
@@ -4167,7 +4385,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'The documentation for working with BULK FHIR or $docref document exports can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -4351,7 +4569,7 @@ paths:
     get:
       tags:
         - fhir
-      description: 'Returns a list of Group resources.'
+      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
       parameters:
         -
           name: _id
@@ -4393,7 +4611,7 @@ paths:
     get:
       tags:
         - fhir
-      description: 'Returns a single Group resource.'
+      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
       parameters:
         -
           name: uuid
@@ -4404,7 +4622,7 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -4418,10 +4636,10 @@ paths:
     get:
       tags:
         - fhir
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -4486,7 +4704,23 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  id: 95e8d8b7-e3e2-4e03-8eb1-31e1d9097d8f
+                  meta: { versionId: '1', lastUpdated: '2022-03-26T05:42:59+00:00' }
+                  resourceType: Immunization
+                  status: completed
+                  vaccineCode: { coding: [{ system: 'http://hl7.org/fhir/sid/cvx', code: '207', display: 'SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 100 mcg/0.5mL dose' }] }
+                  patient: { reference: Patient/95e8d830-3068-48cf-930a-2fefb18c2bcf }
+                  occurrenceDateTime: '2022-03-26T05:35:00+00:00'
+                  recorded: '2022-03-26T05:42:26+00:00'
+                  primarySource: false
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -4611,7 +4845,20 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  id: 961aa334-9348-4145-8252-de665e3c4afa
+                  meta: { versionId: '1', lastUpdated: '2022-04-19T23:42:14+00:00' }
+                  resourceType: Medication
+                  code: { coding: [{ system: 'http://www.nlm.nih.gov/research/umls/rxnorm', code: 153165 }] }
+                  status: active
+                  batch: { lotNumber: '132', expirationDate: '0000-00-00' }
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -4926,9 +5173,55 @@ paths:
             schema:
               description: 'The json object for the Organization resource.'
               type: object
+            example:
+              id: 95f0e672-be37-4c73-95c9-649c2d200018
+              meta:
+                versionId: '1'
+                lastUpdated: '2022-03-30T07:43:23+00:00'
+              resourceType: Organization
+              text:
+                status: generated
+                div: '<div xmlns=''http://www.w3.org/1999/xhtml''> <p>Your Clinic Name Here</p></div>'
+              identifier:
+                -
+                  system: 'http://hl7.org/fhir/sid/us-npi'
+                  value: '1234567890'
+              active: true
+              type:
+                -
+                  coding: [{ system: 'http://terminology.hl7.org/CodeSystem/organization-type', code: prov, display: 'Healthcare Provider' }]
+              name: 'Your Clinic Name Here Hey'
+              telecom:
+                -
+                  system: phone
+                  value: 000-000-0000
+                  use: work
+                -
+                  system: fax
+                  value: 000-000-0000
+                  use: work
+              address:
+                - null
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  id: 95f0e672-be37-4c73-95c9-649c2d200018
+                  meta: { versionId: '1', lastUpdated: '2022-03-30T07:43:23+00:00' }
+                  resourceType: Organization
+                  text: { status: generated, div: '<div xmlns=''http://www.w3.org/1999/xhtml''> <p>Your Clinic Name Here</p></div>' }
+                  identifier: [{ system: 'http://hl7.org/fhir/sid/us-npi', value: '1234567890' }]
+                  active: true
+                  type: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/organization-type', code: prov, display: 'Healthcare Provider' }] }]
+                  name: 'Your Clinic Name Here Now'
+                  telecom: [{ system: phone, value: 000-000-0000, use: work }, { system: fax, value: 000-000-0000, use: work }]
+                  address: [null]
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -4959,10 +5252,11 @@ paths:
                   'json object': { description: 'FHIR Json object.', type: object }
                 type: object
                 example:
-                  id: 946da616-fae2-409d-b24d-56425bfb3316
-                  meta: { versionId: '1', lastUpdated: '2021-09-21T16:47:36+00:00' }
+                  id: 95f0e672-be37-4c73-95c9-649c2d200018
+                  meta: { versionId: '1', lastUpdated: '2022-03-30T07:43:23+00:00' }
                   resourceType: Organization
-                  text: { status: generated, div: '<div xmlns="http://www.w3.org/1999/xhtml"> <p>Your Clinic Name Here</p></div>' }
+                  text: { status: generated, div: '<div xmlns=''http://www.w3.org/1999/xhtml''> <p>Your Clinic Name Here</p></div>' }
+                  identifier: [{ system: 'http://hl7.org/fhir/sid/us-npi', value: '1234567890' }]
                   active: true
                   type: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/organization-type', code: prov, display: 'Healthcare Provider' }] }]
                   name: 'Your Clinic Name Here'
@@ -4996,9 +5290,44 @@ paths:
             schema:
               description: 'The json object for the Organization resource.'
               type: object
+            example:
+              id: 95f0e672-be37-4c73-95c9-649c2d200018
+              meta:
+                versionId: '1'
+                lastUpdated: '2022-03-30T07:43:23+00:00'
+              resourceType: Organization
+              text:
+                status: generated
+                div: '<div xmlns=''http://www.w3.org/1999/xhtml''> <p>Your Clinic Name Here</p></div>'
+              identifier:
+                -
+                  system: 'http://hl7.org/fhir/sid/us-npi'
+                  value: '1234567890'
+              active: true
+              type:
+                -
+                  coding: [{ system: 'http://terminology.hl7.org/CodeSystem/organization-type', code: prov, display: 'Healthcare Provider' }]
+              name: 'Your Clinic Name Here'
+              telecom:
+                -
+                  system: phone
+                  value: 000-000-0000
+                  use: work
+                -
+                  system: fax
+                  value: 000-000-0000
+                  use: work
+              address:
+                - null
       responses:
-        '200':
-          $ref: '#/components/responses/standard'
+        '201':
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                example:
+                  id: 14
+                  uuid: 95f217c1-258c-44ca-bf11-909dce369574
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5143,9 +5472,60 @@ paths:
             schema:
               description: 'The json object for the Patient resource.'
               type: object
+            example:
+              id: 95f22ff4-dd25-4290-8b52-1dd2fedf8e54
+              meta:
+                versionId: '1'
+                lastUpdated: '2022-03-31T02:48:28+00:00'
+              resourceType: Patient
+              text:
+                status: generated
+                div: '<div xmlns=''http://www.w3.org/1999/xhtml''> <p>Brenda Smith</p></div>'
+              extension:
+                -
+                  valueCode: F
+                  url: 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex'
+                -
+                  extension: [{ valueCoding: { system: 'http://terminology.hl7.org/CodeSystem/v3-NullFlavor', code: UNK, display: Unknown }, url: ombCategory }, { valueString: Unknown, url: text }]
+                  url: 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race'
+              identifier:
+                -
+                  use: official
+                  type: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/v2-0203', code: PT }] }
+                  system: 'http://terminology.hl7.org/CodeSystem/v2-0203'
+                  value: '1'
+              active: true
+              name:
+                -
+                  use: official
+                  family: Smith
+                  given: [Brenda]
+              gender: female
+              birthDate: '2017-03-10'
+              communication:
+                -
+                  language: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/data-absent-reason', code: unknown, display: Unknown }] }
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  id: 95f22ff4-dd25-4290-8b52-1dd2fedf8e54
+                  meta: { versionId: '1', lastUpdated: '2022-03-31T02:48:28+00:00' }
+                  resourceType: Patient
+                  text: { status: generated, div: '<div xmlns=''http://www.w3.org/1999/xhtml''> <p>Brenda Smith</p></div>' }
+                  extension: [{ valueCode: F, url: 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex' }, { extension: [{ valueCoding: { system: 'http://terminology.hl7.org/CodeSystem/v3-NullFlavor', code: UNK, display: Unknown }, url: ombCategory }, { valueString: Unknown, url: text }], url: 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race' }]
+                  identifier: [{ use: official, type: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/v2-0203', code: PT }] }, system: 'http://terminology.hl7.org/CodeSystem/v2-0203', value: '1' }]
+                  active: true
+                  name: [{ use: official, family: Smith, given: [Brenda] }]
+                  gender: female
+                  birthDate: '2017-03-10'
+                  communication: [{ language: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/data-absent-reason', code: unknown, display: Unknown }] } }]
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5216,9 +5596,48 @@ paths:
             schema:
               description: 'The json object for the Patient resource.'
               type: object
+            example:
+              id: 95f22ff4-dd25-4290-8b52-1dd2fedf8e54
+              meta:
+                versionId: '1'
+                lastUpdated: '2022-03-31T02:48:28+00:00'
+              resourceType: Patient
+              text:
+                status: generated
+                div: '<div xmlns=''http://www.w3.org/1999/xhtml''> <p>Brenda Smith</p></div>'
+              extension:
+                -
+                  valueCode: F
+                  url: 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex'
+                -
+                  extension: [{ valueCoding: { system: 'http://terminology.hl7.org/CodeSystem/v3-NullFlavor', code: UNK, display: Unknown }, url: ombCategory }, { valueString: Unknown, url: text }]
+                  url: 'http://hl7.org/fhir/us/core/StructureDefinition/us-core-race'
+              identifier:
+                -
+                  use: official
+                  type: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/v2-0203', code: PT }] }
+                  system: 'http://terminology.hl7.org/CodeSystem/v2-0203'
+                  value: '1'
+              active: true
+              name:
+                -
+                  use: official
+                  family: Smith
+                  given: [Brenda]
+              gender: female
+              birthDate: '2017-03-10'
+              communication:
+                -
+                  language: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/data-absent-reason', code: unknown, display: Unknown }] }
       responses:
-        '200':
-          $ref: '#/components/responses/standard'
+        '201':
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                example:
+                  id: 2
+                  uuid: 95f2ad04-5834-4243-8838-e396a7faadbf
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5230,10 +5649,10 @@ paths:
     get:
       tags:
         - fhir
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5361,7 +5780,22 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  id: 960c7cd6-187a-4119-8cd4-85389d80efb9
+                  meta: { versionId: '1', lastUpdated: '2022-04-13T08:57:32+00:00' }
+                  resourceType: Person
+                  text: { status: generated, div: '<div xmlns=''http://www.w3.org/1999/xhtml''> <p>Administrator Administrator</p></div>' }
+                  name: [{ use: official, family: Administrator, given: [Administrator, Larry] }]
+                  telecom: [{ system: phone, value: '1234567890', use: home }, { system: phone, value: '1234567890', use: work }, { system: phone, value: '1234567890', use: mobile }, { system: email, value: hey@hey.com, use: home }]
+                  address: [{ line: ['123 Lane Street'], city: Bellevue, state: WA, period: { start: '2021-04-13T08:57:32.146+00:00' } }]
+                  active: true
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5494,9 +5928,42 @@ paths:
             schema:
               description: 'The json object for the Practitioner resource.'
               type: object
+            example:
+              id: 9473b0cf-e969-4eaa-8044-51037767fa4f
+              meta:
+                versionId: '1'
+                lastUpdated: '2021-09-21T17:41:57+00:00'
+              resourceType: Practitioner
+              text:
+                status: generated
+                div: '<div xmlns="http://www.w3.org/1999/xhtml"> <p>Billy Smith</p></div>'
+              identifier:
+                -
+                  system: 'http://hl7.org/fhir/sid/us-npi'
+                  value: '11223344554543'
+              active: true
+              name:
+                -
+                  use: official
+                  family: Smith
+                  given: [Danny]
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  id: 9473b0cf-e969-4eaa-8044-51037767fa4f
+                  meta: { versionId: '1', lastUpdated: '2021-09-21T17:41:57+00:00' }
+                  resourceType: Practitioner
+                  text: { status: generated, div: '<div xmlns="http://www.w3.org/1999/xhtml"> <p>Billy Smith</p></div>' }
+                  identifier: [{ system: 'http://hl7.org/fhir/sid/us-npi', value: '11223344554543' }]
+                  active: true
+                  name: [{ use: official, family: Smith, given: [Danny] }]
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5562,9 +6029,34 @@ paths:
             schema:
               description: 'The json object for the Practitioner resource.'
               type: object
+            example:
+              id: 9473b0cf-e969-4eaa-8044-51037767fa4f
+              meta:
+                versionId: '1'
+                lastUpdated: '2021-09-21T17:41:57+00:00'
+              resourceType: Practitioner
+              text:
+                status: generated
+                div: '<div xmlns="http://www.w3.org/1999/xhtml"> <p>Billy Smith</p></div>'
+              identifier:
+                -
+                  system: 'http://hl7.org/fhir/sid/us-npi'
+                  value: '11223344554543'
+              active: true
+              name:
+                -
+                  use: official
+                  family: Smith
+                  given: [Billy]
       responses:
-        '200':
-          $ref: '#/components/responses/standard'
+        '201':
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                example:
+                  id: 5
+                  uuid: 95f294d7-e14c-441d-81a6-309fe369ee21
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5629,7 +6121,20 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  id: 960c806f-9463-482e-b228-67b5be1fed55
+                  meta: { versionId: '1', lastUpdated: '2022-04-13T06:18:17+00:00' }
+                  resourceType: PractitionerRole
+                  practitioner: { reference: Practitioner/960c7cd6-187a-4119-8cd4-85389d80efb9, display: 'Administrator Administrator' }
+                  organization: { reference: Organization/960c7cc6-b4ae-49bc-877b-1a2913271c43, display: 'Your Clinic Name Here' }
+                  code: [{ coding: [102L00000X], text: Psychoanalyst }, { coding: [101Y00000X], text: Counselor }]
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5703,7 +6208,19 @@ paths:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  id: 95e9d3fb-fe7b-448a-aa60-d40b11b486a5
+                  meta: { versionId: '1', lastUpdated: '2022-03-26T17:20:14+00:00' }
+                  resourceType: Procedure
+                  status: in-progress
+                  subject: { reference: Patient/95e8d830-3068-48cf-930a-2fefb18c2bcf, type: Patient }
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5722,13 +6239,25 @@ paths:
         -
           name: uuid
           in: path
-          description: 'The uuid for the Provenance resource.'
+          description: 'The id for the Provenance resource. Format is \<resource name\>:\<uuid\> (Example: AllergyIntolerance:95ea43f3-1066-4bc7-b224-6c23b985f145).'
           required: true
           schema:
             type: string
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  id: 'AllergyIntolerance:95ea43f3-1066-4bc7-b224-6c23b985f145'
+                  resourceType: Provenance
+                  target: [{ reference: AllergyIntolerance/95ea43f3-1066-4bc7-b224-6c23b985f145, type: AllergyIntolerance }]
+                  recorded: '2022-03-26T22:43:30+00:00'
+                  agent: { '0': { type: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/provenance-participant-type', code: author, display: Author }] }, who: { reference: Organization/95e8d810-7e55-44aa-bb48-fecd5b0d88c7, type: Organization }, onBehalfOf: { reference: Organization/95e8d810-7e55-44aa-bb48-fecd5b0d88c7, type: Organization } }, '1': { type: { coding: [{ system: 'http://hl7.org/fhir/us/core/CodeSystem/us-core-provenance-participant-type', code: transmitter, display: Transmitter }] } }, who: { reference: Organization/95e8d810-7e55-44aa-bb48-fecd5b0d88c7, type: Organization }, onBehalfOf: { reference: Organization/95e8d810-7e55-44aa-bb48-fecd5b0d88c7, type: Organization } }
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5747,7 +6276,7 @@ paths:
         -
           name: _id
           in: query
-          description: 'The uuid for the Provenance resource.'
+          description: 'The id for the Provenance resource. Format is \<resource name\>:\<uuid\> (Example: AllergyIntolerance:95ea43f3-1066-4bc7-b224-6c23b985f145).'
           required: false
           schema:
             type: string
@@ -5789,14 +6318,50 @@ paths:
       responses:
         '200':
           description: 'Return smart configuration of the fhir server'
+  /fhir/OperationDefinition:
+    get:
+      tags:
+        - fhir
+      description: 'Returns a list of the OperationDefinition resources that are specific to this OpenEMR installation'
+      responses:
+        '200':
+          description: 'Return list of OperationDefinition resources'
+  '/fhir/OperationDefinition/{operation}':
+    get:
+      tags:
+        - fhir
+      description: 'Returns a single OperationDefinition resource that is specific to this OpenEMR installation'
+      parameters:
+        -
+          name: operation
+          in: path
+          description: 'The name of the operation to query. For example $bulkdata-status'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  resourceType: OperationDefinition
+                  name: $bulkdata-status
+                  status: active
+                  kind: operation
+                  parameter: [{ name: job, use: in, min: 1, max: 1, type: { system: 'http://hl7.org/fhir/data-types', code: string, display: string }, searchType: { system: 'http://hl7.org/fhir/ValueSet/search-param-type', code: string, display: string } }]
   /fhir/$export:
     get:
       tags:
         - fhir
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5808,10 +6373,10 @@ paths:
     get:
       tags:
         - fhir
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5822,10 +6387,10 @@ paths:
     delete:
       tags:
         - fhir
-      description: 'THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.'
+      description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
       responses:
         '200':
-          $ref: '#/components/responses/standard'
+          description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
         '400':
           $ref: '#/components/responses/badrequest'
         '401':
@@ -5875,6 +6440,44 @@ paths:
           name: euuid
           in: path
           description: 'The uuid for the encounter.'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  /portal/patient/appointment:
+    get:
+      tags:
+        - standard-patient
+      description: 'Retrieves all appointments for a patient'
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  '/portal/patient/appointment/{auuid}':
+    get:
+      tags:
+        - standard-patient
+      description: 'Returns a selected appointment by its uuid.'
+      parameters:
+        -
+          name: auuid
+          in: path
+          description: 'The uuid for the appointment.'
           required: true
           schema:
             type: string
@@ -6690,6 +7293,68 @@ components:
         to: admin
         title: Other
         message_status: New
+    api_transaction_request:
+      description: 'Schema for the transaction request'
+      required:
+        - message
+        - groupname
+        - title
+      properties:
+        message:
+          description: 'The message of the transaction.'
+          type: string
+        type:
+          description: 'The type of transaction. Use an option from resource=/api/transaction_type'
+          type: string
+        groupname:
+          description: 'The group name (usually is ''Default'').'
+          type: string
+        referByNpi:
+          description: 'NPI of the person creating the referral.'
+          type: string
+        referToNpi:
+          description: 'NPI of the person getting the referral.'
+          type: string
+        referDiagnosis:
+          description: 'The referral diagnosis.'
+          type: string
+        riskLevel:
+          description: 'The risk level. (Low, Medium, High)'
+          type: string
+        includeVitals:
+          description: 'Are vitals included (0,1)'
+          type: string
+        referralDate:
+          description: 'The date of the referral'
+          type: string
+        authorization:
+          description: 'The authorization for the referral'
+          type: string
+        visits:
+          description: 'The number of vists for the referral'
+          type: string
+        validFrom:
+          description: 'The date the referral is valid from'
+          type: string
+        validThrough:
+          description: 'The date the referral is valid through'
+          type: string
+      type: object
+      example:
+        message: Message
+        type: LBTref
+        groupname: Default
+        referByNpi: '9999999999'
+        referToNpi: '9999999999'
+        referDiagnosis: 'Diag 1'
+        riskLevel: Low
+        includeVitals: '1'
+        referralDate: '2022-01-01'
+        authorization: Auth_123
+        visits: '1'
+        validFrom: '2022-01-02'
+        validThrough: '2022-01-03'
+        body: 'Reason 1'
   responses:
     standard:
       description: 'Standard Response'
@@ -6776,14 +7441,19 @@ components:
           scopes:
             openid: 'Generic mandatory scope'
             offline_access: 'Will signal server to provide a refresh token'
+            launch/patient: 'Will provide a patient selector when logging in as an OpenEMR user (required for testing patient/* scopes in swagger if not logging in as a patient)'
             'api:fhir': 'FHIR R4 API'
             patient/AllergyIntolerance.read: 'Read allergy intolerance resources for the current patient (api:fhir)'
+            patient/Appointment.read: 'Read appointment resources for the current patient (api:fhir)'
+            patient/Binary.read: 'Read binary document resources for the current patient (api:fhir)'
             patient/CarePlan.read: 'Read care plan resources for the current patient (api:fhir)'
             patient/CareTeam.read: 'Read care team resources for the current patient (api:fhir)'
             patient/Condition.read: 'Read condition resources for the current patient (api:fhir)'
+            patient/Coverage.read: 'Read coverage resources for the current patient (api:fhir)'
             patient/Device.read: 'Read device resources for the current patient (api:fhir)'
             patient/DiagnosticReport.read: 'Read diagnostic report resources for the current patient (api:fhir)'
             patient/DocumentReference.read: 'Read document reference resources for the current patient (api:fhir)'
+            patient/DocumentReference.$docref: 'Generate a document for the current patient or returns the most current Clinical Summary of Care Document (CCD)'
             patient/Encounter.read: 'Read encounter resources for the current patient (api:fhir)'
             patient/Goal.read: 'Read goal resources for the current patient (api:fhir)'
             patient/Immunization.read: 'Read immunization resources for the current patient (api:fhir)'
@@ -6798,14 +7468,15 @@ components:
             patient/Procedure.read: 'Read procedure resources for the current patient (api:fhir)'
             patient/Provenance.read: 'Read provenance resources for the current patient (api:fhir)'
             system/AllergyIntolerance.read: 'Read all allergy intolerance resources in the system (api:fhir)'
+            system/Binary.read: 'Read all binary document resources in the system (api:fhir)'
             system/CarePlan.read: 'Read all care plan resources in the system (api:fhir)'
             system/CareTeam.read: 'Read all care team resources in the system (api:fhir)'
             system/Condition.read: 'Read all condition resources in the system (api:fhir)'
             system/Coverage.read: 'Read all coverage resources in the system (api:fhir)'
             system/Device.read: 'Read all device resources in the system (api:fhir)'
             system/DiagnosticReport.read: 'Read all diagnostic report resources in the system (api:fhir)'
-            system/Document.read: 'Read all document resources in the system (api:fhir)'
             system/DocumentReference.read: 'Read all document reference resources in the system (api:fhir)'
+            system/DocumentReference.$docref: 'Generate a document for any patient in the system or returns the most current Clinical Summary of Care Document (CCD)'
             system/Encounter.read: 'Read all encounter resources in the system (api:fhir)'
             system/Goal.read: 'Read all goal resources in the system (api:fhir)'
             system/Group.read: 'Read all group resources in the system (api:fhir)'
@@ -6822,6 +7493,7 @@ components:
             system/Procedure.read: 'Read all procedure resources in the system (api:fhir)'
             system/Provenance.read: 'Read all provenance resources in the system (api:fhir)'
             user/AllergyIntolerance.read: 'Read all allergy intolerance resources the user has access to (api:fhir)'
+            user/Binary.read: 'Read all binary documents the user has access to (api:fhir)'
             user/CarePlan.read: 'Read all care plan resources the user has access to (api:fhir)'
             user/CareTeam.read: 'Read all care team resources the user has access to (api:fhir)'
             user/Condition.read: 'Read all condition resources the user has access to (api:fhir)'
@@ -6829,6 +7501,7 @@ components:
             user/Device.read: 'Read all device resources the user has access to (api:fhir)'
             user/DiagnosticReport.read: 'Read all diagnostic report resources the user has access to (api:fhir)'
             user/DocumentReference.read: 'Read all document reference resources the user has access to (api:fhir)'
+            user/DocumentReference.$docref: 'Generate a document for any patient the user has access to or returns the most current Clinical Summary of Care Document (CCD) (api:fhir)'
             user/Encounter.read: 'Read all encounter resources the user has access to (api:fhir)'
             user/Goal.read: 'Read all goal resources the user has access to (api:fhir)'
             user/Immunization.read: 'Read all immunization resources the user has access to (api:fhir)'
@@ -6882,11 +7555,14 @@ components:
             user/soap_note.write: 'Write soap notes the user has access to (api:oemr)'
             user/surgery.read: 'Read surgeries the user has access to (api:oemr)'
             user/surgery.write: 'Write surgeries the user has access to (api:oemr)'
+            user/transaction.read: 'Read transactions the user has access to (api:oemr)'
+            user/transaction.write: 'Write transactions the user has access to (api:oemr)'
             user/vital.read: 'Read vitals the user has access to (api:oemr)'
             user/vital.write: 'Write vitals the user has access to (api:oemr)'
             'api:port': 'Standard Patient Portal OpenEMR API'
             patient/encounter.read: 'Read encounters the patient has access to (api:port)'
             patient/patient.read: 'Write encounters the patient has access to (api:port)'
+            patient/appointment.read: 'Read appointments the patient has access to (api:port)'
 tags:
   -
     name: fhir

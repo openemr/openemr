@@ -13,6 +13,11 @@
  */
 
 require_once("../../globals.php");
+require_once("../../../library/registry.inc.php");
+
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
+
 if (substr($_GET["formname"], 0, 3) === 'LBF') {
     // Use the List Based Forms engine for all LBFxxxxx forms.
     include_once("$incdir/forms/LBF/new.php");
@@ -24,6 +29,14 @@ if (substr($_GET["formname"], 0, 3) === 'LBF') {
 
     // ensure the path variable has no illegal characters
     check_file_dir_name($_GET["formname"]);
+
+    // ensure authorized to see the form
+    if (!AclMain::aclCheckForm($_GET["formname"])) {
+        $formLabel = xl_form_title(getRegistryEntryByDirectory($_GET["formname"], 'name')['name'] ?? '');
+        $formLabel = (!empty($formLabel)) ? $formLabel : $_GET["formname"];
+        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $formLabel]);
+        exit;
+    }
 
     include_once("$incdir/forms/" . $_GET["formname"] . "/new.php");
 }

@@ -1,0 +1,110 @@
+{% if is_edit %}
+{#* We hide the hidden input value so we can properly format our data values *#}
+<tr class="hide">
+    <td>
+        <input type="hidden" class="vitals-conv-unit-save-value" id='{{ field.input|attr }}_input' name="{{ field.input|attr }}"
+               value="{% if attribute(vitals,field.vitalsValue) is numeric %}{{ attribute(vitals,field.vitalsValue)|attr }}{% endif %}" />
+    </td>
+    {% for result in results %}
+        <td class="historicalvalues"></td>
+    {% endfor %}
+</tr>
+{% endif %}
+
+<!-- USA row comes first -->
+    {% if units_of_measurement == MEASUREMENT_METRIC_ONLY  %}
+    <tr class="hide">
+    {% else %}
+    <tr>
+    {% endif %}
+    {% if units_of_measurement == MEASUREMENT_PERSIST_IN_METRIC  %}
+        <td class="unfocus graph" id="{{ field.input|attr }}">
+    {% else %}
+        <td class="graph" id="{{ field.input|attr }}">
+    {% endif %}
+            <span class="vitals-title">{{ field.title|text }}</span> {% if field.codes is not empty %}<small>({{ field.codes|text }})</small>{% endif %}
+        </td>
+    {% if units_of_measurement == MEASUREMENT_PERSIST_IN_METRIC %}
+        <td class="unfocus">
+    {% else %}
+        <td>
+    {% endif %}
+            {{ field.unitLabel|text }}
+        </td>
+    {% if is_edit %}
+        {%  if units_of_measurement == MEASUREMENT_PERSIST_IN_METRIC%}
+            <td class="valuesunfocus">
+        {% else %}
+            <td class='currentvalues p-2'>
+        {% endif %}
+
+            <input type="text" class="form-control vitals-conv-unit skip-template-editor" size='5' id='{{ field.input|attr }}_input_usa'
+                   value="{% if attribute(vitals, field.vitalsValue) is numeric %} {{ attribute(vitals, field.vitalsValue)|number_format(field.precision)|attr }}{% endif %}"
+                   data-system="usa" data-unit="{{ field.unit|attr }}" data-target-input="{{ field.input|attr }}_input"
+                   data-target-input-conv="{{ field.input|attr }}_input_metric"
+                   title='{{ field.vitalsValueUSAHelpTitle|default('')|attr }}'/>
+        </td>
+        <td class="editonly">
+            {% include 'vitals_interpretation_selector.html.twig' with { input: field.input, vitalDetails:vitals.get_details_for_column(field.input) } %}
+        </td>
+        <td class="editonly actions">
+            {% include 'vitals_actions.html.twig' with { input: field.input } %}
+        </td>
+    {% endif %}
+    {% include 'vitals_historical_values.html.twig' with { useMetric:false, vitalsValue:field.vitalsValue,
+        vitalsValueMetric:field.vitalsValueMetric, results:results, precision:field.precision } %}
+    </tr>
+
+<!-- Metric row comes second -->
+{% if units_of_measurement == MEASUREMENT_USA_ONLY %}
+    <tr class="hide">
+{% else %}
+    <tr>
+{% endif %}
+    {% if units_of_measurement == MEASUREMENT_PERSIST_IN_USA %}
+        <td class="unfocus graph" id="{{ field.input|attr }}_metric">
+    {%  else %}
+        <td class="graph" id="{{ field.input|attr }}_metric">
+    {% endif %}
+            <span class="vitals-title">{{ field.title|text }}</span> {% if field.codes is not empty %}<small>({{ field.codes|text }})</small>{% endif %}
+        </td>
+    {% if units_of_measurement == MEASUREMENT_PERSIST_IN_USA %}
+        <td class="unfocus">
+    {%  else %}
+        <td>
+    {% endif %}
+            {{ field.unitMetricLabel|text }}
+    </td>
+    {% if is_edit %}
+        {% if units_of_measurement == MEASUREMENT_PERSIST_IN_USA %}
+            <td class="valuesunfocus">
+        {% else %}
+            <td class='currentvalues p-2'>
+        {% endif %}
+
+            <!-- Note we intentionally use vitalsValue not vitalValuesMetric because of how data is stored internally -->
+            <input type="text" class="form-control vitals-conv-unit skip-template-editor" size='5' id='{{ field.input|attr }}_input_metric'
+                   value="{% if attribute(vitals, field.vitalsValue) is numeric %}{{ attribute(vitals, field.vitalsValueMetric)|number_format(field.precision)|attr }}{% endif %}"
+                   data-system="metric" data-unit="{{ field.unit|attr }}" data-target-input="{{ field.input|attr }}_input"
+                   data-target-input-conv="{{ field.input|attr }}_input_usa" />
+        </td>
+        <td class="editonly">
+            {% if units_of_measurement == MEASUREMENT_METRIC_ONLY %}
+                <!-- we only show the selector if this the only row being displayed -->
+                {% include 'vitals_interpretation_selector.html.twig' with { input: field.input, vitalDetails:vitals.get_details_for_column(field.input), input: field.input } %}
+            {% endif %}
+        </td>
+        <td class="editonly actions">
+            {% if units_of_measurement == MEASUREMENT_METRIC_ONLY %}
+                {% include 'vitals_actions.html.twig' with { input: field.input } %}
+            {% endif %}
+        </td>
+    {% endif %}
+
+        {% include 'vitals_historical_values.html.twig' with { useMetric:true, vitalsValue:field.vitalsValue,
+            vitalsValueMetric:field.vitalsValueMetric, results:results, precision: field.precision, is_edit:is_edit } %}
+    </tr>
+
+{% if is_edit %}
+    {% include 'vitals_reason_row.html.twig' with { input:field.input, title:field.title, vitalDetails:vitals.get_details_for_column(field.input), vitals:vitals, is_edit:is_edit } %}
+{% endif %}

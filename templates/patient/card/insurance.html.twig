@@ -19,7 +19,7 @@
         <div class="text-primary pb-2 pt-1">
             {{ (c.isOld) ? "Old"|xlt ~ " " ~ c.type|capitalize|text : c.type|capitalize|text }} {{ "Insurance"|xlt }}
             {% if c.dispFromDate == true %}{{ "from"|xlt}} {{ c.date|shortDate|text }} {% endif %}
-            {{ "until"|xlt }} {{ "Present"|xlt }}
+            {{ "until"|xlt }} {{ (c.date_end) ? c.date_end|text : "Present"|xlt }}
         </div>
         <div class="d-flex justify-content-between">
             <div class="insurer">
@@ -80,7 +80,7 @@
             </div>
             <div class="list-group list-group-flush flex-fill">
                 <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Copay"|xlt }}:</strong> <span class="text-right">{{ c.copay|text }}</span></div>
-                <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Accepts Assignment"|xlt }}:</strong> <span class="text-right">{{ c.accept_assignment == true ? "Yes"|xlt : "No"|xlt }}</span></div>
+                <div class="list-group-item d-flex justify-content-between p-1"><strong>{{ "Accepts Assignment"|xlt }}:</strong> <span class="text-right">{{ c.accept_assignment == 'TRUE' ? "Yes"|xlt : "No"|xlt }}</span></div>
                 {% if c.policy_type %}
                 <div class="list-group-item d-flex justify-content-between p-1"><strong class="flex-fill">{{ "Secondary Medicare Type"|xlt }}:</strong> <span class="text-right flex-fill">{{ c.policy_type|text }}</span></div>
                 {% endif %}

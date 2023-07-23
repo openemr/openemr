@@ -1,0 +1,29 @@
+<html>
+    <body>
+        <div class='wrapper'>
+            {% if portal_onsite_two_enable is not empty %}
+                {{ "Patient Portal Web Address"|xlt }}:<br />
+                <a href='{{ portal_onsite_two_address|attr }}' target='_blank'>{{ portal_onsite_two_address|text }}</a><br /><br />
+            {% endif %}
+            <strong>{{ "Portal Account Name"|xlt }}</strong>: {{ uname }}<br /><br />
+            <strong>{{ "Login User Name"|xlt }}:</strong> {{ login_uname|text }}
+            <br /><strong>{{ "Password"|xlt }}:</strong>
+            {{ pwd|text }}<br /><br />
+            {% if enforce_signin_email %}
+                <strong>{{ "Login Trusted Email"|xlt  }}</strong>:
+                {% if email_direct is not empty %}
+                    {{  email_direct|text }}
+                {% else %}
+                    {{ "Is Required. Contact Provider."|xlt}}
+                {% endif %}
+            {% endif %}
+            <br /><br />
+            <strong>{{ "You may be required to change your password during first login."|xlt }}</strong><br />
+            {{ "This is required for your security as well as ours."|xlt }}<br />
+            {{ "Afterwards however, you may change your portal credentials anytime from portal menu."|xlt }}<br /><br />
+
+            {% include 'emails/partials/patient/email-message-fhir-access.html.twig' with {fhir_address: fhir_address, fhir_requirements_address: fhir_requirements_address} %}
+            {{ "Thank you for allowing us to serve you."|xlt }}
+        </div>
+    </body>
+</html>

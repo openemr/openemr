@@ -9,7 +9,7 @@
  */
 
 require_once($GLOBALS['fileroot'] . "/library/classes/Controller.class.php");
-require_once($GLOBALS['fileroot'] . "/library/forms.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
 require_once("FormDAP.class.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;

@@ -14,13 +14,20 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("../drugs/drugs.inc.php");
 require_once("$srcdir/payment_jav.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient List Creation")]);
+    exit;
+}
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -47,8 +54,8 @@ $comarr = array
     "allow_email" => xl("Allow Email")
 );
 
-// get array of all insurance companies from function in patient.inc
-$insarr = getInsuranceProviders();
+// get array of all insurance companies from function in patient.inc.php
+$insarr = getInsuranceProvidersExtra();
 
 $_POST['form_details'] = true;
 
@@ -198,18 +205,18 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                 $('#sortby').val('');
                 $('#sortorder').val('');
 
-                if(elem.value == 'Communication') { 
+                if(elem.value == 'Communication') {
                     $('#communication').val('');
                     $('#com_pref').show();
-                } else { 
+                } else {
                     $('#communication').val('');
                     $('#com_pref').hide();
                 }
-                
-                if(elem.value == 'Insurance Companies') { 
+
+                if(elem.value == 'Insurance Companies') {
                     $('#insurance_companies').val('');
                     $('#ins_co').show();
-                } else { 
+                } else {
                     $('#insurance_companies').val('');
                     $('#ins_co').hide();
                     }
@@ -268,10 +275,10 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                                 </td>
                                 <td class='col-form-label'><?php echo xlt('Option'); ?>: </td>
                                 <td class='col-form-label'>
-                                    <select class="form-control" name="srch_option" id="srch_option" 
+                                    <select class="form-control" name="srch_option" id="srch_option"
                                         onchange="srch_option_change(this)">
                                         <?php foreach ($search_options as $skey => $svalue) { ?>
-                                            <option <?php echo (!empty($_POST['srch_option']) && ($_POST['srch_option'] == $skey)) ? 'selected' : ''; ?> 
+                                            <option <?php echo (!empty($_POST['srch_option']) && ($_POST['srch_option'] == $skey)) ? 'selected' : ''; ?>
                                             value="<?php echo attr($skey); ?>"><?php echo text($svalue); ?></option>
                                         <?php } ?>
                                     </select>

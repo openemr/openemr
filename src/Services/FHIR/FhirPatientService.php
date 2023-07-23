@@ -110,12 +110,32 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['title', 'fname', 'mname', 'lname']),
             'birthdate' => new FhirSearchParameterDefinition('birthdate', SearchFieldType::DATE, ['DOB']),
             'gender' => new FhirSearchParameterDefinition('gender', SearchFieldType::TOKEN, [self::FIELD_NAME_GENDER]),
-            'address' => new FhirSearchParameterDefinition('address', SearchFieldType::STRING, ['street', 'postal_code', 'city', 'state']),
+            'address' => new FhirSearchParameterDefinition(
+                'address',
+                SearchFieldType::STRING,
+                ['street', 'street_line_2', 'postal_code', 'city', 'state', 'contact_address_line1'
+                    , 'contact_address_line2', 'contact_address_postal_code', 'contact_address_city'
+                ,
+                'contact_address_state',
+                'contact_address_district']
+            ),
 
             // these are not standard in US Core
-            'address-city' => new FhirSearchParameterDefinition('address-city', SearchFieldType::STRING, ['city']),
-            'address-postalcode' => new FhirSearchParameterDefinition('address-postalcode', SearchFieldType::STRING, ['postal_code']),
-            'address-state' => new FhirSearchParameterDefinition('address-state', SearchFieldType::STRING, ['state']),
+            'address-city' => new FhirSearchParameterDefinition(
+                'address-city',
+                SearchFieldType::STRING,
+                ['city', 'contact_address_city']
+            ),
+            'address-postalcode' => new FhirSearchParameterDefinition(
+                'address-postalcode',
+                SearchFieldType::STRING,
+                ['postal_code', 'contact_address_postal_code']
+            ),
+            'address-state' => new FhirSearchParameterDefinition(
+                'address-state',
+                SearchFieldType::STRING,
+                ['state', 'contact_address_state']
+            ),
 
             'email' => new FhirSearchParameterDefinition('email', SearchFieldType::TOKEN, ['email']),
             'family' => new FhirSearchParameterDefinition('family', SearchFieldType::STRING, ['lname']),
@@ -136,8 +156,10 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
     {
         $patientResource = new FHIRPatient();
 
-        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
-        $patientResource->setMeta(new FHIRMeta($meta));
+        $meta = new FHIRMeta();
+        $meta->setVersionId('1');
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        $patientResource->setMeta($meta);
 
         $patientResource->setActive(true);
         $id = new FHIRId();
@@ -239,7 +261,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                 }
                 if (!empty($prevName['previous_name_enddate'])) {
                     $fhirPeriod = new FHIRPeriod();
-                    $fhirPeriod->setEnd(gmdate('c', strtotime($prevName['previous_name_enddate'])));
+                    $fhirPeriod->setEnd(UtilsService::getLocalDateAsUTC($prevName['previous_name_enddate']));
                     $previousHumanName->setPeriod($fhirPeriod);
                 }
                 $patientResource->addName($previousHumanName);
@@ -249,9 +271,13 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
     private function parseOpenEMRPatientAddress(FHIRPatient $patientResource, $dataRecord)
     {
-        $address = UtilsService::createAddressFromRecord($dataRecord);
-        if ($address !== null) {
-            $patientResource->addAddress($address);
+        if (!empty($dataRecord['addresses'])) {
+            foreach ($dataRecord['addresses'] as $address) {
+                $address = UtilsService::createAddressFromRecord($address);
+                if ($address !== null) {
+                    $patientResource->addAddress($address);
+                }
+            }
         }
     }
 
@@ -416,7 +442,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             $communication = new FHIRPatientCommunication();
             $languageConcept = new FHIRCodeableConcept();
             $language = new FHIRCoding();
-            $language->setSystem(new FHIRUri("http://hl7.org/fhir/us/core/ValueSet/simple-language"));
+            $language->setSystem(new FHIRUri(FhirCodeSystemConstants::LANGUAGE_BCP_47));
             $language->setCode(new FHIRCode($record['notes']));
             $language->setDisplay(xlt($record['title']));
             $languageConcept->addCoding($language);

@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class Entity extends \OpenEMR\Cqm\Qdm\BaseTypes\Any
 {
-
     /**
      * @property string $id
      */
@@ -32,3 +31,4 @@ class Entity extends \OpenEMR\Cqm\Qdm\BaseTypes\Any
 
     public $_type = 'QDM::Entity';
 }
+

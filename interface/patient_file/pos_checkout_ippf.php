@@ -49,7 +49,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/checkout_receipt_array.inc.php");
@@ -59,6 +59,7 @@ use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\FacilityService;
@@ -85,7 +86,8 @@ if (
     !AclMain::aclCheckCore('acct', 'bill') &&
     !AclMain::aclCheckCore('acct', 'disc')
 ) {
-    die("Not authorized!");
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Client Receipt")]);
+    exit;
 }
 
 // This will be used for SQL timestamps that we write.
@@ -1458,12 +1460,12 @@ $alertmsg = ''; // anything here pops up in an alert box
 
 // Make sure we have the encounter ID applicable to this request.
 if (!empty($_POST['form_save'])) {
-    $patient_id = 0 + $_POST['form_pid'];
-    $encounter_id = 0 + $_POST['form_encounter'];
+    $patient_id = (int) $_POST['form_pid'];
+    $encounter_id = (int) $_POST['form_encounter'];
 } else {
     foreach (array('regen', 'enc', 'void', 'voidall') as $key) {
         if (!empty($_GET[$key])) {
-            $encounter_id = 0 + $_GET[$key];
+            $encounter_id = (int) $_GET[$key];
             break;
         }
     }
@@ -1797,7 +1799,8 @@ if (!$encounter_id) {
 
 // Form requires billing permission.
 if (!AclMain::aclCheckCore('admin', 'super') && !AclMain::aclCheckCore('acct', 'bill')) {
-    die("Not authorized!");
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Checkout")]);
+    exit;
 }
 
 // We have $patient_id and $encounter_id. Generate checksum if not already done.

@@ -108,6 +108,7 @@ class FhirDiagnosticReportService extends FhirServiceBase implements IPatientCom
     {
         return [
             'http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-note'
+            ,'http://hl7.org/fhir/us/core/StructureDefinition/us-core-diagnosticreport-lab'
         ];
     }
 }

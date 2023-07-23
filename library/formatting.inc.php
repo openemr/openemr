@@ -12,6 +12,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Services\Utils\DateFormatterUtils;
+
+// TODO: look at moving all of the date functions into the DateFormatterUtils class.
+
 function oeFormatMoney($amount, $symbol = false)
 {
     $s = number_format(
@@ -30,36 +34,7 @@ function oeFormatMoney($amount, $symbol = false)
 
 function oeFormatShortDate($date = 'today', $showYear = true)
 {
-    if ($date === 'today') {
-        $date = date('Y-m-d');
-    }
-
-    if (strlen($date ?? '') >= 10) {
-        // assume input is yyyy-mm-dd
-        if ($GLOBALS['date_display_format'] == 1) {      // mm/dd/yyyy, note year is added below
-            $newDate = substr($date, 5, 2) . '/' . substr($date, 8, 2);
-        } elseif ($GLOBALS['date_display_format'] == 2) { // dd/mm/yyyy, note year is added below
-            $newDate = substr($date, 8, 2) . '/' . substr($date, 5, 2);
-        }
-
-        // process the year (add for formats 1 and 2; remove for format 0)
-        if ($GLOBALS['date_display_format'] == 1 || $GLOBALS['date_display_format'] == 2) {
-            if ($showYear) {
-                $newDate .= '/' . substr($date, 0, 4);
-            }
-        } elseif (!$showYear) { // $GLOBALS['date_display_format'] == 0
-            // need to remove the year
-            $newDate = substr($date, 5, 2) . '-' . substr($date, 8, 2);
-        } else { // $GLOBALS['date_display_format'] == 0
-            // keep the year (so will simply be the original $date)
-            $newDate = substr($date, 0, 10);
-        }
-
-        return $newDate;
-    }
-
-  // this is case if the $date does not have 10 characters
-    return $date;
+    return DateFormatterUtils::oeFormatShortDate($date, $showYear);
 }
 
 // 0 - Time format 24 hr
@@ -101,7 +76,7 @@ function oeFormatTime($time, $format = "global", $seconds = false)
  */
 function oeFormatDateTime($datetime, $formatTime = "global", $seconds = false)
 {
-    return oeFormatShortDate(substr($datetime, 0, 10)) . " " . oeFormatTime(substr($datetime, 11), $formatTime, $seconds);
+    return oeFormatShortDate(substr($datetime ?? '', 0, 10)) . " " . oeFormatTime(substr($datetime ?? '', 11), $formatTime, $seconds);
 }
 
 /**
@@ -198,37 +173,17 @@ function DateFormatRead($mode = 'legacy')
 
 function DateToYYYYMMDD($DateValue)
 {
-    //With the help of function DateFormatRead() now the user can enter date is any of the 3 formats depending upon the global setting.
-    //But in database the date can be stored only in the yyyy-mm-dd format.
-    //This function accepts a date in any of the 3 formats, and as per the global setting, converts it to the yyyy-mm-dd format.
-    if (trim($DateValue ?? '') == '') {
-        return '';
-    }
-
-    if ($GLOBALS['date_display_format'] == 0) {
-        return $DateValue;
-    } elseif ($GLOBALS['date_display_format'] == 1 || $GLOBALS['date_display_format'] == 2) {
-        $DateValueArray = explode('/', $DateValue);
-        if ($GLOBALS['date_display_format'] == 1) {
-            return $DateValueArray[2] . '-' . $DateValueArray[0] . '-' . $DateValueArray[1];
-        }
-
-        if ($GLOBALS['date_display_format'] == 2) {
-            return $DateValueArray[2] . '-' . $DateValueArray[1] . '-' . $DateValueArray[0];
-        }
-    }
+    return DateFormatterUtils::DateToYYYYMMDD($DateValue);
 }
 
 function TimeToHHMMSS($TimeValue)
 {
-    //For now, just return the $TimeValue, since input fields are not formatting time.
-    // This can be upgraded if decided to format input time fields.
-
     if (trim($TimeValue) == '') {
         return '';
     }
 
-    return $TimeValue;
+    $date = new DateTimeImmutable('1970-01-01' . $TimeValue);
+    return $date->format('H:i:s');
 }
 
 

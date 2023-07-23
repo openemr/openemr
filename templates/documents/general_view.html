@@ -14,111 +14,88 @@
 
  {dispatchPatientDocumentEvent event="javascript_ready_fax_dialog"}
 
- function popoutcontent(othis) {literal}{{/literal}
+ function popoutcontent(othis) {
     let popsrc = $(othis).parents('body').find('#DocContents iframe').attr("src");
     let wname = '_' + Math.random().toString(36).substr(2, 6);
     let opt = "menubar=no,location=no,resizable=yes,scrollbars=yes,status=no";
     window.open(popsrc,wname, opt);
 
     return false;
- {literal}}{/literal}
+}
 
  // Process click on Delete link.
- function deleteme(docid) {literal}{{/literal}
+ function deleteme(docid) {
   dlgopen('interface/patient_file/deleter.php?document=' + encodeURIComponent(docid) + '&csrf_token_form=' + {$csrf_token_form|js_url}, '_blank', 500, 450);
   return false;
- {literal}}{/literal}
+ }
 
  // Called by the deleter.php window on a successful delete.
- function imdeleted() {literal}{{/literal}
+ function imdeleted() {
   top.restoreSession();
   window.location.href={$REFRESH_ACTION|js_escape};
- {literal}}{/literal}
+ }
 
  // Called to show patient notes related to this document in the "other" frame.
- function showpnotes(docid) {literal}{{/literal}
-     let btnClose = {xlj t="Done"}{literal};
+ function showpnotes(docid) {
+     let btnClose = {xlj t="Done"};
      let url = top.webroot_url + '/interface/patient_file/summary/pnotes.php?docid=' + encodeURIComponent(docid);
      dlgopen(url, 'pno1', 'modal-xl', 500, '', '', {
          buttons: [
-             {text: btnClose, close: true, style: 'default btn-sm'}
+             { text: btnClose, close: true, style: 'default btn-sm' }
          ]
      });
      return false;
- }{/literal}
+ }
 
- function submitNonEmpty( e ) {literal}{{/literal}
-	if ( e.elements['passphrase'].value.length == 0 ) {literal}{{/literal}
+ function submitNonEmpty( e ) {
+	if ( e.elements['passphrase'].value.length == 0 ) {
 		alert( {xlj t='You must enter a pass phrase to encrypt the document'} );
-	{literal}}{/literal} else {literal}{{/literal}
+	} else {
 		e.submit();
-	{literal}}{/literal}
- {literal}}{/literal}
+	}
+ }
 
 // For tagging it with an encounter
-function tagUpdate() {literal}{{/literal}
+function tagUpdate() {
 	var f = document.forms['document_tag'];
-	if (f.encounter_check.checked) {literal}{{/literal}
-		if(f.visit_category_id.value==0) {literal}{{/literal}
+	if (f.encounter_check.checked) {
+		if(f.visit_category_id.value==0) {
 			alert({xlj t='Please select visit category'} );
 			return false;
-		{literal}}{/literal}
-	{literal}}{/literal} else if (f.encounter_id.value == 0 ) {literal}{{/literal}
+		}
+	} else if (f.encounter_id.value == 0 ) {
 		alert({xlj t='Please select encounter'});
 		return false;
-	{literal}}{/literal}
+	}
 	//top.restoreSession();
 	document.forms['document_tag'].submit();
-{literal}}{/literal}
+}
 
 // For new or existing encounter
-function set_checkbox() {literal}{{/literal}
+function set_checkbox() {
 	var f = document.forms['document_tag'];
-	if (f.encounter_check.checked) {literal}{{/literal}
+	if (f.encounter_check.checked) {
 		f.encounter_id.disabled = true;
 		f.visit_category_id.disabled = false;
 		$('.hide_clear').attr('href','javascript:void(0);');
-	{literal}}{/literal} else {literal}{{/literal}
+	} else {
 		f.encounter_id.disabled = false;
 		f.visit_category_id.disabled = true;
 		f.visit_category_id.value = 0;
 		$('.hide_clear').attr('href','{$clear_encounter_tag}');
-	{literal}}{/literal}
-{literal}}{/literal}
+	}
+}
 
 // For tagging it with any procedure
-function tagProcedure() {literal}{{/literal}
+function tagProcedure() {
 	var f = document.forms['procedure_tag'];
-	if(f.image_procedure_id.value == 0 ) {literal}{{/literal}
+	if(f.image_procedure_id.value == 0 ) {
 		alert({xlj t='Please select procedure'});
 		return false;
-	{literal}}{/literal}
+	}
 	f.procedure_code.value = f.image_procedure_id.options[f.image_procedure_id.selectedIndex].getAttribute('data-code');
 	document.forms['procedure_tag'].submit();
-{literal}}{/literal}
- // Process click on Import link.
- function import_ccr(docid) {literal}{
-  top.restoreSession();
-  $.ajax({
-    url: "library/ajax/ccr_import_ajax.php",
-    type: "POST",
-    dataType: "html",
-    data:
-    {{/literal}
-      csrf_token_form : {$csrf_token_form|js_escape},
-      ccr_ajax : "yes",
-      document_id : docid
-    {literal}},
-    success: function(data){
-      alert(data);
-      top.restoreSession();
-      document.location.reload();
-    },
-    error:function(){
-      alert("failure");
-    }
-  });
- }{/literal}
+}
 </script>
 
 <table class="w-100 align-top">
@@ -131,16 +108,12 @@ function tagProcedure() {literal}{{/literal}
                 <button class="btn btn-sm btn-primary active">{xlt t='Contents'}</button>
               </div>
             <span class="float-right">
-            <script>var file = {$file->get_url()|js_escape};var mime = {$file->get_mimetype()|js_escape};</script>
+            <script>var file = {$file->get_url()|js_escape};var mime = {$file->get_mimetype()|js_escape};var docid = {$file->get_id()|js_escape};</script>
             {dispatchPatientDocumentEvent event="actions_render_fax_anchor"}
             <a class="btn btn-primary" href='' onclick='return popoutcontent(this)' title="{xla t='Pop Out Full Screen.'}">{xlt t='Pop Out'}</a>
             <a class="btn btn-primary" href="{$web_path|attr}" title="{xla t='Original file'}" onclick="top.restoreSession()">{xlt t='Download'}</a>
             <a class="btn btn-primary" href='' onclick='return showpnotes({$file->get_id()|attr_js})'>{xlt t='Show Notes'}</a>
             {$delete_string}
-            {if $file->get_ccr_type($file->get_id()) eq "CCR" and ($file->get_mimetype($file->get_id()) eq "application/xml" or $file->get_mimetype($file->get_id()) eq "text/xml") and
-            $file->get_imported($file->get_id()) eq 0 }
-            <a class="btn btn-primary" href='javascript:' onclick='return import_ccr({$file->get_id()|attr_js})'>{xlt t='Import'}</a>
-            {/if}
             </span>
             </h4>
             </div>
@@ -188,7 +161,7 @@ function tagProcedure() {literal}{{/literal}
           <div class="input-group">
             <select class="form-control mr-1" name="new_category_id">{$tree_html_listbox}</select>
               <label>{xlt t='Move to Patient PID'}</label><input class="ml-1" type="text" class="form-control" name="new_patient_id" size="4" />
-            <a class="btn btn-search btn-secondary" href="javascript:{literal}{}{/literal}" onclick="top.restoreSession();var URL='controller.php?patient_finder&find&form_id={"document_move['new_patient_id']"|attr_url}&form_name={"document_move['new_patient_name']"|attr_url}'; window.open(URL, 'document_move', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left=425,top=250');"></a>
+            <a class="btn btn-search btn-secondary" href="javascript:{}" onclick="top.restoreSession();var URL='controller.php?patient_finder&find&form_id={"document_move['new_patient_id']"|attr_url}&form_name={"document_move['new_patient_name']"|attr_url}'; window.open(URL, 'document_move', 'toolbar=0,scrollbars=1,location=0,statusbar=1,menubar=0,resizable=1,width=450,height=400,left=425,top=250');"></a>
               <input type="hidden" name="new_patient_name" value="" />
           </div>
           <button class="btn btn-primary ml-1" onclick="document.forms['document_move'].submit();">{xlt t='Move'}</button>
@@ -227,11 +200,11 @@ function tagProcedure() {literal}{{/literal}
               <strong>{xlt t='Notes'}</strong>
             </div>
             <div class="float-none form-inline">
-              <a class="btn btn-primary btn-sm" href="javascript:;" onclick="document.notes.identifier.value='no';document.forms['notes'].submit();">({xlt t='Add Note'})</a>
+              <a class="btn btn-primary btn-sm" href="javascript:;" onclick="document.notes.identifier.value='no';document.forms['notes'].submit();">{xlt t='Add Note'}</a>
               &nbsp;&nbsp;&nbsp;<strong>{xlt t='Email'}</strong>&nbsp;
               <input type="text" class="form-control" size="25" name="provide_email" id="provide_email" />
               <input type="hidden" name="identifier" id="identifier" />
-              <a class="btn btn-primary btn-sm" href="javascript:;" onclick="javascript:document.notes.identifier.value='yes';document.forms['notes'].submit();">({xlt t='Send'})</a>
+              <a class="btn btn-primary btn-sm" href="javascript:;" onclick="javascript:document.notes.identifier.value='yes';document.forms['notes'].submit();">{xlt t='Send'}</a>
             </div>
             <div>
               <textarea cols="53" rows="8" wrap="virtual" name="note" class="form-control w-100"></textarea><br />
@@ -279,7 +252,7 @@ function tagProcedure() {literal}{{/literal}
 	</tr>
 </table>
 <script>
-{literal}
+
 $('.btn-toggle').click(function() {
     $(this).find('.btn').toggleClass('active');
 
@@ -291,5 +264,5 @@ $('.btn-toggle').click(function() {
     var show_prop = ($(this).find('.properties.active').length > 0 ? 'block':'none');
     $("#DocProperties").css('display', show_prop);
 });
-{/literal}
+
 </script>

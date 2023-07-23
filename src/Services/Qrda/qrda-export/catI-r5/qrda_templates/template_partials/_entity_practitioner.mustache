@@ -1,0 +1,19 @@
+<participantRole>
+    <templateId root="2.16.840.1.113883.10.20.24.3.162" extension="2019-12-01" />
+    {{#identifier}}
+      <id root="{{{namingSystem}}}" extension="{{{value}}}"/>
+    {{/identifier}}
+    {{#role}}
+      <code {{> _code}}/>
+    {{/role}}
+    {{#specialty}}
+      <playingEntity>
+        <code {{> _code}}/>
+      </playingEntity>
+    {{/specialty}}
+    {{#qualification}}
+      <scopingEntity>
+        <code {{> _code}}/>
+      </scopingEntity>
+    {{/qualification}}
+</participantRole>

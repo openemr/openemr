@@ -18,6 +18,7 @@ require_once("$include_root/drugs/drugs.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -39,7 +40,8 @@ $auth_drug_reports = $GLOBALS['inhouse_pharmacy'] && (
     AclMain::aclCheckCore('admin', 'drugs') ||
     AclMain::aclCheckCore('inventory', 'reporting'));
 if (!$auth_drug_reports) {
-    die(xlt("Not authorized"));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Inventory List")]);
+    exit;
 }
 
 // Note if user is restricted to any facilities and/or warehouses.
@@ -264,8 +266,8 @@ function write_report_line(&$row)
     global $gbl_expired_lot_warning_days, $form_facility, $form_warehouse, $form_action;
 
     $emptyvalue = $form_action != 'export' ? '&nbsp;' : '';
-    $drug_id = 0 + $row['drug_id'];
-    $on_hand = 0 + $row['on_hand'];
+    $drug_id = (int) $row['drug_id'];
+    $on_hand = (int) $row['on_hand'];
     $warehouse_id = isset($row['warehouse_id']) ? $row['warehouse_id'] : '';
     $facility_id = empty($row['option_value']) ? '0' : $row['option_value'];
     $warnings = '';
@@ -928,7 +930,7 @@ if ($form_action) { // if submit
     $warehouse_row = array('drug_id' => 0, 'warehouse_id' => '');
 
     while ($row = sqlFetchArray($res)) {
-        $drug_id = 0 + $row['drug_id'];
+        $drug_id = (int) $row['drug_id'];
         if ($form_details == 2) {
             if ($drug_id != $last_drug_id || $row['warehouse_id'] != $warehouse_row['warehouse_id']) {
                 if (!empty($warehouse_row['drug_id'])) {

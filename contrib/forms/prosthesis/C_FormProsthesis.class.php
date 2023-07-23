@@ -1,6 +1,6 @@
 <?php
 
-require_once($GLOBALS['fileroot'] . "/library/forms.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
 require_once("FormProsthesis.class.php");
 
 use OpenEMR\Billing\BillingUtilities;
@@ -45,16 +45,16 @@ class C_FormProsthesis extends Controller
             return;
         }
 
-        $this->prosthesis = new FormProsthesis($_POST['id']);
-        parent::populate_object($this->prosthesis);
+        $this->form = new FormProsthesis($_POST['id']);
+        parent::populate_object($this->form);
 
 
-        $this->prosthesis->persist();
+        $this->form->persist();
         if ($GLOBALS['encounter'] == "") {
             $GLOBALS['encounter'] = date("Ymd");
         }
 
-        addForm($GLOBALS['encounter'], "Prosthesis & Orthotics Form", $this->prosthesis->id, "prosthesis", $GLOBALS['pid'], $_SESSION['userauthorized']);
+        addForm($GLOBALS['encounter'], "Prosthesis & Orthotics Form", $this->form->id, "prosthesis", $GLOBALS['pid'], $_SESSION['userauthorized']);
 
         if (!empty($_POST['cpt_code'])) {
             $sql = "select * from codes where code = ? order by id";

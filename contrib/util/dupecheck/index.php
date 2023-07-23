@@ -15,6 +15,7 @@ require_once("./Utils.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -27,7 +28,8 @@ if (!empty($_POST)) {
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    die(xlt("Not Authorized"));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Duplication Check")]);
+    exit;
 }
 
 /* Use this code to identify duplicate patients in OpenEMR

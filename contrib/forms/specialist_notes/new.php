@@ -20,8 +20,8 @@
 // of the License, or (at your option) any later version.
 
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Core\Header;
 

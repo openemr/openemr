@@ -238,7 +238,7 @@ class AclExtended
 
         //see if this user is gacl protected (ie. do not allow
         //removal from the Administrators group)
-        require_once(dirname(__FILE__) . '/../../../library/user.inc');
+        require_once(dirname(__FILE__) . '/../../../library/user.inc.php');
 
         $userNameToID = (new UserService())->getIdByUsername($user_name);
 
@@ -1010,6 +1010,43 @@ class AclExtended
                 break;
             case 1:
                 echo "The '$object_title' object of the '$section_title' section is already found in the '$group_title' group '$return_value' ACL.</BR>";
+                break;
+            default:
+                echo "<B>ERROR</B>, Multiple '$group_title' group '$return_value' ACLs with the '$object_title' object of the '$section_title' section are present.</BR>";
+                break;
+        }
+
+        return;
+    }
+
+
+    /**
+     * Shift the ACL, opposite of updateAcl()
+     * Tries to remove the object from a specific ACL if only one is found.
+     *
+     * @param  array   $array_acl_id_number   Array containing hopefully one element, which is an integer, and is identifier of acl to be updated.
+     * @param  string  $group_title           Title of group.
+     * @param  string  $object_section_name   Identifier of section
+     * @param  string  $object_section_title  Title of section
+     * @param  string  $object_name           Identifier of object
+     * @param  string  $object_title          Title of object
+     * @param  string  $acl_return_value      What the acl returns (string), usually 'write', 'addonly', 'wsome' or 'view'
+     */
+    public static function shiftAcl($array_acl_id_number, $group_title, $section_name, $section_title, $object_name, $object_title, $return_value)
+    {
+        $gacl = self::collectGaclApiObject();
+        $tmp_array = $gacl->search_acl($section_name, $object_name, false, false, $group_title, false, false, false, $return_value);
+        switch (count($tmp_array)) {
+            case 0:
+                echo "The '$object_title' object of the '$section_title' section is not found in the '$group_title' group '$return_value' ACL.</BR>";
+                break;
+            case 1:
+                $tmp_boolean = @$gacl->shift_acl($array_acl_id_number[0], null, null, null, null, array($section_name => array($object_name)));
+                if ($tmp_boolean) {
+                    echo "Successfully removed the '$object_title' object of the '$section_title' section into the '$group_title' group '$return_value' ACL.</BR>";
+                } else {
+                    echo "<B>ERROR</B>,unable to remove the '$object_title' object of the '$section_title' section into the '$group_title' group '$return_value' ACL.</BR>";
+                }
                 break;
             default:
                 echo "<B>ERROR</B>, Multiple '$group_title' group '$return_value' ACLs with the '$object_title' object of the '$section_title' section are present.</BR>";

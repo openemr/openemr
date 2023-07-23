@@ -83,7 +83,7 @@ class FhirClinicalNotesService extends FhirServiceBase
             'patient' => $this->getPatientContextSearchField(),
             'type' => new FhirSearchParameterDefinition('type', SearchFieldType::TOKEN, ['code']),
             'category' => new FhirSearchParameterDefinition('category', SearchFieldType::TOKEN, ['category']),
-            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
+            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATE, ['date']),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
         ];
     }
@@ -93,7 +93,7 @@ class FhirClinicalNotesService extends FhirServiceBase
         $docReference = new FHIRDocumentReference();
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(gmdate('c'));
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $docReference->setMeta($meta);
 
         $id = new FHIRId();
@@ -105,7 +105,7 @@ class FhirClinicalNotesService extends FhirServiceBase
         $docReference->addIdentifier($identifier);
 
         if (!empty($dataRecord['date'])) {
-            $docReference->setDate(gmdate('c', strtotime($dataRecord['date'])));
+            $docReference->setDate(UtilsService::getLocalDateAsUTC($dataRecord['date']));
         } else {
             $docReference->setDate(UtilsService::createDataMissingExtension());
         }
@@ -116,7 +116,7 @@ class FhirClinicalNotesService extends FhirServiceBase
             // we currently don't track anything dealing with start and end date for the context
             if (!empty($dataRecord['encounter_date'])) {
                 $period = new FHIRPeriod();
-                $period->setStart(gmdate('c', strtotime($dataRecord['encounter_date'])));
+                $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['encounter_date']));
                 $context->setPeriod($period);
             }
             $context->addEncounter(UtilsService::createRelativeReference('Encounter', $dataRecord['euuid']));
@@ -230,7 +230,12 @@ class FhirClinicalNotesService extends FhirServiceBase
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
         $fhirProvenanceService = new FhirProvenanceService();
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $dataRecord->getAuthor());
+        $authors = $dataRecord->getAuthor();
+        $author = null;
+        if (!empty($authors)) {
+            $author = reset($authors); // grab the first one, as we only populate one anyways.
+        }
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $author);
         if ($encode) {
             return json_encode($fhirProvenance);
         } else {

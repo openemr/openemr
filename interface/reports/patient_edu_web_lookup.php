@@ -8,9 +8,11 @@
  * @author    Tony McCormick <tony@mi-squared.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
+ * @author    Robert Down <robertdown@live.com>
  * @copyright Copyright (C) 2011 Tony McCormick <tony@mi-squared.com>
  * @copyright Copyright (C) 2011-2018 Brady Miller   <brady.g.miller@gmail.com>
  * @copyright Copyright (C) 2017 Roberto Vasquez <robertogagliotta@gmail.com>
+ * @copyright Copyright (c) 2022-2023 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  *
  */
@@ -20,6 +22,7 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\ListService;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -28,11 +31,13 @@ if (!empty($_POST)) {
 }
 
 // Reference website links
-$websites = array(
-    'Medline'   => 'http://vsearch.nlm.nih.gov/vivisimo/cgi-bin/query-meta?v%3Aproject=medlineplus&query=[%]&x=12&y=15',
-    'eMedicine' => 'http://search.medscape.com/reference-search?newSearchHeader=1&queryText=[%]',
-    'WebMD'     => 'http://www.webmd.com/search/search_results/default.aspx?query=[%]&sourceType=undefined'
-);
+$listService = new ListService();
+$options = $listService->getOptionsByListName('external_patient_education');
+
+$websites = [];
+foreach ($options as $opt) {
+    $websites[$opt['title']] = $opt['notes'];
+}
 
 // Collect variables
 $form_lookup_at = (isset($_POST['form_lookup_at'])) ? $_POST['form_lookup_at'] : '';
@@ -70,12 +75,10 @@ $form_diagnosis = (isset($_POST['form_diagnosis'])) ? $_POST['form_diagnosis'] :
                             <select name='form_lookup_at' id='form_lookup_at'  class='form-control'>
                                 <?php
                                 foreach ($websites as $key => $value) {
-                                    echo "    <option value='" . attr($key) . "'";
-                                    if ($key == $form_lookup_at) {
-                                        echo ' selected';
-                                    }
-
-                                    echo ">" .  text($key) . "</option>\n";
+                                    $key_attr = attr($key);
+                                    $display = text($key);
+                                    $selected = ($key == $form_lookup_at) ? "selected" : "";
+                                    echo "<option value='{$key_attr}' {$selected}>$display</option>\n";
                                 }
                                 ?>
                             </select>

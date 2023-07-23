@@ -33,6 +33,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
     private $_current; // the current object in the set
     private $_last; // the previous object in the set
     private $_totalcount;
+    private $_eof;
     private $_no_exception; // used during iteration to suppress exception on the final Next call
     private $_cache_timeout; // length of time to cache query results
     public $UnableToCache = true;
@@ -93,6 +94,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
      * @access public
      * @return Preezable
      */
+    #[\ReturnTypeWillChange]
     function Next()
     {
         if ($this->UnableToCache) {
@@ -147,6 +149,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
     {
         return $this->_phreezer->DataAdapter->Execute($this->_sql);
     }
+    #[\ReturnTypeWillChange]
     public function rewind()
     {
         $this->_rs = null;
@@ -156,6 +159,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
         $this->_verifyRs();
         $this->Next(); // we have to get the party started for php iteration
     }
+    #[\ReturnTypeWillChange]
     public function current()
     {
         // php iteration calls next then gets the current record. The DataSet
@@ -163,10 +167,12 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
         // laster iteration to make it work properly
         return ($this->key() == $this->Count()) ? $this->_last : $this->_current;
     }
+    #[\ReturnTypeWillChange]
     public function key()
     {
         return $this->_counter;
     }
+    #[\ReturnTypeWillChange]
     public function valid()
     {
         return $this->key() <= $this->Count();

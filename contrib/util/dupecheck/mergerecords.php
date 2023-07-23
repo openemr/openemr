@@ -11,12 +11,13 @@
  */
 
 require_once("../../../interface/globals.php");
-require_once("../../../library/pnotes.inc");
+require_once("../../../library/pnotes.inc.php");
 require_once("./Utils.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -37,7 +38,8 @@ if (!empty($_GET)) {
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    die(xlt("Not Authorized"));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Merge Records")]);
+    exit;
 }
 
 ?>

@@ -89,7 +89,7 @@ class BillingClaim implements \JsonSerializable
     protected $target;
 
     /**
-     * If this is the last claim in the processing queue, the this
+     * If this is the last claim in the processing queue, then this
      * is true otherwise it's false. It is set by the BillingProcessor
      * object while preparing claims.
      *
@@ -97,7 +97,13 @@ class BillingClaim implements \JsonSerializable
      */
     protected $is_last;
 
-    public function __construct($claimId, $partner_and_payor)
+    /**
+     * processing task action
+     * @var string
+     */
+    public $action;
+
+    public function __construct($claimId, $partner_and_payor, $processing_task_action)
     {
         // Assume this is not the last claim in the "loop" unless explicitly set.
         $this->is_last = false;
@@ -132,6 +138,9 @@ class BillingClaim implements \JsonSerializable
             $target = $result['processing_format'];
         }
         $this->target = $target ?? '';
+
+        // pass in action from processing task so can log generation context in billing report/manager
+        $this->action = $processing_task_action;
     }
 
     /**
@@ -223,6 +232,7 @@ class BillingClaim implements \JsonSerializable
         $this->is_last = $is_last;
     }
 
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         $vars = get_object_vars($this);

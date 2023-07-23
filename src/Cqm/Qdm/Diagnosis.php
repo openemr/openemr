@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class Diagnosis extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -67,3 +66,4 @@ class Diagnosis extends QDMBaseType
 
     public $_type = 'QDM::Diagnosis';
 }
+

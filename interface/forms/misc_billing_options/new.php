@@ -21,12 +21,12 @@
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/api.inc");
-require_once("date_qualifier_options.php");
-require_once("$srcdir/user.inc");
-require_once("$srcdir/pid.inc");
-require_once("$srcdir/encounter.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/user.inc.php");
+require_once("$srcdir/pid.inc.php");
+require_once("$srcdir/encounter.inc.php");
 
+use OpenEMR\Billing\MiscBillingOptions;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\Header;
@@ -50,18 +50,20 @@ if (isset($_REQUEST['isBilling'])) {
     SessionUtil::unsetSession(['billpid', 'billencounter']);
 }
 
+$MBO = new OpenEMR\Billing\MiscBillingOptions();
+
 if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
 }
 //only one misc billing form per encounter so grab if exists
-$formid = 0 + (isset($_GET['id']) ? $_GET['id'] : 0);
+$formid = (int) (isset($_GET['id']) ? $_GET['id'] : 0);
 if (empty($formid)) {
     $mboquery = sqlquery("SELECT `fmbo`.`id` FROM `form_misc_billing_options` AS `fmbo`
                           INNER JOIN `forms` ON (`fmbo`.`id` = `forms`.`form_id`) WHERE
                           `forms`.`deleted` = 0 AND `forms`.`formdir` = 'misc_billing_options' AND
                           `forms`.`encounter` = ? ORDER BY `fmbo`.`id` DESC", array($encounter));
     if (!empty($mboquery['id'])) {
-        $formid = 0 + $mboquery['id'];
+        $formid = (int) $mboquery['id'];
     }
 }
 $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
@@ -153,7 +155,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                     value='<?php echo attr($onset_date); ?>' title='<?php echo xla('yyyy-mm-dd'); ?>' />
                             </div>
                             <div class="col-md">
-                                <?php echo generateDateQualifierSelect("box_14_date_qual", $box_14_qualifier_options, $obj); ?>
+                                <?php echo $MBO->generateDateQualifierSelect("box_14_date_qual", $MBO->box_14_qualifier_options, $obj); ?>
                             </div>
                         </div>
                         <div class="form-row mt-3">
@@ -167,7 +169,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                                     title='<?php echo xla('yyyy-mm-dd'); ?>' />
                             </div>
                             <div class="col-md">
-                                <?php generateDateQualifierSelect("box_15_date_qual", $box_15_qualifier_options, $obj); ?>
+                                <?php $MBO->generateDateQualifierSelect("box_15_date_qual", $MBO->box_15_qualifier_options, $obj); ?>
                             </div>
                         </div>
                         <div class="form-row mt-3">
@@ -197,9 +199,9 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                             <label class="form-inline"><?php echo xlt('Box 17. Provider') ?>:</label>
                             <?php
                             if (!empty($obj["provider_id"])) {
-                                genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', $obj["provider_id"]);
+                                $MBO->genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', $obj["provider_id"]);
                             } else { // defalut to the patient's ref_prov
-                                genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', getPatientData($pid, "ref_providerID")['ref_providerID']);
+                                $MBO->genReferringProviderSelect('provider_id', '-- ' . xl("Please Select") . ' --', getPatientData($pid, "ref_providerID")['ref_providerID']);
                             } ?>
                         </div>
                         <div class="form-group">
@@ -264,12 +266,26 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : array();
                         </div>
                         <div class="form-row mt-3">
                             <div class="col-md">
-                                <label><?php echo xlt('X12 only: Replacement Claim'); ?>:</label>
-                                <input type="checkbox" name="replacement_claim" id="replacement_claim" value="1"
+                                <input type="radio" class="btn-check" name="replacement_claim" id="replacement_claim" autocomplete="Off" value="1"
                                     <?php
                                     if (!empty($obj['replacement_claim']) && ($obj['replacement_claim'] == "1")) {
                                         echo "checked";
                                     } ?> />
+                                <label class="btn btn-secondary" for="replacement_claim"><?php echo xlt('X12 only: Replacement Claim'); ?>:</label>
+
+                                <input type="radio" class="btn-check" name="replacement_claim" id="void_claim" autocomplete="Off" value="2"
+                                    <?php
+                                    if (!empty($obj['replacement_claim']) && ($obj['replacement_claim'] == "2")) {
+                                        echo "checked";
+                                    } ?> />
+                                <label class="btn btn-secondary" for="void_claim"><?php echo xlt('Void Claim'); ?>:</label>
+
+                                <input type="radio" class="btn-check" name="replacement_claim" id="new_claim" autocomplete="Off" value="0"
+                                    <?php
+                                    if (empty($obj['replacement_claim'])) {
+                                        echo "checked";
+                                    } ?> />
+                                <label class="btn btn-secondary" for="new_claim"><?php echo xlt('New Claim'); ?>:</label>
                             </div>
                             <div class="col-md">
                                 <label><?php echo xlt('X12 only ICN resubmission No.'); ?>:</label>

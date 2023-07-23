@@ -42,6 +42,7 @@ class VitalsService extends BaseService
     private $shouldConvertVitalMeasurements;
 
     private $dispatcher;
+    private $units_of_measurement;
 
     public function __construct(?int $units_of_measurement = null)
     {
@@ -119,6 +120,9 @@ class VitalsService extends BaseService
                     ,details.interpretation_option_id
                     ,details.interpretation_codes
                     ,details.interpretation_title
+                    ,details.reason_code
+                    ,details.reason_status
+                    ,details.reason_description
                     ,details.vitals_column
                 FROM
                 (
@@ -175,6 +179,9 @@ class VitalsService extends BaseService
                         ,interpretation_option_id
                         ,interpretation_codes
                         ,interpretation_title
+                        ,reason_code
+                        ,reason_status
+                        ,reason_description
                         ,vitals_column
                     FROM
                         form_vital_details
@@ -273,7 +280,7 @@ class VitalsService extends BaseService
 
 
         $detailColumns = ['details_id', 'interpretation_codes', 'interpretation_title', 'vitals_column'
-            , 'interpretation_list_id', 'interpretation_option_id'];
+            , 'interpretation_list_id', 'interpretation_option_id', 'reason_code', 'reason_status', 'reason_description'];
 
 
         // we only set the details record if we actually have a details

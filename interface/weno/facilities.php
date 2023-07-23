@@ -12,12 +12,13 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Rx\Weno\FacilityProperties;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo xlt('ACL Administration Not Authorized');
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Weno Admin")]);
     exit;
 }
 

@@ -10,11 +10,19 @@
 
 //INCLUDES, DO ANY ACTIONS, THEN GET OUR DATA
 require_once("../globals.php");
-require_once("$srcdir/registry.inc");
+require_once("$srcdir/registry.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('admin', 'forms')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Forms Administration")]);
+    exit;
+}
 
 if (!empty($_GET['method']) && ($_GET['method'] == "enable")) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -40,7 +48,12 @@ if (!empty($_GET['method']) && ($_GET['method'] == "enable")) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-    registerForm($_GET['name']) or $err = xl('error while registering form!');
+    $newRegisteredFormId = registerForm($_GET['name']) or $err = xl('error while registering form!');
+    if (empty($err)) {
+        // below block of code will insert the patient portal template (if it has not yet already been added) if the
+        //  form is patient portal compliant
+        CoreFormToPortalUtility::insertPatientPortalTemplate($newRegisteredFormId);
+    }
 }
 
 $bigdata = getRegistered("%") or $bigdata = false;
@@ -85,7 +98,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
 
             <?php //ERROR REPORTING
             if (!empty($err)) {
-                echo "<span class='font-weight-bold text-danger'>" . text($err) . "</span>\n";
+                echo "<span>" . text($err) . "</span>\n";
             }
             ?>
 
@@ -99,7 +112,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                 <input class="btn btn-primary" type='submit' name='update' value='<?php echo xla('Save'); ?>'>
 
                 <div class="table-responsive mt-3">
-                    <table class="table table-striped">
+                    <table class="table table-striped table-sm">
                       <thead>
                         <tr>
                             <th colspan="5"></th>
@@ -116,13 +129,17 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                     "select priority, category, nickname, aco_spec from registry where id = ?",
                                     array($registry['id'])
                                 );
+                                $patientPortalCompliant = file_exists($GLOBALS['srcdir'] . "/../interface/forms/" . $registry['directory'] . "/patient_portal.php");
                                 ?>
                             <tr>
                                 <td>
                                     <span class='text'><?php echo text($registry['id']); ?></span>
                                 </td>
                                 <td>
-                                    <span class='font-weight-bold'><?php echo text(xl_form_title($registry['name'])); ?></span>
+                                    <?php
+                                    echo text(xl_form_title($registry['name']));
+                                    echo ($patientPortalCompliant) ? ' <i class="fas fa-cloud-arrow-up" title="' . xla('Patient Portal Compliant') . '"></i>' : '';
+                                    ?>
                                 </td>
                                 <?php
                                 if ($registry['sql_run'] == 0) {
@@ -154,11 +171,11 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                     ?>
                                 </td>
                                 <?php
-                                echo "<td><input type='text' class='form-control' size='4'  name='priority_" . attr($registry['id']) . "' value='" . attr($priority_category['priority']) . "'></td>";
-                                echo "<td><input type='text' class='form-control' size='10' name='category_" . attr($registry['id']) . "' value='" . attr($priority_category['category']) . "'></td>";
-                                echo "<td><input type='text' class='form-control' size='10' name='nickname_" . attr($registry['id']) . "' value='" . attr($priority_category['nickname']) . "'></td>";
+                                echo "<td><input type='text' class='form-control form-control-sm' size='4'  name='priority_" . attr($registry['id']) . "' value='" . attr($priority_category['priority']) . "'></td>";
+                                echo "<td><input type='text' class='form-control form-control-sm' size='10' name='category_" . attr($registry['id']) . "' value='" . attr($priority_category['category']) . "'></td>";
+                                echo "<td><input type='text' class='form-control form-control-sm' size='10' name='nickname_" . attr($registry['id']) . "' value='" . attr($priority_category['nickname']) . "'></td>";
                                 echo "<td>";
-                                echo "<select name='aco_spec_" . attr($registry['id']) . "' class='form-control'>";
+                                echo "<select name='aco_spec_" . attr($registry['id']) . "' class='form-control form-control-sm'>";
                                 echo "<option value=''></option>";
                                 echo AclExtended::genAcoHtmlOptions($priority_category['aco_spec']);
                                 echo "</select>";
@@ -176,7 +193,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                 <?php  //UNREGISTERED SECTION ?>
                 <span class="font-weight-bold"><?php echo xlt('Unregistered'); ?></span>
                 <div class="table-responsive mt-3">
-                    <table class="table table-striped">
+                    <table class="table table-striped table-sm">
                         <?php
                         $dpath = "$srcdir/../interface/forms/";
                         $dp = opendir($dpath);
@@ -210,14 +227,18 @@ $bigdata = getRegistered("%") or $bigdata = false;
                             <tr>
                                 <td colspan="2">
                                     <?php
-                                        $form_title_file = @file($GLOBALS['srcdir'] . "/../interface/forms/$fname/info.txt");
+                                    $form_title_file = @file($GLOBALS['srcdir'] . "/../interface/forms/$fname/info.txt");
                                     if ($form_title_file) {
                                             $form_title = $form_title_file[0];
                                     } else {
                                         $form_title = $fname;
                                     }
+                                    $patientPortalCompliant = file_exists($GLOBALS['srcdir'] . "/../interface/forms/" . $fname . "/patient_portal.php");
                                     ?>
-                                    <span class="font-weight-bold"><?php echo text(xl_form_title($form_title)); ?></span>
+                                    <?php
+                                    echo text(xl_form_title($form_title));
+                                    echo ($patientPortalCompliant) ? ' <i class="fas fa-cloud-arrow-up" title="' . xla('Patient Portal Compliant') . '"></i>' : '';
+                                    ?>
                                 </td>
                                 <td>
                                     <?php

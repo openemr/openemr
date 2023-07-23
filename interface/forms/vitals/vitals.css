@@ -1,0 +1,84 @@
+.title {
+  font-weight: bold;
+}
+
+.currentvalues {
+  min-width: 10rem;
+  padding-right: 5px;
+  text-align: left;
+}
+
+th.currentvalues,
+th.historicalvalues {
+  background: var(--gray200);
+}
+
+.valuesunfocus {
+  background-color: var(--gray400);
+  padding-right: 5px;
+  text-align: left;
+}
+
+.unfocus {
+  background-color: var(--gray400);
+}
+
+.historicalvalues {
+  background: var(--gray200);
+  background-color: var(--gray400);
+  border-bottom: 1px solid var(--gray300);
+  border-right: 1px solid var(--gray300);
+  text-align: right;
+}
+
+.vitals-complete-history .table .vitals-title {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.vitals-complete-history .table td:nth-child(3),
+.vitals-complete-history .table th:nth-child(3) {
+  border-left: 1px solid var(--gray300);
+}
+
+.historicalvalues:nth-child(6),
+.reasonCodeContainer .historicalvalues:nth-child(2) {
+  border-left: 1px solid var(--gray300);
+}
+
+table {
+  border-collapse: collapse;
+  font-weight: 600;
+}
+
+td,
+th {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+th {
+  font-weight: 800;
+}
+
+td {
+  padding-bottom: 0 !important;
+  padding-top: 0 !important;
+}
+
+input[type=text],
+select {
+  margin: 1px !important;
+}
+
+.hide {
+  display: none;
+}
+
+.readonly {
+  display: none;
+}
+
+.error {
+  border: 2px solid var(--danger);
+}

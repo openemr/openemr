@@ -19,6 +19,7 @@ require_once(__DIR__ . "/../Common/Session/SessionUtil.php");
 use DateInterval;
 use DateTimeImmutable;
 use Exception;
+use Google\Service\CloudHealthcare\FhirConfig;
 use GuzzleHttp\Client;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
@@ -52,13 +53,16 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\IdentityRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\UserRepository;
+use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Utils\HttpUtils;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
 use OpenEMR\Services\TrustedUserService;
@@ -67,17 +71,18 @@ use OpenIDConnectServer\Entities\ClaimSetEntity;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
+use RestConfig;
 use RuntimeException;
 
 class AuthorizationController
 {
     use CryptTrait;
 
-    const ENDPOINT_SCOPE_AUTHORIZE_CONFIRM = "/scope-authorize-confirm";
+    public const ENDPOINT_SCOPE_AUTHORIZE_CONFIRM = "/scope-authorize-confirm";
 
-    const GRANT_TYPE_PASSWORD = 'password';
-    const GRANT_TYPE_CLIENT_CREDENTIALS = 'client_credentials';
-    const OFFLINE_ACCESS_SCOPE = 'offline_access';
+    public const GRANT_TYPE_PASSWORD = 'password';
+    public const GRANT_TYPE_CLIENT_CREDENTIALS = 'client_credentials';
+    public const OFFLINE_ACCESS_SCOPE = 'offline_access';
 
     public $authBaseUrl;
     public $authBaseFullUrl;
@@ -109,13 +114,17 @@ class AuthorizationController
     private $trustedUserService;
 
     /**
-     * @var \RestConfig
+     * @var RestConfig
      */
     private $restConfig;
 
     public function __construct($providerForm = true)
     {
-        $gbl = \RestConfig::GetInstance();
+        if (is_callable([RestConfig::class, 'GetInstance'])) {
+            $gbl = RestConfig::GetInstance();
+        } else {
+            $gbl = \RestConfig::GetInstance();
+        }
         $this->restConfig = $gbl;
         $this->logger = new SystemLogger();
 
@@ -154,7 +163,10 @@ class AuthorizationController
             $this->passphrase = $oauth2KeyConfig->getPassPhrase();
         } catch (OAuth2KeyException $exception) {
             $this->logger->error("OpenEMR error - " . $exception->getMessage() . ", so forced exit");
-            $serverException = OAuthServerException::serverError("Security error - problem with authorization server keys.", $exception);
+            $serverException = OAuthServerException::serverError(
+                "Security error - problem with authorization server keys.",
+                $exception
+            );
             SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($serverException->generateHttpResponse($response));
             exit;
@@ -208,9 +220,10 @@ class AuthorizationController
                 // @see https://tools.ietf.org/html/rfc7591#section-2
                 'scope' => null
             );
-            $client_id = $this->base64url_encode(RandomGenUtils::produceRandomBytes(32));
-            $reg_token = $this->base64url_encode(RandomGenUtils::produceRandomBytes(32));
-            $reg_client_uri_path = $this->base64url_encode(RandomGenUtils::produceRandomBytes(16));
+            $clientRepository = new ClientRepository();
+            $client_id = $clientRepository->generateClientId();
+            $reg_token = $clientRepository->generateRegistrationAccessToken();
+            $reg_client_uri_path = $clientRepository->generateRegistrationClientUriPath();
             $params = array(
                 'client_id' => $client_id,
                 'client_id_issued_at' => time(),
@@ -222,7 +235,7 @@ class AuthorizationController
             // only include secret if a confidential app else force PKCE for native and web apps.
             $client_secret = '';
             if ($data['application_type'] === 'private') {
-                $client_secret = $this->base64url_encode(RandomGenUtils::produceRandomBytes(64));
+                $client_secret = $clientRepository->generateClientSecret();
                 $params['client_secret'] = $client_secret;
                 $params['client_role'] = 'user';
 
@@ -234,12 +247,11 @@ class AuthorizationController
                     throw new OAuthServerException('jwks is invalid', 0, 'invalid_client_metadata');
                 }
             // don't allow user, system scopes, and offline_access for public apps
-            } else if (
+            } elseif (
                 strpos($data['scope'], 'system/') !== false
                 || strpos($data['scope'], 'user/') !== false
-                || strpos($data['scope'], self::OFFLINE_ACCESS_SCOPE) !== false
             ) {
-                throw new OAuthServerException("system, user scopes, and offline_access are only allowed for confidential clients", 0, 'invalid_client_metadata');
+                throw new OAuthServerException("system and user scopes are only allowed for confidential clients", 0, 'invalid_client_metadata');
             }
             $this->validateScopesAgainstServerApprovedScopes($data['scope']);
 
@@ -266,9 +278,10 @@ class AuthorizationController
                 throw new OAuthServerException('post_logout_redirect_uris is invalid', 0, 'invalid_client_metadata');
             }
             // save to oauth client table
-            $badSave = $this->newClientSave($client_id, $params);
-            if (!empty($badSave)) {
-                throw OAuthServerException::serverError("Try again. Unable to create account");
+            try {
+                $clientRepository->insertNewClient($client_id, $params, $this->siteId);
+            } catch (\Exception $exception) {
+                throw OAuthServerException::serverError("Try again. Unable to create account", $exception);
             }
             $reg_uri = $this->authBaseFullUrl . '/client/' . $reg_client_uri_path;
             unset($params['registration_client_uri_path']);
@@ -347,75 +360,13 @@ class AuthorizationController
 
     public function base64url_encode($data): string
     {
-        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+        return HttpUtils::base64url_encode($data);
     }
 
     public function base64url_decode($token)
     {
         $b64 = strtr($token, '-_', '+/');
         return base64_decode($b64);
-    }
-
-    public function newClientSave($clientId, $info): bool
-    {
-        $user = $_SESSION['authUserID'] ?? null; // future use for provider client.
-        $site = $this->siteId;
-        $is_confidential_client = empty($info['client_secret']) ? 0 : 1;
-        // we do not allow a confidential app to be enabled by default;
-        $is_client_enabled = $is_confidential_client ? 0 : 1;
-        $contacts = $info['contacts'];
-        $redirects = $info['redirect_uris'];
-        $logout_redirect_uris = $info['post_logout_redirect_uris'] ?? null;
-        $info['client_secret'] = $info['client_secret'] ?? null; // just to be sure empty is null;
-        // set our list of default scopes for the registration if our scope is empty
-        // This is how a client can set if they support SMART apps and other stuff by passing in the 'launch'
-        // scope to the dynamic client registration.
-        // per RFC 7591 @see https://tools.ietf.org/html/rfc7591#section-2
-        // TODO: adunsulag do we need to reject the registration if there are certain scopes here we do not support
-        // TODO: adunsulag should we check these scopes against our '$this->supportedScopes'?
-        $info['scope'] = $info['scope'] ?? 'openid email phone address api:oemr api:fhir api:port';
-
-        // if a public app requests the launch scope we also do not let them through unless they've been manually
-        // authorized by an administrator user.
-        if ($is_client_enabled) {
-            $is_client_enabled = strpos($info['scope'], SmartLaunchController::CLIENT_APP_REQUIRED_LAUNCH_SCOPE) !== false ? 0 : 1;
-        }
-
-        // encrypt the client secret
-        if (!empty($info['client_secret'])) {
-            $info['client_secret'] = $this->cryptoGen->encryptStandard($info['client_secret']);
-        }
-
-
-        try {
-            $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`, `jwks_uri`, `jwks`, `initiate_login_uri`, `endorsements`, `policy_uri`, `tos_uri`, `is_enabled`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $i_vals = array(
-                $clientId,
-                $info['client_role'],
-                $info['client_name'],
-                $info['client_secret'],
-                $info['registration_access_token'],
-                $info['registration_client_uri_path'],
-                $contacts,
-                $redirects,
-                $info['scope'],
-                $user,
-                $site,
-                $is_confidential_client,
-                $logout_redirect_uris,
-                ($info['jwks_uri'] ?? null),
-                ($info['jwks'] ?? null),
-                ($info['initiate_login_uri'] ?? null),
-                ($info['endorsements'] ?? null),
-                ($info['policy_uri'] ?? null),
-                ($info['tos_uri'] ?? null),
-                $is_client_enabled
-            );
-
-            return sqlQueryNoLog($sql, $i_vals);
-        } catch (\RuntimeException $e) {
-            die($e);
-        }
     }
 
     public function emitResponse($response): void
@@ -509,7 +460,7 @@ class AuthorizationController
         $response = $this->createServerResponse();
         $request = $this->createServerRequest();
 
-        if ($nonce = $request->getQueryParams()['nonce']) {
+        if ($nonce = $request->getQueryParams()['nonce'] ?? null) {
             $_SESSION['nonce'] = $request->getQueryParams()['nonce'];
         }
 
@@ -527,6 +478,7 @@ class AuthorizationController
             $_SESSION['client_id'] = $request->getQueryParams()['client_id'];
             $_SESSION['client_role'] = $authRequest->getClient()->getClientRole();
             $_SESSION['launch'] = $request->getQueryParams()['launch'] ?? null;
+            $_SESSION['redirect_uri'] = $authRequest->getRedirectUri() ?? null;
             $this->logger->debug("AuthorizationController->oauthAuthorizationFlow() session updated", ['session' => $_SESSION]);
             // If needed, serialize into a users session
             if ($this->providerForm) {
@@ -539,7 +491,11 @@ class AuthorizationController
         } catch (OAuthServerException $exception) {
             $this->logger->error(
                 "AuthorizationController->oauthAuthorizationFlow() OAuthServerException",
-                ["hint" => $exception->getHint(), "message" => $exception->getMessage(), 'hint' => $exception->getHint(), 'trace' => $exception->getTraceAsString()]
+                ["hint" => $exception->getHint(), "message" => $exception->getMessage()
+                    , 'payload' => $exception->getPayload()
+                    , 'trace' => $exception->getTraceAsString()
+                    , 'redirectUri' => $exception->getRedirectUri()
+                    , 'errorType' => $exception->getErrorType()]
             );
             SessionUtil::oauthSessionCookieDestroy();
             $this->emitResponse($exception->generateHttpResponse($response));
@@ -607,8 +563,9 @@ class AuthorizationController
                 "logging global params",
                 ['site_addr_oath' => $GLOBALS['site_addr_oath'], 'web_root' => $GLOBALS['web_root'], 'site_id' => $_SESSION['site_id']]
             );
+            $fhirServiceConfig = new ServerConfig();
             $expectedAudience = [
-                $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/fhir",
+                $fhirServiceConfig->getFhirUrl(),
                 $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/api",
                 $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . '/apis/' . $_SESSION['site_id'] . "/portal",
             ];
@@ -618,11 +575,6 @@ class AuthorizationController
                 new \DateInterval('PT1M'), // auth code. should be short turn around.
                 $expectedAudience
             );
-
-            // ONC Inferno does not support the code challenge PKCE standard right now so we disable it in the grant.
-            // Smart V2 http://build.fhir.org/ig/HL7/smart-app-launch/ will require PKCE with the code_challenge_method
-            // Note: this was true as of January 18th 2021
-            $grant->disableRequireCodeChallengeForPublicClients();
 
             $grant->setRefreshTokenTTL(new \DateInterval('P3M')); // minimum per ONC
             $authServer->enableGrantType(
@@ -817,6 +769,17 @@ class AuthorizationController
 
 
         $claims = $_SESSION['claims'] ?? [];
+
+        $clientRepository = new ClientRepository();
+        $client = $clientRepository->getClientEntity($_SESSION['client_id']);
+        $clientName = "<" . xl("Client Name Not Found") . ">";
+        if (!empty($client)) {
+            $clientName =  $client->getName();
+        }
+
+        $uuidToUser = new UuidUserAccount($_SESSION['user_id']);
+        $userRole = $uuidToUser->getUserRole();
+        $userAccount = $uuidToUser->getUserAccount();
         require_once(__DIR__ . "/../../oauth2/provider/scope-authorize.php");
     }
 
@@ -847,6 +810,7 @@ class AuthorizationController
             $this->logger->debug("AuthorizationController->verifyLogin() login attempt failed", ['username' => $username, 'email' => $email, 'type' => $type]);
             return false;
         }
+        // TODO: should user_id be set to be a uuid here?
         if ($this->userId = $auth->getUserId()) {
             $_SESSION['user_id'] = $this->getUserUuid($this->userId, 'users');
             $this->logger->debug("AuthorizationController->verifyLogin() user login", ['user_id' => $_SESSION['user_id'],
@@ -854,10 +818,13 @@ class AuthorizationController
             return true;
         }
         if ($id = $auth->getPatientId()) {
-            $_SESSION['user_id'] = $this->getUserUuid($id, 'patient');
+            $puuid = $this->getUserUuid($id, 'patient');
+            // TODO: @adunsulag check with @sjpadgett on where this user_id is even used as we are assigning it to be a uuid
+            $_SESSION['user_id'] = $puuid;
             $this->logger->debug("AuthorizationController->verifyLogin() patient login", ['pid' => $_SESSION['user_id']
                 , 'username' => $username, 'email' => $email, 'type' => $type]);
-            $_SESSION['pid'] = $_SESSION['user_id'];
+            $_SESSION['pid'] = $id;
+            $_SESSION['puuid'] = $puuid;
             return true;
         }
 
@@ -1020,6 +987,12 @@ class AuthorizationController
         $response = $this->createServerResponse();
         $request = $this->createServerRequest();
 
+        if ($request->getMethod() == 'OPTIONS') {
+            // nothing to do here, just return
+            $this->emitResponse($response->withStatus(200));
+            return;
+        }
+
         // authorization code which is normally only sent for new tokens
         // by the authorization grant flow.
         $code = $request->getParsedBody()['code'] ?? null;
@@ -1041,6 +1014,7 @@ class AuthorizationController
         try {
             if (($this->grantType === 'authorization_code') && empty($_SESSION['csrf'])) {
                 // the saved session was not populated as expected
+                $this->logger->error("AuthorizationController->oauthAuthorizeToken() CSRF check failed");
                 throw new OAuthServerException('Bad request', 0, 'invalid_request', 400);
             }
             $result = $server->respondToAccessTokenRequest($request, $response);
@@ -1154,6 +1128,11 @@ class AuthorizationController
         // not required for public apps but mandatory for confidential
         $clientSecret = $_REQUEST['client_secret'] ?? null;
 
+        $this->logger->debug(
+            self::class . "->tokenIntrospection() start",
+            ['token_type_hint' => $token_hint, 'client_id' => $clientId]
+        );
+
         // the ride starts. had to use a try because PHP doesn't support tryhard yet!
         try {
             // so regardless of client type(private/public) we need client for client app type and secret.
@@ -1164,6 +1143,11 @@ class AuthorizationController
             // a no no. if private we need a secret.
             if (empty($clientSecret) && !empty($client['is_confidential'])) {
                 throw new OAuthServerException('Invalid client app type', 0, 'invalid_request', 400);
+            }
+            // lets verify secret to prevent bad guys.
+            if (intval($client['is_enabled'] !== 1)) {
+                // client is disabled and we don't allow introspection of tokens for disabled clients.
+                throw new OAuthServerException('Client failed security', 0, 'invalid_request', 401);
             }
             // lets verify secret to prevent bad guys.
             if (!empty($client['client_secret'])) {
@@ -1215,8 +1199,8 @@ class AuthorizationController
             }
             if ($token_hint === 'refresh_token') {
                 try {
+                    // client_id comes back from the parsed refresh token
                     $result = $jsonWebKeyParser->parseRefreshToken($rawToken);
-                    $result['client_id'] = $clientId;
                 } catch (Exception $exception) {
                     $body = $response->getBody();
                     $body->write($exception->getMessage());
@@ -1242,6 +1226,7 @@ class AuthorizationController
         } catch (OAuthServerException $exception) {
             // JWT couldn't be parsed
             SessionUtil::oauthSessionCookieDestroy();
+            $this->logger->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             $this->emitResponse($exception->generateHttpResponse($response));
             exit();
         }

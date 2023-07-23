@@ -12,7 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS['fileroot'] . "/library/forms.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
 require_once("FormEvaluation.class.php");
 
 use OpenEMR\Billing\BillingUtilities;
@@ -61,15 +61,15 @@ class C_FormEvaluation extends Controller
             return;
         }
 
-        $this->evaluation = new FormEvaluation($_POST['id']);
-        parent::populate_object($this->evaluation);
+        $this->form = new FormEvaluation($_POST['id']);
+        parent::populate_object($this->form);
 
-        $this->evaluation->persist();
+        $this->form->persist();
         if ($GLOBALS['encounter'] == "") {
             $GLOBALS['encounter'] = date("Ymd");
         }
 
-        addForm($GLOBALS['encounter'], "Evaluation Form", $this->evaluation->id, "evaluation", $GLOBALS['pid'], $_SESSION['userauthorized']);
+        addForm($GLOBALS['encounter'], "Evaluation Form", $this->form->id, "evaluation", $GLOBALS['pid'], $_SESSION['userauthorized']);
 
         if (!empty($_POST['cpt_code'])) {
             $sql = "select * from codes where code = ? ORDER BY id";

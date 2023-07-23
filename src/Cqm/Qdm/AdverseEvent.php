@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class AdverseEvent extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -72,3 +71,4 @@ class AdverseEvent extends QDMBaseType
 
     public $_type = 'QDM::AdverseEvent';
 }
+

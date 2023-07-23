@@ -410,7 +410,7 @@ abstract class Phreezable implements Serializable
                     if ($left > $limitLeft || $right > $limitRight) {
                         $this->AddValidationError($prop, "$prop exceeds the maximum length of " . $fm->FieldSize . "");
                     }
-                } elseif (is_numeric($fm->FieldSize) && ($lenfunction($this->$prop) - 1 > $fm->FieldSize)) {
+                } elseif (is_numeric($fm->FieldSize) && ($lenfunction($this->$prop ?? '') - 1 > $fm->FieldSize)) {
                     $this->AddValidationError($prop, "$prop exceeds the maximum length of " . $fm->FieldSize . "");
                 }
 
@@ -431,7 +431,7 @@ abstract class Phreezable implements Serializable
                             break;
                         case FM_TYPE_DATE:
                         case FM_TYPE_DATETIME:
-                            if (strtotime($this->$prop) === '') {
+                            if (strtotime(($this->$prop ?? '')) === '') {
                                 $this->AddValidationError($prop, "$prop is not a valid date/time value.");
                             }
                             break;
@@ -787,4 +787,10 @@ abstract class Phreezable implements Serializable
     {
         throw new Exception("Unknown property: $key");
     }
+
+    function __serialize()
+    {}
+
+    function __unserialize($data)
+    {}
 }

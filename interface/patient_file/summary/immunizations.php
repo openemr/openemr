@@ -57,6 +57,8 @@ if (isset($_GET['mode'])) {
             completion_status = ?,
             information_source = ?,
             refusal_reason = ?,
+            reason_code = ?,
+            reason_description = ?,
             ordering_provider = ?";
         $sqlBindArray = array(
             trim($_GET['id']),
@@ -82,6 +84,8 @@ if (isset($_GET['mode'])) {
             trim($_GET['immuniz_completion_status']),
             trim($_GET['immunization_informationsource']),
             trim($_GET['immunization_refusal_reason']),
+            trim($_GET['reason_code']),
+            trim($_GET['reason_description'] ?? ''),
             trim($_GET['ordered_by_id'])
         );
         $newid = sqlInsert($sql, $sqlBindArray);
@@ -123,6 +127,8 @@ if (isset($_GET['mode'])) {
         $drugunitselecteditem = $result['amount_administered_unit'];
         $immunization_id = $result['immunization_id'];
         $immuniz_exp_date = $result['expiration_date'];
+        $reason_code = trim($result['reason_code'] ?? '');
+        $reason_code_text = trim($result['reason_description'] ?? "");
 
         $cvx_code = $result['cvx_code'];
         $code_text = '';
@@ -490,6 +496,15 @@ tr.selected {
                         <?php echo generate_select_list('immunization_refusal_reason', 'immunization_refusal_reason', ($immuniz_refusal_reason ?? ''), 'Select Refusal Reason', ' ');?>
                     </div>
                     <div class="form-group mt-3">
+                        <label><?php echo xlt('Reason Code'); ?></label>
+                        <input class="code-selector-popup form-control immunizationReasonCode"
+                               name="reason_code" type="text" value="<?php echo attr($reason_code ?? ''); ?>"
+                               placeholder="<?php echo xla("Select a reason code"); ?>"
+                        />
+                        <input type="hidden" name="reason_code_text" value="<?php echo attr($reason_code_text ?? ''); ?>" />
+                        <p class="reason_code_text d-inline float-right p-1 ml-2 <?php echo empty($reason_code_text) ? "" : "d-none"; ?>"></p>
+                    </div>
+                    <div class="form-group mt-3">
                         <label><?php echo xlt('Immunization Ordering Provider'); ?></label>
                         <select class="form-control" name="ordered_by_id" id='ordered_by_id'>
                             <option value=""></option>
@@ -854,6 +869,7 @@ $(function () {
             $("#cvx_code").trigger("change");
         }
     });
+    $(".immunizationReasonCode").click(sel_reasonCode);
 
   $('.datepicker').datetimepicker({
     <?php $datetimepicker_timepicker = false; ?>
@@ -912,6 +928,7 @@ var ErrorImm = function(imm) {
 //This is for callback by the find-code popup.
 //Appends to or erases the current list of diagnoses.
 function set_related(codetype, code, selector, codedesc) {
+
     if(codetype == 'CVX') {
     var f = document.forms[0][current_sel_name];
         if(!f.length) {
@@ -959,6 +976,53 @@ function set_related(codetype, code, selector, codedesc) {
         $("#displaytext_" + checkId).html(codedesc);
     }
 }
+function sel_reasonCode(e) {
+    let target = e.currentTarget;
+    if (!(target && target.name)) {
+        console.error("Could not find DOMNode name for event target");
+        return;
+    }
+    current_sel_name = e.currentTarget.name;
+
+    let previousSelCodeFunction = window.set_related;
+    let restoreCallback = function() {
+        window.set_related = previousSelCodeFunction;
+    };
+
+    let set_relatedReasonCode = function(codetype, code, selector, codedesc) {
+
+        let field = document.forms[0][current_sel_name];
+        let field_text = document.forms[0][current_sel_name + "_text"];
+        let text = document.querySelector("." + current_sel_name + "_text");
+        if (typeof code == 'string' && code.trim() != '') {
+            field.value = codetype + ":" + code;
+            if (field_text && text) {
+                field_text.value = codedesc;
+                text.classList.remove("d-none"); // remove anything hiding the attribute.
+                text.innerText = codedesc;
+            }
+        } else {
+            field.value = "";
+            if (field_text && text) {
+                field_text.value = "";
+                text.classList.add("d-none");
+                text.innerText = "";
+            }
+        }
+    };
+
+    let opts = {
+        callBack: {
+            call: restoreCallback
+        }
+    };
+    // we are going to replace our global function for the time, and it will get setback in the callback
+
+    window.set_related = set_relatedReasonCode;
+    window.top.restoreSession();
+    window.dlgopen("../encounter/find_code_popup.php?default=SNOMED-CT"
+        , '_blank', 700, 400, false, undefined, opts);
+}
 
 // This is for callback by the find-code popup.
 // Returns the array of currently selected codes with each element in codetype:code format.
@@ -979,7 +1043,7 @@ function del_related(s) {
 // This invokes the find-code popup.
 function sel_cvxcode(e) {
  current_sel_name = e.name;
- dlgopen('../encounter/find_code_dynamic.php?codetype=CVX', '_blank', 900, 600);
+ dlgopen('../encounter/find_code_dynamic.php?codetype=CVX,VALUESET', '_blank', 900, 600);
 }
 
 // This ensures the cvx centric entry is filled.

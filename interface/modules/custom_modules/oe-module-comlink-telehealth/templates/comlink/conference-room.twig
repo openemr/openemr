@@ -1,0 +1,94 @@
+{#
+ # Conference room layout including all of the modals
+ #
+ # @package openemr
+ # @link      http://www.open-emr.org
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{# this template node is for the minimized view window #}
+<div class="minimized-telehealth-video-template col-lg-2 col-md-3 col-sm-4 col-6 p-0 m-0 drag-action d-none">
+    {% include 'comlink/video-control-bar.twig' %}
+</div>
+
+{% include 'comlink/conference-room/conference-room-main-layout.html.twig' with {testTemplateLayout: false} %}
+
+<div class="modal fade" id="telehealth-container-hangup-confirm" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog mw-50 ml-auto mr-auto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ "Confirm Session Close" | xlt }}</h5>
+                <button type="button" class="close btn-telehealth-confirm-cancel" aria-label="{{ "Close" | xla }}">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row hangup-section-start hangup-section row-confirm">
+                    <div class="col">
+                        <p>{{ "Are you sure you want to close this session?" | xlt }}</p>
+                        <div class="row">
+                            <div class="col d-flex justify-content-between">
+                                <input type="button" class="btn btn-secondary btn-telehealth-confirm-cancel" value="{{ "Cancel" | xla }}" id="hangup-cancel"/>
+                                <input type="button" class="btn btn-primary btn-telehealth-confirm-yes" value="{{ "Confirm" | xla }}"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row hangup-section row-update-status d-none">
+                    <div class="col">
+                        <h5 class="text-center">{{ "Update appointment status" | xlt }}</h5>
+                        <div class="row mt-3">
+                            <div class="col d-flex justify-content-between">
+                                <input type="button" class="btn btn-secondary btn-telehealth-session-close" data-status="CloseWithoutUpdating" value="{{ "Close Without Updating" |xla }}" />
+                                <input type="button" class="btn btn-secondary btn-telehealth-session-close" data-status="?" value="{{ "No Show" | xla }}" />
+                                <input type="button" class="btn btn-success btn-telehealth-session-close" data-status=">" value="{{ "Checked Out" | xla }}" />
+                            </div>
+                        </div>
+                        <div class="row mt-5 mb-3">
+                            <div class="col d-flex justify-content-between">
+                                <select class="appointment-status-update w-75">
+                                    {% for status in statuses %}
+                                        <option value="{{ status.option_id|attr }}" {% if appointment.apptstatus == status.option_id %}selected{% endif %}>{{ status.title|text }}</option>
+                                    {% endfor %}
+                                </select>
+                                <input type="button" class="btn btn-primary btn-telehealth-session-select-update" value="{{ "Set Status" |xla }}" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="telehealth-container-configure-session" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog mw-50 ml-auto mr-auto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ "Configure Session" | xlt }}</h5>
+                <button type="button" class="close btn-telehealth-confirm-cancel" aria-label="{{ "Close" | xla }}">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col">
+                        <label>
+                            <input type="checkbox" value="1" name="enable-participant-invite" />
+                            {{ "Allow patient to invite a third party to the session"|xlt }}
+                        </label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <input type="button" class="btn btn-primary btn-telehealth-session-update" value="{{ "Save Settings" |xla }}" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% include "comlink/conference-room/modal-invite-patient.html.twig" with {thirdPartyPatient: thirdPartyPatient, participants: participantList} %}

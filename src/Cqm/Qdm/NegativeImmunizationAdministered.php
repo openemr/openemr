@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class NegativeImmunizationAdministered extends ImmunizationAdministered
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class NegativeImmunizationAdministered extends ImmunizationAdministered
 
     public $_type = 'QDM::NegativeImmunizationAdministered';
 }
+

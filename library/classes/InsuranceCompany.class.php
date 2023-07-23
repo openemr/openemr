@@ -14,6 +14,7 @@
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Services\InsuranceCompanyService;
+use OpenEMR\Common\ORDataObject\Address;
 
 /**
  * class Insurance Company
@@ -60,6 +61,16 @@ class InsuranceCompany extends ORDataObject
     var $X12Partner;
 
     /**
+     * @var Integer CQM SOP, Source of Payment, from HL7
+     */
+    var $cqm_sop;
+
+    /**
+     * @var Array contains code and description of above
+     */
+    var $cqm_sop_array;
+
+    /**
      * Constructor sets all Insurance Company attributes to their default value
      */
     public function __construct($id = "", $prefix = "")
@@ -81,6 +92,7 @@ class InsuranceCompany extends ORDataObject
         }
 
         $this->X12Partner = new X12Partner();
+        $this->cqm_sop_array = $this->InsuranceCompany->getInsuranceCqmSop();
     }
 
     public function set_id($id = "")
@@ -193,6 +205,17 @@ class InsuranceCompany extends ORDataObject
     {
         return $this->ins_claim_type_array[$this->ins_type_code];
     }
+
+    public function set_cqm_sop($code)
+    {
+        $this->cqm_sop = $code;
+    }
+
+    public function get_cqm_sop()
+    {
+        return $this->cqm_sop;
+    }
+
     public function get_phone()
     {
         foreach ($this->phone_numbers as $phone) {
@@ -290,19 +313,13 @@ class InsuranceCompany extends ORDataObject
         }
     }
 
-    public function insurance_companies_factory($city = "", $sort = "ORDER BY name, id")
+    public function insurance_companies_factory()
     {
-        if (empty($city)) {
-             $city = "";
-        } else {
-            $city = " WHERE city = '" . add_escape_custom($foreign_id) . "'";
-        }
-
         $p = new InsuranceCompany();
         $icompanies = array();
         $sql = "SELECT p.id, a.city " .
             "FROM " . escape_table_name($p->_table) . " AS p " .
-            "INNER JOIN addresses as a on p.id = a.foreign_id " . $city . " " . add_escape_custom($sort);
+            "INNER JOIN addresses as a on p.id = a.foreign_id ORDER BY name, id";
 
         //echo $sql . "<bR />";
         $results = sqlQ($sql);

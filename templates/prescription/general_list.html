@@ -14,7 +14,7 @@
 
 {headerTemplate assets='no_textformat|no_dialog'}
 
-{literal}
+
 <script>
 
 function changeLinkHref(id,addValue,value) {
@@ -48,7 +48,9 @@ function changeLinkHref_All(id,addValue,value) {
 
 function Check(chk) {
     var len=chk.length;
-    if (len==undefined) {chk.checked=true;}
+    if (len==undefined) {
+        chk.checked=true;
+    }
     else {
         //clean the checked id's before check all the list again
         var multiprint=document.getElementById('multiprint');
@@ -78,7 +80,7 @@ function Check(chk) {
 }
 
 function deleteDrug(d) {
-    let msg = {/literal}{xlj t='Do you really want to delete?'}{literal};
+    let msg = {xlj t='Do you really want to delete?'};
     let choice = confirm(msg);
     if (choice == true) {
         top.restoreSession();
@@ -87,11 +89,11 @@ function deleteDrug(d) {
                 type: 'POST',
                 data: {
                     drugid: d,
-                    csrf_token_form: {/literal}{$CSRF_TOKEN_FORM|js_escape}{literal}
+                    csrf_token_form: {$CSRF_TOKEN_FORM|js_escape}
             },
             success: function(data) {
             console.log(data);
-            document.location.href = '{/literal}{$GLOBALS.webroot}{literal}/controller.php?prescription&list&id=' + {/literal}{$smarty.session.pid|js_url}{literal};
+            document.location.href = '{$GLOBALS.webroot}/controller.php?prescription&list&id=' + {$smarty.session.pid|js_url};
         },
         error: function(error) {
             console.log(error)
@@ -102,7 +104,9 @@ function deleteDrug(d) {
 
 function Uncheck(chk) {
     var len=chk.length;
-    if (len==undefined) {chk.checked=false;}
+    if (len==undefined) {
+        chk.checked=false;
+    }
     else {
         for (pr = 0; pr < chk.length; pr++){
             chk[pr].checked=false;
@@ -138,7 +142,7 @@ function Checking(chk) {
     if (foundone) {
         return true;
     } else {
-        alert({/literal}{xlj t='Please select at least one prescription!'}{literal});
+        alert({xlj t='Please select at least one prescription!'});
         return false;
     }
 }
@@ -153,7 +157,7 @@ $(function () {
 
 </script>
 
-{/literal}
+
 </head>
 <body id="prescription_list">
     <div class="container-fluid">
@@ -288,7 +292,7 @@ $(function () {
         </div>
     </div>
 </body>
-{literal}
+
 <script>
 
 $(function () {
@@ -303,10 +307,10 @@ $(".onescript").on("mouseout", function() { $(this).children().toggleClass("high
 var ShowScript = function(eObj) {
     top.restoreSession();
     objID = eObj.id;
-    document.location.href="{/literal}{$GLOBALS.webroot}{literal}/controller.php?prescription&edit&id=" + encodeURIComponent(objID);
+    document.location.href="{$GLOBALS.webroot}/controller.php?prescription&edit&id=" + encodeURIComponent(objID);
     return true;
 };
 
 </script>
-{/literal}
+
 </html>

@@ -4,7 +4,7 @@
  * Document Template Download Module.
  *
  * Copyright (C) 2013-2014 Rod Roark <rod@sunsetsystems.com>
- * Copyright (C) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
+ * Copyright (C) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
  *
  * LICENSE: This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -31,6 +31,14 @@ if ($is_module) {
     require_once(dirname(__file__) . '/../../interface/globals.php');
 } else {
     require_once(dirname(__file__) . "/../verify_session.php");
+    // ensure patient is bootstrapped (if sent)
+    if (!empty($_POST['pid'])) {
+        if ($_POST['pid'] != $_SESSION['pid']) {
+            echo xlt("illegal Action");
+            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            exit;
+        }
+    }
 }
 
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
@@ -56,6 +64,11 @@ $html_flag = false;
 // Flags to ignore new lines
 
 // Check if the current location has the specified {string}.
+/**
+ * @param $s
+ * @param $key
+ * @return bool
+ */
 function keySearch(&$s, $key)
 {
     global $keyLocation, $keyLength;
@@ -69,6 +82,11 @@ function keySearch(&$s, $key)
 
 // Replace the {string} at the current location with the specified data.
 // Also update the location to resume scanning accordingly.
+/**
+ * @param $s
+ * @param $data
+ * @return string
+ */
 function keyReplace(&$s, $data)
 {
     global $keyLocation, $keyLength, $nextLocation;
@@ -77,6 +95,11 @@ function keyReplace(&$s, $data)
 }
 
 // Do some final processing of field data before it's put into the document.
+/**
+ * @param $data
+ * @param $title
+ * @return array|string|string[]
+ */
 function dataFixup($data, $title = '')
 {
     global $groupLevel, $groupCount, $itemSeparator;
@@ -94,7 +117,6 @@ function dataFixup($data, $title = '')
             if ($groupCount) {
                 $data = $itemSeparator . $data;
             }
-
             ++$groupCount;
         }
     }
@@ -103,6 +125,10 @@ function dataFixup($data, $title = '')
 }
 
 // Return a string naming all issues for the specified patient and issue type.
+/**
+ * @param $type
+ * @return string
+ */
 function getIssues($type)
 {
     // global $itemSeparator;
@@ -126,6 +152,10 @@ function getIssues($type)
 }
 
 // Top level function for scanning and replacement of a file's contents.
+/**
+ * @param $s
+ * @return mixed|string
+ */
 function doSubs($s)
 {
     global $ptrow, $hisrow, $enrow, $nextLocation, $keyLocation, $keyLength;
@@ -140,19 +170,38 @@ function doSubs($s)
         $nextLocation = $keyLocation + 1;
 
         if (keySearch($s, '{PatientSignature}')) {
-            $sigfld = '<span>';
-            $sigfld .= '<img class="signature" id="patientSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
+            $sigfld = '<script>page.presentPatientSignature=true;</script><span>';
+            $sigfld .= '<img class="signature" id="patientSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="patient-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{AdminSignature}')) {
-            $sigfld = '<span>';
-            $sigfld .= '<img class="signature" id="adminSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
+            $sigfld = '<script>page.presentAdminSignature=true;</script><span>';
+            $sigfld .= '<img class="signature" id="adminSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="admin-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr($user) . '" src="">';
             $sigfld .= '</span>';
             $s = keyReplace($s, $sigfld);
         } elseif (keySearch($s, '{WitnessSignature}')) {
-            $sigfld = '<span>';
-            $sigfld .= '<img class="signature" id="witnessSignature" style="cursor:pointer;color:red;height:70px;width:auto;" data-type="witness-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr((int)$user) . '" src="">';
+            $sigfld = '<script>page.presentWitnessSignature=true;</script><span>';
+            $sigfld .= '<img class="signature" id="witnessSignature" style="cursor:pointer;color: red;vertical-align: middle;max-height: 65px;height: 65px !important;width: auto !important;" data-type="witness-signature" data-action="fetch_signature" alt="' . xla("Click in signature") . '" data-pid="' . attr((int)$pid) . '" data-user="' . attr((int)$user) . '" src="">';
             $sigfld .= '</span>';
+            $s = keyReplace($s, $sigfld);
+        } elseif (keySearch($s, '{SignaturesRequired}')) {
+            $sigfld = '<script>page.signaturesRequired=true;var signMsg=' . xlj("A signature is required for this document. Please sign document where required") . ';</script>' . "\n";
+            $s = keyReplace($s, $sigfld);
+        } elseif (preg_match('/^{(Questionnaire):(.*)}/', substr($s, $keyLocation), $matches)) {
+            $q_id = $matches[2];
+            $keyLength = strlen($matches[0]);
+            $sigfld = "<script>page.isFrameForm=1;page.isQuestionnaire=1;page.encounterFormName=" . js_escape($q_id) . "</script>";
+            $sigfld .= "<iframe id='encounterForm' class='questionnaires' style='height:100vh;width:100%;border:0;' src=''></iframe>";
+            $s = keyReplace($s, $sigfld);
+        } elseif (preg_match('/^{(QuestionnaireURLLoinc)\|(.*)\|(.*)\|(.*)}/', substr($s, $keyLocation), $matches)) {
+            // deprecated 09/23/2022 Unsure this directive is useful!
+            $q_url = $matches[3];
+            $form_id = $matches[4];
+            $form_name = $matches[2];
+            $keyLength = strlen($matches[0]);
+            $src = './../questionnaire_template.php?isPortal=1&type=loinc_form&name=' . urlencode($form_name) . '&url=' . urlencode($q_url) . '&form_code=' . urlencode($form_id);
+            $sigfld = "<script>page.isFrameForm=1;page.isQuestionnaire=1;page.encounterFormName=" . js_escape($q_id) . "</script>";
+            $sigfld .= "<iframe id='encounterForm' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . attr($src) . "'></iframe>";
             $s = keyReplace($s, $sigfld);
         } elseif (preg_match('/^{(AcknowledgePdf):(.*):(.*)}/', substr($s, $keyLocation), $matches)) {
             global $templateService;
@@ -168,7 +217,7 @@ function doSubs($s)
             $content = 'data:application/pdf;base64,' . base64_encode($content);
             $sigfld = '<script>page.pdfFormName=' . js_escape($formname) . '</script>';
             $sigfld .= "<div class='d-none' id='showPdf'>\n";
-            $sigfld .= "<object data='$content' type='application/pdf' width='100%' height='450px'></object>\n";
+            $sigfld .= "<object data='$content' type='application/pdf' width='100%' height='675em'></object>\n";
             $sigfld .= '</div>';
             $sigfld .= "<a class='btn btn-link' id='pdfView' onclick='" . 'document.getElementById("showPdf").classList.toggle("d-none")' . "'>" . $formtitle . "</a>";
             $s = keyReplace($s, $sigfld);
@@ -181,8 +230,8 @@ function doSubs($s)
         } elseif (preg_match('/^\{(EncounterForm):(\w+)\}/', substr($s, $keyLocation), $matches)) {
             $formname = $matches[2];
             $keyLength = strlen($matches[0]);
-            $sigfld = "<script>page.isFrameForm=1;page.lbfFormName=" . js_escape($formname) . "</script>";
-            $sigfld .= "<iframe id='lbfForm' class='lbfFrame' style='height:100vh;width:100%;border:0;'></iframe>";
+            $sigfld = "<script>page.isFrameForm=1;page.encounterFormName=" . js_escape($formname) . "</script>";
+            $sigfld .= "<iframe id='encounterForm' class='lbfFrame' style='height:100vh;width:100%;border:0;'></iframe>";
             $s = keyReplace($s, $sigfld);
         } elseif (preg_match('/^\{(TextBox):([0-9][0-9])x([0-9][0-9][0-9])\}/', substr($s, $keyLocation), $matches)) {
             $rows = $matches[2];
@@ -460,9 +509,24 @@ if ($encounter) {
         $encounter
     ));
 }
-$template = $templateService->fetchTemplate($form_id);
-
-$edata = $template['template_content'];
+// From database
+$template = $templateService->fetchTemplate($form_id)['template_content'];
+// snatch style tag content to replace after content purified. Ho-hum!
+$style_flag = preg_match('#<\s*?style\b[^>]*>(.*?)</style\b[^>]*>#s', $template, $style_matches);
+$style = str_replace('<style type="text/css">', '<style>', $style_matches);
+// purify html (and remove js)
+$config = \HTMLPurifier_Config::createDefault();
+$purify = new \HTMLPurifier($config);
+$edata = $purify->purify($template);
+// insert style tag from raw template content
+if ($style_flag && !empty($style[0] ?? '')) {
+    $edata = $style[0] . $edata;
+}
+// Purify escapes URIs.
+// Add back escaped directive delimiters so any directives in a URL will be parsed by our engine.
+$edata = str_replace('%7B', '{', $edata);
+$edata = str_replace('%7D', '}', $edata);
+// do the substitutions (ie. magic)
 $edata = doSubs($edata);
 
 if ($html_flag) { // return raw minified html template

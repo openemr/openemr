@@ -18,7 +18,7 @@
 $orphanLog = '';
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 if (file_exists("$include_root/procedure_tools/quest/QuestResultClient.php")) {
     require_once("$include_root/procedure_tools/quest/QuestResultClient.php");
@@ -26,15 +26,23 @@ if (file_exists("$include_root/procedure_tools/quest/QuestResultClient.php")) {
 require_once("./receive_hl7_results.inc.php");
 require_once("./gen_hl7_order.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\Header;
+
+// Check authorization.
+$thisauth = AclMain::aclCheckCore('patients', 'med');
+if (!$thisauth) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Procedure Orders and Reports")]);
+    exit;
+}
+
 $form_patient = !empty($_POST['form_patient']);
 $processing_lab = $_REQUEST['form_lab_id'] ?? '';
 $start_form = false;
 if (!isset($_REQUEST['form_refresh']) && !isset($_REQUEST['form_process_labs']) && !isset($_REQUEST['form_manual'])) {
     $start_form = true;
 }
-
-use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Core\Header;
 
 /**
  * Get a list item title, translating if required.
@@ -71,12 +79,6 @@ function myCellText($s)
     }
 
     return text($s);
-}
-
-// Check authorization.
-$thisauth = AclMain::aclCheckCore('patients', 'med');
-if (!$thisauth) {
-    die(xlt('Not authorized'));
 }
 
 $errmsg = '';
@@ -207,19 +209,14 @@ function doWait(e){
                     <select name='form_lab_id' id='form_lab_id' class='form-control'>
                         <option value="0"><?php echo xlt('All Labs'); ?></option>
                         <?php
-                        $qflag = false;
                         $ppres = sqlStatement("SELECT ppid, name, npi FROM procedure_providers ORDER BY name, ppid");
                         while ($pprow = sqlFetchArray($ppres)) {
-                            if ($qflag) {
-                                continue;
-                            }
                             echo "<option value='" . attr($pprow['ppid']) . "'";
                             if ($pprow['ppid'] == $processing_lab) {
                                 echo " selected";
                             }
                             if (stripos($pprow['npi'], 'QUEST') !== false) {
                                 $pprow['name'] = "Quest Diagnostics";
-                                $qflag = true;
                             }
                             echo ">" . text($pprow['name']) . "</option>";
                         }

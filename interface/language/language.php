@@ -11,7 +11,7 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/registry.inc");
+require_once("$srcdir/registry.inc.php");
 require_once("language.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;

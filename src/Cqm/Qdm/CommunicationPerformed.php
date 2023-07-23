@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class CommunicationPerformed extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -63,6 +62,11 @@ class CommunicationPerformed extends QDMBaseType
     public $negationRationale = null;
 
     /**
+     * @property string $qdmTitle
+     */
+    public $qdmTitle = 'Communication, Performed';
+
+    /**
      * @property string $hqmfOid
      */
     public $hqmfOid = '2.16.840.1.113883.10.20.28.4.132';
@@ -84,3 +88,4 @@ class CommunicationPerformed extends QDMBaseType
 
     public $_type = 'QDM::CommunicationPerformed';
 }
+

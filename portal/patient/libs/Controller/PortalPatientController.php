@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -36,8 +36,6 @@ class PortalPatientController extends AppBasePortalController
     protected function Init()
     {
         parent::Init();
-
-        // $this->RequirePermission(SecureApp::$PERMISSION_USER,'SecureApp.LoginForm');
     }
 
     /**
@@ -197,7 +195,9 @@ class PortalPatientController extends AppBasePortalController
             $patient->Fitness = $this->SafeGetVal($json, 'fitness', $patient->Fitness);
             $patient->ReferralSource = $this->SafeGetVal($json, 'referralSource', $patient->ReferralSource);
             $patient->Pricelevel = $this->SafeGetVal($json, 'pricelevel', $patient->Pricelevel);*/
-            $patient->Regdate = date('Y-m-d', strtotime($this->SafeGetVal($json, 'regdate', $patient->Regdate)));
+            if (!empty($patient->Regdate)) {
+                $patient->Regdate = date('Y-m-d', strtotime($this->SafeGetVal($json, 'regdate', $patient->Regdate)));
+            }
             /*$patient->Contrastart = date('Y-m-d', strtotime($this->SafeGetVal($json, 'contrastart', $patient->Contrastart)));
             $patient->CompletedAd = $this->SafeGetVal($json, 'completedAd', $patient->CompletedAd);
             $patient->AdReviewed = date('Y-m-d', strtotime($this->SafeGetVal($json, 'adReviewed', $patient->AdReviewed)));

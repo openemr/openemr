@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class NegativeCommunicationPerformed extends CommunicationPerformed
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class NegativeCommunicationPerformed extends CommunicationPerformed
 
     public $_type = 'QDM::NegativeCommunicationPerformed';
 }
+

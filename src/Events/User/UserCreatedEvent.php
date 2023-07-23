@@ -12,7 +12,7 @@
 
 namespace OpenEMR\Events\User;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 class UserCreatedEvent extends Event
 {

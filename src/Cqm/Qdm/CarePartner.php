@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class CarePartner extends Entity
 {
-
     /**
      * @property BaseTypes\Code $relationship
      */
@@ -32,3 +31,4 @@ class CarePartner extends Entity
 
     public $_type = 'QDM::CarePartner';
 }
+

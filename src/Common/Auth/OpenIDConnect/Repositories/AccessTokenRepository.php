@@ -18,11 +18,30 @@ use League\OAuth2\Server\Entities\Traits\AccessTokenTrait;
 use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\AccessTokenEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 
 class AccessTokenRepository implements AccessTokenRepositoryInterface
 {
+    /**
+     * @var SMARTSessionTokenContextBuilder
+     */
+    private $builder;
+
+    /**
+     * The context values to use for issuing new tokens.  This is populated when a refresh grant is generating a new
+     * access token.  We have to use our existing values.
+     * @var array
+     */
+    private $contextForNewTokens;
+
+    public function __construct()
+    {
+        $this->builder = new SMARTSessionTokenContextBuilder($_SESSION ?? []);
+        $this->contextForNewTokens = null;
+    }
+
     /**
      * Returns the token expiration date for the given token id.
      * @param $tokenId string The access token id
@@ -49,13 +68,16 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         $user_id = $accessTokenEntity->getUserIdentifier();
         $unique_id = $accessTokenEntity->getIdentifier();
         $client_id = $accessTokenEntity->getClient()->getIdentifier();
-        $scope = \json_encode($accessTokenEntity->getScopes());
+        $scopes = $accessTokenEntity->getScopes();
+        $context = $this->getContextForNewAccessTokens($scopes);
+        $scope = \json_encode($scopes);
+        $encodedContext = \json_encode($context);
 
         $sql = " INSERT INTO api_token SET";
         $sql .= " `user_id` = ?,";
         $sql .= " `token` = ?,";
-        $sql .= " `expiry` = ?, `client_id` = ?, `scope` = ?";
-        sqlStatementNoLog($sql, [$user_id, $unique_id, $exp_date, $client_id, $scope]);
+        $sql .= " `expiry` = ?, `client_id` = ?, `scope` = ?, `context` = ? ";
+        sqlStatementNoLog($sql, [$user_id, $unique_id, $exp_date, $client_id, $scope, $encodedContext]);
     }
 
     public function revokeAccessToken($tokenId)
@@ -123,5 +145,30 @@ class AccessTokenRepository implements AccessTokenRepositoryInterface
         $sql = "SELECT * FROM api_token WHERE token = ? ";
         $records = QueryUtils::fetchRecords($sql, [$token], true);
         return $records[0] ?? null;
+    }
+
+    /**
+     * Sets the context array that will be saved to the database for new acess tokens.
+     * @param $context The array of context variables.  If this is not an array the context is set to null;
+     */
+    public function setContextForNewTokens($context)
+    {
+        $this->contextForNewTokens = is_array($context) && !empty($context) ? $context : null;
+    }
+
+    /**
+     * Retrieves the context to use for new access tokens based upon the passed in scopes.  It will use the existing
+     * context saved in the repositoryor will build a new context from the passed in scopes.
+     * @param $scopes The scopes in the access token that determines what context variables to use in the access token
+     * @return array The built context session.
+     */
+    private function getContextForNewAccessTokens($scopes)
+    {
+        if (!empty($this->contextForNewTokens)) {
+            $context = $this->builder->getContextForScopesWithExistingContext($this->contextForNewTokens, $scopes) ?? [];
+        } else {
+            $context = $this->builder->getContextForScopes($scopes) ?? [];
+        }
+        return $context;
     }
 }

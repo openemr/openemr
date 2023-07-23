@@ -20,10 +20,10 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/forms.inc.php");
 require_once("../../custom/code_types.inc.php");
-require_once "$srcdir/user.inc";
+require_once "$srcdir/user.inc.php";
 require_once("$srcdir/payment.inc.php");
 
 use OpenEMR\Billing\InvoiceSummary;
@@ -69,10 +69,10 @@ function bucks($amount)
             return true;
         }
 
-        function goEncounterSummary(pid) {
+        function goEncounterSummary(e, pid) {
             if(pid) {
                 if(typeof opener.toEncSummary  === 'function') {
-                    opener.toEncSummary(pid);
+                    opener.toEncSummary(e, pid);
                 }
             }
             doClose();
@@ -271,7 +271,7 @@ function bucks($amount)
 </head>
 <body>
 <?php
-$trans_id = 0 + $_GET['id'];
+$trans_id = (int) $_GET['id'];
 if (!$trans_id) {
     die(xlt("You cannot access this page directly."));
 }
@@ -281,8 +281,8 @@ $ferow = sqlQuery("SELECT e.*, p.fname, p.mname, p.lname FROM form_encounter AS 
 if (empty($ferow)) {
     die("There is no encounter with form_encounter.id = '" . text($trans_id) . "'.");
 }
-$patient_id = 0 + $ferow['pid'];
-$encounter_id = 0 + $ferow['encounter'];
+$patient_id = (int) $ferow['pid'];
+$encounter_id = (int) $ferow['encounter'];
 $svcdate = substr($ferow['date'], 0, 10);
 $form_payer_id = (!empty($_POST['form_payer_id'])) ? (0 + $_POST['form_payer_id']) : 0;
 $form_reference = $_POST['form_reference'] ?? null;
@@ -295,7 +295,7 @@ if (preg_match('/^Ins(\d)/i', ($_POST['form_insurance'] ?? ''), $matches)) {
     $payer_type = $matches[1];
 }
 
-if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POST['isLastClosed'])) {
+if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POST['isLastClosed']) || !empty($_POST['billing_note'])) {
     if (!empty($_POST['form_save'])) {
         if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
             CsrfUtils::csrfNotVerified();
@@ -426,7 +426,7 @@ if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POS
     if (!$debug && !$save_stay && !$_POST['isLastClosed']) {
         echo "doClose();\n";
     }
-    if (!$debug && ($save_stay || $_POST['isLastClosed'])) {
+    if (!$debug && ($save_stay || $_POST['isLastClosed'] || $_POST['billing_note'])) {
         if ($_POST['isLastClosed']) {
             // save last closed level
             $form_done = 0 + $_POST['form_done'];
@@ -434,7 +434,16 @@ if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POS
             sqlStatement("UPDATE form_encounter SET last_level_closed = ?, stmt_count = ? WHERE pid = ? AND encounter = ?", array($form_done, $form_stmt_count, $patient_id, $encounter_id));
             // also update billing for aging
             sqlStatement("UPDATE billing SET bill_date = ? WHERE pid = ? AND encounter = ?", array($form_deposit_date, $patient_id, $encounter_id));
+            if (!empty($_POST['form_secondary'])) {
+                SLEOB::arSetupSecondary($patient_id, $encounter_id, $debug);
+            }
         }
+
+        if ($_POST['billing_note']) {
+            // save last closed level
+            sqlStatement("UPDATE form_encounter SET billing_note = ? WHERE pid = ? AND encounter = ?", array($_POST['billing_note'], $patient_id, $encounter_id));
+        }
+
         // will reload page w/o reposting
         echo "location.replace(location)\n";
     }
@@ -478,7 +487,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                         $tmp = sqlQuery("SELECT bill_date FROM billing WHERE " .
                             "pid = ? AND encounter = ? AND " .
                             "activity = 1 ORDER BY fee DESC, id ASC LIMIT 1", array($patient_id, $encounter_id));
-                        $billdate = substr(($tmp['bill_date'] . "Not Billed"), 0, 10);
+                        $billdate = substr(($tmp['bill_date'] ?? '' . "Not Billed"), 0, 10);
                         ?>
                         <input type="text" class="form-control" id='form_provider'
                                name='form_provider' value="<?php echo attr($provider); ?>" disabled />
@@ -486,7 +495,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                     <div class="form-group col-lg">
                         <label class="col-form-label" for="form_invoice"><?php echo xlt('Invoice'); ?>:</label>
                         <input type="text" class="form-control" id='form_provider'
-                               name='form_provider' value='<?php echo attr($patient_id) . "." . attr($encounter_id); ?>'
+                               name='form_provider' value='<?php echo attr($patient_id) . "-" . attr($encounter_id); ?>'
                                disabled />
                     </div>
                     <div class="form-group col-lg">
@@ -510,7 +519,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                 <div class="form-row">
                     <div class="form-group col-lg">
                         <label class="col-form-label" for="billing_note"><?php echo xlt('Billing Note'); ?>:</label>
-                        <textarea name="billing_note" id="billing_note" class="form-control" cols="5" rows="2" readonly><?php echo text(($pdrow['billing_note'] ?? '')) . "\n" . text(($bnrow['billing_note'] ?? '')); ?></textarea>
+                        <textarea name="billing_note" id="billing_note" class="form-control" cols="5" rows="2"><?php echo text(($pdrow['billing_note'] ?? '')) . "\n" . text(($bnrow['billing_note'] ?? '')); ?></textarea>
                     </div>
                 </div>
                 <div class="form-row">
@@ -701,7 +710,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                                     <input name="form_line[<?php echo attr($code); ?>][ins]" type="hidden"
                                            value="<?php echo attr($cdata['ins'] ?? ''); ?>" />
                                     <input name="form_line[<?php echo attr($code); ?>][code_type]" type="hidden"
-                                           value="<?php echo attr($cdata['code_type']); ?>" /> <?php echo text(sprintf("%.2f", $cdata['bal'])); ?>
+                                           value="<?php echo attr($cdata['code_type'] ?? ''); ?>" /> <?php echo text(sprintf("%.2f", $cdata['bal'])); ?>
                                     &nbsp;
                                 </td>
                                 <td class="last_detail"></td>
@@ -764,7 +773,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                     </div>
                     <?php if ($from_posting) { ?>
                         <button type='button' class="btn btn-secondary btn-view float-right" name='form_goto' id="btn-goto"
-                            onclick="goEncounterSummary(<?php echo attr_js($patient_id) ?>)"><?php echo xlt("Past Encounters"); ?></button>
+                            onclick="goEncounterSummary(event, <?php echo attr_js($patient_id) ?>)"><?php echo xlt("Past Encounters"); ?></button>
                     <?php } ?>
                 </div>
             </div>

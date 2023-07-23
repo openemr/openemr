@@ -1,6 +1,6 @@
 {include file="phpgacl/header.tpl"}
 {include file="phpgacl/acl_admin_js.tpl"}
-{literal}
+
     <style type="text/css">
 	ul {
 		padding: 0px 0px 0px 0px;
@@ -34,7 +34,7 @@
 		margin-top: 0px;
 	}
    </style>
-{/literal}
+
   </head>
 <body>
 {include file="phpgacl/navigation.tpl"}

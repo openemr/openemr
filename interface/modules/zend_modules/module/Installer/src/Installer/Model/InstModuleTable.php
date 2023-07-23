@@ -18,6 +18,7 @@ namespace Installer\Model;
 
 use Laminas\Db\Adapter\Driver\Pdo\Result;
 use Laminas\Db\TableGateway\TableGateway;
+use Laminas\Db\TableGateway\Feature\GlobalAdapterFeature;
 use Laminas\Config\Reader\Ini;
 use Laminas\Db\ResultSet\ResultSet;
 use Application\Model\ApplicationTable;
@@ -29,6 +30,8 @@ use OpenEMR\Services\Utils\SQLUpgradeService;
 class InstModuleTable
 {
     protected $tableGateway;
+    protected $adapter;
+    protected $resultSetPrototype;
 
     /**
      * @var ApplicationTable
@@ -47,13 +50,13 @@ class InstModuleTable
      */
     private $module_zend_path;
 
-    const MODULE_TYPE_ZEND = 1;
-    const MODULE_TYPE_CUSTOM = 0;
+    public const MODULE_TYPE_ZEND = 1;
+    public const MODULE_TYPE_CUSTOM = 0;
 
     public function __construct(TableGateway $tableGateway, ContainerInterface $container)
     {
         $this->tableGateway = $tableGateway;
-        $adapter = \Laminas\Db\TableGateway\Feature\GlobalAdapterFeature::getStaticAdapter();
+        $adapter = GlobalAdapterFeature::getStaticAdapter();
         $this->adapter = $adapter;
         $this->resultSetPrototype = new ResultSet();
         $this->applicationTable = new ApplicationTable();
@@ -213,23 +216,28 @@ class InstModuleTable
             $fieldName,
             $moduleId,
         );
+        $createdBy = $_SESSION['authUserID'];
+        $updatedBy = $_SESSION['authUserID'];
         $result = $this->applicationTable->zQuery($sql, $params);
         if ($result->count() > 0) {
-            $sql = "UPDATE module_configuration SET field_value = ?
+            $sql = "UPDATE module_configuration SET field_value = ?, updated_by = ?
                                           WHERE module_id = ?
                                           AND field_name = ?";
             $params = array(
                 $fieldValue,
+                $updatedBy,
                 $moduleId,
                 $fieldName,
             );
             $result = $this->applicationTable->zQuery($sql, $params);
         } else {
-            $sql = "INSERT INTO module_configuration SET field_name = ?, field_value = ?, module_id = ?";
+            $sql = "INSERT INTO module_configuration SET field_name = ?, field_value = ?, module_id = ?, updated_by = ?, created_by = ?, date_created=NOW()";
             $params = array(
                 $fieldName,
                 $fieldValue,
                 $moduleId,
+                $updatedBy,
+                $createdBy
             );
             $result = $this->applicationTable->zQuery($sql, $params);
         }
@@ -256,8 +264,10 @@ class InstModuleTable
             $added = "";
             $typeSet = "";
 
-            $lines = @file($GLOBALS['srcdir'] . "/../interface/modules/$base/$added$directory/info.txt");
-            if ($lines) {
+            if (file_exists($GLOBALS['srcdir'] . "/../interface/modules/$base/$added$directory/info.txt")) {
+                $lines = @file($GLOBALS['srcdir'] . "/../interface/modules/$base/$added$directory/info.txt");
+            }
+            if (!empty($lines)) {
                 $name = $lines[0];
             } else {
                 $name = $directory;
@@ -441,7 +451,7 @@ class InstModuleTable
         }
         if ($results == false) {
             return 'failure';
-        } else if (is_string($results) && stripos($results, 'ERROR') !== false) {
+        } elseif (is_string($results) && stripos($results, 'ERROR') !== false) {
             return 'failure';
         } else {
             return 'success';
@@ -637,7 +647,7 @@ class InstModuleTable
                 $modArr = $row;
             }
 
-            if ($modArr['mod_id'] <> "") {
+            if (!empty($modArr['mod_id'])) {
                 return "1";
             } else {
                 return "0";
@@ -874,7 +884,7 @@ class InstModuleTable
             $modArr = $row;
         }
 
-        if ($modArr['obj_name'] <> "") {
+        if (!empty($modArr['obj_name'])) {
             return "1";
         } else {
             return "0";
@@ -1089,7 +1099,7 @@ class InstModuleTable
     private function existsModuleConfigFile($moduleDirectory)
     {
         $filePath = $this->getModuleConfigFilePathForDirectory($moduleDirectory);
-        return file_exists($filePath);
+        return file_exists($filePath ?? '');
     }
 
     /**

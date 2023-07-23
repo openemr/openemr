@@ -13,7 +13,7 @@
  */
 
 ?>
-<p class="row">
+<p class="form-row">
     <span class="left_col colhead req" data-fld="fld_lifestyle"><?php echo text($criteria->getTitle()); ?></span>
     <span class="end_col">
     <?php echo render_select(array( "target"   =>  "fld_lifestyle",

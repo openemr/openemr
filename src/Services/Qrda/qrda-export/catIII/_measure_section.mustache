@@ -1,0 +1,77 @@
+<component>
+  <section>
+    <!-- 
+      *****************************************************************
+      Measure Section
+      *****************************************************************
+    -->
+    <!-- Implied template Measure Section templateId -->
+    <templateId root="2.16.840.1.113883.10.20.24.2.2"/>
+    <!-- In this case the query is using an eMeasure -->
+    <!-- QRDA Category III Measure Section template -->
+    <templateId extension="2017-06-01" root="2.16.840.1.113883.10.20.27.2.1"/>
+    <!-- QRDA Category III Measure Section - CMS (V4) -->
+    <templateId extension="2019-05-01" root="2.16.840.1.113883.10.20.27.2.3"/>
+    <code code="55186-1" codeSystem="2.16.840.1.113883.6.1"/>
+    <title>Measure Section</title>
+    <text>
+      <table border="1" width="100%">
+        <thead>
+          <tr>
+            <th>eMeasure Title</th>
+            <th>Version specific identifier</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#measure_results}}
+          <tr>
+            <td>{{description}}</td>
+            <td>{{hqmf_id}}</td>
+            <td/>
+          </tr>
+          {{/measure_results}}
+        </tbody>
+      </table>
+    </text>
+    <!-- 1..* Organizers, each containing a reference to an eMeasure -->
+    {{#measure_results}}
+    <entry>
+      <organizer classCode="CLUSTER" moodCode="EVN">
+        <!-- Implied template Measure Reference templateId -->
+        <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+        <!-- SHALL 1..* (one for each referenced measure) Measure Reference and Results template -->
+        <templateId extension="2016-09-01" root="2.16.840.1.113883.10.20.27.3.1"/>
+        <templateId extension="2019-05-01" root="2.16.840.1.113883.10.20.27.3.17"/>
+        <id extension="{{random_id}}" root="1.3.6.1.4.1.115"/>
+        <statusCode code="completed"/>
+        <!-- Containing isBranch external references -->
+        <reference typeCode="REFR">
+          <externalDocument classCode="DOC" moodCode="EVN">
+            <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+            <id extension="{{hqmf_id}}" root="2.16.840.1.113883.4.738"/>
+            <!-- SHOULD This is the title of the eMeasure -->
+            <text>{{description}}</text>
+            <!-- SHOULD: setId is the eMeasure version neutral id  -->
+            <setId root="{{hqmf_set_id}}"/>
+          </externalDocument>
+        </reference>
+        {{#aggregate_count}}
+          {{> _measure_data}}
+        {{/aggregate_count}}
+      </organizer>
+    </entry>
+    {{/measure_results}}
+    <entry>
+      <act classCode="ACT" moodCode="EVN">
+        <!-- This is the templateId for Reporting Parameteres Act -->
+        <templateId root="2.16.840.1.113883.10.20.17.3.8"/>
+        <id extension="{{random_id}}" root="1.3.6.1.4.1.115"/>
+        <code code="252116004" codeSystem="2.16.840.1.113883.6.96" displayName="Observation Parameters"/>
+        <effectiveTime>
+          <low value="{{{performance_period_start}}}"/>
+          <high value="{{{performance_period_end}}}"/>
+        </effectiveTime>
+      </act>
+    </entry>
+  </section>
+</component>

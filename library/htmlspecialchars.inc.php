@@ -66,7 +66,7 @@ function errorLogEscape($text)
 function csvEscape($text)
 {
     // 1. Remove all the following characters:  = + " |
-    $text = preg_replace('/[=+"|]/', '', $text);
+    $text = preg_replace('/[=+"|]/', '', $text ?? '');
 
     // 2. Only remove leading - characters (since need in dates)
     // 3. Only remove leading @ characters (since need in email addresses)
@@ -92,6 +92,32 @@ function xmlEscape($text)
 }
 
 /**
+ * Special function to remove the 'javascript' strings (case insensitive) for when including a variable within a html link
+ */
+function javascriptStringRemove(?string $text): string
+{
+    $returnText = str_ireplace('javascript', '', $text ?? '');
+
+    if (javascriptStringCheck($returnText)) {
+        $returnText = javascriptStringRemove($returnText);
+    }
+
+    return $returnText;
+}
+
+/**
+ * Special function to check if 'javascript' string (case insensitive) is in a variable within a html link
+ */
+function javascriptStringCheck(?string $text): bool
+{
+    if (stripos($text ?? '', 'javascript') === false) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+/**
  * Escape a PHP string for use as (part of) an HTML / XML text node.
  *
  * It only escapes a few special chars: the ampersand (&) and both the left-
@@ -112,6 +138,43 @@ function xmlEscape($text)
 function text($text)
 {
     return htmlspecialchars(($text ?? ''), ENT_NOQUOTES);
+}
+
+/**
+ * Given an array of properties run through both the keys and values of the array and
+ * escape each PHP string for use as (part of) an HTML / XML text node.
+ *
+ * It only escapes a few special chars: the ampersand (&) and both the left-
+ * pointing angle bracket (<) and the right-pointing angle bracket (>), since
+ * these are the only characters that are special in a text node.  Minimal
+ * quoting is preferred because it produces smaller and more easily human-
+ * readable output.
+ *
+ * Some characters simply cannot appear in valid XML documents, even
+ * as entities but, this function does not attempt to handle them.
+ *
+ * NOTE: Attribute values are NOT text nodes, and require additional escaping.
+ *
+ * @param string $arr The array of strings to escape, possibly including "&", "<",
+ *                     or ">".
+ * @param int $depth The current recursive depth of the escaping function.  Defaults to 0 for initial call
+ * @return array The array that has each key and property escaped.
+ */
+function textArray(array $arr, $depth = 0)
+{
+    if ($depth > 50) {
+        throw new \InvalidArgumentException("array was nested too deep for escaping.  Max limit reached");
+    }
+
+    $newArray = [];
+    foreach ($arr as $key => $value) {
+        if (is_array($value)) {
+            $newArray[text($key)] = textArray($value, $depth + 1);
+        } else {
+            $newArray[text($key)] = text($value);
+        }
+    }
+    return $newArray;
 }
 
 /**

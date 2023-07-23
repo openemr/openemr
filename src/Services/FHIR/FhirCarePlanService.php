@@ -73,7 +73,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
 
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
-        $fhirMeta->setLastUpdated(gmdate('c'));
+        $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $carePlanResource->setMeta($fhirMeta);
 
         $fhirId = new FHIRId();
@@ -96,6 +96,9 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
         $carePlanResource->setIntent("plan");
         $carePlanResource->setStatus("active");
 
+        // TODO: our care plan reason codes would go inside an activity's reasonCode property.
+        //  Right now we don't generate activities, but this is what we would add here if we start including care plan activities.
+
         // ONC only requires a descriptive text.  Future FHIR implementors can grab these details and populate the
         // activity element if they so choose, for now we just return the combined description of the care plan.
         if (!empty($dataRecord['details'])) {
@@ -113,7 +116,7 @@ class FhirCarePlanService extends FhirServiceBase implements IResourceUSCIGProfi
         }
 
         if (!empty($dataRecord['provider_uuid']) && !empty($dataRecord['provider_npi'])) {
-            $carePlanResource->getAuthor(UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']));
+            $carePlanResource->setAuthor(UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']));
         }
 
         if ($encode) {

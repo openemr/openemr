@@ -80,7 +80,7 @@
 //
 
 
-require_once(dirname(__FILE__) . "/../lists.inc");
+require_once(dirname(__FILE__) . "/../lists.inc.php");
 
 
 /**
@@ -145,6 +145,10 @@ class Prescription extends ORDataObject
 
     var $encounter;
 
+    var $created_by;
+
+    var $updated_by;
+
     /**
     * Constructor sets all Prescription attributes to their default value
     */
@@ -178,11 +182,14 @@ class Prescription extends ORDataObject
             $this->_table = "prescriptions";
             $this->pharmacy = new Pharmacy();
             $this->pharmacist = new Person();
+            // default provider is the current user
             $this->provider = new Provider($_SESSION['authUserID']);
             $this->patient = new Patient();
             $this->start_date = date("Y-m-d");
-            $this->date_added = date("Y-m-d");
-            $this->date_modified = date("Y-m-d");
+            $this->date_added = date("Y-m-d H:i:s");
+            $this->date_modified = date("Y-m-d H:i:s");
+            $this->created_by = $_SESSION['authUserID'];
+            $this->updated_by = $_SESSION['authUserID'];
             $this->per_refill = 0;
             $this->note = "";
 
@@ -202,9 +209,9 @@ class Prescription extends ORDataObject
 
     function persist()
     {
-        $this->date_modified = date("Y-m-d");
+        $this->date_modified = date("Y-m-d H:i:s");
         if ($this->id == "") {
-            $this->date_added = date("Y-m-d");
+            $this->date_added = date("Y-m-d H:i:s");
         }
 
         if (parent::persist()) {
@@ -214,6 +221,13 @@ class Prescription extends ORDataObject
     function populate()
     {
         parent::populate();
+        // for old historical data we are going to populate our created_by and updated_by
+        if (empty($this->created_by)) {
+            $this->created_by = $this->get_provider_id();
+        }
+        if (empty($this->updated_by)) {
+            $this->updated_by = $this->get_provider_id();
+        }
     }
 
     function toString($html = false)
@@ -362,9 +376,7 @@ class Prescription extends ORDataObject
 
     function set_route($route)
     {
-        if (is_numeric($route)) {
-            $this->route = $route;
-        }
+        $this->route = $route;
     }
     function get_route()
     {
@@ -396,6 +408,18 @@ class Prescription extends ORDataObject
     {
         $this->erx_source = $erx_source;
     }
+    function gen_lists_medication($id)
+    {
+        $instructions = $this->size . $this->unit_array[$this->unit] . "\t\t" . $this->get_dosage_display();
+        if (!empty($id)) {
+            $medId = sqlQuery("select list_id from lists_medication where list_id = '" . add_escape_custom($id) . "' limit 1");
+            if (isset($medId["list_id"])) {
+                $medId = sqlQuery("update lists_medication set drug_dosage_instructions = '" . add_escape_custom($instructions) . "' where list_id = '" . add_escape_custom($id) . "'");
+            } else {
+                sqlStatement("insert into lists_medication(list_id, drug_dosage_instructions) values ('" . add_escape_custom($id) . "', '" . add_escape_custom($instructions) . "')");
+            }
+        }
+    }
     function set_medication($med)
     {
         global $ISSUE_TYPES;
@@ -419,16 +443,21 @@ class Prescription extends ORDataObject
             if (!isset($dataRow['id'])) {
                 //add the record to the medication list
                 sqlStatement("insert into lists(date,begdate,type,activity,pid,user,groupname,title) values (now(),cast(now() as date),'medication',1,'" . add_escape_custom($this->patient->id) . "','" . add_escape_custom($_SESSION['authUser']) . "','" . add_escape_custom($_SESSION['authProvider']) . "','" . add_escape_custom($this->drug) . "')");
+                $medListId = sqlQuery("select id from lists where type = 'medication' and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . add_escape_custom($this->drug) . "')) and pid = '" . add_escape_custom($this->patient->id) . "' limit 1");
+                $this->gen_lists_medication($medListId["id"], $dosageInstructions);
             } else {
                 $dataRow = sqlQuery('update lists set activity = 1'
                             . " ,user = '" . add_escape_custom($_SESSION['authUser'])
                             . "', groupname = '" . add_escape_custom($_SESSION['authProvider']) . "' where id = '" . add_escape_custom($dataRow['id']) . "'");
+                $this->gen_lists_medication($dataRow["id"]);
             }
         } elseif (!$med && isset($dataRow['id'])) {
             //remove the drug from the medication list if it exists
             $dataRow = sqlQuery('update lists set activity = 0'
                             . " ,user = '" . add_escape_custom($_SESSION['authUser'])
                             . "', groupname = '" . add_escape_custom($_SESSION['authProvider']) . "' where id = '" . add_escape_custom($dataRow['id']) . "'");
+        } elseif ($med && isset($dataRow['id'])) {
+            $this->gen_lists_medication($dataRow["id"]);
         }
     }
 
@@ -468,6 +497,28 @@ class Prescription extends ORDataObject
     function get_provider_id()
     {
         return $this->provider->id;
+    }
+
+    function set_created_by($id)
+    {
+        if (is_numeric($id)) {
+            $this->created_by = $id;
+        }
+    }
+    function get_created_by()
+    {
+        return $this->created_by;
+    }
+
+    function set_updated_by($id)
+    {
+        if (is_numeric($id)) {
+            $this->updated_by = $id;
+        }
+    }
+    function get_updated_by()
+    {
+        return $this->updated_by;
     }
 
     function set_provider($pobj)
@@ -599,6 +650,19 @@ class Prescription extends ORDataObject
 
     function set_drug($drug)
     {
+        // If the medication already exists in the list and the drug name is being changed, update the title there as well
+        if (!empty($this->drug) && $this->medication) {
+            $dataRow = sqlQuery("select id from lists where type = 'medication' and (enddate is null or cast(now() as date) < enddate) and upper(trim(title)) = upper(trim('" . add_escape_custom($this->drug) . "')) and pid = '" . add_escape_custom($this->patient->id) . "' limit 1");
+            if (isset($dataRow['id'])) {
+                $updateRow = sqlQuery('update lists set activity = 1'
+                            . " ,user = '" . add_escape_custom($_SESSION['authUser'])
+                           . "', groupname = '" . add_escape_custom($_SESSION['authProvider'])
+                           . "', title = '" . add_escape_custom($drug)
+                           . "' where id = '" . add_escape_custom($dataRow['id']) . "'");
+                $this->gen_lists_medication($dataRow["id"]);
+            }
+        }
+
         $this->drug = $drug;
     }
     function get_drug()

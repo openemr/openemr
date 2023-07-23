@@ -1,0 +1,34 @@
+<div id="report_results">
+    <table class="table text-center">
+        <thead class='thead-light'>
+            <tr>
+                <th>
+                    {{ 'Title'|xlt }}
+                </th>
+                <th>
+                    {{ 'Initial Patient Population'|xlt }}
+                </th>
+                <th>
+                    {{ 'Applicable Patients'|xlt }} ({{ 'Denominator'|xlt }})
+                </th>
+                <th>
+                    {{ 'Denominator Exclusion'|xlt }}
+                </th>
+                <th>
+                    {{ 'Denominator Exception'|xlt }}
+                </th>
+                <th>
+                    {{ 'Passed Patients'|xlt }} ({{ 'Numerator'|xlt }})
+                </th>
+                <th>
+                    {{ 'Failed Patients'|xlt }}
+                </th>
+
+                <th>
+                    {{ 'Performance Percentage'|xlt }}
+                </th>
+            </tr>
+        </thead>
+        {% include 'reports/cqm/_results-table-body.html.twig' with {datasheet: datasheet, columns:8,report_id:report_id,display_excluded:true, display_exception:true} %}
+    </table>
+</div>

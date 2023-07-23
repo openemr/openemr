@@ -3,6 +3,7 @@
  * using the OEMR tool in the Admin section. For example, the
  * Patient Demographics are a custom layout.
  *============================================================*/
+
 @if $compact-theme == false {
   #DEM {
     .groupname {
@@ -29,7 +30,6 @@
 
     .form-control {
       display: inline;
-      height: auto;
       width: auto;
     }
   }

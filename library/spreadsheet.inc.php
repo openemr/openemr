@@ -12,8 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . '/api.inc');
-require_once(dirname(__FILE__) . '/forms.inc');
+require_once(dirname(__FILE__) . '/api.inc.php');
+require_once(dirname(__FILE__) . '/forms.inc.php');
 require_once(dirname(__FILE__) . '/../interface/forms/fee_sheet/codes.php');
 
 use OpenEMR\Core\Header;
@@ -341,7 +341,7 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
 <script>
 
  var ssChanged = false; // if they have changed anything in the spreadsheet
- var startDate = '<?php echo $start_date ? $start_date : date('Y-m-d'); ?>';
+ var startDate = <?php echo js_escape(($start_date ? $start_date : date('Y-m-d'))); ?>;
 
  // In case we are a popup (top level) window, handle top.restoreSession() calls.
  function restoreSession() {

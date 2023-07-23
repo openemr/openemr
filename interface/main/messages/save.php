@@ -11,9 +11,9 @@
  */
 
 require_once "../../globals.php";
-require_once "$srcdir/lists.inc";
-require_once "$srcdir/forms.inc";
-require_once "$srcdir/patient.inc";
+require_once "$srcdir/lists.inc.php";
+require_once "$srcdir/forms.inc.php";
+require_once "$srcdir/patient.inc.php";
 require_once "$srcdir/MedEx/API.php";
 
 use OpenEMR\Common\Acl\AclMain;
@@ -45,7 +45,7 @@ if ($_REQUEST['go'] == 'sms_search') {
 if ($_REQUEST['go'] == 'Preferences') {
     if (AclMain::aclCheckCore('admin', 'super')) {
         $sql = "UPDATE `medex_prefs` SET `ME_facilities`=?,`ME_providers`=?,`ME_hipaa_default_override`=?,
-			`PHONE_country_code`=? ,`MSGS_default_yes`=?,
+			`PHONE_country_code`=?,
 			`POSTCARDS_local`=?,`POSTCARDS_remote`=?,
 			`LABELS_local`=?,`LABELS_choice`=?,
 			`combine_time`=?, postcard_top=?";
@@ -53,15 +53,14 @@ if ($_REQUEST['go'] == 'Preferences') {
         $facilities = implode("|", $_REQUEST['facilities']);
         $providers = implode("|", $_REQUEST['providers']);
         $HIPAA = ($_REQUEST['ME_hipaa_default_override'] ? $_REQUEST['ME_hipaa_default_override'] : '');
-        $MSGS = ($_REQUEST['MSGS_default_yes'] ? $_REQUEST['MSGS_default_yes'] : '');
         $country_code = ($_REQUEST['PHONE_country_code'] ? $_REQUEST['PHONE_country_code'] : '1');
 
-        $myValues = array($facilities, $providers, $HIPAA, $country_code, $MSGS, $_REQUEST['POSTCARDS_local'], $_REQUEST['POSTCARDS_remote'], $_REQUEST['LABELS_local'], $_REQUEST['chart_label_type'], $_REQUEST['combine_time'], $_REQUEST['postcard_top']);
+        $myValues = array($facilities, $providers, $HIPAA, $country_code, $_REQUEST['POSTCARDS_local'], $_REQUEST['POSTCARDS_remote'], $_REQUEST['LABELS_local'], $_REQUEST['chart_label_type'], $_REQUEST['combine_time'], $_REQUEST['postcard_top']);
 
         $_GLOBALS['chart_label_type'] = $_REQUEST['chart_label_type'];
         sqlStatement('UPDATE `globals` SET gl_value = ? WHERE gl_name LIKE "chart_label_type" ', array($_REQUEST['chart_label_type']));
 
-        $query = "UPDATE `background_services` SET `active`='1',`execute_interval`=?, `require_once`='/library/MedEx/MedEx_background.php' WHERE `name`='MedEx'";
+        $query = "UPDATE `background_services` SET `active`='1',`execute_interval`=?, `running`='0', `require_once`='/library/MedEx/MedEx_background.php' WHERE `name`='MedEx'";
         sqlQuery($query, array($_POST['execute_interval']));
 
         $result['output'] = sqlQuery($sql, $myValues);
@@ -127,11 +126,11 @@ if ($_REQUEST['MedEx'] == "start") {
             $providers = implode("|", $providers);
             $sqlINSERT = "INSERT INTO `medex_prefs` (
 								MedEx_id,ME_api_key,ME_username,
-								ME_facilities,ME_providers,ME_hipaa_default_override,MSGS_default_yes,
+								ME_facilities,ME_providers,ME_hipaa_default_override,
 								PHONE_country_code,LABELS_local,LABELS_choice)
-							VALUES (?,?,?,?,?,?,?,?,?,?)";
-            sqlStatement($sqlINSERT, array($response['customer_id'], $response['API_key'], $_POST['new_email'], $facilities, $providers, "1", "1", "1", "1", "5160"));
-            $query = "UPDATE `background_services` SET `active`='1',`execute_interval`='5', `require_once`='/library/MedEx/MedEx_background.php' WHERE `name`='MedEx'";
+							VALUES (?,?,?,?,?,?,?,?,?)";
+            sqlStatement($sqlINSERT, array($response['customer_id'], $response['API_key'], $_POST['new_email'], $facilities, $providers, "1", "1", "1", "5160"));
+            $query = "UPDATE `background_services` SET `active`='1',`execute_interval`='29', `running`='0', `require_once`='/library/MedEx/MedEx_background.php' WHERE `name`='MedEx'";
             sqlQuery($query);
             $info = $MedEx->login('2');
 
@@ -248,7 +247,7 @@ if ($_REQUEST['action'] == "process") {
             sqlQuery($sql, array('recall_' . $pid, $_POST['item'], $_SESSION['authUserID'], 'Label printed locally'));
         }
     }
-    echo json_encode($pidList);
+    echo text(json_encode($pidList));
     exit;
 }
 if ($_REQUEST['go'] == "Messages") {

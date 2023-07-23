@@ -13,10 +13,17 @@
  */
 
 require_once("../globals.php");
-require_once("../../library/patient.inc");
+require_once("../../library/patient.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('acct', 'rep_a')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Insurance Distribution")]);
+    exit;
+}
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -137,7 +144,7 @@ if (!empty($_POST['form_csvexport'])) {
     </div>
 
   </td>
-  <td class='h-100' align='left' valign='middle'>
+  <td class='h-100' valign='middle'>
     <table class='w-100 h-100' style='border-left:1px solid;'>
         <tr>
             <td>
@@ -170,11 +177,11 @@ if (!empty($_POST['form_csvexport'])) {
 <table class='table'>
 
  <thead class='thead-light'>
-  <th align='left'> <?php echo xlt('Primary Insurance'); ?> </th>
-  <th align='right'> <?php echo xlt('Charges'); ?> </th>
-  <th align='right'> <?php echo xlt('Visits'); ?> </th>
-  <th align='right'> <?php echo xlt('Patients'); ?> </th>
-  <th align='right'> <?php echo xlt('Pt %'); ?> </th>
+ <th> <?php echo xlt('Primary Insurance'); ?> </th>
+ <th> <?php echo xlt('Charges'); ?> </th>
+ <th> <?php echo xlt('Visits'); ?> </th>
+ <th> <?php echo xlt('Patients'); ?> </th>
+ <th> <?php echo xlt('Pt %'); ?> </th>
  </thead>
  <tbody>
     <?php
@@ -231,16 +238,16 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
       <td>
             <?php echo text($key); ?>
   </td>
-  <td align='right'>
+  <td>
             <?php echo text(oeFormatMoney($val['charges'])); ?>
   </td>
-  <td align='right'>
+  <td>
             <?php echo text($val['visits']); ?>
   </td>
-  <td align='right'>
+  <td>
             <?php echo text($val['patients']); ?>
   </td>
-  <td align='right'>
+  <td>
             <?php printf("%.1f", $val['patients'] * 100 / $patcount) ?>
   </td>
  </tr>

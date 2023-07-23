@@ -13,8 +13,8 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 
@@ -26,7 +26,7 @@ if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
 }
 
-$id = 0 + (isset($_GET['id']) ? $_GET['id'] : '');
+$id = (int) (isset($_GET['id']) ? $_GET['id'] : '');
 
 $sets = "pid = ?,
   groupname = ?,

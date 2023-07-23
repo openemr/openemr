@@ -31,7 +31,7 @@
 function smarty_function_datetimepickerSupport($params, &$smarty)
 {
     if (!empty($params['picker']) && $params['picker'] == 'time') {
-        echo "$('.datetimepicker').datetimepicker({";
+        echo "$('.datetimepicker').datetimepicker({ ";
         $datetimepicker_timepicker = true;
     } else {
         echo "$('.datepicker').datetimepicker({";
@@ -52,7 +52,7 @@ function smarty_function_datetimepickerSupport($params, &$smarty)
 
     require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
 
-    echo "});";
+    echo " });";
 
     return;
 }

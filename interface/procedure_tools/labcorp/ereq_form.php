@@ -11,7 +11,7 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once(__DIR__ . "/../../../library/patient.inc");
+require_once(__DIR__ . "/../../../library/patient.inc.php");
 // 2d bar patched out until tcpdf gets upto PHP8
 // require_once(__DIR__ . '/../libs/tcpdf/autoload/autoload.php');
 

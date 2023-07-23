@@ -37,7 +37,7 @@ class Encounter_Controller extends Abstract_Controller
         $form = new \stdClass();
         $form->table = 'form_encounter';
         $form->encounterId = $this->getRequest()->getParam('encounterid', 0);
-        $form->userId = $GLOBALS['authUserID'];
+        $form->userId = $_SESSION['authUserID'];
         $form->action = '#';
         $signable = new Encounter_Signable($form->encounterId);
         $form->showLock = false;

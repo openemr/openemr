@@ -23,10 +23,10 @@ use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
 
-// Not checking csrf for good reasons.
-//  1. Not needed since no state changes in this script
-//  2. It will cause potential session clash fails because it throws a popup which messes things up
-//     when opening a patient in a new window.
+// Not checking csrf since it breaks when opening up a patient in a new frame.
+//  Also note that csrf checking is not needed in this script because of following 2 reasons.
+//  1. cookie_samesite in OpenEMR is set to 'Strict', which is an effective security measure to stop csrf vulnerabilities.
+//  2. Additionally, in this script there are no state changes, thus it is not even sensitive to csrf vulnerabilities.
 
 $popup = empty($_REQUEST['popup']) ? 0 : 1;
 $searchAny = !empty($_GET['search_any']) && empty($_GET['sSearch']) ? $_GET['search_any'] : "";
@@ -41,8 +41,9 @@ $searchAny = !empty($_GET['search_any']) && empty($_GET['sSearch']) ? $_GET['sea
 if ($searchAny) {
     $_GET['sSearch'] = $searchAny;
     $layoutCols = sqlStatement(
-        "SELECT field_id FROM layout_options WHERE form_id = 'DEM' AND field_id not like ? AND uor !=0",
-        array('em\_%')
+        "SELECT field_id FROM layout_options WHERE form_id = 'DEM'
+            AND field_id not like ? AND field_id not like ? AND uor !=0",
+        array('em\_%', 'add%')
     );
     for ($iter = 0; $row = sqlFetchArray($layoutCols); $iter++) {
         $aColumns[] = $row['field_id'];
@@ -200,7 +201,7 @@ for ($i = 0; $i < count($aColumns); ++$i) {
 // This allows a module to subscribe to a 'patient-finder.filter' event and
 // add filtering before data ever gets to the user
 $patientFinderFilterEvent = new PatientFinderFilterEvent(new BoundFilter(), $aColumns, $columnFilters);
-$patientFinderFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientFinderFilterEvent::EVENT_HANDLE, $patientFinderFilterEvent, 10);
+$patientFinderFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientFinderFilterEvent, PatientFinderFilterEvent::EVENT_HANDLE, 10);
 $boundFilter = $patientFinderFilterEvent->getBoundFilter();
 $customWhere = $boundFilter->getFilterClause();
 $srch_bind = array_merge($boundFilter->getBoundValues(), $srch_bind);

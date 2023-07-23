@@ -118,7 +118,7 @@ use OpenEMR\Core\Header;
                                  "INNER JOIN categories_to_documents " .
                                  "ON categories_to_documents.document_id=documents.id " .
                                    "WHERE categories_to_documents.category_id=? " .
-                                   "AND documents.foreign_id=? AND documents.deleted = 0" .
+                                   "AND documents.foreign_id=? AND documents.deleted = 0 " .
                                 "ORDER BY documents.date DESC";
                         $resNew2 = sqlStatement($query, array($categoryId, $pid));
                           $counterFlag = false; //flag used to check for empty categories

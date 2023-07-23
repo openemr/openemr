@@ -36,9 +36,10 @@ require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
  * @param  int            $category_id                     Document category id
  * @param  string         $higher_level_path               Can set a higher level path here (and then place the path depth in $path_depth)
  * @param  int            $path_depth                      Path depth when using the $higher_level_path feature
+ * @param  boolean        $skip_acl_check                  This needs to be set to true for when uploading via services that piggyback on any user (ie. the background services) or uses cron/cli
  * @return array/boolean                                   Array(doc_id,url) of the file as stored in documents table, false = failure
  */
-function addNewDocument($name, $type, $tmp_name, $error, $size, $owner = '', $patient_id_or_simple_directory = "00", $category_id = '1', $higher_level_path = '', $path_depth = '1')
+function addNewDocument($name, $type, $tmp_name, $error, $size, $owner = '', $patient_id_or_simple_directory = "00", $category_id = '1', $higher_level_path = '', $path_depth = '1', $skip_acl_check = false)
 {
 
     if (empty($owner)) {
@@ -67,8 +68,11 @@ function addNewDocument($name, $type, $tmp_name, $error, $size, $owner = '', $pa
     // Add the Document and return the newly added document id
     $cd = new C_Document();
     $cd->manual_set_owner = $owner;
+    if ($skip_acl_check) {
+        $cd->skipAclCheck();
+    }
     $cd->upload_action_process();
-    $v = $cd->get_template_vars("file");
+    $v = $cd->getTemplateVars("file");
     if (!isset($v) || !$v) {
         return false;
     }

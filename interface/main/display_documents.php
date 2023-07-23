@@ -16,9 +16,16 @@
  */
 
 require_once('../globals.php');
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('patients', 'lab')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Lab Documents")]);
+    exit;
+}
 
 $curdate = date_create(date("Y-m-d"));
 date_sub($curdate, date_interval_create_from_date_string("7 days"));

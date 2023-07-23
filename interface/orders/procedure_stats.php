@@ -16,18 +16,18 @@
  */
 
 require_once("../globals.php");
-require_once("../../library/patient.inc");
+require_once("../../library/patient.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
-// Might want something different here.
-//
-if (! AclMain::aclCheckCore('acct', 'rep')) {
-    die(xlt("Unauthorized access."));
+if (!AclMain::aclCheckCore('patients', 'lab')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Procedure Statistics Report")]);
+    exit;
 }
 
 $from_date     = isset($_POST['form_from_date']) ? DateToYYYYMMDD($_POST['form_from_date']) : '0000-00-00';
@@ -76,7 +76,12 @@ $lres = sqlStatement("SELECT field_id, title, data_type, list_id, description " 
   "ORDER BY group_id, seq, title");
 while ($lrow = sqlFetchArray($lres)) {
     $fid = $lrow['field_id'];
-    if ($fid == 'fname' || $fid == 'mname' || $fid == 'lname') {
+    if (
+        $fid == 'fname'
+        || $fid == 'mname'
+        || $fid == 'lname'
+        || $fid == 'additional_addresses'
+    ) {
         continue;
     }
 

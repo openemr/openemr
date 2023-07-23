@@ -121,9 +121,9 @@ function updateme(id){
   if (id == 'new') {
     $(".drTD").html('<p class="text-body font-weight-bold" style="font-size: 3rem; margin-left: 200px;"><?php echo xla("Processing") ?>...</p>');
   }
-  
+
   top.restoreSession();
-  
+
   // Send the skip_timeout_reset parameter to not count this as a manual entry in the
   // timing out mechanism in OpenEMR.
   $.post("<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders.php",
@@ -141,7 +141,7 @@ function updateme(id){
       }
       $(".drTD").html(data);
     }
-    
+
     // run updater every refreshInterval seconds
     var repeater = setTimeout("updateme(0)", refreshInterval);
   });
@@ -162,11 +162,11 @@ function goPid(pid) {
 
 <?php
     // initialize html string
-    $pdHTML = '<div class="container">
-                      <div class="drHide col-12">' .
+    $pdHTML = '<div class="">
+                      <div class="drHide">' .
                           '<a title="' . xla('View Past and Future Reminders') . '" onclick="openLogScreen()" class="btn btn-secondary  btn-sm btn-show" href="#">' . xlt('View Log') . '</a>&nbsp;' . '<a onclick="openAddScreen(0)" class="btn btn-primary btn-sm btn-add" href="#">' . xlt('Create A Dated Reminder') . '</a>
                       </div>
-                      <div class="col-12 pre-scrollable oe-margin-t-10">
+                      <div class="pre-scrollable mt-3">
                       <fieldset>
                       <legend>' . xla('Dated Reminders') . '</legend>
                       <table class="table-sm">

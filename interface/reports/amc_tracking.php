@@ -11,12 +11,19 @@
  */
 
 require_once("../globals.php");
-require_once("../../library/patient.inc");
+require_once("../../library/patient.inc.php");
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/amc.php";
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Automated Measure Calculations (AMC) Tracking")]);
+    exit;
+}
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {

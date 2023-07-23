@@ -16,8 +16,8 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\ClinicalNotesService;
@@ -32,7 +32,7 @@ if (!$encounter) { // comes from globals.php
 
 // TODO: This should all be rolled into a transaction
 
-$form_id = 0 + (isset($_GET['id']) ? $_GET['id'] : '');
+$form_id = (int) (isset($_GET['id']) ? $_GET['id'] : '');
 $code = $_POST["code"];
 $code_text = $_POST["codetext"];
 $code_date = $_POST["code_date"];

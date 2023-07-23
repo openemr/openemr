@@ -15,7 +15,6 @@
  * This makes our life easier when dealing with paths. Everything is relative
  * to the application root now.
  */
-use Laminas\Console\Request as ConsoleRequest;
 
 //fetching controller name and action name from the SOAP request
 $urlArray = explode('/', ($_SERVER['REQUEST_URI'] ?? ''));
@@ -44,21 +43,8 @@ if (!empty($_REQUEST['me']) && $_REQUEST['sent_by_app'] === 'core_api') {
     session_start();
 }
 
-if (php_sapi_name() === 'cli' && count($argv) != 0) {
-    $ignoreAuth = true;
-    $siteDefault = 'default';
-    foreach ($argv as $arg) {
-        if (str_contains($arg, "--site=")) {
-            $siteDefault = explode("=", $arg)[1];
-        }
-    }
-    $_GET['site'] = $siteDefault;
-    // Since from command line, set $sessionAllowWrite since need to set site_id session and no benefit to set to false
-    $sessionAllowWrite = true;
-}
-
 require_once(__DIR__ . "/../../../globals.php");
-require_once(__DIR__ . "/../../../../library/forms.inc");
+require_once(__DIR__ . "/../../../../library/forms.inc.php");
 require_once(__DIR__ . "/../../../../library/options.inc.php");
 
 chdir(dirname(__DIR__));

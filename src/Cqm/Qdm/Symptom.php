@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class Symptom extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\Interval $prevalencePeriod
      */
@@ -57,3 +56,4 @@ class Symptom extends QDMBaseType
 
     public $_type = 'QDM::Symptom';
 }
+

@@ -9,8 +9,8 @@
         }
     </script>
 
-    <script src="{{ webroot|attr }}/interface/product_registration/product_registration_service.js?v={{ assetVersion|attr }}"></script>
-    <script src="{{ webroot|attr }}/interface/product_registration/product_registration_controller.js?v={{ assetVersion|attr }}"></script>
+    <script src="{{ webroot|attr }}/interface/product_registration/product_registration_service.js?v={{ assetVersion|attr_url }}"></script>
+    <script src="{{ webroot|attr }}/interface/product_registration/product_registration_controller.js?v={{ assetVersion|attr_url }}"></script>
 
     <script>
         $(function () {
@@ -50,21 +50,21 @@
                 {% if supportPhoneNumber %}
                 <div class="phone d-flex justify-content-between">
                     <p>{{ "Support Phone Number"|xlt }}</p>
-                    <strong><a href="tel:{{ supportPhoneNumber|attr }}" target="_blank">{{ supportPhoneNumber|text }}</a></strong>
+                    <strong><a href="tel:{{ supportPhoneNumber|javascriptStringRemove|attr }}" target="_blank">{{ supportPhoneNumber|text }}</a></strong>
                 </div>
                 {% endif %}
 
                 {% if onlineSupportHref %}
                 <div class="online-support d-flex justify-content-between">
                     <p>{{" Online Support"|xlt }}</p>
-                    <strong><a href="{{ onlineSupportHref|attr }}" target="_blank" rel="noopener">{{ onlineSupportHref|text }}</a></strong>
+                    <strong><a href="{{ onlineSupportHref|javascriptStringRemove|attr }}" target="_blank" rel="noopener">{{ onlineSupportHref|text }}</a></strong>
 
                 </div>
                 {% endif %}
 
                 {% if userManualHref %}
                 <div class="user-manual mt-3">
-                    <a href="{{ userManualHref|attr }}" target="_blank" rel="opener" class="btn text-left btn-block btn-outline-secondary btn-lg">
+                    <a href="{{ userManualHref|javascriptStringRemove|attr }}" target="_blank" rel="opener" class="btn text-left btn-block btn-outline-secondary btn-lg">
                         <i class="fa fa-fw fa-book fa-lg"></i>&nbsp;{{ "User Manual"|xlt }}
                     </a>
                 </div>
@@ -89,7 +89,7 @@
                 {% if displayDonations %}
                 <div class="donations mt-3">
                     <a href="https://www.open-emr.org/donate" target="_blank" rel="opener" class="btn text-left btn-block btn-outline-danger btn-lg">
-                        <i class="fa fa-fw fa-heart fa-lg"></i>&nbsp;{{ "Donate Now"|xlt }}
+                        <i class="fa fa-fw fa-heart fa-lg"></i>&nbsp;{{ "Donate"|xlt }}
                     </a>
                 </div>
                 {% endif %}

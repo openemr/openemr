@@ -23,11 +23,11 @@ class X125010837I
 
     public $ub04id = array();
 
-    public function generateX12837I($pid, $encounter, &$log, $ub04id)
+    public static function generateX12837I($pid, $encounter, $x12_partner, &$log, $ub04id)
     {
         $today = time();
         $out = '';
-        $claim = new Claim($pid, $encounter);
+        $claim = new Claim($pid, $encounter, $x12_partner);
         $edicount = 0;
 
         $log .= "Generating 837I claim $pid-$encounter for " .
@@ -80,7 +80,7 @@ class X125010837I
             "*" . "0123" .                             // reference identification
             "*" . date('Ymd', $today) .           // transaction creation date
             "*" . date('Hi', $today) .            // transaction creation time
-            ($encounter_claim ? "*RP" : "*CH") .  // RP = reporting, CH = chargeable
+            (($encounter_claim ?? null) ? "*RP" : "*CH") .  // RP = reporting, CH = chargeable
             "~\n";
 
         ++$edicount;
@@ -274,7 +274,7 @@ class X125010837I
             "*" .
             "*" .
             "*" . "PI" .
-            "*" . ($encounter_claim ? $claim->payerAltID() : $claim->payerID()) .
+            "*" . (($encounter_claim ?? null) ? $claim->payerAltID() : $claim->payerID()) .
             "~\n";
         if (!$claim->payerID()) {
             $log .= "*** Payer ID is missing for payer '" . $claim->payerName() . "'.\n";
@@ -353,7 +353,7 @@ class X125010837I
             "*" .
             "*";
         // Service location this need to be bill type from ub form type_of_bill
-        if (strlen($ub04id[7]) >= 3) {
+        if (strlen($ub04id[7] ?? '') >= 3) {
             $out .= "*" . substr($ub04id[7], 1, 1) . ":" . substr($ub04id[7], 2, 1) . ":" . substr($ub04id[7], 3, 1);
         }
 
@@ -363,7 +363,7 @@ class X125010837I
             "*" . "Y" .
             "~\n";
         // discharge hour
-        if ($ub04id[29]) {
+        if ($ub04id[29] ?? null) {
             ++$edicount;
             $out .= "DTP" . // Loop 2300
                 "*" . "096" .
@@ -375,7 +375,7 @@ class X125010837I
         // Statment Dates
         // DTP 434 RD8 (Statment from OR to date)
 
-        if ($ub04id[13]) {
+        if ($ub04id[13] ?? null) {
             ++$edicount;
 
             $tmp = self::x12Date($ub04id[13]);
@@ -384,14 +384,14 @@ class X125010837I
                 "*434" . "*" . "RD8" . "*" . $tmp . '-' . $tmp1 . "~\n";
         }
 
-        if ($ub04id[13]) {
+        if ($ub04id[13] ?? null) {
             ++$edicount;
             $tmp = self::x12Date($ub04id[25]);
             $out .= "DTP" . // Loop 2300
                 "*435" . "*" . "DT" . "*" . $tmp . $ub04id[26] . "~\n";
         }
 
-        if (strlen(trim($ub04id[13])) == 0) {
+        if (strlen(trim($ub04id[13] ?? '')) == 0) {
             $log .= "*** Error: No Admission Date Entered!\n";
         }
 
@@ -401,10 +401,10 @@ class X125010837I
         // Institutional Claim Code
         // CL1 (Admission Type Code) (Admission Source Code) (Patient Status Code)
 
-        if ($ub04id[27] != "014X") { // Type of bill
+        if (($ub04id[27] ?? null) != "014X") { // Type of bill
             ++$edicount;
             $out .= "CL1" . // Loop 2300
-                "*" . $ub04id[27] . "*" . $ub04id[28] . "*" . $ub04id[30] . "~\n";
+                "*" . ($ub04id[27] ?? '') . "*" . ($ub04id[28] ?? '') . "*" . ($ub04id[30] ?? '') . "~\n";
         }
 
         // Segment PWK (Claim Supplemental Information) omitted.
@@ -500,7 +500,7 @@ class X125010837I
 
         // Segment HI*BI (Occurrence Span Information).
         // HI BI (Occurrence Span Code 1) RD8 (Occurrence Span Code Associated Date)
-        if ($ub04id[52]) {
+        if ($ub04id[52] ?? null) {
             $max_per_seg = 4;
             $diag_type_code = 'BI';
             $tmp = 0;
@@ -531,7 +531,7 @@ class X125010837I
         // Segment HI*BH (Occurrence Information).
         // HI BH (Occurrence Code 1) D8 (Occurrence Code Associated Date)
 
-        if ($ub04id[44]) {
+        if ($ub04id[44] ?? null) {
             $max_per_seg = 8;
             $diag_type_code = 'BH';
             $tmp = 0;
@@ -562,7 +562,7 @@ class X125010837I
         // Segment HI*BE (Value Information).
         // HI BE (Value Code 1) *.* (Value Code Amount)
 
-        if ($ub04id[74]) {
+        if ($ub04id[74] ?? null) {
             $max_per_seg = 12;
             $diag_type_code = 'BE';
             $os = 74;
@@ -592,7 +592,7 @@ class X125010837I
         // Segment HI*BG (Condition Information).
         // HI BG (Condition Code 1)
 
-        if ($ub04id[31]) {
+        if ($ub04id[31] ?? null) {
             $max_per_seg = 11;
             $diag_type_code = 'BG';
             $os = 31;
@@ -623,7 +623,7 @@ class X125010837I
         // Segment HI*TC (Treatment Code Information).
         // HI TC (Treatment Code 1)
         /* 63a. TREATMENT AUTHORIZATION CODES - PRIMARY PLAN */
-        if ($ub04id[319]) {
+        if ($ub04id[319] ?? null) {
             $max_per_seg = 3;
             $diag_type_code = 'TC';
             $tmp = 0;
@@ -667,7 +667,7 @@ class X125010837I
         // This needs to allow Attending Physician 2310A, Operating Physician Name 2310B, Other Operating Physician Name 2310C
         // and Rendering Provider Name (Rendering Provider Name is futher down)
 
-        if ($ub04id[388]) {
+        if ($ub04id[388] ?? null) {
             ++$edicount;
             // Loop 2310A Attending Physician
             $out .= "NM1" . "*71" . "*1" . "*" . $ub04id[388] . "*" . $ub04id[389] . "*" . "*";
@@ -688,7 +688,7 @@ class X125010837I
 
         // 2310B
 
-        if ($ub04id[400]) {
+        if ($ub04id[400] ?? null) {
             ++$edicount;
 
             $out .= "NM1" . // Loop 2310B operating Physician
@@ -710,7 +710,7 @@ class X125010837I
 
         // 2310C
 
-        if ($ub04id[413]) {
+        if ($ub04id[413] ?? null) {
             ++$edicount;
 
             $out .= "NM1" . // Loop 2310C other operating Physician
@@ -729,7 +729,7 @@ class X125010837I
                     "*" . $ub04id[407] . "*" . $ub04id[408] . "~\n";
             }
         }
-        if ($ub04id[427]) {
+        if ($ub04id[427] ?? null) {
             ++$edicount;
 
             $out .= "NM1" . // Loop 2310C other operating Physician
@@ -988,9 +988,9 @@ class X125010837I
         //
 
         for ($tlh = 0; $tlh < $proccount; ++$tlh) {
-            $tmp = $claim->procs[$tlh][code_text];
+            $tmp = $claim->procs[$tlh]['code_text'];
 
-            if ($claim->procs[$tlh][code_type] == 'HCPCS') {
+            if ($claim->procs[$tlh]['code_type'] == 'HCPCS') {
                 $tmpcode = '3';
             } else {
                 $tmpcode = '1';

@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class DiagnosticStudyRecommended extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -29,6 +28,11 @@ class DiagnosticStudyRecommended extends QDMBaseType
      * @property BaseTypes\Any $requester
      */
     public $requester = null;
+
+    /**
+     * @property string $qdmTitle
+     */
+    public $qdmTitle = 'Diagnostic Study, Recommended';
 
     /**
      * @property string $hqmfOid
@@ -52,3 +56,4 @@ class DiagnosticStudyRecommended extends QDMBaseType
 
     public $_type = 'QDM::DiagnosticStudyRecommended';
 }
+

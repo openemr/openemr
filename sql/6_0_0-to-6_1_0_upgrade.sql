@@ -101,6 +101,10 @@
 --    desc: populate name field with document names.
 --    arguments: none
 
+--  #IfUpdateEditOptionsNeeded
+--    desc: Change Layout edit options.
+--    arguments: mode(add or remove) layout_form_id the_edit_option comma_seperated_list_of_field_ids
+
 #IfMissingColumn insurance_companies uuid
 ALTER TABLE `insurance_companies` ADD `uuid` binary(16) DEFAULT NULL;
 #EndIf
@@ -243,6 +247,7 @@ INSERT INTO `gacl_groups_aro_map`(`group_id`, `aro_id`)
         (SELECT `id` FROM `gacl_aro_groups` WHERE parent_id=10 AND value='admin')
         ,(SELECT `id` FROM `gacl_aro` WHERE `section_value` = 'users' AND `value` = 'oe-system')
     );
+UPDATE `gacl_aro_seq` SET `id` = (SELECT max(`id`)+1);
 #EndIf
 
 #IfNotTable export_job
@@ -1366,7 +1371,7 @@ ALTER TABLE insurance_data ADD subscriber_employer_street_line_2 TINYTEXT ;
 SET @group_id = (SELECT group_id FROM layout_options WHERE field_id='street' AND form_id='DEM');
 UPDATE `layout_options` SET `seq` = `seq`*10 WHERE group_id = @group_id AND form_id='DEM';
 SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='street' AND form_id='DEM');
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) 
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`)
 VALUES ('DEM', 'street_line_2', @group_id, 'Address Line 2', @seq_add_to+5, 2, 1, 25, 63, '', 1 , 1 , '', '[\"C\"]', 'Address Line 2', 0);
 #Endif
 
@@ -1374,6 +1379,126 @@ VALUES ('DEM', 'street_line_2', @group_id, 'Address Line 2', @seq_add_to+5, 2, 1
 SET @group_id = (SELECT group_id FROM layout_options WHERE field_id='em_street' AND form_id='DEM');
 UPDATE `layout_options` SET `seq` = `seq`*10 WHERE group_id = @group_id AND form_id='DEM';
 SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='em_street' AND form_id='DEM');
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) 
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`)
 VALUES ('DEM', 'em_street_line_2', @group_id, 'Employer Address Line 2', @seq_add_to+5, 2, 1, 25, 63, '', 1 , 1 , '', '[\"C\"]', 'Address Line 2', 0);
 #Endif
+
+#IfNotTable payment_processing_audit
+CREATE TABLE `payment_processing_audit` (
+`uuid` binary(16) NOT NULL DEFAULT '',
+`service` varchar(50) DEFAULT NULL,
+`pid` bigint NOT NULL,
+`success` tinyint DEFAULT 0,
+`action_name` varchar(50) DEFAULT NULL,
+`amount` varchar(20) DEFAULT NULL,
+`ticket` varchar(100) DEFAULT NULL,
+`transaction_id` varchar(100) DEFAULT NULL,
+`audit_data` text,
+`date` datetime DEFAULT NULL,
+`map_uuid` binary(16) DEFAULT NULL,
+`map_transaction_id` varchar(100) DEFAULT NULL,
+`reverted` tinyint DEFAULT 0,
+`revert_action_name` varchar(50) DEFAULT NULL,
+`revert_transaction_id` varchar(100) DEFAULT NULL,
+`revert_audit_data` text,
+`revert_date` datetime DEFAULT NULL,
+PRIMARY KEY (`uuid`),
+KEY (`pid`),
+KEY (`success`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id patient_groups
+SET @group_id = (SELECT group_id FROM layout_options WHERE field_id='care_team_status' AND form_id='DEM');
+UPDATE `layout_options` SET `seq` = `seq`*10 WHERE group_id = @group_id AND form_id='DEM';
+SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='care_team_status' AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`)
+VALUES ('DEM','patient_groups',@group_id,'Patient Categories',@seq_add_to+5,36,1,0,0,'Patient_Groupings',1,1,'','[\"EP\",\"DAP\"]','Add patient to one or more category.',0,'','F','','','');
+
+ALTER TABLE `patient_data` ADD `patient_groups` TEXT;
+#Endif
+
+#IfNotRow2D list_options list_id lists option_id Patient_Groupings
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('lists','Patient_Groupings','Patient Groupings',0,1,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Patient_Groupings','group_1','Group I',10,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Patient_Groupings','group_2','Group II',20,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Patient_Groupings','group_3','Group III',30,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Patient_Groupings','group_4','Group IV',40,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Patient_Groupings','group_5','Group V',50,0,0);
+#EndIf
+
+#IfMissingColumn document_templates send_date
+ALTER TABLE `document_templates` CHANGE `exclude_portal` `send_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, CHANGE `exclude_dashboard` `end_date` DATETIME DEFAULT NULL;
+ALTER TABLE `document_templates` CHANGE `profile` `profile` VARCHAR(63) NOT NULL, CHANGE `category` `category` VARCHAR(63) NOT NULL;
+ALTER TABLE `document_templates` DROP INDEX `location`, ADD UNIQUE `location` (`pid`, `profile`, `category`, `template_name`);
+#EndIf
+
+#IfMissingColumn document_template_profiles member_of
+ALTER TABLE `document_template_profiles` ADD `member_of` VARCHAR(64) NOT NULL;
+ALTER TABLE `document_template_profiles` ADD `active` TINYINT(1) NOT NULL DEFAULT '0';
+ALTER TABLE `document_template_profiles` ADD `recurring` TINYINT(1) NOT NULL DEFAULT '1',ADD `event_trigger` VARCHAR(31) NOT NULL, ADD `period` INT(4) NOT NULL;
+ALTER TABLE `document_template_profiles` CHANGE `profile` `profile` VARCHAR(64) NOT NULL, CHANGE `category` `category` VARCHAR(64) NOT NULL, CHANGE `template_name` `template_name` VARCHAR(255) NOT NULL;
+ALTER TABLE `document_template_profiles` DROP INDEX `location`, ADD UNIQUE `location` (`profile`, `template_id`, `member_of`);
+#EndIf
+
+-- Adding description as placeholder option
+#IfUpdateEditOptionsNeeded Add DEM DAP fname,mname,lname,suffix,name_history,birth_fname,birth_mname,birth_lname
+#EndIf
+
+#IfNotRow3D layout_options form_id DEM field_id title datacols 3
+UPDATE `layout_options` SET `datacols` = '3' WHERE `form_id` = 'DEM' AND `field_id` = 'title';
+UPDATE `layout_options` SET `fld_length` = '15' WHERE `form_id` = 'DEM' AND `field_id` = 'fname';
+UPDATE `layout_options` SET `fld_length` = '5' WHERE `form_id` = 'DEM' AND `field_id` = 'mname';
+UPDATE `layout_options` SET `fld_length` = '20' WHERE `form_id` = 'DEM' AND `field_id` = 'lname';
+UPDATE `layout_options` SET `fld_length` = '5' WHERE `form_id` = 'DEM' AND `field_id` = 'suffix';
+UPDATE `layout_options` SET `datacols` = '1' WHERE `form_id` = 'DEM' AND `field_id` = 'status';
+#EndIf
+
+#IfNotRow3D layout_options form_id DEM field_id birth_fname datacols 3
+UPDATE `layout_options` SET `fld_length` = '15', `datacols` = '3' WHERE `form_id` = 'DEM' AND `field_id` = 'birth_fname';
+UPDATE `layout_options` SET `fld_length` = '5', `description` = 'Middle Name' WHERE `form_id` = 'DEM' AND `field_id` = 'birth_mname';
+UPDATE `layout_options` SET `fld_length` = '20' WHERE `form_id` = 'DEM' AND `field_id` = 'birth_lname';
+UPDATE `layout_options` SET `datacols` = '3' WHERE `form_id` = 'DEM' AND `field_id` = 'name_history';
+#EndIf
+
+-- Adding prepend row option
+#IfUpdateEditOptionsNeeded Add DEM K pubpid,name_history
+#EndIf
+
+-- Adding Exclude in Portal option
+#IfUpdateEditOptionsNeeded Add DEM EP care_team_provider,care_team_facility,care_team_status,regdate,referral_source,religion,ethnicity,race,ref_providerID
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id external_patient_education
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,option_value) VALUES ('lists', 'external_patient_education', 'External Patient Education', 0, 0, 0);
+INSERT INTO list_options (list_id,option_id,title,notes,seq,is_default,activity) VALUES ('external_patient_education', 'emedicine', 'eMedicine', 'http://search.medscape.com/reference-search?newSearchHeader=1&queryText=[%]', 10, 0, 1);
+INSERT INTO list_options (list_id,option_id,title,notes,seq,is_default,activity) VALUES ('external_patient_education', 'medline', 'Medline', 'http://vsearch.nlm.nih.gov/vivisimo/cgi-bin/query-meta?v%3Aproject=medlineplus&query=[%]&x=12&y=15', 20, 0, 1);
+INSERT INTO list_options (list_id,option_id,title,notes,seq,is_default,activity) VALUES ('external_patient_education', 'webmd', 'WebMD', 'http://www.webmd.com/search/search_results/default.aspx?query=[%]&sourceType=undefined', 30, 0, 1);
+#EndIf
+
+#IfMissingColumn form_encounter referring_provider_id
+ALTER TABLE `form_encounter` ADD `referring_provider_id` INT(11) DEFAULT '0' COMMENT 'referring provider, if any, for this visit';
+#EndIf
+
+-- drop if view was converted to a table
+#IfTable onsite_activity_view
+DROP TABLE IF EXISTS `onsite_activity_view`;
+#EndIf
+
+#IfNotTable verify_email
+CREATE TABLE `verify_email` (
+`id` bigint NOT NULL auto_increment,
+`pid_holder` bigint DEFAULT NULL,
+`email` varchar(255) DEFAULT NULL,
+`language` varchar(100) DEFAULT NULL,
+`fname` varchar(255) DEFAULT NULL,
+`mname` varchar(255) DEFAULT NULL,
+`lname` varchar(255) DEFAULT NULL,
+`dob` date DEFAULT NULL,
+`token_onetime`  VARCHAR(255) DEFAULT NULL,
+`active` tinyint NOT NULL default 1,
+PRIMARY KEY (`id`),
+UNIQUE KEY (`email`)
+) ENGINE=InnoDB;
+#EndIf
+

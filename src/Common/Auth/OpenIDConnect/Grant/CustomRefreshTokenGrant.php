@@ -14,19 +14,29 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect\Grant;
 
 use DateInterval;
+use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\RefreshTokenGrant;
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\IdTokenSMARTResponse;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Logging\SystemLogger;
 use Psr\Http\Message\ServerRequestInterface;
 
 class CustomRefreshTokenGrant extends RefreshTokenGrant
 {
+    /**
+     * @var SystemLogger
+     */
+    private $logger;
+
     public function __construct(RefreshTokenRepositoryInterface $refreshTokenRepository)
     {
+        $this->logger = new SystemLogger();
         parent::__construct($refreshTokenRepository);
     }
 
@@ -37,11 +47,29 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
     ) {
         $client = $this->validateClient($request);
         $oldRefreshToken = $this->validateOldRefreshToken($request, $client->getIdentifier());
-        (new SystemLogger())->debug("CustomRefreshTokenGrant->respondToAccessTokenRequest() scope info", [
+        $this->logger->debug("CustomRefreshTokenGrant->respondToAccessTokenRequest() scope info", [
             "oldRefreshToken['scopes']" => $oldRefreshToken['scopes'],
             "requestParameter['scopes']" => $this->getRequestParameter('scope', $request, null),
             "_REQUEST['scope']" => $_REQUEST['scope']
             ]);
+
+        // we are going to grab our old access token and grab any context information that we may have
+        if ($this->accessTokenRepository instanceof AccessTokenRepository) {
+            $oldToken = $this->accessTokenRepository->getTokenByToken($oldRefreshToken['access_token_id']);
+            $context = $oldToken['context'] ?? '{}';
+            if (!empty($context)) {
+                try {
+                    $decodedContext = \json_decode($context, true);
+                    $this->accessTokenRepository->setContextForNewTokens($decodedContext);
+                    if ($responseType instanceof IdTokenSMARTResponse) {
+                        $responseType->setContextForNewTokens($decodedContext);
+                    }
+                } catch (\Exception $exception) {
+                    $this->logger->error("OpenEMR Error: failed to decode token context json", ['exception' => $exception->getMessage()
+                        , 'tokenId' => $oldRefreshToken['access_token_id']]);
+                }
+            }
+        }
         return parent::respondToAccessTokenRequest($request, $responseType, $accessTokenTTL);
     }
 
@@ -86,7 +114,7 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
      */
     public function validateScopes($scopes, $redirectUri = null)
     {
-        (new SystemLogger())->debug("CustomRefreshTokenGrant->validateScopes() Attempting to validateScopes", ["scopes" => $scopes]);
+        $this->logger->debug("CustomRefreshTokenGrant->validateScopes() Attempting to validateScopes", ["scopes" => $scopes]);
         $scopeRepo = $this->scopeRepository;
         if (\is_array($scopes)) {
             $scopes = $this->convertScopesArrayToQueryString($scopes);
@@ -100,7 +128,7 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
             $scopeRepo->setRequestScopes($scopes);
         }
         $validScopes = parent::validateScopes($scopes, $redirectUri);
-        (new SystemLogger())->debug("CustomRefreshTokenGrant->validateScopes() scopes validated", ["scopes" => json_encode($validScopes)]);
+        $this->logger->debug("CustomRefreshTokenGrant->validateScopes() scopes validated", ["scopes" => json_encode($validScopes)]);
         return $validScopes;
     }
 
@@ -114,5 +142,20 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
     private function convertScopesArrayToQueryString(array $scopes)
     {
         return implode(' ', $scopes);
+    }
+
+    protected function validateClient(ServerRequestInterface $request)
+    {
+        $client = parent::validateClient($request);
+        if (!($client instanceof ClientEntity)) {
+            $this->logger->errorLogCaller("client returned was not a valid ClientEntity ", ['client' => $client->getIdentifier()]);
+            throw OAuthServerException::invalidClient($request);
+        }
+
+        if (!$client->isEnabled()) {
+            $this->logger->errorLogCaller("client returned was not enabled", ['client' => $client->getIdentifier()]);
+            throw OAuthServerException::invalidClient($request);
+        }
+        return $client;
     }
 }

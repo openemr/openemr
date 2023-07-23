@@ -12,73 +12,34 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// script is brought in as require_once in index.php when applicable
+
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
 
-// Will start the (patient) portal OpenEMR session/cookie.
-require_once(dirname(__FILE__) . "/../../src/Common/Session/SessionUtil.php");
-OpenEMR\Common\Session\SessionUtil::portalSessionStart();
-session_regenerate_id(true);
+if ($portalRegistrationAuthorization !== true) {
+    (new SystemLogger())->debug("attempted to use register.php directly, so failed");
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    echo xlt("Not Authorized");
+    header('HTTP/1.1 401 Unauthorized');
+    die();
+}
+
+if (empty($GLOBALS['portal_onsite_two_register']) || empty($GLOBALS['google_recaptcha_site_key']) || empty($GLOBALS['google_recaptcha_secret_key'])) {
+    (new SystemLogger())->debug("attempted to use register.php despite register feature being turned off, so failed");
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    echo xlt("Not Authorized");
+    header('HTTP/1.1 401 Unauthorized');
+    die();
+}
 
 unset($_SESSION['itsme']);
 $_SESSION['authUser'] = 'portal-user';
 $_SESSION['pid'] = true;
 $_SESSION['register'] = true;
+$_SESSION['register_silo_ajax'] = true;
 
-$_SESSION['site_id'] = isset($_SESSION['site_id']) ? $_SESSION['site_id'] : 'default';
 $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
-
-$ignoreAuth_onsite_portal = true;
-
-require_once("../../interface/globals.php");
-if (!$GLOBALS['portal_onsite_two_register']) {
-    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-    echo xlt("Not Authorized");
-    @header('HTTP/1.1 401 Unauthorized');
-    die();
-}
-
-$res2 = sqlStatement("select * from lang_languages where lang_description = ?", array(
-    $GLOBALS['language_default']
-));
-for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
-    $result2[$iter] = $row;
-}
-if (count($result2) == 1) {
-    $defaultLangID = $result2[0]["lang_id"];
-    $defaultLangName = $result2[0]["lang_description"];
-} else {
-    // default to english if any problems
-    $defaultLangID = 1;
-    $defaultLangName = "English";
-}
-
-if (!isset($_SESSION['language_choice'])) {
-    $_SESSION['language_choice'] = $defaultLangID;
-}
-// collect languages if showing language menu
-if ($GLOBALS['language_menu_login']) {
-    // sorting order of language titles depends on language translation options.
-    $mainLangID = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
-    // Use and sort by the translated language name.
-    $sql = "SELECT ll.lang_id, " . "IF(LENGTH(ld.definition),ld.definition,ll.lang_description) AS trans_lang_description, " . "ll.lang_description " .
-        "FROM lang_languages AS ll " . "LEFT JOIN lang_constants AS lc ON lc.constant_name = ll.lang_description " .
-        "LEFT JOIN lang_definitions AS ld ON ld.cons_id = lc.cons_id AND " . "ld.lang_id = ? " .
-        "ORDER BY IF(LENGTH(ld.definition),ld.definition,ll.lang_description), ll.lang_id";
-    $res3 = SqlStatement($sql, array(
-        $mainLangID
-    ));
-
-    for ($iter = 0; $row = sqlFetchArray($res3); $iter++) {
-        $result3[$iter] = $row;
-    }
-
-    if (count($result3) == 1) {
-        // default to english if only return one language
-        $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='1' />\n";
-    }
-} else {
-    $hiddenLanguageField = "<input type='hidden' name='languageChoice' value='" . attr($defaultLangID) . "' />\n";
-}
 
 ?>
 <!DOCTYPE html>
@@ -87,19 +48,18 @@ if ($GLOBALS['language_menu_login']) {
     <title><?php echo xlt('New Patient'); ?> | <?php echo xlt('Register'); ?></title>
     <meta name="description" content="Developed By sjpadgett@gmail.com" />
 
-    <?php Header::setupHeader(['no_main-theme', 'datetime-picker', 'patientportal-style', 'patientportal-register']); ?>
+    <?php Header::setupHeader(['no_main-theme',  'portal-theme', 'datetime-picker']); ?>
 
     <script>
         var webRoot = <?php echo js_escape($GLOBALS['web_root']); ?>;
         top.webroot_url = webRoot;
-        var newPid = 0;
-        var curPid = 0;
         var provider = 0;
 
         function restoreSession() {
             //dummy functions so the dlgopen function will work in the patient portal
             return true;
         }
+
         $(function () {
             var navListItems = $('div.setup-panel div a'),
                 allWells = $('.setup-content'),
@@ -130,7 +90,7 @@ if ($GLOBALS['language_menu_login']) {
                 var profile = $("#profileFrame").contents();
 
                 // Fix for iFrame height
-                window.addEventListener('message', function(e) {
+                window.addEventListener('message', function (e) {
                     var scroll_height = e.data;
                     document.getElementById('profileFrame').style.height = scroll_height + 'px';
                 }, false);
@@ -150,39 +110,31 @@ if ($GLOBALS['language_menu_login']) {
                 }
                 if (isValid) {
                     if (curStepBtn == 'step-1') { // leaving step 1 setup profile frame. Prob not nec but in case
-                    let fn = $("#fname").val().replace(/^./, $("#fname").val()[0].toUpperCase());
-                    let ln = $("#lname").val().replace(/^./, $("#lname").val()[0].toUpperCase());
-                    profile.find('input#fname').val(fn);
+                        let fn = $("#fname").val().replace(/^./, $("#fname").val()[0].toUpperCase());
+                        let ln = $("#lname").val().replace(/^./, $("#lname").val()[0].toUpperCase());
+                        profile.find('input#fname').val(fn);
                         profile.find('input#mname').val($("#mname").val());
-                    profile.find('input#lname').val(ln);
+                        profile.find('input#lname').val(ln);
                         profile.find('input#dob').val($("#dob").val());
                         profile.find('input#email').val($("#emailInput").val());
-                    profile.find('input#emailDirect').val($("#emailInput").val());
-                    // disable to prevent already validated field changes.
-                    profile.find('input#fname').prop("disabled", true);
-                    profile.find('input#mname').prop("disabled", true);
-                    profile.find('input#lname').prop("disabled", true);
-                    profile.find('input#dob').prop("disabled", true);
-                    profile.find('input#email').prop("disabled", true);
-                    profile.find('input#emailDirect').prop("disabled", true);
+                        // disable to prevent already validated field changes.
+                        profile.find('input#fname').prop("disabled", true);
+                        profile.find('input#mname').prop("disabled", true);
+                        profile.find('input#lname').prop("disabled", true);
+                        profile.find('input#dob').prop("disabled", true);
+                        profile.find('input#email').prop("disabled", true);
+                        profile.find('input#emailDirect').prop("disabled", true);
+                        profile.find('input#pid').prop('disabled', true);
+                        profile.find('input#pid').val('');
 
                         profile.find('input[name=allowPatientPortal]').val(['YES']);
-                    profile.find('input[name=hipaaAllowemail]').val(['YES']);
+                        profile.find('input[name=hipaaAllowemail]').val(['YES']);
                         // need these for validation.
                         profile.find('select#providerid option:contains("Unassigned")').val('');
-                    // must have a provider for many reasons. w/o save won't work.
+                        // must have a provider for many reasons. w/o save won't work.
                         //profile.find('select#providerid').attr('required', true);
                         profile.find('select#sex option:contains("Unassigned")').val('');
                         profile.find('select#sex').attr('required', true);
-
-                        var pid = profile.find('input#pid').val();
-                        if (pid < 1) { // form pid set in promise
-                        callServer('get_newpid', '',
-                            encodeURIComponent($("#dob").val()),
-                            encodeURIComponent($("#lname").val()),
-                            encodeURIComponent($("#fname").val()),
-                            encodeURIComponent($("#emailInput").val()));
-                        }
                     }
                     nextstepwiz.removeClass('disabled').trigger('click');
                 }
@@ -193,10 +145,10 @@ if ($GLOBALS['language_menu_login']) {
                 var curStep = $(this).closest(".setup-content"),
                     curStepBtn = curStep.attr("id"),
                     nextstepwiz = $('div.setup-panel div a[href="#' + curStepBtn + '"]').parent().next().children("a"),
-                    curInputs = $("#profileFrame").contents().find("input[type='text'],input[type='email'],select"),
+                    curInputs = profile.find("input[type='text'],input[type='email'],select"),
                     isValid = true;
                 $(".form-group").removeClass("has-error");
-                var flg = 0;
+                let flg = 0;
                 for (var i = 0; i < curInputs.length; i++) {
                     if (!curInputs[i].validity.valid) {
                         isValid = false;
@@ -208,14 +160,6 @@ if ($GLOBALS['language_menu_login']) {
                         $(curInputs[i]).closest(".form-group").addClass("has-error");
                     }
                 }
-            // test for new once again
-            // this time using the profile data that will be saved as new patient.
-            // callserver will intercept on fail or silence to continue.
-            let stillNew = callServer('get_newpid', '',
-                encodeURIComponent(profile.find('input#dob').val()),
-                encodeURIComponent(profile.find('input#lname').val()),
-                encodeURIComponent(profile.find('input#fname').val()),
-                encodeURIComponent(profile.find('input#email').val()));
                 if (isValid) {
                     provider = profile.find('select#providerid').val();
                     nextstepwiz.removeClass('disabled').trigger('click');
@@ -223,23 +167,16 @@ if ($GLOBALS['language_menu_login']) {
             });
 
             $("#submitPatient").click(function () {
-                var profile = $("#profileFrame").contents();
-                var pid = profile.find('input#pid').val();
-
-                if (pid < 1) {
-                    callServer('get_newpid', '');
-                }
-
-                var isOk = checkRegistration(newPid);
-                if (isOk) {
+                let profile = $("#profileFrame").contents();
+                if (checkRegistration()) {
                     // Use portals rest api. flag 1 is write to chart. flag 0 writes an audit record for review in dashboard.
-                    // rest update will determine if new or existing pid for save. In register step-1 we catch existing pid but,
-                    // we can still use update here if we want to allow changing passwords.
-
-                    // save the new patient.
+                    //  (unclear what above means since no flags here and is being saved directly in chart)
+                    // Save the new patient.
                     document.getElementById('profileFrame').contentWindow.postMessage({submitForm: true}, window.location.origin);
-                    $("#insuranceForm").submit();
-                    //  cleanup is in callServer done promise. This starts end session.
+                    // lets force a second here to ensure above patient import is called to server prior than the insurance import
+                    //  (this order is critical because the patient import sets up the pid to be used on the backend, so that no
+                    //   pid adjustments can be made on the frontend)
+                    delayPromise(1000).then(() => $("#insuranceForm").submit());
                 }
             });
 
@@ -254,55 +191,50 @@ if ($GLOBALS['language_menu_login']) {
 
             $("#insuranceForm").submit(function (e) {
                 e.preventDefault();
-                var url = "account.php?action=new_insurance&pid=" + encodeURIComponent(newPid);
+                let url = "account/account.php?action=new_insurance";
                 $.ajax({
                     url: url,
                     type: 'post',
-                    data: $("#insuranceForm").serialize(),
-                    success: function (serverResponse) {
-                        doCredentials(newPid) // this is the end for session.
+                    data: $("#insuranceForm").serialize()
+                }).done(function (serverResponse) {
+                        doCredentials(provider) // this is the end for session.
                         return false;
-                    }
-                });
-            });
-
-            $('#selLanguage').on('change', function () {
-                callServer("set_lang", this.value);
-            });
-
-            $(document.body).on('hidden.bs.modal', function () { //@TODO maybe make a promise for wiz exit
-                callServer('cleanup');
+                    });
             });
 
             $('#inscompany').on('change', function () {
                 if ($('#inscompany').val().toUpperCase() === 'SELF') {
                     $("#insuranceForm input").removeAttr("required");
                     let message = <?php echo xlj('You have chosen to be self insured or currently do not have insurance. Click next to continue registration.'); ?>;
-                    alert(message);
+                    //alert(message);
                 }
             });
 
-        $("#dob").on('blur', function () {
-            let bday = $(this).val() ?? '';
-            let age = Math.round(Math.abs((new Date().getTime() - new Date(bday).getTime())));
-            age = Math.round(age / 1000 / 60 / 60 / 24);
-            // need to be at least 30 days old otherwise likely an error.
-            if (age < 30) {
-                let msg = <?php echo (xlj("Invalid Date format or value! Type date as YYYY-MM-DD or use the calendar.") ); ?> ;
-                $(this).val('');
-                $(this).prop('placeholder', 'Invalid Date');
-                alert(msg);
-                return false;
-            }
-        });
+            $("#dob").on('blur', function () {
+                let bday = $(this).val() ?? '';
+                let age = Math.round(Math.abs((new Date().getTime() - new Date(bday).getTime())));
+                age = Math.round(age / 1000 / 60 / 60 / 24);
+                // need to be at least 30 days old otherwise likely an error.
+                if (age < 30) {
+                    let msg = <?php echo(xlj("Invalid Date format or value! Type date as YYYY-MM-DD or use the calendar.")); ?> ;
+                    $(this).val('');
+                    $(this).prop('placeholder', 'Invalid Date');
+                    alert(msg);
+                    return false;
+                }
+            });
 
         }); // ready end
 
-        function doCredentials(pid) {
-            callServer('do_signup', pid);
+        function delayPromise(time) {
+            return new Promise(resolve => setTimeout(resolve, time));
         }
 
-        function checkRegistration(pid) {
+        function doCredentials(provider) {
+            window.location.href = "account/account.php?action=do_signup&provider=" + encodeURIComponent(provider);
+        }
+
+        function checkRegistration() {
             var profile = $("#profileFrame").contents();
             var curStep = $("#step-2"),
                 curStepBtn = curStep.attr("id"),
@@ -310,8 +242,8 @@ if ($GLOBALS['language_menu_login']) {
                 curInputs = $("#profileFrame").contents().find("input[type='text'],input[type='email'],select"),
                 isValid = true;
             $(".form-group").removeClass("has-error");
-            var flg = 0;
-            for (var i = 0; i < curInputs.length; i++) {
+            let flg = 0;
+            for (let i = 0; i < curInputs.length; i++) {
                 if (!curInputs[i].validity.valid) {
                     isValid = false;
                     if (!flg) {
@@ -322,91 +254,113 @@ if ($GLOBALS['language_menu_login']) {
                     $(curInputs[i]).closest(".form-group").addClass("has-error");
                 }
             }
-
-            if (!isValid) {
-                return false;
-            }
-
-            return true;
+            return isValid;
         }
 
-    function callServer(action, value, value2, last, first, email = null) {
-            let message = '';
-            let data = {
-                'action': action,
-                'value': value,
-                'dob': value2,
-                'last': last,
-                'first': first,
-                'email': email
-            }
-            if (action == 'do_signup') {
-                data = {
-                    'action': action,
-                    'pid': value
-                };
-            } else if (action == 'notify_admin') {
-                data = {
-                    'action': action,
-                    'pid': value,
-                    'provider': value2
-                };
-            } else if (action == 'cleanup') {
-                data = {
-                    'action': action
-                };
-            }
-            // The magic that is jquery ajax.
-            $.ajax({
-                type: 'GET',
-                url: 'account.php',
-                data: data
-            }).done(function (rtn) {
-                if (action == "cleanup") {
-                window.location.href = "./../index.php" // Goto landing page.
-                } else if (action == "set_lang") {
-                    window.location.href = window.location.href;
-                } else if (action == "get_newpid") {
-                    if (parseInt(rtn) > 0) {
-                        newPid = rtn;
-                        $("#profileFrame").contents().find('input#pubpid').val(newPid);
-                        $("#profileFrame").contents().find('input#pid').val(newPid);
-                    } else {
-                        // After error alert app exit to landing page.
-                        // Existing user error. Error message is translated in account.lib.php.
-                        dialog.alert(rtn);
-                    }
-                } else if (action == 'do_signup') {
-                    if (rtn.indexOf('ERROR') !== -1) {
-                        message = <?php echo xlj('Unable to either create credentials or send email.'); ?>;
-                        message += "<br /><br />" + <?php echo xlj('Here is what we do know.'); ?> +": " + rtn + "<br />";
-                        dialog.alert(message);
-                        return false;
-                    }
-                    // For production. Here we're finished so do signup closing alert and then cleanup.
-                    callServer('notify_admin', newPid, provider); // pnote notify to selected provider
-                    // alert below for ease of testing.
-                    //alert(rtn); // sync alert.. rtn holds username and password for testing.
-
-                    message = <?php echo xlj("Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon."); ?>;
-                    dialog.alert(message); // This is an async call. The modal close event exits us to portal landing page after cleanup.
-                    return false;
-                }
-            }).fail(function (err) {
-                message = <?php echo xlj('Something went wrong.') ?>;
-                alert(message);
-            });
-        }
     </script>
 </head>
+<style>
+  body {
+    margin-top: 20px
+  }
+
+  .btn-circle {
+    border-radius: .9375rem !important
+  }
+
+  .embedded-content {
+    border: 0;
+    width: 100% !important
+  }
+
+  .reg-email {
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%
+  }
+
+  @media (max-width: 1024px) {
+    .reg-email {
+      width: 100%
+    }
+  }
+
+  .stepwiz-row {
+    display: table-row
+  }
+
+  .stepwiz-row::before {
+    background-color: var(--gray400);
+    bottom: 0;
+    content: " ";
+    height: 1px;
+    position: absolute;
+    top: 14px;
+    width: 100%
+  }
+
+  .stepwiz {
+    display: table;
+    margin-top: 20px;
+    position: relative;
+    width: 100%
+  }
+
+  .stepwiz-step {
+    display: table-cell;
+    position: relative;
+    text-align: center
+  }
+
+  .stepwiz-step p {
+    margin-top: 10px
+  }
+
+  .stepwiz-step button[disabled] {
+    filter: alpha(opacity=100) !important;
+    opacity: 1 !important
+  }
+
+  .btn-circle {
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 700;
+    height: 35px;
+    line-height: 1.428571429;
+    padding: 6px 0;
+    text-align: center;
+    width: 35px
+  }
+
+  fieldset, input[type=date], input[type=email], input[type=text], select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    box-sizing: border-box
+  }
+
+  input:focus:invalid, input:required:invalid {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAeVJREFUeNqkU01oE1EQ/mazSTdRmqSxLVSJVKU9RYoHD8WfHr16kh5EFA8eSy6hXrwUPBSKZ6E9V1CU4tGf0DZWDEQrGkhprRDbCvlpavan3ezu+LLSUnADLZnHwHvzmJlvvpkhZkY7IqFNaTuAfPhhP/8Uo87SGSaDsP27hgYM/lUpy6lHdqsAtM+BPfvqKp3ufYKwcgmWCug6oKmrrG3PoaqngWjdd/922hOBs5C/jJA6x7AiUt8VYVUAVQXXShfIqCYRMZO8/N1N+B8H1sOUwivpSUSVCJ2MAjtVwBAIdv+AQkHQqbOgc+fBvorjyQENDcch16/BtkQdAlC4E6jrYHGgGU18Io3gmhzJuwub6/fQJYNi/YBpCifhbDaAPXFvCBVxXbvfbNGFeN8DkjogWAd8DljV3KRutcEAeHMN/HXZ4p9bhncJHCyhNx52R0Kv/XNuQvYBnM+CP7xddXL5KaJw0TMAF8qjnMvegeK/SLHubhpKDKIrJDlvXoMX3y9xcSMZyBQ+tpyk5hzsa2Ns7LGdfWdbL6fZvHn92d7dgROH/730YBLtiZmEdGPkFnhX4kxmjVe2xgPfCtrRd6GHRtEh9zsL8xVe+pwSzj+OtwvletZZ/wLeKD71L+ZeHHWZ/gowABkp7AwwnEjFAAAAAElFTkSuQmCC);
+    background-position: right top;
+    background-repeat: no-repeat;
+    box-shadow: none
+  }
+
+  input:required:valid {
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAepJREFUeNrEk79PFEEUx9/uDDd7v/AAQQnEQokmJCRGwc7/QeM/YGVxsZJQYI/EhCChICYmUJigNBSGzobQaI5SaYRw6imne0d2D/bYmZ3dGd+YQKEHYiyc5GUyb3Y+77vfeWNpreFfhvXfAWAAJtbKi7dff1rWK9vPHx3mThP2Iaipk5EzTg8Qmru38H7izmkFHAF4WH1R52654PR0Oamzj2dKxYt/Bbg1OPZuY3d9aU82VGem/5LtnJscLxWzfzRxaWNqWJP0XUadIbSzu5DuvUJpzq7sfYBKsP1GJeLB+PWpt8cCXm4+2+zLXx4guKiLXWA2Nc5ChOuacMEPv20FkT+dIawyenVi5VcAbcigWzXLeNiDRCdwId0LFm5IUMBIBgrp8wOEsFlfeCGm23/zoBZWn9a4C314A1nCoM1OAVccuGyCkPs/P+pIdVIOkG9pIh6YlyqCrwhRKD3GygK9PUBImIQQxRi4b2O+JcCLg8+e8NZiLVEygwCrWpYF0jQJziYU/ho2TUuCPTn8hHcQNuZy1/94sAMOzQHDeqaij7Cd8Dt8CatGhX3iWxgtFW/m29pnUjR7TSQcRCIAVW1FSr6KAVYdi+5Pj8yunviYHq7f72po3Y9dbi7CxzDO1+duzCXH9cEPAQYAhJELY/AqBtwAAAAASUVORK5CYII=);
+    background-position: right top;
+    background-repeat: no-repeat
+  }
+</style>
+
 <body class="mt-4 skin-blue">
-    <div class="container">
+    <div class="container-lg">
         <h1 class="text-center"><?php echo xlt('Account Registration'); ?></h1>
         <div class="stepwiz">
             <div class="stepwiz-row setup-panel">
                 <div class="stepwiz-step">
                     <a href="#step-1" type="button" class="btn btn-primary btn-circle">1</a>
-                    <p><?php echo xlt('Get Started') ?></p>
+                    <p><?php echo xlt('Verify Email') ?></p>
                 </div>
                 <div class="stepwiz-step">
                     <a href="#step-2" type="button" class="btn btn-light btn-circle disabled">2</a>
@@ -423,75 +377,27 @@ if ($GLOBALS['language_menu_login']) {
             </div>
         </div>
         <!-- // Start Forms // -->
-        <form id="startForm" role="form" action="" method="post" onsubmit="">
+        <form id="startForm" role="form">
             <div class="text-center setup-content" id="step-1">
-                <legend class="bg-primary text-white"><?php echo xlt('Contact Information') ?></legend>
                 <div class="jumbotron">
-                    <?php if ($GLOBALS['language_menu_login']) { ?>
-                        <?php if (count($result3) != 1) { ?>
-                            <div class="form-group">
-                                <label class="col-form-label" for="selLanguage"><?php echo xlt('Language'); ?></label>
-                                <select class="form-control" id="selLanguage" name="languageChoice">
-                                    <?php
-                                    echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
-                                        text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
-                                    foreach ($result3 as $iter) {
-                                        if ($GLOBALS['language_menu_showall']) {
-                                            if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
-                                                continue; // skip the dummy language
-                                            }
-                                            echo "<option value='" . attr($iter['lang_id']) . "'>" .
-                                                text($iter['trans_lang_description']) . "</option>\n";
-                                        } else {
-                                            if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
-                                                if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
-                                                    continue; // skip the dummy language
-                                                }
-                                                echo "<option value='" . attr($iter['lang_id']) . "'>" .
-                                                    text($iter['trans_lang_description']) . "</option>\n";
-                                            }
-                                        }
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                        <?php }
-                    } ?>
-                    <div class="form-row">
-                        <div class="col form-group">
-                          <label for="fname"><?php echo xlt('First Name') ?></label>
-                          <input type="text" class="form-control" id="fname" required placeholder="<?php echo xla('First Name'); ?>" />
-                        </div>
-                        <div class="col form-group">
-                          <label for="mname"><?php echo xlt('Middle Name') ?></label>
-                          <input type="text" class="form-control" id="mname" placeholder="<?php echo xla('Full or Initial'); ?>" />
-                        </div>
-                        <div class="col form-group">
-                          <label for="lname"><?php echo xlt('Last Name') ?></label>
-                          <input type="text" class="form-control" id="lname" required placeholder="<?php echo xla('Enter Last'); ?>" />
-                        </div>
-                        <div class="col form-group">
-                          <label for="dob"><?php echo xlt('Birth Date') ?></label>
-                          <input id="dob" type="text" required class="form-control datepicker" placeholder="<?php echo xla('YYYY-MM-DD'); ?>" />
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="col-form-label" for="emailInput"><?php echo xlt('Enter E-Mail Address') ?></label>
-                        <input id="emailInput" type="email" class="reg-email form-control" required placeholder="<?php echo xla('Enter email address to receive registration.'); ?>" maxlength="100" />
-                    </div>
+                    <input type="hidden" name="languageChoice" value="<?php echo attr($languageRegistration); ?>" />
+                    <input type="hidden" id="fname" name="fname" value="<?php echo attr($fnameRegistration); ?>" />
+                    <input type="hidden" id="mname" name="mname" value="<?php echo attr($mnameRegistration); ?>" />
+                    <input type="hidden" id="lname" name="lname" value="<?php echo attr($lnameRegistration); ?>" />
+                    <input type="hidden" id="dob" name="dob" value="<?php echo attr($dobRegistration); ?>" />
+                    <input type="hidden" id="emailInput" name="email" value="<?php echo attr($emailRegistration); ?>" />
+                    <div class="alert alert-success" role="alert"><?php echo xlt("Your email has been verified. Click Next."); ?></div>
                 </div>
-
                 <button class="btn btn-primary nextBtn pull-right" type="button"><?php echo xlt('Next') ?></button>
             </div>
         </form>
         <!-- Profile Form -->
-        <form id="profileForm" role="form" action="account.php" method="post">
+        <form id="profileForm" role="form" action="account/account.php" method="post">
             <div class="text-center setup-content" id="step-2" style="display: none">
                 <legend class="bg-primary text-white"><?php echo xlt('Profile') ?></legend>
                 <div class="jumbotron">
-                    <iframe class="embedded-content" src="../patient/patientdata?pid=0&register=true" id="profileFrame" name="Profile Info"></iframe>
+                    <iframe class="embedded-content" src="patient/patientdata?pid=0&register=true" id="profileFrame" name="Profile Info"></iframe>
                 </div>
-                <button class="btn btn-primary prevBtn pull-left" type="button"><?php echo xlt('Previous') ?></button>
                 <button class="btn btn-primary pull-right" type="button" id="profileNext"><?php echo xlt('Next') ?></button>
             </div>
         </form>
@@ -501,39 +407,39 @@ if ($GLOBALS['language_menu_login']) {
                 <legend class='bg-primary text-white'><?php echo xlt('Insurance') ?></legend>
                 <div class="jumbotron">
                     <div class="form-row">
-                        <div class="col form-group">
+                        <div class="col-12 col-md-6 col-lg-3 form-group">
                             <label for="provider"><?php echo xlt('Insurance Company') ?></label>
                             <div class="controls inline-inputs">
                                 <input type="text" class="form-control" name="provider" id="inscompany" required placeholder="<?php echo xla('Enter Self if None'); ?>">
                             </div>
                         </div>
-                        <div class="col form-group">
+                        <div class="col-12 col-md-6 col-lg-3 form-group">
                             <label for="plan_name"><?php echo xlt('Plan Name') ?></label>
                             <div class="controls inline-inputs">
                                 <input type="text" class="form-control" name="plan_name" required placeholder="<?php echo xla('required'); ?>">
                             </div>
                         </div>
-                        <div class="col form-group">
+                        <div class="col-12 col-md-6 col-lg-3 form-group">
                             <label for="policy_number"><?php echo xlt('Policy Number') ?></label>
                             <div class="controls inline-inputs">
                                 <input type="text" class="form-control" name="policy_number" required placeholder="<?php echo xla('required'); ?>">
                             </div>
                         </div>
-                      </div>
-                      <div class="form-row">
-                        <div class="col form-group">
+                    </div>
+                    <div class="form-row">
+                        <div class="col-12 col-md-6 col-lg-3 form-group">
                             <label for="group_number"><?php echo xlt('Group Number') ?></label>
                             <div class="controls inline-inputs">
                                 <input type="text" class="form-control" name="group_number" required placeholder="<?php echo xla('required'); ?>">
                             </div>
                         </div>
-                        <div class="col form-group">
+                        <div class="col-12 col-md-6 col-lg-3 form-group">
                             <label for="date"><?php echo xlt('Policy Begin Date') ?></label>
                             <div class="controls inline-inputs">
                                 <input type="text" class="form-control datepicker" name="date" placeholder="<?php echo xla('Policy effective date'); ?>">
                             </div>
                         </div>
-                        <div class="col form-group">
+                        <div class="col-12 col-md-6 col-lg-3 form-group">
                             <label for="copay"><?php echo xlt('Co-Payment') ?></label>
                             <div class="controls inline-inputs">
                                 <input type="number" class="form-control" name="copay" placeholder="<?php echo xla('Plan copay if known'); ?>">
@@ -552,7 +458,7 @@ if ($GLOBALS['language_menu_login']) {
                 <h4 class='bg-success'><?php echo xlt("All set. Click Send Request below to finish registration.") ?></h4>
                 <hr />
                 <p>
-                    <?php echo xlt("An e-mail with your new account credentials will be sent to the e-mail address supplied earlier. You may still review or edit any part of your information by using the top step buttons to go to the appropriate panels. Note to be sure you have given your correct e-mail address. If after receiving credentials and you have trouble with access to the portal, please contact administration.") ?>
+                    <?php echo xlt("An e-mail with your new account credentials will be sent to the e-mail address supplied earlier. You may still review or edit any part of your information by using the top step buttons to go to the appropriate panels. If after receiving credentials and you have trouble with access to the portal, please contact administration.") ?>
                 </p>
             </div>
             <hr />

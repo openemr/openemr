@@ -40,6 +40,7 @@ exports.goalActivityObservation = {
             },
             text: leafLevel.inputProperty("name")
         },
+        fieldLevel.author,
     ],
     existsWhen: function (input) {
         return input.type === "observation";

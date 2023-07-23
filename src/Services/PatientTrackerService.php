@@ -365,6 +365,7 @@ class PatientTrackerService extends BaseService
         $astat['count_all'] = count($appointments);
         //group the appointment by status
         foreach ($appointments as $appointment) {
+            ($astat[$appointment['pc_apptstatus']] ?? null) ? $astat[$appointment['pc_apptstatus']] : $astat[$appointment['pc_apptstatus']] = 0;
             $astat[$appointment['pc_apptstatus']] += 1;
         }
 

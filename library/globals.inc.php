@@ -11,7 +11,7 @@
  * @copyright Copyright (c) 2010-2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2021-2023 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -73,10 +73,12 @@
 //   Turkish                        // xl('Turkish')
 //   Ukrainian                      // xl('Ukrainian')
 //   Urdu                           // xl('Urdu')
+//   Uzbek                          // xl('Uzbek')
 //   Vietnamese                     // xl('Vietnamese')
 
-use OpenEMR\Services\Globals\GlobalsService;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
+use OpenEMR\OeUI\RenderFormFieldHelper;
+use OpenEMR\Services\Globals\GlobalsService;
 
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {
@@ -91,6 +93,16 @@ if (stristr(PHP_OS, 'WIN')) {
     $perl_bin_dir = '/usr/bin';
     $temporary_files_dir = '/tmp';
     $backup_log_dir = '/tmp';
+}
+
+function getDefaultRenderListOptions()
+{
+    return [
+        RenderFormFieldHelper::SHOW_ON_NEW_ONLY => xl('Show on New Form Only'),
+        RenderFormFieldHelper::SHOW_ON_EDIT_ONLY => xl('Show on Edit Form Only'),
+        RenderFormFieldHelper::SHOW_ALL => xl('Show on New and Edit Form'),
+        RenderFormFieldHelper::HIDE_ALL => xl('Hide on New and Edit Form'),
+    ];
 }
 
 // Language constant declarations:
@@ -165,49 +177,11 @@ $GLOBALS_METADATA = array(
     //
     'Appearance' => array(
 
-        'default_top_pane' => array(
-            xl('Main Top Pane Screen(Or Default First Tab)'),       // descriptive name
-            array(
-                'main_info.php' => xl('Calendar Screen'),
-                '../new/new.php' => xl('Patient Search/Add Screen'),
-                '../../interface/main/finder/dynamic_finder.php' => xl('Patient Finder Screen'),
-                '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => xl('Patient Flow Board'),
-                '../../interface/main/messages/messages.php?form_active=1' => xl('Messages Screen')
-            ),
-            'main_info.php',                  // default = calendar
-            xl('Main Top Pane Screen(Or Default First Tab)')
-        ),
-
-        'default_second_tab' => array(
-            xl('Default Second Tab'),       // descriptive name
-            array(
-                '' => xl('None'),
-                '../../interface/main/messages/messages.php?form_active=1' => xl('Messages Screen'),
-                'main_info.php' => xl('Calendar Screen'),
-                '../new/new.php' => xl('Patient Search/Add Screen'),
-                '../../interface/main/finder/dynamic_finder.php' => xl('Patient Finder Screen'),
-                '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => xl('Patient Flow Board'),
-            ),
-            '../../interface/main/messages/messages.php?form_active=1',    // default = messages
-            xl('Default Second Tab')
-        ),
-
         'theme_tabs_layout' => array(
             xl('Tabs Layout Theme') . '*',
             'tabs_css',
             'tabs_style_full.css',
             xl('Theme of the tabs layout (need to logout and then login to see this new setting).')
-        ),
-
-        'login_page_layout' => array(
-            xl('Login Page Layout') . '*',
-            array(
-                'center' => xl("Centered Layout"),
-                'left' => xl("Left-Form Layout"),
-                'right' => xl("Right-Form Layout"),
-            ),
-            'center',
-            xl('Changes the layout of the login page.')
         ),
 
         'css_header' => array(
@@ -216,6 +190,13 @@ $GLOBALS_METADATA = array(
             'css',
             'style_light.css',
             xl('Pick a general theme (need to logout/login after changing this setting).')
+        ),
+
+        'window_title_add_patient_name' => array(
+            xl('Add Patient Name To Window Title'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Adds the patient name to the end of the window title.')
         ),
 
         'enable_compact_mode' => array(
@@ -255,13 +236,6 @@ $GLOBALS_METADATA = array(
             ),
             '0',                              // default = tree menu
             xl('Choose your default encounter view')
-        ),
-
-        'gbl_nav_area_width' => array(
-            xl('Navigation Area Width for Frames'),
-            'num',
-            '175',
-            xl('Width in pixels of the left navigation frame in frame based layout.')
         ),
 
         'enable_group_therapy' => array(
@@ -304,13 +278,6 @@ $GLOBALS_METADATA = array(
             ),
             '0',                              // default
             xl('Type of columns displayed for patient search results')
-        ),
-
-        'gbl_tall_nav_area' => array(
-            xl('Tall Navigation Area'),
-            'bool',                           // data type
-            '0',                              // default = false
-            xl('Navigation area uses full height of frameset')
         ),
 
         'gbl_nav_visit_forms' => array(
@@ -402,12 +369,26 @@ $GLOBALS_METADATA = array(
             xl('Default state of New Window checkbox in the patient list.')
         ),
 
+        'right_justify_labels_demographics' => array(
+            xl('Right Justify Labels in Demographics'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('Right justify labels in Demographics for easier readability.')
+        ),
+
         'num_of_messages_displayed' => array(
             xl('Number of Messages Displayed in Patient Summary'),
             'num',
             '3',
             xl('This is the number of messages that will be displayed in the messages widget in the patient summary screen.')
         ),
+
+        'recent_patient_count' => [
+            xl('Maximum number of patients on Recent Patient list'),
+            'num',
+            '20',
+            xl('The maximum number of patients on the Recent Patient list'),
+        ],
 
         'gbl_vitals_options' => array(
             xl('Vitals Form Options'),
@@ -417,6 +398,13 @@ $GLOBALS_METADATA = array(
             ),
             '0',                              // default
             xl('Special treatment for the Vitals form')
+        ),
+
+        'gbl_vitals_max_history_cols' => array(
+            xl('Vitals Form Max Historical Columns To Display'),
+            'num',
+            '2',                              // default
+            xl('The number of historical vital columns to display on medium to large screen displays')
         ),
 
         'gb_how_sort_list' => array(
@@ -449,6 +437,13 @@ $GLOBALS_METADATA = array(
             'OpenEMR',
             xl('Application name used throughout the user interface.')
         ),
+
+        'machine_name' => [
+            xl('Application Machine Name'),
+            'text',
+            'openemr',
+            xl('The machine name of the application. Used to identify the EMR in various messaging systems like HL7. Should not contain spaces'),
+        ],
 
         'display_main_menu_logo' => [
             xl('Display main menu logo'),
@@ -498,6 +493,30 @@ $GLOBALS_METADATA = array(
             '1',
             xl('Display the Donations link on the About page'),
         ],
+    ],
+
+    // Login Page
+    'Login Page' => [
+        'login_page_layout' => array(
+            xl('Login Page Layout') . '*',
+            array(
+                'login/layouts/vertical_box.html.twig' => xl("Vertical Box"),
+                'login/layouts/horizontal_box_left_logo.html.twig' => xl("Horizontal Box, Logo on Left"),
+                'login/layouts/horizontal_box_right_logo.html.twig' => xl("Horizontal Box, Logo on Right"),
+                'login/layouts/horizontal_band_right_logo.html.twig' => xl("Horizontal Band, Logo on Right"),
+                'login/layouts/horizontal_band_left_logo.html.twig' => xl("Horizontal Band, Logo on Left"),
+                "login/layouts/vertical_band.html.twig" => xl("Vertical Band"),
+            ),
+            'login/layouts/vertical_band.html.twig',
+            xl('Changes the layout of the login page.')
+        ),
+
+        'display_acknowledgements_on_login' => [
+            xl('Display links to the acknowledgements page'),
+            'bool',
+            '1',
+            xl('Used on the login screen'),
+        ],
 
         'show_tagline_on_login' => [
             xl('Show Tagline on Login Page') . "*",
@@ -527,12 +546,29 @@ $GLOBALS_METADATA = array(
             xl('Show Title on Login')
         ),
 
+        'show_primary_logo' => [
+            xl('Show primary logo on login'),
+            'bool',
+            '1',
+            xl('Show primary logo on login'),
+        ],
+
         'extra_logo_login' => array(
-            xl('Show Extra Logo on Login'),
+            xl('Show Secondary Logo on Login'),
             'bool',                           // data type
             '0',                              // default = false
-            xl('Show Extra Logo on Login')
+            xl('Show Secondary Logo on Login')
         ),
+
+        'secondary_logo_position' => [
+            xl('Order of the Secondary logo'),
+            [
+                'first' => xl('First Position'),
+                'second' => xl('Second Position'),
+            ],
+            'second',
+            xl('Place the secondary logo first, or second'),
+        ],
 
         'tiny_logo_1' => array(
             xl('Show Mini Logo 1'),
@@ -783,20 +819,6 @@ $GLOBALS_METADATA = array(
             xl('Option to support inventory and sales of products')
         ),
 
-        'default_visit_category' => array(
-            xl('Default Visit Category'),
-            'default_visit_category',
-            '_blank',
-            xl('Define a default visit category'),
-        ),
-
-        'enable_follow_up_encounters' => array(
-            xl('Enable follow-up encounters'),
-            'bool',
-            '0',
-            xl('Enable follow-up encounters feature')
-        ),
-
         'disable_chart_tracker' => array(
             xl('Disable Chart Tracker'),
             'bool',                           // data type
@@ -909,19 +931,6 @@ $GLOBALS_METADATA = array(
             xl('Discounts at checkout time are entered as money amounts, as opposed to percentage.')
         ),
 
-        'gbl_visit_referral_source' => array(
-            xl('Referral Source for Encounters'),
-            'bool',                           // data type
-            '0',                              // default = false
-            xl('A referral source may be specified for each visit.')
-        ),
-
-        'gbl_visit_onset_date' => array(
-            xl('Onset/Hosp Date for Encounters'),
-            'bool',                           // data type
-            '1',                              // default = true
-            xl('An onset/hospitalization date may be specified for each visit.')
-        ),
 
         'gbl_form_save_close' => array(
             xl('Display Save and Close Visit button in LBFs'),
@@ -951,20 +960,6 @@ $GLOBALS_METADATA = array(
             xl('Specifies formatting for product NDC fields.  # = digit, @ = alpha, * = any character.  Empty if not used.')
         ),
 
-        'hide_billing_widget' => array(
-            xl('Hide Billing Widget'),
-            'bool',                           // data type
-            '0',                              // default = false
-            xl('This will hide the Billing Widget in the Patient Summary screen')
-        ),
-
-        'force_billing_widget_open' => array(
-            xl('Force Billing Widget Open'),
-            'bool',                           // data type
-            '0',                              // default = false
-            xl('This will force the Billing Widget in the Patient Summary screen to always be open.')
-        ),
-
         'activate_ccr_ccd_report' => array(
             xl('Activate CCR/CCD Reporting'),
             'bool',                           // data type
@@ -973,10 +968,10 @@ $GLOBALS_METADATA = array(
         ),
 
         'drive_encryption' => array(
-            xl('Enable Encryption of Items Stored on Drive'),
+            xl('Enable Encryption of Items Stored on Drive (Strongly recommend keeping this on)'),
             'bool',                           // data type
             '1',                              // default = true
-            xl('This will enable encryption of items that are stored on the drive.')
+            xl('This will enable encryption of items that are stored on the drive. Strongly recommend keeping this setting on for security purposes.')
         ),
 
         'couchdb_encryption' => array(
@@ -1042,8 +1037,15 @@ $GLOBALS_METADATA = array(
         'expand_form' => array(
             xl('Expand Form'),
             'bool',                           // data type
-            '1',                              // default false
+            '1',                              // default true
             xl('Open all expandable forms in expanded state')
+        ),
+
+        'graph_data_warning' => array(
+            xl('Graphing Data Warning'),
+            'bool',                           // data type
+            '0',                              // default false
+            xl('Warn if not enough data to graph')
         ),
 
     ),
@@ -1120,6 +1122,22 @@ $GLOBALS_METADATA = array(
     // Billing Tab
 
     'Billing' => array(
+
+        // It would be good to eventually rename this to "billing_enabled" and inverse the setting value.
+        'hide_billing_widget' => array(
+            xl('Hide Billing features'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('This will hide billing features throughout the program.')
+        ),
+
+        'force_billing_widget_open' => array(
+            xl('Force Billing Widget Open'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('This will force the Billing Widget in the Patient Summary screen to always be open.')
+        ),
+
 
         'ub04_support' => array(
             xl('Activate UB04/837I Claim Support'),
@@ -1224,6 +1242,13 @@ $GLOBALS_METADATA = array(
             xl('Turn on to show all payment history in Patient Ledger')
         ),
 
+        'void_checkout_reopen' => array(
+            xl('Void Checkout and Reopen in Fee Sheet'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('Void Checkout and Reopen in Fee Sheet')
+        ),
+
         'support_fee_sheet_line_item_provider' => array(
             xl('Support provider in line item in fee sheet'),
             'bool',                           // data type
@@ -1269,13 +1294,6 @@ $GLOBALS_METADATA = array(
             ),
             '3',
             xl('Display the Encounter Billing Note or Patient Billing Note or Both in the Billing Screen.')
-        ),
-
-        'set_pos_code_encounter' => array(
-            xl('Set POS code in encounter'),
-            'bool',                           // data type
-            '0',                              // default = false
-            xl('This feature will allow the default POS facility code to be overridden from the encounter.')
         ),
 
         'MedicareReferrerIsRenderer' => array(
@@ -1468,6 +1486,13 @@ $GLOBALS_METADATA = array(
             'bool',                           // data type
             '0',                              // default = false
             xl('For automatically sending claims that are generated in EDI directory to the X12 partner using SFTP credentials X12 Partner Settings')
+        ),
+
+        'enable_swap_secondary_insurance' => array(
+            xl('Enable Swap Secondary Insurance Editing Demographics'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Enable swap secondary insurance')
         ),
 
     ),
@@ -2012,6 +2037,12 @@ $GLOBALS_METADATA = array(
             '7200',                           // default
             xl('Maximum idle time in seconds before logout. Default is 7200 (2 hours).')
         ),
+        'portal_timeout' => array(
+            xl('Portal Idle Session Timeout Seconds'),
+            'num',                            // data type
+            '1800',                           // default
+            xl('Maximum idle time in seconds before logout. Default is 1800 (30 minutes).')
+        ),
         'secure_upload' => array(
             xl('Secure Upload Files with White List'),
             'bool',                           // data type
@@ -2090,10 +2121,31 @@ $GLOBALS_METADATA = array(
         ),
 
         'password_max_failed_logins' => array(
-            xl('Maximum Failed Login Attempts'),
+            xl('Maximum Failed Login Attempts For User'),
             'num',                            // data type
-            '0',                              // default
-            xl('Maximum Failed Login Attempts (0 for no maximum).')
+            '20',                             // default
+            xl('Maximum Failed Login Attempts For User (0 for no maximum).')
+        ),
+
+        'time_reset_password_max_failed_logins' => array(
+            xl('Time (seconds) to Reset Maximum Failed Login Attempts For User'),
+            'num',                            // data type
+            '3600',                           // default to 1 hour
+            xl('Time (seconds) to Reset Maximum Failed Login Attempts Counter For User (0 for no reset).')
+        ),
+
+        'ip_max_failed_logins' => array(
+            xl('Maximum Failed Login Attempts From IP Address'),
+            'num',                            // data type
+            '100',                            // default
+            xl('Maximum Failed Login Attempts From IP Address (0 for no maximum).')
+        ),
+
+        'ip_time_reset_password_max_failed_logins' => array(
+            xl('Time (seconds) to Reset Maximum Failed Login Attempts From IP Address'),
+            'num',                            // data type
+            '3600',                           // default to 1 hour
+            xl('Time (seconds) to Reset Maximum Failed Login Attempts Counter From IP Address (0 for no reset).')
         ),
 
         'gbl_fac_warehouse_restrictions' => array(
@@ -2571,6 +2623,13 @@ $GLOBALS_METADATA = array(
             xl('PQRI Registry ID')
         ),
 
+        'cqm_performance_period' => array(
+            xl('Eligible Clinician eCQM Performance Period'),
+            'text',                           // data type
+            '2022', // default set
+            xl('Enter the eCQM Performance Period year. For example 2022')
+        ),
+
         'enable_amc' => array(
             xl('Enable AMC Reporting'),
             'bool',                           // data type
@@ -2917,13 +2976,6 @@ $GLOBALS_METADATA = array(
             xl('List used by above Country Data Type option.')
         ),
 
-        'default_chief_complaint' => array(
-            xl('Default Reason for Visit'),
-            'text',                           // data type
-            '',
-            xl('You may put text here as the default complaint in the New Patient Encounter form.')
-        ),
-
         'post_to_date_benchmark' => array(
             xl('Financial Close Date (yyyy-mm-dd)'),
             'text',                           // data type
@@ -2992,6 +3044,16 @@ $GLOBALS_METADATA = array(
             xl('Website link for the Patient Portal.')
         ),
 
+        'portal_css_header' => array(
+            xl('Portal Default Theme'),
+            array(
+                'style_light.css' => xl('Light'),
+                'style_dark.css' => xl('Dark')
+            ),
+            'style_light.css',
+            xl('Pick a default portal theme.')
+        ),
+
         'portal_onsite_two_basepath' => array(
             xl('Portal Uses Server Base Path (internal)'),
             'bool',
@@ -3006,8 +3068,22 @@ $GLOBALS_METADATA = array(
             xl('Patient is required to enter their contact e-mail if present in Demographics Contact.')
         ),
 
+        'google_recaptcha_site_key' => array(
+            xl('Google reCAPTCHA V2 site key'),
+            'text',
+            '',
+            xl('Google reCAPTCHA V2 site key')
+        ),
+
+        'google_recaptcha_secret_key' => array(
+            xl('Google reCAPTCHA V2 secret key'),
+            'encrypted',
+            '',
+            xl('Google reCAPTCHA V2 secret key')
+        ),
+
         'portal_onsite_two_register' => array(
-            xl('Allow New Patient Registration Widget'),
+            xl('Allow New Patient Registration Widget') . ' ' . xl('This requires reCAPTCHA to be setup'),
             'bool',                           // data type
             '0',
             xl('Enable Patient Portal new patient to self register.')
@@ -3042,7 +3118,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'portal_two_pass_reset' => array(
-            xl('Allow Patients to Reset Credentials'),
+            xl('Allow Patients to Reset Credentials') . ' ' . xl('This requires reCAPTCHA to be setup'),
             'bool',                           // data type
             '0',
             xl('Patient may change their logon from portal login dialog.')
@@ -3061,17 +3137,10 @@ $GLOBALS_METADATA = array(
     'Connectors' => array(
 
         'site_addr_oath' => array(
-            xl('Site Address Override (if needed for OAuth2, FHIR or CCDA)'),
+            xl('Site Address Override (if needed for OAuth2, FHIR, CCDA, or Payment Processing)'),
             'text',
             '',
-            xl('Only need to set this if the server is not providing the correct host for OAuth2, FHIR or CCDA. Example is') . ' https://localhost:8300 .'
-        ),
-
-        'rest_api' => array(
-            xl('Enable OpenEMR Standard REST API'),
-            'bool',
-            '0',
-            xl('Enable OpenEMR Standard RESTful API.')
+            xl('Only need to set this if the server is not providing the correct host for OAuth2, FHIR, CCDA, or Payment Processing. Example is') . ' https://localhost:8300 .'
         ),
 
         'rest_fhir_api' => array(
@@ -3081,18 +3150,25 @@ $GLOBALS_METADATA = array(
             xl('Enable OpenEMR Standard FHIR RESTful API.')
         ),
 
+        'rest_system_scopes_api' => array(
+            xl('Enable OpenEMR FHIR System Scopes (Turn on only if you know what you are doing)'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR FHIR System Scopes.')
+        ),
+
+        'rest_api' => array(
+            xl('Enable OpenEMR Standard REST API'),
+            'bool',
+            '0',
+            xl('Enable OpenEMR Standard RESTful API.')
+        ),
+
         'rest_portal_api' => array(
             xl('Enable OpenEMR Patient Portal REST API (EXPERIMENTAL)'),
             'bool',
             '0',
             xl('Enable OpenEMR Patient Portal RESTful API.')
-        ),
-
-        'rest_system_scopes_api' => array(
-            xl('Enable OpenEMR FHIR System Scopes (Recommended Off, Turn on only if you know what you are doing)'),
-            'bool',
-            '0',
-            xl('Enable OpenEMR FHIR System Scopes.')
         ),
 
         'oauth_password_grant' => array(
@@ -3105,6 +3181,16 @@ $GLOBALS_METADATA = array(
             ),
             '0',
             xl('Enable OAuth2 Password Grant. Recommend turning this setting off for production server. Recommend only using for testing.')
+        ),
+        'oauth_app_manual_approval' => array(
+            xl('OAuth2 App Manual Approval Settings'),
+            array(
+                0 => xl('Patient standalone apps Auto Approved, EHR-Launch,Provider&System Apps require manual approval')
+                ,1 => xl('Manually Approve All Apps (USA jurisdictions must approve all patient standalone apps within 48 hours)')
+//                ,2 => xl('All apps Auto Approved') we could add this setting at a latter date
+            ),
+            '0',
+            xl('Approval settings for 3rd party app/api access')
         ),
 
         'cc_front_payments' => array(
@@ -3124,6 +3210,7 @@ $GLOBALS_METADATA = array(
             array(
                 'InHouse' => xl('In House Authorize Payments'),
                 'AuthorizeNet' => xl('Gateway for AuthorizeNet Manual Payments'),
+                'Sphere' => xl('Gateway for Sphere Payments'),
                 'Stripe' => xl('Gateway for Stripe Manual Payments')
             ),
             'InHouse',
@@ -3156,6 +3243,76 @@ $GLOBALS_METADATA = array(
             'encrypted',
             '',
             xl('Mainly Authorize.Net uses two keys')
+        ),
+
+        'sphere_clinicfront_trxcustid' => array(
+            xl('Sphere Clinicfront over phone (MOTO) Transaction CustID'),
+            'encrypted',
+            '',
+            xl('Sphere Clinicfront over phone (MOTO) Transaction CustID')
+        ),
+
+        'sphere_clinicfront_trxcustid_licensekey' => array(
+            xl('Sphere Clinicfront over phone (MOTO) Transaction CustID License Key'),
+            'encrypted',
+            '',
+            xl('Sphere Clinicfront over phone (MOTO) Transaction CustID License Key')
+        ),
+
+        'sphere_moto_tc_link_pass' => array(
+            xl('Sphere MOTO TC Link Password'),
+            'encrypted',
+            '',
+            xl('Sphere MOTO TC Link Password')
+        ),
+
+        'sphere_clinicfront_retail_trxcustid' => array(
+            xl('Sphere Clinicfront in person (RETAIL) Transaction CustID'),
+            'encrypted',
+            '',
+            xl('Sphere Clinicfront in person (RETAIL) Transaction CustID')
+        ),
+
+        'sphere_clinicfront_retail_trxcustid_licensekey' => array(
+            xl('Sphere Clinicfront in person (RETAIL) Transaction CustID License Key'),
+            'encrypted',
+            '',
+            xl('Sphere Clinicfront in person (RETAIL) Transaction CustID License Key')
+        ),
+
+        'sphere_retail_tc_link_pass' => array(
+            xl('Sphere RETAIL TC Link Password'),
+            'encrypted',
+            '',
+            xl('Sphere RETAIL TC Link Password')
+        ),
+
+        'sphere_patientfront_trxcustid' => array(
+            xl('Sphere Patientfront (Ecomm) Transaction CustID'),
+            'encrypted',
+            '',
+            xl('Sphere Patientfront (Ecomm) Transaction CustID')
+        ),
+
+        'sphere_patientfront_trxcustid_licensekey' => array(
+            xl('Sphere Patientfront (Ecomm) Transaction CustID License Key'),
+            'encrypted',
+            '',
+            xl('Sphere Patientfront (Ecomm) Transaction CustID License Key')
+        ),
+
+        'sphere_ecomm_tc_link_pass' => array(
+            xl('Sphere Ecomm TC Link Password'),
+            'encrypted',
+            '',
+            xl('Sphere Ecomm TC Link Password')
+        ),
+
+        'sphere_credit_void_confirm_pin' => array(
+            xl('Sphere Void/Credit Confirmation PIN'),
+            'encrypted_hash',
+            '',
+            xl('Sphere Void/Credit Confirmation Password. OpenEMR confirms pin/password before proceeding with void/credit.')
         ),
 
         'medex_enable' => array(
@@ -3327,6 +3484,18 @@ $GLOBALS_METADATA = array(
             '0',
             xl('Enable phiMail Direct Messaging Service')
         ),
+        'phimail_testmode_disabled' => array(
+            xl('Disable phiMail Test Mode'),
+            'bool',                           // data type
+            '0',
+            xl('When you are ready to run phiMail in production mode. Turn on this flag.')
+        ),
+        'phimail_verifyrecipientreceived_enable' => array(
+            xl("phiMail default force message receipt confirmation to on"),
+            'bool',
+            '0',
+            xl("Marks a message as succesful only if recipient confirms they received the message.  This can fail messages that otherwise would have been received if the recipient's system does not support confirmation receipt")
+        ),
 
         'phimail_server_address' => array(
             xl('phiMail Server Address'),
@@ -3403,6 +3572,41 @@ $GLOBALS_METADATA = array(
             'encrypted',                      // data type
             '',
             xl('Easipro Server Password')
+        ),
+
+        'usps_webtools_enable' => array(
+            xl('Enable USPS Web Tools API'),
+            'bool',                           // data type
+            '0',
+            xl('Enable USPS Web Tools API')
+        ),
+
+        'usps_webtools_username' => array(
+            xl('USPS Web Tools API Username'),
+            'text',                           // data type
+            '',
+            xl('USPS Web Tools API Username')
+        ),
+
+        'ccda_validation_disable' => array(
+            xl('Disable All import CDA Validation Reporting'),
+            'bool',                           // data type
+            '0',
+            xl('Disable All CDA conformance and validation services to improve import performance')
+        ),
+
+        'mdht_conformance_server_enable' => array(
+            xl('Use MDHT External Validation Service'),
+            'bool',                           // data type
+            '0',
+            xl('Enable CCDA conformance and validation API service')
+        ),
+
+        'mdht_conformance_server' => array(
+            xl('CCDA MDHT Validation API Server Address'),
+            'text',                           // data type
+            '',
+            xl('CCDA conformance and validation API service URL. For testing (using ONLY test data) you can default to http://ccda.healthit.gov which should not be used to transmit PHI. Production sites can deploy their own by following instructions here https://github.com/onc-healthit/reference-ccda-validator.')
         ),
     ),
 
@@ -3926,6 +4130,134 @@ $GLOBALS_METADATA = array(
         ),
 
     ),
+
+    'Patient Banner Bar' => [
+        'patient_name_display' => [
+            xl('Patient Name Display'),
+            [
+                'btn' => xl('As Button'),
+                'text' => xl('As Text Link'),
+                'text-large' => xl('As Large Text Link'),
+            ],
+            'text-large',
+            xl('How to display the patient name'),
+        ],
+    ],
+
+    'Encounter Form' => [
+        'default_chief_complaint' => array(
+            xl('Default Reason for Visit'),
+            'text',                           // data type
+            '',
+            xl('You may put text here as the default complaint in the New Patient Encounter form.')
+        ),
+
+        'default_visit_category' => [
+            xl('Default Visit Category'),
+            'default_visit_category',
+            '_blank',
+            xl('Define a default visit category'),
+        ],
+
+        'enable_follow_up_encounters' => [
+            xl('Enable follow-up encounters'),
+            'bool',
+            '0',
+            xl('Enable follow-up encounters feature')
+        ],
+
+        'gbl_visit_referral_source' => array(
+            xl('Referral Source for Encounters'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('A referral source may be specified for each visit.')
+        ),
+
+        'gbl_visit_onset_date' => array(
+            xl('Onset/Hosp Date for Encounters'),
+            'bool',                           // data type
+            '1',                              // default = true
+            xl('An onset/hospitalization date may be specified for each visit.')
+        ),
+
+        'set_pos_code_encounter' => [
+            xl('Set POS code in Encounter'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('This feature will allow the default POS facility code to be overridden from the encounter.')
+        ],
+
+        'set_service_facility_encounter' => array(
+            xl('Set Service Facility in Encounter'),
+            'bool',                           // data type
+            '0',                              // default = false
+            xl('This feature will allow the default service facility to be selected by the care team facility in Choices.')
+        ),
+
+        'enc_service_date' => [
+            xl('Show Date of Service on Encounter Form'),
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::SHOW_ALL,
+            xl('How to display the Date of Service on the Encounter form. Defaults to the current time on a new form'),
+        ],
+
+        'enc_sensitivity_visibility' => [
+            xl('Show Sensitivity on Encounter Form'),
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::SHOW_ALL,
+            xl('How to display the sensitivity option'),
+        ],
+
+        'enc_enable_issues' => [
+            xl('Allow Linking/Adding Issues on Encounter'),
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::SHOW_ALL,
+            xl('Allow issues to be linked or added to an encounter'),
+        ],
+
+        'enc_enable_referring_provider' => [
+            xl('Show Referring Provider option on Encounters'),
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::SHOW_ALL,
+            xl('Display the Referring Provider option on Encounters'),
+        ],
+
+        'enc_enable_facility' => [
+            xl('Show Facility option on Encounters'),
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::SHOW_ALL,
+            xl('Display the Referring Provider option on Encounters'),
+        ],
+
+        'enc_enable_discharge_disposition' => [
+            xl('Show Discharge Disposition option on Encounters'),
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::SHOW_ALL,
+            xl('Display the Discharge Disposition option on the Encounter form'),
+        ],
+
+        'enc_enable_visit_category' => [
+            xl('Show Visit Category option on Encounters'),
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::SHOW_ALL,
+            xl('Show Visit Category option on Encounters'),
+        ],
+
+        'enc_enable_class' => [
+            xl('Show Encounter Class option on Encounters'),
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::SHOW_ALL,
+            xl('Show Encounter Class option on Encounters'),
+        ],
+
+        'enc_enable_type' => [
+            xl('Show Encounter Type option on Encounters'),
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::SHOW_ALL,
+            xl('Show Encounter Class option on Encounters'),
+        ],
+
+    ],
 );
 
 if (!empty($GLOBALS['ippf_specific'])) {
@@ -3991,7 +4323,7 @@ if (!empty($GLOBALS['ippf_specific'])) {
             xl('Visits by Item Report'),
             'bool',                           // data type
             '0',                              // default
-            xl('Visits by Item Report.')
+            xl('Visits by Item Report')
         ),
 
         'gbl_menu_acct_trans' => array(
@@ -4040,7 +4372,7 @@ if (!empty($GLOBALS['ippf_specific'])) {
             xl('Service and Client Volume Report'),
             'bool', // data type
             '1', // default
-            xl('Service and client volume report')
+            xl('Service and Client Volume Report')
         ),
     );
 
@@ -4157,6 +4489,6 @@ if (!empty($GLOBALS['ippf_specific'])) {
 
 if (empty($skipGlobalEvent)) {
     $globalsInitEvent = new GlobalsInitializedEvent(new GlobalsService($GLOBALS_METADATA, $USER_SPECIFIC_GLOBALS, $USER_SPECIFIC_TABS));
-    $globalsInitEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(GlobalsInitializedEvent::EVENT_HANDLE, $globalsInitEvent, 10);
+    $globalsInitEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($globalsInitEvent, GlobalsInitializedEvent::EVENT_HANDLE, 10);
     $globalsService = $globalsInitEvent->getGlobalsService()->save();
 }

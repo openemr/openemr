@@ -113,7 +113,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(gmdate('c'));
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $procedureResource->setMeta($meta);
 
         $report = array_pop($dataRecord['reports']);
@@ -204,7 +204,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
 
 
         if (!empty($report['date'])) {
-            $procedureResource->setPerformedDateTime(gmdate('c', strtotime($report['date'])));
+            $procedureResource->setPerformedDateTime(UtilsService::getLocalDateAsUTC($report['date']));
         } else {
             $procedureResource->setPerformedDateTime(UtilsService::createDataMissingExtension());
         }
@@ -236,7 +236,7 @@ class FhirProcedureOEProcedureService extends FhirServiceBase
         $fhirProvenanceService = new FhirProvenanceService();
         $reference = null;
         if (!empty($dataRecord->getPerformer()) && count($dataRecord->getPerformer()) == 1) {
-            $dataRecord->getPerformer()[0]->getActor();
+            $reference = $dataRecord->getPerformer()[0]->getActor();
         }
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $reference);
 

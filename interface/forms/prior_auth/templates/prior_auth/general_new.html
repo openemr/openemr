@@ -12,7 +12,7 @@
 <title>{xlt t='Prior Authorization'}</title>
 {headerTemplate assets='datetime-picker'}
 
-{literal}
+
 <style>
     label {
         padding: 0px 5px !Important;
@@ -20,20 +20,11 @@
 </style>
 
 <script>
-	$(function () {   
-	
-		$('.datetimepicker').datetimepicker({
-			{/literal}
-			{php} $datetimepicker_timepicker = false; {/php}
-			{php} $datetimepicker_showseconds = false; {/php}
-			{php} $datetimepicker_formatInput = true; {/php}
-			{php} require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); {/php}
-			{literal}
-		});
-	
+	$(function () {
+        {datetimepickerSupport input='format'}
 	});
 </script>
-{/literal}
+
 </head>
 <body>
 	<div class="container mt-3">
@@ -49,17 +40,17 @@
     					    <div class="col-sm-4">
 							    <label for="prior_auth_number" class="col-form-label">{xlt t="Number"}:</label>
 							    <input type="text" class="form-control" size="35" name="prior_auth_number" value="{$prior_auth->get_prior_auth_number()|attr}">
-						    </div>	
+						    </div>
 						    <div class="col-sm-4">
 							    <label for="date_from" class="col-form-label">{xlt t="From"}:</label>
-							    <input type='text' size='10' class='form-control datetimepicker' name='date_from' id='date_from' value='{$prior_auth->get_date_from()|oeFormatShortDate|attr}' />
+							    <input type='text' size='10' class='form-control datepicker' name='date_from' id='date_from' value='{$prior_auth->get_date_from()|oeFormatShortDate|attr}' />
 						    </div>
-						    <div class="col-sm-4">	
+						    <div class="col-sm-4">
 							   <label for="date_to" class="col-form-label">{xlt t="To"}:</label>
-							   <input type='text' size='10' class='form-control datetimepicker' name='date_to' id='date_to' value='{$prior_auth->get_date_to()|oeFormatShortDate|attr}' />
+							   <input type='text' size='10' class='form-control datepicker' name='date_to' id='date_to' value='{$prior_auth->get_date_to()|oeFormatShortDate|attr}' />
 						    </div>
 						</div>
-					</div>	
+					</div>
 				</fieldset>
 				<fieldset>
 					<legend>{xlt t="Comments"}</legend>
@@ -70,7 +61,7 @@
 
 							</div>
 						</div>
-					</div>	
+					</div>
 				</fieldset>
 				<div class="form-group mt-3">
 					<div class="col-sm-12 position-override">

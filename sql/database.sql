@@ -17,6 +17,7 @@ CREATE TABLE `addresses` (
   `plus_four` varchar(4) default NULL,
   `country` varchar(255) default NULL,
   `foreign_id` int(11) default NULL,
+  `district` VARCHAR(255) DEFAULT NULL COMMENT 'The county or district of the address',
   PRIMARY KEY  (`id`),
   KEY `foreign_id` (`foreign_id`)
 ) ENGINE=InnoDB;
@@ -114,6 +115,7 @@ CREATE TABLE `api_token` (
   `client_id` varchar(80) DEFAULT NULL,
   `scope` text COMMENT 'json encoded',
   `revoked` TINYINT(1) NOT NULL DEFAULT 0 COMMENT '1=revoked,0=not revoked',
+  `context` TEXT COMMENT 'context values that change/govern how access token are used',
   PRIMARY KEY (`id`),
   UNIQUE KEY `token` (`token`)
 ) ENGINE = InnoDB;
@@ -151,6 +153,7 @@ CREATE TABLE `audit_master` (
   `ip_address` varchar(100) NOT NULL,
   `type` tinyint(4) NOT NULL COMMENT '1-new patient,2-existing patient,3-change is only in the document,4-Patient upload,5-random key,10-Appointment',
   `is_qrda_document` BOOLEAN NULL DEFAULT FALSE,
+  `is_unstructured_document` BOOLEAN NULL DEFAULT FALSE,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
@@ -165,7 +168,7 @@ CREATE TABLE `audit_details` (
   `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
   `table_name` VARCHAR(100) NOT NULL COMMENT 'openemr table name',
   `field_name` VARCHAR(100) NOT NULL COMMENT 'openemr table''s field name',
-  `field_value` TEXT COMMENT 'openemr table''s field value',
+  `field_value` LONGTEXT COMMENT 'openemr table''s field value',
   `audit_master_id` BIGINT(20) NOT NULL COMMENT 'Id of the audit_master table',
   `entry_identification` VARCHAR(255) NOT NULL DEFAULT '1' COMMENT 'Used when multiple entry occurs from the same table.1 means no multiple entry',
   PRIMARY KEY (`id`),
@@ -199,7 +202,7 @@ CREATE TABLE `background_services` (
 --
 
 INSERT INTO `background_services` (`name`, `title`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
-('phimail', 'phiMail Direct Messaging Service', 5, 'phimail_check', '/library/direct_message_check.inc', 100);
+('phimail', 'phiMail Direct Messaging Service', 5, 'phimail_check', '/library/direct_message_check.inc.php', 100);
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
 ('MedEx', 'MedEx Messaging Service', 0, 0, '2017-05-09 17:39:10', 0, 'start_MedEx', '/library/MedEx/MedEx_background.php', 100);
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
@@ -208,6 +211,9 @@ INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_r
 ('WenoExchange', 'Weno Log Sync', 0, 0, '2021-01-18 11:25:10', 0, 'start_weno', '/library/weno_log_sync.php', 100);
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
 ('UUID_Service', 'Automated UUID Creation Service', 1, 0, '2021-01-18 11:25:10', 240, 'autoPopulateAllMissingUuids', '/library/uuid.php', 100);
+INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
+('Email_Service', 'Email Service', 1, 0, '2021-01-18 11:25:10', 2, 'emailServiceRun', '/library/email_service_run.php', 100);
+
 -- --------------------------------------------------------
 
 --
@@ -283,6 +289,7 @@ CREATE TABLE `categories` (
   `lft` int(11) NOT NULL default '0',
   `rght` int(11) NOT NULL default '0',
   `aco_spec` varchar(63) NOT NULL DEFAULT 'patients|docs',
+  `codes` varchar(255) NOT NULL DEFAULT '' COMMENT 'Category codes for documents stored in this category',
   PRIMARY KEY  (`id`),
   KEY `parent` (`parent`),
   KEY `lft` (`lft`,`rght`)
@@ -292,37 +299,36 @@ CREATE TABLE `categories` (
 -- Inserting data for table `categories`
 --
 
-INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 59, 'patients|docs');
-INSERT INTO `categories` VALUES (2, 'Lab Report', '', 1, 1, 2, 'patients|docs');
-INSERT INTO `categories` VALUES (3, 'Medical Record', '', 1, 3, 4, 'patients|docs');
-INSERT INTO `categories` VALUES (4, 'Patient Information', '', 1, 5, 10, 'patients|docs');
-INSERT INTO `categories` VALUES (5, 'Patient ID card', '', 4, 6, 7, 'patients|docs');
-INSERT INTO `categories` VALUES (6, 'Advance Directive', '', 1, 11, 18, 'patients|docs');
-INSERT INTO `categories` VALUES (7, 'Do Not Resuscitate Order', '', 6, 12, 13, 'patients|docs');
-INSERT INTO `categories` VALUES (8, 'Durable Power of Attorney', '', 6, 14, 15, 'patients|docs');
-INSERT INTO `categories` VALUES (9, 'Living Will', '', 6, 16, 17, 'patients|docs');
-INSERT INTO `categories` VALUES (10, 'Patient Photograph', '', 4, 8, 9, 'patients|docs');
-INSERT INTO `categories` VALUES (11, 'CCR', '', 1, 19, 20, 'patients|docs');
-INSERT INTO `categories` VALUES (12, 'CCD', '', 1, 21, 22, 'patients|docs');
-INSERT INTO `categories` VALUES (13, 'CCDA', '', 1, 23, 24, 'patients|docs');
-INSERT INTO `categories` VALUES (14, 'Eye Module', '', 1, 25, 50, 'patients|docs');
-INSERT INTO `categories` VALUES (15, 'Communication - Eye', '', 14, 26, 27, 'patients|docs');
-INSERT INTO `categories` VALUES (16, 'Encounters - Eye', '', 14, 28, 29, 'patients|docs');
-INSERT INTO `categories` VALUES (17, 'Imaging - Eye', '', 14, 30, 49, 'patients|docs');
-INSERT INTO `categories` VALUES (18, 'OCT - Eye', 'POSTSEG', 17, 31, 32, 'patients|docs');
-INSERT INTO `categories` VALUES (19, 'FA/ICG - Eye', 'POSTSEG', 17, 33, 34, 'patients|docs');
-INSERT INTO `categories` VALUES (20, 'External Photos - Eye', 'EXT', 17, 35, 36, 'patients|docs');
-INSERT INTO `categories` VALUES (21, 'AntSeg Photos - Eye', 'ANTSEG', 17, 37, 38, 'patients|docs');
-INSERT INTO `categories` VALUES (22, 'Optic Disc - Eye', 'POSTSEG', 17, 39, 40, 'patients|docs');
-INSERT INTO `categories` VALUES (23, 'Fundus - Eye', 'POSTSEG', 17, 41, 42, 'patients|docs');
-INSERT INTO `categories` VALUES (24, 'Radiology - Eye', 'NEURO', 17, 43, 44, 'patients|docs');
-INSERT INTO `categories` VALUES (25, 'VF - Eye', 'NEURO', 17, 45, 46, 'patients|docs');
-INSERT INTO `categories` VALUES (26, 'Drawings - Eye', '', 17, 47, 48, 'patients|docs');
-INSERT INTO `categories` VALUES (27, 'Onsite Portal', '', 1, 51, 56, 'patients|docs');
-INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 52, 53, 'patients|docs');
-INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 54, 55, 'patients|docs');
--- @bradymiller is this the right aco for this?  We really don't want people with patient stuff to have access to this doc
-INSERT INTO `categories` VALUES (30, 'FHIR Export Document', '', 1, 57, 58, 'admin|super');
+INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 59, 'patients|docs', '');
+INSERT INTO `categories` VALUES (2, 'Lab Report', '', 1, 1, 2, 'patients|docs', '');
+INSERT INTO `categories` VALUES (3, 'Medical Record', '', 1, 3, 4, 'patients|docs', '');
+INSERT INTO `categories` VALUES (4, 'Patient Information', '', 1, 5, 10, 'patients|demo', '');
+INSERT INTO `categories` VALUES (5, 'Patient ID card', '', 4, 6, 7, 'patients|demo', '');
+INSERT INTO `categories` VALUES (6, 'Advance Directive', '', 1, 11, 18, 'patients|docs','LOINC:LP173418-7');
+INSERT INTO `categories` VALUES (7, 'Do Not Resuscitate Order', '', 6, 12, 13, 'patients|docs', '');
+INSERT INTO `categories` VALUES (8, 'Durable Power of Attorney', '', 6, 14, 15, 'patients|docs', '');
+INSERT INTO `categories` VALUES (9, 'Living Will', '', 6, 16, 17, 'patients|docs', '');
+INSERT INTO `categories` VALUES (10, 'Patient Photograph', '', 4, 8, 9, 'patients|demo', '');
+INSERT INTO `categories` VALUES (11, 'CCR', '', 1, 19, 20, 'patients|docs', '');
+INSERT INTO `categories` VALUES (12, 'CCD', '', 1, 21, 22, 'patients|docs', 'LOINC:34133-9');
+INSERT INTO `categories` VALUES (13, 'CCDA', '', 1, 23, 24, 'patients|docs', '');
+INSERT INTO `categories` VALUES (14, 'Eye Module', '', 1, 25, 50, 'patients|docs', '');
+INSERT INTO `categories` VALUES (15, 'Communication - Eye', '', 14, 26, 27, 'patients|docs', '');
+INSERT INTO `categories` VALUES (16, 'Encounters - Eye', '', 14, 28, 29, 'patients|docs','');
+INSERT INTO `categories` VALUES (17, 'Imaging - Eye', '', 14, 30, 49, 'patients|docs','');
+INSERT INTO `categories` VALUES (18, 'OCT - Eye', 'POSTSEG', 17, 31, 32, 'patients|docs','');
+INSERT INTO `categories` VALUES (19, 'FA/ICG - Eye', 'POSTSEG', 17, 33, 34, 'patients|docs','');
+INSERT INTO `categories` VALUES (20, 'External Photos - Eye', 'EXT', 17, 35, 36, 'patients|docs','');
+INSERT INTO `categories` VALUES (21, 'AntSeg Photos - Eye', 'ANTSEG', 17, 37, 38, 'patients|docs','');
+INSERT INTO `categories` VALUES (22, 'Optic Disc - Eye', 'POSTSEG', 17, 39, 40, 'patients|docs','');
+INSERT INTO `categories` VALUES (23, 'Fundus - Eye', 'POSTSEG', 17, 41, 42, 'patients|docs','');
+INSERT INTO `categories` VALUES (24, 'Radiology - Eye', 'NEURO', 17, 43, 44, 'patients|docs','');
+INSERT INTO `categories` VALUES (25, 'VF - Eye', 'NEURO', 17, 45, 46, 'patients|docs','');
+INSERT INTO `categories` VALUES (26, 'Drawings - Eye', '', 17, 47, 48, 'patients|docs','');
+INSERT INTO `categories` VALUES (27, 'Onsite Portal', '', 1, 51, 56, 'patients|docs','');
+INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 52, 53, 'patients|docs','');
+INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 54, 55, 'patients|docs','LOINC:LP173394-0');
+INSERT INTO `categories` VALUES (30, 'FHIR Export Document', '', 1, 57, 58, 'admin|super','LOINC:LP173421-1');
 
 -- --------------------------------------------------------
 
@@ -636,15 +642,19 @@ CREATE TABLE `clinical_rules` (
   `amc_flag` tinyint(1) COMMENT 'Automated Measure Calculation flag (unable to customize per patient)',
   `amc_2011_flag` tinyint(1) COMMENT '2011 Automated Measure Calculation flag for (unable to customize per patient)',
   `amc_2014_flag` tinyint(1) COMMENT '2014 Automated Measure Calculation flag for (unable to customize per patient)',
+  `amc_2015_flag` TINYINT(1) NULL DEFAULT NULL COMMENT '2015 Automated Measure Calculation flag for (unable to customize per patient)',
   `amc_code` varchar(10) NOT NULL default '' COMMENT 'Automated Measure Calculation identifier (MU rule)',
   `amc_code_2014` varchar(30) NOT NULL default '' COMMENT 'Automated Measure Calculation 2014 identifier (MU rule)',
+  `amc_code_2015` VARCHAR(30) NOT NULL DEFAULT '' COMMENT 'Automated Measure Calculation 2014 identifier (MU rule)',
   `amc_2014_stage1_flag` tinyint(1) COMMENT '2014 Stage 1 - Automated Measure Calculation flag for (unable to customize per patient)',
   `amc_2014_stage2_flag` tinyint(1) COMMENT '2014 Stage 2 - Automated Measure Calculation flag for (unable to customize per patient)',
   `patient_reminder_flag` tinyint(1) COMMENT 'Clinical Reminder Module flag',
+  `bibliographic_citation` VARCHAR(255) NOT NULL DEFAULT '',
   `developer` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Developer',
   `funding_source` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Funding Source',
   `release_version` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Release Version',
   `web_reference` VARCHAR(255) NOT NULL DEFAULT '' COMMENT 'Clinical Rule Web Reference',
+  `linked_referential_cds` VARCHAR(50) NOT NULL DEFAULT '',
   `access_control` VARCHAR(255) NOT NULL DEFAULT 'patients:med' COMMENT 'ACO link for access control',
   PRIMARY KEY  (`id`,`pid`)
 ) ENGINE=InnoDB;
@@ -1061,6 +1071,11 @@ INSERT INTO `clinical_rules`
 (`id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_code`, `patient_reminder_flag`, `amc_2011_flag`, `amc_2014_flag`, `amc_code_2014`, `cqm_2011_flag`, `cqm_2014_flag`, `amc_2014_stage1_flag`, `amc_2014_stage2_flag`) VALUES
 ('e_prescribe_2_stage2_amc', 0, 0, 0, 0, '', '', 1, '170.304(b)', 0, 0, 1, '170.314(g)(1)/(2)–8', 0, 0, 0, 1);
 
+-- 2015 AMC Rules
+INSERT INTO `clinical_rules` (`id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`,`cqm_2014_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`,`amc_2014_flag`, `amc_code`, `amc_code_2014`, `amc_code_2015`, `amc_2014_stage1_flag`,`amc_2014_stage2_flag`, `amc_2015_flag`, `patient_reminder_flag`, `developer`,`funding_source`, `release_version`, `web_reference`, `access_control`,`bibliographic_citation`, `linked_referential_cds`)
+VALUES ('patient_access_amc', '0', '0', '0', '0', '0', '0', '', '', '1', '0', '0', '', '', '170.315(g)(1)/(2)–2c', '0', '0', '1', '0', '', '', '', '', '', '', '');
+INSERT INTO `clinical_rules` (`id`, `pid`, `active_alert_flag`, `passive_alert_flag`, `cqm_flag`, `cqm_2011_flag`,`cqm_2014_flag`, `cqm_nqf_code`, `cqm_pqri_code`, `amc_flag`, `amc_2011_flag`,`amc_2014_flag`, `amc_code`, `amc_code_2014`, `amc_code_2015`, `amc_2014_stage1_flag`,`amc_2014_stage2_flag`, `amc_2015_flag`, `patient_reminder_flag`, `developer`,`funding_source`, `release_version`, `web_reference`, `access_control`,`bibliographic_citation`, `linked_referential_cds`)
+VALUES ('send_sum_2015_amc', '0', '0', '0', '0', '0', '0', '', '', '1', '0', '0', '', '', '170.315(g)(1)/(2)–7', '0', '0', '1', '0', '', '', '', '', '', '', '');
 -- --------------------------------------------------------
 
 --
@@ -1126,6 +1141,42 @@ INSERT INTO `codes` (`code_text`,`code`,`code_type`) VALUES ('Per Oris','C38288'
 INSERT INTO `codes` (`code_text`,`code`,`code_type`) VALUES ('Inhale','C38216',112);
 INSERT INTO `codes` (`code_text`,`code`,`code_type`) VALUES ('Intramuscular','C28161',112);
 INSERT INTO `codes` (`code_text`,`code`,`code_type`) VALUES ('mg','C28253',112);
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `contact`
+--
+CREATE TABLE `contact` (
+   `id` BIGINT(20) NOT NULL auto_increment,
+   `foreign_table_name` VARCHAR(255) NOT NULL DEFAULT '',
+   `foreign_id` BIGINT(20) NOT NULL DEFAULT '0',
+   PRIMARY KEY (`id`),
+   KEY (`foreign_id`)
+) ENGINE = InnoDB;
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `contact_address`
+--
+CREATE TABLE `contact_address` (
+    `id` BIGINT(20) NOT NULL auto_increment,
+    `contact_id` BIGINT(20) NOT NULL,
+    `address_id` BIGINT(20) NOT NULL,
+    `priority` INT(11) NULL,
+    `type` VARCHAR(255) NULL COMMENT 'FK to list_options.option_id for list_id address-types',
+    `use` VARCHAR(255) NULL COMMENT 'FK to list_options.option_id for list_id address-uses',
+    `notes` TINYTEXT,
+    `status` CHAR(1) NULL COMMENT 'A=active,I=inactive',
+    `is_primary` CHAR(1) NULL COMMENT 'Y=yes,N=no',
+    `created_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `period_start` DATETIME NULL COMMENT 'Date the address became active',
+    `period_end` DATETIME NULL COMMENT 'Date the address became deactivated',
+    `inactivated_reason` VARCHAR(45) NULL DEFAULT NULL COMMENT '[Values: Moved, Mail Returned, etc]',
+    PRIMARY KEY (`id`),
+    KEY (`contact_id`),
+    KEY (`address_id`),
+    KEY contact_address_idx (`contact_id`,`address_id`)
+) ENGINE = InnoDB ;
 
 -- --------------------------------------------------------
 
@@ -1463,6 +1514,28 @@ CREATE TABLE `eligibility_verification` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `email_queue`
+--
+
+CREATE TABLE `email_queue` (
+  `id` bigint NOT NULL auto_increment,
+  `sender` varchar(255) DEFAULT '',
+  `recipient` varchar(255) DEFAULT '',
+  `subject` varchar(255) DEFAULT '',
+  `body` text,
+  `datetime_queued` datetime default NULL,
+  `sent` tinyint DEFAULT 0,
+  `datetime_sent` datetime default NULL,
+  `error` tinyint DEFAULT 0,
+  `error_message` text,
+  `datetime_error` datetime default NULL,
+PRIMARY KEY (`id`),
+KEY `sent` (`sent`)
+) ENGINE=InnoDb AUTO_INCREMENT=1;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `employer_data`
 --
 
@@ -1690,6 +1763,7 @@ CREATE TABLE `facility` (
   `iban` varchar(50) default NULL,
   `info` TEXT,
   `weno_id` VARCHAR(10) DEFAULT NULL,
+  `inactive` tinyint(1) NOT NULL DEFAULT '0',
   UNIQUE KEY `uuid` (`uuid`),
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4;
@@ -1698,7 +1772,7 @@ CREATE TABLE `facility` (
 -- Inserting data for table `facility`
 --
 
-INSERT INTO `facility` VALUES (3, NULL, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 1, NULL, '', '', '', '', '', '','#99FFFF','0', '', '1', '', '', '', '', '', '', '', '', NULL);
+INSERT INTO `facility` VALUES (3, NULL, 'Your Clinic Name Here', '000-000-0000', '000-000-0000', '', '', '', '', '', '', NULL, NULL, 1, 1, 1, NULL, '', '', '', '', '', '','#99FFFF','0', '', '1', '', '', '', '', '', '', '', '', NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -1834,6 +1908,9 @@ CREATE TABLE `form_encounter` (
   `discharge_disposition` varchar(100) NULL DEFAULT NULL,
   `encounter_type_code` VARCHAR(31) NULL DEFAULT NULL COMMENT 'not all types are categories',
   `encounter_type_description` TEXT,
+  `referring_provider_id` INT(11) DEFAULT '0' COMMENT 'referring provider, if any, for this visit',
+  `date_end` DATETIME DEFAULT NULL,
+  `in_collection` tinyint(1) default NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `pid_encounter` (`pid`, `encounter`),
@@ -2203,24 +2280,24 @@ CREATE TABLE `form_vitals` (
   `activity` tinyint(4) default '0',
   `bps` varchar(40) default NULL,
   `bpd` varchar(40) default NULL,
-  `weight` float(5,2) default '0.00',
-  `height` float(5,2) default '0.00',
-  `temperature` float(5,2) default '0.00',
+  `weight` DECIMAL(12,6) default '0.00',
+  `height` DECIMAL(12,6) default '0.00',
+  `temperature` DECIMAL(12,6) default '0.00',
   `temp_method` varchar(255) default NULL,
-  `pulse` float(5,2) default '0.00',
-  `respiration` float(5,2) default '0.00',
+  `pulse` DECIMAL(12,6) default '0.00',
+  `respiration` DECIMAL(12,6) default '0.00',
   `note` varchar(255) default NULL,
-  `BMI` float(4,1) default '0.0',
+  `BMI` DECIMAL(12,6) default '0.0',
   `BMI_status` varchar(255) default NULL,
-  `waist_circ` float(5,2) default '0.00',
-  `head_circ` float(4,2) default '0.00',
-  `oxygen_saturation` float(5,2) default '0.00',
-  `oxygen_flow_rate` float(5,2) default '0.00',
+  `waist_circ` DECIMAL(12,6) default '0.00',
+  `head_circ` DECIMAL(12,6) default '0.00',
+  `oxygen_saturation` DECIMAL(6,2) default '0.00',
+  `oxygen_flow_rate` DECIMAL(12,6) default '0.00',
   `external_id` VARCHAR(20) DEFAULT NULL,
-  `ped_weight_height` float(4,1) default '0.00',
-  `ped_bmi` float(4,1) default '0.00',
-  `ped_head_circ` float(4,1) default '0.00',
-  `inhaled_oxygen_concentration` float(4,1) DEFAULT '0.00',
+  `ped_weight_height` DECIMAL(6,2) default '0.00',
+  `ped_bmi` DECIMAL(6,2) default '0.00',
+  `ped_head_circ` DECIMAL(6,2) default '0.00',
+  `inhaled_oxygen_concentration` DECIMAL(6,2) DEFAULT '0.00',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`)
@@ -2780,6 +2857,7 @@ CREATE TABLE `history_data` (
   `userdate15` date DEFAULT NULL,
   `userarea11` text,
   `userarea12` text,
+  `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record',
   PRIMARY KEY  (`id`),
   KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`)
@@ -3013,7 +3091,7 @@ CREATE TABLE `immunizations` (
   `patient_id` bigint(20) default NULL,
   `administered_date` datetime default NULL,
   `immunization_id` int(11) default NULL,
-  `cvx_code` varchar(10) default NULL,
+  `cvx_code` varchar(64) default NULL,
   `manufacturer` varchar(100) default NULL,
   `lot_number` varchar(50) default NULL,
   `administered_by_id` bigint(20) default NULL,
@@ -3036,6 +3114,8 @@ CREATE TABLE `immunizations` (
   `information_source` VARCHAR(31) DEFAULT NULL,
   `refusal_reason` VARCHAR(31) DEFAULT NULL,
   `ordering_provider` INT(11) DEFAULT NULL,
+  `reason_code` varchar(31) DEFAULT NULL COMMENT 'Medical code explaining reason of the vital observation value in form codesystem:codetype;...;',
+  `reason_description` text COMMENT 'Human readable text description of the reason_code column',
   PRIMARY KEY  (`id`),
   KEY `patient_id` (`patient_id`),
   UNIQUE KEY `uuid` (`uuid`)
@@ -3054,13 +3134,14 @@ CREATE TABLE `insurance_companies` (
   `name` varchar(255) default NULL,
   `attn` varchar(255) default NULL,
   `cms_id` varchar(15) default NULL,
-  `ins_type_code` tinyint(2) default NULL,
+  `ins_type_code` int(11) default NULL,
   `x12_receiver_id` varchar(25) default NULL,
   `x12_default_partner_id` int(11) default NULL,
   `alt_cms_id` varchar(15) default NULL,
-  `inactive` int(1) NOT NULL DEFAULT '0',
+  `inactive` tinyint(1) NOT NULL DEFAULT '0',
   `eligibility_id` VARCHAR(32) default NULL,
   `x12_default_eligibility_id` INT(11) default NULL,
+  `cqm_sop` int DEFAULT NULL COMMENT 'HL7 Source of Payment for eCQMs',
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB;
@@ -3106,6 +3187,7 @@ CREATE TABLE `insurance_data` (
   `policy_type` varchar(25) NOT NULL default '',
   `subscriber_street_line_2` TINYTEXT,
   `subscriber_employer_street_line_2` TINYTEXT,
+  `date_end` date NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   UNIQUE KEY `pid_type_date` (`pid`,`type`,`date`)
@@ -3174,6 +3256,26 @@ INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('23','Title V
 INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('24','Veterans Administration Plan','VA');
 INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('25','Workers Compensation Health Plan','WC');
 INSERT INTO insurance_type_codes(`id`,`type`,`claim_type`) VALUES ('26','Mutually Defined','ZZ');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ip_tracking`
+--
+DROP TABLE IF EXISTS `ip_tracking`;
+CREATE TABLE `ip_tracking` (
+    `id` bigint NOT NULL auto_increment,
+    `ip_string` varchar(255) DEFAULT '',
+    `total_ip_login_fail_counter` bigint DEFAULT 0,
+    `ip_login_fail_counter` bigint DEFAULT 0,
+    `ip_last_login_fail` datetime DEFAULT NULL,
+    `ip_auto_block_emailed` tinyint DEFAULT 0,
+    `ip_force_block` tinyint DEFAULT 0,
+    `ip_no_prevent_timing_attack` tinyint DEFAULT 0,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `ip_string` (`ip_string`)
+) ENGINE=InnoDb AUTO_INCREMENT=1;
+
 
 -- --------------------------------------------------------
 
@@ -3331,6 +3433,7 @@ CREATE TABLE `layout_group_properties` (
   grp_save_close  tinyint(1)     not null default 0,
   grp_init_open   tinyint(1)     not null default 0,
   grp_referrals   tinyint(1)     not null default 0,
+  grp_unchecked   tinyint(1)     not null default 0,
   grp_services    varchar(4095)  not null default '',
   grp_products    varchar(4095)  not null default '',
   grp_diags       varchar(4095)  not null default '',
@@ -3406,35 +3509,36 @@ CREATE TABLE `layout_options` (
 -- Inserting data for table `layout_options`
 --
 
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'title', '1', 'Name', 10, 1, 1, 0, 0, 'titles', 1, 1, '', 'N', 'Title', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'fname', '1', '', 20, 2, 2, 10, 63, '', 0, 0, '', 'CD', 'First Name', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'mname', '1', '', 30, 2, 1, 2, 63, '', 0, 0, '', 'C', 'Middle Name', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'lname', '1', '', 40, 2, 2, 10, 63, '', 0, 0, '', 'CD', 'Last Name', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'suffix', 1, '', 45, 2, 1, 5, 63, '', 0, 0, '', '[\"EP\"]', 'Name Suffix', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'sex', '1', 'Sex', 50, 1, 2, 0, 0, 'sex', 1, 1, '', 'N', 'Sex', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'birth_fname', '1', 'Birth Name', 60, 2, 1, 10, 63, '', 1, 1, '', 'C', 'Birth First Name', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'birth_mname', '1', '', 70, 2, 1, 2, 63, '', 0, 0, '', 'C', 'Birth Middle Name', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'birth_lname', '1', '', 80, 2, 1, 10, 63, '', 0, 0, '', 'C', 'Birth Last Name', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`,`validation`) VALUES ('DEM', 'DOB', '1', 'DOB', 90, 4, 2, 10, 10, '', 1, 1, '', 'D', 'Date of Birth', 0, 'past_date');
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'gender_identity', '1', 'Gender Identity', 100, 46, 1, 0, 100, 'gender_identity' , 1 , 1 , '' , 'N' , 'Gender Identity', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'ss', '1', 'S.S.', 110, 2, 1, 11, 11, '', 1, 1, '', '', 'Social Security Number', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'sexual_orientation', '1', 'Sexual Orientation', 120, 46, 1, 0, 100, 'sexual_orientation', 1, 1, '' ,'N' ,'Sexual Orientation', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pubpid', '1', 'External ID', 130, 2, 1, 10, 255, '', 1, 1, '', 'ND', 'External identifier', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'drivers_license', '1', 'License/ID', 140, 2, 1, 15, 63, '', 1, 1, '', '', 'Drivers License or State ID', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'status', '1', 'Marital Status', 150, 1, 1, 0, 0, 'marital', 1, 1, '', '', 'Marital Status', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericname1', '1', 'User Defined', 160, 2, 1, 15, 63, '', 1, 3, '', '', 'User Defined Field', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericval1', '1', '', 170, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericname2', '1', '', 180, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'genericval2', '1', '', 190, 2, 1, 15, 63, '', 0, 0, '', '', 'User Defined Field', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'squad', '1', 'Squad', 200, 13, 0, 0, 0, '', 1, 3, '', '', 'Squad Membership', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pricelevel', '1', 'Price Level', 210, 1, 0, 0, 0, 'pricelevel', 1, 1, '', '', 'Discount Level', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'billing_note', '1', 'Billing Note', 220, 2, 1, 60, 0, '', 1, 3, '', '', 'Patient Level Billing Note (Collections)', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'name_history','1', 'Previous Names', 230, 52, 1, 0, 80, '', 1, 3, '', '[\"EP\"]', 'Patient Previous Names', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'street', '2', 'Address', 1, 2, 1, 25, 63, '', 1, 1, '', 'C', 'Street and Number', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'street_line_2', '2', 'Address Line 2', 2, 2, 1, 25, 63, '', 1, 1, '', 'C', 'Address Line 2', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'city', '2', 'City', 3, 2, 1, 15, 63, '', 1, 1, '', 'C', 'City Name', 0);
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','title','1','Title',10,1,1,0,0,'titles',1,3,'','[\"N\"]','Title',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','fname','1','Name',20,2,2,15,63,'',1,3,'','[\"C\",\"DAP\"]','First Name',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','mname','1','',30,2,1,5,63,'',0,0,'','[\"C\",\"DAP\"]','Middle Name',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','lname','1','',40,2,2,20,63,'',0,0,'','[\"C\",\"D\",\"DAP\"]','Last Name',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','suffix','1','',50,2,1,5,63,'',0,0,'','[\"EP\",\"DAP\"]','Name Suffix',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','birth_fname','1','Birth Name',60,2,1,15,63,'',1,3,'','[\"C\",\"DAP\"]','Birth First Name',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','birth_mname','1','',70,2,1,5,63,'',0,0,'','[\"C\",\"DAP\"]','Middle Name',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','birth_lname','1','',80,2,1,20,63,'',0,0,'','[\"C\",\"DAP\"]','Birth Last Name',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','DOB','1','DOB',90,4,2,0,10,'',1,1,'','[\"D\"]','Date of Birth',0,'','F','','past_date','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','sex','1','Sex',100,1,2,0,0,'sex',1,1,'','[\"N\"]','Sex',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','gender_identity','1','Gender Identity',110,46,1,0,100,'gender_identity',1,1,'','[\"N\"]','Gender Identity',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','sexual_orientation','1','Sexual Orientation',120,46,1,0,100,'sexual_orientation',1,1,'','[\"N\"]','Sexual Orientation',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','pubpid','1','External ID',130,2,1,10,255,'',1,1,'','[\"D\",\"N\"]','External identifier',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','ss','1','S.S.',140,2,1,11,11,'',1,1,'','','Social Security Number',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','drivers_license','1','License/ID',150,2,1,15,63,'',1,1,'','','Drivers License or State ID',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','status','1','Marital Status',160,1,1,0,0,'marital',1,1,'','','Marital Status',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','genericname1','1','User Defined',170,2,1,15,63,'',1,3,'','','User Defined Field',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','genericval1','1','',180,2,1,15,63,'',0,0,'','','User Defined Field',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','genericname2','1','',190,2,1,15,63,'',0,0,'','','User Defined Field',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','genericval2','1','',200,2,1,15,63,'',0,0,'','','User Defined Field',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','squad','1','Squad',210,13,0,0,0,'',1,3,'','','Squad Membership',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','pricelevel','1','Price Level',220,1,0,0,0,'pricelevel',1,1,'','','Discount Level',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','billing_note','1','Billing Note',230,2,1,60,0,'',1,3,'','','Patient Level Billing Note (Collections)',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','name_history','1','Previous Names',240,52,1,0,80,'',1,3,'','[\"EP\",\"DAP\"]','Patient Previous Names',0,'','F','','','');
+--
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'street', '2', 'Address', 1, 2, 1, 25, 63, '', 1, 1, '', '[\"U\"]', 'Street and Number', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'street_line_2', '2', 'Address Line 2', 2, 2, 1, 25, 63, '', 1, 1, '', '[\"U\"]', 'Address Line 2', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'city', '2', 'City', 3, 2, 1, 15, 63, '', 1, 1, '', '[\"U\"]', 'City Name', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'state', '2', 'State', 4, 26, 1, 0, 0, 'state', 1, 1, '', '', 'State/Locality', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'postal_code', '2', 'Postal Code', 5, 2, 1, 6, 63, '', 1, 1, '', '', 'Postal Code', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'postal_code', '2', 'Postal Code', 5, 2, 1, 8, 63, '', 1, 1, '', '', 'Postal Code', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'country_code', '2', 'Country', 6, 26, 1, 0, 0, 'country', 1, 1, '', '', 'Country', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'county', '2', 'County', 7, 26, 1, 0, 0, 'county', 1, 1, '', '', 'County', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'mothersname', '2', 'Mother''s Name', 8, 2, 1, 20, 63, '', 1, 1, '', '', '', 0);
@@ -3445,29 +3549,35 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'phone_cell', '2', 'Mobile Phone', 13, 2, 1, 20, 63, '', 1, 1, '', 'P', 'Cell Phone Number', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'email', '2', 'Contact Email', 14, 2, 1, 30, 95, '', 1, 1, '', '', 'Contact Email Address', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'email_direct', '2', 'Trusted Email', 15, 2, 1, 30, 95, '', 1, 1, '', '', 'Trusted Direct Email Address', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'providerID', '3', 'Provider', 1, 11, 1, 0, 0, '', 1, 3, '', '', 'Provider', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'ref_providerID', '3', 'Referring Provider', 2, 11, 1, 0, 0, '', 1, 3, '', '', 'Referring Provider', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pharmacy_id', '3', 'Pharmacy', 3, 12, 1, 0, 0, '', 1, 3, '', '', 'Preferred Pharmacy', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'hipaa_notice', '3', 'HIPAA Notice Received', 4, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Did you receive a copy of the HIPAA Notice?', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'hipaa_voice', '3', 'Allow Voice Message', 5, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow telephone messages?', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'hipaa_message', '3', 'Leave Message With', 6, 2, 1, 20, 63, '', 1, 1, '', '', 'With whom may we leave a message?', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'hipaa_mail', '3', 'Allow Mail Message', 7, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow email messages?', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'hipaa_allowsms'  , '3', 'Allow SMS'  , 8, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow SMS (text messages)?', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'hipaa_allowemail', '3', 'Allow Email', 9, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow Email?', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'allow_imm_reg_use', '3', 'Allow Immunization Registry Use', 10, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'allow_imm_info_share', '3', 'Allow Immunization Info Sharing', 11, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'allow_health_info_ex', '3', 'Allow Health Information Exchange', 12, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'allow_patient_portal', '3', 'Allow Patient Portal', 13, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'cmsportal_login', '3', 'CMS Portal Login', 14, 2, 1, 30, 60, '', 1, 1, '', '', 'CMS Portal Login ID', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'imm_reg_status'  , '3', 'Immunization Registry Status'  ,15, 1, 1,1,0, 'immunization_registry_status', 1, 1, '', '', 'Immunization Registry Status', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'imm_reg_stat_effdate'  , '3', 'Immunization Registry Status Effective Date'  ,16, 4, 1,10,10, '', 1, 1, '', '', 'Immunization Registry Status Effective Date', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'publicity_code'  , '3', 'Publicity Code'  ,17, 1, 1,1,0, 'publicity_code', 1, 1, '', '', 'Publicity Code', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'publ_code_eff_date'  , '3', 'Publicity Code Effective Date'  ,18, 4, 1,10,10, '', 1, 1, '', '', 'Publicity Code Effective Date', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'protect_indicator'  , '3', 'Protection Indicator'  ,19, 1, 1,1,0, 'yesno', 1, 1, '', '', 'Protection Indicator', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'prot_indi_effdate'  , '3', 'Protection Indicator Effective Date'  ,20, 4, 1,10,10, '', 1, 1, '', '', 'Protection Indicator Effective Date', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_provider', '3', 'Care Team (Provider)', 21, 45, 1, 0, 0, '', 1, 1, '', '', '', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_status', '3', 'Care Team Status', 22, 1, 1, 0, 0, 'Care_Team_Status', 1, 1, '', '', 'Indicates whether the care team is current , represents future intentions or is now a historical record.', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_facility', '3', 'Care Team (Facility)', 23, 44, 1, 0, 0, '', 1, 1, '', '', '', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM','additional_addresses','2','',16,54,1,0,0,'',4,4,'','[\"J\",\"SP\"]','Additional Patient Addresses',0);
+-- choices
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'providerID', '3', 'Provider', 10, 11, 1, 0, 0, '', 1, 1, '', '', 'Provider', 0);
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('DEM','provider_since_date','3','Provide Since Date',15,4,1,10,10,'',1,1,'','','Patient assigned provider since date.',0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'ref_providerID', '3', 'Referring Provider', 20, 11, 1, 0, 0, '', 1, 3, '', '[\"EP\"]', 'Referring Provider', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'pharmacy_id', '3', 'Pharmacy', 30, 12, 1, 0, 0, '', 1, 3, '', '', 'Preferred Pharmacy', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'hipaa_notice', '3', 'HIPAA Notice Received', 40, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Did you receive a copy of the HIPAA Notice?', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'hipaa_voice', '3', 'Allow Voice Message', 50, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow telephone messages?', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'hipaa_message', '3', 'Leave Message With', 60, 2, 1, 20, 63, '', 1, 1, '', '', 'With whom may we leave a message?', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'hipaa_mail', '3', 'Allow Mail Message', 70, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow email messages?', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'hipaa_allowsms'  , '3', 'Allow SMS'  , 80, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow SMS (text messages)?', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'hipaa_allowemail', '3', 'Allow Email', 90, 1, 1, 0, 0, 'yesno', 1, 1, '', '', 'Allow Email?', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'allow_imm_reg_use', '3', 'Allow Immunization Registry Use', 100, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'allow_imm_info_share', '3', 'Allow Immunization Info Sharing', 110, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'allow_health_info_ex', '3', 'Allow Health Information Exchange', 120, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'allow_patient_portal', '3', 'Allow Patient Portal', 130, 1, 1, 0, 0, 'yesno', 1, 1, '', '', '', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM','prevent_portal_apps','3','Prevent API Access',135,21,1,0,0,'',1,1,'','','Check to not allow third party API access.',0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'cmsportal_login', '3', 'CMS Portal Login', 140, 2, 1, 30, 60, '', 1, 1, '', '', 'CMS Portal Login ID', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'imm_reg_status'  , '3', 'Immunization Registry Status'  ,150, 1, 1,1,0, 'immunization_registry_status', 1, 1, '', '', 'Immunization Registry Status', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'imm_reg_stat_effdate'  , '3', 'Immunization Registry Status Effective Date'  ,160, 4, 1,10,10, '', 1, 1, '', '', 'Immunization Registry Status Effective Date', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'publicity_code'  , '3', 'Publicity Code'  ,170, 1, 1,1,0, 'publicity_code', 1, 1, '', '', 'Publicity Code', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'publ_code_eff_date'  , '3', 'Publicity Code Effective Date'  ,180, 4, 1,10,10, '', 1, 1, '', '', 'Publicity Code Effective Date', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'protect_indicator'  , '3', 'Protection Indicator'  ,190, 1, 1,1,0, 'yesno', 1, 1, '', '', 'Protection Indicator', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'prot_indi_effdate'  , '3', 'Protection Indicator Effective Date'  ,200, 4, 1,10,10, '', 1, 1, '', '', 'Protection Indicator Effective Date', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_provider', '3', 'Care Team (Provider)', 210, 45, 1, 0, 0, '', 1, 1, '', '[\"EP\"]', '', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_status', '3', 'Care Team Status', 220, 1, 1, 0, 0, 'Care_Team_Status', 1, 1, '', '[\"EP\"]', 'Indicates whether the care team is current , represents future intentions or is now a historical record.', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'care_team_facility', '3', 'Care Team (Facility)', 230, 44, 1, 0, 0, '', 1, 1, '', '[\"EP\"]', '', 0);
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','patient_groups','3','Patient Categories',240,36,1,0,0,'Patient_Groupings',1,1,'','[\"EP\",\"DAP\"]','Add patient to one or more category.',0,'','F','','','');
+--
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'occupation', '4', 'Occupation', 1, 2, 1, 20, 63, '', 1, 1, '', 'C', 'Occupation', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'industry', '4', 'Industry', 2, 26, 1, 0, 0, 'Industry', 1, 1, '', '', 'Industry', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'em_name', '4', 'Employer Name', 3, 2, 1, 20, 63, '', 1, 1, '', 'C', 'Employer Name', 0);
@@ -3477,9 +3587,10 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'em_state', '4', 'State', 7, 26, 1, 0, 0, 'state', 1, 1, '', '', 'State/Locality', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'em_postal_code', '4', 'Postal Code', 8, 2, 1, 6, 63, '', 1, 1, '', '', 'Postal Code', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'em_country', '4', 'Country', 9, 26, 1, 0, 0, 'country', 1, 1, '', '', 'Country', 0);
+-- Stats
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'language', '5', 'Language', 1, 26, 1, 0, 0, 'language', 1, 1, '', '', 'Preferred Language', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'ethnicity', '5', 'Ethnicity', 2, 33, 1, 0, 0, 'ethnicity', 1, 1, '', '', 'Ethnicity', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'race', '5', 'Race', 3, 33, 1, 0, 0, 'race', 1, 1, '', '', 'Race', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'ethnicity', '5', 'Ethnicity', 2, 33, 1, 0, 0, 'ethnicity', 1, 1, '', '[\"EP\"]', 'Ethnicity', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'race', '5', 'Race', 3, 33, 1, 0, 0, 'race', 1, 1, '', '[\"EP\"]', 'Multi Select race and or race category that describes patient race', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'financial_review', '5', 'Financial Review Date', 4, 2, 1, 10, 20, '', 1, 1, '', 'D', 'Financial Review Date', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'family_size', '5', 'Family Size', 4, 2, 1, 20, 63, '', 1, 1, '', '', 'Family Size', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'monthly_income', '5', 'Monthly Income', 5, 2, 1, 20, 63, '', 1, 1, '', '', 'Monthly Income', 0);
@@ -3487,9 +3598,9 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'interpretter', '5', 'Interpreter', 7, 2, 1, 20, 63, '', 1, 1, '', '', 'Interpreter needed?', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'migrantseasonal', '5', 'Migrant/Seasonal', 8, 2, 1, 20, 63, '', 1, 1, '', '', 'Migrant or seasonal worker?', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'contrastart', '5', 'Contraceptives Start',9,4,0,10,10,'',1,1,'','','Date contraceptive services initially provided', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'referral_source', '5', 'Referral Source',10, 26, 1, 0, 0, 'refsource', 1, 1, '', '', 'How did they hear about us', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'referral_source', '5', 'Referral Source',10, 26, 1, 0, 0, 'refsource', 1, 1, '', '[\"EP\"]', 'How did they hear about us', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'vfc', '5', 'VFC', 12, 1, 1, 20, 0, 'eligibility', 1, 1, '', '', 'Eligibility status for Vaccine for Children supplied vaccine', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'religion', '5', 'Religion', 13, 1, 1, 0, 0, 'religious_affiliation', 1, 1, '', '', 'Patient Religion', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'religion', '5', 'Religion', 13, 1, 1, 0, 0, 'religious_affiliation', 1, 1, '', '[\"EP\"]', 'Patient Religion', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'deceased_date', '6', 'Date Deceased', 1, 4, 1, 20, 20, '', 1, 3, '', 'D', 'If person is deceased, then enter date of death.', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'deceased_reason', '6', 'Reason Deceased', 2, 2, 1, 30, 255, '', 1, 3, '', '', 'Reason for Death', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'usertext1', '6', 'User Defined Text 1', 3, 2, 0, 10, 63, '', 1, 1, '', '', 'User Defined', 0);
@@ -3507,7 +3618,7 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'userlist5', '6', 'User Defined List 5',15, 1, 0, 0, 0, 'userlist5', 1, 1, '', '' , 'User Defined', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'userlist6', '6', 'User Defined List 6',16, 1, 0, 0, 0, 'userlist6', 1, 1, '', '' , 'User Defined', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'userlist7', '6', 'User Defined List 7',17, 1, 0, 0, 0, 'userlist7', 1, 1, '', '' , 'User Defined', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'regdate'  , '6', 'Registration Date'  ,18, 4, 0,10,10, ''         , 1, 1, '', 'D', 'Start Date at This Clinic', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'regdate'  , '6', 'Registration Date'  ,18, 4, 0,10,10, ''         , 1, 1, '', '[\"EP\",\"D\"]', 'Start Date at This Clinic', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardiansname'  , '8', 'Name'  ,10, 2, 1,25,63, '', 1, 1, '', '', 'Guardian Name', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardianrelationship'  , '8', 'Relationship'  ,20, 1, 1,0,0, 'next_of_kin_relationship', 1, 1, '', '', 'Relationship', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardiansex'  , '8', 'Sex'  ,30, 1, 1,0,0, 'sex', 1, 1, '', '', 'Sex', 0);
@@ -3519,6 +3630,7 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardianphone'  , '8', 'Phone'  ,90, 2, 1,20,63, '', 1, 1, '', '', 'Phone', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardianworkphone'  , '8', 'Work Phone'  ,100, 2, 1,20,63, '', 1, 1, '', '', 'Work Phone', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'guardianemail'  , '8', 'Email'  ,110, 2, 1,20,63, '', 1, 1, '', '', 'Guardian Email Address', 0);
+--
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTref','refer_date'      ,'1','Referral Date'                  , 1, 4,2, 0,  0,''         ,1,1,'C','D','Date of referral', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTref','refer_from'      ,'1','Refer By'                       , 2,10,2, 0,  0,''         ,1,1,'' ,'' ,'Referral By', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTref','refer_external'  ,'1','External Referral'              , 3, 1,1, 0,  0,'boolean'  ,1,1,'' ,'' ,'External referral?', 0);
@@ -3537,6 +3649,7 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTref','reply_services'  ,'2','Services Provided'      ,16, 3,1,30,  0,''         ,1,1,'' ,'' ,'Service provided by specialist', 3);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTref','reply_recommend' ,'2','Recommendations'        ,17, 3,1,30,  0,''         ,1,1,'' ,'' ,'Recommendations by specialist', 3);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTref','reply_rx_refer'  ,'2','Prescriptions/Referrals',18, 3,1,30,  0,''         ,1,1,'' ,'' ,'Prescriptions and/or referrals by specialist', 3);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTref', 'billing_facility_id', '1', 'Patient Billing Facility', 11, 35, 1, 0, 0, '', 1, 1, '', '','Billing facility that patient claims are billed against', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTptreq','body','1','Details',10,3,2,30,0,'',1,3,'','','Content',5);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTphreq','body','1','Details',10,3,2,30,0,'',1,3,'','','Content',5);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('LBTlegal','body','1','Details',10,3,2,30,0,'',1,3,'','','Content',5);
@@ -3581,7 +3694,6 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('FACUSR', 'provider_id', '1', 'Provider ID', 1, 2, 1, 15, 63, '', 1, 1, '', '', 'Provider ID at Specified Facility', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('FACUSR', 'role_code', '1', 'Provider Role', 2, 43, 1, 0, 0, 'us-core-provider-role', 1, 1, '', '', 'Provider Role at Specified Facility', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('FACUSR', 'specialty_code', '1', 'Provider Specialty', 3, 43, 1, 0, 0, 'us-core-provider-specialty', 1, 1, '', '', 'Provider Specialty at Specified Facility', 0);
-
 -- --------------------------------------------------------
 
 --
@@ -3631,190 +3743,190 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) V
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('marital', 'domestic partner', 'Domestic Partner', 6, 0, 'T');
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('language', 'declne_to_specfy', 'Declined To Specify', 0, 0, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'abkhazian', 'Abkhazian', 10, 0, 0, 'abk');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'afar', 'Afar', 20, 0, 0, 'aar');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'afrikaans', 'Afrikaans', 30, 0, 0, 'afr');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'akan', 'Akan', 40, 0, 0, 'aka');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'albanian', 'Albanian', 50, 0, 0, 'alb(B)|sqi(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'amharic', 'Amharic', 60, 0, 0, 'amh');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'arabic', 'Arabic', 70, 0, 0, 'ara');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'aragonese', 'Aragonese', 80, 0, 0, 'arg');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'armenian', 'Armenian', 90, 0, 0, 'arm(B)|hye(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'assamese', 'Assamese', 100, 0, 0, 'asm');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'avaric', 'Avaric', 110, 0, 0, 'ava');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'avestan', 'Avestan', 120, 0, 0, 'ave');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'aymara', 'Aymara', 130, 0, 0, 'aym');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'azerbaijani', 'Azerbaijani', 140, 0, 0, 'aze');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bambara', 'Bambara', 150, 0, 0, 'bam');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bashkir', 'Bashkir', 160, 0, 0, 'bak');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'basque', 'Basque', 170, 0, 0, 'baq(B)|eus(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'belarusian', 'Belarusian', 180, 0, 0, 'bel');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bengali', 'Bengali', 190, 0, 0, 'ben');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bihari_languages', 'Bihari languages', 200, 0, 0, 'bih');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bislama', 'Bislama', 210, 0, 0, 'bis');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bokmal_norwegian_norwegian_bok', 'Bokmål, Norwegian; Norwegian Bokmål', 220, 0, 0, 'nob');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bosnian', 'Bosnian', 230, 0, 0, 'bos');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'breton', 'Breton', 240, 0, 0, 'bre');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bulgarian', 'Bulgarian', 250, 0, 0, 'bul');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'burmese', 'Burmese', 260, 0, 0, 'bur(B)|mya(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'catalan_valencian', 'Catalan; Valencian', 270, 0, 0, 'cat');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'central_khmer', 'Central Khmer', 280, 0, 0, 'khm');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'chamorro', 'Chamorro', 290, 0, 0, 'cha');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'chechen', 'Chechen', 300, 0, 0, 'che');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'chichewa_chewa_nyanja', 'Chichewa; Chewa; Nyanja', 310, 0, 0, 'nya');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'chinese', 'Chinese', 320, 0, 0, 'chi(B)|zho(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'church_slavic_old_slavonic_chu', 'Church Slavic; Old Slavonic; Church Slavonic; Old Bulgarian; Old Church Slavonic', 330, 0, 0, 'chu');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'chuvash', 'Chuvash', 340, 0, 0, 'chv');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'cornish', 'Cornish', 350, 0, 0, 'cor');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'corsican', 'Corsican', 360, 0, 0, 'cos');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'cree', 'Cree', 370, 0, 0, 'cre');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'croatian', 'Croatian', 380, 0, 0, 'hrv');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'czech', 'Czech', 390, 0, 0, 'cze(B)|ces(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'danish', 'Danish', 400, 0, 0, 'dan');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'divehi_dhivehi_maldivian', 'Divehi; Dhivehi; Maldivian', 410, 0, 0, 'div');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'dutch_flemish', 'Dutch; Flemish', 420, 0, 0, 'dut(B)|nld(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'dzongkha', 'Dzongkha', 430, 0, 0, 'dzo');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'English', 'English', 440, 0, 0, 'eng');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'esperanto', 'Esperanto', 450, 0, 0, 'epo');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'estonian', 'Estonian', 460, 0, 0, 'est');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ewe', 'Ewe', 470, 0, 0, 'ewe');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'faroese', 'Faroese', 480, 0, 0, 'fao');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'fijian', 'Fijian', 490, 0, 0, 'fij');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'finnish', 'Finnish', 500, 0, 0, 'fin');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'french', 'French', 510, 0, 0, 'fre(B)|fra(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'fulah', 'Fulah', 520, 0, 0, 'ful');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'gaelic_scottish_gaelic', 'Gaelic; Scottish Gaelic', 530, 0, 0, 'gla');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'galician', 'Galician', 540, 0, 0, 'glg');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ganda', 'Ganda', 550, 0, 0, 'lug');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'georgian', 'Georgian', 560, 0, 0, 'geo(B)|kat(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'german', 'German', 570, 0, 0, 'ger(B)|deu(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'greek', 'Greek, Modern (1453-)', 580, 0, 0, 'gre(B)|ell(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'guarani', 'Guarani', 590, 0, 0, 'grn');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'gujarati', 'Gujarati', 600, 0, 0, 'guj');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'haitian_haitian_creole', 'Haitian; Haitian Creole', 610, 0, 0, 'hat');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'hausa', 'Hausa', 620, 0, 0, 'hau');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'hebrew', 'Hebrew', 630, 0, 0, 'heb');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'herero', 'Herero', 640, 0, 0, 'her');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'hindi', 'Hindi', 650, 0, 0, 'hin');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'hiri_motu', 'Hiri Motu', 660, 0, 0, 'hmo');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'hungarian', 'Hungarian', 670, 0, 0, 'hun');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'icelandic', 'Icelandic', 680, 0, 0, 'ice(B)|isl(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ido', 'Ido', 690, 0, 0, 'ido');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'igbo', 'Igbo', 700, 0, 0, 'ibo');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'indonesian', 'Indonesian', 710, 0, 0, 'ind');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'interlingua_international_auxi', 'Interlingua (International Auxiliary Language Association)', 720, 0, 0, 'ina');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'interlingue_occidental', 'Interlingue; Occidental', 730, 0, 0, 'ile');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'inuktitut', 'Inuktitut', 740, 0, 0, 'iku');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'inupiaq', 'Inupiaq', 750, 0, 0, 'ipk');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'irish', 'Irish', 760, 0, 0, 'gle');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'italian', 'Italian', 770, 0, 0, 'ita');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'japanese', 'Japanese', 780, 0, 0, 'jpn');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'javanese', 'Javanese', 790, 0, 0, 'jav');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kalaallisut_greenlandic', 'Kalaallisut; Greenlandic', 800, 0, 0, 'kal');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kannada', 'Kannada', 810, 0, 0, 'kan');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kanuri', 'Kanuri', 820, 0, 0, 'kau');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kashmiri', 'Kashmiri', 830, 0, 0, 'kas');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kazakh', 'Kazakh', 840, 0, 0, 'kaz');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kikuyu_gikuyu', 'Kikuyu; Gikuyu', 850, 0, 0, 'kik');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kinyarwanda', 'Kinyarwanda', 860, 0, 0, 'kin');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kirghiz_kyrgyz', 'Kirghiz; Kyrgyz', 870, 0, 0, 'kir');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'komi', 'Komi', 880, 0, 0, 'kom');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kongo', 'Kongo', 890, 0, 0, 'kon');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'korean', 'Korean', 900, 0, 0, 'kor');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kuanyama_kwanyama', 'Kuanyama; Kwanyama', 910, 0, 0, 'kua');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kurdish', 'Kurdish', 920, 0, 0, 'kur');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'laotian', 'Lao', 930, 0, 0, 'lao');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'latin', 'Latin', 940, 0, 0, 'lat');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'latvian', 'Latvian', 950, 0, 0, 'lav');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'limburgan_limburger_limburgish', 'Limburgan; Limburger; Limburgish', 960, 0, 0, 'lim');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'lingala', 'Lingala', 970, 0, 0, 'lin');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'lithuanian', 'Lithuanian', 980, 0, 0, 'lit');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'luba-katanga', 'Luba-Katanga', 990, 0, 0, 'lub');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'luxembourgish_letzeburgesch', 'Luxembourgish; Letzeburgesch', 1000, 0, 0, 'ltz');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'macedonian', 'Macedonian', 1010, 0, 0, 'mac(B)|mkd(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'malagasy', 'Malagasy', 1020, 0, 0, 'mlg');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'malay', 'Malay', 1030, 0, 0, 'may(B)|msa(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'malayalam', 'Malayalam', 1040, 0, 0, 'mal');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'maltese', 'Maltese', 1050, 0, 0, 'mlt');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'manx', 'Manx', 1060, 0, 0, 'glv');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'maori', 'Maori', 1070, 0, 0, 'mao(B)|mri(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'marathi', 'Marathi', 1080, 0, 0, 'mar');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'marshallese', 'Marshallese', 1090, 0, 0, 'mah');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'mongolian', 'Mongolian', 1100, 0, 0, 'mon');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'nauru', 'Nauru', 1110, 0, 0, 'nau');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'navajo_navaho', 'Navajo; Navaho', 1120, 0, 0, 'nav');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ndebele_north_north_ndebele', 'Ndebele, North; North Ndebele', 1130, 0, 0, 'nde');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ndebele_south_south_ndebele', 'Ndebele, South; South Ndebele', 1140, 0, 0, 'nbl');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ndonga', 'Ndonga', 1150, 0, 0, 'ndo');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'nepali', 'Nepali', 1160, 0, 0, 'nep');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'northern_sami', 'Northern Sami', 1170, 0, 0, 'sme');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'norwegian', 'Norwegian', 1180, 0, 0, 'nor');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'norwegian_nynorsk_nynorsk_norw', 'Norwegian Nynorsk; Nynorsk, Norwegian', 1190, 0, 0, 'nno');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'occitan_post_1500', 'Occitan (post 1500)', 1200, 0, 0, 'oci');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ojibwa', 'Ojibwa', 1210, 0, 0, 'oji');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'oriya', 'Oriya', 1220, 0, 0, 'ori');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'oromo', 'Oromo', 1230, 0, 0, 'orm');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ossetian_ossetic', 'Ossetian; Ossetic', 1240, 0, 0, 'oss');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'pali', 'Pali', 1250, 0, 0, 'pli');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'persian', 'Persian', 1260, 0, 0, 'per(B)|fas(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'polish', 'Polish', 1270, 0, 0, 'pol');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'portuguese', 'Portuguese', 1280, 0, 0, 'por');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'punjabi', 'Punjabi', 1290, 0, 0, 'pan');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'pushto_pashto', 'Pushto; Pashto', 1300, 0, 0, 'pus');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'quechua', 'Quechua', 1310, 0, 0, 'que');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'romanian_moldavian_moldovan', 'Romanian; Moldavian; Moldovan', 1320, 0, 0, 'rum(B)|ron(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'romansh', 'Romansh', 1330, 0, 0, 'roh');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'rundi', 'Rundi', 1340, 0, 0, 'run');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'russian', 'Russian', 1350, 0, 0, 'rus');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'samoan', 'Samoan', 1360, 0, 0, 'smo');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sango', 'Sango', 1370, 0, 0, 'sag');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sanskrit', 'Sanskrit', 1380, 0, 0, 'san');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sardinian', 'Sardinian', 1390, 0, 0, 'srd');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'serbian', 'Serbian', 1400, 0, 0, 'srp');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'shona', 'Shona', 1410, 0, 0, 'sna');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sichuan_yi_nuosu', 'Sichuan Yi; Nuosu', 1420, 0, 0, 'iii');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sindhi', 'Sindhi', 1430, 0, 0, 'snd');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sinhala_sinhalese', 'Sinhala; Sinhalese', 1440, 0, 0, 'sin');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'slovak', 'Slovak', 1450, 0, 0, 'slo(B)|slk(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'slovenian', 'Slovenian', 1460, 0, 0, 'slv');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'somali', 'Somali', 1470, 0, 0, 'som');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sotho_southern', 'Sotho, Southern', 1480, 0, 0, 'sot');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'Spanish', 'Spanish', 1490, 0, 0, 'spa');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sundanese', 'Sundanese', 1500, 0, 0, 'sun');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'swahili', 'Swahili', 1510, 0, 0, 'swa');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'swati', 'Swati', 1520, 0, 0, 'ssw');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'swedish', 'Swedish', 1530, 0, 0, 'swe');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tagalog', 'Tagalog', 1540, 0, 0, 'tgl');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tahitian', 'Tahitian', 1550, 0, 0, 'tah');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tajik', 'Tajik', 1560, 0, 0, 'tgk');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tamil', 'Tamil', 1570, 0, 0, 'tam');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tatar', 'Tatar', 1580, 0, 0, 'tat');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'telugu', 'Telugu', 1590, 0, 0, 'tel');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'thai', 'Thai', 1600, 0, 0, 'tha');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tibetan', 'Tibetan', 1610, 0, 0, 'tib(B)|bod(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tigrinya', 'Tigrinya', 1620, 0, 0, 'tir');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tonga_tonga_islands', 'Tonga (Tonga Islands)', 1630, 0, 0, 'ton');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tsonga', 'Tsonga', 1640, 0, 0, 'tso');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tswana', 'Tswana', 1650, 0, 0, 'tsn');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'turkish', 'Turkish', 1660, 0, 0, 'tur');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'turkmen', 'Turkmen', 1670, 0, 0, 'tuk');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'twi', 'Twi', 1680, 0, 0, 'twi');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'uighur_uyghur', 'Uighur; Uyghur', 1690, 0, 0, 'uig');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ukrainian', 'Ukrainian', 1700, 0, 0, 'ukr');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'urdu', 'Urdu', 1710, 0, 0, 'urd');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'uzbek', 'Uzbek', 1720, 0, 0, 'uzb');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'venda', 'Venda', 1730, 0, 0, 'ven');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'vietnamese', 'Vietnamese', 1740, 0, 0, 'vie');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'volapuk', 'Volapük', 1750, 0, 0, 'vol');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'walloon', 'Walloon', 1760, 0, 0, 'wln');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'welsh', 'Welsh', 1770, 0, 0, 'wel(B)|cym(T)');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'western_frisian', 'Western Frisian', 1780, 0, 0, 'fry');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'wolof', 'Wolof', 1790, 0, 0, 'wol');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'xhosa', 'Xhosa', 1800, 0, 0, 'xho');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'yiddish', 'Yiddish', 1810, 0, 0, 'yid');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'yoruba', 'Yoruba', 1820, 0, 0, 'yor');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'zhuang_chuang', 'Zhuang; Chuang', 1830, 0, 0, 'zha');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'zulu', 'Zulu', 1840, 0, 0, 'zul');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'abkhazian', 'Abkhazian', 10, 0, 0, 'ab');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'afar', 'Afar', 20, 0, 0, 'aa');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'afrikaans', 'Afrikaans', 30, 0, 0, 'af');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'akan', 'Akan', 40, 0, 0, 'ak');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'albanian', 'Albanian', 50, 0, 0, 'sq');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'amharic', 'Amharic', 60, 0, 0, 'am');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'arabic', 'Arabic', 70, 0, 0, 'ar');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'aragonese', 'Aragonese', 80, 0, 0, 'an');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'armenian', 'Armenian', 90, 0, 0, 'hy');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'assamese', 'Assamese', 100, 0, 0, 'as');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'avaric', 'Avaric', 110, 0, 0, 'av');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'avestan', 'Avestan', 120, 0, 0, 'ae');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'aymara', 'Aymara', 130, 0, 0, 'ay');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'azerbaijani', 'Azerbaijani', 140, 0, 0, 'az');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bambara', 'Bambara', 150, 0, 0, 'bm');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bashkir', 'Bashkir', 160, 0, 0, 'ba');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'basque', 'Basque', 170, 0, 0, 'eu');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'belarusian', 'Belarusian', 180, 0, 0, 'be');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bengali', 'Bengali', 190, 0, 0, 'bn');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bihari_languages', 'Bihari languages', 200, 0, 0, 'bh');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bislama', 'Bislama', 210, 0, 0, 'bi');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bokmal_norwegian_norwegian_bok', 'Bokmål, Norwegian; Norwegian Bokmål', 220, 0, 0, 'nb');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bosnian', 'Bosnian', 230, 0, 0, 'bs');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'breton', 'Breton', 240, 0, 0, 'br');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'bulgarian', 'Bulgarian', 250, 0, 0, 'bg');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'burmese', 'Burmese', 260, 0, 0, 'my');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'catalan_valencian', 'Catalan; Valencian', 270, 0, 0, 'ca');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'central_khmer', 'Central Khmer', 280, 0, 0, 'km');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'chamorro', 'Chamorro', 290, 0, 0, 'ch');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'chechen', 'Chechen', 300, 0, 0, 'ce');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'chichewa_chewa_nyanja', 'Chichewa; Chewa; Nyanja', 310, 0, 0, 'ny');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'chinese', 'Chinese', 320, 0, 0, 'zh');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'church_slavic_old_slavonic_chu', 'Church Slavic; Old Slavonic; Church Slavonic; Old Bulgarian; Old Church Slavonic', 330, 0, 0, 'cu');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'chuvash', 'Chuvash', 340, 0, 0, 'cv');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'cornish', 'Cornish', 350, 0, 0, 'kw');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'corsican', 'Corsican', 360, 0, 0, 'co');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'cree', 'Cree', 370, 0, 0, 'cr');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'croatian', 'Croatian', 380, 0, 0, 'hr');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'czech', 'Czech', 390, 0, 0, 'cs');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'danish', 'Danish', 400, 0, 0, 'da');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'divehi_dhivehi_maldivian', 'Divehi; Dhivehi; Maldivian', 410, 0, 0, 'dv');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'dutch_flemish', 'Dutch; Flemish', 420, 0, 0, 'nl');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'dzongkha', 'Dzongkha', 430, 0, 0, 'dz');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'English', 'English', 440, 0, 0, 'en');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'esperanto', 'Esperanto', 450, 0, 0, 'eo');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'estonian', 'Estonian', 460, 0, 0, 'et');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ewe', 'Ewe', 470, 0, 0, 'ee');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'faroese', 'Faroese', 480, 0, 0, 'fo');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'fijian', 'Fijian', 490, 0, 0, 'fj');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'finnish', 'Finnish', 500, 0, 0, 'fi');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'french', 'French', 510, 0, 0, 'fr');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'fulah', 'Fulah', 520, 0, 0, 'ff');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'gaelic_scottish_gaelic', 'Gaelic; Scottish Gaelic', 530, 0, 0, 'gd');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'galician', 'Galician', 540, 0, 0, 'gl');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ganda', 'Ganda', 550, 0, 0, 'lg');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'georgian', 'Georgian', 560, 0, 0, 'ka');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'german', 'German', 570, 0, 0, 'de');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'greek', 'Greek, Modern (1453-)', 580, 0, 0, 'el');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'guarani', 'Guarani', 590, 0, 0, 'gn');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'gujarati', 'Gujarati', 600, 0, 0, 'gu');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'haitian_haitian_creole', 'Haitian; Haitian Creole', 610, 0, 0, 'ht');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'hausa', 'Hausa', 620, 0, 0, 'ha');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'hebrew', 'Hebrew', 630, 0, 0, 'he');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'herero', 'Herero', 640, 0, 0, 'hz');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'hindi', 'Hindi', 650, 0, 0, 'hi');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'hiri_motu', 'Hiri Motu', 660, 0, 0, 'ho');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'hungarian', 'Hungarian', 670, 0, 0, 'hu');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'icelandic', 'Icelandic', 680, 0, 0, 'is');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ido', 'Ido', 690, 0, 0, 'io');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'igbo', 'Igbo', 700, 0, 0, 'ig');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'indonesian', 'Indonesian', 710, 0, 0, 'in');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'interlingua_international_auxi', 'Interlingua (International Auxiliary Language Association)', 720, 0, 0, 'ia');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'interlingue_occidental', 'Interlingue; Occidental', 730, 0, 0, 'ie');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'inuktitut', 'Inuktitut', 740, 0, 0, 'iu');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'inupiaq', 'Inupiaq', 750, 0, 0, 'ik');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'irish', 'Irish', 760, 0, 0, 'ga');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'italian', 'Italian', 770, 0, 0, 'it');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'japanese', 'Japanese', 780, 0, 0, 'ja');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'javanese', 'Javanese', 790, 0, 0, 'jv');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kalaallisut_greenlandic', 'Kalaallisut; Greenlandic', 800, 0, 0, 'kl');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kannada', 'Kannada', 810, 0, 0, 'kn');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kanuri', 'Kanuri', 820, 0, 0, 'kr');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kashmiri', 'Kashmiri', 830, 0, 0, 'ks');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kazakh', 'Kazakh', 840, 0, 0, 'kk');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kikuyu_gikuyu', 'Kikuyu; Gikuyu', 850, 0, 0, 'ki');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kinyarwanda', 'Kinyarwanda', 860, 0, 0, 'rw');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kirghiz_kyrgyz', 'Kirghiz; Kyrgyz', 870, 0, 0, 'ky');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'komi', 'Komi', 880, 0, 0, 'kv');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kongo', 'Kongo', 890, 0, 0, 'kg');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'korean', 'Korean', 900, 0, 0, 'ko');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kuanyama_kwanyama', 'Kuanyama; Kwanyama', 910, 0, 0, 'kj');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'kurdish', 'Kurdish', 920, 0, 0, 'ku');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'laotian', 'Lao', 930, 0, 0, 'lo');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'latin', 'Latin', 940, 0, 0, 'la');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'latvian', 'Latvian', 950, 0, 0, 'lv');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'limburgan_limburger_limburgish', 'Limburgan; Limburger; Limburgish', 960, 0, 0, 'li');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'lingala', 'Lingala', 970, 0, 0, 'ln');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'lithuanian', 'Lithuanian', 980, 0, 0, 'lt');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'luba-katanga', 'Luba-Katanga', 990, 0, 0, 'lu');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'luxembourgish_letzeburgesch', 'Luxembourgish; Letzeburgesch', 1000, 0, 0, 'lb');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'macedonian', 'Macedonian', 1010, 0, 0, 'mk');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'malagasy', 'Malagasy', 1020, 0, 0, 'mg');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'malay', 'Malay', 1030, 0, 0, 'ms');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'malayalam', 'Malayalam', 1040, 0, 0, 'ml');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'maltese', 'Maltese', 1050, 0, 0, 'mt');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'manx', 'Manx', 1060, 0, 0, 'gv');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'maori', 'Maori', 1070, 0, 0, 'mi');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'marathi', 'Marathi', 1080, 0, 0, 'mr');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'marshallese', 'Marshallese', 1090, 0, 0, 'mh');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'mongolian', 'Mongolian', 1100, 0, 0, 'mn');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'nauru', 'Nauru', 1110, 0, 0, 'na');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'navajo_navaho', 'Navajo; Navaho', 1120, 0, 0, 'nv');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ndebele_north_north_ndebele', 'Ndebele, North; North Ndebele', 1130, 0, 0, 'nd');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ndebele_south_south_ndebele', 'Ndebele, South; South Ndebele', 1140, 0, 0, 'nr');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ndonga', 'Ndonga', 1150, 0, 0, 'ng');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'nepali', 'Nepali', 1160, 0, 0, 'ne');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'northern_sami', 'Northern Sami', 1170, 0, 0, 'se');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'norwegian', 'Norwegian', 1180, 0, 0, 'no');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'norwegian_nynorsk_nynorsk_norw', 'Norwegian Nynorsk; Nynorsk, Norwegian', 1190, 0, 0, 'nn');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'occitan_post_1500', 'Occitan (post 1500)', 1200, 0, 0, 'oc');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ojibwa', 'Ojibwa', 1210, 0, 0, 'oj');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'oriya', 'Oriya', 1220, 0, 0, 'or');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'oromo', 'Oromo', 1230, 0, 0, 'om');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ossetian_ossetic', 'Ossetian; Ossetic', 1240, 0, 0, 'os');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'pali', 'Pali', 1250, 0, 0, 'pi');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'persian', 'Persian', 1260, 0, 0, 'fa');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'polish', 'Polish', 1270, 0, 0, 'pl');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'portuguese', 'Portuguese', 1280, 0, 0, 'pt');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'punjabi', 'Punjabi', 1290, 0, 0, 'pa');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'pushto_pashto', 'Pushto; Pashto', 1300, 0, 0, 'ps');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'quechua', 'Quechua', 1310, 0, 0, 'qu');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'romanian_moldavian_moldovan', 'Romanian; Moldavian; Moldovan', 1320, 0, 0, 'ro');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'romansh', 'Romansh', 1330, 0, 0, 'rm');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'rundi', 'Rundi', 1340, 0, 0, 'rn');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'russian', 'Russian', 1350, 0, 0, 'ru');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'samoan', 'Samoan', 1360, 0, 0, 'sm');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sango', 'Sango', 1370, 0, 0, 'sg');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sanskrit', 'Sanskrit', 1380, 0, 0, 'sa');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sardinian', 'Sardinian', 1390, 0, 0, 'sc');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'serbian', 'Serbian', 1400, 0, 0, 'sr');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'shona', 'Shona', 1410, 0, 0, 'sn');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sichuan_yi_nuosu', 'Sichuan Yi; Nuosu', 1420, 0, 0, 'ii');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sindhi', 'Sindhi', 1430, 0, 0, 'sd');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sinhala_sinhalese', 'Sinhala; Sinhalese', 1440, 0, 0, 'si');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'slovak', 'Slovak', 1450, 0, 0, 'sk');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'slovenian', 'Slovenian', 1460, 0, 0, 'sl');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'somali', 'Somali', 1470, 0, 0, 'so');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sotho_southern', 'Sotho, Southern', 1480, 0, 0, 'st');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'Spanish', 'Spanish', 1490, 0, 0, 'es');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'sundanese', 'Sundanese', 1500, 0, 0, 'su');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'swahili', 'Swahili', 1510, 0, 0, 'sw');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'swati', 'Swati', 1520, 0, 0, 'ss');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'swedish', 'Swedish', 1530, 0, 0, 'sv');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tagalog', 'Tagalog', 1540, 0, 0, 'tl');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tahitian', 'Tahitian', 1550, 0, 0, 'ty');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tajik', 'Tajik', 1560, 0, 0, 'tg');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tamil', 'Tamil', 1570, 0, 0, 'ta');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tatar', 'Tatar', 1580, 0, 0, 'tt');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'telugu', 'Telugu', 1590, 0, 0, 'te');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'thai', 'Thai', 1600, 0, 0, 'th');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tibetan', 'Tibetan', 1610, 0, 0, 'bo');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tigrinya', 'Tigrinya', 1620, 0, 0, 'ti');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tonga_tonga_islands', 'Tonga (Tonga Islands)', 1630, 0, 0, 'to');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tsonga', 'Tsonga', 1640, 0, 0, 'ts');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'tswana', 'Tswana', 1650, 0, 0, 'tn');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'turkish', 'Turkish', 1660, 0, 0, 'tr');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'turkmen', 'Turkmen', 1670, 0, 0, 'tk');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'twi', 'Twi', 1680, 0, 0, 'tw');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'uighur_uyghur', 'Uighur; Uyghur', 1690, 0, 0, 'ug');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'ukrainian', 'Ukrainian', 1700, 0, 0, 'uk');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'urdu', 'Urdu', 1710, 0, 0, 'ur');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'uzbek', 'Uzbek', 1720, 0, 0, 'uz');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'venda', 'Venda', 1730, 0, 0, 've');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'vietnamese', 'Vietnamese', 1740, 0, 0, 'vi');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'volapuk', 'Volapük', 1750, 0, 0, 'vo');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'walloon', 'Walloon', 1760, 0, 0, 'wa');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'welsh', 'Welsh', 1770, 0, 0, 'cy');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'western_frisian', 'Western Frisian', 1780, 0, 0, 'fy');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'wolof', 'Wolof', 1790, 0, 0, 'wo');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'xhosa', 'Xhosa', 1800, 0, 0, 'xh');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'yiddish', 'Yiddish', 1810, 0, 0, 'yi');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'yoruba', 'Yoruba', 1820, 0, 0, 'yo');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'zhuang_chuang', 'Zhuang; Chuang', 1830, 0, 0, 'za');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value, notes ) VALUES ('language', 'zulu', 'Zulu', 1840, 0, 0, 'zu');
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('ethrace', 'declne_to_specfy', 'Declined To Specify', 0, 0, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('ethrace', 'aleut', 'ALEUT', 10,  0);
@@ -4000,7 +4112,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) V
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', '7','OD'               , 7,0, 'OTH');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', '8','OU'               , 8,0, 'OTH');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', '9','SQ'               , 9,0, 'OTH');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route','10','IM'               ,10,0, 'IM');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, codes ) VALUES ('drug_route','10','IM'               ,10,0, 'IM', 'NCI-CONCEPT-ID:C28161');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route','11','IV'               ,11,0, 'IV');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route','12','Per Nostril'      ,12,0, 'NS');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route','13','Both Ears',13,0, 'OTH');
@@ -4011,6 +4123,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) V
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('drug_route', 'transdermal', 'Transdermal', 19, 0, 'TD');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, codes ) VALUES ('drug_route','intramuscular','Intramuscular' ,20, 0, 'IM', 'NCI-CONCEPT-ID:C28161');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, codes ) VALUES ('drug_route','inhale','Inhale' ,16, 0, 'RESPIR', 'NCI-CONCEPT-ID:C38216');
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes, codes ) VALUES ('drug_route', 'bymouth', 'By Mouth', 1, 0, 'PO', 'NCI-CONCEPT-ID:C38288');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('drug_interval','0',''      ,0,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('drug_interval','1','b.i.d.',1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('drug_interval','2','t.i.d.',2,0);
@@ -4030,6 +4143,8 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('drug_interval','16','h.s.'  ,16,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('drug_interval','17','p.r.n.',17,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('drug_interval','18','stat'  ,18,0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('drug_interval','19','Weekly',19,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('drug_interval','20','Monthly',20,0,1);
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('chartloc','fileroom','File Room'              ,1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists' ,'boolean'      ,'Boolean'            , 1,0);
@@ -4189,6 +4304,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, option_value ) VALUES
 INSERT INTO list_options (list_id, option_id, title , seq, option_value ) VALUES ('abook_type','emr_direct', 'EMR Direct' ,105,4);
 INSERT INTO list_options (list_id, option_id, title , seq, option_value ) VALUES ('abook_type','external_provider', 'External Provider' ,110,1);
 INSERT INTO list_options (list_id, option_id, title , seq, option_value ) VALUES ('abook_type','external_org', 'External Organization' ,120,1);
+INSERT INTO list_options (list_id, option_id, title , seq, option_value ) VALUES ('abook_type','bill_svc', 'Billing Service' ,120,3);
 
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists','proc_type','Procedure Types', 1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('proc_type','grp','Group'          ,10,0);
@@ -4480,7 +4596,10 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 ('clinical_rules', 'e_prescribe_1_stage2_amc', 'Generate and transmit permissible prescriptions electronically (All Prescriptions).', 50, 0, 0, '', '', '', 0, 0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`) VALUES
 ('clinical_rules', 'e_prescribe_2_stage2_amc', 'Generate and transmit permissible prescriptions electronically (Not including controlled substances).', 50, 0, 0, '', '', '', 0, 0);
-
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`)
+VALUES ('clinical_rules', 'patient_access_amc', 'Provide Patients Electronic Access to Their Health Information - API Access', 240, 0, 0, '', '', '', 0, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`)
+VALUES ('clinical_rules', 'send_sum_2015_amc', 'Support Electronic Referral Loops by Sending Health Information', 240, 0, 0, '', '', '', 0, 0);
 --
 -- order types
 --
@@ -4494,6 +4613,7 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES (
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('order_type','patient_characteristics','Patient Characteristics',60,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('order_type','imaging','Imaging',70,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('order_type','enc_checkup_procedure','Encounter Checkup Procedure',80,0);
+INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('order_type','order','Order',90,0);
 
 --
 -- Clinical Rule Target Methods
@@ -4922,8 +5042,11 @@ INSERT INTO list_options(list_id,option_id,title,seq) VALUES ('general_issue_lis
 INSERT INTO list_options (`list_id`,`option_id`,`title`) VALUES ('lists','issue_types','Issue Types');
 
 -- Issue Subtypes List
-INSERT INTO list_options (list_id,option_id,title) VALUES ('lists','issue_subtypes','Issue Subtypes');
-INSERT INTO list_options (list_id, option_id,title, seq) VALUES ('issue_subtypes', 'eye', 'Eye',10);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists','issue_subtypes','Issue Subtypes');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('issue_subtypes', 'eye', 'Eye',10);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('issue_subtypes','assessment','Assessment',20);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('issue_subtypes','concern','Concern',30);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('issue_subtypes','diagnosis','Diagnosis',40);
 
 -- Insurance Types List
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists','insurance_types','Insurance Types',1);
@@ -5244,10 +5367,38 @@ INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('public
 -- Immunization Refusal Reason
 
 INSERT INTO list_options (list_id, option_id, title) VALUES ('lists','immunization_refusal_reason','Immunization Refusal Reason');
-INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('immunization_refusal_reason','parental_decision','Parental decision','00', '10');
+INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('immunization_refusal_reason','patient_decision','Patient decision','03', '10');
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('immunization_refusal_reason','religious_exemption','Religious exemption','01', '20');
 INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('immunization_refusal_reason','other','Other','02', '30');
-INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('immunization_refusal_reason','patient_decision','Patient decision','03', '40');
+INSERT INTO list_options (list_id, option_id, title, notes, seq) VALUES ('immunization_refusal_reason','parental_decision','Parental decision','00', '40');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','financial_problem','Financial Problem',50,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','financial_circumstances_change','Financial circumstances change',60,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','alternative_treatment_requested','Alternative Treatment Requested',70,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_declined_procedure','Patient declined procedure',80,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_declined_drug','Patient declined drug',90,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_declined_drug_effects','Patient declined drug - side effects',100,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_declined_drug_beliefs','Patient declined drug - patient beliefs',110,1, "01");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_declined_drug_cannot_pay','Patient declined drug - cannot pay script',120,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_moved','Patient moved',130,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_dissatisfied_result','Patient dissatisfied with result',140,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_dissatisfied_doctor','Patient dissatisfied with doctor',150,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_variable_income','Variable income',160,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_self_discharge','Patient self-discharge against medical advice',170,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','drugs_not_completed','Drugs not taken/completed',180,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','family_illness','Family illness',190,1, "02");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','follow_defaulted','Patient defaulted from follow-up',200,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_noncompliance','Patient noncompliance - general',210,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_noshow','Patient did not attend',220,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_further_opinion','Further opinion sought',230,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_treatment_delay','Treatment delay - patient choice',240,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_medication_declined','Medication declined',250,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_medication_forgot','Patient forgets to take medication',260,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_non_compliant','Patient non-compliant declined intervention/support',270,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','procedure_not_wanted','Procedure not wanted',280,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','income_insufficient','Income insufficient to buy necessities',290,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','income_necessities_only','Income sufficient to buy only necessities',300,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','refused','Refused',310,1, "03");
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`, `notes`) VALUES ('immunization_refusal_reason','patient_procedure_discontinued','Procedure discontinued by patient',320,1, "03");
 
 -- Immunization Information Source
 
@@ -6534,19 +6685,71 @@ INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUE
 INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('vitals-interpretation','LU','Significantly low',90,0,1);
 
 -- Discharge Disposition (for encounters and eventually appointments)
-INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','discharge-disposition','Discharge Disposition',0, 1, 0);
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','home','Home',10,1,1);
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','alt-home','Alternative Home',20,0,1);
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','other-hcf','Other healthcare facility',30,0,1);
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','hosp','Hospice',40,0,1);
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','long','Long-term care',50,0,1);
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','aadvice','Left against advice',60,0,1);
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','exp','Expired',70,0,1);
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','psy','Psychiatric hospital',80,0,1);
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','rehab','Rehabilitation',90,0,1);
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','snf','Skilled nursing facility',100,0,1);
-INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('discharge-disposition','oth','Other',110,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('lists','discharge-disposition','Discharge Disposition',0,1,0,'',NULL,'',0,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('discharge-disposition','home','Home',10,1,0,'','','SNOMED-CT:10161009',0,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('discharge-disposition','home-hospice','Discharge to home for hospice care',20,0,0,'','','SNOMED-CT:428361000124107',0,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('discharge-disposition','alt-home','Alternative Home',30,0,0,'','','',0,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('discharge-disposition','other-hcf','Other healthcare facility',40,0,0,'','','',0,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('discharge-disposition','hosp','Hospice',50,0,0,'','','SNOMED-CT:428371000124100',0,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('discharge-disposition','long','Long-term care',60,0,0,'','','',0,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('discharge-disposition','aadvice','Left against advice (Finding)',70,0,0,'','','SNOMED-CT:445060000',0,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('discharge-disposition','self-aadvice','Patient self-discharge against medical advice',80,0,0,'','','SNOMED-CT:225928004',0,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('discharge-disposition','exp','Expired',90,0,0,'','','SNOMED-CT:371828006',0,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('discharge-disposition','psy','Psychiatric hospital',100,0,0,'','','',0,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('discharge-disposition','rehab','Rehabilitation',110,0,0,'','','SNOMED-CT:433591000124103',0,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('discharge-disposition','snf','Skilled nursing facility',120,0,0,'','','',0,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('discharge-disposition','comm-hospital','Discharge to community hospital',130,0,0,'','','SNOMED-CT:306701001',0,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('discharge-disposition','oth','Other',140,0,0,'','','',0,0,1);
+
+-- External Patient Education
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,option_value) VALUES ('lists', 'external_patient_education', 'External Patient Education', 0, 0, 0);
+INSERT INTO list_options (list_id,option_id,title,notes,seq,is_default,activity) VALUES ('external_patient_education', 'emedicine', 'eMedicine', 'http://search.medscape.com/reference-search?newSearchHeader=1&queryText=[%]', 10, 0, 1);
+INSERT INTO list_options (list_id,option_id,title,notes,seq,is_default,activity) VALUES ('external_patient_education', 'medline', 'Medline', 'http://vsearch.nlm.nih.gov/vivisimo/cgi-bin/query-meta?v%3Aproject=medlineplus&query=[%]&x=12&y=15', 20, 0, 1);
+INSERT INTO list_options (list_id,option_id,title,notes,seq,is_default,activity) VALUES ('external_patient_education', 'webmd', 'WebMD', 'http://www.webmd.com/search/search_results/default.aspx?query=[%]&sourceType=undefined', 30, 0, 1);
+
+-- Observation Types
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('lists','Observation_Types','Observation Types',0,1,0,'',NULL,'',0,0,1,'');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','assessment','Assessment',10,0,0,'','','',0,0,1,'');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','procedure_diagnostic','Procedure Diagnostic',20,0,0,'','','',0,0,1,'');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`) VALUES ('Observation_Types','physical_exam_performed','Physical Exam Performed',30,0,0,'','','',0,0,1,'');
 -- --------------------------------------------------------
+
+-- CCDA Sections for sort orders
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','ccda-sections','CCDA Sections',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','allergies_required','Allergies and Intollerances (entries required)',10,0,1, 'oid:2.16.840.1.113883.10.20.22.2.6.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','medications','History of medication use',20,0,1, 'oid:2.16.840.1.113883.10.20.22.2.1.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','problems','Problem list',30,0,1, 'oid:2.16.840.1.113883.10.20.22.2.5.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','procedures','History of procedures',40,0,1, 'oid:2.16.840.1.113883.10.20.22.2.7.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','dx_tests_labdata','Relevant Dx tests/lab data',50,0,1, 'oid:2.16.840.1.113883.10.20.22.2.3.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','functional_status','Functional Status',60,0,1, 'oid:2.16.840.1.113883.10.20.22.2.14');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','progress_note','Clinical Notes (History & Physical,Procedure,Discharge,Imaging)',70,0,1, 'oid:2.16.840.1.113883.10.20.22.2.65');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','procedures_section','Procedures Section',80,0,1, 'oid:2.16.840.1.113883.10.20.22.2.7.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','encounters','Encounters',110,0,1, 'oid:2.16.840.1.113883.10.20.22.2.22.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','immunizations','Immunizations',120,0,1, 'oid:2.16.840.1.113883.10.20.22.2.2');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','assessments','Assessments',130,0,1, 'oid:2.16.840.1.113883.10.20.22.2.8');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','treatment_plan','Treatment Plan',140,0,1, 'oid:2.16.840.1.113883.10.20.22.2.10');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','goals','Goals',150,0,1, 'oid:2.16.840.1.113883.10.20.22.2.60');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','health_concerns','Health Concerns',160,0,1, 'oid:2.16.840.1.113883.10.20.22.2.58');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','reason_of_visit','Reason for Referral',170,0,1, 'oid:1.3.6.1.4.1.19376.1.5.3.1.3.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','mental_status','Mental Status',180,0,1, 'oid:2.16.840.1.113883.10.20.22.2.56');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','social_history','Social History',190,0,1, 'oid:2.16.840.1.113883.10.20.22.2.17');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','vital_signs','Vital Signs',200,0,1, 'oid:2.16.840.1.113883.10.20.22.2.4.1');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','medical_equipment','Medical Equipment',210,0,1, 'oid:2.16.840.1.113883.10.20.22.2.23');
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity, codes) VALUES ('ccda-sections','us_realm_person_name','US Realm Person Name',220,0,1, 'oid:2.16.840.1.113883.10.20.22.5.1.1');
+
+-- Address Use Types
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','address-uses','Address Uses',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','home','Home',10,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','work','Work',20,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','temp','Temporary',30,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','old','Old/Incorrect',40,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-uses','billing','Billing',50,0,1);
+
+-- Address Types
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','address-types','Address Types',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-types','postal','Postal',10,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-types','physical','Physical',20,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('address-types','both','Postal & Physical',30,0,1);
 
 --
 -- Table structure for table `lists`
@@ -6562,8 +6765,8 @@ CREATE TABLE `lists` (
   `title` varchar(255) default NULL,
   `udi` varchar(255) default NULL,
   `udi_data` text,
-  `begdate` date default NULL,
-  `enddate` date default NULL,
+  `begdate` datetime default NULL,
+  `enddate` datetime default NULL,
   `returndate` date default NULL,
   `occurrence` int(11) default '0' COMMENT "Reference to list_options option_id='occurrence'",
   `classification` int(11) default '0',
@@ -6763,6 +6966,11 @@ CREATE TABLE `module_configuration` (
   `module_id` int(10) unsigned NOT NULL,
   `field_name` varchar(45) NOT NULL,
   `field_value` varchar(255) NOT NULL,
+  `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record',
+  `date_added` DATETIME DEFAULT NULL COMMENT 'Datetime the record was initially created',
+  `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record',
+  `date_modified` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'Datetime the record was last modified',
+  `date_created` DATETIME DEFAULT NULL COMMENT 'Datetime the record was created',
   PRIMARY KEY (`module_config_id`)
 ) ENGINE=InnoDB;
 
@@ -7153,9 +7361,11 @@ CREATE TABLE `openemr_postcalendar_events` (
   `pc_sendalertemail` VARCHAR( 3 ) NOT NULL DEFAULT 'NO',
   `pc_billing_location` SMALLINT (6) NOT NULL DEFAULT '0',
   `pc_room` varchar(20) NOT NULL DEFAULT '',
+  `uuid` binary(16) DEFAULT NULL,
   PRIMARY KEY  (`pc_eid`),
   KEY `basic_event` (`pc_catid`,`pc_aid`,`pc_eventDate`,`pc_endDate`,`pc_eventstatus`,`pc_sharing`,`pc_topic`),
-  KEY `pc_eventDate` (`pc_eventDate`)
+  KEY `pc_eventDate` (`pc_eventDate`),
+  UNIQUE KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7;
 
 -- --------------------------------------------------------
@@ -7173,6 +7383,7 @@ CREATE TABLE `patient_access_onsite`(
   `portal_pwd_status` TINYINT DEFAULT '1' COMMENT '0=>Password Created Through Demographics by The provider or staff. Patient Should Change it at first time it.1=>Pwd updated or created by patient itself',
   `portal_login_username` VARCHAR(100) DEFAULT NULL COMMENT 'User entered username',
   `portal_onetime`  VARCHAR(255) DEFAULT NULL,
+  `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `pid` (`pid`)
 )ENGINE=InnoDB AUTO_INCREMENT=1;
@@ -7259,7 +7470,7 @@ CREATE TABLE `patient_data` (
   `userlist6` varchar(255) NOT NULL DEFAULT '',
   `userlist7` varchar(255) NOT NULL DEFAULT '',
   `pricelevel` varchar(255) NOT NULL default 'standard',
-  `regdate`     date DEFAULT NULL COMMENT 'Registration Date',
+  `regdate`     DATETIME DEFAULT NULL COMMENT 'Registration Date',
   `contrastart` date DEFAULT NULL COMMENT 'Date contraceptives initially used',
   `completed_ad` VARCHAR(3) NOT NULL DEFAULT 'NO',
   `ad_reviewed` date DEFAULT NULL,
@@ -7304,6 +7515,11 @@ CREATE TABLE `patient_data` (
   `name_history` TINYTEXT,
   `suffix` TINYTEXT,
   `street_line_2` TINYTEXT,
+  `patient_groups` TEXT,
+  `prevent_portal_apps` TEXT,
+  `provider_since_date` TINYTEXT,
+  `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record',
+  `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record',
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `id` (`id`)
@@ -7327,8 +7543,10 @@ CREATE TABLE `patient_history` (
     , `previous_name_last` TEXT
     , `previous_name_suffix` TEXT
     , `previous_name_enddate` date DEFAULT NULL
+    ,`created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record'
     , PRIMARY KEY (`id`)
     , UNIQUE `uuid` (`uuid`)
+    , KEY `pid_idx` (`pid`)
 ) ENGINE = InnoDB;
 --
 -- Table structure for table `patient_portal_menu`
@@ -7537,8 +7755,8 @@ CREATE TABLE `prescriptions` (
   `patient_id` bigint(20) default NULL,
   `filled_by_id` int(11) default NULL,
   `pharmacy_id` int(11) default NULL,
-  `date_added` date default NULL,
-  `date_modified` date default NULL,
+  `date_added` DATETIME DEFAULT NULL COMMENT 'Datetime the prescriptions was initially created',
+  `date_modified` DATETIME DEFAULT NULL COMMENT 'Datetime the prescriptions was last modified',
   `provider_id` int(11) default NULL,
   `encounter` int(11) default NULL,
   `start_date` date default NULL,
@@ -7550,7 +7768,7 @@ CREATE TABLE `prescriptions` (
   `quantity` varchar(31) default NULL,
   `size` varchar(25) DEFAULT NULL,
   `unit` int(11) default NULL,
-  `route` int(11) default NULL,
+  `route` varchar(100) default NULL COMMENT 'Max size 100 characters is same max as immunizations',
   `interval` int(11) default NULL,
   `substitute` int(11) default NULL,
   `refills` int(11) default NULL,
@@ -7578,6 +7796,8 @@ CREATE TABLE `prescriptions` (
   `request_intent` VARCHAR(100) NULL COMMENT 'option_id in list_options.list_id=medication-request-intent',
   `request_intent_title` VARCHAR(255) NOT NULL COMMENT 'title in list_options.list_id=medication-request-intent',
   `drug_dosage_instructions` longtext COMMENT 'Medication dosage instructions',
+  `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record',
+  `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record',
   PRIMARY KEY  (`id`),
   KEY `patient_id` (`patient_id`),
   UNIQUE INDEX `uuid` (`uuid`)
@@ -7642,6 +7862,7 @@ CREATE TABLE `registry` (
   `patient_encounter` TINYINT NOT NULL DEFAULT '1',
   `therapy_group_encounter` TINYINT NOT NULL DEFAULT '0',
   `aco_spec` varchar(63) NOT NULL default 'encounters|notes',
+  `form_foreign_id` BIGINT(21) NULL DEFAULT NULL COMMENT 'An id to a form repository. Primarily questionnaire_repository.',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=25;
 
@@ -7649,24 +7870,24 @@ CREATE TABLE `registry` (
 -- Inserting data for table `registry`
 --
 
-INSERT INTO `registry` VALUES ('New Encounter Form', 1, 'newpatient', 1, 1, 1, '2003-09-14 15:16:45', 0, 'Administrative', '',1,0,'patients|appt');
-INSERT INTO `registry` VALUES ('Review of Systems Checks', 1, 'reviewofs', 9, 1, 1, '2003-09-14 15:16:45', 0, 'Clinical', '',1,0,'encounters|notes');
-INSERT INTO `registry` VALUES ('Speech Dictation', 1, 'dictation', 10, 1, 1, '2003-09-14 15:16:45', 0, 'Clinical', '',1,0,'encounters|notes');
-INSERT INTO `registry` VALUES ('SOAP', 1, 'soap', 11, 1, 1, '2005-03-03 00:16:35', 0, 'Clinical', '',1,0,'encounters|notes');
-INSERT INTO `registry` VALUES ('Vitals', 1, 'vitals', 12, 1, 1, '2005-03-03 00:16:34', 0, 'Clinical', '',1,0,'encounters|notes');
-INSERT INTO `registry` VALUES ('Review Of Systems', 1, 'ros', 13, 1, 1, '2005-03-03 00:16:30', 0, 'Clinical', '',1,0,'encounters|notes');
-INSERT INTO `registry` VALUES ('Fee Sheet', 1, 'fee_sheet', 14, 1, 1, '2007-07-28 00:00:00', 0, 'Administrative', '',1,0,'encounters|coding');
-INSERT INTO `registry` VALUES ('Misc Billing Options HCFA', 1, 'misc_billing_options', 15, 1, 1, '2007-07-28 00:00:00', 0, 'Administrative', '',1,0,'encounters|coding');
-INSERT INTO `registry` VALUES ('Procedure Order', 1, 'procedure_order', 16, 1, 1, '2010-02-25 00:00:00', 0, 'Administrative', '',1,0,'patients|lab');
-INSERT INTO `registry` VALUES ('Observation', 1, 'observation', 17, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes');
-INSERT INTO `registry` VALUES ('Care Plan', 1, 'care_plan', 18, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes');
-INSERT INTO `registry` VALUES ('Functional and Cognitive Status', 1, 'functional_cognitive_status', 19, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes');
-INSERT INTO `registry` VALUES ('Clinical Instructions', 1, 'clinical_instructions', 20, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes');
-INSERT INTO `registry` VALUES ('Eye Exam', 1, 'eye_mag', 21, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes');
-INSERT INTO `registry` VALUES ('Group Attendance Form', 1, 'group_attendance', 22, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1,'encounters|notes');
-INSERT INTO `registry` VALUES ('New Group Encounter Form', 1, 'newGroupEncounter', 23, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1,'patients|appt');
-INSERT INTO `registry` VALUES ('Clinical Notes', 1, 'clinical_notes', 24, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes');
-
+INSERT INTO `registry` VALUES ('New Encounter Form', 1, 'newpatient', 1, 1, 1, '2003-09-14 15:16:45', 0, 'Administrative', '',1,0,'patients|appt', NULL);
+INSERT INTO `registry` VALUES ('Review of Systems Checks', 1, 'reviewofs', 9, 1, 1, '2003-09-14 15:16:45', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('Speech Dictation', 1, 'dictation', 10, 1, 1, '2003-09-14 15:16:45', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('SOAP', 1, 'soap', 11, 1, 1, '2005-03-03 00:16:35', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('Vitals', 1, 'vitals', 12, 1, 1, '2005-03-03 00:16:34', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('Review Of Systems', 1, 'ros', 13, 1, 1, '2005-03-03 00:16:30', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('Fee Sheet', 1, 'fee_sheet', 14, 1, 1, '2007-07-28 00:00:00', 0, 'Administrative', '',1,0,'encounters|coding', NULL);
+INSERT INTO `registry` VALUES ('Misc Billing Options HCFA', 1, 'misc_billing_options', 15, 1, 1, '2007-07-28 00:00:00', 0, 'Administrative', '',1,0,'encounters|coding', NULL);
+INSERT INTO `registry` VALUES ('Procedure Order', 1, 'procedure_order', 16, 1, 1, '2010-02-25 00:00:00', 0, 'Orders', '',1,0,'patients|lab', NULL);
+INSERT INTO `registry` VALUES ('Observation', 1, 'observation', 17, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('Care Plan', 1, 'care_plan', 18, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('Functional and Cognitive Status', 1, 'functional_cognitive_status', 19, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('Clinical Instructions', 1, 'clinical_instructions', 20, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('Eye Exam', 1, 'eye_mag', 21, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('Group Attendance Form', 1, 'group_attendance', 22, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('New Group Encounter Form', 1, 'newGroupEncounter', 23, 1, 1, '2015-10-15 00:00:00', 0, 'Clinical', '',0,1,'patients|appt', NULL);
+INSERT INTO `registry` VALUES ('Clinical Notes', 1, 'clinical_notes', 24, 1, 1, '2015-09-09 00:00:00', 0, 'Clinical', '',1,0,'encounters|notes', NULL);
+INSERT INTO `registry` VALUES ('New Questionnaire', 1, 'questionnaire_assessments', 25, 1, 1, '2022-08-04 14:45:15', 0, 'Questionnaires', '', 1, 0, 'admin|forms', NULL);
 -- --------------------------------------------------------
 
 --
@@ -7681,6 +7902,8 @@ CREATE TABLE `report_itemized` (
   `numerator_label` varchar(25) NOT NULL DEFAULT '' COMMENT 'Only used in special cases',
   `pass` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0 is fail, 1 is pass, 2 is excluded',
   `pid` bigint(20) NOT NULL,
+  `rule_id` VARCHAR(31) DEFAULT NULL  COMMENT 'fk to clinical_rules.rule_id',
+  `item_details` TEXT COMMENT 'JSON with specific sub item results for a clinical rule',
   KEY (`report_id`,`itemized_test_id`,`numerator_label`,`pass`)
 ) ENGINE=InnoDB;
 
@@ -8414,6 +8637,36 @@ CREATE TABLE `session_tracker` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `payment_processing_audit`
+--
+
+DROP TABLE IF EXISTS `payment_processing_audit`;
+CREATE TABLE `payment_processing_audit` (
+  `uuid` binary(16) NOT NULL DEFAULT '',
+  `service` varchar(50) DEFAULT NULL,
+  `pid` bigint NOT NULL,
+  `success` tinyint DEFAULT 0,
+  `action_name` varchar(50) DEFAULT NULL,
+  `amount` varchar(20) DEFAULT NULL,
+  `ticket` varchar(100) DEFAULT NULL,
+  `transaction_id` varchar(100) DEFAULT NULL,
+  `audit_data` text,
+  `date` datetime DEFAULT NULL,
+  `map_uuid` binary(16) DEFAULT NULL,
+  `map_transaction_id` varchar(100) DEFAULT NULL,
+  `reverted` tinyint DEFAULT 0,
+  `revert_action_name` varchar(50) DEFAULT NULL,
+  `revert_transaction_id` varchar(100) DEFAULT NULL,
+  `revert_audit_data` text,
+  `revert_date` datetime DEFAULT NULL,
+  PRIMARY KEY (`uuid`),
+  KEY (`pid`),
+  KEY (`success`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `supported_external_dataloads`
 --
 
@@ -8533,6 +8786,14 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 ('CQM_VALUESET', 'NIH_VSAC', '2020-05-07', 'ep_ec_only_cms_20200507.xml.zip', '02dc0b497da979e336c24b0b5c6e1ccb');
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ( 'CQM_VALUESET', 'NIH_VSAC', '2021-05-06', 'ep_ec_eh_cms_20210506.xml.zip', '6455da86e269edb6d33288e72b467373');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2021-10-01', '2022-Code Descriptions.zip', '11d1d725c84e55d52ef6633da88aa137');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2021-10-01', 'Zip File 3 2022 ICD-10-PCS Codes File.zip', 'a432177acbdaf9908aa528078ae72176');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2022-10-01', '2023 Code Descriptions in Tabular Order.zip', 'a2bd2e87d6fac3f861b03dba9ca87cbc');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2022-10-01', 'Zip File 3 2023 ICD-10-PCS Codes File.zip', 'a4c0e6026557d770dc3d994718acaa21');
 -- --------------------------------------------------------
 
 --
@@ -8653,7 +8914,10 @@ CREATE TABLE `users_secure` (
   `password_history4` varchar(255),
   `last_challenge_response` datetime DEFAULT NULL,
   `login_work_area` text,
+  `total_login_fail_counter` bigint DEFAULT 0,
   `login_fail_counter` INT(11) DEFAULT '0',
+  `last_login_fail` datetime DEFAULT NULL,
+  `auto_block_emailed` tinyint DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `USERNAME_ID` (`id`,`username`)
 ) ENGINE=InnoDb;
@@ -8740,6 +9004,28 @@ CREATE TABLE `uuid_registry` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `validate_email`
+--
+
+DROP TABLE IF EXISTS `verify_email`;
+CREATE TABLE `verify_email` (
+  `id` bigint NOT NULL auto_increment,
+  `pid_holder` bigint DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `language` varchar(100) DEFAULT NULL,
+  `fname` varchar(255) DEFAULT NULL,
+  `mname` varchar(255) DEFAULT NULL,
+  `lname` varchar(255) DEFAULT NULL,
+  `dob` date DEFAULT NULL,
+  `token_onetime`  VARCHAR(255) DEFAULT NULL,
+  `active` tinyint NOT NULL default 1,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY (`email`)
+) ENGINE=InnoDB;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `voids`
 --
 
@@ -8788,6 +9074,7 @@ CREATE TABLE `x12_partners` (
   `x12_per06` varchar(80) NOT NULL DEFAULT '',
   `x12_dtp03` char(1)     NOT NULL DEFAULT 'A',
   `x12_gs03` varchar(15) DEFAULT NULL,
+  `x12_submitter_id` smallint(6) DEFAULT NULL,
   `x12_submitter_name` varchar(255) DEFAULT NULL,
   `x12_sftp_login` varchar(255) DEFAULT NULL,
   `x12_sftp_pass` varchar(255) DEFAULT NULL,
@@ -8946,6 +9233,7 @@ CREATE TABLE ar_activity (
   reason_code varchar(255) DEFAULT NULL COMMENT 'Use as needed to show the primary payer adjustment reason code',
   deleted        datetime DEFAULT NULL COMMENT 'NULL if active, otherwise when voided',
   post_date      date DEFAULT NULL COMMENT 'Posting date if specified at payment time',
+  payer_claim_number varchar(30) DEFAULT NULL,
   PRIMARY KEY (pid, encounter, sequence_no),
   KEY session_id (session_id)
 ) ENGINE=InnoDB;
@@ -9053,7 +9341,7 @@ CREATE TABLE `procedure_type` (
   `parent`              bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references procedure_type.procedure_type_id',
   `name`                varchar(63)  NOT NULL DEFAULT '' COMMENT 'name for this category, procedure or result type',
   `lab_id`              bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references procedure_providers.ppid, 0 means default to parent',
-  `procedure_code`      varchar(31)  NOT NULL DEFAULT '' COMMENT 'code identifying this procedure',
+  `procedure_code`      varchar(64)  NOT NULL DEFAULT '' COMMENT 'code identifying this procedure',
   `procedure_type`      varchar(31)  NOT NULL DEFAULT '' COMMENT 'see list proc_type',
   `body_site`           varchar(31)  NOT NULL DEFAULT '' COMMENT 'where to do injection, e.g. arm, buttock',
   `specimen`            varchar(31)  NOT NULL DEFAULT '' COMMENT 'blood, urine, saliva, etc.',
@@ -9110,7 +9398,7 @@ CREATE TABLE `procedure_order` (
   `patient_id`             bigint(20)       NOT NULL            COMMENT 'references patient_data.pid',
   `encounter_id`           bigint(20)       NOT NULL DEFAULT 0  COMMENT 'references form_encounter.encounter',
   `date_collected`         datetime         DEFAULT NULL        COMMENT 'time specimen collected',
-  `date_ordered`           date             DEFAULT NULL,
+  `date_ordered`           datetime         DEFAULT NULL,
   `order_priority`         varchar(31)      NOT NULL DEFAULT '',
   `order_status`           varchar(31)      NOT NULL DEFAULT '' COMMENT 'pending,routed,complete,canceled',
   `patient_instructions`   text,
@@ -9150,7 +9438,7 @@ DROP TABLE IF EXISTS `procedure_order_code`;
 CREATE TABLE `procedure_order_code` (
   `procedure_order_id`      bigint(20)  NOT NULL                COMMENT 'references procedure_order.procedure_order_id',
   `procedure_order_seq`     int(11)     NOT NULL COMMENT 'Supports multiple tests per order. Procedure_order_seq, incremented in code',
-  `procedure_code`          varchar(31) NOT NULL DEFAULT ''     COMMENT 'like procedure_type.procedure_code',
+  `procedure_code`          varchar(64) NOT NULL DEFAULT ''     COMMENT 'like procedure_type.procedure_code',
   `procedure_name`          varchar(255) NOT NULL DEFAULT ''    COMMENT 'descriptive name of the procedure code',
   `procedure_source`        char(1)     NOT NULL DEFAULT '1'    COMMENT '1=original order, 2=added after order sent',
   `diagnoses`               text                                COMMENT 'diagnoses and maybe other coding (e.g. ICD9:111.11)',
@@ -9158,6 +9446,12 @@ CREATE TABLE `procedure_order_code` (
   `procedure_order_title`   varchar( 255 ) NULL DEFAULT NULL,
   `procedure_type`          varchar(31) DEFAULT NULL,
   `transport`               varchar(31) DEFAULT NULL,
+  `date_end` datetime DEFAULT NULL,
+  `reason_code` varchar(31) DEFAULT NULL,
+  `reason_description` text,
+  `reason_date_low` datetime DEFAULT NULL,
+  `reason_date_high` datetime DEFAULT NULL,
+  `reason_status` varchar(31) DEFAULT NULL,
   PRIMARY KEY (`procedure_order_id`, `procedure_order_seq`)
 ) ENGINE=InnoDB;
 
@@ -9227,6 +9521,7 @@ CREATE TABLE `procedure_result` (
   `comments`            text                             COMMENT 'comments from the lab',
   `document_id`         bigint(20)   NOT NULL DEFAULT 0  COMMENT 'references documents.id if this result is a document',
   `result_status`       varchar(31)  NOT NULL DEFAULT '' COMMENT 'preliminary, cannot be done, final, corrected, incomplete...etc.',
+  `date_end`            datetime     DEFAULT NULL        COMMENT 'lab-provided end date specific to this result',
   PRIMARY KEY (`procedure_result_id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY procedure_report_id (procedure_report_id)
@@ -9292,6 +9587,7 @@ INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, 
 INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim, ct_proc, ct_term, ct_problem ) VALUES ('PHIN Questions', 111, 111, 0, '', 0, 0, 1, 0, 1, 'PHIN Questions', 0, 0, 0, 0, 0);
 INSERT INTO code_types (ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_fee, ct_rel, ct_nofs, ct_diag, ct_active, ct_label, ct_external, ct_claim, ct_proc, ct_term, ct_problem ) VALUES ('NCI-CONCEPT-ID', 112, 112, 0, '', 0, 0, 1, 0, 1, 'NCI CONCEPT ID', 0, 0, 0, 0, 0);
 INSERT INTO `code_types` (`ct_key`, `ct_id`, `ct_seq`, `ct_mod`, `ct_just`, `ct_mask`, `ct_fee`, `ct_rel`, `ct_nofs`, `ct_diag`, `ct_active`, `ct_label`, `ct_external`, `ct_claim`, `ct_proc`, `ct_term`, `ct_problem`, `ct_drug`) VALUES ('VALUESET', '113', '113', '0', '', '', '1', '1', '0', '1', '1', 'CQM Valueset', '13', '1', '1', '1', '1', '1');
+INSERT INTO `code_types` (`ct_key`, `ct_id`, `ct_seq`, `ct_mod`, `ct_just`, `ct_mask`, `ct_fee`, `ct_rel`, `ct_nofs`, `ct_diag`, `ct_active`, `ct_label`, `ct_external`, `ct_claim`, `ct_proc`, `ct_term`, `ct_problem`, `ct_drug`) VALUES ('OID', '114', '114', '0', '', '', '1', '1', '0', '1', '1', 'OID Valueset', '14', '1', '1', '1', '1', '1');
 
 INSERT INTO list_options ( list_id, option_id, title, seq ) VALUES ('lists', 'code_types', 'Code Types', 1);
 
@@ -9310,930 +9606,932 @@ INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) V
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) VALUES ('smoking_status', '15', 'Heavy tobacco smoker', 70, 0, 'SNOMED-CT:428071000124103');
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, codes ) VALUES ('smoking_status', '16', 'Light tobacco smoker', 80, 0, 'SNOMED-CT:428061000124105');
 
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'   ,'race','Race', 1,0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('race', 'declne_to_specfy', 'Declined To Specify', 0, 0, 0);
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('race', 'amer_ind_or_alaska_native', 'American Indian or Alaska Native', 10, 0, '1002-5');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('race', 'Asian', 'Asian',20,0, '2028-9');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('race', 'black_or_afri_amer', 'Black or African American',30,0, '2054-5');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('race', 'native_hawai_or_pac_island', 'Native Hawaiian or Other Pacific Islander',40,0, '2076-8');
-INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('race', 'white', 'White',50,0, '2106-3');
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','abenaki','1006-6','Abenaki', '0',60);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','absentee_shawnee','1579-2','Absentee Shawnee', '0',70);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','acoma','1490-2','Acoma', '0',80);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','afghanistani','2126-1','Afghanistani', '0',90);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','african','2060-2','African', '0',100);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','african_american','2058-6','African American', '0',110);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','agdaagux','1994-3','Agdaagux', '0',120);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','agua_caliente','1212-0','Agua Caliente', '0',130);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','agua_caliente_cahuilla','1045-4','Agua Caliente Cahuilla', '0',140);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','ahtna','1740-0','Ahtna', '0',150);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','ak-chin','1654-3','Ak-Chin', '0',160);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','akhiok','1993-5','Akhiok', '0',170);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','akiachak','1897-8','Akiachak', '0',180);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','akiak','1898-6','Akiak', '0',190);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','akutan','2007-3','Akutan', '0',200);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','alabama_coushatta','1187-4','Alabama Coushatta', '0',210);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','alabama_creek','1194-0','Alabama Creek', '0',220);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','alabama_quassarte','1195-7','Alabama Quassarte', '0',230);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','alakanuk','1899-4','Alakanuk', '0',240);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','alamo_navajo','1383-9','Alamo Navajo', '0',250);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','alanvik','1744-2','Alanvik', '0',260);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','alaska_indian','1737-6','Alaska Indian', '0',270);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','alaska_native','1735-0','Alaska Native', '0',280);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','alaskan_athabascan','1739-2','Alaskan Athabascan', '0',290);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','alatna','1741-8','Alatna', '0',300);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','aleknagik','1900-0','Aleknagik', '0',310);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','aleut','1966-1','Aleut', '0',320);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','aleut_corporation','2008-1','Aleut Corporation', '0',330);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','aleutian','2009-9','Aleutian', '0',340);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','aleutian_islander','2010-7','Aleutian Islander', '0',350);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','alexander','1742-6','Alexander', '0',360);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','algonquian','1008-2','Algonquian', '0',370);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','allakaket','1743-4','Allakaket', '0',380);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','allen_canyon','1671-7','Allen Canyon', '0',390);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','alpine','1688-1','Alpine', '0',400);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','alsea','1392-0','Alsea', '0',410);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','alutiiq_aleut','1968-7','Alutiiq Aleut', '0',420);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','ambler','1845-7','Ambler', '0',430);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','american_indian','1004-1','American Indian', '0',440);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','anaktuvuk','1846-5','Anaktuvuk', '0',460);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','anaktuvuk_pass','1847-3','Anaktuvuk Pass', '0',470);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','andreafsky','1901-8','Andreafsky', '0',480);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','angoon','1814-3','Angoon', '0',490);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','aniak','1902-6','Aniak', '0',500);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','anvik','1745-9','Anvik', '0',510);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','apache','1010-8','Apache', '0',520);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','arab','2129-5','Arab', '0',530);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','arapaho','1021-5','Arapaho', '0',540);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','arctic','1746-7','Arctic', '0',550);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','arctic_slope_corporation','1849-9','Arctic Slope Corporation', '0',560);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','arctic_slope_inupiat','1848-1','Arctic Slope Inupiat', '0',570);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','arikara','1026-4','Arikara', '0',580);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','arizona_tewa','1491-0','Arizona Tewa', '0',590);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','armenian','2109-7','Armenian', '0',600);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','aroostook','1366-4','Aroostook', '0',610);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','asian_indian','2029-7','Asian Indian', '0',630);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','assiniboine','1028-0','Assiniboine', '0',640);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','assiniboine_sioux','1030-6','Assiniboine Sioux', '0',650);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','assyrian','2119-6','Assyrian', '0',660);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','atka','2011-5','Atka', '0',670);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','atmautluak','1903-4','Atmautluak', '0',680);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','atqasuk','1850-7','Atqasuk', '0',690);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','atsina','1265-8','Atsina', '0',700);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','attacapa','1234-4','Attacapa', '0',710);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','augustine','1046-2','Augustine', '0',720);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','bad_river','1124-7','Bad River', '0',730);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','bahamian','2067-7','Bahamian', '0',740);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','bangladeshi','2030-5','Bangladeshi', '0',750);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','bannock','1033-0','Bannock', '0',760);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','barbadian','2068-5','Barbadian', '0',770);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','barrio_libre','1712-9','Barrio Libre', '0',780);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','barrow','1851-5','Barrow', '0',790);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','battle_mountain','1587-5','Battle Mountain', '0',800);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','bay_mills_chippewa','1125-4','Bay Mills Chippewa', '0',810);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','beaver','1747-5','Beaver', '0',820);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','belkofski','2012-3','Belkofski', '0',830);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','bering_straits_inupiat','1852-3','Bering Straits Inupiat', '0',840);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','bethel','1904-2','Bethel', '0',850);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','bhutanese','2031-3','Bhutanese', '0',860);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','big_cypress','1567-7','Big Cypress', '0',870);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','bill_moores_slough','1905-9',"Bill Moore's Slough", '0',880);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','biloxi','1235-1','Biloxi', '0',890);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','birch_creek','1748-3','Birch Creek', '0',900);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','bishop','1417-5','Bishop', '0',910);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','black','2056-0','Black', '0',920);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','blackfeet','1035-5','Blackfeet', '0',940);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','blackfoot_sioux','1610-5','Blackfoot Sioux', '0',950);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','bois_forte','1126-2','Bois Forte', '0',960);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','botswanan','2061-0','Botswanan', '0',970);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','brevig_mission','1853-1','Brevig Mission', '0',980);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','bridgeport','1418-3','Bridgeport', '0',990);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','brighton','1568-5','Brighton', '0',1000);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','bristol_bay_aleut','1972-9','Bristol Bay Aleut', '0',1010);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','bristol_bay_yupik','1906-7','Bristol Bay Yupik', '0',1020);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','brotherton','1037-1','Brotherton', '0',1030);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','brule_sioux','1611-3','Brule Sioux', '0',1040);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','buckland','1854-9','Buckland', '0',1050);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','burmese','2032-1','Burmese', '0',1060);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','burns_paiute','1419-1','Burns Paiute', '0',1070);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','burt_lake_band','1039-7','Burt Lake Band', '0',1080);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','burt_lake_chippewa','1127-0','Burt Lake Chippewa', '0',1090);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','burt_lake_ottawa','1412-6','Burt Lake Ottawa', '0',1100);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cabazon','1047-0','Cabazon', '0',1110);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','caddo','1041-3','Caddo', '0',1120);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cahto','1054-6','Cahto', '0',1130);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cahuilla','1044-7','Cahuilla', '0',1140);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','california_tribes','1053-8','California Tribes', '0',1150);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','calista_yupik','1907-5','Calista Yupik', '0',1160);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cambodian','2033-9','Cambodian', '0',1170);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','campo','1223-7','Campo', '0',1180);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','canadian_latinamerican_indian','1068-6','Canadian and Latin American Indian', '0',1190);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','canadian_indian','1069-4','Canadian Indian', '0',1200);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','canoncito_navajo','1384-7','Canoncito Navajo', '0',1210);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cantwell','1749-1','Cantwell', '0',1220);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','capitan_grande','1224-5','Capitan Grande', '0',1230);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','carolinian','2092-5','Carolinian', '0',1240);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','carson','1689-9','Carson', '0',1250);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','catawba','1076-9','Catawba', '0',1260);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cayuga','1286-4','Cayuga', '0',1270);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cayuse','1078-5','Cayuse', '0',1280);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cedarville','1420-9','Cedarville', '0',1290);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','celilo','1393-8','Celilo', '0',1300);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','central_american_indian','1070-2','Central American Indian', '0',1310);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tlingit_and_haida_tribes','1815-0','Central Council of Tlingit and Haida Tribes', '0',1320);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','central_pomo','1465-4','Central Pomo', '0',1330);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chalkyitsik','1750-9','Chalkyitsik', '0',1340);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chamorro','2088-3','Chamorro', '0',1350);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chefornak','1908-3','Chefornak', '0',1360);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chehalis','1080-1','Chehalis', '0',1370);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chemakuan','1082-7','Chemakuan', '0',1380);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chemehuevi','1086-8','Chemehuevi', '0',1390);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chenega','1985-1','Chenega', '0',1400);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cherokee','1088-4','Cherokee', '0',1410);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cherokee_alabama','1089-2','Cherokee Alabama', '0',1420);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cherokee_shawnee','1100-7','Cherokee Shawnee', '0',1430);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cherokees_of_northeast_alabama','1090-0','Cherokees of Northeast Alabama', '0',1440);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cherokees_of_southeast_alabama','1091-8','Cherokees of Southeast Alabama', '0',1450);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chevak','1909-1','Chevak', '0',1460);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cheyenne','1102-3','Cheyenne', '0',1470);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cheyenne_river_sioux','1612-1','Cheyenne River Sioux', '0',1480);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cheyenne-arapaho','1106-4','Cheyenne-Arapaho', '0',1490);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chickahominy','1108-0','Chickahominy', '0',1500);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chickaloon','1751-7','Chickaloon', '0',1510);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chickasaw','1112-2','Chickasaw', '0',1520);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chignik','1973-7','Chignik', '0',1530);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chignik_lagoon','2013-1','Chignik Lagoon', '0',1540);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chignik_lake','1974-5','Chignik Lake', '0',1550);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chilkat','1816-8','Chilkat', '0',1560);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chilkoot','1817-6','Chilkoot', '0',1570);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chimariko','1055-3','Chimariko', '0',1580);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chinese','2034-7','Chinese', '0',1590);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chinik','1855-6','Chinik', '0',1600);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chinook','1114-8','Chinook', '0',1610);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chippewa','1123-9','Chippewa', '0',1620);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chippewa_cree','1150-2','Chippewa Cree', '0',1630);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chiricahua','1011-6','Chiricahua', '0',1640);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chistochina','1752-5','Chistochina', '0',1650);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chitimacha','1153-6','Chitimacha', '0',1660);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chitina','1753-3','Chitina', '0',1670);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','choctaw','1155-1','Choctaw', '0',1680);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chuathbaluk','1910-9','Chuathbaluk', '0',1690);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chugach_aleut','1984-4','Chugach Aleut', '0',1700);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chugach_corporation','1986-9','Chugach Corporation', '0',1710);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chukchansi','1718-6','Chukchansi', '0',1720);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chumash','1162-7','Chumash', '0',1730);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','chuukese','2097-4','Chuukese', '0',1740);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','circle','1754-1','Circle', '0',1750);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','citizen_band_potawatomi','1479-5','Citizen Band Potawatomi', '0',1760);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','clarks_point','1911-7',"Clark's Point", '0',1770);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','clatsop','1115-5','Clatsop', '0',1780);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','clear_lake','1165-0','Clear Lake', '0',1790);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','clifton_choctaw','1156-9','Clifton Choctaw', '0',1800);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','coast_miwok','1056-1','Coast Miwok', '0',1810);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','coast_yurok','1733-5','Coast Yurok', '0',1820);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cochiti','1492-8','Cochiti', '0',1830);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cocopah','1725-1','Cocopah', '0',1840);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','coeur_dalene','1167-6',"Coeur D'Alene", '0',1850);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','coharie','1169-2','Coharie', '0',1860);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','colorado_river','1171-8','Colorado River', '0',1870);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','columbia','1394-6','Columbia', '0',1880);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','columbia_river_chinook','1116-3','Columbia River Chinook', '0',1890);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','colville','1173-4','Colville', '0',1900);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','comanche','1175-9','Comanche', '0',1910);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cook_inlet','1755-8','Cook Inlet', '0',1920);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','coos','1180-9','Coos', '0',1930);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','coos_lower_umpqua_siuslaw','1178-3','Coos, Lower Umpqua, Siuslaw', '0',1940);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','copper_center','1756-6','Copper Center', '0',1950);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','copper_river','1757-4','Copper River', '0',1960);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','coquilles','1182-5','Coquilles', '0',1970);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','costanoan','1184-1','Costanoan', '0',1980);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','council','1856-4','Council', '0',1990);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','coushatta','1186-6','Coushatta', '0',2000);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cow_creek_umpqua','1668-3','Cow Creek Umpqua', '0',2010);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cowlitz','1189-0','Cowlitz', '0',2020);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','craig','1818-4','Craig', '0',2030);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cree','1191-6','Cree', '0',2040);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','creek','1193-2','Creek', '0',2050);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','croatan','1207-0','Croatan', '0',2060);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','crooked_creek','1912-5','Crooked Creek', '0',2070);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','crow','1209-6','Crow', '0',2080);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','crow_creek_sioux','1613-9','Crow Creek Sioux', '0',2090);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cupeno','1211-2','Cupeno', '0',2100);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','cuyapaipe','1225-2','Cuyapaipe', '0',2110);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','dakota_sioux','1614-7','Dakota Sioux', '0',2120);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','deering','1857-2','Deering', '0',2130);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','delaware','1214-6','Delaware', '0',2140);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','diegueno','1222-9','Diegueno', '0',2150);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','digger','1057-9','Digger', '0',2160);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','dillingham','1913-3','Dillingham', '0',2170);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','dominica_islander','2070-1','Dominica Islander', '0',2180);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','dominican','2069-3','Dominican', '0',2190);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','dot_lake','1758-2','Dot Lake', '0',2200);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','douglas','1819-2','Douglas', '0',2210);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','doyon','1759-0','Doyon', '0',2220);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','dresslerville','1690-7','Dresslerville', '0',2230);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','dry_creek','1466-2','Dry Creek', '0',2240);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','duck_valley','1603-0','Duck Valley', '0',2250);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','duckwater','1588-3','Duckwater', '0',2260);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','duwamish','1519-8','Duwamish', '0',2270);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','eagle','1760-8','Eagle', '0',2280);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','eastern_cherokee','1092-6','Eastern Cherokee', '0',2290);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','eastern_chickahominy','1109-8','Eastern Chickahominy', '0',2300);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','eastern_creek','1196-5','Eastern Creek', '0',2310);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','eastern_delaware','1215-3','Eastern Delaware', '0',2320);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','eastern_muscogee','1197-3','Eastern Muscogee', '0',2330);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','eastern_pomo','1467-0','Eastern Pomo', '0',2340);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','eastern_shawnee','1580-0','Eastern Shawnee', '0',2350);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','eastern_tribes','1233-6','Eastern Tribes', '0',2360);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','echota_cherokee','1093-4','Echota Cherokee', '0',2370);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','eek','1914-1','Eek', '0',2380);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','egegik','1975-2','Egegik', '0',2390);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','egyptian','2120-4','Egyptian', '0',2400);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','eklutna','1761-6','Eklutna', '0',2410);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','ekuk','1915-8','Ekuk', '0',2420);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','ekwok','1916-6','Ekwok', '0',2430);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','elim','1858-0','Elim', '0',2440);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','elko','1589-1','Elko', '0',2450);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','ely','1590-9','Ely', '0',2460);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','emmonak','1917-4','Emmonak', '0',2470);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','english','2110-5','English', '0',2480);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','english_bay','1987-7','English Bay', '0',2490);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','eskimo','1840-8','Eskimo', '0',2500);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','esselen','1250-0','Esselen', '0',2510);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','ethiopian','2062-8','Ethiopian', '0',2520);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','etowah_cherokee','1094-2','Etowah Cherokee', '0',2530);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','european','2108-9','European', '0',2540);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','evansville','1762-4','Evansville', '0',2550);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','eyak','1990-1','Eyak', '0',2560);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','fallon','1604-8','Fallon', '0',2570);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','false_pass','2015-6','False Pass', '0',2580);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','fijian','2101-4','Fijian', '0',2590);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','filipino','2036-2','Filipino', '0',2600);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','flandreau_santee','1615-4','Flandreau Santee', '0',2610);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','florida_seminole','1569-3','Florida Seminole', '0',2620);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','fond_du_lac','1128-8','Fond du Lac', '0',2630);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','forest_county','1480-3','Forest County', '0',2640);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','fort_belknap','1252-6','Fort Belknap', '0',2650);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','fort_berthold','1254-2','Fort Berthold', '0',2660);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','fort_bidwell','1421-7','Fort Bidwell', '0',2670);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','fort_hall','1258-3','Fort Hall', '0',2680);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','fort_independence','1422-5','Fort Independence', '0',2690);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','fort_mcdermitt','1605-5','Fort McDermitt', '0',2700);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','fort_mcdowell','1256-7','Fort Mcdowell', '0',2710);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','fort_peck','1616-2','Fort Peck', '0',2720);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','fort_peck_assiniboine_sioux','1031-4','Fort Peck Assiniboine Sioux', '0',2730);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','fort_sill_apache','1012-4','Fort Sill Apache', '0',2740);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','fort_yukon','1763-2','Fort Yukon', '0',2750);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','french','2111-3','French', '0',2760);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','french_american_indian','1071-0','French American Indian', '0',2770);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','gabrieleno','1260-9','Gabrieleno', '0',2780);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','gakona','1764-0','Gakona', '0',2790);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','galena','1765-7','Galena', '0',2800);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','gambell','1892-9','Gambell', '0',2810);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','gay_head_wampanoag','1680-8','Gay Head Wampanoag', '0',2820);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','georgetown_eastern_tribes','1236-9','Georgetown (Eastern Tribes)', '0',2830);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','georgetown_yupik-eskimo','1962-0','Georgetown (Yupik-Eskimo)', '0',2840);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','german','2112-1','German', '0',2850);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','gila_bend','1655-0','Gila Bend', '0',2860);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','gila_river_pima-maricopa','1457-1','Gila River Pima-Maricopa', '0',2870);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','golovin','1859-8','Golovin', '0',2880);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','goodnews_bay','1918-2','Goodnews Bay', '0',2890);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','goshute','1591-7','Goshute', '0',2900);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','grand_portage','1129-6','Grand Portage', '0',2910);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','grand_ronde','1262-5','Grand Ronde', '0',2920);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','grand_traverse_band','1130-4','Grand Traverse Band of Ottawa/Chippewa', '0',2930);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','grayling','1766-5','Grayling', '0',2940);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','greenland_eskimo','1842-4','Greenland Eskimo', '0',2950);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','gros_ventres','1264-1','Gros Ventres', '0',2960);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','guamanian','2087-5','Guamanian', '0',2970);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','guamanian_or_chamorro','2086-7','Guamanian or Chamorro', '0',2980);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','gulkana','1767-3','Gulkana', '0',2990);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','haida','1820-0','Haida', '0',3000);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','haitian','2071-9','Haitian', '0',3010);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','haliwa','1267-4','Haliwa', '0',3020);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','hannahville','1481-1','Hannahville', '0',3030);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','havasupai','1726-9','Havasupai', '0',3040);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','healy_lake','1768-1','Healy Lake', '0',3050);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','hidatsa','1269-0','Hidatsa', '0',3060);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','hmong','2037-0','Hmong', '0',3070);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','ho-chunk','1697-2','Ho-chunk', '0',3080);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','hoh','1083-5','Hoh', '0',3090);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','hollywood_seminole','1570-1','Hollywood Seminole', '0',3100);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','holy_cross','1769-9','Holy Cross', '0',3110);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','hoonah','1821-8','Hoonah', '0',3120);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','hoopa','1271-6','Hoopa', '0',3130);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','hoopa_extension','1275-7','Hoopa Extension', '0',3140);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','hooper_bay','1919-0','Hooper Bay', '0',3150);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','hopi','1493-6','Hopi', '0',3160);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','houma','1277-3','Houma', '0',3170);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','hualapai','1727-7','Hualapai', '0',3180);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','hughes','1770-7','Hughes', '0',3190);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','huron_potawatomi','1482-9','Huron Potawatomi', '0',3200);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','huslia','1771-5','Huslia', '0',3210);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','hydaburg','1822-6','Hydaburg', '0',3220);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','igiugig','1976-0','Igiugig', '0',3230);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','iliamna','1772-3','Iliamna', '0',3240);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','illinois_miami','1359-9','Illinois Miami', '0',3250);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','inaja-cosmit','1279-9','Inaja-Cosmit', '0',3260);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','inalik_diomede','1860-6','Inalik Diomede', '0',3270);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','indian_township','1442-3','Indian Township', '0',3280);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','indiana_miami','1360-7','Indiana Miami', '0',3290);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','indonesian','2038-8','Indonesian', '0',3300);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','inupiaq','1861-4','Inupiaq', '0',3310);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','inupiat_eskimo','1844-0','Inupiat Eskimo', '0',3320);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','iowa','1281-5','Iowa', '0',3330);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','iowa_of_kansas-nebraska','1282-3','Iowa of Kansas-Nebraska', '0',3340);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','iowa_of_oklahoma','1283-1','Iowa of Oklahoma', '0',3350);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','iowa_sac_and_fox','1552-9','Iowa Sac and Fox', '0',3360);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','iqurmuit_russian_mission','1920-8','Iqurmuit (Russian Mission)', '0',3370);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','iranian','2121-2','Iranian', '0',3380);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','iraqi','2122-0','Iraqi', '0',3390);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','irish','2113-9','Irish', '0',3400);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','iroquois','1285-6','Iroquois', '0',3410);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','isleta','1494-4','Isleta', '0',3420);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','israeili','2127-9','Israeili', '0',3430);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','italian','2114-7','Italian', '0',3440);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','ivanof_bay','1977-8','Ivanof Bay', '0',3450);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','iwo_jiman','2048-7','Iwo Jiman', '0',3460);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','jamaican','2072-7','Jamaican', '0',3470);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','jamestown','1313-6','Jamestown', '0',3480);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','japanese','2039-6','Japanese', '0',3490);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','jemez','1495-1','Jemez', '0',3500);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','jena_choctaw','1157-7','Jena Choctaw', '0',3510);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','jicarilla_apache','1013-2','Jicarilla Apache', '0',3520);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','juaneno','1297-1','Juaneno', '0',3530);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kaibab','1423-3','Kaibab', '0',3540);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kake','1823-4','Kake', '0',3550);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kaktovik','1862-2','Kaktovik', '0',3560);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kalapuya','1395-3','Kalapuya', '0',3570);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kalispel','1299-7','Kalispel', '0',3580);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kalskag','1921-6','Kalskag', '0',3590);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kaltag','1773-1','Kaltag', '0',3600);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','karluk','1995-0','Karluk', '0',3610);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','karuk','1301-1','Karuk', '0',3620);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kasaan','1824-2','Kasaan', '0',3630);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kashia','1468-8','Kashia', '0',3640);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kasigluk','1922-4','Kasigluk', '0',3650);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kathlamet','1117-1','Kathlamet', '0',3660);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kaw','1303-7','Kaw', '0',3670);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kawaiisu','1058-7','Kawaiisu', '0',3680);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kawerak','1863-0','Kawerak', '0',3690);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kenaitze','1825-9','Kenaitze', '0',3700);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','keres','1496-9','Keres', '0',3710);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kern_river','1059-5','Kern River', '0',3720);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','ketchikan','1826-7','Ketchikan', '0',3730);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','keweenaw','1131-2','Keweenaw', '0',3740);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kialegee','1198-1','Kialegee', '0',3750);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kiana','1864-8','Kiana', '0',3760);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kickapoo','1305-2','Kickapoo', '0',3770);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kikiallus','1520-6','Kikiallus', '0',3780);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','king_cove','2014-9','King Cove', '0',3790);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','king_salmon','1978-6','King Salmon', '0',3800);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kiowa','1309-4','Kiowa', '0',3810);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kipnuk','1923-2','Kipnuk', '0',3820);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kiribati','2096-6','Kiribati', '0',3830);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kivalina','1865-5','Kivalina', '0',3840);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','klallam','1312-8','Klallam', '0',3850);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','klamath','1317-7','Klamath', '0',3860);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','klawock','1827-5','Klawock', '0',3870);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kluti_kaah','1774-9','Kluti Kaah', '0',3880);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','knik','1775-6','Knik', '0',3890);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kobuk','1866-3','Kobuk', '0',3900);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kodiak','1996-8','Kodiak', '0',3910);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kokhanok','1979-4','Kokhanok', '0',3920);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','koliganek','1924-0','Koliganek', '0',3930);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kongiganak','1925-7','Kongiganak', '0',3940);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','koniag_aleut','1992-7','Koniag Aleut', '0',3950);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','konkow','1319-3','Konkow', '0',3960);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kootenai','1321-9','Kootenai', '0',3970);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','korean','2040-4','Korean', '0',3980);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kosraean','2093-3','Kosraean', '0',3990);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kotlik','1926-5','Kotlik', '0',4000);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kotzebue','1867-1','Kotzebue', '0',4010);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','koyuk','1868-9','Koyuk', '0',4020);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','koyukuk','1776-4','Koyukuk', '0',4030);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kwethluk','1927-3','Kwethluk', '0',4040);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kwigillingok','1928-1','Kwigillingok', '0',4050);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','kwiguk','1869-7','Kwiguk', '0',4060);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','la_jolla','1332-6','La Jolla', '0',4070);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','la_posta','1226-0','La Posta', '0',4080);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','lac_courte_oreilles','1132-0','Lac Courte Oreilles', '0',4090);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','lac_du_flambeau','1133-8','Lac du Flambeau', '0',4100);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','lac_vieux_desert_chippewa','1134-6','Lac Vieux Desert Chippewa', '0',4110);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','laguna','1497-7','Laguna', '0',4120);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','lake_minchumina','1777-2','Lake Minchumina', '0',4130);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','lake_superior','1135-3','Lake Superior', '0',4140);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','lake_traverse_sioux','1617-0','Lake Traverse Sioux', '0',4150);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','laotian','2041-2','Laotian', '0',4160);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','larsen_bay','1997-6','Larsen Bay', '0',4170);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','las_vegas','1424-1','Las Vegas', '0',4180);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','lassik','1323-5','Lassik', '0',4190);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','lebanese','2123-8','Lebanese', '0',4200);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','leech_lake','1136-1','Leech Lake', '0',4210);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','lenni-lenape','1216-1','Lenni-Lenape', '0',4220);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','levelock','1929-9','Levelock', '0',4230);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','liberian','2063-6','Liberian', '0',4240);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','lime','1778-0','Lime', '0',4250);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','lipan_apache','1014-0','Lipan Apache', '0',4260);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','little_shell_chippewa','1137-9','Little Shell Chippewa', '0',4270);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','lone_pine','1425-8','Lone Pine', '0',4280);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','long_island','1325-0','Long Island', '0',4290);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','los_coyotes','1048-8','Los Coyotes', '0',4300);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','lovelock','1426-6','Lovelock', '0',4310);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','lower_brule_sioux','1618-8','Lower Brule Sioux', '0',4320);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','lower_elwha','1314-4','Lower Elwha', '0',4330);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','lower_kalskag','1930-7','Lower Kalskag', '0',4340);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','lower_muscogee','1199-9','Lower Muscogee', '0',4350);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','lower_sioux','1619-6','Lower Sioux', '0',4360);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','lower_skagit','1521-4','Lower Skagit', '0',4370);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','luiseno','1331-8','Luiseno', '0',4380);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','lumbee','1340-9','Lumbee', '0',4390);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','lummi','1342-5','Lummi', '0',4400);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','machis_lower_creek_indian','1200-5','Machis Lower Creek Indian', '0',4410);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','madagascar','2052-9','Madagascar', '0',4420);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','maidu','1344-1','Maidu', '0',4430);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','makah','1348-2','Makah', '0',4440);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','malaysian','2042-0','Malaysian', '0',4450);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','maldivian','2049-5','Maldivian', '0',4460);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','malheur_paiute','1427-4','Malheur Paiute', '0',4470);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','maliseet','1350-8','Maliseet', '0',4480);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mandan','1352-4','Mandan', '0',4490);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','manley_hot_springs','1780-6','Manley Hot Springs', '0',4500);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','manokotak','1931-5','Manokotak', '0',4510);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','manzanita','1227-8','Manzanita', '0',4520);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mariana_islander','2089-1','Mariana Islander', '0',4530);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','maricopa','1728-5','Maricopa', '0',4540);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','marshall','1932-3','Marshall', '0',4550);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','marshallese','2090-9','Marshallese', '0',4560);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','marshantucket_pequot','1454-8','Marshantucket Pequot', '0',4570);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','marys_igloo','1889-5',"Mary\'s Igloo", '0',4580);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mashpee_wampanoag','1681-6','Mashpee Wampanoag', '0',4590);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','matinecock','1326-8','Matinecock', '0',4600);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mattaponi','1354-0','Mattaponi', '0',4610);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mattole','1060-3','Mattole', '0',4620);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mauneluk_inupiat','1870-5','Mauneluk Inupiat', '0',4630);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mcgrath','1779-8','Mcgrath', '0',4640);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mdewakanton_sioux','1620-4','Mdewakanton Sioux', '0',4650);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mekoryuk','1933-1','Mekoryuk', '0',4660);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','melanesian','2100-6','Melanesian', '0',4670);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','menominee','1356-5','Menominee', '0',4680);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mentasta_lake','1781-4','Mentasta Lake', '0',4690);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mesa_grande','1228-6','Mesa Grande', '0',4700);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mescalero_apache','1015-7','Mescalero Apache', '0',4710);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','metlakatla','1838-2','Metlakatla', '0',4720);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mexican_american_indian','1072-8','Mexican American Indian', '0',4730);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','miami','1358-1','Miami', '0',4740);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','miccosukee','1363-1','Miccosukee', '0',4750);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','michigan_ottawa','1413-4','Michigan Ottawa', '0',4760);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','micmac','1365-6','Micmac', '0',4770);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','micronesian','2085-9','Micronesian', '0',4780);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','middle_eastern_north_african','2118-8','Middle Eastern or North African', '0',4790);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mille_lacs','1138-7','Mille Lacs', '0',4800);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','miniconjou','1621-2','Miniconjou', '0',4810);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','minnesota_chippewa','1139-5','Minnesota Chippewa', '0',4820);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','minto','1782-2','Minto', '0',4830);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mission_indians','1368-0','Mission Indians', '0',4840);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mississippi_choctaw','1158-5','Mississippi Choctaw', '0',4850);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','missouri_sac_and_fox','1553-7','Missouri Sac and Fox', '0',4860);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','miwok','1370-6','Miwok', '0',4870);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','moapa','1428-2','Moapa', '0',4880);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','modoc','1372-2','Modoc', '0',4890);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mohave','1729-3','Mohave', '0',4900);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mohawk','1287-2','Mohawk', '0',4910);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mohegan','1374-8','Mohegan', '0',4920);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','molala','1396-1','Molala', '0',4930);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mono','1376-3','Mono', '0',4940);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','montauk','1327-6','Montauk', '0',4950);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','moor','1237-7','Moor', '0',4960);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','morongo','1049-6','Morongo', '0',4970);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mountain_maidu','1345-8','Mountain Maidu', '0',4980);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mountain_village','1934-9','Mountain Village', '0',4990);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','mowa_band_of_choctaw','1159-3','Mowa Band of Choctaw', '0',5000);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','muckleshoot','1522-2','Muckleshoot', '0',5010);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','munsee','1217-9','Munsee', '0',5020);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','naknek','1935-6','Naknek', '0',5030);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nambe','1498-5','Nambe', '0',5040);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','namibian','2064-4','Namibian', '0',5050);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nana_inupiat','1871-3','Nana Inupiat', '0',5060);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nansemond','1238-5','Nansemond', '0',5070);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nanticoke','1378-9','Nanticoke', '0',5080);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','napakiak','1937-2','Napakiak', '0',5090);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','napaskiak','1938-0','Napaskiak', '0',5100);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','napaumute','1936-4','Napaumute', '0',5110);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','narragansett','1380-5','Narragansett', '0',5120);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','natchez','1239-3','Natchez', '0',5130);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','native_hawaiian','2079-2','Native Hawaiian', '0',5140);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nausu_waiwash','1240-1','Nausu Waiwash', '0',5160);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','navajo','1382-1','Navajo', '0',5170);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nebraska_ponca','1475-3','Nebraska Ponca', '0',5180);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nebraska_winnebago','1698-0','Nebraska Winnebago', '0',5190);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nelson_lagoon','2016-4','Nelson Lagoon', '0',5200);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nenana','1783-0','Nenana', '0',5210);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nepalese','2050-3','Nepalese', '0',5220);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','new_hebrides','2104-8','New Hebrides', '0',5230);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','new_stuyahok','1940-6','New Stuyahok', '0',5240);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','newhalen','1939-8','Newhalen', '0',5250);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','newtok','1941-4','Newtok', '0',5260);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nez_perce','1387-0','Nez Perce', '0',5270);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nigerian','2065-1','Nigerian', '0',5280);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nightmute','1942-2','Nightmute', '0',5290);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nikolai','1784-8','Nikolai', '0',5300);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nikolski','2017-2','Nikolski', '0',5310);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','ninilchik','1785-5','Ninilchik', '0',5320);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nipmuc','1241-9','Nipmuc', '0',5330);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nishinam','1346-6','Nishinam', '0',5340);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nisqually','1523-0','Nisqually', '0',5350);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','noatak','1872-1','Noatak', '0',5360);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nomalaki','1389-6','Nomalaki', '0',5370);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nome','1873-9','Nome', '0',5380);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nondalton','1786-3','Nondalton', '0',5390);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nooksack','1524-8','Nooksack', '0',5400);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','noorvik','1874-7','Noorvik', '0',5410);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','northern_arapaho','1022-3','Northern Arapaho', '0',5420);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','northern_cherokee','1095-9','Northern Cherokee', '0',5430);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','northern_cheyenne','1103-1','Northern Cheyenne', '0',5440);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','northern_paiute','1429-0','Northern Paiute', '0',5450);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','northern_pomo','1469-6','Northern Pomo', '0',5460);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','northway','1787-1','Northway', '0',5470);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','northwest_tribes','1391-2','Northwest Tribes', '0',5480);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nuiqsut','1875-4','Nuiqsut', '0',5490);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nulato','1788-9','Nulato', '0',5500);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','nunapitchukv','1943-0','Nunapitchukv', '0',5510);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','oglala_sioux','1622-0','Oglala Sioux', '0',5520);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','okinawan','2043-8','Okinawan', '0',5530);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','oklahoma_apache','1016-5','Oklahoma Apache', '0',5540);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','oklahoma_cado','1042-1','Oklahoma Cado', '0',5550);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','oklahoma_choctaw','1160-1','Oklahoma Choctaw', '0',5560);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','oklahoma_comanche','1176-7','Oklahoma Comanche', '0',5570);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','oklahoma_delaware','1218-7','Oklahoma Delaware', '0',5580);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','oklahoma_kickapoo','1306-0','Oklahoma Kickapoo', '0',5590);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','oklahoma_kiowa','1310-2','Oklahoma Kiowa', '0',5600);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','oklahoma_miami','1361-5','Oklahoma Miami', '0',5610);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','oklahoma_ottawa','1414-2','Oklahoma Ottawa', '0',5620);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','oklahoma_pawnee','1446-4','Oklahoma Pawnee', '0',5630);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','oklahoma_peoria','1451-4','Oklahoma Peoria', '0',5640);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','oklahoma_ponca','1476-1','Oklahoma Ponca', '0',5650);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','oklahoma_sac_and_fox','1554-5','Oklahoma Sac and Fox', '0',5660);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','oklahoma_seminole','1571-9','Oklahoma Seminole', '0',5670);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','old_harbor','1998-4','Old Harbor', '0',5680);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','omaha','1403-5','Omaha', '0',5690);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','oneida','1288-0','Oneida', '0',5700);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','onondaga','1289-8','Onondaga', '0',5710);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','ontonagon','1140-3','Ontonagon', '0',5720);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','oregon_athabaskan','1405-0','Oregon Athabaskan', '0',5730);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','osage','1407-6','Osage', '0',5740);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','oscarville','1944-8','Oscarville', '0',5750);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','other_pacific_islander','2500-7','Other Pacific Islander', '0',5760);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','other_race','2131-1','Other Race', '0',5770);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','otoe-missouria','1409-2','Otoe-Missouria', '0',5780);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','ottawa','1411-8','Ottawa', '0',5790);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','ouzinkie','1999-2','Ouzinkie', '0',5800);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','owens_valley','1430-8','Owens Valley', '0',5810);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','paiute','1416-7','Paiute', '0',5820);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pakistani','2044-6','Pakistani', '0',5830);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pala','1333-4','Pala', '0',5840);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','palauan','2091-7','Palauan', '0',5850);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','palestinian','2124-6','Palestinian', '0',5860);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pamunkey','1439-9','Pamunkey', '0',5870);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','panamint','1592-5','Panamint', '0',5880);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','papua_new_guinean','2102-2','Papua New Guinean', '0',5890);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pascua_yaqui','1713-7','Pascua Yaqui', '0',5900);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','passamaquoddy','1441-5','Passamaquoddy', '0',5910);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','paugussett','1242-7','Paugussett', '0',5920);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pauloff_harbor','2018-0','Pauloff Harbor', '0',5930);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pauma','1334-2','Pauma', '0',5940);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pawnee','1445-6','Pawnee', '0',5950);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','payson_apache','1017-3','Payson Apache', '0',5960);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pechanga','1335-9','Pechanga', '0',5970);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pedro_bay','1789-7','Pedro Bay', '0',5980);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pelican','1828-3','Pelican', '0',5990);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','penobscot','1448-0','Penobscot', '0',6000);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','peoria','1450-6','Peoria', '0',6010);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pequot','1453-0','Pequot', '0',6020);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','perryville','1980-2','Perryville', '0',6030);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','petersburg','1829-1','Petersburg', '0',6040);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','picuris','1499-3','Picuris', '0',6050);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pilot_point','1981-0','Pilot Point', '0',6060);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pilot_station','1945-5','Pilot Station', '0',6070);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pima','1456-3','Pima', '0',6080);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pine_ridge_sioux','1623-8','Pine Ridge Sioux', '0',6090);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pipestone_sioux','1624-6','Pipestone Sioux', '0',6100);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','piro','1500-8','Piro', '0',6110);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','piscataway','1460-5','Piscataway', '0',6120);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pit_river','1462-1','Pit River', '0',6130);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pitkas_point','1946-3','Pitkas Point', '0',6140);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','platinum','1947-1','Platinum', '0',6150);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pleasant_point_passamaquoddy','1443-1','Pleasant Point Passamaquoddy', '0',6160);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','poarch_band','1201-3','Poarch Band', '0',6170);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pocomoke_acohonock','1243-5','Pocomoke Acohonock', '0',6180);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pohnpeian','2094-1','Pohnpeian', '0',6190);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','point_hope','1876-2','Point Hope', '0',6200);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','point_lay','1877-0','Point Lay', '0',6210);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pojoaque','1501-6','Pojoaque', '0',6220);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pokagon_potawatomi','1483-7','Pokagon Potawatomi', '0',6230);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','polish','2115-4','Polish', '0',6240);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','polynesian','2078-4','Polynesian', '0',6250);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pomo','1464-7','Pomo', '0',6260);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','ponca','1474-6','Ponca', '0',6270);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','poospatuck','1328-4','Poospatuck', '0',6280);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','port_gamble_klallam','1315-1','Port Gamble Klallam', '0',6290);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','port_graham','1988-5','Port Graham', '0',6300);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','port_heiden','1982-8','Port Heiden', '0',6310);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','port_lions','2000-8','Port Lions', '0',6320);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','port_madison','1525-5','Port Madison', '0',6330);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','portage_creek','1948-9','Portage Creek', '0',6340);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','potawatomi','1478-7','Potawatomi', '0',6350);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','powhatan','1487-8','Powhatan', '0',6360);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','prairie_band','1484-5','Prairie Band', '0',6370);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','prairie_island_sioux','1625-3','Prairie Island Sioux', '0',6380);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','principal_creek_indian_nation','1202-1','Principal Creek Indian Nation', '0',6390);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','prior_lake_sioux','1626-1','Prior Lake Sioux', '0',6400);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pueblo','1489-4','Pueblo', '0',6410);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','puget_sound_salish','1518-0','Puget Sound Salish', '0',6420);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','puyallup','1526-3','Puyallup', '0',6430);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','pyramid_lake','1431-6','Pyramid Lake', '0',6440);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','qagan_toyagungin','2019-8','Qagan Toyagungin', '0',6450);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','qawalangin','2020-6','Qawalangin', '0',6460);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','quapaw','1541-2','Quapaw', '0',6470);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','quechan','1730-1','Quechan', '0',6480);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','quileute','1084-3','Quileute', '0',6490);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','quinault','1543-8','Quinault', '0',6500);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','quinhagak','1949-7','Quinhagak', '0',6510);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','ramah_navajo','1385-4','Ramah Navajo', '0',6520);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','rampart','1790-5','Rampart', '0',6530);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','rampough_mountain','1219-5','Rampough Mountain', '0',6540);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','rappahannock','1545-3','Rappahannock', '0',6550);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','red_cliff_chippewa','1141-1','Red Cliff Chippewa', '0',6560);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','red_devil','1950-5','Red Devil', '0',6570);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','red_lake_chippewa','1142-9','Red Lake Chippewa', '0',6580);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','red_wood','1061-1','Red Wood', '0',6590);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','reno-sparks','1547-9','Reno-Sparks', '0',6600);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','rocky_boys_chippewa_cree','1151-0',"Rocky Boy's Chippewa Cree", '0',6610);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','rosebud_sioux','1627-9','Rosebud Sioux', '0',6620);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','round_valley','1549-5','Round Valley', '0',6630);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','ruby','1791-3','Ruby', '0',6640);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','ruby_valley','1593-3','Ruby Valley', '0',6650);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','sac_and_fox','1551-1','Sac and Fox', '0',6660);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','saginaw_chippewa','1143-7','Saginaw Chippewa', '0',6670);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','saipanese','2095-8','Saipanese', '0',6680);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','salamatof','1792-1','Salamatof', '0',6690);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','salinan','1556-0','Salinan', '0',6700);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','salish','1558-6','Salish', '0',6710);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','salish_and_kootenai','1560-2','Salish and Kootenai', '0',6720);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','salt_river_pima-maricopa','1458-9','Salt River Pima-Maricopa', '0',6730);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','samish','1527-1','Samish', '0',6740);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','samoan','2080-0','Samoan', '0',6750);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','san_carlos_apache','1018-1','San Carlos Apache', '0',6760);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','san_felipe','1502-4','San Felipe', '0',6770);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','san_ildefonso','1503-2','San Ildefonso', '0',6780);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','san_juan','1506-5','San Juan', '0',6790);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','san_juan_de','1505-7','San Juan De', '0',6800);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','san_juan_pueblo','1504-0','San Juan Pueblo', '0',6810);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','san_juan_southern_paiute','1432-4','San Juan Southern Paiute', '0',6820);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','san_manual','1574-3','San Manual', '0',6830);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','san_pasqual','1229-4','San Pasqual', '0',6840);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','san_xavier','1656-8','San Xavier', '0',6850);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','sand_hill','1220-3','Sand Hill', '0',6860);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','sand_point','2023-0','Sand Point', '0',6870);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','sandia','1507-3','Sandia', '0',6880);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','sans_arc_sioux','1628-7','Sans Arc Sioux', '0',6890);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','santa_ana','1508-1','Santa Ana', '0',6900);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','santa_clara','1509-9','Santa Clara', '0',6910);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','santa_rosa','1062-9','Santa Rosa', '0',6920);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','santa_rosa_cahuilla','1050-4','Santa Rosa Cahuilla', '0',6930);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','santa_ynez','1163-5','Santa Ynez', '0',6940);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','santa_ysabel','1230-2','Santa Ysabel', '0',6950);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','santee_sioux','1629-5','Santee Sioux', '0',6960);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','santo_domingo','1510-7','Santo Domingo', '0',6970);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','sauk-suiattle','1528-9','Sauk-Suiattle', '0',6980);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','sault_ste_marie_chippewa','1145-2','Sault Ste. Marie Chippewa', '0',6990);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','savoonga','1893-7','Savoonga', '0',7000);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','saxman','1830-9','Saxman', '0',7010);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','scammon_bay','1952-1','Scammon Bay', '0',7020);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','schaghticoke','1562-8','Schaghticoke', '0',7030);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','scott_valley','1564-4','Scott Valley', '0',7040);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','scottish','2116-2','Scottish', '0',7050);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','scotts_valley','1470-4','Scotts Valley', '0',7060);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','selawik','1878-8','Selawik', '0',7070);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','seldovia','1793-9','Seldovia', '0',7080);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','sells','1657-6','Sells', '0',7090);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','seminole','1566-9','Seminole', '0',7100);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','seneca','1290-6','Seneca', '0',7110);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','seneca_nation','1291-4','Seneca Nation', '0',7120);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','seneca-cayuga','1292-2','Seneca-Cayuga', '0',7130);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','serrano','1573-5','Serrano', '0',7140);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','setauket','1329-2','Setauket', '0',7150);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','shageluk','1795-4','Shageluk', '0',7160);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','shaktoolik','1879-6','Shaktoolik', '0',7170);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','shasta','1576-8','Shasta', '0',7180);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','shawnee','1578-4','Shawnee', '0',7190);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','sheldons_point','1953-9',"Sheldon's Point", '0',7200);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','shinnecock','1582-6','Shinnecock', '0',7210);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','shishmaref','1880-4','Shishmaref', '0',7220);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','shoalwater_bay','1584-2','Shoalwater Bay', '0',7230);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','shoshone','1586-7','Shoshone', '0',7240);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','shoshone_paiute','1602-2','Shoshone Paiute', '0',7250);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','shungnak','1881-2','Shungnak', '0',7260);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','siberian_eskimo','1891-1','Siberian Eskimo', '0',7270);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','siberian_yupik','1894-5','Siberian Yupik', '0',7280);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','siletz','1607-1','Siletz', '0',7290);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','singaporean','2051-1','Singaporean', '0',7300);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','sioux','1609-7','Sioux', '0',7310);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','sisseton_sioux','1631-1','Sisseton Sioux', '0',7320);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','sisseton-wahpeton','1630-3','Sisseton-Wahpeton', '0',7330);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','sitka','1831-7','Sitka', '0',7340);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','siuslaw','1643-6','Siuslaw', '0',7350);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','skokomish','1529-7','Skokomish', '0',7360);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','skull_valley','1594-1','Skull Valley', '0',7370);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','skykomish','1530-5','Skykomish', '0',7380);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','slana','1794-7','Slana', '0',7390);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','sleetmute','1954-7','Sleetmute', '0',7400);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','snohomish','1531-3','Snohomish', '0',7410);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','snoqualmie','1532-1','Snoqualmie', '0',7420);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','soboba','1336-7','Soboba', '0',7430);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','sokoagon_chippewa','1146-0','Sokoagon Chippewa', '0',7440);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','solomon','1882-0','Solomon', '0',7450);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','solomon_islander','2103-0','Solomon Islander', '0',7460);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','south_american_indian','1073-6','South American Indian', '0',7470);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','south_fork_shoshone','1595-8','South Fork Shoshone', '0',7480);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','south_naknek','2024-8','South Naknek', '0',7490);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','southeast_alaska','1811-9','Southeast Alaska', '0',7500);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','southeastern_indians','1244-3','Southeastern Indians', '0',7510);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','southern_arapaho','1023-1','Southern Arapaho', '0',7520);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','southern_cheyenne','1104-9','Southern Cheyenne', '0',7530);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','southern_paiute','1433-2','Southern Paiute', '0',7540);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','spanish_american_indian','1074-4','Spanish American Indian', '0',7550);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','spirit_lake_sioux','1632-9','Spirit Lake Sioux', '0',7560);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','spokane','1645-1','Spokane', '0',7570);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','squaxin_island','1533-9','Squaxin Island', '0',7580);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','sri_lankan','2045-3','Sri Lankan', '0',7590);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','st_croix_chippewa','1144-5','St. Croix Chippewa', '0',7600);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','st_george','2021-4','St. George', '0',7610);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','st_marys','1963-8',"St. Mary's", '0',7620);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','st_michael','1951-3','St. Michael', '0',7630);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','st_paul','2022-2','St. Paul', '0',7640);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','standing_rock_sioux','1633-7','Standing Rock Sioux', '0',7650);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','star_clan_of_muscogee_creeks','1203-9','Star Clan of Muscogee Creeks', '0',7660);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','stebbins','1955-4','Stebbins', '0',7670);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','steilacoom','1534-7','Steilacoom', '0',7680);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','stevens','1796-2','Stevens', '0',7690);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','stewart','1647-7','Stewart', '0',7700);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','stillaguamish','1535-4','Stillaguamish', '0',7710);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','stockbridge','1649-3','Stockbridge', '0',7720);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','stony_river','1797-0','Stony River', '0',7730);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','stonyford','1471-2','Stonyford', '0',7740);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','sugpiaq','2002-4','Sugpiaq', '0',7750);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','sulphur_bank','1472-0','Sulphur Bank', '0',7760);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','summit_lake','1434-0','Summit Lake', '0',7770);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','suqpigaq','2004-0','Suqpigaq', '0',7780);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','suquamish','1536-2','Suquamish', '0',7790);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','susanville','1651-9','Susanville', '0',7800);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','susquehanock','1245-0','Susquehanock', '0',7810);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','swinomish','1537-0','Swinomish', '0',7820);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','sycuan','1231-0','Sycuan', '0',7830);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','syrian','2125-3','Syrian', '0',7840);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','table_bluff','1705-3','Table Bluff', '0',7850);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tachi','1719-4','Tachi', '0',7860);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tahitian','2081-8','Tahitian', '0',7870);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','taiwanese','2035-4','Taiwanese', '0',7880);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','takelma','1063-7','Takelma', '0',7890);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','takotna','1798-8','Takotna', '0',7900);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','talakamish','1397-9','Talakamish', '0',7910);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tanacross','1799-6','Tanacross', '0',7920);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tanaina','1800-2','Tanaina', '0',7930);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tanana','1801-0','Tanana', '0',7940);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tanana_chiefs','1802-8','Tanana Chiefs', '0',7950);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','taos','1511-5','Taos', '0',7960);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tatitlek','1969-5','Tatitlek', '0',7970);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tazlina','1803-6','Tazlina', '0',7980);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','telida','1804-4','Telida', '0',7990);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','teller','1883-8','Teller', '0',8000);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','temecula','1338-3','Temecula', '0',8010);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','te-moak_western_shoshone','1596-6','Te-Moak Western Shoshone', '0',8020);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tenakee_springs','1832-5','Tenakee Springs', '0',8030);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tenino','1398-7','Tenino', '0',8040);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tesuque','1512-3','Tesuque', '0',8050);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tetlin','1805-1','Tetlin', '0',8060);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','teton_sioux','1634-5','Teton Sioux', '0',8070);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tewa','1513-1','Tewa', '0',8080);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','texas_kickapoo','1307-8','Texas Kickapoo', '0',8090);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','thai','2046-1','Thai', '0',8100);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','thlopthlocco','1204-7','Thlopthlocco', '0',8110);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tigua','1514-9','Tigua', '0',8120);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tillamook','1399-5','Tillamook', '0',8130);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','timbi-sha_shoshone','1597-4','Timbi-Sha Shoshone', '0',8140);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tlingit','1833-3','Tlingit', '0',8150);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tlingit-haida','1813-5','Tlingit-Haida', '0',8160);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tobagoan','2073-5','Tobagoan', '0',8170);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','togiak','1956-2','Togiak', '0',8180);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tohono_oodham','1653-5',"Tohono O'Odham", '0',8190);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tok','1806-9','Tok', '0',8200);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tokelauan','2083-4','Tokelauan', '0',8210);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','toksook','1957-0','Toksook', '0',8220);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tolowa','1659-2','Tolowa', '0',8230);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tonawanda_seneca','1293-0','Tonawanda Seneca', '0',8240);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tongan','2082-6','Tongan', '0',8250);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tonkawa','1661-8','Tonkawa', '0',8260);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','torres-martinez','1051-2','Torres-Martinez', '0',8270);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','trinidadian','2074-3','Trinidadian', '0',8280);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','trinity','1272-4','Trinity', '0',8290);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tsimshian','1837-4','Tsimshian', '0',8300);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tuckabachee','1205-4','Tuckabachee', '0',8310);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tulalip','1538-8','Tulalip', '0',8320);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tule_river','1720-2','Tule River', '0',8330);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tulukskak','1958-8','Tulukskak', '0',8340);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tunica_biloxi','1246-8','Tunica Biloxi', '0',8350);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tuntutuliak','1959-6','Tuntutuliak', '0',8360);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tununak','1960-4','Tununak', '0',8370);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','turtle_mountain','1147-8','Turtle Mountain', '0',8380);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tuscarora','1294-8','Tuscarora', '0',8390);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tuscola','1096-7','Tuscola', '0',8400);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','twenty-nine_palms','1337-5','Twenty-Nine Palms', '0',8410);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','twin_hills','1961-2','Twin Hills', '0',8420);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','two_kettle_sioux','1635-2','Two Kettle Sioux', '0',8430);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tygh','1663-4','Tygh', '0',8440);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','tyonek','1807-7','Tyonek', '0',8450);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','ugashik','1970-3','Ugashik', '0',8460);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','uintah_ute','1672-5','Uintah Ute', '0',8470);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','umatilla','1665-9','Umatilla', '0',8480);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','umkumiate','1964-6','Umkumiate', '0',8490);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','umpqua','1667-5','Umpqua', '0',8500);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','unalakleet','1884-6','Unalakleet', '0',8510);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','unalaska','2025-5','Unalaska', '0',8520);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','unangan_aleut','2006-5','Unangan Aleut', '0',8530);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','unga','2026-3','Unga', '0',8540);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','united_ketowah_band_of_cheroke','1097-5','United Keetowah Band of Cherokee', '0',8550);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','upper_chinook','1118-9','Upper Chinook', '0',8560);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','upper_sioux','1636-0','Upper Sioux', '0',8570);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','upper_skagit','1539-6','Upper Skagit', '0',8580);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','ute','1670-9','Ute', '0',8590);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','ute_mountain_ute','1673-3','Ute Mountain Ute', '0',8600);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','utu_utu_gwaitu_paiute','1435-7','Utu Utu Gwaitu Paiute', '0',8610);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','venetie','1808-5','Venetie', '0',8620);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','vietnamese','2047-9','Vietnamese', '0',8630);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','waccamaw-siousan','1247-6','Waccamaw-Siousan', '0',8640);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wahpekute_sioux','1637-8','Wahpekute Sioux', '0',8650);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wahpeton_sioux','1638-6','Wahpeton Sioux', '0',8660);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wailaki','1675-8','Wailaki', '0',8670);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wainwright','1885-3','Wainwright', '0',8680);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wakiakum_chinook','1119-7','Wakiakum Chinook', '0',8690);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wales','1886-1','Wales', '0',8700);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','walker_river','1436-5','Walker River', '0',8710);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','walla-walla','1677-4','Walla-Walla', '0',8720);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wampanoag','1679-0','Wampanoag', '0',8730);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wappo','1064-5','Wappo', '0',8740);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','warm_springs','1683-2','Warm Springs', '0',8750);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wascopum','1685-7','Wascopum', '0',8760);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','washakie','1598-2','Washakie', '0',8770);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','washoe','1687-3','Washoe', '0',8780);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wazhaza_sioux','1639-4','Wazhaza Sioux', '0',8790);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wenatchee','1400-1','Wenatchee', '0',8800);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','west_indian','2075-0','West Indian', '0',8810);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','western_cherokee','1098-3','Western Cherokee', '0',8820);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','western_chickahominy','1110-6','Western Chickahominy', '0',8830);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','whilkut','1273-2','Whilkut', '0',8840);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','white_earth','1148-6','White Earth', '0',8860);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','white_mountain','1887-9','White Mountain', '0',8870);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','white_mountain_apache','1019-9','White Mountain Apache', '0',8880);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','white_mountain_inupiat','1888-7','White Mountain Inupiat', '0',8890);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wichita','1692-3','Wichita', '0',8900);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wicomico','1248-4','Wicomico', '0',8910);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','willapa_chinook','1120-5','Willapa Chinook', '0',8920);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wind_river','1694-9','Wind River', '0',8930);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wind_river_arapaho','1024-9','Wind River Arapaho', '0',8940);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wind_river_shoshone','1599-0','Wind River Shoshone', '0',8950);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','winnebago','1696-4','Winnebago', '0',8960);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','winnemucca','1700-4','Winnemucca', '0',8970);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wintun','1702-0','Wintun', '0',8980);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wisconsin_potawatomi','1485-2','Wisconsin Potawatomi', '0',8990);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wiseman','1809-3','Wiseman', '0',9000);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wishram','1121-3','Wishram', '0',9010);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wiyot','1704-6','Wiyot', '0',9020);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wrangell','1834-1','Wrangell', '0',9030);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','wyandotte','1295-5','Wyandotte', '0',9040);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','yahooskin','1401-9','Yahooskin', '0',9050);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','yakama','1707-9','Yakama', '0',9060);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','yakama_cowlitz','1709-5','Yakama Cowlitz', '0',9070);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','yakutat','1835-8','Yakutat', '0',9080);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','yana','1065-2','Yana', '0',9090);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','yankton_sioux','1640-2','Yankton Sioux', '0',9100);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','yanktonai_sioux','1641-0','Yanktonai Sioux', '0',9110);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','yapese','2098-2','Yapese', '0',9120);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','yaqui','1711-1','Yaqui', '0',9130);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','yavapai','1731-9','Yavapai', '0',9140);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','yavapai_apache','1715-2','Yavapai Apache', '0',9150);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','yerington_paiute','1437-3','Yerington Paiute', '0',9160);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','yokuts','1717-8','Yokuts', '0',9170);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','yomba','1600-6','Yomba', '0',9180);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','yuchi','1722-8','Yuchi', '0',9190);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','yuki','1066-0','Yuki', '0',9200);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','yuman','1724-4','Yuman', '0',9210);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','yupik_eskimo','1896-0','Yupik Eskimo', '0',9220);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','yurok','1732-7','Yurok', '0',9230);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','zairean','2066-9','Zairean', '0',9240);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','zia','1515-6','Zia', '0',9250);
-INSERT INTO list_options (list_id, option_id, notes, title, activity, seq) VALUES ('race','zuni','1516-4','Zuni', '0',9260);
+-- Race List
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('lists','race','Race',1,0,0,'',NULL,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','declne_to_specfy','Declined To Specify',0,0,0,'',NULL,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','amer_ind_or_alaska_native','American Indian or Alaska Native',10,0,0,'','1002-5',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','Asian','Asian',20,0,0,'','2028-9',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','black_or_afri_amer','Black or African American',30,0,0,'','2054-5',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','native_hawai_or_pac_island','Native Hawaiian or Other Pacific Islander',40,0,0,'','2076-8',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','white','White',50,0,0,'','2106-3',1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','abenaki','Abenaki',60,0,0,'','1006-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','absentee_shawnee','Absentee Shawnee',70,0,0,'','1579-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','acoma','Acoma',80,0,0,'','1490-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','afghanistani','Afghanistani',90,0,0,'','2126-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','african','African',100,0,0,'','2060-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','african_american','African American',110,0,0,'','2058-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','agdaagux','Agdaagux',120,0,0,'','1994-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','agua_caliente','Agua Caliente',130,0,0,'','1212-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','agua_caliente_cahuilla','Agua Caliente Cahuilla',140,0,0,'','1045-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','ahtna','Ahtna',150,0,0,'','1740-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','ak-chin','Ak-Chin',160,0,0,'','1654-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','akhiok','Akhiok',170,0,0,'','1993-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','akiachak','Akiachak',180,0,0,'','1897-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','akiak','Akiak',190,0,0,'','1898-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','akutan','Akutan',200,0,0,'','2007-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','alabama_coushatta','Alabama Coushatta',210,0,0,'','1187-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','alabama_creek','Alabama Creek',220,0,0,'','1194-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','alabama_quassarte','Alabama Quassarte',230,0,0,'','1195-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','alakanuk','Alakanuk',240,0,0,'','1899-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','alamo_navajo','Alamo Navajo',250,0,0,'','1383-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','alanvik','Alanvik',260,0,0,'','1744-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','alaska_indian','Alaska Indian',270,0,0,'','1737-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','alaska_native','Alaska Native',280,0,0,'','1735-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','alaskan_athabascan','Alaskan Athabascan',290,0,0,'','1739-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','alatna','Alatna',300,0,0,'','1741-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','aleknagik','Aleknagik',310,0,0,'','1900-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','aleut','Aleut',320,0,0,'','1966-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','aleut_corporation','Aleut Corporation',330,0,0,'','2008-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','aleutian','Aleutian',340,0,0,'','2009-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','aleutian_islander','Aleutian Islander',350,0,0,'','2010-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','alexander','Alexander',360,0,0,'','1742-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','algonquian','Algonquian',370,0,0,'','1008-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','allakaket','Allakaket',380,0,0,'','1743-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','allen_canyon','Allen Canyon',390,0,0,'','1671-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','alpine','Alpine',400,0,0,'','1688-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','alsea','Alsea',410,0,0,'','1392-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','alutiiq_aleut','Alutiiq Aleut',420,0,0,'','1968-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','ambler','Ambler',430,0,0,'','1845-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','american_indian','American Indian',440,0,0,'','1004-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','anaktuvuk','Anaktuvuk',460,0,0,'','1846-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','anaktuvuk_pass','Anaktuvuk Pass',470,0,0,'','1847-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','andreafsky','Andreafsky',480,0,0,'','1901-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','angoon','Angoon',490,0,0,'','1814-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','aniak','Aniak',500,0,0,'','1902-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','anvik','Anvik',510,0,0,'','1745-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','apache','Apache',520,0,0,'','1010-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','arab','Arab',530,0,0,'','2129-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','arapaho','Arapaho',540,0,0,'','1021-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','arctic','Arctic',550,0,0,'','1746-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','arctic_slope_corporation','Arctic Slope Corporation',560,0,0,'','1849-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','arctic_slope_inupiat','Arctic Slope Inupiat',570,0,0,'','1848-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','arikara','Arikara',580,0,0,'','1026-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','arizona_tewa','Arizona Tewa',590,0,0,'','1491-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','armenian','Armenian',600,0,0,'','2109-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','aroostook','Aroostook',610,0,0,'','1366-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','asian_indian','Asian Indian',630,0,0,'','2029-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','assiniboine','Assiniboine',640,0,0,'','1028-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','assiniboine_sioux','Assiniboine Sioux',650,0,0,'','1030-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','assyrian','Assyrian',660,0,0,'','2119-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','atka','Atka',670,0,0,'','2011-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','atmautluak','Atmautluak',680,0,0,'','1903-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','atqasuk','Atqasuk',690,0,0,'','1850-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','atsina','Atsina',700,0,0,'','1265-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','attacapa','Attacapa',710,0,0,'','1234-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','augustine','Augustine',720,0,0,'','1046-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','bad_river','Bad River',730,0,0,'','1124-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','bahamian','Bahamian',740,0,0,'','2067-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','bangladeshi','Bangladeshi',750,0,0,'','2030-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','bannock','Bannock',760,0,0,'','1033-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','barbadian','Barbadian',770,0,0,'','2068-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','barrio_libre','Barrio Libre',780,0,0,'','1712-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','barrow','Barrow',790,0,0,'','1851-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','battle_mountain','Battle Mountain',800,0,0,'','1587-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','bay_mills_chippewa','Bay Mills Chippewa',810,0,0,'','1125-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','beaver','Beaver',820,0,0,'','1747-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','belkofski','Belkofski',830,0,0,'','2012-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','bering_straits_inupiat','Bering Straits Inupiat',840,0,0,'','1852-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','bethel','Bethel',850,0,0,'','1904-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','bhutanese','Bhutanese',860,0,0,'','2031-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','big_cypress','Big Cypress',870,0,0,'','1567-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','bill_moores_slough','Bill Moore\'s Slough',880,0,0,'','1905-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','biloxi','Biloxi',890,0,0,'','1235-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','birch_creek','Birch Creek',900,0,0,'','1748-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','bishop','Bishop',910,0,0,'','1417-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','black','Black',920,0,0,'','2056-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','blackfeet','Blackfeet',940,0,0,'','1035-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','blackfoot_sioux','Blackfoot Sioux',950,0,0,'','1610-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','bois_forte','Bois Forte',960,0,0,'','1126-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','botswanan','Botswanan',970,0,0,'','2061-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','brevig_mission','Brevig Mission',980,0,0,'','1853-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','bridgeport','Bridgeport',990,0,0,'','1418-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','brighton','Brighton',1000,0,0,'','1568-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','bristol_bay_aleut','Bristol Bay Aleut',1010,0,0,'','1972-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','bristol_bay_yupik','Bristol Bay Yupik',1020,0,0,'','1906-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','brotherton','Brotherton',1030,0,0,'','1037-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','brule_sioux','Brule Sioux',1040,0,0,'','1611-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','buckland','Buckland',1050,0,0,'','1854-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','burmese','Burmese',1060,0,0,'','2032-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','burns_paiute','Burns Paiute',1070,0,0,'','1419-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','burt_lake_band','Burt Lake Band',1080,0,0,'','1039-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','burt_lake_chippewa','Burt Lake Chippewa',1090,0,0,'','1127-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','burt_lake_ottawa','Burt Lake Ottawa',1100,0,0,'','1412-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cabazon','Cabazon',1110,0,0,'','1047-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','caddo','Caddo',1120,0,0,'','1041-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cahto','Cahto',1130,0,0,'','1054-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cahuilla','Cahuilla',1140,0,0,'','1044-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','california_tribes','California Tribes',1150,0,0,'','1053-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','calista_yupik','Calista Yupik',1160,0,0,'','1907-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cambodian','Cambodian',1170,0,0,'','2033-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','campo','Campo',1180,0,0,'','1223-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','canadian_latinamerican_indian','Canadian and Latin American Indian',1190,0,0,'','1068-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','canadian_indian','Canadian Indian',1200,0,0,'','1069-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','canoncito_navajo','Canoncito Navajo',1210,0,0,'','1384-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cantwell','Cantwell',1220,0,0,'','1749-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','capitan_grande','Capitan Grande',1230,0,0,'','1224-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','carolinian','Carolinian',1240,0,0,'','2092-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','carson','Carson',1250,0,0,'','1689-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','catawba','Catawba',1260,0,0,'','1076-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cayuga','Cayuga',1270,0,0,'','1286-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cayuse','Cayuse',1280,0,0,'','1078-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cedarville','Cedarville',1290,0,0,'','1420-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','celilo','Celilo',1300,0,0,'','1393-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','central_american_indian','Central American Indian',1310,0,0,'','1070-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tlingit_and_haida_tribes','Central Council of Tlingit and Haida Tribes',1320,0,0,'','1815-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','central_pomo','Central Pomo',1330,0,0,'','1465-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chalkyitsik','Chalkyitsik',1340,0,0,'','1750-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chamorro','Chamorro',1350,0,0,'','2088-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chefornak','Chefornak',1360,0,0,'','1908-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chehalis','Chehalis',1370,0,0,'','1080-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chemakuan','Chemakuan',1380,0,0,'','1082-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chemehuevi','Chemehuevi',1390,0,0,'','1086-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chenega','Chenega',1400,0,0,'','1985-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cherokee','Cherokee',1410,0,0,'','1088-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cherokee_alabama','Cherokee Alabama',1420,0,0,'','1089-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cherokee_shawnee','Cherokee Shawnee',1430,0,0,'','1100-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cherokees_of_northeast_alabama','Cherokees of Northeast Alabama',1440,0,0,'','1090-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cherokees_of_southeast_alabama','Cherokees of Southeast Alabama',1450,0,0,'','1091-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chevak','Chevak',1460,0,0,'','1909-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cheyenne','Cheyenne',1470,0,0,'','1102-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cheyenne_river_sioux','Cheyenne River Sioux',1480,0,0,'','1612-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cheyenne-arapaho','Cheyenne-Arapaho',1490,0,0,'','1106-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chickahominy','Chickahominy',1500,0,0,'','1108-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chickaloon','Chickaloon',1510,0,0,'','1751-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chickasaw','Chickasaw',1520,0,0,'','1112-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chignik','Chignik',1530,0,0,'','1973-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chignik_lagoon','Chignik Lagoon',1540,0,0,'','2013-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chignik_lake','Chignik Lake',1550,0,0,'','1974-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chilkat','Chilkat',1560,0,0,'','1816-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chilkoot','Chilkoot',1570,0,0,'','1817-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chimariko','Chimariko',1580,0,0,'','1055-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chinese','Chinese',1590,0,0,'','2034-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chinik','Chinik',1600,0,0,'','1855-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chinook','Chinook',1610,0,0,'','1114-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chippewa','Chippewa',1620,0,0,'','1123-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chippewa_cree','Chippewa Cree',1630,0,0,'','1150-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chiricahua','Chiricahua',1640,0,0,'','1011-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chistochina','Chistochina',1650,0,0,'','1752-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chitimacha','Chitimacha',1660,0,0,'','1153-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chitina','Chitina',1670,0,0,'','1753-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','choctaw','Choctaw',1680,0,0,'','1155-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chuathbaluk','Chuathbaluk',1690,0,0,'','1910-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chugach_aleut','Chugach Aleut',1700,0,0,'','1984-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chugach_corporation','Chugach Corporation',1710,0,0,'','1986-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chukchansi','Chukchansi',1720,0,0,'','1718-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chumash','Chumash',1730,0,0,'','1162-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','chuukese','Chuukese',1740,0,0,'','2097-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','circle','Circle',1750,0,0,'','1754-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','citizen_band_potawatomi','Citizen Band Potawatomi',1760,0,0,'','1479-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','clarks_point','Clark\'s Point',1770,0,0,'','1911-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','clatsop','Clatsop',1780,0,0,'','1115-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','clear_lake','Clear Lake',1790,0,0,'','1165-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','clifton_choctaw','Clifton Choctaw',1800,0,0,'','1156-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','coast_miwok','Coast Miwok',1810,0,0,'','1056-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','coast_yurok','Coast Yurok',1820,0,0,'','1733-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cochiti','Cochiti',1830,0,0,'','1492-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cocopah','Cocopah',1840,0,0,'','1725-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','coeur_dalene','Coeur D\'Alene',1850,0,0,'','1167-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','coharie','Coharie',1860,0,0,'','1169-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','colorado_river','Colorado River',1870,0,0,'','1171-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','columbia','Columbia',1880,0,0,'','1394-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','columbia_river_chinook','Columbia River Chinook',1890,0,0,'','1116-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','colville','Colville',1900,0,0,'','1173-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','comanche','Comanche',1910,0,0,'','1175-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cook_inlet','Cook Inlet',1920,0,0,'','1755-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','coos','Coos',1930,0,0,'','1180-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','coos_lower_umpqua_siuslaw','Coos, Lower Umpqua, Siuslaw',1940,0,0,'','1178-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','copper_center','Copper Center',1950,0,0,'','1756-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','copper_river','Copper River',1960,0,0,'','1757-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','coquilles','Coquilles',1970,0,0,'','1182-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','costanoan','Costanoan',1980,0,0,'','1184-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','council','Council',1990,0,0,'','1856-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','coushatta','Coushatta',2000,0,0,'','1186-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cow_creek_umpqua','Cow Creek Umpqua',2010,0,0,'','1668-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cowlitz','Cowlitz',2020,0,0,'','1189-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','craig','Craig',2030,0,0,'','1818-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cree','Cree',2040,0,0,'','1191-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','creek','Creek',2050,0,0,'','1193-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','croatan','Croatan',2060,0,0,'','1207-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','crooked_creek','Crooked Creek',2070,0,0,'','1912-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','crow','Crow',2080,0,0,'','1209-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','crow_creek_sioux','Crow Creek Sioux',2090,0,0,'','1613-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cupeno','Cupeno',2100,0,0,'','1211-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','cuyapaipe','Cuyapaipe',2110,0,0,'','1225-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','dakota_sioux','Dakota Sioux',2120,0,0,'','1614-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','deering','Deering',2130,0,0,'','1857-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','delaware','Delaware',2140,0,0,'','1214-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','diegueno','Diegueno',2150,0,0,'','1222-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','digger','Digger',2160,0,0,'','1057-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','dillingham','Dillingham',2170,0,0,'','1913-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','dominica_islander','Dominica Islander',2180,0,0,'','2070-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','dominican','Dominican',2190,0,0,'','2069-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','dot_lake','Dot Lake',2200,0,0,'','1758-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','douglas','Douglas',2210,0,0,'','1819-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','doyon','Doyon',2220,0,0,'','1759-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','dresslerville','Dresslerville',2230,0,0,'','1690-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','dry_creek','Dry Creek',2240,0,0,'','1466-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','duck_valley','Duck Valley',2250,0,0,'','1603-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','duckwater','Duckwater',2260,0,0,'','1588-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','duwamish','Duwamish',2270,0,0,'','1519-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','eagle','Eagle',2280,0,0,'','1760-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','eastern_cherokee','Eastern Cherokee',2290,0,0,'','1092-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','eastern_chickahominy','Eastern Chickahominy',2300,0,0,'','1109-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','eastern_creek','Eastern Creek',2310,0,0,'','1196-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','eastern_delaware','Eastern Delaware',2320,0,0,'','1215-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','eastern_muscogee','Eastern Muscogee',2330,0,0,'','1197-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','eastern_pomo','Eastern Pomo',2340,0,0,'','1467-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','eastern_shawnee','Eastern Shawnee',2350,0,0,'','1580-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','eastern_tribes','Eastern Tribes',2360,0,0,'','1233-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','echota_cherokee','Echota Cherokee',2370,0,0,'','1093-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','eek','Eek',2380,0,0,'','1914-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','egegik','Egegik',2390,0,0,'','1975-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','egyptian','Egyptian',2400,0,0,'','2120-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','eklutna','Eklutna',2410,0,0,'','1761-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','ekuk','Ekuk',2420,0,0,'','1915-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','ekwok','Ekwok',2430,0,0,'','1916-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','elim','Elim',2440,0,0,'','1858-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','elko','Elko',2450,0,0,'','1589-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','ely','Ely',2460,0,0,'','1590-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','emmonak','Emmonak',2470,0,0,'','1917-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','english','English',2480,0,0,'','2110-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','english_bay','English Bay',2490,0,0,'','1987-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','eskimo','Eskimo',2500,0,0,'','1840-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','esselen','Esselen',2510,0,0,'','1250-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','ethiopian','Ethiopian',2520,0,0,'','2062-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','etowah_cherokee','Etowah Cherokee',2530,0,0,'','1094-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','european','European',2540,0,0,'','2108-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','evansville','Evansville',2550,0,0,'','1762-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','eyak','Eyak',2560,0,0,'','1990-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','fallon','Fallon',2570,0,0,'','1604-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','false_pass','False Pass',2580,0,0,'','2015-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','fijian','Fijian',2590,0,0,'','2101-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','filipino','Filipino',2600,0,0,'','2036-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','flandreau_santee','Flandreau Santee',2610,0,0,'','1615-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','florida_seminole','Florida Seminole',2620,0,0,'','1569-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','fond_du_lac','Fond du Lac',2630,0,0,'','1128-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','forest_county','Forest County',2640,0,0,'','1480-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','fort_belknap','Fort Belknap',2650,0,0,'','1252-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','fort_berthold','Fort Berthold',2660,0,0,'','1254-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','fort_bidwell','Fort Bidwell',2670,0,0,'','1421-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','fort_hall','Fort Hall',2680,0,0,'','1258-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','fort_independence','Fort Independence',2690,0,0,'','1422-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','fort_mcdermitt','Fort McDermitt',2700,0,0,'','1605-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','fort_mcdowell','Fort Mcdowell',2710,0,0,'','1256-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','fort_peck','Fort Peck',2720,0,0,'','1616-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','fort_peck_assiniboine_sioux','Fort Peck Assiniboine Sioux',2730,0,0,'','1031-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','fort_sill_apache','Fort Sill Apache',2740,0,0,'','1012-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','fort_yukon','Fort Yukon',2750,0,0,'','1763-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','french','French',2760,0,0,'','2111-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','french_american_indian','French American Indian',2770,0,0,'','1071-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','gabrieleno','Gabrieleno',2780,0,0,'','1260-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','gakona','Gakona',2790,0,0,'','1764-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','galena','Galena',2800,0,0,'','1765-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','gambell','Gambell',2810,0,0,'','1892-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','gay_head_wampanoag','Gay Head Wampanoag',2820,0,0,'','1680-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','georgetown_eastern_tribes','Georgetown (Eastern Tribes)',2830,0,0,'','1236-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','georgetown_yupik-eskimo','Georgetown (Yupik-Eskimo)',2840,0,0,'','1962-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','german','German',2850,0,0,'','2112-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','gila_bend','Gila Bend',2860,0,0,'','1655-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','gila_river_pima-maricopa','Gila River Pima-Maricopa',2870,0,0,'','1457-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','golovin','Golovin',2880,0,0,'','1859-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','goodnews_bay','Goodnews Bay',2890,0,0,'','1918-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','goshute','Goshute',2900,0,0,'','1591-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','grand_portage','Grand Portage',2910,0,0,'','1129-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','grand_ronde','Grand Ronde',2920,0,0,'','1262-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','grand_traverse_band','Grand Traverse Band of Ottawa/Chippewa',2930,0,0,'','1130-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','grayling','Grayling',2940,0,0,'','1766-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','greenland_eskimo','Greenland Eskimo',2950,0,0,'','1842-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','gros_ventres','Gros Ventres',2960,0,0,'','1264-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','guamanian','Guamanian',2970,0,0,'','2087-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','guamanian_or_chamorro','Guamanian or Chamorro',2980,0,0,'','2086-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','gulkana','Gulkana',2990,0,0,'','1767-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','haida','Haida',3000,0,0,'','1820-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','haitian','Haitian',3010,0,0,'','2071-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','haliwa','Haliwa',3020,0,0,'','1267-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','hannahville','Hannahville',3030,0,0,'','1481-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','havasupai','Havasupai',3040,0,0,'','1726-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','healy_lake','Healy Lake',3050,0,0,'','1768-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','hidatsa','Hidatsa',3060,0,0,'','1269-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','hmong','Hmong',3070,0,0,'','2037-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','ho-chunk','Ho-chunk',3080,0,0,'','1697-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','hoh','Hoh',3090,0,0,'','1083-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','hollywood_seminole','Hollywood Seminole',3100,0,0,'','1570-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','holy_cross','Holy Cross',3110,0,0,'','1769-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','hoonah','Hoonah',3120,0,0,'','1821-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','hoopa','Hoopa',3130,0,0,'','1271-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','hoopa_extension','Hoopa Extension',3140,0,0,'','1275-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','hooper_bay','Hooper Bay',3150,0,0,'','1919-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','hopi','Hopi',3160,0,0,'','1493-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','houma','Houma',3170,0,0,'','1277-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','hualapai','Hualapai',3180,0,0,'','1727-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','hughes','Hughes',3190,0,0,'','1770-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','huron_potawatomi','Huron Potawatomi',3200,0,0,'','1482-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','huslia','Huslia',3210,0,0,'','1771-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','hydaburg','Hydaburg',3220,0,0,'','1822-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','igiugig','Igiugig',3230,0,0,'','1976-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','iliamna','Iliamna',3240,0,0,'','1772-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','illinois_miami','Illinois Miami',3250,0,0,'','1359-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','inaja-cosmit','Inaja-Cosmit',3260,0,0,'','1279-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','inalik_diomede','Inalik Diomede',3270,0,0,'','1860-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','indian_township','Indian Township',3280,0,0,'','1442-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','indiana_miami','Indiana Miami',3290,0,0,'','1360-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','indonesian','Indonesian',3300,0,0,'','2038-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','inupiaq','Inupiaq',3310,0,0,'','1861-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','inupiat_eskimo','Inupiat Eskimo',3320,0,0,'','1844-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','iowa','Iowa',3330,0,0,'','1281-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','iowa_of_kansas-nebraska','Iowa of Kansas-Nebraska',3340,0,0,'','1282-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','iowa_of_oklahoma','Iowa of Oklahoma',3350,0,0,'','1283-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','iowa_sac_and_fox','Iowa Sac and Fox',3360,0,0,'','1552-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','iqurmuit_russian_mission','Iqurmuit (Russian Mission)',3370,0,0,'','1920-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','iranian','Iranian',3380,0,0,'','2121-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','iraqi','Iraqi',3390,0,0,'','2122-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','irish','Irish',3400,0,0,'','2113-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','iroquois','Iroquois',3410,0,0,'','1285-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','isleta','Isleta',3420,0,0,'','1494-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','israeili','Israeili',3430,0,0,'','2127-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','italian','Italian',3440,0,0,'','2114-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','ivanof_bay','Ivanof Bay',3450,0,0,'','1977-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','iwo_jiman','Iwo Jiman',3460,0,0,'','2048-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','jamaican','Jamaican',3470,0,0,'','2072-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','jamestown','Jamestown',3480,0,0,'','1313-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','japanese','Japanese',3490,0,0,'','2039-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','jemez','Jemez',3500,0,0,'','1495-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','jena_choctaw','Jena Choctaw',3510,0,0,'','1157-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','jicarilla_apache','Jicarilla Apache',3520,0,0,'','1013-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','juaneno','Juaneno',3530,0,0,'','1297-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kaibab','Kaibab',3540,0,0,'','1423-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kake','Kake',3550,0,0,'','1823-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kaktovik','Kaktovik',3560,0,0,'','1862-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kalapuya','Kalapuya',3570,0,0,'','1395-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kalispel','Kalispel',3580,0,0,'','1299-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kalskag','Kalskag',3590,0,0,'','1921-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kaltag','Kaltag',3600,0,0,'','1773-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','karluk','Karluk',3610,0,0,'','1995-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','karuk','Karuk',3620,0,0,'','1301-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kasaan','Kasaan',3630,0,0,'','1824-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kashia','Kashia',3640,0,0,'','1468-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kasigluk','Kasigluk',3650,0,0,'','1922-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kathlamet','Kathlamet',3660,0,0,'','1117-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kaw','Kaw',3670,0,0,'','1303-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kawaiisu','Kawaiisu',3680,0,0,'','1058-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kawerak','Kawerak',3690,0,0,'','1863-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kenaitze','Kenaitze',3700,0,0,'','1825-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','keres','Keres',3710,0,0,'','1496-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kern_river','Kern River',3720,0,0,'','1059-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','ketchikan','Ketchikan',3730,0,0,'','1826-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','keweenaw','Keweenaw',3740,0,0,'','1131-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kialegee','Kialegee',3750,0,0,'','1198-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kiana','Kiana',3760,0,0,'','1864-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kickapoo','Kickapoo',3770,0,0,'','1305-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kikiallus','Kikiallus',3780,0,0,'','1520-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','king_cove','King Cove',3790,0,0,'','2014-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','king_salmon','King Salmon',3800,0,0,'','1978-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kiowa','Kiowa',3810,0,0,'','1309-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kipnuk','Kipnuk',3820,0,0,'','1923-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kiribati','Kiribati',3830,0,0,'','2096-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kivalina','Kivalina',3840,0,0,'','1865-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','klallam','Klallam',3850,0,0,'','1312-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','klamath','Klamath',3860,0,0,'','1317-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','klawock','Klawock',3870,0,0,'','1827-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kluti_kaah','Kluti Kaah',3880,0,0,'','1774-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','knik','Knik',3890,0,0,'','1775-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kobuk','Kobuk',3900,0,0,'','1866-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kodiak','Kodiak',3910,0,0,'','1996-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kokhanok','Kokhanok',3920,0,0,'','1979-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','koliganek','Koliganek',3930,0,0,'','1924-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kongiganak','Kongiganak',3940,0,0,'','1925-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','koniag_aleut','Koniag Aleut',3950,0,0,'','1992-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','konkow','Konkow',3960,0,0,'','1319-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kootenai','Kootenai',3970,0,0,'','1321-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','korean','Korean',3980,0,0,'','2040-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kosraean','Kosraean',3990,0,0,'','2093-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kotlik','Kotlik',4000,0,0,'','1926-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kotzebue','Kotzebue',4010,0,0,'','1867-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','koyuk','Koyuk',4020,0,0,'','1868-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','koyukuk','Koyukuk',4030,0,0,'','1776-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kwethluk','Kwethluk',4040,0,0,'','1927-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kwigillingok','Kwigillingok',4050,0,0,'','1928-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','kwiguk','Kwiguk',4060,0,0,'','1869-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','la_jolla','La Jolla',4070,0,0,'','1332-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','la_posta','La Posta',4080,0,0,'','1226-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','lac_courte_oreilles','Lac Courte Oreilles',4090,0,0,'','1132-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','lac_du_flambeau','Lac du Flambeau',4100,0,0,'','1133-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','lac_vieux_desert_chippewa','Lac Vieux Desert Chippewa',4110,0,0,'','1134-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','laguna','Laguna',4120,0,0,'','1497-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','lake_minchumina','Lake Minchumina',4130,0,0,'','1777-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','lake_superior','Lake Superior',4140,0,0,'','1135-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','lake_traverse_sioux','Lake Traverse Sioux',4150,0,0,'','1617-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','laotian','Laotian',4160,0,0,'','2041-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','larsen_bay','Larsen Bay',4170,0,0,'','1997-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','las_vegas','Las Vegas',4180,0,0,'','1424-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','lassik','Lassik',4190,0,0,'','1323-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','lebanese','Lebanese',4200,0,0,'','2123-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','leech_lake','Leech Lake',4210,0,0,'','1136-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','lenni-lenape','Lenni-Lenape',4220,0,0,'','1216-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','levelock','Levelock',4230,0,0,'','1929-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','liberian','Liberian',4240,0,0,'','2063-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','lime','Lime',4250,0,0,'','1778-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','lipan_apache','Lipan Apache',4260,0,0,'','1014-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','little_shell_chippewa','Little Shell Chippewa',4270,0,0,'','1137-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','lone_pine','Lone Pine',4280,0,0,'','1425-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','long_island','Long Island',4290,0,0,'','1325-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','los_coyotes','Los Coyotes',4300,0,0,'','1048-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','lovelock','Lovelock',4310,0,0,'','1426-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','lower_brule_sioux','Lower Brule Sioux',4320,0,0,'','1618-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','lower_elwha','Lower Elwha',4330,0,0,'','1314-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','lower_kalskag','Lower Kalskag',4340,0,0,'','1930-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','lower_muscogee','Lower Muscogee',4350,0,0,'','1199-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','lower_sioux','Lower Sioux',4360,0,0,'','1619-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','lower_skagit','Lower Skagit',4370,0,0,'','1521-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','luiseno','Luiseno',4380,0,0,'','1331-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','lumbee','Lumbee',4390,0,0,'','1340-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','lummi','Lummi',4400,0,0,'','1342-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','machis_lower_creek_indian','Machis Lower Creek Indian',4410,0,0,'','1200-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','madagascar','Madagascar',4420,0,0,'','2052-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','maidu','Maidu',4430,0,0,'','1344-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','makah','Makah',4440,0,0,'','1348-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','malaysian','Malaysian',4450,0,0,'','2042-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','maldivian','Maldivian',4460,0,0,'','2049-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','malheur_paiute','Malheur Paiute',4470,0,0,'','1427-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','maliseet','Maliseet',4480,0,0,'','1350-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mandan','Mandan',4490,0,0,'','1352-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','manley_hot_springs','Manley Hot Springs',4500,0,0,'','1780-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','manokotak','Manokotak',4510,0,0,'','1931-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','manzanita','Manzanita',4520,0,0,'','1227-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mariana_islander','Mariana Islander',4530,0,0,'','2089-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','maricopa','Maricopa',4540,0,0,'','1728-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','marshall','Marshall',4550,0,0,'','1932-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','marshallese','Marshallese',4560,0,0,'','2090-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','marshantucket_pequot','Marshantucket Pequot',4570,0,0,'','1454-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','marys_igloo','Mary\'s Igloo',4580,0,0,'','1889-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mashpee_wampanoag','Mashpee Wampanoag',4590,0,0,'','1681-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','matinecock','Matinecock',4600,0,0,'','1326-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mattaponi','Mattaponi',4610,0,0,'','1354-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mattole','Mattole',4620,0,0,'','1060-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mauneluk_inupiat','Mauneluk Inupiat',4630,0,0,'','1870-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mcgrath','Mcgrath',4640,0,0,'','1779-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mdewakanton_sioux','Mdewakanton Sioux',4650,0,0,'','1620-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mekoryuk','Mekoryuk',4660,0,0,'','1933-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','melanesian','Melanesian',4670,0,0,'','2100-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','menominee','Menominee',4680,0,0,'','1356-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mentasta_lake','Mentasta Lake',4690,0,0,'','1781-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mesa_grande','Mesa Grande',4700,0,0,'','1228-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mescalero_apache','Mescalero Apache',4710,0,0,'','1015-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','metlakatla','Metlakatla',4720,0,0,'','1838-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mexican_american_indian','Mexican American Indian',4730,0,0,'','1072-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','miami','Miami',4740,0,0,'','1358-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','miccosukee','Miccosukee',4750,0,0,'','1363-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','michigan_ottawa','Michigan Ottawa',4760,0,0,'','1413-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','micmac','Micmac',4770,0,0,'','1365-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','micronesian','Micronesian',4780,0,0,'','2085-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','middle_eastern_north_african','Middle Eastern or North African',4790,0,0,'','2118-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mille_lacs','Mille Lacs',4800,0,0,'','1138-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','miniconjou','Miniconjou',4810,0,0,'','1621-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','minnesota_chippewa','Minnesota Chippewa',4820,0,0,'','1139-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','minto','Minto',4830,0,0,'','1782-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mission_indians','Mission Indians',4840,0,0,'','1368-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mississippi_choctaw','Mississippi Choctaw',4850,0,0,'','1158-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','missouri_sac_and_fox','Missouri Sac and Fox',4860,0,0,'','1553-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','miwok','Miwok',4870,0,0,'','1370-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','moapa','Moapa',4880,0,0,'','1428-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','modoc','Modoc',4890,0,0,'','1372-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mohave','Mohave',4900,0,0,'','1729-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mohawk','Mohawk',4910,0,0,'','1287-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mohegan','Mohegan',4920,0,0,'','1374-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','molala','Molala',4930,0,0,'','1396-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mono','Mono',4940,0,0,'','1376-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','montauk','Montauk',4950,0,0,'','1327-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','moor','Moor',4960,0,0,'','1237-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','morongo','Morongo',4970,0,0,'','1049-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mountain_maidu','Mountain Maidu',4980,0,0,'','1345-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mountain_village','Mountain Village',4990,0,0,'','1934-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','mowa_band_of_choctaw','Mowa Band of Choctaw',5000,0,0,'','1159-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','muckleshoot','Muckleshoot',5010,0,0,'','1522-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','munsee','Munsee',5020,0,0,'','1217-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','naknek','Naknek',5030,0,0,'','1935-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nambe','Nambe',5040,0,0,'','1498-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','namibian','Namibian',5050,0,0,'','2064-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nana_inupiat','Nana Inupiat',5060,0,0,'','1871-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nansemond','Nansemond',5070,0,0,'','1238-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nanticoke','Nanticoke',5080,0,0,'','1378-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','napakiak','Napakiak',5090,0,0,'','1937-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','napaskiak','Napaskiak',5100,0,0,'','1938-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','napaumute','Napaumute',5110,0,0,'','1936-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','narragansett','Narragansett',5120,0,0,'','1380-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','natchez','Natchez',5130,0,0,'','1239-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','native_hawaiian','Native Hawaiian',5140,0,0,'','2079-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nausu_waiwash','Nausu Waiwash',5160,0,0,'','1240-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','navajo','Navajo',5170,0,0,'','1382-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nebraska_ponca','Nebraska Ponca',5180,0,0,'','1475-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nebraska_winnebago','Nebraska Winnebago',5190,0,0,'','1698-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nelson_lagoon','Nelson Lagoon',5200,0,0,'','2016-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nenana','Nenana',5210,0,0,'','1783-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nepalese','Nepalese',5220,0,0,'','2050-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','new_hebrides','New Hebrides',5230,0,0,'','2104-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','new_stuyahok','New Stuyahok',5240,0,0,'','1940-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','newhalen','Newhalen',5250,0,0,'','1939-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','newtok','Newtok',5260,0,0,'','1941-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nez_perce','Nez Perce',5270,0,0,'','1387-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nigerian','Nigerian',5280,0,0,'','2065-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nightmute','Nightmute',5290,0,0,'','1942-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nikolai','Nikolai',5300,0,0,'','1784-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nikolski','Nikolski',5310,0,0,'','2017-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','ninilchik','Ninilchik',5320,0,0,'','1785-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nipmuc','Nipmuc',5330,0,0,'','1241-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nishinam','Nishinam',5340,0,0,'','1346-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nisqually','Nisqually',5350,0,0,'','1523-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','noatak','Noatak',5360,0,0,'','1872-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nomalaki','Nomalaki',5370,0,0,'','1389-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nome','Nome',5380,0,0,'','1873-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nondalton','Nondalton',5390,0,0,'','1786-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nooksack','Nooksack',5400,0,0,'','1524-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','noorvik','Noorvik',5410,0,0,'','1874-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','northern_arapaho','Northern Arapaho',5420,0,0,'','1022-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','northern_cherokee','Northern Cherokee',5430,0,0,'','1095-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','northern_cheyenne','Northern Cheyenne',5440,0,0,'','1103-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','northern_paiute','Northern Paiute',5450,0,0,'','1429-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','northern_pomo','Northern Pomo',5460,0,0,'','1469-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','northway','Northway',5470,0,0,'','1787-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','northwest_tribes','Northwest Tribes',5480,0,0,'','1391-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nuiqsut','Nuiqsut',5490,0,0,'','1875-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nulato','Nulato',5500,0,0,'','1788-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','nunapitchukv','Nunapitchukv',5510,0,0,'','1943-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','oglala_sioux','Oglala Sioux',5520,0,0,'','1622-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','okinawan','Okinawan',5530,0,0,'','2043-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','oklahoma_apache','Oklahoma Apache',5540,0,0,'','1016-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','oklahoma_cado','Oklahoma Cado',5550,0,0,'','1042-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','oklahoma_choctaw','Oklahoma Choctaw',5560,0,0,'','1160-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','oklahoma_comanche','Oklahoma Comanche',5570,0,0,'','1176-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','oklahoma_delaware','Oklahoma Delaware',5580,0,0,'','1218-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','oklahoma_kickapoo','Oklahoma Kickapoo',5590,0,0,'','1306-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','oklahoma_kiowa','Oklahoma Kiowa',5600,0,0,'','1310-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','oklahoma_miami','Oklahoma Miami',5610,0,0,'','1361-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','oklahoma_ottawa','Oklahoma Ottawa',5620,0,0,'','1414-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','oklahoma_pawnee','Oklahoma Pawnee',5630,0,0,'','1446-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','oklahoma_peoria','Oklahoma Peoria',5640,0,0,'','1451-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','oklahoma_ponca','Oklahoma Ponca',5650,0,0,'','1476-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','oklahoma_sac_and_fox','Oklahoma Sac and Fox',5660,0,0,'','1554-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','oklahoma_seminole','Oklahoma Seminole',5670,0,0,'','1571-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','old_harbor','Old Harbor',5680,0,0,'','1998-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','omaha','Omaha',5690,0,0,'','1403-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','oneida','Oneida',5700,0,0,'','1288-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','onondaga','Onondaga',5710,0,0,'','1289-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','ontonagon','Ontonagon',5720,0,0,'','1140-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','oregon_athabaskan','Oregon Athabaskan',5730,0,0,'','1405-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','osage','Osage',5740,0,0,'','1407-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','oscarville','Oscarville',5750,0,0,'','1944-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','other_pacific_islander','Other Pacific Islander',5760,0,0,'','2500-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','other_race','Other Race',5770,0,0,'','2131-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','otoe-missouria','Otoe-Missouria',5780,0,0,'','1409-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','ottawa','Ottawa',5790,0,0,'','1411-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','ouzinkie','Ouzinkie',5800,0,0,'','1999-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','owens_valley','Owens Valley',5810,0,0,'','1430-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','paiute','Paiute',5820,0,0,'','1416-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pakistani','Pakistani',5830,0,0,'','2044-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pala','Pala',5840,0,0,'','1333-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','palauan','Palauan',5850,0,0,'','2091-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','palestinian','Palestinian',5860,0,0,'','2124-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pamunkey','Pamunkey',5870,0,0,'','1439-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','panamint','Panamint',5880,0,0,'','1592-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','papua_new_guinean','Papua New Guinean',5890,0,0,'','2102-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pascua_yaqui','Pascua Yaqui',5900,0,0,'','1713-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','passamaquoddy','Passamaquoddy',5910,0,0,'','1441-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','paugussett','Paugussett',5920,0,0,'','1242-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pauloff_harbor','Pauloff Harbor',5930,0,0,'','2018-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pauma','Pauma',5940,0,0,'','1334-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pawnee','Pawnee',5950,0,0,'','1445-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','payson_apache','Payson Apache',5960,0,0,'','1017-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pechanga','Pechanga',5970,0,0,'','1335-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pedro_bay','Pedro Bay',5980,0,0,'','1789-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pelican','Pelican',5990,0,0,'','1828-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','penobscot','Penobscot',6000,0,0,'','1448-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','peoria','Peoria',6010,0,0,'','1450-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pequot','Pequot',6020,0,0,'','1453-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','perryville','Perryville',6030,0,0,'','1980-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','petersburg','Petersburg',6040,0,0,'','1829-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','picuris','Picuris',6050,0,0,'','1499-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pilot_point','Pilot Point',6060,0,0,'','1981-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pilot_station','Pilot Station',6070,0,0,'','1945-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pima','Pima',6080,0,0,'','1456-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pine_ridge_sioux','Pine Ridge Sioux',6090,0,0,'','1623-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pipestone_sioux','Pipestone Sioux',6100,0,0,'','1624-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','piro','Piro',6110,0,0,'','1500-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','piscataway','Piscataway',6120,0,0,'','1460-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pit_river','Pit River',6130,0,0,'','1462-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pitkas_point','Pitkas Point',6140,0,0,'','1946-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','platinum','Platinum',6150,0,0,'','1947-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pleasant_point_passamaquoddy','Pleasant Point Passamaquoddy',6160,0,0,'','1443-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','poarch_band','Poarch Band',6170,0,0,'','1201-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pocomoke_acohonock','Pocomoke Acohonock',6180,0,0,'','1243-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pohnpeian','Pohnpeian',6190,0,0,'','2094-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','point_hope','Point Hope',6200,0,0,'','1876-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','point_lay','Point Lay',6210,0,0,'','1877-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pojoaque','Pojoaque',6220,0,0,'','1501-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pokagon_potawatomi','Pokagon Potawatomi',6230,0,0,'','1483-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','polish','Polish',6240,0,0,'','2115-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','polynesian','Polynesian',6250,0,0,'','2078-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pomo','Pomo',6260,0,0,'','1464-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','ponca','Ponca',6270,0,0,'','1474-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','poospatuck','Poospatuck',6280,0,0,'','1328-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','port_gamble_klallam','Port Gamble Klallam',6290,0,0,'','1315-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','port_graham','Port Graham',6300,0,0,'','1988-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','port_heiden','Port Heiden',6310,0,0,'','1982-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','port_lions','Port Lions',6320,0,0,'','2000-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','port_madison','Port Madison',6330,0,0,'','1525-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','portage_creek','Portage Creek',6340,0,0,'','1948-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','potawatomi','Potawatomi',6350,0,0,'','1478-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','powhatan','Powhatan',6360,0,0,'','1487-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','prairie_band','Prairie Band',6370,0,0,'','1484-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','prairie_island_sioux','Prairie Island Sioux',6380,0,0,'','1625-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','principal_creek_indian_nation','Principal Creek Indian Nation',6390,0,0,'','1202-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','prior_lake_sioux','Prior Lake Sioux',6400,0,0,'','1626-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pueblo','Pueblo',6410,0,0,'','1489-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','puget_sound_salish','Puget Sound Salish',6420,0,0,'','1518-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','puyallup','Puyallup',6430,0,0,'','1526-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','pyramid_lake','Pyramid Lake',6440,0,0,'','1431-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','qagan_toyagungin','Qagan Toyagungin',6450,0,0,'','2019-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','qawalangin','Qawalangin',6460,0,0,'','2020-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','quapaw','Quapaw',6470,0,0,'','1541-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','quechan','Quechan',6480,0,0,'','1730-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','quileute','Quileute',6490,0,0,'','1084-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','quinault','Quinault',6500,0,0,'','1543-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','quinhagak','Quinhagak',6510,0,0,'','1949-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','ramah_navajo','Ramah Navajo',6520,0,0,'','1385-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','rampart','Rampart',6530,0,0,'','1790-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','rampough_mountain','Rampough Mountain',6540,0,0,'','1219-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','rappahannock','Rappahannock',6550,0,0,'','1545-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','red_cliff_chippewa','Red Cliff Chippewa',6560,0,0,'','1141-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','red_devil','Red Devil',6570,0,0,'','1950-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','red_lake_chippewa','Red Lake Chippewa',6580,0,0,'','1142-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','red_wood','Red Wood',6590,0,0,'','1061-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','reno-sparks','Reno-Sparks',6600,0,0,'','1547-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','rocky_boys_chippewa_cree','Rocky Boy\'s Chippewa Cree',6610,0,0,'','1151-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','rosebud_sioux','Rosebud Sioux',6620,0,0,'','1627-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','round_valley','Round Valley',6630,0,0,'','1549-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','ruby','Ruby',6640,0,0,'','1791-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','ruby_valley','Ruby Valley',6650,0,0,'','1593-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','sac_and_fox','Sac and Fox',6660,0,0,'','1551-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','saginaw_chippewa','Saginaw Chippewa',6670,0,0,'','1143-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','saipanese','Saipanese',6680,0,0,'','2095-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','salamatof','Salamatof',6690,0,0,'','1792-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','salinan','Salinan',6700,0,0,'','1556-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','salish','Salish',6710,0,0,'','1558-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','salish_and_kootenai','Salish and Kootenai',6720,0,0,'','1560-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','salt_river_pima-maricopa','Salt River Pima-Maricopa',6730,0,0,'','1458-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','samish','Samish',6740,0,0,'','1527-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','samoan','Samoan',6750,0,0,'','2080-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','san_carlos_apache','San Carlos Apache',6760,0,0,'','1018-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','san_felipe','San Felipe',6770,0,0,'','1502-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','san_ildefonso','San Ildefonso',6780,0,0,'','1503-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','san_juan','San Juan',6790,0,0,'','1506-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','san_juan_de','San Juan De',6800,0,0,'','1505-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','san_juan_pueblo','San Juan Pueblo',6810,0,0,'','1504-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','san_juan_southern_paiute','San Juan Southern Paiute',6820,0,0,'','1432-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','san_manual','San Manual',6830,0,0,'','1574-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','san_pasqual','San Pasqual',6840,0,0,'','1229-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','san_xavier','San Xavier',6850,0,0,'','1656-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','sand_hill','Sand Hill',6860,0,0,'','1220-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','sand_point','Sand Point',6870,0,0,'','2023-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','sandia','Sandia',6880,0,0,'','1507-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','sans_arc_sioux','Sans Arc Sioux',6890,0,0,'','1628-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','santa_ana','Santa Ana',6900,0,0,'','1508-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','santa_clara','Santa Clara',6910,0,0,'','1509-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','santa_rosa','Santa Rosa',6920,0,0,'','1062-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','santa_rosa_cahuilla','Santa Rosa Cahuilla',6930,0,0,'','1050-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','santa_ynez','Santa Ynez',6940,0,0,'','1163-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','santa_ysabel','Santa Ysabel',6950,0,0,'','1230-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','santee_sioux','Santee Sioux',6960,0,0,'','1629-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','santo_domingo','Santo Domingo',6970,0,0,'','1510-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','sauk-suiattle','Sauk-Suiattle',6980,0,0,'','1528-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','sault_ste_marie_chippewa','Sault Ste. Marie Chippewa',6990,0,0,'','1145-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','savoonga','Savoonga',7000,0,0,'','1893-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','saxman','Saxman',7010,0,0,'','1830-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','scammon_bay','Scammon Bay',7020,0,0,'','1952-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','schaghticoke','Schaghticoke',7030,0,0,'','1562-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','scott_valley','Scott Valley',7040,0,0,'','1564-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','scottish','Scottish',7050,0,0,'','2116-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','scotts_valley','Scotts Valley',7060,0,0,'','1470-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','selawik','Selawik',7070,0,0,'','1878-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','seldovia','Seldovia',7080,0,0,'','1793-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','sells','Sells',7090,0,0,'','1657-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','seminole','Seminole',7100,0,0,'','1566-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','seneca','Seneca',7110,0,0,'','1290-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','seneca_nation','Seneca Nation',7120,0,0,'','1291-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','seneca-cayuga','Seneca-Cayuga',7130,0,0,'','1292-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','serrano','Serrano',7140,0,0,'','1573-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','setauket','Setauket',7150,0,0,'','1329-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','shageluk','Shageluk',7160,0,0,'','1795-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','shaktoolik','Shaktoolik',7170,0,0,'','1879-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','shasta','Shasta',7180,0,0,'','1576-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','shawnee','Shawnee',7190,0,0,'','1578-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','sheldons_point','Sheldon\'s Point',7200,0,0,'','1953-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','shinnecock','Shinnecock',7210,0,0,'','1582-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','shishmaref','Shishmaref',7220,0,0,'','1880-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','shoalwater_bay','Shoalwater Bay',7230,0,0,'','1584-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','shoshone','Shoshone',7240,0,0,'','1586-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','shoshone_paiute','Shoshone Paiute',7250,0,0,'','1602-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','shungnak','Shungnak',7260,0,0,'','1881-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','siberian_eskimo','Siberian Eskimo',7270,0,0,'','1891-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','siberian_yupik','Siberian Yupik',7280,0,0,'','1894-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','siletz','Siletz',7290,0,0,'','1607-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','singaporean','Singaporean',7300,0,0,'','2051-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','sioux','Sioux',7310,0,0,'','1609-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','sisseton_sioux','Sisseton Sioux',7320,0,0,'','1631-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','sisseton-wahpeton','Sisseton-Wahpeton',7330,0,0,'','1630-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','sitka','Sitka',7340,0,0,'','1831-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','siuslaw','Siuslaw',7350,0,0,'','1643-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','skokomish','Skokomish',7360,0,0,'','1529-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','skull_valley','Skull Valley',7370,0,0,'','1594-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','skykomish','Skykomish',7380,0,0,'','1530-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','slana','Slana',7390,0,0,'','1794-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','sleetmute','Sleetmute',7400,0,0,'','1954-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','snohomish','Snohomish',7410,0,0,'','1531-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','snoqualmie','Snoqualmie',7420,0,0,'','1532-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','soboba','Soboba',7430,0,0,'','1336-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','sokoagon_chippewa','Sokoagon Chippewa',7440,0,0,'','1146-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','solomon','Solomon',7450,0,0,'','1882-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','solomon_islander','Solomon Islander',7460,0,0,'','2103-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','south_american_indian','South American Indian',7470,0,0,'','1073-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','south_fork_shoshone','South Fork Shoshone',7480,0,0,'','1595-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','south_naknek','South Naknek',7490,0,0,'','2024-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','southeast_alaska','Southeast Alaska',7500,0,0,'','1811-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','southeastern_indians','Southeastern Indians',7510,0,0,'','1244-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','southern_arapaho','Southern Arapaho',7520,0,0,'','1023-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','southern_cheyenne','Southern Cheyenne',7530,0,0,'','1104-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','southern_paiute','Southern Paiute',7540,0,0,'','1433-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','spanish_american_indian','Spanish American Indian',7550,0,0,'','1074-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','spirit_lake_sioux','Spirit Lake Sioux',7560,0,0,'','1632-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','spokane','Spokane',7570,0,0,'','1645-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','squaxin_island','Squaxin Island',7580,0,0,'','1533-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','sri_lankan','Sri Lankan',7590,0,0,'','2045-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','st_croix_chippewa','St. Croix Chippewa',7600,0,0,'','1144-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','st_george','St. George',7610,0,0,'','2021-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','st_marys','St. Mary\'s',7620,0,0,'','1963-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','st_michael','St. Michael',7630,0,0,'','1951-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','st_paul','St. Paul',7640,0,0,'','2022-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','standing_rock_sioux','Standing Rock Sioux',7650,0,0,'','1633-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','star_clan_of_muscogee_creeks','Star Clan of Muscogee Creeks',7660,0,0,'','1203-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','stebbins','Stebbins',7670,0,0,'','1955-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','steilacoom','Steilacoom',7680,0,0,'','1534-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','stevens','Stevens',7690,0,0,'','1796-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','stewart','Stewart',7700,0,0,'','1647-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','stillaguamish','Stillaguamish',7710,0,0,'','1535-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','stockbridge','Stockbridge',7720,0,0,'','1649-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','stony_river','Stony River',7730,0,0,'','1797-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','stonyford','Stonyford',7740,0,0,'','1471-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','sugpiaq','Sugpiaq',7750,0,0,'','2002-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','sulphur_bank','Sulphur Bank',7760,0,0,'','1472-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','summit_lake','Summit Lake',7770,0,0,'','1434-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','suqpigaq','Suqpigaq',7780,0,0,'','2004-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','suquamish','Suquamish',7790,0,0,'','1536-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','susanville','Susanville',7800,0,0,'','1651-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','susquehanock','Susquehanock',7810,0,0,'','1245-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','swinomish','Swinomish',7820,0,0,'','1537-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','sycuan','Sycuan',7830,0,0,'','1231-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','syrian','Syrian',7840,0,0,'','2125-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','table_bluff','Table Bluff',7850,0,0,'','1705-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tachi','Tachi',7860,0,0,'','1719-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tahitian','Tahitian',7870,0,0,'','2081-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','taiwanese','Taiwanese',7880,0,0,'','2035-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','takelma','Takelma',7890,0,0,'','1063-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','takotna','Takotna',7900,0,0,'','1798-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','talakamish','Talakamish',7910,0,0,'','1397-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tanacross','Tanacross',7920,0,0,'','1799-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tanaina','Tanaina',7930,0,0,'','1800-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tanana','Tanana',7940,0,0,'','1801-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tanana_chiefs','Tanana Chiefs',7950,0,0,'','1802-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','taos','Taos',7960,0,0,'','1511-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tatitlek','Tatitlek',7970,0,0,'','1969-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tazlina','Tazlina',7980,0,0,'','1803-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','telida','Telida',7990,0,0,'','1804-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','teller','Teller',8000,0,0,'','1883-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','temecula','Temecula',8010,0,0,'','1338-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','te-moak_western_shoshone','Te-Moak Western Shoshone',8020,0,0,'','1596-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tenakee_springs','Tenakee Springs',8030,0,0,'','1832-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tenino','Tenino',8040,0,0,'','1398-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tesuque','Tesuque',8050,0,0,'','1512-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tetlin','Tetlin',8060,0,0,'','1805-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','teton_sioux','Teton Sioux',8070,0,0,'','1634-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tewa','Tewa',8080,0,0,'','1513-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','texas_kickapoo','Texas Kickapoo',8090,0,0,'','1307-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','thai','Thai',8100,0,0,'','2046-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','thlopthlocco','Thlopthlocco',8110,0,0,'','1204-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tigua','Tigua',8120,0,0,'','1514-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tillamook','Tillamook',8130,0,0,'','1399-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','timbi-sha_shoshone','Timbi-Sha Shoshone',8140,0,0,'','1597-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tlingit','Tlingit',8150,0,0,'','1833-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tlingit-haida','Tlingit-Haida',8160,0,0,'','1813-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tobagoan','Tobagoan',8170,0,0,'','2073-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','togiak','Togiak',8180,0,0,'','1956-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tohono_oodham','Tohono O\'Odham',8190,0,0,'','1653-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tok','Tok',8200,0,0,'','1806-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tokelauan','Tokelauan',8210,0,0,'','2083-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','toksook','Toksook',8220,0,0,'','1957-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tolowa','Tolowa',8230,0,0,'','1659-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tonawanda_seneca','Tonawanda Seneca',8240,0,0,'','1293-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tongan','Tongan',8250,0,0,'','2082-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tonkawa','Tonkawa',8260,0,0,'','1661-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','torres-martinez','Torres-Martinez',8270,0,0,'','1051-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','trinidadian','Trinidadian',8280,0,0,'','2074-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','trinity','Trinity',8290,0,0,'','1272-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tsimshian','Tsimshian',8300,0,0,'','1837-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tuckabachee','Tuckabachee',8310,0,0,'','1205-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tulalip','Tulalip',8320,0,0,'','1538-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tule_river','Tule River',8330,0,0,'','1720-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tulukskak','Tulukskak',8340,0,0,'','1958-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tunica_biloxi','Tunica Biloxi',8350,0,0,'','1246-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tuntutuliak','Tuntutuliak',8360,0,0,'','1959-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tununak','Tununak',8370,0,0,'','1960-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','turtle_mountain','Turtle Mountain',8380,0,0,'','1147-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tuscarora','Tuscarora',8390,0,0,'','1294-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tuscola','Tuscola',8400,0,0,'','1096-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','twenty-nine_palms','Twenty-Nine Palms',8410,0,0,'','1337-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','twin_hills','Twin Hills',8420,0,0,'','1961-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','two_kettle_sioux','Two Kettle Sioux',8430,0,0,'','1635-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tygh','Tygh',8440,0,0,'','1663-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','tyonek','Tyonek',8450,0,0,'','1807-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','ugashik','Ugashik',8460,0,0,'','1970-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','uintah_ute','Uintah Ute',8470,0,0,'','1672-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','umatilla','Umatilla',8480,0,0,'','1665-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','umkumiate','Umkumiate',8490,0,0,'','1964-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','umpqua','Umpqua',8500,0,0,'','1667-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','unalakleet','Unalakleet',8510,0,0,'','1884-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','unalaska','Unalaska',8520,0,0,'','2025-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','unangan_aleut','Unangan Aleut',8530,0,0,'','2006-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','unga','Unga',8540,0,0,'','2026-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','united_ketowah_band_of_cheroke','United Keetowah Band of Cherokee',8550,0,0,'','1097-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','upper_chinook','Upper Chinook',8560,0,0,'','1118-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','upper_sioux','Upper Sioux',8570,0,0,'','1636-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','upper_skagit','Upper Skagit',8580,0,0,'','1539-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','ute','Ute',8590,0,0,'','1670-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','ute_mountain_ute','Ute Mountain Ute',8600,0,0,'','1673-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','utu_utu_gwaitu_paiute','Utu Utu Gwaitu Paiute',8610,0,0,'','1435-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','venetie','Venetie',8620,0,0,'','1808-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','vietnamese','Vietnamese',8630,0,0,'','2047-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','waccamaw-siousan','Waccamaw-Siousan',8640,0,0,'','1247-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wahpekute_sioux','Wahpekute Sioux',8650,0,0,'','1637-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wahpeton_sioux','Wahpeton Sioux',8660,0,0,'','1638-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wailaki','Wailaki',8670,0,0,'','1675-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wainwright','Wainwright',8680,0,0,'','1885-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wakiakum_chinook','Wakiakum Chinook',8690,0,0,'','1119-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wales','Wales',8700,0,0,'','1886-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','walker_river','Walker River',8710,0,0,'','1436-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','walla-walla','Walla-Walla',8720,0,0,'','1677-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wampanoag','Wampanoag',8730,0,0,'','1679-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wappo','Wappo',8740,0,0,'','1064-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','warm_springs','Warm Springs',8750,0,0,'','1683-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wascopum','Wascopum',8760,0,0,'','1685-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','washakie','Washakie',8770,0,0,'','1598-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','washoe','Washoe',8780,0,0,'','1687-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wazhaza_sioux','Wazhaza Sioux',8790,0,0,'','1639-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wenatchee','Wenatchee',8800,0,0,'','1400-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','west_indian','West Indian',8810,0,0,'','2075-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','western_cherokee','Western Cherokee',8820,0,0,'','1098-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','western_chickahominy','Western Chickahominy',8830,0,0,'','1110-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','whilkut','Whilkut',8840,0,0,'','1273-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','white_earth','White Earth',8860,0,0,'','1148-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','white_mountain','White Mountain',8870,0,0,'','1887-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','white_mountain_apache','White Mountain Apache',8880,0,0,'','1019-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','white_mountain_inupiat','White Mountain Inupiat',8890,0,0,'','1888-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wichita','Wichita',8900,0,0,'','1692-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wicomico','Wicomico',8910,0,0,'','1248-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','willapa_chinook','Willapa Chinook',8920,0,0,'','1120-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wind_river','Wind River',8930,0,0,'','1694-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wind_river_arapaho','Wind River Arapaho',8940,0,0,'','1024-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wind_river_shoshone','Wind River Shoshone',8950,0,0,'','1599-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','winnebago','Winnebago',8960,0,0,'','1696-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','winnemucca','Winnemucca',8970,0,0,'','1700-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wintun','Wintun',8980,0,0,'','1702-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wisconsin_potawatomi','Wisconsin Potawatomi',8990,0,0,'','1485-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wiseman','Wiseman',9000,0,0,'','1809-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wishram','Wishram',9010,0,0,'','1121-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wiyot','Wiyot',9020,0,0,'','1704-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wrangell','Wrangell',9030,0,0,'','1834-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','wyandotte','Wyandotte',9040,0,0,'','1295-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','yahooskin','Yahooskin',9050,0,0,'','1401-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','yakama','Yakama',9060,0,0,'','1707-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','yakama_cowlitz','Yakama Cowlitz',9070,0,0,'','1709-5',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','yakutat','Yakutat',9080,0,0,'','1835-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','yana','Yana',9090,0,0,'','1065-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','yankton_sioux','Yankton Sioux',9100,0,0,'','1640-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','yanktonai_sioux','Yanktonai Sioux',9110,0,0,'','1641-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','yapese','Yapese',9120,0,0,'','2098-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','yaqui','Yaqui',9130,0,0,'','1711-1',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','yavapai','Yavapai',9140,0,0,'','1731-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','yavapai_apache','Yavapai Apache',9150,0,0,'','1715-2',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','yerington_paiute','Yerington Paiute',9160,0,0,'','1437-3',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','yokuts','Yokuts',9170,0,0,'','1717-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','yomba','Yomba',9180,0,0,'','1600-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','yuchi','Yuchi',9190,0,0,'','1722-8',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','yuki','Yuki',9200,0,0,'','1066-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','yuman','Yuman',9210,0,0,'','1724-4',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','yupik_eskimo','Yupik Eskimo',9220,0,0,'','1896-0',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','yurok','Yurok',9230,0,0,'','1732-7',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','zairean','Zairean',9240,0,0,'','2066-9',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','zia','Zia',9250,0,0,'','1515-6',0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `activity`) VALUES ('race','zuni','Zuni',9260,0,0,'','1516-4',0);
 
+-- Ethnicity List
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default ) VALUES ('lists'   ,'ethnicity','Ethnicity', 1,0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, option_value ) VALUES ('ethnicity', 'declne_to_specfy', 'Declined To Specify', 0, 0, 0);
 INSERT INTO list_options ( list_id, option_id, title, seq, is_default, notes ) VALUES ('ethnicity', 'hisp_or_latin', 'Hispanic or Latino', 10, 0, '2135-2');
@@ -10907,6 +11205,9 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','health_concern','Health Concern','7','0','0','','ACT','','1','0','0','');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `activity`, `toggle_setting_1`, `toggle_setting_2`, `subtype`) VALUES('Plan_of_Care_Type','medication','Medication','8','0','0','','INT','','1','0','0','');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'intervention', 'Intervention', '9', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'planned_medication_activity', 'Planned Medication Act', '20', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'supply_order', 'Supply Order Act', '30', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Plan_of_Care_Type', 'device_order', 'Device Order', '40', '0', '0', '', 'RQO', '', '0', '0', '1', '', '1');
 
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`) VALUES ('lists', 'groupstat', 'Group Statuses', '1', '0');
 INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `notes`) VALUES
@@ -10925,6 +11226,8 @@ INSERT INTO list_options (`list_id`, `option_id`, `title`, `seq`, `is_default`, 
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('lists','Document_Template_Categories','Document Template Categories',0,1,0,'',NULL,'',0,0,1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','repository','Repository',1,1,0,'','','',0,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','questionnaire','Questionnaires',10,0,0,'','','',0,0,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','notification_template','Notification Template',20,0,0,'','','',0,0,1);
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('lists','Clinical_Note_Type','Clinical Note Type',0,1,0,'',NULL,'',0,0,1,'',1);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`) VALUES ('Clinical_Note_Type','evaluation_note','Evaluation Note',5,0,0,'','LOINC:51848-0','',0,0,1,'',1);
@@ -10976,6 +11279,82 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Document_Template_Profiles','profile_5','Legal',50,0,0);
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Document_Template_Profiles','profile_6','Acknowledgement Documents',60,0,0);
 
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('lists','Patient_Groupings','Patient Groupings',0,1,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Patient_Groupings','group_1','Group I',10,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Patient_Groupings','group_2','Group II',20,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Patient_Groupings','group_3','Group III',30,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Patient_Groupings','group_4','Group IV',40,0,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('Patient_Groupings','group_5','Group V',50,0,0);
+
+-- Insert 2021 eCQM Reporting Measures
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`) VALUES ('lists','ecqm_2022_reporting','eCQM 2022 Performance Period',0,1,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS117v10','Childhood Immunization Status',10,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS122v10','Diabetes: Hemoglobin A1c (HbA1c) Poor Control (>9%)',20,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS124v10','Cervical Cancer Screening',30,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS125v10','Breast Cancer Screening',40,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS127v10','Pneumococcal Vaccination Status for Older Adults',50,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS128v10','Anti-Depressant Medication Management',60,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS129v11','Prostate Cancer: Avoidance of Overuse of Bone Scan for Staging Low Risk Prostate Cancer Patients',70,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS130v10','Colorectal Cancer Screening',80,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS131v10','Diabetes: Eye Exam',90,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS133v10','Cataracts: 20/40 or Better Visual Acuity within 90 Days Following Cataract Surgery',95,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS134v10','Diabetes: Medical Attention for Nephropathy',100,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS135v10','Heart Failure (HF): Angiotensin-Converting Enzyme (ACE) Inhibitor or Angiotensin Receptor Blocker (ARB) or Angiotensin Receptor-Neprilysin Inhibitor (ARNI) Therapy for Left Ventricular Systolic Dysfunction (LVSD)',110,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS136v11','Follow-Up Care for Children Prescribed ADHD Medication (ADD)',120,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS137v10','Initiation and Engagement of Alcohol and Other Drug Dependence Treatment',130,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS138v10','Preventive Care and Screening: Tobacco Use: Screening and Cessation Intervention',140,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS139v10','Falls: Screening for Future Fall Risk',150,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS142v10','Diabetic Retinopathy: Communication with the Physician Managing Ongoing Diabetes Care',160,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS143v10','Primary Open-Angle Glaucoma (POAG): Optic Nerve Evaluation',170,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS144v10','Heart Failure (HF): Beta-Blocker Therapy for Left Ventricular Systolic Dysfunction (LVSD)',180,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS145v10','Coronary Artery Disease (CAD): Beta-Blocker Therapy – Prior Myocardial Infarction (MI) or Left Ventricular Systolic Dysfunction (LVEF < 40%)',190,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS146v10','Appropriate Testing for Pharyngitis',200,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS147v11','Preventive Care and Screening: Influenza Immunization',210,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS149v10','Dementia: Cognitive Assessment',220,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS153v10','Chlamydia Screening for Women',230,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS154v10','Appropriate Treatment for Upper Respiratory Infection (URI)',240,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS155v10','Weight Assessment and Counseling for Nutrition and Physical `activity` for Children and Adolescents',250,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS156v10','Use of High-Risk Medications in Older Adults',260,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS157v10','Oncology: Medical and Radiation – Pain Intensity Quantified',280,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS159v10','Depression Remission at Twelve Months',290,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS161v10','Adult Major Depressive Disorder (MDD): Suicide Risk Assessment',300,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS165v10','Controlling High Blood Pressure',310,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS177v10','Child and Adolescent Major Depressive Disorder (MDD): Suicide Risk Assessment',320,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS22v10','Preventive Care and Screening: Screening for High Blood Pressure and Follow-Up Documented',330,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS249v4','Appropriate Use of DXA Scans in Women Under 65 Years Who Do Not Meet the Risk Factor Profile for Osteoporotic Fracture',340,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS2v11','Preventive Care and Screening: Screening for Depression and Follow-Up Plan',350,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS347v5','Statin Therapy for the Prevention and Treatment of Cardiovascular Disease',360,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS349v4','HIV Screening',370,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS50v10','Closing the Referral Loop: Receipt of Specialist Report',380,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS56v10','Functional Status Assessment for Total Hip Replacement',390,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS645v5','Bone Density Evaluation for Patients with Prostate Cancer and Receiving Androgen Deprivation Therapy',400,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS646v2','Intravesical Bacillus-Calmette-Guerin for non-muscle invasive bladder cancer',405,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS66v10','Functional Status Assessment for Total Knee Replacement',410,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS68v11','Documentation of Current Medications in the Medical Record',420,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS69v10','Preventive Care and Screening: Body Mass Index (BMI) Screening and Follow-Up Plan',430,1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS74v11','Primary Caries Prevention Intervention as Offered by Primary Care Providers, including Dentists',440,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS75v10','Children Who Have Dental Decay or Cavities',450,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS771v3','Urinary Symptom Score Change 6-12 Months After Diagnosis of Benign Prostatic Hyperplasia',460,0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('ecqm_2022_reporting','CMS90v11','Functional Status Assessments for Congestive Heart Failure',470,0);
+
+-- Insert encounter_type list
+INSERT INTO list_options (list_id,option_id,title, seq, is_default, option_value) VALUES ('lists','encounter-types','Encounter Types',0, 1, 0);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','visit-after-hours','Visit out of hours',10,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','visit-after-hours-not-night','Out of Hours visit (Not Night)',20,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','weekend-visit','Weekend Visit',30,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','office-visit','Office visit for pediatric care and assessment',40,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','established-patient','Evaluation and management of established patient in office or outpatient facility',50,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','new-patient','Evaluation and management of new patient in office or outpatient facility',60,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','postoperative-follow-up','Postoperative follow-up visit',70,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','new-patient-10','New Patient - 10 Minutes',80,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','new-patient-15-29','New Patient - 15-29 Minutes',90,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','new-patient-30-44','New Patient - 30-44 Minutes',100,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','new-patient-45-59','New Patient - 45-59 Minutes',110,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','new-patient-60-74','New Patient - 60-74 Minutes',120,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','established-patient-10-19','Established Patient - 10-19 Minutes',130,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','established-patient-20-29','Established Patient - 20-29 Minutes',140,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','established-patient-30-39','Established Patient - 30-39 Minutes',140,0,1);
+INSERT INTO list_options (list_id,option_id,title,seq,is_default,activity) VALUES ('encounter-types','established-patient-40-54','Established Patient - 40-54 Minutes',150,0,1);
 -- --------------------------------------------------------
 
 --
@@ -11290,7 +11669,7 @@ CREATE TABLE ccda (
   `uuid` binary(16) DEFAULT NULL,
   pid BIGINT(20) DEFAULT NULL,
   encounter BIGINT(20) DEFAULT NULL,
-  ccda_data MEDIUMTEXT,
+  ccda_data LONGTEXT,
   time VARCHAR(50) DEFAULT NULL,
   status SMALLINT(6) DEFAULT NULL,
   updated_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -11302,6 +11681,7 @@ CREATE TABLE ccda (
   `transfer` tinyint(4) NOT NULL DEFAULT '0',
   `emr_transfer` tinyint(4) NOT NULL DEFAULT '0',
   `encrypted` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0->No,1->Yes',
+  `transaction_id` BIGINT(20) COMMENT 'fk to transaction referral record',
   PRIMARY KEY (id),
   UNIQUE KEY `uuid` (`uuid`),
   UNIQUE KEY unique_key (pid,encounter,time)
@@ -11375,7 +11755,7 @@ CREATE TABLE `external_encounters` (
 DROP TABLE IF EXISTS `form_care_plan`;
 CREATE TABLE `form_care_plan` (
   `id` bigint(20) NOT NULL,
-  `date` date DEFAULT NULL,
+  `date` datetime DEFAULT NULL,
   `pid` bigint(20) DEFAULT NULL,
   `encounter` varchar(255) DEFAULT NULL,
   `user` varchar(255) DEFAULT NULL,
@@ -11387,7 +11767,13 @@ CREATE TABLE `form_care_plan` (
   `description` text,
   `external_id` varchar(30) DEFAULT NULL,
   `care_plan_type` varchar(30) DEFAULT NULL,
-  `note_related_to` text
+  `note_related_to` text,
+  `date_end` datetime DEFAULT NULL,
+  `reason_code` varchar(31) DEFAULT NULL,
+  `reason_description` text,
+  `reason_date_low` datetime DEFAULT NULL COMMENT 'The date the reason was recorded',
+  `reason_date_high` datetime DEFAULT NULL COMMENT 'The date the explanation reason for the care plan entry value ends',
+  `reason_status` varchar(31) DEFAULT NULL
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -11421,7 +11807,7 @@ CREATE TABLE `form_functional_cognitive_status` (
 DROP TABLE IF EXISTS `form_observation`;
 CREATE TABLE `form_observation` (
   `id` bigint(20) NOT NULL,
-  `date` DATE DEFAULT NULL,
+  `date` DATETIME DEFAULT NULL,
   `pid` bigint(20) DEFAULT NULL,
   `encounter` varchar(255) DEFAULT NULL,
   `user` varchar(255) DEFAULT NULL,
@@ -11435,15 +11821,16 @@ CREATE TABLE `form_observation` (
   `description` varchar(255),
   `code_type` varchar(255),
   `table_code` varchar(255),
-  `ob_code` VARCHAR(31) DEFAULT NULL,
-  `ob_type` VARCHAR(31) DEFAULT NULL,
+  `ob_code` VARCHAR(64) DEFAULT NULL,
+  `ob_type` VARCHAR(64) DEFAULT NULL,
   `ob_status` varchar(32) DEFAULT NULL,
   `result_status` varchar(32) DEFAULT NULL,
   `ob_reason_status` varchar(32) DEFAULT NULL,
-  `ob_reason_code` varchar(255) DEFAULT NULL,
+  `ob_reason_code` varchar(64) DEFAULT NULL,
   `ob_reason_text` text,
   `ob_documentationof_table` varchar(255) DEFAULT NULL,
-  `ob_documentationof_table_id` bigint(21) DEFAULT NULL
+  `ob_documentationof_table_id` bigint(21) DEFAULT NULL,
+  `date_end` DATETIME DEFAULT NULL
 ) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
@@ -12748,12 +13135,15 @@ CREATE TABLE `form_vital_details` (
 `interpretation_option_id` varchar(100) DEFAULT NULL COMMENT 'FK to list_options.option_id for observation_interpretation',
 `interpretation_codes` varchar(255) DEFAULT NULL COMMENT 'Archived original codes value from list_options observation_interpretation',
 `interpretation_title` varchar(255) DEFAULT NULL COMMENT 'Archived original title value from list_options observation_interpretation',
+`reason_code` VARCHAR(31) NULL DEFAULT NULL COMMENT 'Medical code explaining reason of the vital observation value in form codesystem:codetype;...;',
+`reason_description` TEXT COMMENT 'Human readable text description of the reason_code column',
+`reason_status` VARCHAR(31) NULL DEFAULT NULL COMMENT 'The status of the reason ie completed, in progress, etc',
 PRIMARY KEY (`id`),
 KEY `fk_form_id` (`form_id`),
 KEY `fk_list_options_id` (`interpretation_list_id`, `interpretation_option_id`)
 ) ENGINE=InnoDB COMMENT='Detailed information of each vital_forms observation column';
 
-DROP TABLE IF EXISTS `jwt`;
+DROP TABLE IF EXISTS `jwt_grant_history`;
 CREATE TABLE `jwt_grant_history` (
 `id` INT NOT NULL AUTO_INCREMENT
  , `jti` VARCHAR(100) NOT NULL COMMENT 'Unique JWT id'
@@ -12771,46 +13161,175 @@ CREATE TABLE `document_templates` (
   `provider` int(11) UNSIGNED DEFAULT NULL,
   `encounter` int(11) UNSIGNED DEFAULT NULL,
   `modified_date` datetime NOT NULL DEFAULT current_timestamp(),
-  `profile` varchar(31) DEFAULT NULL,
-  `category` varchar(63) DEFAULT NULL,
+  `profile` varchar(63) NOT NULL,
+  `category` varchar(63) NOT NULL,
   `location` varchar(255) DEFAULT NULL,
   `template_name` varchar(255) DEFAULT NULL,
   `status` varchar(31) DEFAULT NULL,
-  `exclude_portal` tinyint(1) NOT NULL DEFAULT 0,
-  `exclude_dashboard` tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+  `send_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `end_date` datetime DEFAULT NULL,
   `size` int(11) NOT NULL DEFAULT 0,
   `template_content` mediumblob DEFAULT NULL,
   `mime` varchar(31) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `location` (`pid`,`category`,`template_name`,`status`)
+  UNIQUE KEY `location` (`pid`,`profile`,`category`,`template_name`)
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `document_template_profiles`;
 CREATE TABLE `document_template_profiles` (
   `id` bigint(21) UNSIGNED NOT NULL AUTO_INCREMENT,
   `template_id` bigint(21) UNSIGNED NOT NULL,
-  `profile` varchar(64) DEFAULT NULL,
-  `template_name` varchar(255) DEFAULT NULL,
-  `category` varchar(63) DEFAULT NULL,
+  `profile` varchar(64) NOT NULL,
+  `template_name` varchar(255) NOT NULL,
+  `category` varchar(64) NOT NULL,
   `provider` int(11) UNSIGNED DEFAULT NULL,
   `modified_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `member_of` varchar(64) NOT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT 0,
+  `recurring` tinyint(1) NOT NULL DEFAULT 1,
+  `event_trigger` varchar(31) NOT NULL,
+  `period` int(4) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `location` (`profile`,`template_name`,`template_id`)
+  UNIQUE KEY `location` (`profile`,`template_id`,`member_of`)
 ) ENGINE=InnoDB;
 
-INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `exclude_portal`, `exclude_dashboard`, `size`, `template_content`, `mime`) VALUES(1, 0, 18, NULL, '2021-11-21 16:09:14', NULL, '', NULL, 'Help', 'New', 0, 0, 1723, 0x3c68746d6c3e0d0a3c686561643e0d0a093c7469746c653e3c2f7469746c653e0d0a3c2f686561643e0d0a3c626f64793e0d0a3c703e7b5061727365417348544d4c7d3c2f703e0d0a0d0a3c64697620636c6173733d22636f6e7461696e657220702d32206d2d312062672d7365636f6e64617279223e0d0a3c683320636c6173733d22746578742d63656e746572223e496e737472756374696f6e7320666f7220636f6d706c6574696e672050656e64696e6720466f726d733c2f68333e0d0a0d0a3c683520636c6173733d22746578742d63656e746572223e57656c636f6d65207b50617469656e744e616d657d3c2f68353e0d0a0d0a3c646c3e0d0a093c64743e46696c6c696e67204f757420466f726d733c2f64743e0d0a093c64643e2d2053656c656374206120666f726d2066726f6d20746865206c697374206f6e20746865206c65667420627920636c69636b696e672074686520617070726f70726961746520627574746f6e2e2041667465722073656c656374696f6e2c2074686520706167652077696c6c20676f20746f2066756c6c20706167652e20546f20657869742c20636c69636b2074686520416374696f6e206d656e7520686f72697a6f6e74616c2062617272656420627574746f6e20746f20746f67676c652070616765206d6f64652e3c2f64643e0d0a093c64643e2d20416e7377657220616c6c2074686520617070726f707269617465207175657269657320696e2074686520666f726d2e3c2f64643e0d0a093c64643e2d205768656e2066696e69736865642c20636c69636b206569746865722074686520262333393b53617665262333393b206f7220262333393b5375626d697420446f63756d656e74262333393b206f7074696f6e20696e20746f7020416374696f6e204d656e752e2054686520262333393b53617665262333393b20627574746f6e2077696c6c2073617665207468652063757272656e746c792065646974656420666f726d20746f20796f757220446f63756d656e7420486973746f727920616e642077696c6c207374696c6c20626520617661696c61626c6520666f722065646974696e6720756e74696c20796f752064656c6574652074686520666f726d206f722073656e6420746f20796f75722070726f7669646572207573696e672074686520262333393b5375626d697420446f63756d656e74262333393b20616374696f6e20627574746f6e2e3c2f64643e0d0a093c64743e53656e64696e6720446f63756d656e74733c2f64743e0d0a093c64643e2d20436c69636b2074686520262333393b5375626d697420446f63756d656e74262333393b20627574746f6e2066726f6d20416374696f6e204d656e752e3c2f64643e0d0a093c64643e2d204f6e63652073656e742c2074686520666f726d2077696c6c2073686f7720696e20796f757220446f63756d656e7420486973746f72792061732050656e64696e67207265766965772e20596f75206d6179207374696c6c206d616b65206368616e67657320746f2074686520666f726d20756e74696c2072657669657765642062792070726163746963652061646d696e6973747261746f72207768657265206f6e6365207468652072657669657720697320636f6d706c657465642c20446f63756d656e7420486973746f72792077696c6c2073686f772074686520666f726d206173204c6f636b656420616e64206e6f20667572746865722065646974732061726520617661696c61626c652e204174207468697320706f696e742c20796f757220636f6d706c6574656420646f63756d656e74206973207265636f7264656420696e20796f757220636861727420286d65646963616c207265636f7264292e3c2f64643e0d0a093c64743e5369676e696e6720446f63756d656e743c2f64743e0d0a093c64643e2d20437265617465206f72207265646f20796f7572206f6e2066696c65207369676e617475726520627920636c69636b696e672074686520262333393b45646974205369676e6174757265262333393b20627574746f6e20696e20746f7020416374696f6e73204d656e752e20596f75206d617920616c736f206d616e61676520796f7572207369676e61747572652066726f6d20746865204d61696e20746f70206d656e7520756e64657220262333393b4d79205369676e6174757265262333393b2e3c2f64643e0d0a093c64643e2d20546f2061646420796f7572207369676e617475726520746f206120646f63756d656e742c2073696d706c7920636c69636b2074686520617070726f707269617465207369676e206865726520262333393b58262333393b2e3c2f64643e0d0a093c64643e2d20546f2072656d6f76652061207369676e61747572652c20636c69636b20746865207369676e617475726520746f2072657475726e20746f207468652064656661756c74207369676e206865726520262333393b58262333393b2e3c2f64643e0d0a3c2f646c3e0d0a3c2f6469763e0d0a3c2f626f64793e0d0a3c2f68746d6c3e0d0a, 'text/plain');
-INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `exclude_portal`, `exclude_dashboard`, `size`, `template_content`, `mime`) VALUES(2, -1, 18, NULL, '2021-11-21 16:08:55', NULL, '', NULL, 'Help', 'New', 0, 0, 1723, 0x3c68746d6c3e0d0a3c686561643e0d0a093c7469746c653e3c2f7469746c653e0d0a3c2f686561643e0d0a3c626f64793e0d0a3c703e7b5061727365417348544d4c7d3c2f703e0d0a0d0a3c64697620636c6173733d22636f6e7461696e657220702d32206d2d312062672d7365636f6e64617279223e0d0a3c683320636c6173733d22746578742d63656e746572223e496e737472756374696f6e7320666f7220636f6d706c6574696e672050656e64696e6720466f726d733c2f68333e0d0a0d0a3c683520636c6173733d22746578742d63656e746572223e57656c636f6d65207b50617469656e744e616d657d3c2f68353e0d0a0d0a3c646c3e0d0a093c64743e46696c6c696e67204f757420466f726d733c2f64743e0d0a093c64643e2d2053656c656374206120666f726d2066726f6d20746865206c697374206f6e20746865206c65667420627920636c69636b696e672074686520617070726f70726961746520627574746f6e2e2041667465722073656c656374696f6e2c2074686520706167652077696c6c20676f20746f2066756c6c20706167652e20546f20657869742c20636c69636b2074686520416374696f6e206d656e7520686f72697a6f6e74616c2062617272656420627574746f6e20746f20746f67676c652070616765206d6f64652e3c2f64643e0d0a093c64643e2d20416e7377657220616c6c2074686520617070726f707269617465207175657269657320696e2074686520666f726d2e3c2f64643e0d0a093c64643e2d205768656e2066696e69736865642c20636c69636b206569746865722074686520262333393b53617665262333393b206f7220262333393b5375626d697420446f63756d656e74262333393b206f7074696f6e20696e20746f7020416374696f6e204d656e752e2054686520262333393b53617665262333393b20627574746f6e2077696c6c2073617665207468652063757272656e746c792065646974656420666f726d20746f20796f757220446f63756d656e7420486973746f727920616e642077696c6c207374696c6c20626520617661696c61626c6520666f722065646974696e6720756e74696c20796f752064656c6574652074686520666f726d206f722073656e6420746f20796f75722070726f7669646572207573696e672074686520262333393b5375626d697420446f63756d656e74262333393b20616374696f6e20627574746f6e2e3c2f64643e0d0a093c64743e53656e64696e6720446f63756d656e74733c2f64743e0d0a093c64643e2d20436c69636b2074686520262333393b5375626d697420446f63756d656e74262333393b20627574746f6e2066726f6d20416374696f6e204d656e752e3c2f64643e0d0a093c64643e2d204f6e63652073656e742c2074686520666f726d2077696c6c2073686f7720696e20796f757220446f63756d656e7420486973746f72792061732050656e64696e67207265766965772e20596f75206d6179207374696c6c206d616b65206368616e67657320746f2074686520666f726d20756e74696c2072657669657765642062792070726163746963652061646d696e6973747261746f72207768657265206f6e6365207468652072657669657720697320636f6d706c657465642c20446f63756d656e7420486973746f72792077696c6c2073686f772074686520666f726d206173204c6f636b656420616e64206e6f20667572746865722065646974732061726520617661696c61626c652e204174207468697320706f696e742c20796f757220636f6d706c6574656420646f63756d656e74206973207265636f7264656420696e20796f757220636861727420286d65646963616c207265636f7264292e3c2f64643e0d0a093c64743e5369676e696e6720446f63756d656e743c2f64743e0d0a093c64643e2d20437265617465206f72207265646f20796f7572206f6e2066696c65207369676e617475726520627920636c69636b696e672074686520262333393b45646974205369676e6174757265262333393b20627574746f6e20696e20746f7020416374696f6e73204d656e752e20596f75206d617920616c736f206d616e61676520796f7572207369676e61747572652066726f6d20746865204d61696e20746f70206d656e7520756e64657220262333393b4d79205369676e6174757265262333393b2e3c2f64643e0d0a093c64643e2d20546f2061646420796f7572207369676e617475726520746f206120646f63756d656e742c2073696d706c7920636c69636b2074686520617070726f707269617465207369676e206865726520262333393b58262333393b2e3c2f64643e0d0a093c64643e2d20546f2072656d6f76652061207369676e61747572652c20636c69636b20746865207369676e617475726520746f2072657475726e20746f207468652064656661756c74207369676e206865726520262333393b58262333393b2e3c2f64643e0d0a3c2f646c3e0d0a3c2f6469763e0d0a3c2f626f64793e0d0a3c2f68746d6c3e0d0a, 'text/plain');
-INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `exclude_portal`, `exclude_dashboard`, `size`, `template_content`, `mime`) VALUES(3, 0, 18, NULL, '2021-11-21 15:51:40', NULL, '', NULL, 'Hipaa Document', 'New', 0, 0, 3548, 0x3c68343e4849504141204465636c61726174696f6e3c2f68343e476976656e20746f6461793a207b444f537d0d0a4f70656e454d5220536f667477617265206d616b65732069742061207072696f7269747920746f206b6565702074686973207069656365206f6620736f6674776172652075706461746564207769746820746865206d6f737420726563656e7420617661696c61626c65207365637572697479206f7074696f6e732c2020736f2069742077696c6c20696e7465677261746520656173696c7920696e746f20612048495041412d636f6d706c69616e7420707261637469636520616e642077696c6c2070726f74656374206f757220637573746f6d6572732077697468206174206c6561737420746865206f6666696369616c20484950414120726567756c6174696f6e732e0d0a3c656d3e5468652050726163746963653a3c2f656d3e200d0a286129204973207265717569726564206279206665646572616c206c617720746f20206d61696e7461696e207468652070726976616379206f6620796f75722050484920616e6420746f2070726f7669646520796f75207769746820746869732050726976616379204e6f746963652064657461696c696e67207468652050726163746963652773206c6567616c2064757469657320616e642070726976616379207072616374696365732077697468207265737065637420746f20796f757220504849200d0a28622920556e6465722074686520507269766163792052756c652c206974206d6179206265207265717569726564206279206f74686572206c61777320746f206772616e74206772656174657220616363657373206f72206d61696e7461696e2067726561746572207265737472696374696f6e73206f6e2074686520757365206f662c206f722072656c65617365206f6620796f757220504849207468616e20746861742077686963682069732070726f766964656420666f7220756e646572206665646572616c204849504141206c6177732e200d0a28632920497320726571756972656420746f20616269646520627920746865207465726d73206f66207468652050726976616379204e6f74696365200d0a2864292052657365727665732074686520726967687420746f206368616e676520746865207465726d73206f6620746869732050726976616379204e6f7469636520616e64206d616b65206e65772050726976616379204e6f746963652070726f766973696f6e732065666665637469766520666f7220616c6c206f6620796f7572205048492074686174206974206d61696e7461696e73206966206e65656465640d0a2865292057696c6c206469737472696275746520616e7920726576697365642050726976616379204e6f7469636520746f20796f75207072696f7220746f20696d706c656d656e746174696f6e200d0a2866292057696c6c206e6f7420726574616c6961746520616761696e737420796f7520666f722066696c696e67206120636f6d706c61696e74200d0a3c656d3e50617469656e7420436f6d6d756e69636174696f6e733a3c2f656d3e0d0a4865616c746820496e737572616e63652050726976616379204163742031393936205553412c20726571756972657320746f20696e666f726d20796f75206f662074686520666f6c6c6f77696e6720676f7665726e6d656e742073746970756c6174696f6e7320696e206f7264657220666f722020757320746f20636f6e7461637420796f75207769746820656475636174696f6e616c20616e642070726f6d6f74696f6e616c206974656d7320696e20746865206675747572652076696120652d6d61696c2c20552e532e206d61696c2c2074656c6570686f6e652c20616e642f6f72207072657265636f72646564206d657373616765732e2057652077696c6c206e6f742073686172652c2073656c6c2c206f722075736520796f75722020706572736f6e616c20636f6e7461637420696e666f726d6174696f6e20666f72207370616d206d657373616765732e200d0a4920616d20617761726520616e64206861766520726561642074686520706f6c6963696573206f66207468697320707261637469636520746f7761726473207365637265637920616e64206469676974616c20696e666f726d6174696f6e2070726f74656374696f6e3a0d0a546865205072616374696365207365742075702074686569722055736572206163636f756e747320666f7220746865204f70656e454d52206461746162617365732c20736f20697420726571756972657320557365727320746f206c6f6720696e207769746820612070617373776f72642e200d0a5468652055736572206861766520746f2065786974206f72206c6f67206f7574206f6620616e79206d65646963616c20696e666f726d6174696f6e207768656e206e6f74207573696e67206974206f7220617320736f6f6e2061732044656661756c742074696d656f757420697320726561636865642e200d0a5768656e207573696e672074686973206d65646963616c20696e666f726d6174696f6e20726567697374726174696f6e20696e2066726f6e74206f662070617469656e74732074686520557365722073686f756c64207573652074686520225072697661637922206665617475726520746f2068696465205048492028506572736f6e616c204865616c746820496e666f726d6174696f6e2920666f72206f746865722070617469656e747320696e20746865205365617263682073637265656e2e200d0a5765206861766520646576656c6f70656420616e642077696c6c20757365207374616e64617264206f7065726174696e672070726f636564757265732028534f50732920726571756972696e6720616e7920757365206f6620746865204578706f72742050617469656e7473204d65646963616c206f72206f7468657220696e666f726d6174696f6e20746f20626520646f63756d656e7465642e200d0a557365727320617265206f6e6c7920616c6c6f77656420746f2073746f7265206120636f7079206f662020796f7572204d65646963616c20696e666f726d6174696f6e206f6e2061206c6170746f7020636f6d7075746572206f72206f7468657220706f727461626c65206d6564696120746861742069732074616b656e206f75747369646520546865205072616374696365206966207265636f7264656420696e2077726974696e672e204279207369676e696e67206f7574206f6620546865205072616374696365207769746820616e7920706f727461626c6520646576696365206f72207472616e73706f7274206d656469756d207468697320696e666f726d6174696f6e20697320746f20626520657261736564207768656e2066696e6973686564207769746820746865206e65656420746f2074616b65207468697320696e666f726d6174696f6e206f7574206f66205468652050726163746963652c20696620706f737369626c65207468697320696e666f726d6174696f6e206973206f6e6c7920746f2062652074616b656e206f7574736964652054686520507261637469636520696e20656e6372797074656420666f726d61742e200d0a4f6e6c7920737065636966696320746563686e696369616e73206d61792068617665206f63636173696f6e616c2061636365737320746f206f757220686172647761726520616e6420536f6674776172652e2054686520484950414120507269766163792052756c652072657175697265732074686174206120707261637469636520686176652061207369676e656420427573696e657373204173736f636961746520436f6e7472616374206265666f7265206772616e74696e672073756368206163636573732e2054686520546563686e696369616e732061726520747261696e6564206f6e20484950414120726567756c6174696f6e7320616e64206c696d6974207468652075736520616e6420646973636c6f73757265206f6620637573746f6d6572206461746120746f20746865206d696e696d756d206e65636573736172792e0d0a3c68723e0d0a3c656d3e3c68343e492061636b6e6f776c656467652072656365697074206f662074686973206e6f746963652c206861766520726561642074686520636f6e74656e747320616e6420756e6465727374616e642074686520636f6e74656e742e3c2f68343e3c2f656d3e0d0a50617469656e74204e616d653a20097b50617469656e744e616d657d20205365783a207b50617469656e745365787d203c656d3e686572656279207369676e7320616e6420616772656520746f20746865207465726d73206f6620746869732061677265656d656e74202e3c2f656d3e0d0a4f75722065787465726e616c2049443a7b50617469656e7449447d09090d0a426f726e3a2009097b50617469656e74444f427d20200d0a486f6d6520416464726573733a20097b416464726573737d2020200d0a5a69703a2009097b5a69707d3b20436974793a207b436974797d3b2053746174653a207b53746174657d0d0a486f6d652050686f6e653a20097b50617469656e7450686f6e657d0d0a090950617469656e74205369676e61747572653a7b50617469656e745369676e61747572657d0d0a090950617469656e743a7b50617469656e744e616d657d20446174653a207b444f537d0d0a0d0a3c656d3e4920646f206e6f7420616363657074207468657365207465726d733a203c2f656d3e7b436865636b4d61726b7d0d0a50617469656e74207265667573616c20746f207369676e2064756520746f2074686520666f6c6c6f77696e6720726561736f6e3a207b54657874496e7075747d0d0a, 'text/plain');
-INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `exclude_portal`, `exclude_dashboard`, `size`, `template_content`, `mime`) VALUES(4, -1, 18, NULL, '2021-11-21 15:51:40', NULL, '', NULL, 'Hipaa Document', 'New', 0, 0, 3548, 0x3c68343e4849504141204465636c61726174696f6e3c2f68343e476976656e20746f6461793a207b444f537d0d0a4f70656e454d5220536f667477617265206d616b65732069742061207072696f7269747920746f206b6565702074686973207069656365206f6620736f6674776172652075706461746564207769746820746865206d6f737420726563656e7420617661696c61626c65207365637572697479206f7074696f6e732c2020736f2069742077696c6c20696e7465677261746520656173696c7920696e746f20612048495041412d636f6d706c69616e7420707261637469636520616e642077696c6c2070726f74656374206f757220637573746f6d6572732077697468206174206c6561737420746865206f6666696369616c20484950414120726567756c6174696f6e732e0d0a3c656d3e5468652050726163746963653a3c2f656d3e200d0a286129204973207265717569726564206279206665646572616c206c617720746f20206d61696e7461696e207468652070726976616379206f6620796f75722050484920616e6420746f2070726f7669646520796f75207769746820746869732050726976616379204e6f746963652064657461696c696e67207468652050726163746963652773206c6567616c2064757469657320616e642070726976616379207072616374696365732077697468207265737065637420746f20796f757220504849200d0a28622920556e6465722074686520507269766163792052756c652c206974206d6179206265207265717569726564206279206f74686572206c61777320746f206772616e74206772656174657220616363657373206f72206d61696e7461696e2067726561746572207265737472696374696f6e73206f6e2074686520757365206f662c206f722072656c65617365206f6620796f757220504849207468616e20746861742077686963682069732070726f766964656420666f7220756e646572206665646572616c204849504141206c6177732e200d0a28632920497320726571756972656420746f20616269646520627920746865207465726d73206f66207468652050726976616379204e6f74696365200d0a2864292052657365727665732074686520726967687420746f206368616e676520746865207465726d73206f6620746869732050726976616379204e6f7469636520616e64206d616b65206e65772050726976616379204e6f746963652070726f766973696f6e732065666665637469766520666f7220616c6c206f6620796f7572205048492074686174206974206d61696e7461696e73206966206e65656465640d0a2865292057696c6c206469737472696275746520616e7920726576697365642050726976616379204e6f7469636520746f20796f75207072696f7220746f20696d706c656d656e746174696f6e200d0a2866292057696c6c206e6f7420726574616c6961746520616761696e737420796f7520666f722066696c696e67206120636f6d706c61696e74200d0a3c656d3e50617469656e7420436f6d6d756e69636174696f6e733a3c2f656d3e0d0a4865616c746820496e737572616e63652050726976616379204163742031393936205553412c20726571756972657320746f20696e666f726d20796f75206f662074686520666f6c6c6f77696e6720676f7665726e6d656e742073746970756c6174696f6e7320696e206f7264657220666f722020757320746f20636f6e7461637420796f75207769746820656475636174696f6e616c20616e642070726f6d6f74696f6e616c206974656d7320696e20746865206675747572652076696120652d6d61696c2c20552e532e206d61696c2c2074656c6570686f6e652c20616e642f6f72207072657265636f72646564206d657373616765732e2057652077696c6c206e6f742073686172652c2073656c6c2c206f722075736520796f75722020706572736f6e616c20636f6e7461637420696e666f726d6174696f6e20666f72207370616d206d657373616765732e200d0a4920616d20617761726520616e64206861766520726561642074686520706f6c6963696573206f66207468697320707261637469636520746f7761726473207365637265637920616e64206469676974616c20696e666f726d6174696f6e2070726f74656374696f6e3a0d0a546865205072616374696365207365742075702074686569722055736572206163636f756e747320666f7220746865204f70656e454d52206461746162617365732c20736f20697420726571756972657320557365727320746f206c6f6720696e7769746820612070617373776f72642e200d0a5468652055736572206861766520746f2065786974206f72206c6f67206f7574206f6620616e79206d65646963616c20696e666f726d6174696f6e207768656e206e6f74207573696e67206974206f7220617320736f6f6e2061732044656661756c742074696d656f757420697320726561636865642e200d0a5768656e207573696e672074686973206d65646963616c20696e666f726d6174696f6e20726567697374726174696f6e20696e2066726f6e74206f662070617469656e74732074686520557365722073686f756c64207573652074686520225072697661637922206665617475726520746f2068696465205048492028506572736f6e616c204865616c746820496e666f726d6174696f6e2920666f72206f746865722070617469656e747320696e20746865205365617263682073637265656e2e200d0a5765206861766520646576656c6f70656420616e642077696c6c20757365207374616e64617264206f7065726174696e672070726f636564757265732028534f50732920726571756972696e6720616e7920757365206f6620746865204578706f72742050617469656e7473204d65646963616c206f72206f7468657220696e666f726d6174696f6e20746f20626520646f63756d656e7465642e200d0a557365727320617265206f6e6c7920616c6c6f77656420746f2073746f7265206120636f7079206f662020796f7572204d65646963616c20696e666f726d6174696f6e206f6e2061206c6170746f7020636f6d7075746572206f72206f7468657220706f727461626c65206d6564696120746861742069732074616b656e206f75747369646520546865205072616374696365206966207265636f7264656420696e2077726974696e672e204279207369676e696e67206f7574206f6620546865205072616374696365207769746820616e7920706f727461626c6520646576696365206f72207472616e73706f7274206d656469756d207468697320696e666f726d6174696f6e20697320746f20626520657261736564207768656e2066696e6973686564207769746820746865206e65656420746f2074616b65207468697320696e666f726d6174696f6e206f7574206f66205468652050726163746963652c20696620706f737369626c65207468697320696e666f726d6174696f6e206973206f6e6c7920746f2062652074616b656e206f7574736964652054686520507261637469636520696e20656e6372797074656420666f726d61742e200d0a4f6e6c7920737065636966696320746563686e696369616e73206d61792068617665206f63636173696f6e616c2061636365737320746f206f757220686172647761726520616e6420536f6674776172652e2054686520484950414120507269766163792052756c652072657175697265732074686174206120707261637469636520686176652061207369676e656420427573696e657373204173736f636961746520436f6e7472616374206265666f7265206772616e74696e672073756368206163636573732e2054686520546563686e696369616e732061726520747261696e6564206f6e20484950414120726567756c6174696f6e7320616e64206c696d6974207468652075736520616e6420646973636c6f73757265206f6620637573746f6d6572206461746120746f20746865206d696e696d756d206e65636573736172792e0d0a3c68723e0d0a3c656d3e3c68343e492061636b6e6f776c656467652072656365697074206f662074686973206e6f746963652c206861766520726561642074686520636f6e74656e747320616e6420756e6465727374616e642074686520636f6e74656e742e3c2f68343e3c2f656d3e0d0a50617469656e74204e616d653a20097b50617469656e744e616d657d20205365783a207b50617469656e745365787d203c656d3e686572656279207369676e7320616e6420616772656520746f20746865207465726d73206f6620746869732061677265656d656e74202e3c2f656d3e0d0a4f75722065787465726e616c2049443a7b50617469656e7449447d09090d0a426f726e3a2009097b50617469656e74444f427d20200d0a486f6d6520416464726573733a20097b416464726573737d2020200d0a5a69703a2009097b5a69707d3b20436974793a207b436974797d3b2053746174653a207b53746174657d0d0a486f6d652050686f6e653a20097b50617469656e7450686f6e657d0d0a090950617469656e74205369676e61747572653a7b50617469656e745369676e61747572657d0d0a090950617469656e743a7b50617469656e744e616d657d20446174653a207b444f537d0d0a0d0a3c656d3e4920646f206e6f7420616363657074207468657365207465726d733a203c2f656d3e7b436865636b4d61726b7d0d0a50617469656e74207265667573616c20746f207369676e2064756520746f2074686520666f6c6c6f77696e6720726561736f6e3a207b54657874496e7075747d0d0a, 'text/plain');
-INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `exclude_portal`, `exclude_dashboard`, `size`, `template_content`, `mime`) VALUES(5, 0, 18, NULL, '2021-11-21 18:22:25', NULL, '', NULL, 'Insurance Info', 'New', 0, 0, 785, 0x3c703e7b5061727365417348544d4c7d3c2f703e0d0a3c646976207374796c653d22666f6e742d73697a653a31347078223e0d0a3c6834207374796c653d22746578742d616c69676e3a2063656e7465723b223e494e535552414e434520494e464f524d4154494f4e3c2f68343e0d0a0d0a3c703e7b436865636b4d61726b7d204d6564696361726523207b54657874496e7075747d207b436865636b4d61726b7d204d6564696361696423207b54657874496e7075747d3c2f703e0d0a0d0a3c703e7b436865636b4d61726b7d20576f726b65727320436f6d70656e736174696f6e20286a6f6220696e6a7572792920496620736f207468656e20746f2077686f6d2069732062696c6c20746f2062652073656e743f207b54657874496e7075747d3c2f703e0d0a0d0a3c703e7b436865636b4d61726b7d204f74686572204d65646963616c20496e737572616e63653a2047726f757023207b54657874496e7075747d20494423207b54657874496e7075747d3c2f703e0d0a0d0a3c703e4e616d652f4164647265737320317374206f7220326e6420496e737572616e63653a3c2f703e0d0a0d0a3c703e4e616d653a207b54657874496e7075747d2052656c6174696f6e736869703a207b54657874496e7075747d3c2f703e0d0a0d0a3c703e41646472657373207b54657874496e7075747d205374617465207b54657874496e7075747d205a6970207b54657874496e7075747d3c2f703e0d0a0d0a3c703e50686f6e653a207b54657874496e7075747d205365636f6e646172792050686f6e653a207b54657874496e7075747d3c2f703e0d0a0d0a3c6872202f3e0d0a3c703e41726520796f7520706572736f6e616c6c7920726573706f6e7369626c6520666f7220746865207061796d656e74206f6620796f757220666565733f207b796e526164696f47726f75707d3c2f703e0d0a0d0a3c703e4966206e6f742c2077686f2069733f266e6273703b3c2f703e0d0a0d0a3c703e4e616d653a207b54657874496e7075747d2052656c6174696f6e736869703a207b54657874496e7075747d20444f423a7b54657874496e7075747d3c2f703e0d0a0d0a3c703e41646472657373207b54657874496e7075747d205374617465207b54657874496e7075747d205a6970207b54657874496e7075747d3c2f703e0d0a0d0a3c703e50686f6e653a207b54657874496e7075747d205365636f6e646172792050686f6e653a207b54657874496e7075747d3c2f703e0d0a0d0a3c6872202f3e0d0a3c703e57686f20746f206e6f7469667920696e20656d657267656e637920286e6561726573742072656c6174697665206f7220667269656e64293f3c2f703e0d0a0d0a3c703e4e616d657b54657874496e7075747d2052656c6174696f6e736869707b54657874496e7075747d3c2f703e0d0a0d0a3c703e416464726573733a207b54657874496e7075747d2053746174653a207b54657874496e7075747d205a69703a207b54657874496e7075747d3c2f703e0d0a0d0a3c703e576f726b2050686f6e653a207b54657874496e7075747d20486f6d652050686f6e653a207b54657874496e7075747d3c2f703e0d0a0d0a3c6872202f3e0d0a3c703e5369676e6564206279207b50617469656e744e616d657d206f6e207b43757272656e74446174653a2671756f743b676c6f62616c2671756f743b7d207b43757272656e7454696d657d207b50617469656e745369676e61747572657d3c2f703e0d0a3c2f6469763e0d0a, 'text/plain');
-INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `exclude_portal`, `exclude_dashboard`, `size`, `template_content`, `mime`) VALUES(6, -1, 18, NULL, '2021-11-21 18:22:52', NULL, '', NULL, 'Insurance Info', 'New', 0, 0, 785, 0x3c703e7b5061727365417348544d4c7d3c2f703e0d0a3c646976207374796c653d22666f6e742d73697a653a31347078223e0d0a3c6834207374796c653d22746578742d616c69676e3a2063656e7465723b223e494e535552414e434520494e464f524d4154494f4e3c2f68343e0d0a0d0a3c703e7b436865636b4d61726b7d204d6564696361726523207b54657874496e7075747d207b436865636b4d61726b7d204d6564696361696423207b54657874496e7075747d3c2f703e0d0a0d0a3c703e7b436865636b4d61726b7d20576f726b65727320436f6d70656e736174696f6e20286a6f6220696e6a7572792920496620736f207468656e20746f2077686f6d2069732062696c6c20746f2062652073656e743f207b54657874496e7075747d3c2f703e0d0a0d0a3c703e7b436865636b4d61726b7d204f74686572204d65646963616c20496e737572616e63653a2047726f757023207b54657874496e7075747d20494423207b54657874496e7075747d3c2f703e0d0a0d0a3c703e4e616d652f4164647265737320317374206f7220326e6420496e737572616e63653a3c2f703e0d0a0d0a3c703e4e616d653a207b54657874496e7075747d2052656c6174696f6e736869703a207b54657874496e7075747d3c2f703e0d0a0d0a3c703e41646472657373207b54657874496e7075747d205374617465207b54657874496e7075747d205a6970207b54657874496e7075747d3c2f703e0d0a0d0a3c703e50686f6e653a207b54657874496e7075747d205365636f6e646172792050686f6e653a207b54657874496e7075747d3c2f703e0d0a0d0a3c6872202f3e0d0a3c703e41726520796f7520706572736f6e616c6c7920726573706f6e7369626c6520666f7220746865207061796d656e74206f6620796f757220666565733f207b796e526164696f47726f75707d3c2f703e0d0a0d0a3c703e4966206e6f742c2077686f2069733f266e6273703b3c2f703e0d0a0d0a3c703e4e616d653a207b54657874496e7075747d2052656c6174696f6e736869703a207b54657874496e7075747d20444f423a7b54657874496e7075747d3c2f703e0d0a0d0a3c703e41646472657373207b54657874496e7075747d205374617465207b54657874496e7075747d205a6970207b54657874496e7075747d3c2f703e0d0a0d0a3c703e50686f6e653a207b54657874496e7075747d205365636f6e646172792050686f6e653a207b54657874496e7075747d3c2f703e0d0a0d0a3c6872202f3e0d0a3c703e57686f20746f206e6f7469667920696e20656d657267656e637920286e6561726573742072656c6174697665206f7220667269656e64293f3c2f703e0d0a0d0a3c703e4e616d657b54657874496e7075747d2052656c6174696f6e736869707b54657874496e7075747d3c2f703e0d0a0d0a3c703e416464726573733a207b54657874496e7075747d2053746174653a207b54657874496e7075747d205a69703a207b54657874496e7075747d3c2f703e0d0a0d0a3c703e576f726b2050686f6e653a207b54657874496e7075747d20486f6d652050686f6e653a207b54657874496e7075747d3c2f703e0d0a0d0a3c6872202f3e0d0a3c703e5369676e6564206279207b50617469656e744e616d657d206f6e207b43757272656e74446174653a2671756f743b676c6f62616c2671756f743b7d207b43757272656e7454696d657d207b50617469656e745369676e61747572657d3c2f703e0d0a3c2f6469763e0d0a, 'text/plain');
-INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `exclude_portal`, `exclude_dashboard`, `size`, `template_content`, `mime`) VALUES(7, 0, 18, NULL, '2021-11-21 15:51:41', NULL, '', NULL, 'Medical History', 'New', 0, 0, 77, 0x7b456e636f756e746572466f726d3a4849537d0d0a0d0a3c6c6162656c3e50617469656e74205369676e61747572653a203c2f6c6162656c3e7b50617469656e745369676e61747572657d0d0a, 'text/plain');
-INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `exclude_portal`, `exclude_dashboard`, `size`, `template_content`, `mime`) VALUES(8, -1, 18, NULL, '2021-11-21 15:51:42', NULL, '', NULL, 'Medical History', 'New', 0, 0, 77, 0x7b456e636f756e746572466f726d3a4849537d0d0a0d0a3c6c6162656c3e50617469656e74205369676e61747572653a203c2f6c6162656c3e7b50617469656e745369676e61747572657d0d0a, 'text/plain');
-INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `exclude_portal`, `exclude_dashboard`, `size`, `template_content`, `mime`) VALUES(9, 0, 18, NULL, '2021-11-21 15:51:42', NULL, '', NULL, 'Privacy Document', 'New', 0, 0, 2536, 0x3c703e4e4f54494345204f462050524956414359205052414354494345532050415449454e542041434b4e4f574c454447454d454e5420414e4420434f4e53454e5420544f204d45444943414c2054524541544d454e540d0a50617469656e74204e616d653a203c656d3e7b50617469656e744e616d657d3c2f656d3e0d0a44617465206f662042697274683a207b50617469656e74444f427d0d0a0d0a49206861766520726563656976656420616e6420756e6465727374616e6420746869732070726163746963652773204e6f74696365206f66205072697661637920507261637469636573207772697474656e20696e20706c61696e20456e676c6973682e20546865206e6f746963652070726f766964657320696e2064657461696c20746865207573657320616e6420646973636c6f7375726573206f66206d792070726f746563746564206865616c746820696e666f726d6174696f6e2074686174206d6179206265206d61646520627920746869732070726163746963652c206d7920696e646976696475616c207269676874732c20686f772049206d61792065786572636973652074686f7365207269676874732c20616e642074686520707261637469636573206c6567616c206475746965732077697468207265737065637420746f206d7920696e666f726d6174696f6e2e0d0a0d0a4920756e6465727374616e642074686174207468652070726163746963652072657365727665732074686520726967687420746f206368616e676520746865207465726d73206f66207468652050726976616379205072616374696365732c20616e6420746f206d616b65206368616e67657320726567617264696e6720616c6c2070726f746563746564206865616c746820696e666f726d6174696f6e2e204966206368616e676573206f63637572207468656e207468652070726163746963652077696c6c2070726f76696465206d6520776974682061207265766973656420636f70792075706f6e20726571756573742e0d0a0d0a4920766f6c756e746172696c7920636f6e73656e7420746f20636172652c20696e636c7564696e672070687973696369616e206578616d696e6174696f6e20616e64207465737473207375636820617320782d7261792c206c61626f7261746f727920746573747320616e6420746f206d65646963616c2074726561746d656e74206279206d792070687973696369616e206f72206869732f68657220617373697374616e7473206f722064657369676e6565732c206173206d6179206265206e656365737361727920696e20746865206a7564676d656e74206f66206d792070687973696369616e2e204e6f2067756172616e746565732068617665206265656e206d61646520746f206d652061732074686520726573756c74206f662074726561746d656e74206f72206578616d696e6174696f6e2e0d0a0d0a417574686f72697a6174696f6e20666f723a0d0a496e20636f6e73696465726174696f6e20666f72207365727669636573207265636569766564206279203c656d3e7b526566657272696e67444f437d3c2f656d3e204920616772656520746f2070617920616e7920616e6420616c6c20636861726765732061732062696c6c65642e204920616c736f2072657175657374207468617420646972656374207061796d656e7473206265206d61646520746f203c656d3e7b526566657272696e67444f437d3c2f656d3e206f6e206d7920626568616c6620627920696e73757265727320616e64206167656e6369657320696e2074686520736574746c656d656e74206f6620616e79206f66206d7920636c61696d732e204920756e6465727374616e642074686174206d792070726f746563746564206865616c746820696e666f726d6174696f6e206d6179206e65656420746f2062652072656c656173656420666f722074686520707572706f7365206f662074726561746d656e742c207061796d656e74206f72206865616c74682063617265206f7065726174696f6e732e0d0a0d0a4d656469636172652050617469656e74733a0d0a49206365727469667920746861742074686520696e666f726d6174696f6e20676976656e206279206d6520666f72206170706c69636174696f6e20666f72207061796d656e7420756e646572207469746c65205856494949206f662074686520536f6369616c2053656375726974792041637420697320636f72726563742e204920617574686f72697a6520616e7920686f6c646572206f66206d65646963616c206f72206f746865722072656c6576616e7420696e666f726d6174696f6e2061626f7574206d652062652072656c656173656420746f2074686520536f6369616c2053656375726974792041646d696e697374726174696f6e206f72206974277320696e7465726d6564696172696573206f6620636172726965727320616e64207375636820696e666f726d6174696f6e206e656564656420746f20737570706f7274206170706c69636174696f6e20666f72207061796d656e742e20496e636c7564696e67207265636f726473207065727461696e696e6720746f2048495620737461747573206f722074726561746d656e74202841494453207265636f726473292c206472756720616e6420616c636f686f6c2074726561746d656e742c20616e64206f722070737963686961747269632074726561746d656e742e20492061737369676e20616e6420617574686f72697a65207061796d656e74206469726563746c7920746f203c656d3e7b526566657272696e67444f437d3c2f656d3e20666f722074686520756e70616964206368617267657320666f72207468652070687973696369616e27732073657276696365732e204920756e6465727374616e642074686174204920616d20726573706f6e7369626c6520666f7220616c6c20696e737572616e63652064656475637469626c657320616e6420636f696e737572616e63652e0d0a436f6d6d656e74733a207b54657874496e7075747d0d0a5369676e61747572653a207b50617469656e745369676e61747572657d0d0a446f20796f7520617574686f72697a6520656c656374726f6e6963207369676e6174757265207b436865636b4d61726b7d200d0a52656c6174696f6e7368697020746f2070617469656e7420286966207369676e6564206279206120706572736f6e616c20726570726573656e746174697665293a207b54657874496e7075747d0d0a41726520796f75205072696d61727920436172652047697665723a7b796e526164696f47726f75707d0d0a446174653a207b444f537d0d0a3c2f703e3c703e436c696e696320526570726573656e746174697665205369676e6174757265266e6273703b7b526566657272696e67444f437d205369676e65643a207b41646d696e5369676e61747572657d203c2f703e3c703e3c6272202f3e3c2f703e, 'text/plain');
-INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `exclude_portal`, `exclude_dashboard`, `size`, `template_content`, `mime`) VALUES(10, -1, 18, NULL, '2021-11-21 15:51:42', NULL, '', NULL, 'Privacy Document', 'New', 0, 0, 2536, 0x3c703e4e4f54494345204f462050524956414359205052414354494345532050415449454e542041434b4e4f574c454447454d454e5420414e4420434f4e53454e5420544f204d45444943414c2054524541544d454e540d0a50617469656e74204e616d653a203c656d3e7b50617469656e744e616d657d3c2f656d3e0d0a44617465206f662042697274683a207b50617469656e74444f427d0d0a0d0a49206861766520726563656976656420616e6420756e6465727374616e6420746869732070726163746963652773204e6f74696365206f66205072697661637920507261637469636573207772697474656e20696e20706c61696e20456e676c6973682e20546865206e6f746963652070726f766964657320696e2064657461696c20746865207573657320616e6420646973636c6f7375726573206f66206d792070726f746563746564206865616c746820696e666f726d6174696f6e2074686174206d6179206265206d61646520627920746869732070726163746963652c206d7920696e646976696475616c207269676874732c20686f772049206d61792065786572636973652074686f7365207269676874732c20616e642074686520707261637469636573206c6567616c206475746965732077697468207265737065637420746f206d7920696e666f726d6174696f6e2e0d0a0d0a4920756e6465727374616e642074686174207468652070726163746963652072657365727665732074686520726967687420746f206368616e676520746865207465726d73206f66207468652050726976616379205072616374696365732c20616e6420746f206d616b65206368616e67657320726567617264696e6720616c6c2070726f746563746564206865616c746820696e666f726d6174696f6e2e204966206368616e676573206f63637572207468656e207468652070726163746963652077696c6c2070726f76696465206d6520776974682061207265766973656420636f70792075706f6e20726571756573742e0d0a0d0a4920766f6c756e746172696c7920636f6e73656e7420746f20636172652c20696e636c7564696e672070687973696369616e206578616d696e6174696f6e20616e64207465737473207375636820617320782d7261792c206c61626f7261746f727920746573747320616e6420746f206d65646963616c2074726561746d656e74206279206d792070687973696369616e206f72206869732f68657220617373697374616e7473206f722064657369676e6565732c206173206d6179206265206e656365737361727920696e20746865206a7564676d656e74206f66206d792070687973696369616e2e204e6f2067756172616e746565732068617665206265656e206d61646520746f206d652061732074686520726573756c74206f662074726561746d656e74206f72206578616d696e6174696f6e2e0d0a0d0a417574686f72697a6174696f6e20666f723a0d0a496e20636f6e73696465726174696f6e20666f72207365727669636573207265636569766564206279203c656d3e7b526566657272696e67444f437d3c2f656d3e204920616772656520746f2070617920616e7920616e6420616c6c20636861726765732061732062696c6c65642e204920616c736f2072657175657374207468617420646972656374207061796d656e7473206265206d61646520746f203c656d3e7b526566657272696e67444f437d3c2f656d3e206f6e206d7920626568616c6620627920696e73757265727320616e64206167656e6369657320696e2074686520736574746c656d656e74206f6620616e79206f66206d7920636c61696d732e204920756e6465727374616e642074686174206d792070726f746563746564206865616c746820696e666f726d6174696f6e206d6179206e65656420746f2062652072656c656173656420666f722074686520707572706f7365206f662074726561746d656e742c207061796d656e74206f72206865616c74682063617265206f7065726174696f6e732e0d0a0d0a4d656469636172652050617469656e74733a0d0a49206365727469667920746861742074686520696e666f726d6174696f6e20676976656e206279206d6520666f72206170706c69636174696f6e20666f72207061796d656e7420756e646572207469746c65205856494949206f662074686520536f6369616c2053656375726974792041637420697320636f72726563742e204920617574686f72697a6520616e7920686f6c646572206f66206d65646963616c206f72206f746865722072656c6576616e7420696e666f726d6174696f6e2061626f7574206d652062652072656c656173656420746f2074686520536f6369616c2053656375726974792041646d696e697374726174696f6e206f72206974277320696e7465726d6564696172696573206f6620636172726965727320616e64207375636820696e666f726d6174696f6e206e656564656420746f20737570706f7274206170706c69636174696f6e20666f72207061796d656e742e20496e636c7564696e67207265636f726473207065727461696e696e6720746f2048495620737461747573206f722074726561746d656e74202841494453207265636f726473292c206472756720616e6420616c636f686f6c2074726561746d656e742c20616e64206f722070737963686961747269632074726561746d656e742e20492061737369676e20616e6420617574686f72697a65207061796d656e74206469726563746c7920746f203c656d3e7b526566657272696e67444f437d3c2f656d3e20666f722074686520756e70616964206368617267657320666f72207468652070687973696369616e27732073657276696365732e204920756e6465727374616e642074686174204920616d20726573706f6e7369626c6520666f7220616c6c20696e737572616e63652064656475637469626c657320616e6420636f696e737572616e63652e0d0a436f6d6d656e74733a207b54657874496e7075747d0d0a5369676e61747572653a207b50617469656e745369676e61747572657d0d0a446f20796f7520617574686f72697a6520656c656374726f6e6963207369676e6174757265207b436865636b4d61726b7d200d0a52656c6174696f6e7368697020746f2070617469656e7420286966207369676e6564206279206120706572736f6e616c20726570726573656e746174697665293a207b54657874496e7075747d0d0a41726520796f75205072696d61727920436172652047697665723a7b796e526164696f47726f75707d0d0a446174653a207b444f537d0d0a3c2f703e3c703e436c696e696320526570726573656e746174697665205369676e6174757265266e6273703b7b526566657272696e67444f437d205369676e65643a207b41646d696e5369676e61747572657d203c2f703e3c703e3c6272202f3e3c2f703e, 'text/plain');
+INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `send_date`, `end_date`, `size`, `template_content`, `mime`) VALUES(1, 0, 18, NULL, '2021-11-21 16:09:14', '', '', NULL, 'Help', 'New', '0000-00-00 00:00:00', '0000-00-00 00:00:00', 1723, 0x3c68746d6c3e0d0a3c686561643e0d0a093c7469746c653e3c2f7469746c653e0d0a3c2f686561643e0d0a3c626f64793e0d0a3c703e7b5061727365417348544d4c7d3c2f703e0d0a0d0a3c64697620636c6173733d22636f6e7461696e657220702d32206d2d312062672d7365636f6e64617279223e0d0a3c683320636c6173733d22746578742d63656e746572223e496e737472756374696f6e7320666f7220636f6d706c6574696e672050656e64696e6720466f726d733c2f68333e0d0a0d0a3c683520636c6173733d22746578742d63656e746572223e57656c636f6d65207b50617469656e744e616d657d3c2f68353e0d0a0d0a3c646c3e0d0a093c64743e46696c6c696e67204f757420466f726d733c2f64743e0d0a093c64643e2d2053656c656374206120666f726d2066726f6d20746865206c697374206f6e20746865206c65667420627920636c69636b696e672074686520617070726f70726961746520627574746f6e2e2041667465722073656c656374696f6e2c2074686520706167652077696c6c20676f20746f2066756c6c20706167652e20546f20657869742c20636c69636b2074686520416374696f6e206d656e7520686f72697a6f6e74616c2062617272656420627574746f6e20746f20746f67676c652070616765206d6f64652e3c2f64643e0d0a093c64643e2d20416e7377657220616c6c2074686520617070726f707269617465207175657269657320696e2074686520666f726d2e3c2f64643e0d0a093c64643e2d205768656e2066696e69736865642c20636c69636b206569746865722074686520262333393b53617665262333393b206f7220262333393b5375626d697420446f63756d656e74262333393b206f7074696f6e20696e20746f7020416374696f6e204d656e752e2054686520262333393b53617665262333393b20627574746f6e2077696c6c2073617665207468652063757272656e746c792065646974656420666f726d20746f20796f757220446f63756d656e7420486973746f727920616e642077696c6c207374696c6c20626520617661696c61626c6520666f722065646974696e6720756e74696c20796f752064656c6574652074686520666f726d206f722073656e6420746f20796f75722070726f7669646572207573696e672074686520262333393b5375626d697420446f63756d656e74262333393b20616374696f6e20627574746f6e2e3c2f64643e0d0a093c64743e53656e64696e6720446f63756d656e74733c2f64743e0d0a093c64643e2d20436c69636b2074686520262333393b5375626d697420446f63756d656e74262333393b20627574746f6e2066726f6d20416374696f6e204d656e752e3c2f64643e0d0a093c64643e2d204f6e63652073656e742c2074686520666f726d2077696c6c2073686f7720696e20796f757220446f63756d656e7420486973746f72792061732050656e64696e67207265766965772e20596f75206d6179207374696c6c206d616b65206368616e67657320746f2074686520666f726d20756e74696c2072657669657765642062792070726163746963652061646d696e6973747261746f72207768657265206f6e6365207468652072657669657720697320636f6d706c657465642c20446f63756d656e7420486973746f72792077696c6c2073686f772074686520666f726d206173204c6f636b656420616e64206e6f20667572746865722065646974732061726520617661696c61626c652e204174207468697320706f696e742c20796f757220636f6d706c6574656420646f63756d656e74206973207265636f7264656420696e20796f757220636861727420286d65646963616c207265636f7264292e3c2f64643e0d0a093c64743e5369676e696e6720446f63756d656e743c2f64743e0d0a093c64643e2d20437265617465206f72207265646f20796f7572206f6e2066696c65207369676e617475726520627920636c69636b696e672074686520262333393b45646974205369676e6174757265262333393b20627574746f6e20696e20746f7020416374696f6e73204d656e752e20596f75206d617920616c736f206d616e61676520796f7572207369676e61747572652066726f6d20746865204d61696e20746f70206d656e7520756e64657220262333393b4d79205369676e6174757265262333393b2e3c2f64643e0d0a093c64643e2d20546f2061646420796f7572207369676e617475726520746f206120646f63756d656e742c2073696d706c7920636c69636b2074686520617070726f707269617465207369676e206865726520262333393b58262333393b2e3c2f64643e0d0a093c64643e2d20546f2072656d6f76652061207369676e61747572652c20636c69636b20746865207369676e617475726520746f2072657475726e20746f207468652064656661756c74207369676e206865726520262333393b58262333393b2e3c2f64643e0d0a3c2f646c3e0d0a3c2f6469763e0d0a3c2f626f64793e0d0a3c2f68746d6c3e0d0a, 'text/plain');
+INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `send_date`, `end_date`, `size`, `template_content`, `mime`) VALUES(2, -1, 18, NULL, '2021-11-21 16:08:55', '', '', NULL, 'Help', 'New', '0000-00-00 00:00:00', '0000-00-00 00:00:00', 1723, 0x3c68746d6c3e0d0a3c686561643e0d0a093c7469746c653e3c2f7469746c653e0d0a3c2f686561643e0d0a3c626f64793e0d0a3c703e7b5061727365417348544d4c7d3c2f703e0d0a0d0a3c64697620636c6173733d22636f6e7461696e657220702d32206d2d312062672d7365636f6e64617279223e0d0a3c683320636c6173733d22746578742d63656e746572223e496e737472756374696f6e7320666f7220636f6d706c6574696e672050656e64696e6720466f726d733c2f68333e0d0a0d0a3c683520636c6173733d22746578742d63656e746572223e57656c636f6d65207b50617469656e744e616d657d3c2f68353e0d0a0d0a3c646c3e0d0a093c64743e46696c6c696e67204f757420466f726d733c2f64743e0d0a093c64643e2d2053656c656374206120666f726d2066726f6d20746865206c697374206f6e20746865206c65667420627920636c69636b696e672074686520617070726f70726961746520627574746f6e2e2041667465722073656c656374696f6e2c2074686520706167652077696c6c20676f20746f2066756c6c20706167652e20546f20657869742c20636c69636b2074686520416374696f6e206d656e7520686f72697a6f6e74616c2062617272656420627574746f6e20746f20746f67676c652070616765206d6f64652e3c2f64643e0d0a093c64643e2d20416e7377657220616c6c2074686520617070726f707269617465207175657269657320696e2074686520666f726d2e3c2f64643e0d0a093c64643e2d205768656e2066696e69736865642c20636c69636b206569746865722074686520262333393b53617665262333393b206f7220262333393b5375626d697420446f63756d656e74262333393b206f7074696f6e20696e20746f7020416374696f6e204d656e752e2054686520262333393b53617665262333393b20627574746f6e2077696c6c2073617665207468652063757272656e746c792065646974656420666f726d20746f20796f757220446f63756d656e7420486973746f727920616e642077696c6c207374696c6c20626520617661696c61626c6520666f722065646974696e6720756e74696c20796f752064656c6574652074686520666f726d206f722073656e6420746f20796f75722070726f7669646572207573696e672074686520262333393b5375626d697420446f63756d656e74262333393b20616374696f6e20627574746f6e2e3c2f64643e0d0a093c64743e53656e64696e6720446f63756d656e74733c2f64743e0d0a093c64643e2d20436c69636b2074686520262333393b5375626d697420446f63756d656e74262333393b20627574746f6e2066726f6d20416374696f6e204d656e752e3c2f64643e0d0a093c64643e2d204f6e63652073656e742c2074686520666f726d2077696c6c2073686f7720696e20796f757220446f63756d656e7420486973746f72792061732050656e64696e67207265766965772e20596f75206d6179207374696c6c206d616b65206368616e67657320746f2074686520666f726d20756e74696c2072657669657765642062792070726163746963652061646d696e6973747261746f72207768657265206f6e6365207468652072657669657720697320636f6d706c657465642c20446f63756d656e7420486973746f72792077696c6c2073686f772074686520666f726d206173204c6f636b656420616e64206e6f20667572746865722065646974732061726520617661696c61626c652e204174207468697320706f696e742c20796f757220636f6d706c6574656420646f63756d656e74206973207265636f7264656420696e20796f757220636861727420286d65646963616c207265636f7264292e3c2f64643e0d0a093c64743e5369676e696e6720446f63756d656e743c2f64743e0d0a093c64643e2d20437265617465206f72207265646f20796f7572206f6e2066696c65207369676e617475726520627920636c69636b696e672074686520262333393b45646974205369676e6174757265262333393b20627574746f6e20696e20746f7020416374696f6e73204d656e752e20596f75206d617920616c736f206d616e61676520796f7572207369676e61747572652066726f6d20746865204d61696e20746f70206d656e7520756e64657220262333393b4d79205369676e6174757265262333393b2e3c2f64643e0d0a093c64643e2d20546f2061646420796f7572207369676e617475726520746f206120646f63756d656e742c2073696d706c7920636c69636b2074686520617070726f707269617465207369676e206865726520262333393b58262333393b2e3c2f64643e0d0a093c64643e2d20546f2072656d6f76652061207369676e61747572652c20636c69636b20746865207369676e617475726520746f2072657475726e20746f207468652064656661756c74207369676e206865726520262333393b58262333393b2e3c2f64643e0d0a3c2f646c3e0d0a3c2f6469763e0d0a3c2f626f64793e0d0a3c2f68746d6c3e0d0a, 'text/plain');
+INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `send_date`, `end_date`, `size`, `template_content`, `mime`) VALUES(3, 0, 18, NULL, '2021-11-21 15:51:40', '', '', NULL, 'Hipaa Document', 'New', '0000-00-00 00:00:00', '0000-00-00 00:00:00', 3548, 0x3c68343e4849504141204465636c61726174696f6e3c2f68343e476976656e20746f6461793a207b444f537d0d0a4f70656e454d5220536f667477617265206d616b65732069742061207072696f7269747920746f206b6565702074686973207069656365206f6620736f6674776172652075706461746564207769746820746865206d6f737420726563656e7420617661696c61626c65207365637572697479206f7074696f6e732c2020736f2069742077696c6c20696e7465677261746520656173696c7920696e746f20612048495041412d636f6d706c69616e7420707261637469636520616e642077696c6c2070726f74656374206f757220637573746f6d6572732077697468206174206c6561737420746865206f6666696369616c20484950414120726567756c6174696f6e732e0d0a3c656d3e5468652050726163746963653a3c2f656d3e200d0a286129204973207265717569726564206279206665646572616c206c617720746f20206d61696e7461696e207468652070726976616379206f6620796f75722050484920616e6420746f2070726f7669646520796f75207769746820746869732050726976616379204e6f746963652064657461696c696e67207468652050726163746963652773206c6567616c2064757469657320616e642070726976616379207072616374696365732077697468207265737065637420746f20796f757220504849200d0a28622920556e6465722074686520507269766163792052756c652c206974206d6179206265207265717569726564206279206f74686572206c61777320746f206772616e74206772656174657220616363657373206f72206d61696e7461696e2067726561746572207265737472696374696f6e73206f6e2074686520757365206f662c206f722072656c65617365206f6620796f757220504849207468616e20746861742077686963682069732070726f766964656420666f7220756e646572206665646572616c204849504141206c6177732e200d0a28632920497320726571756972656420746f20616269646520627920746865207465726d73206f66207468652050726976616379204e6f74696365200d0a2864292052657365727665732074686520726967687420746f206368616e676520746865207465726d73206f6620746869732050726976616379204e6f7469636520616e64206d616b65206e65772050726976616379204e6f746963652070726f766973696f6e732065666665637469766520666f7220616c6c206f6620796f7572205048492074686174206974206d61696e7461696e73206966206e65656465640d0a2865292057696c6c206469737472696275746520616e7920726576697365642050726976616379204e6f7469636520746f20796f75207072696f7220746f20696d706c656d656e746174696f6e200d0a2866292057696c6c206e6f7420726574616c6961746520616761696e737420796f7520666f722066696c696e67206120636f6d706c61696e74200d0a3c656d3e50617469656e7420436f6d6d756e69636174696f6e733a3c2f656d3e0d0a4865616c746820496e737572616e63652050726976616379204163742031393936205553412c20726571756972657320746f20696e666f726d20796f75206f662074686520666f6c6c6f77696e6720676f7665726e6d656e742073746970756c6174696f6e7320696e206f7264657220666f722020757320746f20636f6e7461637420796f75207769746820656475636174696f6e616c20616e642070726f6d6f74696f6e616c206974656d7320696e20746865206675747572652076696120652d6d61696c2c20552e532e206d61696c2c2074656c6570686f6e652c20616e642f6f72207072657265636f72646564206d657373616765732e2057652077696c6c206e6f742073686172652c2073656c6c2c206f722075736520796f75722020706572736f6e616c20636f6e7461637420696e666f726d6174696f6e20666f72207370616d206d657373616765732e200d0a4920616d20617761726520616e64206861766520726561642074686520706f6c6963696573206f66207468697320707261637469636520746f7761726473207365637265637920616e64206469676974616c20696e666f726d6174696f6e2070726f74656374696f6e3a0d0a546865205072616374696365207365742075702074686569722055736572206163636f756e747320666f7220746865204f70656e454d52206461746162617365732c20736f20697420726571756972657320557365727320746f206c6f6720696e207769746820612070617373776f72642e200d0a5468652055736572206861766520746f2065786974206f72206c6f67206f7574206f6620616e79206d65646963616c20696e666f726d6174696f6e207768656e206e6f74207573696e67206974206f7220617320736f6f6e2061732044656661756c742074696d656f757420697320726561636865642e200d0a5768656e207573696e672074686973206d65646963616c20696e666f726d6174696f6e20726567697374726174696f6e20696e2066726f6e74206f662070617469656e74732074686520557365722073686f756c64207573652074686520225072697661637922206665617475726520746f2068696465205048492028506572736f6e616c204865616c746820496e666f726d6174696f6e2920666f72206f746865722070617469656e747320696e20746865205365617263682073637265656e2e200d0a5765206861766520646576656c6f70656420616e642077696c6c20757365207374616e64617264206f7065726174696e672070726f636564757265732028534f50732920726571756972696e6720616e7920757365206f6620746865204578706f72742050617469656e7473204d65646963616c206f72206f7468657220696e666f726d6174696f6e20746f20626520646f63756d656e7465642e200d0a557365727320617265206f6e6c7920616c6c6f77656420746f2073746f7265206120636f7079206f662020796f7572204d65646963616c20696e666f726d6174696f6e206f6e2061206c6170746f7020636f6d7075746572206f72206f7468657220706f727461626c65206d6564696120746861742069732074616b656e206f75747369646520546865205072616374696365206966207265636f7264656420696e2077726974696e672e204279207369676e696e67206f7574206f6620546865205072616374696365207769746820616e7920706f727461626c6520646576696365206f72207472616e73706f7274206d656469756d207468697320696e666f726d6174696f6e20697320746f20626520657261736564207768656e2066696e6973686564207769746820746865206e65656420746f2074616b65207468697320696e666f726d6174696f6e206f7574206f66205468652050726163746963652c20696620706f737369626c65207468697320696e666f726d6174696f6e206973206f6e6c7920746f2062652074616b656e206f7574736964652054686520507261637469636520696e20656e6372797074656420666f726d61742e200d0a4f6e6c7920737065636966696320746563686e696369616e73206d61792068617665206f63636173696f6e616c2061636365737320746f206f757220686172647761726520616e6420536f6674776172652e2054686520484950414120507269766163792052756c652072657175697265732074686174206120707261637469636520686176652061207369676e656420427573696e657373204173736f636961746520436f6e7472616374206265666f7265206772616e74696e672073756368206163636573732e2054686520546563686e696369616e732061726520747261696e6564206f6e20484950414120726567756c6174696f6e7320616e64206c696d6974207468652075736520616e6420646973636c6f73757265206f6620637573746f6d6572206461746120746f20746865206d696e696d756d206e65636573736172792e0d0a3c68723e0d0a3c656d3e3c68343e492061636b6e6f776c656467652072656365697074206f662074686973206e6f746963652c206861766520726561642074686520636f6e74656e747320616e6420756e6465727374616e642074686520636f6e74656e742e3c2f68343e3c2f656d3e0d0a50617469656e74204e616d653a20097b50617469656e744e616d657d20205365783a207b50617469656e745365787d203c656d3e686572656279207369676e7320616e6420616772656520746f20746865207465726d73206f6620746869732061677265656d656e74202e3c2f656d3e0d0a4f75722065787465726e616c2049443a7b50617469656e7449447d09090d0a426f726e3a2009097b50617469656e74444f427d20200d0a486f6d6520416464726573733a20097b416464726573737d2020200d0a5a69703a2009097b5a69707d3b20436974793a207b436974797d3b2053746174653a207b53746174657d0d0a486f6d652050686f6e653a20097b50617469656e7450686f6e657d0d0a090950617469656e74205369676e61747572653a7b50617469656e745369676e61747572657d0d0a090950617469656e743a7b50617469656e744e616d657d20446174653a207b444f537d0d0a0d0a3c656d3e4920646f206e6f7420616363657074207468657365207465726d733a203c2f656d3e7b436865636b4d61726b7d0d0a50617469656e74207265667573616c20746f207369676e2064756520746f2074686520666f6c6c6f77696e6720726561736f6e3a207b54657874496e7075747d0d0a, 'text/plain');
+INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `send_date`, `end_date`, `size`, `template_content`, `mime`) VALUES(4, -1, 18, NULL, '2021-11-21 15:51:40', '', '', NULL, 'Hipaa Document', 'New', '0000-00-00 00:00:00', '0000-00-00 00:00:00', 3548, 0x3c68343e4849504141204465636c61726174696f6e3c2f68343e476976656e20746f6461793a207b444f537d0d0a4f70656e454d5220536f667477617265206d616b65732069742061207072696f7269747920746f206b6565702074686973207069656365206f6620736f6674776172652075706461746564207769746820746865206d6f737420726563656e7420617661696c61626c65207365637572697479206f7074696f6e732c2020736f2069742077696c6c20696e7465677261746520656173696c7920696e746f20612048495041412d636f6d706c69616e7420707261637469636520616e642077696c6c2070726f74656374206f757220637573746f6d6572732077697468206174206c6561737420746865206f6666696369616c20484950414120726567756c6174696f6e732e0d0a3c656d3e5468652050726163746963653a3c2f656d3e200d0a286129204973207265717569726564206279206665646572616c206c617720746f20206d61696e7461696e207468652070726976616379206f6620796f75722050484920616e6420746f2070726f7669646520796f75207769746820746869732050726976616379204e6f746963652064657461696c696e67207468652050726163746963652773206c6567616c2064757469657320616e642070726976616379207072616374696365732077697468207265737065637420746f20796f757220504849200d0a28622920556e6465722074686520507269766163792052756c652c206974206d6179206265207265717569726564206279206f74686572206c61777320746f206772616e74206772656174657220616363657373206f72206d61696e7461696e2067726561746572207265737472696374696f6e73206f6e2074686520757365206f662c206f722072656c65617365206f6620796f757220504849207468616e20746861742077686963682069732070726f766964656420666f7220756e646572206665646572616c204849504141206c6177732e200d0a28632920497320726571756972656420746f20616269646520627920746865207465726d73206f66207468652050726976616379204e6f74696365200d0a2864292052657365727665732074686520726967687420746f206368616e676520746865207465726d73206f6620746869732050726976616379204e6f7469636520616e64206d616b65206e65772050726976616379204e6f746963652070726f766973696f6e732065666665637469766520666f7220616c6c206f6620796f7572205048492074686174206974206d61696e7461696e73206966206e65656465640d0a2865292057696c6c206469737472696275746520616e7920726576697365642050726976616379204e6f7469636520746f20796f75207072696f7220746f20696d706c656d656e746174696f6e200d0a2866292057696c6c206e6f7420726574616c6961746520616761696e737420796f7520666f722066696c696e67206120636f6d706c61696e74200d0a3c656d3e50617469656e7420436f6d6d756e69636174696f6e733a3c2f656d3e0d0a4865616c746820496e737572616e63652050726976616379204163742031393936205553412c20726571756972657320746f20696e666f726d20796f75206f662074686520666f6c6c6f77696e6720676f7665726e6d656e742073746970756c6174696f6e7320696e206f7264657220666f722020757320746f20636f6e7461637420796f75207769746820656475636174696f6e616c20616e642070726f6d6f74696f6e616c206974656d7320696e20746865206675747572652076696120652d6d61696c2c20552e532e206d61696c2c2074656c6570686f6e652c20616e642f6f72207072657265636f72646564206d657373616765732e2057652077696c6c206e6f742073686172652c2073656c6c2c206f722075736520796f75722020706572736f6e616c20636f6e7461637420696e666f726d6174696f6e20666f72207370616d206d657373616765732e200d0a4920616d20617761726520616e64206861766520726561642074686520706f6c6963696573206f66207468697320707261637469636520746f7761726473207365637265637920616e64206469676974616c20696e666f726d6174696f6e2070726f74656374696f6e3a0d0a546865205072616374696365207365742075702074686569722055736572206163636f756e747320666f7220746865204f70656e454d52206461746162617365732c20736f20697420726571756972657320557365727320746f206c6f6720696e7769746820612070617373776f72642e200d0a5468652055736572206861766520746f2065786974206f72206c6f67206f7574206f6620616e79206d65646963616c20696e666f726d6174696f6e207768656e206e6f74207573696e67206974206f7220617320736f6f6e2061732044656661756c742074696d656f757420697320726561636865642e200d0a5768656e207573696e672074686973206d65646963616c20696e666f726d6174696f6e20726567697374726174696f6e20696e2066726f6e74206f662070617469656e74732074686520557365722073686f756c64207573652074686520225072697661637922206665617475726520746f2068696465205048492028506572736f6e616c204865616c746820496e666f726d6174696f6e2920666f72206f746865722070617469656e747320696e20746865205365617263682073637265656e2e200d0a5765206861766520646576656c6f70656420616e642077696c6c20757365207374616e64617264206f7065726174696e672070726f636564757265732028534f50732920726571756972696e6720616e7920757365206f6620746865204578706f72742050617469656e7473204d65646963616c206f72206f7468657220696e666f726d6174696f6e20746f20626520646f63756d656e7465642e200d0a557365727320617265206f6e6c7920616c6c6f77656420746f2073746f7265206120636f7079206f662020796f7572204d65646963616c20696e666f726d6174696f6e206f6e2061206c6170746f7020636f6d7075746572206f72206f7468657220706f727461626c65206d6564696120746861742069732074616b656e206f75747369646520546865205072616374696365206966207265636f7264656420696e2077726974696e672e204279207369676e696e67206f7574206f6620546865205072616374696365207769746820616e7920706f727461626c6520646576696365206f72207472616e73706f7274206d656469756d207468697320696e666f726d6174696f6e20697320746f20626520657261736564207768656e2066696e6973686564207769746820746865206e65656420746f2074616b65207468697320696e666f726d6174696f6e206f7574206f66205468652050726163746963652c20696620706f737369626c65207468697320696e666f726d6174696f6e206973206f6e6c7920746f2062652074616b656e206f7574736964652054686520507261637469636520696e20656e6372797074656420666f726d61742e200d0a4f6e6c7920737065636966696320746563686e696369616e73206d61792068617665206f63636173696f6e616c2061636365737320746f206f757220686172647761726520616e6420536f6674776172652e2054686520484950414120507269766163792052756c652072657175697265732074686174206120707261637469636520686176652061207369676e656420427573696e657373204173736f636961746520436f6e7472616374206265666f7265206772616e74696e672073756368206163636573732e2054686520546563686e696369616e732061726520747261696e6564206f6e20484950414120726567756c6174696f6e7320616e64206c696d6974207468652075736520616e6420646973636c6f73757265206f6620637573746f6d6572206461746120746f20746865206d696e696d756d206e65636573736172792e0d0a3c68723e0d0a3c656d3e3c68343e492061636b6e6f776c656467652072656365697074206f662074686973206e6f746963652c206861766520726561642074686520636f6e74656e747320616e6420756e6465727374616e642074686520636f6e74656e742e3c2f68343e3c2f656d3e0d0a50617469656e74204e616d653a20097b50617469656e744e616d657d20205365783a207b50617469656e745365787d203c656d3e686572656279207369676e7320616e6420616772656520746f20746865207465726d73206f6620746869732061677265656d656e74202e3c2f656d3e0d0a4f75722065787465726e616c2049443a7b50617469656e7449447d09090d0a426f726e3a2009097b50617469656e74444f427d20200d0a486f6d6520416464726573733a20097b416464726573737d2020200d0a5a69703a2009097b5a69707d3b20436974793a207b436974797d3b2053746174653a207b53746174657d0d0a486f6d652050686f6e653a20097b50617469656e7450686f6e657d0d0a090950617469656e74205369676e61747572653a7b50617469656e745369676e61747572657d0d0a090950617469656e743a7b50617469656e744e616d657d20446174653a207b444f537d0d0a0d0a3c656d3e4920646f206e6f7420616363657074207468657365207465726d733a203c2f656d3e7b436865636b4d61726b7d0d0a50617469656e74207265667573616c20746f207369676e2064756520746f2074686520666f6c6c6f77696e6720726561736f6e3a207b54657874496e7075747d0d0a, 'text/plain');
+INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `send_date`, `end_date`, `size`, `template_content`, `mime`) VALUES(5, 0, 18, NULL, '2021-11-21 18:22:25', '', '', NULL, 'Insurance Info', 'New', '0000-00-00 00:00:00', '0000-00-00 00:00:00', 785, 0x3c703e7b5061727365417348544d4c7d3c2f703e0d0a3c646976207374796c653d22666f6e742d73697a653a31347078223e0d0a3c6834207374796c653d22746578742d616c69676e3a2063656e7465723b223e494e535552414e434520494e464f524d4154494f4e3c2f68343e0d0a0d0a3c703e7b436865636b4d61726b7d204d6564696361726523207b54657874496e7075747d207b436865636b4d61726b7d204d6564696361696423207b54657874496e7075747d3c2f703e0d0a0d0a3c703e7b436865636b4d61726b7d20576f726b65727320436f6d70656e736174696f6e20286a6f6220696e6a7572792920496620736f207468656e20746f2077686f6d2069732062696c6c20746f2062652073656e743f207b54657874496e7075747d3c2f703e0d0a0d0a3c703e7b436865636b4d61726b7d204f74686572204d65646963616c20496e737572616e63653a2047726f757023207b54657874496e7075747d20494423207b54657874496e7075747d3c2f703e0d0a0d0a3c703e4e616d652f4164647265737320317374206f7220326e6420496e737572616e63653a3c2f703e0d0a0d0a3c703e4e616d653a207b54657874496e7075747d2052656c6174696f6e736869703a207b54657874496e7075747d3c2f703e0d0a0d0a3c703e41646472657373207b54657874496e7075747d205374617465207b54657874496e7075747d205a6970207b54657874496e7075747d3c2f703e0d0a0d0a3c703e50686f6e653a207b54657874496e7075747d205365636f6e646172792050686f6e653a207b54657874496e7075747d3c2f703e0d0a0d0a3c6872202f3e0d0a3c703e41726520796f7520706572736f6e616c6c7920726573706f6e7369626c6520666f7220746865207061796d656e74206f6620796f757220666565733f207b796e526164696f47726f75707d3c2f703e0d0a0d0a3c703e4966206e6f742c2077686f2069733f266e6273703b3c2f703e0d0a0d0a3c703e4e616d653a207b54657874496e7075747d2052656c6174696f6e736869703a207b54657874496e7075747d20444f423a7b54657874496e7075747d3c2f703e0d0a0d0a3c703e41646472657373207b54657874496e7075747d205374617465207b54657874496e7075747d205a6970207b54657874496e7075747d3c2f703e0d0a0d0a3c703e50686f6e653a207b54657874496e7075747d205365636f6e646172792050686f6e653a207b54657874496e7075747d3c2f703e0d0a0d0a3c6872202f3e0d0a3c703e57686f20746f206e6f7469667920696e20656d657267656e637920286e6561726573742072656c6174697665206f7220667269656e64293f3c2f703e0d0a0d0a3c703e4e616d657b54657874496e7075747d2052656c6174696f6e736869707b54657874496e7075747d3c2f703e0d0a0d0a3c703e416464726573733a207b54657874496e7075747d2053746174653a207b54657874496e7075747d205a69703a207b54657874496e7075747d3c2f703e0d0a0d0a3c703e576f726b2050686f6e653a207b54657874496e7075747d20486f6d652050686f6e653a207b54657874496e7075747d3c2f703e0d0a0d0a3c6872202f3e0d0a3c703e5369676e6564206279207b50617469656e744e616d657d206f6e207b43757272656e74446174653a2671756f743b676c6f62616c2671756f743b7d207b43757272656e7454696d657d207b50617469656e745369676e61747572657d3c2f703e0d0a3c2f6469763e0d0a, 'text/plain');
+INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `send_date`, `end_date`, `size`, `template_content`, `mime`) VALUES(6, -1, 18, NULL, '2021-11-21 18:22:52', '', '', NULL, 'Insurance Info', 'New', '0000-00-00 00:00:00', '0000-00-00 00:00:00', 785, 0x3c703e7b5061727365417348544d4c7d3c2f703e0d0a3c646976207374796c653d22666f6e742d73697a653a31347078223e0d0a3c6834207374796c653d22746578742d616c69676e3a2063656e7465723b223e494e535552414e434520494e464f524d4154494f4e3c2f68343e0d0a0d0a3c703e7b436865636b4d61726b7d204d6564696361726523207b54657874496e7075747d207b436865636b4d61726b7d204d6564696361696423207b54657874496e7075747d3c2f703e0d0a0d0a3c703e7b436865636b4d61726b7d20576f726b65727320436f6d70656e736174696f6e20286a6f6220696e6a7572792920496620736f207468656e20746f2077686f6d2069732062696c6c20746f2062652073656e743f207b54657874496e7075747d3c2f703e0d0a0d0a3c703e7b436865636b4d61726b7d204f74686572204d65646963616c20496e737572616e63653a2047726f757023207b54657874496e7075747d20494423207b54657874496e7075747d3c2f703e0d0a0d0a3c703e4e616d652f4164647265737320317374206f7220326e6420496e737572616e63653a3c2f703e0d0a0d0a3c703e4e616d653a207b54657874496e7075747d2052656c6174696f6e736869703a207b54657874496e7075747d3c2f703e0d0a0d0a3c703e41646472657373207b54657874496e7075747d205374617465207b54657874496e7075747d205a6970207b54657874496e7075747d3c2f703e0d0a0d0a3c703e50686f6e653a207b54657874496e7075747d205365636f6e646172792050686f6e653a207b54657874496e7075747d3c2f703e0d0a0d0a3c6872202f3e0d0a3c703e41726520796f7520706572736f6e616c6c7920726573706f6e7369626c6520666f7220746865207061796d656e74206f6620796f757220666565733f207b796e526164696f47726f75707d3c2f703e0d0a0d0a3c703e4966206e6f742c2077686f2069733f266e6273703b3c2f703e0d0a0d0a3c703e4e616d653a207b54657874496e7075747d2052656c6174696f6e736869703a207b54657874496e7075747d20444f423a7b54657874496e7075747d3c2f703e0d0a0d0a3c703e41646472657373207b54657874496e7075747d205374617465207b54657874496e7075747d205a6970207b54657874496e7075747d3c2f703e0d0a0d0a3c703e50686f6e653a207b54657874496e7075747d205365636f6e646172792050686f6e653a207b54657874496e7075747d3c2f703e0d0a0d0a3c6872202f3e0d0a3c703e57686f20746f206e6f7469667920696e20656d657267656e637920286e6561726573742072656c6174697665206f7220667269656e64293f3c2f703e0d0a0d0a3c703e4e616d657b54657874496e7075747d2052656c6174696f6e736869707b54657874496e7075747d3c2f703e0d0a0d0a3c703e416464726573733a207b54657874496e7075747d2053746174653a207b54657874496e7075747d205a69703a207b54657874496e7075747d3c2f703e0d0a0d0a3c703e576f726b2050686f6e653a207b54657874496e7075747d20486f6d652050686f6e653a207b54657874496e7075747d3c2f703e0d0a0d0a3c6872202f3e0d0a3c703e5369676e6564206279207b50617469656e744e616d657d206f6e207b43757272656e74446174653a2671756f743b676c6f62616c2671756f743b7d207b43757272656e7454696d657d207b50617469656e745369676e61747572657d3c2f703e0d0a3c2f6469763e0d0a, 'text/plain');
+INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `send_date`, `end_date`, `size`, `template_content`, `mime`) VALUES(7, 0, 18, NULL, '2021-11-21 15:51:41', '', '', NULL, 'Medical History', 'New', '0000-00-00 00:00:00', '0000-00-00 00:00:00', 77, 0x7b456e636f756e746572466f726d3a4849537d0d0a0d0a3c6c6162656c3e50617469656e74205369676e61747572653a203c2f6c6162656c3e7b50617469656e745369676e61747572657d0d0a, 'text/plain');
+INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `send_date`, `end_date`, `size`, `template_content`, `mime`) VALUES(8, -1, 18, NULL, '2021-11-21 15:51:42', '', '', NULL, 'Medical History', 'New', '0000-00-00 00:00:00', '0000-00-00 00:00:00', 77, 0x7b456e636f756e746572466f726d3a4849537d0d0a0d0a3c6c6162656c3e50617469656e74205369676e61747572653a203c2f6c6162656c3e7b50617469656e745369676e61747572657d0d0a, 'text/plain');
+INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `send_date`, `end_date`, `size`, `template_content`, `mime`) VALUES(9, 0, 18, NULL, '2021-11-21 15:51:42', '', '', NULL, 'Privacy Document', 'New', '0000-00-00 00:00:00', '0000-00-00 00:00:00', 2536, 0x3c703e4e4f54494345204f462050524956414359205052414354494345532050415449454e542041434b4e4f574c454447454d454e5420414e4420434f4e53454e5420544f204d45444943414c2054524541544d454e540d0a50617469656e74204e616d653a203c656d3e7b50617469656e744e616d657d3c2f656d3e0d0a44617465206f662042697274683a207b50617469656e74444f427d0d0a0d0a49206861766520726563656976656420616e6420756e6465727374616e6420746869732070726163746963652773204e6f74696365206f66205072697661637920507261637469636573207772697474656e20696e20706c61696e20456e676c6973682e20546865206e6f746963652070726f766964657320696e2064657461696c20746865207573657320616e6420646973636c6f7375726573206f66206d792070726f746563746564206865616c746820696e666f726d6174696f6e2074686174206d6179206265206d61646520627920746869732070726163746963652c206d7920696e646976696475616c207269676874732c20686f772049206d61792065786572636973652074686f7365207269676874732c20616e642074686520707261637469636573206c6567616c206475746965732077697468207265737065637420746f206d7920696e666f726d6174696f6e2e0d0a0d0a4920756e6465727374616e642074686174207468652070726163746963652072657365727665732074686520726967687420746f206368616e676520746865207465726d73206f66207468652050726976616379205072616374696365732c20616e6420746f206d616b65206368616e67657320726567617264696e6720616c6c2070726f746563746564206865616c746820696e666f726d6174696f6e2e204966206368616e676573206f63637572207468656e207468652070726163746963652077696c6c2070726f76696465206d6520776974682061207265766973656420636f70792075706f6e20726571756573742e0d0a0d0a4920766f6c756e746172696c7920636f6e73656e7420746f20636172652c20696e636c7564696e672070687973696369616e206578616d696e6174696f6e20616e64207465737473207375636820617320782d7261792c206c61626f7261746f727920746573747320616e6420746f206d65646963616c2074726561746d656e74206279206d792070687973696369616e206f72206869732f68657220617373697374616e7473206f722064657369676e6565732c206173206d6179206265206e656365737361727920696e20746865206a7564676d656e74206f66206d792070687973696369616e2e204e6f2067756172616e746565732068617665206265656e206d61646520746f206d652061732074686520726573756c74206f662074726561746d656e74206f72206578616d696e6174696f6e2e0d0a0d0a417574686f72697a6174696f6e20666f723a0d0a496e20636f6e73696465726174696f6e20666f72207365727669636573207265636569766564206279203c656d3e7b526566657272696e67444f437d3c2f656d3e204920616772656520746f2070617920616e7920616e6420616c6c20636861726765732061732062696c6c65642e204920616c736f2072657175657374207468617420646972656374207061796d656e7473206265206d61646520746f203c656d3e7b526566657272696e67444f437d3c2f656d3e206f6e206d7920626568616c6620627920696e73757265727320616e64206167656e6369657320696e2074686520736574746c656d656e74206f6620616e79206f66206d7920636c61696d732e204920756e6465727374616e642074686174206d792070726f746563746564206865616c746820696e666f726d6174696f6e206d6179206e65656420746f2062652072656c656173656420666f722074686520707572706f7365206f662074726561746d656e742c207061796d656e74206f72206865616c74682063617265206f7065726174696f6e732e0d0a0d0a4d656469636172652050617469656e74733a0d0a49206365727469667920746861742074686520696e666f726d6174696f6e20676976656e206279206d6520666f72206170706c69636174696f6e20666f72207061796d656e7420756e646572207469746c65205856494949206f662074686520536f6369616c2053656375726974792041637420697320636f72726563742e204920617574686f72697a6520616e7920686f6c646572206f66206d65646963616c206f72206f746865722072656c6576616e7420696e666f726d6174696f6e2061626f7574206d652062652072656c656173656420746f2074686520536f6369616c2053656375726974792041646d696e697374726174696f6e206f72206974277320696e7465726d6564696172696573206f6620636172726965727320616e64207375636820696e666f726d6174696f6e206e656564656420746f20737570706f7274206170706c69636174696f6e20666f72207061796d656e742e20496e636c7564696e67207265636f726473207065727461696e696e6720746f2048495620737461747573206f722074726561746d656e74202841494453207265636f726473292c206472756720616e6420616c636f686f6c2074726561746d656e742c20616e64206f722070737963686961747269632074726561746d656e742e20492061737369676e20616e6420617574686f72697a65207061796d656e74206469726563746c7920746f203c656d3e7b526566657272696e67444f437d3c2f656d3e20666f722074686520756e70616964206368617267657320666f72207468652070687973696369616e27732073657276696365732e204920756e6465727374616e642074686174204920616d20726573706f6e7369626c6520666f7220616c6c20696e737572616e63652064656475637469626c657320616e6420636f696e737572616e63652e0d0a436f6d6d656e74733a207b54657874496e7075747d0d0a5369676e61747572653a207b50617469656e745369676e61747572657d0d0a446f20796f7520617574686f72697a6520656c656374726f6e6963207369676e6174757265207b436865636b4d61726b7d200d0a52656c6174696f6e7368697020746f2070617469656e7420286966207369676e6564206279206120706572736f6e616c20726570726573656e746174697665293a207b54657874496e7075747d0d0a41726520796f75205072696d61727920436172652047697665723a7b796e526164696f47726f75707d0d0a446174653a207b444f537d0d0a3c2f703e3c703e436c696e696320526570726573656e746174697665205369676e6174757265266e6273703b7b526566657272696e67444f437d205369676e65643a207b41646d696e5369676e61747572657d203c2f703e3c703e3c6272202f3e3c2f703e, 'text/plain');
+INSERT INTO `document_templates` (`id`, `pid`, `provider`, `encounter`, `modified_date`, `profile`, `category`, `location`, `template_name`, `status`, `send_date`, `end_date`, `size`, `template_content`, `mime`) VALUES(10, -1, 1, NULL, '2021-11-30 16:02:52', '', '', NULL, 'Privacy Document', 'New', '0000-00-00 00:00:00', '0000-00-00 00:00:00', 2536, 0x3c703e4e4f54494345204f462050524956414359205052414354494345532050415449454e542041434b4e4f574c454447454d454e5420414e4420434f4e53454e5420544f204d45444943414c2054524541544d454e540d0a50617469656e74204e616d653a203c656d3e7b50617469656e744e616d657d3c2f656d3e0d0a44617465206f662042697274683a207b50617469656e74444f427d0d0a0d0a49206861766520726563656976656420616e6420756e6465727374616e6420746869732070726163746963652773204e6f74696365206f66205072697661637920507261637469636573207772697474656e20696e20706c61696e20456e676c6973682e20546865206e6f746963652070726f766964657320696e2064657461696c20746865207573657320616e6420646973636c6f7375726573206f66206d792070726f746563746564206865616c746820696e666f726d6174696f6e2074686174206d6179206265206d61646520627920746869732070726163746963652c206d7920696e646976696475616c207269676874732c20686f772049206d61792065786572636973652074686f7365207269676874732c20616e642074686520707261637469636573206c6567616c206475746965732077697468207265737065637420746f206d7920696e666f726d6174696f6e2e0d0a0d0a4920756e6465727374616e642074686174207468652070726163746963652072657365727665732074686520726967687420746f206368616e676520746865207465726d73206f66207468652050726976616379205072616374696365732c20616e6420746f206d616b65206368616e67657320726567617264696e6720616c6c2070726f746563746564206865616c746820696e666f726d6174696f6e2e204966206368616e676573206f63637572207468656e207468652070726163746963652077696c6c2070726f76696465206d6520776974682061207265766973656420636f70792075706f6e20726571756573742e0d0a0d0a4920766f6c756e746172696c7920636f6e73656e7420746f20636172652c20696e636c7564696e672070687973696369616e206578616d696e6174696f6e20616e64207465737473207375636820617320782d7261792c206c61626f7261746f727920746573747320616e6420746f206d65646963616c2074726561746d656e74206279206d792070687973696369616e206f72206869732f68657220617373697374616e7473206f722064657369676e6565732c206173206d6179206265206e656365737361727920696e20746865206a7564676d656e74206f66206d792070687973696369616e2e204e6f2067756172616e746565732068617665206265656e206d61646520746f206d652061732074686520726573756c74206f662074726561746d656e74206f72206578616d696e6174696f6e2e0d0a0d0a417574686f72697a6174696f6e20666f723a0d0a496e20636f6e73696465726174696f6e20666f72207365727669636573207265636569766564206279203c656d3e7b526566657272696e67444f437d3c2f656d3e204920616772656520746f2070617920616e7920616e6420616c6c20636861726765732061732062696c6c65642e204920616c736f2072657175657374207468617420646972656374207061796d656e7473206265206d61646520746f203c656d3e7b526566657272696e67444f437d3c2f656d3e206f6e206d7920626568616c6620627920696e73757265727320616e64206167656e6369657320696e2074686520736574746c656d656e74206f6620616e79206f66206d7920636c61696d732e204920756e6465727374616e642074686174206d792070726f746563746564206865616c746820696e666f726d6174696f6e206d6179206e65656420746f2062652072656c656173656420666f722074686520707572706f7365206f662074726561746d656e742c207061796d656e74206f72206865616c74682063617265206f7065726174696f6e732e0d0a0d0a4d656469636172652050617469656e74733a0d0a49206365727469667920746861742074686520696e666f726d6174696f6e20676976656e206279206d6520666f72206170706c69636174696f6e20666f72207061796d656e7420756e646572207469746c65205856494949206f662074686520536f6369616c2053656375726974792041637420697320636f72726563742e204920617574686f72697a6520616e7920686f6c646572206f66206d65646963616c206f72206f746865722072656c6576616e7420696e666f726d6174696f6e2061626f7574206d652062652072656c656173656420746f2074686520536f6369616c2053656375726974792041646d696e697374726174696f6e206f72206974277320696e7465726d6564696172696573206f6620636172726965727320616e64207375636820696e666f726d6174696f6e206e656564656420746f20737570706f7274206170706c69636174696f6e20666f72207061796d656e742e20496e636c7564696e67207265636f726473207065727461696e696e6720746f2048495620737461747573206f722074726561746d656e74202841494453207265636f726473292c206472756720616e6420616c636f686f6c2074726561746d656e742c20616e64206f722070737963686961747269632074726561746d656e742e20492061737369676e20616e6420617574686f72697a65207061796d656e74206469726563746c7920746f203c656d3e7b526566657272696e67444f437d3c2f656d3e20666f722074686520756e70616964206368617267657320666f72207468652070687973696369616e27732073657276696365732e204920756e6465727374616e642074686174204920616d20726573706f6e7369626c6520666f7220616c6c20696e737572616e63652064656475637469626c657320616e6420636f696e737572616e63652e0d0a436f6d6d656e74733a207b54657874496e7075747d0d0a5369676e61747572653a207b50617469656e745369676e61747572657d0d0a446f20796f7520617574686f72697a6520656c656374726f6e6963207369676e6174757265207b436865636b4d61726b7d200d0a52656c6174696f6e7368697020746f2070617469656e7420286966207369676e6564206279206120706572736f6e616c20726570726573656e746174697665293a207b54657874496e7075747d0d0a41726520796f75205072696d61727920436172652047697665723a7b796e526164696f47726f75707d0d0a446174653a207b444f537d0d0a3c2f703e3c703e436c696e696320526570726573656e746174697665205369676e6174757265266e6273703b7b526566657272696e67444f437d205369676e65643a207b41646d696e5369676e61747572657d203c2f703e3c703e3c6272202f3e3c2f703e, 'text/plain');
 
-INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
-('ICD10', 'CMS', '2021-10-01', '2022-Code Descriptions.zip', '11d1d725c84e55d52ef6633da88aa137');
+DROP TABLE IF EXISTS `valueset_oid`;
+CREATE TABLE `valueset_oid` (
+  `nqf_code` varchar(255) NOT NULL DEFAULT '',
+  `code` varchar(255) NOT NULL DEFAULT '',
+  `code_system` varchar(255) NOT NULL DEFAULT '',
+  `code_type` varchar(255) DEFAULT NULL,
+  `valueset` varchar(255) NOT NULL DEFAULT '',
+  `description` varchar(255) DEFAULT NULL,
+  `valueset_name` varchar(500) DEFAULT NULL,
+  PRIMARY KEY (`nqf_code`,`code`,`valueset`)
+) ENGINE=InnoDB;
 
-INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
-('ICD10', 'CMS', '2021-10-01', 'Zip File 3 2022 ICD-10-PCS Codes File.zip', 'a432177acbdaf9908aa528078ae72176');
+DROP TABLE IF EXISTS `questionnaire_repository`;
+CREATE TABLE `questionnaire_repository` (
+    `id` bigint(21) UNSIGNED NOT NULL AUTO_INCREMENT,
+    `uuid` binary(16) DEFAULT NULL,
+    `questionnaire_id` varchar(255) DEFAULT NULL,
+    `provider` int(11) UNSIGNED DEFAULT NULL,
+    `version` int(11) NOT NULL DEFAULT 1,
+    `created_date` datetime DEFAULT current_timestamp(),
+    `modified_date` datetime DEFAULT current_timestamp(),
+    `name` varchar(255) DEFAULT NULL,
+    `type` varchar(63) NOT NULL DEFAULT 'Questionnaire',
+    `profile` varchar(255) DEFAULT NULL,
+    `active` tinyint(2) NOT NULL DEFAULT 1,
+    `status` varchar(31) DEFAULT NULL,
+    `source_url` text,
+    `code` varchar(255) DEFAULT NULL,
+    `code_display` text,
+    `questionnaire` longtext,
+    `lform` longtext,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uuid` (`uuid`),
+    KEY `search` (`name`,`questionnaire_id`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `questionnaire_response`;
+CREATE TABLE `questionnaire_response` (
+  `id` bigint(21) NOT NULL AUTO_INCREMENT,
+  `uuid` binary(16) DEFAULT NULL,
+  `response_id` varchar(255) DEFAULT NULL COMMENT 'A globally unique id for answer set. String version of UUID',
+  `questionnaire_foreign_id` bigint(21) DEFAULT NULL COMMENT 'questionnaire_repository id for subject questionnaire',
+  `questionnaire_id` varchar(255) DEFAULT NULL COMMENT 'Id for questionnaire content. String version of UUID',
+  `questionnaire_name` varchar(255) DEFAULT NULL,
+  `patient_id` int(11) DEFAULT NULL,
+  `encounter` int(11) DEFAULT NULL COMMENT 'May or may not be associated with an encounter',
+  `audit_user_id` int(11) DEFAULT NULL,
+  `creator_user_id` int(11) DEFAULT NULL COMMENT 'user id if answers are provider',
+  `create_time` datetime DEFAULT current_timestamp(),
+  `last_updated` datetime DEFAULT NULL,
+  `version` int(11) NOT NULL DEFAULT 1,
+  `status` varchar(63) DEFAULT NULL COMMENT 'form current status. completed,active,incomplete',
+  `questionnaire` longtext COMMENT 'the subject questionnaire json',
+  `questionnaire_response` longtext COMMENT 'questionnaire response json',
+  `form_response` longtext COMMENT 'lform answers array json',
+  `form_score` int(11) DEFAULT NULL COMMENT 'Arithmetic scoring of questionnaires',
+  `tscore` double DEFAULT NULL COMMENT 'T-Score',
+  `error` double DEFAULT NULL COMMENT 'Standard error for the T-Score',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uuid` (`uuid`),
+  KEY `response_index` (`response_id`, `patient_id`, `questionnaire_id`, `questionnaire_name`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `form_questionnaire_assessments`;
+CREATE TABLE `form_questionnaire_assessments` (
+  `id` bigint(21) NOT NULL AUTO_INCREMENT,
+  `date` datetime DEFAULT current_timestamp(),
+  `response_id` TEXT COMMENT 'The foreign id to the questionnaire_response repository',
+  `pid` bigint(21) NOT NULL DEFAULT 0,
+  `user` varchar(255) DEFAULT NULL,
+  `groupname` varchar(255) DEFAULT NULL,
+  `authorized` tinyint(4) NOT NULL DEFAULT 0,
+  `activity` tinyint(4) NOT NULL DEFAULT 1,
+  `copyright` text,
+  `form_name` varchar(255) DEFAULT NULL,
+  `response_meta` text COMMENT 'json meta data for the response resource',
+  `questionnaire_id` TEXT COMMENT 'The foreign id to the questionnaire_repository',
+  `questionnaire` longtext,
+  `questionnaire_response` longtext,
+  `lform` longtext,
+  `lform_response` longtext,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB;
+
+DROP TABLE IF EXISTS `onetime_auth`;
+CREATE TABLE `onetime_auth` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `pid` bigint(20) DEFAULT NULL,
+    `create_user_id` bigint(20) DEFAULT NULL,
+    `context` varchar(64) DEFAULT NULL,
+    `access_count` int(11) NOT NULL DEFAULT 0,
+    `remote_ip` varchar(32) DEFAULT NULL,
+    `onetime_pin` varchar(10) DEFAULT NULL COMMENT 'Max 10 numeric. Default 6',
+    `onetime_token` tinytext,
+    `redirect_url` tinytext,
+    `expires` int(11) DEFAULT NULL,
+    `date_created` datetime DEFAULT current_timestamp(),
+    `last_accessed` datetime DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    KEY `pid` (`pid`,`onetime_token`(255))
+) ENGINE=InnoDB;
+
+
+DROP TABLE IF EXISTS `patient_settings`;
+CREATE TABLE `patient_settings` (
+     `setting_patient`  bigint(20)   NOT NULL DEFAULT 0,
+     `setting_label` varchar(100)  NOT NULL,
+     `setting_value` varchar(255) NOT NULL DEFAULT '',
+     PRIMARY KEY (`setting_patient`, `setting_label`)
+) ENGINE=InnoDB;
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'default_open_tabs', 'Default Open Tabs');
+INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', 'interface/main/main_info.php', 'Calendar', 10, 'cal', '1');
+INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', 'interface/new/new.php', 'Patient Search / Add', 20, 'pat', '0');
+INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', 'interface/main/finder/dynamic_finder.php', 'Patient Finder', 30, 'fin', '0');
+INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', 'interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1', 'Flow Board', 40, 'flb', '0');
+INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', 'interface/main/messages/messages.php?form_active=1', 'Message Inbox', 50, 'msg', '1');
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'recent_patient_columns', 'Recent Patient Columns');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'fname', 'First Name', '10');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'mname', 'Middle Name', '20');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'lname', 'Last Name', '30');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'dob', 'Date of Birth', '40');
+
+CREATE TABLE recent_patients (
+    user_id varchar(40) NOT NULL,
+    patients TEXT,
+    PRIMARY KEY (user_id)
+) ENGINE=InnoDB;

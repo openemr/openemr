@@ -11,6 +11,7 @@
  */
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Services\VersionService;
 
 class eRxGlobals
 {
@@ -56,7 +57,7 @@ class eRxGlobals
      */
     public function getOpenEMRVersion()
     {
-        return $this->getGlobalValue('openemr_version');
+        return (new VersionService())->asString();
     }
 
     /**

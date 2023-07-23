@@ -17,6 +17,7 @@ require_once("drugs.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 $drug_id = $_REQUEST['drug'];
@@ -24,7 +25,8 @@ $lot_id  = $_REQUEST['lot'];
 $info_msg = "";
 
 if (!AclMain::aclCheckCore('admin', 'drugs')) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Destroy Lot")]);
+    exit;
 }
 
 if (!$drug_id) {
@@ -123,42 +125,42 @@ if ($_POST['form_save']) {
 <table class='table-borderless w-100'>
 
  <tr>
-  <td class="text-nowrap align-top font-weight-bold" width='1%'><?php echo xlt('Lot Number'); ?>:</td>
+  <td class="text-nowrap align-top" width='1%'><?php echo xlt('Lot Number'); ?>:</td>
   <td>
     <?php echo text($row['lot_number']) ?>
   </td>
  </tr>
 
  <tr>
-  <td class="text-nowrap align-top font-weight-bold"><?php echo xlt('Manufacturer'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Manufacturer'); ?>:</td>
   <td>
     <?php echo text($row['manufacturer']) ?>
   </td>
  </tr>
 
  <tr>
-  <td class="text-nowrap align-top font-weight-bold"><?php echo xlt('Quantity On Hand'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Quantity On Hand'); ?>:</td>
   <td>
     <?php echo text($row['on_hand']) ?>
   </td>
  </tr>
 
  <tr>
-  <td class="text-nowrap align-top font-weight-bold"><?php echo xlt('Expiration Date'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Expiration Date'); ?>:</td>
   <td>
     <?php echo text($row['expiration']) ?>
   </td>
  </tr>
 
  <tr>
-  <td class="text-nowrap align-top font-weight-bold"><?php echo xlt('Date Destroyed'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Date Destroyed'); ?>:</td>
   <td>
    <input type='text' size='10' class='datepicker' name='form_date' id='form_date' value='<?php echo $row['destroy_date'] ? attr($row['destroy_date']) : date("Y-m-d"); ?>' title='<?php echo xla('yyyy-mm-dd date destroyed'); ?>' />
   </td>
  </tr>
 
  <tr>
-  <td class="text-nowrap align-top font-weight-bold"><?php echo xlt('Method of Destruction'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Method of Destruction'); ?>:</td>
   <td>
    <input type='text' class='w-100' size='40' name='form_method' maxlength='250'
     value='<?php echo attr($row['destroy_method']) ?>' />
@@ -166,7 +168,7 @@ if ($_POST['form_save']) {
  </tr>
 
  <tr>
-  <td class="text-nowrap align-top font-weight-bold"><?php echo xlt('Witness'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Witness'); ?>:</td>
   <td>
    <input type='text' class='w-100' size='40' name='form_witness' maxlength='250'
     value='<?php echo attr($row['destroy_witness']) ?>' />
@@ -174,7 +176,7 @@ if ($_POST['form_save']) {
  </tr>
 
  <tr>
-  <td class="text-nowrap align-top font-weight-bold"><?php echo xlt('Notes'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Notes'); ?>:</td>
   <td>
    <input type='text' class='w-100' size='40' name='form_notes' maxlength='250'
     value='<?php echo attr($row['destroy_notes']) ?>' />

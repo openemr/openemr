@@ -235,9 +235,13 @@ class CareTeamService extends BaseService
 
     public function createCareTeamHistory($pid, $oldProviders, $oldFacilities)
     {
+        // we should never be null here but for legacy reasons we are going to default to this
+        $createdBy = $_SESSION['authUserID'] ?? null; // we don't let anyone else but the current user be the createdBy
+
         $insertData = [
             'pid' => $pid, 'care_team_provider' => $oldProviders, 'care_team_facility' => $oldFacilities,
             'history_type_key' => 'care_team_history',
+            'created_by' => $createdBy,
             'uuid' => UuidRegistry::getRegistryForTable(self::PATIENT_HISTORY_TABLE)->createUuid()
         ];
         $insert = $this->buildInsertColumns($insertData);

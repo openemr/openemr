@@ -33,9 +33,10 @@ function array_key_exists_default($key, $search, $default = null)
     return $value;
 }
 
+$GLOBALS_REF = $GLOBALS;
 $eRxPage = new eRxPage(
     new eRxXMLBuilder(
-        new eRxGlobals($GLOBALS),
+        new eRxGlobals($GLOBALS_REF),
         new eRxStore()
     )
 );

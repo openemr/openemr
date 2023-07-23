@@ -16,9 +16,11 @@
         </div>
     </div>
     <div class="form-row my-sm-2">
-        <label for="name" class="col-form-label col-sm-2">{xlt t='Submitter Name (3rd Party Submitter Only)'}</label>
+        <label for="x12_submitter_id" class="col-form-label col-sm-2">{xlt t='Submitter Name (3rd Party Submitter Only)'}</label>
         <div class="col-sm-8">
-            <input type="text" id="x12_submitter_name" name="x12_submitter_name" class="form-control" value="{$partner->get_x12_submitter_name()|attr}" onKeyDown="PreventIt(event)">
+            <select id="x12_submitter_id" name="x12_submitter_id" class="form-control">
+                {html_options options=$partner->get_x12_submitter_array() selected=$partner->get_x12_submitter_id()}
+            </select>    
         </div>
     </div>
     <div class="form-row my-sm-2">
@@ -152,7 +154,7 @@
     <div class="form-row my-sm-2">
         <label for="x12_sftp_host" class="col-form-label col-sm-2">{xlt t='SFTP Host'}</label>
         <div class="col-sm-8">
-            <input type="text" maxlength="15" id="x12_sftp_host" name="x12_sftp_host" class="form-control" value="{$partner->get_x12_sftp_host()|attr}" onKeyDown="PreventIt(event)">
+            <input type="text" maxlength="45" id="x12_sftp_host" name="x12_sftp_host" class="form-control" value="{$partner->get_x12_sftp_host()|attr}" onKeyDown="PreventIt(event)">
         </div>
     </div>
     <div class="form-row my-sm-2">
@@ -187,7 +189,7 @@
     <input type="hidden" name="sub" value="no" />
 </form>
 
-{literal}
+
 <script>
 function add_x12()
 {
@@ -212,4 +214,4 @@ document.x12_partner.name.focus();
 
    }
 </script>
-{/literal}
+

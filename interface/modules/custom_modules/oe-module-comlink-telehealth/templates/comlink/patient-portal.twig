@@ -1,0 +1,17 @@
+{#
+ # Twig with the assets for the telehealth patient portal additions
+ #
+ # @package openemr
+ # @link      http://www.open-emr.org
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<script src="{{ assetPath }}../{{ "index-portal.php"|addCacheParam()}}&action=get_telehealth_settings"></script>
+<link rel="stylesheet" href="{{ assetPath }}css/{{ "telehealth.css"|addCacheParam()}}" type="text/css" />
+{% if debug %}
+    <script src="{{ assetPath }}js/dist/{{ "telehealth.js"|addCacheParam()}}"></script>
+{% else %}
+    <script src="{{ assetPath }}js/dist/{{ "telehealth.min.js"|addCacheParam()}}"></script>
+{% endif %}
+<script src="{{ assetPath }}js/{{ "telehealth-patient.js"|addCacheParam()}}"></script>

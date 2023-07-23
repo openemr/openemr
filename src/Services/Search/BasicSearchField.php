@@ -140,6 +140,23 @@ class BasicSearchField implements ISearchField
         return $this;
     }
 
+
+    public function __clone()
+    {
+        if (!empty($this->values)) {
+            $values = $this->values;
+            $newValues = [];
+            foreach ($values as $value) {
+                if (is_object($value)) {
+                    $newValues[] = clone $value;
+                } else {
+                    $newValues[] = $value;
+                }
+            }
+            $this->values = $values;
+        }
+    }
+
     /**
      * Useful for debugging, you can echo the object to see its values.
      * @return string

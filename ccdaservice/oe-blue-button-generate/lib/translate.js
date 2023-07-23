@@ -27,10 +27,14 @@ exports.codeFromName = function (OID) {
 exports.code = function (input) {
     var result = {};
 
-    if (input.code === 'null_flavor') {
+    if (input.code === 'null_flavor' || input.code === '') {
         return {
             nullFlavor: "UNK"
         };
+    }
+
+    if (input.xmlns) {
+        result.xmlns = input.xmlns;
     }
 
     if (input.code) {
@@ -71,33 +75,65 @@ var precisionToFormat = {
 };
 
 exports.time = function (input) {
+    let result = '';
     var m = moment.parseZone(input.date);
-    /*if (m._isValid !== true) {
-        return "";
-    }*/
-    var formatSpec = precisionToFormat[input.precision];
-    var result = m.format(formatSpec);
+    if (m._isValid !== true) {
+        m = moment(input.date, "YYYYMMDD HH:mm:ss")
+    }
+    let formatSpec = precisionToFormat[input.precision];
+    if (input.precision === 'tz') {
+        formatSpec = precisionToFormat['tz'];
+        if (input.timezoneOffset) {
+            result =  m.utcOffset(input.timezoneOffset).format(formatSpec);
+        } else {
+            result =  m.format(formatSpec);
+        }
+        return result;
+    }
+    result = m.format(formatSpec);
     return result;
 };
 
 var acronymize = exports.acronymize = function (string) {
-    var ret = string.split(" ");
-    var fL = ret[0].slice(0, 1);
-    var lL = ret[1].slice(0, 1);
-    fL = fL.toUpperCase();
-    lL = lL.toUpperCase();
-    ret = fL + lL;
+    let ret = string.split(" ");
+    if (ret.length > 1) {
+        let fL = ret[0].slice(0, 1);
+        let lL = ret[1].slice(0, 1);
+        fL = fL.toUpperCase();
+        lL = lL.toUpperCase();
+        ret = fL + lL;
+    } else {
+        ret = string;
+    }
     if (ret === "PH") {
         ret = "HP";
     }
     if (ret === "PM") {
         ret = "MC";
     }
+    if (ret === "PW") {
+        ret = "WP";
+    }
+    if (ret === "EC") {
+        ret = "EC";
+    }
     if (ret === "HA") {
         ret = "H";
     }
     if (ret === "CE") {
         ret = "EM";
+    }
+    if (ret.toUpperCase() === "WORK") {
+        ret = "WP";
+    }
+    if (ret.toUpperCase() === "HOME") {
+        ret = "H";
+    }
+    if (ret.toUpperCase() === "TEMP") {
+        ret = "TMP";
+    }
+    if (ret.toUpperCase() === "BILLING") {
+        ret = "PST";
     }
     return ret;
 };
@@ -153,19 +189,24 @@ exports.telecom = function (input) {
 };
 
 var nameSingle = function (input) {
-    var given = null;
+    let given = null;
     if (input.first) {
         given = [input.first];
         if (input.middle && input.middle[0]) {
             given.push(input.middle[0]);
         }
     }
-    return {
-        prefix: input.prefix,
+    let name = {
         given: given,
-        family: input.last,
-        suffix: input.suffix
+        family: input.last
     };
+    if (input.suffix) {
+        name.suffix = input.suffix
+    }
+    if (input.prefix) {
+        name.prefix = input.prefix
+    }
+    return name;
 };
 
 exports.name = function (input) {

@@ -45,6 +45,23 @@ class DocumentsController extends AbstractActionController
         return $this->Documents();
     }
 
+    public function isZipUpload($request = null)
+    {
+        if (!$request) {
+            $request = $this->getRequest();
+        }
+        if ($request->isPost() && count($_FILES) > 0) {
+            // we only deal with the first uploaded file... with zip files only one file at a time should be sent
+            $filePtr = reset($_FILES);
+            // we don't rely on the mime type sent from the client and grab it from the operating system
+            if (is_uploaded_file($filePtr['tmp_name'])) {
+                $mime_type = mime_content_type($filePtr['tmp_name']);
+                return $mime_type == 'application/zip';
+            }
+        }
+        return false;
+    }
+
     /*
     * Upload document
     */
@@ -72,6 +89,9 @@ class DocumentsController extends AbstractActionController
                 $file_name = $dateStamp . "_" . basename($file["name"]);
                 $file["name"] = $file_name;
 
+                if ($file['type'] != 'text/xml' && $file['type'] != 'application/xml') {
+                    continue;
+                }
                 $documents[$i] = array(
                     'name' => $file_name,
                     'type' => $file['type'],
@@ -151,7 +171,7 @@ class DocumentsController extends AbstractActionController
                     $style = "ccr.xsl";
                     break;
                 case $categoryIds['CCDA']:
-                    $style = "ccda.xsl";
+                    $style = "cda.xsl";
                     break;
             }
 

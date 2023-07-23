@@ -9,3 +9,4 @@ INSERT INTO `gacl_groups_aro_map`(`group_id`, `aro_id`)
         (SELECT `id` FROM `gacl_aro_groups` WHERE parent_id=10 AND value='admin')
         ,(SELECT `id` FROM `gacl_aro` WHERE `section_value` = 'users' AND `value` = 'oe-system')
     );
+UPDATE `gacl_aro_seq` SET `id` = (SELECT max(`id`)+1);

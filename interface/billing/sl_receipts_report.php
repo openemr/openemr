@@ -23,7 +23,7 @@
 
 
 require_once('../globals.php');
-require_once($GLOBALS['srcdir'] . '/patient.inc');
+require_once($GLOBALS['srcdir'] . '/patient.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 // This determines if a particular procedure code corresponds to receipts
@@ -36,7 +36,13 @@ require_once('../forms/fee_sheet/codes.php');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('acct', 'rep') && !AclMain::aclCheckCore('acct', 'rep_a')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Cash Receipts by Provider")]);
+    exit;
+}
 
 function is_clinic($code)
 {
@@ -59,11 +65,6 @@ function bucks($amount)
         echo attr(oeFormatMoney($amount));
     }
 }
-
-if (! AclMain::aclCheckCore('acct', 'rep')) {
-    die(xlt("Unauthorized access."));
-}
-
 
 $form_use_edate  = $_POST['form_use_edate'] ?? null;
 
@@ -373,6 +374,11 @@ $form_facility   = $_POST['form_facility'] ?? null;
                     <?php
                     if ($_POST['form_refresh']) {
                         $form_doctor = $_POST['form_doctor'];
+                        if (!AclMain::aclCheckCore('acct', 'rep_a')) {
+                            // only allow user to see their encounter information
+                            $form_doctor = $_SESSION['authUserID'];
+                        }
+
                         $arows = array();
 
                         $ids_to_skip = array();

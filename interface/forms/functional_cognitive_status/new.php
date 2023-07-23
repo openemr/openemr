@@ -14,8 +14,8 @@
 */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
@@ -24,7 +24,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
-$formid = 0 + (isset($_GET['id']) ? $_GET['id'] : 0);
+$formid = (int) (isset($_GET['id']) ? $_GET['id'] : 0);
 if ($formid) {
     $sql = "SELECT * FROM `form_functional_cognitive_status` WHERE id=? AND pid = ? AND encounter = ?";
     $res = sqlStatement($sql, array($formid,$_SESSION["pid"], $_SESSION["encounter"]));

@@ -13,9 +13,9 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/encounter.inc");
-require_once("$srcdir/group.inc");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/encounter.inc.php");
+require_once("$srcdir/group.inc.php");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/amc.php");
 require_once($GLOBALS['srcdir'] . '/ESign/Api.php');
 require_once("$srcdir/../controllers/C_Document.class.php");
@@ -29,6 +29,7 @@ use OpenEMR\Events\Encounter\EncounterMenuEvent;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
 
 $expand_default = (int)$GLOBALS['expand_form'] ? 'show' : 'hide';
 $reviewMode = false;
@@ -57,13 +58,14 @@ if ($GLOBALS['kernel']->getEventDispatcher() instanceof EventDispatcher) {
 }
 
 ?>
+<!DOCTYPE html>
 <html>
 
 <head>
 
 <?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
 
-<?php Header::setupHeader(['common','esign','dygraphs']); ?>
+<?php Header::setupHeader(['common','esign','dygraphs', 'utility']); ?>
 
 <?php
 $esignApi = new Api();
@@ -259,7 +261,7 @@ $(function () {
      $(".deleteme").click(function(evt) { deleteme(); evt.stopPropogation(); });
 
 <?php
-  // If the user was not just asked about orphaned orders, build javascript for that.
+ // If the user was not just asked about orphaned orders, build javascript for that.
 if (!isset($_GET['attachid'])) {
     $ares = sqlStatement(
         "SELECT procedure_order_id, date_ordered " .
@@ -400,15 +402,17 @@ function refreshVisitDisplay() {
 <script>
 
 function openNewForm(sel, label) {
-  top.restoreSession();
-  var FormNameValueArray = sel.split('formname=');
-  if (FormNameValueArray[1] == 'newpatient') {
-    // TBD: Make this work when it's not the first frame.
-    parent.frames[0].location.href = sel;
-  }
-  else {
-    parent.twAddFrameTab('enctabs', label, sel);
-  }
+    top.restoreSession();
+    let FormNameValueArray = sel.split('formname=');
+    if (FormNameValueArray[1] == 'newpatient') {
+        // TBD: Make this work when it's not the first frame.
+        parent.frames[0].location.href = sel;
+    } else {
+        if (FormNameValueArray[1] == 'questionnaire_assessments') {
+            sel += "&questionnaire_form=" + encodeURIComponent(label);
+        }
+        parent.twAddFrameTab('enctabs', label, sel);
+    }
 }
 
 function toggleFrame1(fnum) {
@@ -508,7 +512,7 @@ function findPosY(obj) {
 <body>
 <nav>
 <?php //DYNAMIC FORM RETREIVAL
-include_once("$srcdir/registry.inc");
+require_once("$srcdir/registry.inc.php");
 
 $reg = getFormsByCategory();
 $old_category = '';
@@ -543,7 +547,7 @@ $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (Encount
 
         $_cat = trim($item['category']);
         $_cat = ($_cat == '') ? xl("Miscellaneous") : xl($_cat);
-        $item['displayText'] = (trim($item['nickname']) != '') ? trim($item['nickname']) : trim($item['name']);
+        $item['displayText'] = (trim($item['nickname'] ?? '') != '') ? trim($item['nickname'] ?? '') : trim($item['name'] ?? '');
         unset($item['category']);
         unset($item['name']);
         unset($item['nickname']);
@@ -625,6 +629,15 @@ echo $t->render('encounter/forms/navbar.html.twig', [
 
 <div id="encounter_forms" class="mx-1">
 <div class='encounter-summary-container'>
+    <?php
+    $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+    if ($dispatcher instanceof EventDispatcher) {
+        $event = new EncounterFormsListRenderEvent($_SESSION['encounter'], $attendant_type);
+        $event->setGroupId($groupId ?? null);
+        $event->setPid($pid ?? null);
+        $dispatcher->dispatch($event, EncounterFormsListRenderEvent::EVENT_SECTION_RENDER_PRE);
+    }
+    ?>
     <div class='encounter-summary-column'>
         <div>
             <?php
@@ -659,16 +672,17 @@ echo $t->render('encounter/forms/navbar.html.twig', [
 
         </div>
     </div>
+
 <div class='encounter-summary-column'>
 <?php if ($esign->isLogViewable()) {
     $esign->renderLog();
 } ?>
 </div>
-
 <div class='encounter-summary-column'>
 <?php if ($GLOBALS['enable_amc_prompting']) { ?>
     <div class="float-right border border-dark mr-2">
-        <div class="float-left m-2">
+        <a class="btn btn-link p-0 m-1 float-right" data-toggle="collapse" data-target="#amc-requires"><?php echo xlt('AMC Requires'); ?></a>
+        <div id="amc-requires" class="float-left m-2 collapse">
           <table>
             <tr>
               <td>
@@ -790,7 +804,7 @@ if (!empty($docs_list) && count($docs_list) > 0) {
     <?php
     $doc = new C_Document();
     foreach ($docs_list as $doc_iter) {
-        $doc_url = $doc->_tpl_vars['CURRENT_ACTION'] . "&view&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_iter['id']) . "&";
+        $doc_url = $doc->getTemplateVars('CURRENT_ACTION') . "&view&patient_id=" . attr_url($pid) . "&document_id=" . attr_url($doc_iter['id']) . "&";
         // Get notes for this document.
         $queryString = "SELECT GROUP_CONCAT(note ORDER BY date DESC SEPARATOR '|') AS docNotes, GROUP_CONCAT(date ORDER BY date DESC SEPARATOR '|') AS docDates
 			FROM notes WHERE foreign_id = ? GROUP BY foreign_id";
@@ -997,6 +1011,14 @@ if (
 }
 if (!$pass_sens_squad) {
     echo xlt("Not authorized to view this encounter");
+}
+
+$dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+if ($dispatcher instanceof EventDispatcher) {
+    $event = new EncounterFormsListRenderEvent($_SESSION['encounter'], $attendant_type);
+    $event->setGroupId($groupId ?? null);
+    $event->setPid($pid ?? null);
+    $dispatcher->dispatch($event, EncounterFormsListRenderEvent::EVENT_SECTION_RENDER_POST);
 }
 ?>
 

@@ -145,7 +145,9 @@ exports.immunizationActivity = {
             dataKey: "product",
             required: true
         },
-        fieldLevel.performer, {
+        fieldLevel.performer
+        ,fieldLevel.author
+        ,{
             key: "entryRelationship",
             attributes: {
                 typeCode: "SUBJ",

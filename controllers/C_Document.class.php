@@ -10,13 +10,17 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../library/forms.inc");
+require_once(__DIR__ . "/../library/forms.inc.php");
+require_once(__DIR__ . "/../library/patient.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Events\PatientDocuments\PatientDocumentTreeViewFilterEvent;
 
 class C_Document extends Controller
 {
@@ -30,6 +34,7 @@ class C_Document extends Controller
     public $_last_node;
     private $Document;
     private $cryptoGen;
+    private bool $skip_acl_check = false;
 
     public function __construct($template_mod = "general")
     {
@@ -199,6 +204,8 @@ class C_Document extends Controller
 
         if (is_numeric($_POST['category_id'])) {
             $category_id = $_POST['category_id'];
+        } else {
+            $category_id = 1;
         }
 
         $patient_id = 0;
@@ -208,7 +215,18 @@ class C_Document extends Controller
             $patient_id = $_POST['patient_id'];
         }
 
-        if (!empty($_FILES['dicom_folder']['name'][0])) {
+        // ensure user has access to the category that is being uploaded to
+        $skipUpload = false;
+        if (!$this->isSkipAclCheck()) {
+            $acoSpec = sqlQuery("SELECT `aco_spec` from `categories` WHERE `id` = ?", [$category_id])['aco_spec'];
+            if (AclMain::aclCheckAcoSpec($acoSpec) === false) {
+                $error = xl("Not authorized to upload to the selected category.\n");
+                $skipUpload = true;
+                (new SystemLogger())->debug("An attempt was made to upload a document to an unauthorized category", ['user-id' => $_SESSION['authUserID'], 'patient-id' => $patient_id, 'category-id' => $category_id]);
+            }
+        }
+
+        if (!$skipUpload && !empty($_FILES['dicom_folder']['name'][0])) {
             // let's zip um up then pass along new zip
             $study_name = $_POST['destination'] ? (trim($_POST['destination']) . ".zip") : 'DicomStudy.zip';
             $study_name =  preg_replace('/\s+/', '_', $study_name);
@@ -222,7 +240,7 @@ class C_Document extends Controller
         }
 
         $sentUploadStatus = array();
-        if (count($_FILES['file']['name']) > 0) {
+        if (!$skipUpload && count($_FILES['file']['name']) > 0) {
             $upl_inc = 0;
 
             foreach ($_FILES['file']['name'] as $key => $value) {
@@ -271,7 +289,6 @@ class C_Document extends Controller
                             }
                             $za->close();
                             if ($mimetype == "application/dicom+zip") {
-                                $_FILES['file']['type'][$key] = $mimetype;
                                 sleep(1); // Timing insurance in case of re-compression. Only acted on index so...!
                                 $_FILES['file']['size'][$key] = filesize($_FILES['file']['tmp_name'][$key]); // file may have grown.
                             }
@@ -290,14 +307,22 @@ class C_Document extends Controller
                     if ($_POST['destination'] != '') {
                         $fname = $_POST['destination'];
                     }
-                    // set mime, test for single DICOM and assign extension if missing.
-                    $mimetype = $_FILES['file']['type'][$key];
+                    // test for single DICOM and assign extension if missing.
                     if (strpos($filetext, 'DICM') !== false) {
                         $mimetype = 'application/dicom';
                         $parts = pathinfo($fname);
                         if (!$parts['extension']) {
                             $fname .= '.dcm';
                         }
+                    }
+                    // set mimetype (if not already set above)
+                    if (empty($mimetype)) {
+                        $mimetype = mime_content_type($_FILES['file']['tmp_name'][$key]);
+                    }
+                    // if mimetype still empty, then do not upload the file
+                    if (empty($mimetype)) {
+                        $error = xl("Unable to discover mimetype, so did not upload " . $_FILES['file']['tmp_name'][$key]) . ".\n";
+                        continue;
                     }
                     $d = new Document();
                     $rc = $d->createDocument(
@@ -348,7 +373,7 @@ class C_Document extends Controller
             }
         }
 
-        $this->assign("error", nl2br($error));
+        $this->assign("error", $error);
         //$this->_state = false;
         $_POST['process'] = "";
         //return $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_upload.html");
@@ -434,7 +459,7 @@ class C_Document extends Controller
     {
         global $ISSUE_TYPES;
 
-        require_once(dirname(__FILE__) . "/../library/lists.inc");
+        require_once(dirname(__FILE__) . "/../library/lists.inc.php");
 
         $d = new Document($doc_id);
         $notes = $d->get_notes();
@@ -541,7 +566,7 @@ class C_Document extends Controller
         $menu  = new HTML_TreeMenu();
 
         //pass an empty array because we don't want the documents for each category showing up in this list box
-        $rnode = $this->array_recurse($this->tree->tree, array());
+        $rnode = $this->array_recurse($this->tree->tree, $patient_id, array());
         $menu->addItem($rnode);
         $treeMenu_listbox  = new HTML_TreeMenu_Listbox($menu, array("promoText" => xl('Move Document to Category:')));
 
@@ -601,6 +626,22 @@ class C_Document extends Controller
         }
 
         $d = new Document($document_id);
+
+        // ensure user/patient has access
+        if (isset($_SESSION['patient_portal_onsite_two']) && isset($_SESSION['pid'])) {
+            // ensure patient has access (called from patient portal)
+            if (!$d->can_patient_access($_SESSION['pid'])) {
+                (new SystemLogger())->debug("An attempt was made by a patient to download a document from an unauthorized category", ['patient-id' => $_SESSION['pid'], 'document-id' => $document_id]);
+                die(xlt("Not authorized to view requested file"));
+            }
+        } else {
+            // ensure user has access
+            if (!$d->can_access()) {
+                (new SystemLogger())->debug("An attempt was made by a user to download a document from an unauthorized category", ['user-id' => $_SESSION['authUserID'], 'patient-id' => $patient_id, 'document-id' => $document_id]);
+                die(xlt("Not authorized to view requested file"));
+            }
+        }
+
         $url =  $d->get_url();
         $th_url = $d->get_thumb_url();
 
@@ -785,7 +826,7 @@ class C_Document extends Controller
                     }
                 }
                 if ($disable_exit == true) {
-                    return $filetext;
+                    return $filetext ?? '';
                 }
                 header('Content-Description: File Transfer');
                 header('Content-Transfer-Encoding: binary');
@@ -1051,7 +1092,7 @@ class C_Document extends Controller
         //print_r($categories_list);
 
         $menu  = new HTML_TreeMenu();
-        $rnode = $this->array_recurse($this->tree->tree, $categories_list);
+        $rnode = $this->array_recurse($this->tree->tree, $patient_id, $categories_list);
         $menu->addItem($rnode);
         $treeMenu = new HTML_TreeMenu_DHTML($menu, array('images' => 'public/images', 'defaultClass' => 'treeMenuDefault'));
         $treeMenu_listbox  = new HTML_TreeMenu_Listbox($menu, array('linkTarget' => '_self'));
@@ -1062,8 +1103,16 @@ class C_Document extends Controller
         $cur_pid = isset($_GET['patient_id']) ? filter_input(INPUT_GET, 'patient_id') : '';
         $used_msg = xl('Current patient unavailable here. Use Patient Documents');
         if ($cur_pid == '00') {
+            if (!AclMain::aclCheckCore('patients', 'docs', '', ['write', 'addonly'])) {
+                echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Documents")]);
+                exit;
+            }
             $cur_pid = '0';
             $is_new = 1;
+        }
+        if (!AclMain::aclCheckCore('patients', 'docs')) {
+            echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Documents")]);
+            exit;
         }
         $this->assign('is_new', $is_new);
         $this->assign('place_hld', $place_hld);
@@ -1074,7 +1123,7 @@ class C_Document extends Controller
         return $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_list.html");
     }
 
-    public function &array_recurse($array, $categories = array())
+    public function &array_recurse($array, $patient_id, $categories = array())
     {
         if (!is_array($array)) {
             $array = array();
@@ -1097,7 +1146,7 @@ class C_Document extends Controller
                     $current_node = &$this->_last_node;
                 }
 
-                $this->array_recurse($ar, $categories);
+                $this->array_recurse($ar, $patient_id, $categories);
             } else {
                 if ($id === 0 && !empty($ar)) {
                     $info = $this->tree->get_node_info($id);
@@ -1123,29 +1172,30 @@ class C_Document extends Controller
                     if (!AclMain::aclCheckAcoSpec($doc['aco_spec'])) {
                         $link = '';
                     }
-                    if ($this->tree->get_node_name($id) == "CCR") {
-                        $current_node->addItem(new HTML_TreeNode(array(
-                            'text' => oeFormatShortDate($doc['docdate']) . ' ' . $doc['document_name'] . '-' . $doc['document_id'],
-                            'link' => $link,
-                            'icon' => $icon,
-                            'expandedIcon' => $expandedIcon,
-                            'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCR&doc_id=" . attr_url($doc['document_id']) . "','_blank');")
-                        )));
-                    } elseif ($this->tree->get_node_name($id) == "CCD") {
-                        $current_node->addItem(new HTML_TreeNode(array(
-                            'text' => oeFormatShortDate($doc['docdate']) . ' ' . $doc['document_name'] . '-' . $doc['document_id'],
-                            'link' => $link,
-                            'icon' => $icon,
-                            'expandedIcon' => $expandedIcon,
-                            'events' => array('Onclick' => "javascript:newwindow=window.open('ccr/display.php?type=CCD&doc_id=" . attr_url($doc['document_id']) . "','_blank');")
-                        )));
+                    // CCD view
+                    $nodeInfo = $this->tree->get_node_info($id);
+                    $treeViewFilterEvent = new PatientDocumentTreeViewFilterEvent();
+                    $treeViewFilterEvent->setCategoryTreeNode($this->tree);
+                    $treeViewFilterEvent->setDocumentId($doc['document_id']);
+                    $treeViewFilterEvent->setDocumentName($doc['document_name']);
+                    $treeViewFilterEvent->setCategoryId($id);
+                    $treeViewFilterEvent->setCategoryInfo($nodeInfo);
+                    $treeViewFilterEvent->setPid($patient_id);
+
+                    $htmlNode = new HTML_TreeNode(array(
+                        'text' => oeFormatShortDate($doc['docdate']) . ' ' . $doc['document_name'] . '-' . $doc['document_id'],
+                        'link' => $link,
+                        'icon' => $icon,
+                        'expandedIcon' => $expandedIcon
+                    ));
+
+                    $treeViewFilterEvent->setHtmlTreeNode($htmlNode);
+                    $filteredEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($treeViewFilterEvent, PatientDocumentTreeViewFilterEvent::EVENT_NAME);
+                    if ($filteredEvent->getHtmlTreeNode() != null) {
+                        $current_node->addItem($filteredEvent->getHtmlTreeNode());
                     } else {
-                        $current_node->addItem(new HTML_TreeNode(array(
-                            'text' => oeFormatShortDate($doc['docdate']) . ' ' . $doc['document_name'] . '-' . $doc['document_id'],
-                            'link' => $link,
-                            'icon' => $icon,
-                            'expandedIcon' => $expandedIcon
-                        )));
+                        // add the original node if we got back nothing from the server
+                        $current_node->addItem($htmlNode);
                     }
                 }
             }
@@ -1355,5 +1405,19 @@ class C_Document extends Controller
             sqlStatement("update documents set encounter_id='0' where foreign_id=? and id = ?", array($patient_id,$document_id));
         }
         return $this->view_action($patient_id, $document_id);
+    }
+
+    // this will set flag to skip acl check
+    // this is needed for when uploading via services that piggyback on any user (ie. the background services) or via cron/cli
+    public function skipAclCheck(): void
+    {
+        $this->skip_acl_check = true;
+    }
+
+    // this will check if flag has been set to skip the acl check
+    // this is needed for when uploading via services that piggyback on any user (ie. the background services) or via cron/cli
+    public function isSkipAclCheck(): bool
+    {
+        return $this->skip_acl_check;
     }
 }

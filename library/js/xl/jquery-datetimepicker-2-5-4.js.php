@@ -54,7 +54,7 @@
             ]
         },
     },
-    <?php if ($_SESSION['language_direction'] == 'rtl') { ?>
+    <?php if (($_SESSION['language_direction'] ?? '') == 'rtl') { ?>
     /**
      * In RTL languages a datepicker popup is opened in left and it's cutted by the edge of the window
      * This patch resolves that and moves a datepicker popup to right side.
@@ -76,7 +76,7 @@
     yearStart: '1900',
     scrollInput: false,
     scrollMonth: false,
-    rtl: <?php echo ($_SESSION['language_direction'] == 'rtl') ? "true" : "false"; ?>,
+    rtl: <?php echo (($_SESSION['language_direction'] ?? '') == 'rtl') ? "true" : "false"; ?>,
     <?php if (!empty($datetimepicker_minDate)) { ?>
         minDate: '<?php echo $datetimepicker_minDate; ?>',
     <?php } ?>
@@ -92,7 +92,9 @@
             <?php } ?>
         <?php } else { ?>
             <?php if ($datetimepicker_formatInput) { ?>
-                format: '<?php echo DateFormatRead("jquery-datetimepicker"); ?> H:i',
+                format: '<?php echo DateFormatRead("jquery-datetimepicker"); ?> g:i a',
+                formatTime:'g:i a',
+                validateOnBlur: false,
             <?php } else { ?>
                 format: 'Y-m-d H:i',
             <?php } ?>

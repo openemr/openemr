@@ -9,7 +9,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Shiqiang Tao <StrongTSQ@gmail.com>
  * @author    Ben Marte <benmarte@gmail.com>
- * @copyright Copyright (c) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019-2021 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Shiqiang Tao <StrongTSQ@gmail.com>
  * @copyright Copyright (c) 2021 Ben Marte <benmarte@gmail.com>
@@ -17,15 +17,16 @@
  */
 
 require_once('verify_session.php');
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once('lib/portal_mail.inc');
+require_once('lib/portal_mail.inc.php');
 require_once(__DIR__ . '/../library/appointments.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Events\PatientPortal\RenderEvent;
 use OpenEMR\Events\PatientPortal\AppointmentFilterEvent;
+use OpenEMR\Services\LogoService;
 
 if (isset($_SESSION['register']) && $_SESSION['register'] === true) {
     require_once(__DIR__ . '/../src/Common/Session/SessionUtil.php');
@@ -36,6 +37,20 @@ if (isset($_SESSION['register']) && $_SESSION['register'] === true) {
 
 if (!isset($_SESSION['portal_init'])) {
     $_SESSION['portal_init'] = true;
+}
+
+$logoService = new LogoService();
+
+
+// Get language definitions for js
+$language = $_SESSION['language_choice'] ?? '1'; // defaults english
+$sql = "SELECT c.constant_name, d.definition FROM lang_definitions as d
+        JOIN lang_constants AS c ON d.cons_id = c.cons_id
+        WHERE d.lang_id = ?";
+$tarns = sqlStatement($sql, $language);
+$language_defs = array();
+while ($row = SqlFetchArray($tarns)) {
+    $language_defs[$row['constant_name']] = $row['definition'];
 }
 
 $whereto = $_SESSION['whereto'] ?? null;
@@ -52,8 +67,7 @@ foreach ($msgs as $i) {
     }
 }
 if ($newcnt > 0 && $_SESSION['portal_init']) {
-    $whereto = '#secure-msgs-card';
-    OpenEMR\Common\Session\SessionUtil::setSession('whereto', '#secure-msgs-card');
+    $whereto = $_SESSION['whereto'] = '#secure-msgs-card';
 }
 $messagesURL = $GLOBALS['web_root'] . '' . '/portal/messaging/messages.php';
 
@@ -74,7 +88,7 @@ if ($appts) {
         $count++;
         $dayname = xl(date('l', strtotime($row['pc_eventDate'])));
         $dispampm = 'am';
-        $disphour = substr($row['pc_startTime'], 0, 2) + 0;
+        $disphour = (int)substr($row['pc_startTime'], 0, 2);
         $dispmin = substr($row['pc_startTime'], 3, 2);
         if ($disphour >= 12) {
             $dispampm = 'pm';
@@ -115,6 +129,14 @@ function buildNav($newcnt, $pid, $result)
             'messageCount' => $newcnt ?? 0,
             'children' => [
                 [
+                    'url' => '#quickstart-card',
+                    'id' => 'quickstart_id',
+                    'label' => xl('My Quick Start'),
+                    'icon' => 'fa-tasks',
+                    'dataToggle' => 'collapse',
+                ],
+
+                [
                     'url' => '#profilecard',
                     'label' => xl('My Profile'),
                     'icon' => 'fa-user',
@@ -128,12 +150,12 @@ function buildNav($newcnt, $pid, $result)
                     'dataToggle' => 'collapse',
                     'messageCount' => $newcnt ?? 0,
                 ],
-                [
+                /*[
                     'url' => '#documentscard',
                     'label' => xl('My Documents'),
                     'icon' => 'fa-file-medical',
                     'dataToggle' => 'collapse'
-                ],
+                ],*/
                 [
                     'url' => '#lists',
                     'label' => xl('My Dashboard'),
@@ -156,9 +178,15 @@ function buildNav($newcnt, $pid, $result)
             'dropdownID' => 'reports',
             'children' => [
                 [
-                    'url' => $GLOBALS['web_root'] . '' . '/ccdaservice/ccda_gateway.php?action=startandrun&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken()),
+                    'url' => $GLOBALS['web_root'] . '' . '/ccdaservice/ccda_gateway.php?action=view&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken()),
                     'label' => xl('View CCD'),
-                    'icon' => 'fa-envelope',
+                    'icon' => 'fa-eye',
+                    'target_blank' => 'true',
+                ],
+                [
+                    'url' => $GLOBALS['web_root'] . '' . '/ccdaservice/ccda_gateway.php?action=dl&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken()),
+                    'label' => xl('Download CCD'),
+                    'icon' => 'fa-download',
                 ]
             ]
         ]
@@ -180,6 +208,16 @@ function buildNav($newcnt, $pid, $result)
                 ]
             ];
         }
+    }
+
+    if ($GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name'])) {
+        $navItems[] = [
+            'url' => '#procard',
+            'label' => xl('My Assessments'),
+            'icon' => 'fas fa-file-medical',
+            'dataToggle' => 'collapse',
+            'dataType' => 'cardgroup'
+        ];
     }
 
     // Build sub nav items
@@ -231,7 +269,7 @@ function buildNav($newcnt, $pid, $result)
                 ],
                 [
                     'url' => '#downloadcard',
-                    'label' => xl('Download Lab Documents'),
+                    'label' => xl('Download Charted Documents'),
                     'icon' => 'fa-download',
                     'dataToggle' => 'collapse'
                 ]
@@ -255,11 +293,12 @@ $navMenu = buildNav($newcnt, $pid, $result);
 $twig = (new TwigContainer('', $GLOBALS['kernel']))->getTwig();
 echo $twig->render('portal/home.html.twig', [
     'user' => $user,
-    'whereto' => $_SESSION['whereto'] ?: ($whereto ?? '#documentscard'),
+    'whereto' => $_SESSION['whereto'] ?? null ?: ($whereto ?? '#quickstart-card'),
     'result' => $result,
     'msgs' => $msgs,
     'msgcnt' => $msgcnt,
     'newcnt' => $newcnt,
+    'menuLogo' => $logoService->getLogo('portal/menu/primary'),
     'allow_portal_appointments' => $GLOBALS['allow_portal_appointments'],
     'web_root' => $GLOBALS['web_root'],
     'payment_gateway' => $GLOBALS['payment_gateway'],
@@ -274,14 +313,17 @@ echo $twig->render('portal/home.html.twig', [
     'pagetitle' => xl('Home') . ' | ' . xl('OpenEMR Portal'),
     'messagesURL' => $messagesURL,
     'patientID' => $pid,
-    'patientName' => $_SESSION['ptName'],
+    'patientName' => $_SESSION['ptName'] ?? null,
     'csrfUtils' => CsrfUtils::collectCsrfToken(),
     'isEasyPro' => $isEasyPro,
     'appointments' => $appointments,
     'appts' => $appts,
     'appointmentLimit' => $apptLimit,
-    'appointmentCount' => $count,
+    'appointmentCount' => $count ?? null,
     'displayLimitLabel' => xl('Display limit reached'),
+    'site_id' => $_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'), // one way or another, we will have a site_id.
+    'portal_timeout' => $GLOBALS['portal_timeout'] ?? 1800, // timeout is in seconds
+    'language_defs' => $language_defs,
     'eventNames' => [
         'sectionRenderPost' => RenderEvent::EVENT_SECTION_RENDER_POST,
         'scriptsRenderPre' => RenderEvent::EVENT_SCRIPTS_RENDER_PRE

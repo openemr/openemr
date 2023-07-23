@@ -18,7 +18,7 @@ use OpenEMR\Core\Header;
 ?>
 <html>
 <head>
-    <title><?php echo text($string_form_title); ?> </title>
+    <title><?php echo text($str_form_title); ?> </title>
     <?php Header::setupHeader(); ?>
 </head>
 <body class="body_top">
@@ -26,6 +26,7 @@ use OpenEMR\Core\Header;
 <script>
 var no_qs = 8; // number of questions in the form
 var gad7_score = 0; // total score
+var changes_made = false;
 </script>
 
 <SCRIPT
@@ -41,30 +42,31 @@ function create_q8(question, menue){
     var text = document.createTextNode(jsAttr(<?php echo js_escape($str_q8); ?>));
     question.appendChild(text);
     var new_line = document.createElement("br"); // second part is in italics
-    var ital = document.createElement("i"); // second part is in italics
+    var ital = document.createElement("i"); /* second part is in italics */
     var question_2 = document.createTextNode(jsAttr(<?php echo js_escape($str_q8_2); ?>));
     ital.appendChild(question_2);
     question.name = "eighth";
     question.appendChild(new_line);
     question.appendChild(ital);
 // populate the   the menue
-     menue.options[0] = new Option ( <?php echo js_escape($str_not); ?>, "0");
-     menue.options[1] = new Option ( <?php echo js_escape($str_somewhat); ?>, "1");
-     menue.options[2] = new Option ( <?php echo js_escape($str_very); ?>, "2");
-     menue.options[3] = new Option ( <?php echo js_escape($str_extremely);?>, "3");
-     menue.options[4] = new Option ( <?php echo js_escape($str_default);  ?>, "undef");
+     menue.options[0] = new Option ( <?php echo js_escape($str_default);  ?>, "undef");
+     menue.options[1] = new Option ( <?php echo js_escape($str_not); ?>, "0");
+     menue.options[2] = new Option ( <?php echo js_escape($str_somewhat); ?>, "1");
+     menue.options[3] = new Option ( <?php echo js_escape($str_very); ?>, "2");
+     menue.options[4] = new Option ( <?php echo js_escape($str_extremely);?>, "3");
 }
 </script>
-<form method=post action="<?php echo $rootdir;?>/forms/gad7/save.php?mode=new" name="my_form" onSubmit="return(check_all());" >
+<form method=post action="<?php echo $rootdir;?>/forms/gad7/save.php?mode=new" name="my_form" onSubmit="return(check_all(true));" >
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <br></br>
 <span><font size=4><?php echo text($str_form_name); ?></font></span>
 <br></br>
 <input type="Submit" value="<?php echo xla('Save Form'); ?>" style="color: #483D8B" >
  &nbsp &nbsp
- <input type="button" value="<?php echo attr($str_nosave_exit);?>" onclick="top.restoreSession();return( nosave_exit());" style="color: #483D8B">
-<br></br>
+ <input type="button" value="<?php echo attr($str_nosave_exit);?>" onclick="top.restoreSession();check_all(false);return( nosave_exit());" style="color: #483D8B">
+<br><br></br>
 <span class="text"> <h2><?php echo xlt('How often have you been bothered by the following over the past 2 weeks?'); ?></h2> </span>
+<br>
 <table><tr>
 <td>
 <span class="text" ><?php echo xlt('Feeling nervous, anxious, or on edge'); ?></span>
@@ -93,9 +95,8 @@ function create_q8(question, menue){
 <br></br>
 </tr>
  </table>
- <tr>
-<td>
  <table>
+ <tr> <td>
 <span class=text ><?php echo xlt('Worrying too much about different things'); ?></span>
 <select name="worry_score" onchange="update_score(2, my_form.worry_score.value);" >
     <option selected value="undef" ><?php echo text($str_default); ?></option>
@@ -169,8 +170,9 @@ function create_q8(question, menue){
  </table>
  <br></br>
  <SCRIPT>
-function  check_all() {
+function  check_all(prod_user) {
    // has each question been answered and save scores
+   // if prod_user is true ask user to answer all the questions
     var  flag=false;
     var list='';
     for (i=0; i<(no_qs-1); i++) { // last questionis optional
@@ -178,8 +180,11 @@ function  check_all() {
           list = list+Number(i+1) + ',';
           flag=true;
           }
+          else {
+            changes_made = true;
+            }
     }
-    if (flag) {
+    if (flag && prod_user) {
           list[list.length-1] = ' '; /* get rid of trailing comma */
           alert(xl("Please answer all of the questions") + ": " + list + " " + xl("are unanswered"));
            return false;
@@ -188,8 +193,10 @@ function  check_all() {
   }
   // warn if about to exit without saving answers - check that's what the user really wants
 function nosave_exit() {
-    var conf = confirm (<?php echo js_escape($str_nosave_confirm) ; ?>);
-
+var conf = true;
+    if (changes_made){
+        conf = confirm (<?php echo js_escape($str_nosave_confirm) ; ?>);
+    }
     if (conf) {
         window.location.href="<?php echo $GLOBALS['form_exit_url']; ?>";
     }
@@ -207,7 +214,7 @@ update_score("undef",gad7_score);
  <tr><td>
  <input type="Submit" value="<?php echo xla('Save Form'); ?>" style="color: #483D8B">
  &nbsp &nbsp
- <input type="button" value="<?php echo attr($str_nosave_exit); ?>" onclick="top.restoreSession();return(nosave_exit());" style="color: #483D8B">
+ <input type="button" value="<?php echo attr($str_nosave_exit); ?>" onclick="top.restoreSession();check_all(false);return(nosave_exit());" style="color: #483D8B">
  <br><br>
  </table>
 </form>

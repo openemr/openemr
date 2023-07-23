@@ -6,109 +6,20 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions:
+  contents: read
+
 jobs:
 
-  build_apache_74_106:
-    name: PHP 7.4 - Apache - MariaDB 10.6
-    runs-on: ubuntu-20.04
+  build_apache_80_1011:
+    name: PHP 8.0 - Apache - MariaDB 10.11
+    runs-on: ubuntu-22.04
     env:
-      DOCKER_DIR: apache_74_106
+      DOCKER_DIR: apache_80_1011
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Install PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '7.4'
-
-      - name: Report PHP Version
-        run: php -v
-
-      - name: Install npm package
-        uses: actions/setup-node@v1
-        with:
-          node-version: '16'
-
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
-
-      - name: Main build
-        run: |
-          source ci/ciLibrary.source
-          composer_github_auth
-          main_build
-
-      - name: CCDA build
-        run: |
-          source ci/ciLibrary.source
-          ccda_build
-
-      - name: Install and configure
-        run: |
-          source ci/ciLibrary.source
-          install_configure
-
-      - name: Unit testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_unit
-        if: ${{ success() || failure() }}
-
-      - name: E2e testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_e2e
-        if: ${{ success() || failure() }}
-
-      - name: Api testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_api
-        if: ${{ success() || failure() }}
-
-      - name: Fixtures testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_fixtures
-        if: ${{ success() || failure() }}
-
-      - name: Services testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_services
-        if: ${{ success() || failure() }}
-
-      - name: Validators testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_validators
-        if: ${{ success() || failure() }}
-
-      - name: Controllers testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_controllers
-        if: ${{ success() || failure() }}
-
-      - name: Common testing
-        run: |
-          source ci/ciLibrary.source
-          build_test_common
-        if: ${{ success() || failure() }}
-
-  build_apache_80_105:
-    name: PHP 8.0 - Apache - MariaDB 10.5
-    runs-on: ubuntu-20.04
-    env:
-      DOCKER_DIR: apache_80_105
-      OPENEMR_DIR: /var/www/localhost/htdocs/openemr
-      CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
-    steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -119,14 +30,9 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: '16'
-
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
+          node-version: '18'
 
       - name: Main build
         run: |
@@ -138,6 +44,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -192,33 +104,28 @@ jobs:
           build_test_common
         if: ${{ success() || failure() }}
 
-  build_apache_80_106:
-    name: PHP 8.0 - Apache - MariaDB 10.6
-    runs-on: ubuntu-20.04
+  build_apache_81_1011:
+    name: PHP 8.1 - Apache - MariaDB 10.11
+    runs-on: ubuntu-22.04
     env:
-      DOCKER_DIR: apache_80_106
+      DOCKER_DIR: apache_81_1011
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.0'
+          php-version: '8.1'
 
       - name: Report PHP Version
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: '16'
-
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
+          node-version: '18'
 
       - name: Main build
         run: |
@@ -230,6 +137,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -284,33 +197,28 @@ jobs:
           build_test_common
         if: ${{ success() || failure() }}
 
-  build_apache_80_104:
-    name: PHP 8.0 - Apache - MariaDB 10.4
-    runs-on: ubuntu-20.04
+  build_apache_82_110:
+    name: PHP 8.2 - Apache - MariaDB 11.0 (short term release)
+    runs-on: ubuntu-22.04
     env:
-      DOCKER_DIR: apache_80_104
+      DOCKER_DIR: apache_82_110
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.0'
+          php-version: '8.2'
 
       - name: Report PHP Version
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: '16'
-
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
+          node-version: '18'
 
       - name: Main build
         run: |
@@ -322,6 +230,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -376,33 +290,28 @@ jobs:
           build_test_common
         if: ${{ success() || failure() }}
 
-  build_apache_80_103:
-    name: PHP 8.0 - Apache - MariaDB 10.3
-    runs-on: ubuntu-20.04
+  build_apache_82_1011:
+    name: PHP 8.2 - Apache - MariaDB 10.11
+    runs-on: ubuntu-22.04
     env:
-      DOCKER_DIR: apache_80_103
+      DOCKER_DIR: apache_82_1011
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.0'
+          php-version: '8.2'
 
       - name: Report PHP Version
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: '16'
-
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
+          node-version: '18'
 
       - name: Main build
         run: |
@@ -414,6 +323,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -468,33 +383,28 @@ jobs:
           build_test_common
         if: ${{ success() || failure() }}
 
-  build_apache_80_102:
-    name: PHP 8.0 - Apache - MariaDB 10.2
-    runs-on: ubuntu-20.04
+  build_apache_82_1010:
+    name: PHP 8.2 - Apache - MariaDB 10.10 (short term release)
+    runs-on: ubuntu-22.04
     env:
-      DOCKER_DIR: apache_80_102
+      DOCKER_DIR: apache_82_1010
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.0'
+          php-version: '8.2'
 
       - name: Report PHP Version
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: '16'
-
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
+          node-version: '18'
 
       - name: Main build
         run: |
@@ -506,6 +416,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -560,33 +476,28 @@ jobs:
           build_test_common
         if: ${{ success() || failure() }}
 
-  build_apache_80_8:
-    name: PHP 8.0 - Apache - MySQL 8
-    runs-on: ubuntu-20.04
+  build_apache_82_109:
+    name: PHP 8.2 - Apache - MariaDB 10.9 (short term release)
+    runs-on: ubuntu-22.04
     env:
-      DOCKER_DIR: apache_80_8
+      DOCKER_DIR: apache_82_109
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.0'
+          php-version: '8.2'
 
       - name: Report PHP Version
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: '16'
-
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
+          node-version: '18'
 
       - name: Main build
         run: |
@@ -598,6 +509,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -652,33 +569,28 @@ jobs:
           build_test_common
         if: ${{ success() || failure() }}
 
-  build_apache_80_57:
-    name: PHP 8.0 - Apache - MySQL 5.7
-    runs-on: ubuntu-20.04
+  build_apache_82_106:
+    name: PHP 8.2 - Apache - MariaDB 10.6
+    runs-on: ubuntu-22.04
     env:
-      DOCKER_DIR: apache_80_57
+      DOCKER_DIR: apache_82_106
       OPENEMR_DIR: /var/www/localhost/htdocs/openemr
       CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.0'
+          php-version: '8.2'
 
       - name: Report PHP Version
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: '16'
-
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
+          node-version: '18'
 
       - name: Main build
         run: |
@@ -690,6 +602,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -744,33 +662,28 @@ jobs:
           build_test_common
         if: ${{ success() || failure() }}
 
-  build_nginx_74:
-    name: PHP 7.4 - Nginx - MariaDB 10.6
-    runs-on: ubuntu-20.04
+  build_apache_82_105:
+    name: PHP 8.2 - Apache - MariaDB 10.5
+    runs-on: ubuntu-22.04
     env:
-      DOCKER_DIR: nginx_74
-      OPENEMR_DIR: /usr/share/nginx/html/openemr
-      CHROMIUM_INSTALL: "apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
+      DOCKER_DIR: apache_82_105
+      OPENEMR_DIR: /var/www/localhost/htdocs/openemr
+      CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.4'
+          php-version: '8.2'
 
       - name: Report PHP Version
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: '16'
-
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
+          node-version: '18'
 
       - name: Main build
         run: |
@@ -782,6 +695,291 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
+
+      - name: Install and configure
+        run: |
+          source ci/ciLibrary.source
+          install_configure
+
+      - name: Unit testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_unit
+        if: ${{ success() || failure() }}
+
+      - name: E2e testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_e2e
+        if: ${{ success() || failure() }}
+
+      - name: Api testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_api
+        if: ${{ success() || failure() }}
+
+      - name: Fixtures testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_fixtures
+        if: ${{ success() || failure() }}
+
+      - name: Services testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_services
+        if: ${{ success() || failure() }}
+
+      - name: Validators testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_validators
+        if: ${{ success() || failure() }}
+
+      - name: Controllers testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_controllers
+        if: ${{ success() || failure() }}
+
+      - name: Common testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_common
+        if: ${{ success() || failure() }}
+
+  build_apache_82_104:
+    name: PHP 8.2 - Apache - MariaDB 10.4
+    runs-on: ubuntu-22.04
+    env:
+      DOCKER_DIR: apache_82_104
+      OPENEMR_DIR: /var/www/localhost/htdocs/openemr
+      CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Report PHP Version
+        run: php -v
+
+      - name: Install npm package
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Main build
+        run: |
+          source ci/ciLibrary.source
+          composer_github_auth
+          main_build
+
+      - name: CCDA build
+        run: |
+          source ci/ciLibrary.source
+          ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
+
+      - name: Install and configure
+        run: |
+          source ci/ciLibrary.source
+          install_configure
+
+      - name: Unit testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_unit
+        if: ${{ success() || failure() }}
+
+      - name: E2e testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_e2e
+        if: ${{ success() || failure() }}
+
+      - name: Api testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_api
+        if: ${{ success() || failure() }}
+
+      - name: Fixtures testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_fixtures
+        if: ${{ success() || failure() }}
+
+      - name: Services testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_services
+        if: ${{ success() || failure() }}
+
+      - name: Validators testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_validators
+        if: ${{ success() || failure() }}
+
+      - name: Controllers testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_controllers
+        if: ${{ success() || failure() }}
+
+      - name: Common testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_common
+        if: ${{ success() || failure() }}
+
+  build_apache_82_8:
+    name: PHP 8.2 - Apache - MySQL 8
+    runs-on: ubuntu-22.04
+    env:
+      DOCKER_DIR: apache_82_8
+      OPENEMR_DIR: /var/www/localhost/htdocs/openemr
+      CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Report PHP Version
+        run: php -v
+
+      - name: Install npm package
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Main build
+        run: |
+          source ci/ciLibrary.source
+          composer_github_auth
+          main_build
+
+      - name: CCDA build
+        run: |
+          source ci/ciLibrary.source
+          ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
+
+      - name: Install and configure
+        run: |
+          source ci/ciLibrary.source
+          install_configure
+
+      - name: Unit testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_unit
+        if: ${{ success() || failure() }}
+
+      - name: E2e testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_e2e
+        if: ${{ success() || failure() }}
+
+      - name: Api testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_api
+        if: ${{ success() || failure() }}
+
+      - name: Fixtures testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_fixtures
+        if: ${{ success() || failure() }}
+
+      - name: Services testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_services
+        if: ${{ success() || failure() }}
+
+      - name: Validators testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_validators
+        if: ${{ success() || failure() }}
+
+      - name: Controllers testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_controllers
+        if: ${{ success() || failure() }}
+
+      - name: Common testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_common
+        if: ${{ success() || failure() }}
+
+  build_apache_82_57:
+    name: PHP 8.2 - Apache - MySQL 5.7
+    runs-on: ubuntu-22.04
+    env:
+      DOCKER_DIR: apache_82_57
+      OPENEMR_DIR: /var/www/localhost/htdocs/openemr
+      CHROMIUM_INSTALL: "apk update; apk add --no-cache chromium chromium-chromedriver; export PANTHER_CHROME_DRIVER_BINARY=/usr/lib/chromium/chromedriver"
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Report PHP Version
+        run: php -v
+
+      - name: Install npm package
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Main build
+        run: |
+          source ci/ciLibrary.source
+          composer_github_auth
+          main_build
+
+      - name: CCDA build
+        run: |
+          source ci/ciLibrary.source
+          ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -837,14 +1035,14 @@ jobs:
         if: ${{ success() || failure() }}
 
   build_nginx_8:
-    name: PHP 8.0 - Nginx - MariaDB 10.6
-    runs-on: ubuntu-20.04
+    name: PHP 8.0 - Nginx - MariaDB 10.11
+    runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: nginx_80
       OPENEMR_DIR: /usr/share/nginx/html/openemr
       CHROMIUM_INSTALL: "apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -855,14 +1053,9 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: '16'
-
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
+          node-version: '18'
 
       - name: Main build
         run: |
@@ -874,6 +1067,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -929,14 +1128,14 @@ jobs:
         if: ${{ success() || failure() }}
 
   build_nginx_81:
-    name: PHP 8.1 - Nginx - MariaDB 10.6
-    runs-on: ubuntu-20.04
+    name: PHP 8.1 - Nginx - MariaDB 10.11
+    runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: nginx_81
       OPENEMR_DIR: /usr/share/nginx/html/openemr
       CHROMIUM_INSTALL: "apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -947,14 +1146,9 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: '16'
-
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
+          node-version: '18'
 
       - name: Main build
         run: |
@@ -966,6 +1160,12 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |
@@ -1021,14 +1221,14 @@ jobs:
         if: ${{ success() || failure() }}
 
   build_nginx_82:
-    name: PHP 8.2 - Nginx - MariaDB 10.6
-    runs-on: ubuntu-20.04
+    name: PHP 8.2 - Nginx - MariaDB 10.11
+    runs-on: ubuntu-22.04
     env:
       DOCKER_DIR: nginx_82
       OPENEMR_DIR: /usr/share/nginx/html/openemr
       CHROMIUM_INSTALL: "apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -1039,14 +1239,9 @@ jobs:
         run: php -v
 
       - name: Install npm package
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
-          node-version: '16'
-
-      - name: Dockers environment start
-        run: |
-          source ci/ciLibrary.source
-          dockers_env_start
+          node-version: '18'
 
       - name: Main build
         run: |
@@ -1058,6 +1253,105 @@ jobs:
         run: |
           source ci/ciLibrary.source
           ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
+
+      - name: Install and configure
+        run: |
+          source ci/ciLibrary.source
+          install_configure
+
+      - name: Unit testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_unit
+        if: ${{ success() || failure() }}
+
+      - name: E2e testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_e2e
+        if: ${{ success() || failure() }}
+
+      - name: Api testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_api
+        if: ${{ success() || failure() }}
+
+      - name: Fixtures testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_fixtures
+        if: ${{ success() || failure() }}
+
+      - name: Services testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_services
+        if: ${{ success() || failure() }}
+
+      - name: Validators testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_validators
+        if: ${{ success() || failure() }}
+
+      - name: Controllers testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_controllers
+        if: ${{ success() || failure() }}
+
+      - name: Common testing
+        run: |
+          source ci/ciLibrary.source
+          build_test_common
+        if: ${{ success() || failure() }}
+
+  build_nginx_83:
+    name: PHP 8.3 - Nginx - MariaDB 10.11
+    runs-on: ubuntu-22.04
+    env:
+      DOCKER_DIR: nginx_83
+      OPENEMR_DIR: /usr/share/nginx/html/openemr
+      CHROMIUM_INSTALL: "apt-get update; apt-get install -y chromium-driver; export PANTHER_CHROME_DRIVER_BINARY=/usr/bin/chromedriver"
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
+      - name: Report PHP Version
+        run: php -v
+
+      - name: Install npm package
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Main build
+        run: |
+          source ci/ciLibrary.source
+          composer_github_auth
+          main_build
+
+      - name: CCDA build
+        run: |
+          source ci/ciLibrary.source
+          ccda_build
+
+      - name: Dockers environment start
+        run: |
+          source ci/ciLibrary.source
+          dockers_env_start
+          sleep 60
 
       - name: Install and configure
         run: |

@@ -207,7 +207,7 @@ EOF;
     }
     if (!empty($newname)) {
         if (empty($newconstantid)) {
-            $output->Text(postcalendar_admin_categories($msg, "Category Identifiers must contain a value!"));
+            $output->Text(postcalendar_admin_categories($msg ?? '', "Category Identifiers must contain a value!"));
             return $output->GetOutput();
         }
         if (strpos(trim($newconstantid), ' ')) {
@@ -231,7 +231,7 @@ EOF;
         $output->FormHidden("newactive", $newactive);
         $output->FormHidden("newsequence", $newsequence);
         $output->FormHidden("newaco", $newaco);
-        $output->Text(_PC_ADD_CAT . $newname . '.');
+        $output->Text(_PC_ADD_CAT . text($newname) . '.');
         $output->Linebreak();
     }
     $output->Text(_PC_MODIFY_CATS);
@@ -415,7 +415,7 @@ function postcalendar_admin_categoriesUpdate()
                 'addCategories',
                 array('name' => $newname,'constantid' => $newconstantid,'desc' => $newdesc,'value_cat_type' => $new_value_cat_type,'color' => $newcolor,'active' => $newactive,'sequence' => $newsequence, 'aco' => $newaco,
                 'repeat' => $new_event_repeat,'spec' => $new_event_recurrspec,
-                'recurrfreq' => $new_recurrfreq,'duration' => $new_duration,'limitid' => $new_dailylimitid,
+                'recurrfreq' => $new_recurrfreq ?? '','duration' => $new_duration,'limitid' => $new_dailylimitid,
                 'end_date_flag' => $new_end_date_flag,'end_date_type' => $new_end_date_flag,
                 'end_date_freq' => $new_end_date_freq,
                 'end_all_day' => $new_end_all_day)
@@ -543,10 +543,10 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
     $tpl->assign('NEW_CAT_TITLE', _PC_NEW_CAT_TITLE);
     $tpl->assign('InputNoRepeat', 'event_repeat');
     $tpl->assign('ValueNoRepeat', '0');
-    $tpl->assign('SelectedNoRepeat', (int) $event_repeat == 0 ? 'checked' : '');
+    $tpl->assign('SelectedNoRepeat', (int) ($event_repeat ?? null) == 0 ? 'checked' : '');
     $tpl->assign('InputRepeat', 'event_repeat');
     $tpl->assign('ValueRepeat', '1');
-    $tpl->assign('SelectedRepeat', (int) $event_repeat == 1 ? 'checked' : '');
+    $tpl->assign('SelectedRepeat', (int) ($event_repeat ?? null) == 1 ? 'checked' : '');
 
 
     unset($in);
@@ -555,7 +555,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
     $repeat_freq = array();
     foreach ($in as $k => $v) {
         array_push($repeat_freq, array('value' => $keys[$k],
-                                      'selected' => ($keys[$k] == $event_repeat_freq ? 'selected' : ''),
+                                      'selected' => ($keys[$k] == ($event_repeat_freq ?? null) ? 'selected' : ''),
                                       'name' => $v));
     }
     $tpl->assign('InputRepeatFreq', 'event_repeat_freq');
@@ -571,7 +571,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
     $repeat_freq_type = array();
     foreach ($in as $k => $v) {
         array_push($repeat_freq_type, array('value' => $keys[$k],
-                                           'selected' => ($keys[$k] == $event_repeat_freq_type ? 'selected' : ''),
+                                           'selected' => ($keys[$k] == ($event_repeat_freq_type ?? null) ? 'selected' : ''),
                                            'name' => $v));
     }
     $tpl->assign('InputRepeatFreqType', 'event_repeat_freq_type');
@@ -580,7 +580,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
 
     $tpl->assign('InputRepeatOn', 'event_repeat');
     $tpl->assign('ValueRepeatOn', '2');
-    $tpl->assign('SelectedRepeatOn', (int) $event_repeat == 2 ? 'checked' : '');
+    $tpl->assign('SelectedRepeatOn', (int) ($event_repeat ?? null) == 2 ? 'checked' : '');
 
     // All Day START
     $tpl->assign('InputAllDay', 'end_all_day');
@@ -619,7 +619,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
     $repeat_on_num = array();
     foreach ($in as $k => $v) {
         array_push($repeat_on_num, array('value' => $keys[$k],
-                                        'selected' => ($keys[$k] == $event_repeat_on_num ? 'selected' : ''),
+                                        'selected' => ($keys[$k] == ($event_repeat_on_num ?? null) ? 'selected' : ''),
                                         'name' => $v));
     }
     $tpl->assign('InputRepeatOnNum', 'event_repeat_on_num');
@@ -631,7 +631,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
     $repeat_on_day = array();
     foreach ($in as $k => $v) {
         array_push($repeat_on_day, array('value' => $keys[$k],
-                                        'selected' => ($keys[$k] == $event_repeat_on_day ? 'selected' : ''),
+                                        'selected' => ($keys[$k] == ($event_repeat_on_day ?? null) ? 'selected' : ''),
                                         'name' => $v));
     }
     $tpl->assign('InputRepeatOnDay', 'event_repeat_on_day');
@@ -643,7 +643,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
     $cat_type = array();
     foreach ($in as $k => $v) {
         array_push($cat_type, array('value' => $keys[$k],
-                                        'selected' => ($keys[$k] == $value_cat_type ? 'selected' : ''),
+                                        'selected' => ($keys[$k] == ($value_cat_type ?? null) ? 'selected' : ''),
                                         'name' => $v));
     }
     $tpl->assign('InputCatType', 'value_cat_type');
@@ -655,7 +655,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
     $repeat_on_freq = array();
     foreach ($in as $k => $v) {
         array_push($repeat_on_freq, array('value' => $keys[$k],
-                                         'selected' => ($keys[$k] == $event_repeat_on_freq ? 'selected' : ''),
+                                         'selected' => ($keys[$k] == ($event_repeat_on_freq ?? null) ? 'selected' : ''),
                                          'name' => $v));
     }
     $tpl->assign('InputRepeatOnFreq', 'event_repeat_on_freq');
@@ -680,14 +680,15 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = array())
     $output->SetOutputMode(_PNH_RETURNOUTPUT);
     $output->SetOutputMode(_PNH_KEEPOUTPUT);
 
-    $form_hidden = "<input type=\"hidden\" name=\"is_update\" value=\"" . attr($is_update) . "\" />";
-    $form_hidden .= "<input type=\"hidden\" name=\"pc_event_id\" value=\"" . attr($pc_event_id) . "\" />";
     if (isset($data_loaded)) {
+        $form_hidden = "<input type=\"hidden\" name=\"is_update\" value=\"" . attr($is_update ?? '') . "\" />";
+        $form_hidden .= "<input type=\"hidden\" name=\"pc_event_id\" value=\"" . attr($pc_event_id ?? '') . "\" />";
         $form_hidden .= "<input type=\"hidden\" name=\"data_loaded\" value=\"" . attr($data_loaded) . "\" />";
         $tpl->assign('FormHidden', $form_hidden);
     }
+
     $form_submit = '<input type=hidden name="form_action" value="commit"/>
-				   ' . text($authkey) . '<input class="btn btn-primary" type="submit" name="submit" value="' . xla('Save') . '">';
+				   ' . text($authkey ?? '') . '<input class="btn btn-primary" type="submit" name="submit" value="' . xla('Save') . '">';
     $tpl->assign('FormSubmit', $form_submit);
 
     $output->Text($tpl->fetch($template_name . '/admin/submit_category.html'));
@@ -702,12 +703,25 @@ function postcalendar_adminmenu($menuItem)
 {
     global $bgcolor1, $bgcolor2;
 
-    @define('_AM_VAL', 1);
-    @define('_PM_VAL', 2);
+    if (!defined('_AM_VAL')) {
+        define('_AM_VAL', 1);
+    }
 
-    @define('_EVENT_APPROVED', 1);
-    @define('_EVENT_QUEUED', 0);
-    @define('_EVENT_HIDDEN', -1);
+    if (!defined('_PM_VAL')) {
+        define('_PM_VAL', 2);
+    }
+
+    if (!defined('_EVENT_APPROVED')) {
+        define('_EVENT_APPROVED', 1);
+    }
+
+    if (!defined('_EVENT_QUEUED')) {
+        define('_EVENT_QUEUED', 0);
+    }
+
+    if (!defined('_EVENT_HIDDEN')) {
+        define('_EVENT_HIDDEN', -1);
+    }
 
     $categoryURL  = pnModURL(__POSTCALENDAR__, 'admin', 'categories');
     $cacheURL     = pnModURL(__POSTCALENDAR__, 'admin', 'clearCache');

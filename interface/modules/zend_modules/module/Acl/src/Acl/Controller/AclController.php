@@ -13,7 +13,6 @@
 
 namespace Acl\Controller;
 
-use Laminas\Console\Request as ConsoleRequest;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use Application\Listener\Listener;
@@ -110,7 +109,7 @@ class AclController extends AbstractActionController
                 $data           = $this->getAclTable()->getGroupAcl($module_id);
                 $saved_ACL  = array();
         foreach ($data as $row) {
-            if (!$saved_ACL[$row['section_id']]) {
+            if (empty($saved_ACL[$row['section_id']])) {
                 $saved_ACL[$row['section_id']] = array();
             }
 
@@ -357,54 +356,5 @@ class AclController extends AbstractActionController
     public function getAclTable()
     {
         return $this->aclTable;
-    }
-
-    public function aclModifyCommandAction()
-    {
-        $request = $this->getRequest();
-        if (!$request instanceof ConsoleRequest) {
-            throw new RuntimeException('You can only use this action from a console!');
-        }
-
-        $moduleName = $request->getParam('modname');
-        $groupAclName = $request->getParam('aclgroup');
-        $action = $request->getParam('aclaction');
-
-        echo PHP_EOL . '--- Run command [' . $action . '] [' . $groupAclName . '] in module:  ' . $moduleName . '---' . PHP_EOL;
-        echo 'start process - ' . date('Y-m-d H:i:s') . PHP_EOL;
-
-        // Set allowed
-        $allowed = 0;
-        if ($action == 'enable') {
-            $allowed = 1;
-        }
-
-        // Get module id
-        $moduleId = sqlQuery("SELECT `mod_id` FROM `modules` WHERE `mod_name` = ?", [$moduleName])['mod_id'];
-
-        // Get section ids
-        $res = sqlStatement("SELECT `section_id` FROM `module_acl_sections` WHERE `module_id` = ?", [$moduleId]);
-        $ids = [];
-        while ($row = sqlFetchArray($res)) {
-            $ids[] = $row['section_id'];
-        }
-
-        // Get group acl id
-        $groupAclId = sqlQuery("SELECT `id` FROM `gacl_aro_groups` WHERE `value` = ?", [$groupAclName])['id'];
-
-        // Modify the acl group settings
-        foreach ($ids as $id) {
-            sqlStatement(
-                "REPLACE INTO `module_acl_group_settings` SET `module_id` = ?, `group_id` = ?, `section_id` = ?, `allowed` = ?",
-                [
-                    $moduleId,
-                    $groupAclId,
-                    $id,
-                    $allowed
-                ]
-            );
-        }
-
-        echo 'command completed successfully - ' . date('Y-m-d H:i:s') . PHP_EOL;
     }
 }

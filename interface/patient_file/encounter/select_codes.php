@@ -12,7 +12,7 @@
  */
 
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'] . '/patient.inc');
+require_once($GLOBALS['srcdir'] . '/patient.inc.php');
 require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
@@ -89,7 +89,7 @@ $(function () {
         oSelectedIDs[this.id] = oSelectedIDs[this.id] ? 0 : 1;
         showRowSelection(this)
      });
-    
+
     // onmouseover handler for rows
     oTable.on('mouseover', 'tr', function() {
         showCursor(this);
@@ -117,7 +117,7 @@ function onOK() {
 
             // Row ids are of the form "CID|jsonstring".
             var jobj = JSON.parse(ids[i].substring(4));
-            var code = jobj['code'].split('|');
+            var code = jobj['code'].toString().split('|');
             var msg = opener.OnCodeSelected(jobj['codetype'], code[0], code[1], jobj['description']);
             if (msg) {
                 alert(msg);

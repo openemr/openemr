@@ -12,7 +12,6 @@
 
 {headerTemplate assets='datetime-picker|select2'}
 <link rel="stylesheet" href="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.css">
-{literal}
 <style>
 .select2-selection {
 height: 35px!important;
@@ -30,18 +29,17 @@ border-radius: 4px 0 0 4px!important;
     overflow: auto;
 }
 </style>
-{/literal}
 <script src="{$GLOBALS.webroot}/library/js/DocumentTreeMenu.js"></script>
 <script src="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.js"></script>
 
 <script>
-	function callTemplateModule() {literal}{{/literal}
+	function callTemplateModule() {
 		top.restoreSession();
 		let tele  = document.getElementById("template_filename");
 		let tname = encodeURIComponent(tele.options[tele.selectedIndex].value);
         let callUrl = '{$GLOBALS.webroot}/portal/patient/onsitedocuments?pid=' + {if !empty($patient_id)}{$patient_id|js_url}{/if} + '&catid=' + {if !empty($category_id)}{$category_id|js_url}{/if} + '&is_module=true&new=' + tname;
 		location.assign(callUrl);
-	{literal}}{/literal}
+	}
 </script>
 <title>{xlt t='Documents'}</title>
 </head>
@@ -55,7 +53,7 @@ border-radius: 4px 0 0 4px!important;
 	<div class="row">
 		<div class="col-sm-12">
 			<div class="title">
-				<h2>{xlt t='Documents'} <a href='interface/patient_file/summary/demographics.php' onclick='top.restoreSession()' title="{xla t='Go Back'}" ><i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i></a></h2>
+				<h2>{xlt t='Documents'} <a href='interface/patient_file/summary/demographics.php' onclick='top.restoreSession()' title="{xla t='Go Back'}" ><i id='advanced-tooltip' class='fa fa-undo' aria-hidden='true'></i></a></h2>
 			</div>
 		</div>
 	</div>
@@ -100,7 +98,7 @@ var curpid = {$cur_pid|js_escape};
 var newVersion= {$is_new|js_escape};
 var demoPid = {$demo_pid|js_escape};
 var inUseMsg = {$used_msg|js_escape};
-{literal}
+
 if(curpid == demoPid && !newVersion){
     $("#patientSearch").hide();
 }
@@ -110,13 +108,12 @@ else{
 $(function () {
     $("#selectPatient").select2({
         ajax: {
-            url: "{/literal}{$GLOBALS.webroot}/library/ajax/document_helpers.php{literal}",
+            url: "{$GLOBALS.webroot}/library/ajax/document_helpers.php",
             dataType: 'json',
             data: function(params) {
                 return {
-                  {/literal}
+
                   csrf_token_form: {$CSRF_TOKEN_FORM|js_escape},
-                  {literal}
                   term: params.term
                 };
             },
@@ -140,12 +137,12 @@ $(function () {
 
     $('#selectPatient').on('select2:select', function (e) {
         e.preventDefault();
-        if (e.params.data.value == '00' && ! e.params.data.label.match({/literal}{xlj t="Reset"}{literal})){
+        if (e.params.data.value == '00' && ! e.params.data.label.match({xlj t="Reset"})){
             alert(inUseMsg);
             return false;
         }
         $(this).val(e.params.data.label);
-        location.href  = "{/literal}{$GLOBALS.webroot}{literal}/controller.php?document&list&patient_id=" + encodeURIComponent(e.params.data.value) + "&patient_name=" + encodeURIComponent(e.params.data.label);
+        location.href  = "{$GLOBALS.webroot}/controller.php?document&list&patient_id=" + encodeURIComponent(e.params.data.value) + "&patient_name=" + encodeURIComponent(e.params.data.label);
         $("#pid").text(e.params.data.value);
     });
 
@@ -161,7 +158,7 @@ $("#list_collapse").detach().appendTo("#objTreeMenu_1_node_1 nobr");
 $(function () {
     $("img[id^='icon_objTreeMenu_']").tooltip({
         items: $("img[src*='file3.png']"),
-        content: {/literal}{xlj t="Double Click on this icon to pop up document in a new viewer."}{literal}
+        content: {xlj t="Double Click on this icon to pop up document in a new viewer."}
     });
 
     $("img[id^='icon_objTreeMenu_']").on('dblclick', function (e) {
@@ -171,7 +168,7 @@ $(function () {
         if (!popsrc.includes('&view&')) {
             return false;
         } else if (diview.toLowerCase().includes('.dcm') || diview.toLowerCase().includes('.zip')) {
-            popsrc = "{/literal}{$GLOBALS.webroot}{literal}/library/dicom_frame.php?web_path=" + popsrc;
+            popsrc = "{$GLOBALS.webroot}/library/dicom_frame.php?web_path=" + popsrc;
             dflg = true;
         }
         popsrc = popsrc.replace('&view&', '&retrieve&') + 'as_file=false';
@@ -181,13 +178,13 @@ $(function () {
             window.open(popsrc, wname, opt);
         };
 
-        let btnText = {/literal}{xlj t="Full Screen"}{literal};
-        let btnClose = {/literal}{xlj t="Close"}{literal};
+        let btnText = {xlj t="Full Screen"};
+        let btnClose = {xlj t="Close"};
         let size = 'modal-xl';
         dlgopen(popsrc, 'popdoc', size, 700, '', '', {
             buttons: [
-                {text: btnText, close: true, style: 'primary btn-sm', click: poContentModal},
-                {text: btnClose, close: true, style: 'secondary btn-sm'}
+                { text: btnText, close: true, style: 'primary btn-sm', click: poContentModal },
+                { text: btnClose, close: true, style: 'secondary btn-sm' }
             ],
             allowResize: true,
             allowDrag: true,
@@ -198,9 +195,9 @@ $(function () {
     });
 });
 
-$(function () {{/literal}
+$(function () {
     {datetimepickerSupport}
-{literal}});{/literal}
+});
 
 </script>
 </body>

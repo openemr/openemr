@@ -13,19 +13,18 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/registry.inc");
+require_once("$srcdir/registry.inc.php");
 require_once("batchcom.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // gacl control
 if (!AclMain::aclCheckCore('admin', 'notification')) {
-    echo "<html>\n<body>\n<h1>";
-    echo xlt('You are not authorized for this.');
-    echo "</h1>\n</body>\n</html>\n";
-    exit();
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Notification Settings")]);
+    exit;
 }
 
  $type = 'SMS/Email Settings';

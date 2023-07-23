@@ -21,7 +21,22 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+
+// Check authorizations.
+$auth_admin = AclMain::aclCheckCore('admin', 'drugs');
+$auth_lots  = $auth_admin               ||
+    AclMain::aclCheckCore('inventory', 'lots') ||
+    AclMain::aclCheckCore('inventory', 'purchases') ||
+    AclMain::aclCheckCore('inventory', 'transfers') ||
+    AclMain::aclCheckCore('inventory', 'adjustments') ||
+    AclMain::aclCheckCore('inventory', 'consumption') ||
+    AclMain::aclCheckCore('inventory', 'destruction');
+if (!$auth_lots) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Lot")]);
+    exit;
+}
 
 function checkWarehouseUsed($warehouse_id)
 {
@@ -75,7 +90,7 @@ function genWarehouseList($tag_name, $currvalue, $title, $class = '')
 
     while ($lrow = sqlFetchArray($lres)) {
         $whid = $lrow['option_id'];
-        $facid = 0 + $lrow['option_value'];
+        $facid = (int) ($lrow['option_value'] ?? null);
         if ($whid != $currvalue) {
             if (!$allow_multiple && checkWarehouseUsed($whid)) {
                 continue;
@@ -119,18 +134,6 @@ $info_msg = "";
 
 $form_trans_type = intval(isset($_POST['form_trans_type']) ? $_POST['form_trans_type'] : '0');
 
-// Check authorizations.
-$auth_admin = AclMain::aclCheckCore('admin', 'drugs');
-$auth_lots  = $auth_admin               ||
-  AclMain::aclCheckCore('inventory', 'lots') ||
-  AclMain::aclCheckCore('inventory', 'purchases') ||
-  AclMain::aclCheckCore('inventory', 'transfers') ||
-  AclMain::aclCheckCore('inventory', 'adjustments') ||
-  AclMain::aclCheckCore('inventory', 'consumption') ||
-  AclMain::aclCheckCore('inventory', 'destruction');
-if (!$auth_lots) {
-    die(xlt('Not authorized'));
-}
 // Note if user is restricted to any facilities and/or warehouses.
 $is_user_restricted = isUserRestricted();
 
@@ -589,7 +592,7 @@ $title = $lot_id ? xl("Update Lot") : xl("Add Lot");
 <table class="table table-borderless w-100">
 
  <tr id='row_sale_date'>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Date'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Date'); ?>:</td>
   <td>
    <input type='text' class="datepicker" size='10' name='form_sale_date' id='form_sale_date'
     value='<?php echo attr(date('Y-m-d')) ?>'
@@ -598,7 +601,7 @@ $title = $lot_id ? xl("Update Lot") : xl("Add Lot");
  </tr>
 
  <tr>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Transaction Type'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Transaction Type'); ?>:</td>
   <td>
    <select name='form_trans_type' class='form-control' onchange='trans_type_changed()'>
 <?php
@@ -642,21 +645,21 @@ foreach (
  </tr>
 
  <tr id='row_lot_number'>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Lot Number'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Lot Number'); ?>:</td>
   <td>
    <input class="form-control w-100" type='text' size='40' name='form_lot_number' maxlength='40' value='<?php echo attr($row['lot_number']) ?>' />
   </td>
  </tr>
 
  <tr id='row_manufacturer'>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Manufacturer'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Manufacturer'); ?>:</td>
   <td>
    <input class="form-control w-100" type='text' size='40' name='form_manufacturer' maxlength='250' value='<?php echo attr($row['manufacturer']) ?>' />
   </td>
  </tr>
 
  <tr id='row_expiration'>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Expiration'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Expiration'); ?>:</td>
   <td>
    <input type='text' class='datepicker form-control w-50' size='10' name='form_expiration' id='form_expiration'
     value='<?php echo attr($row['expiration']) ?>'
@@ -665,7 +668,7 @@ foreach (
  </tr>
 
  <tr id='row_source_lot'>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Source Lot'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Source Lot'); ?>:</td>
   <td>
    <select name='form_source_lot' class='form-control'>
     <option value='0'> </option>
@@ -684,7 +687,7 @@ $lres = sqlStatement(
 while ($lrow = sqlFetchArray($lres)) {
     // TBD: For transfer to an existing lot do we want to force the same lot number?
     // Check clinic/wh permissions.
-    $facid = 0 + $lrow['option_value'];
+    $facid = (int) ($lrow['option_value'] ?? null);
     if ($is_user_restricted && !isWarehouseAllowed($facid, $lrow['warehouse_id'])) {
         continue;
     }
@@ -702,7 +705,7 @@ while ($lrow = sqlFetchArray($lres)) {
  </tr>
 
  <tr id='row_vendor'>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Vendor'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Vendor'); ?>:</td>
   <td>
 <?php
 // Address book entries for vendors.
@@ -717,7 +720,7 @@ generate_form_field(
  </tr>
 
  <tr id='row_warehouse'>
-  <td class="font-weight-bold text-nowrap align-top" id="label_warehouse"><?php echo xlt('Warehouse'); ?>:</td>
+  <td class="text-nowrap align-top" id="label_warehouse"><?php echo xlt('Warehouse'); ?>:</td>
   <td>
 <?php
 if (
@@ -735,28 +738,28 @@ if (
  </tr>
 
  <tr id='row_on_hand'>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('On Hand'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('On Hand'); ?>:</td>
   <td>
     <span><?php echo text($row['on_hand'] + 0); ?></span>
   </td>
  </tr>
 
  <tr id='row_quantity'>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Quantity'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Quantity'); ?>:</td>
   <td>
    <input class="form-control" type='text' size='5' name='form_quantity' maxlength='7' />
   </td>
  </tr>
 
  <tr id='row_cost'>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Total Cost'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Total Cost'); ?>:</td>
   <td>
    <input class="form-control" type='text' size='7' name='form_cost' maxlength='12' />
   </td>
  </tr>
 
  <tr id='row_notes' title='<?php echo xla('Include your initials and details of reason for transaction.'); ?>'>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Comments'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Comments'); ?>:</td>
   <td>
    <input class="form-control w-100" type='text' size='40' name='form_notes' maxlength='255' />
   </td>

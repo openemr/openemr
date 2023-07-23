@@ -16,6 +16,7 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Gacl\GaclApi;
 
@@ -24,7 +25,8 @@ $alertmsg = "";
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('admin', 'super');
 if (!$thisauth) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit Layout Properties")]);
+    exit;
 }
 
 $layout_id = empty($_GET['layout_id']) ? '' : $_GET['layout_id'];
@@ -127,6 +129,7 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
             // "grp_save_close = ?, " .
             "grp_init_open = ?, "  .
             "grp_referrals = ?, "  .
+            "grp_unchecked = ?, "  .
             "grp_services = ?, "   .
             "grp_products = ?, "   .
             "grp_diags = ?";
@@ -144,6 +147,7 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
             // empty($_POST['form_save_close']) ? 0 : 1,
             empty($_POST['form_init_open' ]) ? 0 : 1,
             empty($_POST['form_referrals']) ? 0 : 1,
+            empty($_POST['form_unchecked']) ? 0 : 1,
             empty($_POST['form_services']) ? '' : (empty($_POST['form_services_codes']) ? '*' : $_POST['form_services_codes']),
             empty($_POST['form_products']) ? '' : (empty($_POST['form_products_codes']) ? '*' : $_POST['form_products_codes']),
             empty($_POST['form_diags'   ]) ? '' : (empty($_POST['form_diags_codes'   ]) ? '*' : $_POST['form_diags_codes'   ]),
@@ -221,6 +225,7 @@ $row = array(
     // 'grp_save_close' => '0',
     'grp_init_open'  => '0',
     'grp_referrals'  => '0',
+    'grp_unchecked'  => '0',
     'grp_services'   => '',
     'grp_products'   => '',
     'grp_diags'      => '',
@@ -290,11 +295,16 @@ if ($layout_id) {
  </tr>
 
 <?php if (empty($group_id)) { ?>
+<tr>
+    <td></td>
+    <td><?php echo xlt('For transactions, change category to Transactions'); ?></td>
+</tr>
  <tr>
   <td valign='top' width='1%' nowrap>
     <?php echo xlt('Category'); ?>
   </td>
   <td>
+
    <input type='text' class='form-control' size='40' name='form_mapping' value='<?php echo attr($row['grp_mapping']); ?>' />
   </td>
  </tr>
@@ -504,6 +514,16 @@ for ($cols = 2; $cols <= 12; ++$cols) {
  </tr>
 
 <?php } ?>
+
+ <tr>
+  <td valign='top' width='1%' nowrap>
+   <input type='checkbox' name='form_unchecked' <?php echo ($row['grp_unchecked']) ? "checked" : ""; ?> />
+    <?php echo xlt('Show Unchecked Boxes'); ?>
+  </td>
+  <td>
+   &nbsp;
+  </td>
+ </tr>
 
 </table>
 

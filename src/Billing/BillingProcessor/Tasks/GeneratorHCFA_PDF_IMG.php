@@ -26,7 +26,10 @@ use OpenEMR\Billing\BillingProcessor\LoggerInterface;
 use OpenEMR\Billing\BillingProcessor\BillingClaim;
 use OpenEMR\Billing\Hcfa1500;
 
-class GeneratorHCFA_PDF_IMG extends GeneratorHCFA_PDF implements GeneratorInterface, GeneratorCanValidateInterface, LoggerInterface
+class GeneratorHCFA_PDF_IMG extends GeneratorHCFA_PDF implements
+    GeneratorInterface,
+    GeneratorCanValidateInterface,
+    LoggerInterface
 {
     /**
      * The only difference between this and the parent PDF generator
@@ -47,8 +50,10 @@ class GeneratorHCFA_PDF_IMG extends GeneratorHCFA_PDF implements GeneratorInterf
         $this->appendToLog($log);
         $alines = explode("\014", $lines); // form feeds may separate pages
         foreach ($alines as $tmplines) {
-            if ($claim_count++) {
+            if ($this->createNewPage) {
                 $this->pdf->ezNewPage();
+            } else {
+                $this->createNewPage = true;
             }
             $this->pdf->ezSetY($this->pdf->ez['pageHeight'] - $this->pdf->ez['topMargin']);
             $this->pdf->addPngFromFile("$hcfa_image", 0, 0, 612, 792);

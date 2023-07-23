@@ -53,6 +53,9 @@ $where = addwhere($where, 'a.state', $_GET['form_state']);
 $where = addwhere($where, 'a.zip', $_GET['form_zip']);
 
 $phone_parts = array();
+$area_code = null;
+$prefix = null;
+$digits = null;
 
 // Search by area code if there is one.
 if (
@@ -62,7 +65,8 @@ if (
         $phone_parts
     )
 ) {
-    $where = addwhere($where, 'p.area_code', $phone_parts[1]);
+    $area_code = $phone_parts[1];
+    $where = addwhere($where, 'p.area_code', $area_code);
 }
 
 // If there is also an exchange, search for that too.
@@ -73,7 +77,8 @@ if (
         $phone_parts
     )
 ) {
-    $where = addwhere($where, 'p.prefix', $phone_parts[1]);
+    $prefix = $phone_parts[1];
+    $where = addwhere($where, 'p.prefix', $prefix);
 }
 
 // If the last 4 phone number digits are given, search for that too.
@@ -84,19 +89,17 @@ if (
         $phone_parts
     )
 ) {
-    $where = addwhere($where, 'p.number', $phone_parts[1]);
+    $digits = $phone_parts[1];
+    $where = addwhere($where, 'p.number', $digits);
 }
 
 $query = "SELECT " .
     "i.id, i.name, i.attn, " .
     "a.line1, a.line2, a.city, a.state, a.zip, " .
     "p.area_code, p.prefix, p.number " .
-    "FROM insurance_companies AS i, addresses AS a, phone_numbers AS p " .
-    "WHERE a.foreign_id = i.id ";
-
-if (!empty($phone_parts)) {
-    $query .= "AND p.foreign_id = i.id ";
-}
+    "FROM insurance_companies i " .
+    "LEFT JOIN addresses a ON a.foreign_id = i.id " .
+    "LEFT JOIN phone_numbers p ON p.foreign_id = i.id WHERE 1=1 ";
 
 $query .= $where . " ORDER BY i.name, a.zip";
 $res = sqlStatement($query);
@@ -142,11 +145,14 @@ td {
  </tr>
 
 <?php
+if (empty($res->_numOfRows)) {
+    echo " <td>" . xlt('No matches found.') . "</td>";
+}
 while ($row = sqlFetchArray($res)) {
     $anchor = "<a href=\"\" onclick=\"return setins(" .
     attr_js($row['id']) . "," . attr_js($row['name']) . ")\">";
     $phone = '&nbsp';
-    if ($row['number']) {
+    if ($row['number'] ?? null) {
         $phone = text($row['area_code']) . '-' . text($row['prefix']) . '-' . text($row['number']);
     }
 
@@ -159,8 +165,8 @@ while ($row = sqlFetchArray($res)) {
     echo "  <td valign='top'>" . text($row['state']) . "&nbsp;</td>\n";
     echo "  <td valign='top'>" . text($row['zip']) . "&nbsp;</td>\n";
     echo "  <td valign='top'>" . $phone . "</td>\n";
-    echo " </tr>\n";
 }
+echo " </tr>\n";
 ?>
 </table>
 

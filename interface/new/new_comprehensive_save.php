@@ -15,6 +15,7 @@
 require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Services\ContactService;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -32,8 +33,8 @@ if (!empty($_POST["form_pubpid"])) {
     }
 }
 
-require_once("$srcdir/pid.inc");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/pid.inc.php");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 
 // Update patient_data and employer_data:
@@ -45,6 +46,7 @@ $newdata['employer_data'] = array();
 $fres = sqlStatement("SELECT * FROM layout_options " .
   "WHERE form_id = 'DEM' AND (uor > 0 OR field_id = 'pubpid') AND field_id != '' " .
   "ORDER BY group_id, seq");
+$addressFieldsToSave = array();
 while ($frow = sqlFetchArray($fres)) {
     $data_type = $frow['data_type'];
     $field_id  = $frow['field_id'];
@@ -57,7 +59,10 @@ while ($frow = sqlFetchArray($fres)) {
     }
 
   //get value only if field exist in $_POST (prevent deleting of field with disabled attribute)
-    if (isset($_POST["form_$field_id"]) || $field_id == "pubpid") {
+    // TODO: why is this a different conditional than demographics_save.php...
+    if ($data_type == 54) { // address list
+        $addressFieldsToSave[$field_id] = get_layout_form_value($frow);
+    } else if (isset($_POST["form_$field_id"]) || $field_id == "pubpid") {
         $value = get_layout_form_value($frow);
         $newdata[$tblname][$colname] = $value;
     }
@@ -70,7 +75,20 @@ if (empty($pid)) {
     die("Internal error: setpid(" . text($pid) . ") failed!");
 }
 setpid($pid);
-updateEmployerData($pid, $newdata['employer_data'], true);
+if (!$GLOBALS['omit_employers']) {
+    updateEmployerData($pid, $newdata['employer_data'], true);
+}
+
+if (!empty($addressFieldsToSave)) {
+    // TODO: we would handle other types of address fields here, for now we will just go through and populate the patient
+    // address information
+    // TODO: how are error messages supposed to display if the save fails?
+    foreach ($addressFieldsToSave as $field => $addressFieldData) {
+        // if we need to save other kinds of addresses we could do that here with our field column...
+        $contactService = new ContactService();
+        $contactService->saveContactsForPatient($pid, $addressFieldData);
+    }
+}
 
 $i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
 $i1date = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date"));

@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class NegativeEncounterRecommended extends EncounterRecommended
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class NegativeEncounterRecommended extends EncounterRecommended
 
     public $_type = 'QDM::NegativeEncounterRecommended';
 }
+

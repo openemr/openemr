@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class NegativeDeviceOrder extends DeviceOrder
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class NegativeDeviceOrder extends DeviceOrder
 
     public $_type = 'QDM::NegativeDeviceOrder';
 }
+

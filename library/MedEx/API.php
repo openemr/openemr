@@ -1683,10 +1683,7 @@ class Display extends base
                                                            title='<?php echo xla('Default'); ?>: "<?php echo xla('checked'); ?>".
                                                             <?php echo xla('When checked, messages are processed for patients with Patient Demographic Choice: "Hipaa Notice Received" set to "Unassigned" or "Yes". When unchecked, this choice must = "YES" to process the patient reminder. For patients with Choice ="No", Reminders will need to be processed manually.'); //or no translation... ?>'>
                                                             <?php echo xlt('Assume patients receive HIPAA policy'); ?>
-                                                     </label><br />
-                                                     <input type="checkbox" class="update" name="MSGS_default_yes" id="MSGS_default_yes" value="1" <?php if ($prefs['MSGS_default_yes'] == '1') {
-                                                                echo "checked='checked'";} ?> /><label for="MSGS_default_yes" class="input-helper input-helper--checkbox" data-toggle="tooltip" data-placement="auto" title="<?php echo xla('Default: Checked. When checked, messages are processed for patients with Patient Demographic Choice (Phone/Text/Email) set to \'Unassigned\' or \'Yes\'. If this is unchecked, a given type of message can only be sent if its Demographic Choice = \'Yes\'.'); ?>">
-                                                               <?php echo xlt('Assume patients permit Messaging'); ?></label>
+                                                     </label>
                                                     </div>
                                                 </div>
                                                 <div class="divTableRow">
@@ -1937,7 +1934,8 @@ class Display extends base
                                     "authorized = 1  AND active = 1 ORDER BY lname, fname"; #(CHEMED) facility filter
                                     $ures = sqlStatement($query);
                                     //a year ago @matrix-amiel Adding filters to flow board and counting of statuses
-                                    $count_provs = count(sqlFetchArray($ures));
+                                    $c = sqlFetchArray($ures);
+                                    $count_provs = count($c ?: []);
                                     ?>
                                     <select class="form-control form-control-sm" id="form_provider" name="form_provider" <?php if ($count_provs < '2') {
                                         echo "disabled"; } ?> onchange="show_this();">
@@ -1950,7 +1948,7 @@ class Display extends base
                                         //a year ago @matrix-amiel Adding filters to flow board and counting of statuses
                                         while ($urow = sqlFetchArray($ures)) {
                                             $provid = $urow['id'];
-                                            echo "    <option value='" . attr($provid) . "'";
+                                            echo "<option value='" . attr($provid) . "'";
                                             if (isset($rcb_provider) && $provid == ($_POST['form_provider'] ?? '')) {
                                                 echo " selected";
                                             } elseif (!isset($_POST['form_provider']) && $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']) {
@@ -2081,7 +2079,6 @@ class Display extends base
     {
         // Recalls are requests to schedule a future appointment.
         // Thus there is no r_appt_time (NULL) but there is a DATE set.
-
         $query = "SELECT * FROM medex_recalls,patient_data AS pat
                     WHERE pat.pid=medex_recalls.r_pid AND
                     r_eventDate >= ? AND
@@ -2135,10 +2132,13 @@ class Display extends base
                  id="recall_' . attr($recall['pid']) . '" style="display:none;">';
 
             $query = "SELECT cal.pc_eventDate,pat.DOB FROM openemr_postcalendar_events AS cal JOIN patient_data AS pat ON cal.pc_pid=pat.pid WHERE cal.pc_pid =? ORDER BY cal.pc_eventDate DESC LIMIT 1";
-            $result2 = sqlQuery($query, array( $recall['pid'] ));
+            $result2 = sqlQuery($query, array($recall['pid']));
             $last_visit = $result2['pc_eventDate'];
-            $DOB = oeFormatShortDate($result2['DOB']);
-            $age = $MedEx->events->getAge($result2['DOB']);
+            if (empty($result2['DOB'] ?? '')) {
+                $result2['DOB'] = sqlQuery("Select DOB From patient_data Where `pid` = ?", [$recall['pid']])['DOB'];
+            }
+            $DOB = oeFormatShortDate($result2['DOB'] ?? '');
+            $age = $MedEx->events->getAge($result2['DOB'] ?? 0);
             echo '<td class="divTableCell"><a href="#" onclick="show_patient(\'' . attr($recall['pid']) . '\');"> ' . text($recall['fname']) . ' ' . text($recall['lname']) . '</a>';
             if ($GLOBALS['ptkr_show_pid']) {
                 echo '<br /><span data-toggle="tooltip" data-placement="auto" title="' . xla("Patient ID") . '" class="small">' . xlt('PID') . ': ' . text($recall['pid']) . '</span>';

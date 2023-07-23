@@ -16,14 +16,17 @@
 require_once('../globals.php');
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use GuzzleHttp\Client;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("File management")]);
+    exit;
 }
 
-$imagedir     = "$OE_SITE_DIR/images";
 $educationdir = "$OE_SITE_DIR/documents/education";
 
 if (!empty($_POST['bn_save'])) {
@@ -32,78 +35,7 @@ if (!empty($_POST['bn_save'])) {
         CsrfUtils::csrfNotVerified();
     }
 
-    /** This is a feature that allows editing of configuration files. Uncomment this
-        at your own risk, since it is considered a critical security vulnerability if
-        OpenEMR is not configured correctly.
-    // Prepare array of names of editable files, relative to the site directory.
-    $my_files = array(
-    'config.php',
-    'faxcover.txt',
-    'faxtitle.eps',
-    'referral_template.html',
-    'statement.inc.php',
-    'letter_templates/custom_pdf.php',
-    );
-    // Append LBF plugin filenames to the array.
-    $lres = sqlStatement('SELECT grp_form_id FROM layout_group_properties ' .
-    "WHERE grp_form_id LIKE 'LBF%' AND grp_group_id = '' AND grp_activity = 1 ORDER BY grp_seq, grp_title");
-    while ($lrow = sqlFetchArray($lres)) {
-    $option_id = $lrow['grp_form_id']; // should start with LBF
-    $my_files[] = "LBF/$option_id.plugin.php";
-    }
-    $form_filename = $_REQUEST['form_filename'];
-    // Sanity check to prevent evildoing.
-    if (!in_array($form_filename, $my_files)) {
-    $form_filename = '';
-    }
-    $filepath = "$OE_SITE_DIR/$form_filename";
-    if ($form_filename) {
-        // Textareas, at least in Firefox, return a \r\n at the end of each line
-        // even though only \n was originally there.  For consistency with
-        // normal OpenEMR usage we translate those back.
-        file_put_contents($filepath, str_replace(
-            "\r\n",
-            "\n",
-            $_POST['form_filedata']
-        ));
-        $form_filename = '';
-    }
-    */
-
-    // Handle image uploads.
-    if (is_uploaded_file($_FILES['form_image']['tmp_name']) && $_FILES['form_image']['size']) {
-        $form_dest_filename = $_POST['form_dest_filename'];
-        if ($form_dest_filename == '') {
-            $form_dest_filename = $_FILES['form_image']['name'];
-        }
-
-        $form_dest_filename = basename($form_dest_filename);
-        if ($form_dest_filename == '') {
-            die(xlt('Cannot find a destination filename'));
-        }
-
-        $path_parts = pathinfo($form_dest_filename);
-        if (!in_array(strtolower($path_parts['extension']), array('gif','jpg','jpe','jpeg','png','svg'))) {
-            die(xlt('Only images files are accepted'));
-        }
-
-        $imagepath = "$imagedir/$form_dest_filename";
-        // If the site's image directory does not yet exist, create it.
-        if (!is_dir($imagedir)) {
-            mkdir($imagedir);
-        }
-
-        if (is_file($imagepath)) {
-            unlink($imagepath);
-        }
-
-        $tmp_name = $_FILES['form_image']['tmp_name'];
-        if (!move_uploaded_file($_FILES['form_image']['tmp_name'], $imagepath)) {
-            die(xlt('Unable to create') . " '" . text($imagepath) . "'");
-        }
-    }
-
-    // Handle PDF uploads for patient education.
+     // Handle PDF uploads for patient education.
     if (is_uploaded_file($_FILES['form_education']['tmp_name']) && $_FILES['form_education']['size']) {
         $form_dest_filename = $_FILES['form_education']['name'];
         $form_dest_filename = strtolower(basename($form_dest_filename));
@@ -121,8 +53,11 @@ if (!empty($_POST['bn_save'])) {
             unlink($educationpath);
         }
 
-        $tmp_name = $_FILES['form_education']['tmp_name'];
-        if (!move_uploaded_file($tmp_name, $educationpath)) {
+        $fileData = file_get_contents($_FILES['form_education']['tmp_name']);
+        if ($GLOBALS['drive_encryption']) {
+            $fileData = (new Cryptogen())->encryptStandard($fileData, null, 'database');
+        }
+        if (file_put_contents($educationpath, $fileData) === false) {
             die(text(xl('Unable to create') . " '$educationpath'"));
         }
     }
@@ -165,25 +100,27 @@ if (isset($_POST['generate_thumbnails'])) {
 if ($GLOBALS['secure_upload']) {
     $mime_types  = array('image/*', 'text/*', 'audio/*', 'video/*');
 
-    // Get cURL resource
-    $curl = curl_init();
+    $responseError = false;
+    $responseErrorAsString = "";
+    try {
+        $resp = (new GuzzleHttp\Client())->get('https://cdn.rawgit.com/jshttp/mime-db/master/db.json', [
+            'timeout' => 5
+        ]);
+    } catch (GuzzleHttp\Exception\ClientException $e) {
+        $responseErrorAsString = $e->getResponse()->getBody()->getContents();
+        $responseError = true;
+    }
 
-    curl_setopt_array($curl, array(
-        CURLOPT_RETURNTRANSFER => 1,
-        CURLOPT_URL => 'https://cdn.rawgit.com/jshttp/mime-db/master/db.json',
-        CURLOPT_CONNECTTIMEOUT => 5,
-        CURLOPT_TIMEOUT => 5
-    ));
-   // Send the request & save response to $resp
-    $resp = curl_exec($curl);
-    $httpinfo = curl_getinfo($curl);
-    if ($resp && $httpinfo['http_code'] == 200 && $httpinfo['content_type'] == 'application/json;charset=utf-8') {
-        $all_mime_types = json_decode($resp, true);
+    if (!$responseError && empty($responseErrorAsString) && !empty($resp) && ($resp->getStatusCode() == 200) && $resp->getBody()) {
+        $all_mime_types = json_decode($resp->getBody(), true);
         foreach ($all_mime_types as $name => $value) {
             $mime_types[] = $name;
         }
     } else {
-        error_log('Get list of mime-type error: "' . errorLogEscape(curl_error($curl)) . '" - Code: ' . errorLogEscape(curl_errno($curl)));
+        if (!empty($resp)) {
+            $errorStatusCode = $resp->getStatusCode();
+        }
+        error_log('Get list of mime-type error: "' . errorLogEscape($responseErrorAsString) . '" - Code: ' . errorLogEscape($errorStatusCode ?? 0));
         $mime_types_list = array(
             'application/pdf',
             'image/jpeg',
@@ -195,8 +132,6 @@ if ($GLOBALS['secure_upload']) {
         );
         $mime_types = array_merge($mime_types, $mime_types_list);
     }
-
-    curl_close($curl);
 
     if (isset($_POST['submit_form'])) {
         //verify csrf
@@ -281,79 +216,6 @@ function msfFileChanged() {
 
 <table class="table table-bordered border-dark">
 
-<?php /** This is a feature that allows editing of configuration files. Uncomment this
-at your own risk, since it is considered a critical security vulnerability if
-OpenEMR is not configured correctly. ?>
- <tr class='bg-light dehead'>
-  <td colspan='2' align='center'><?php echo xlt('Edit File in') . " " . text($OE_SITE_DIR); ?></td>
- </tr>
- <tr>
-  <td valign='top' class='detail' nowrap>
-   <select name='form_filename' onchange='msfFileChanged()' class="form-control">
-    <option value=''></option>
-<?php
-foreach ($my_files as $filename) {
-    echo "    <option value='" . attr($filename) . "'";
-    if ($filename == $form_filename) {
-        echo " selected";
-    }
-    echo ">" . text($filename) . "</option>\n";
-}
-?>
-   </select>
-   <br />
-   <textarea name='form_filedata' rows='25' class="w-100 form-control"><?php
-    if ($form_filename) {
-        echo text(@file_get_contents($filepath));
-    }
-?></textarea>
-  </td>
- </tr>
-<?php */ ?>
-
- <tr class='dehead bg-light'>
-  <td colspan='2' class='text-center'><?php echo text(xl('Upload Image to') . " $imagedir"); ?></td>
- </tr>
-
- <tr>
-  <td valign='top' class='detail' nowrap>
-    <?php echo xlt('Source File'); ?>:
-   <input type="hidden" name="MAX_FILE_SIZE" value="12000000" />
-   <input type="file" name="form_image" size="40" />&nbsp;
-    <?php echo xlt('Destination Filename'); ?>:
-   <select name='form_dest_filename' class='form-control'>
-    <option value=''>(<?php echo xlt('Use source filename'); ?>)</option>
-<?php
-  // Generate an <option> for each file already in the images directory.
-  $dh = opendir($imagedir);
-if (!$dh) {
-    die(text(xl('Cannot read directory') . " '$imagedir'"));
-}
-
-  $imagesslist = array();
-while (false !== ($sfname = readdir($dh))) {
-    if (substr($sfname, 0, 1) == '.') {
-        continue;
-    }
-
-    if ($sfname == 'CVS') {
-        continue;
-    }
-
-    $imageslist[$sfname] = $sfname;
-}
-
-  closedir($dh);
-  ksort($imageslist);
-foreach ($imageslist as $sfname) {
-    echo "    <option value='" . attr($sfname) . "'";
-    echo ">" . text($sfname) . "</option>\n";
-}
-?>
-   </select>
-  </td>
- </tr>
-
  <tr class='dehead bg-light'>
   <td colspan='2' align='center'><?php echo text(xl('Upload Patient Education PDF to') . " $educationdir"); ?></td>
  </tr>
@@ -394,60 +256,62 @@ foreach ($imageslist as $sfname) {
 
 <?php if ($GLOBALS['secure_upload']) { ?>
 <div id="file_type_whitelist">
-    <h2><?php echo xlt('Create custom white list of MIME content type of a files to secure your documents system');?></h2>
+    <h3 class='text-center'><?php echo xlt('White list files by MIME content type');?></h3>
     <form id="whitelist_form" method="post">
-        <div class="subject-black-list">
-            <div class="top-list">
-                <h2 class="text-center"><?php echo xlt('Black list'); ?></h2>
-                <div class="form-row align-items-center">
-                    <div class="col-2">
-                        <label for="filter-black-list" class="font-weight-bold"><?php echo xlt('Filter');?>:</label>
-                    </div>
-                    <div class="col">
-                        <input type="text" id="filter-black-list" class="form-control" />
+        <div class="form-row">
+            <div class="subject-black-list col">
+                <div class="form-group">
+                    <h2 class="text-center"><?php echo xlt('Black list'); ?></h2>
+                    <div class="form-row align-items-center">
+                        <div class="col-2">
+                            <label for="filter-black-list" class="font-weight-bold"><?php echo xlt('Filter');?>:</label>
+                        </div>
+                        <div class="col">
+                            <input type="text" id="filter-black-list" class="form-control" />
+                        </div>
                     </div>
                 </div>
+                <select multiple="multiple" id='black-list' class="form-control w-100">
+                    <?php
+                    foreach ($mime_types as $type) {
+                        if (!in_array($type, $white_list)) {
+                            echo "<option value='" . attr($type) . "'> " . text($type) . "</option>";
+                        }
+                    }
+                    ?>
+                </select>
             </div>
-            <select multiple="multiple" id='black-list' class="form-control">
-                <?php
-                foreach ($mime_types as $type) {
-                    if (!in_array($type, $white_list)) {
+
+            <div class="subject-info-arrows">
+                <input type="button" id="btnAllRight" value=">>" class="btn btn-secondary btn-sm" /><br />
+                <input type="button" id="btnRight" value=">" class="btn btn-secondary btn-sm" /><br />
+                <input type="button" id="btnLeft" value="<" class="btn btn-secondary btn-sm" /><br />
+                <input type="button" id="btnAllLeft" value="<<" class="btn btn-secondary btn-sm" />
+            </div>
+
+            <div class="subject-white-list col">
+                <div class="form-group">
+                    <h2 class="text-center"><?php echo xlt('White list'); ?></h2>
+                    <div class="form-row">
+                        <div class="col-2">
+                            <label><?php echo xlt('Add manually');?>:</label>
+                        </div>
+                        <div class="col">
+                            <input type="text" id="add-manually-input" class="form-control" />
+                        </div>
+                        <div class="col">
+                            <input type="button" class="btn btn-primary" id="add-manually" value="+" />
+                        </div>
+                    </div>
+                </div>
+                <select name="white_list[]" multiple="multiple" id='white-list' class="form-control w-100">
+                    <?php
+                    foreach ($white_list as $type) {
                         echo "<option value='" . attr($type) . "'> " . text($type) . "</option>";
                     }
-                }
-                ?>
-            </select>
-        </div>
-
-        <div class="subject-info-arrows">
-            <input type="button" id="btnAllRight" value=">>" class="btn btn-secondary btn-sm" /><br />
-            <input type="button" id="btnRight" value=">" class="btn btn-secondary btn-sm" /><br />
-            <input type="button" id="btnLeft" value="<" class="btn btn-secondary btn-sm" /><br />
-            <input type="button" id="btnAllLeft" value="<<" class="btn btn-secondary btn-sm" />
-        </div>
-
-        <div class="subject-white-list">
-            <div class="top-list">
-                <h2 class="text-center"><?php echo xlt('White list'); ?></h2>
-                <div class="form-row">
-                    <div class="col-2">
-                        <label><?php echo xlt('Add manually');?>:</label>
-                    </div>
-                    <div class="col">
-                        <input type="text" id="add-manually-input" class="form-control" />
-                    </div>
-                    <div class="col">
-                        <input type="button" class="btn btn-primary" id="add-manually" value="+" />
-                    </div>
-                </div>
+                    ?>
+                </select>
             </div>
-            <select name="white_list[]" multiple="multiple" id='white-list' class="form-control">
-                <?php
-                foreach ($white_list as $type) {
-                    echo "<option value='" . attr($type) . "'> " . text($type) . "</option>";
-                }
-                ?>
-            </select>
         </div>
         <div class="subject-info-save">
             <input type="button" id="submit-whitelist" class="btn btn-primary" value="<?php echo xla('Save'); ?>" />
@@ -535,7 +399,7 @@ foreach ($imageslist as $sfname) {
         $('#add-manually').on('click', function () {
             var new_type = $("#add-manually-input").val();
             if(new_type.length < 1)return;
-            $('#white-list').prepend("<option value="+new_type+">"+new_type+"</option>")
+            $('#white-list').prepend("<option value='" + jsAttr(new_type) + "'>" + jsText(new_type) + "</option>")
         })
 
         $('#submit-whitelist').on('click', function () {

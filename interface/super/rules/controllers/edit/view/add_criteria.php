@@ -28,7 +28,7 @@
   </tr>
 </table>
 
-<div class="rule_detail edit text">
+<div class="rule_detail edit">
     <p class="header"><?php echo xlt('Add criteria'); ?> </p>
     <ul>
     <?php foreach ($allowed as $type) { ?>

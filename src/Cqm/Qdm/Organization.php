@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class Organization extends Entity
 {
-
     /**
      * @property BaseTypes\Code $type
      */
@@ -32,3 +31,4 @@ class Organization extends Entity
 
     public $_type = 'QDM::Organization';
 }
+

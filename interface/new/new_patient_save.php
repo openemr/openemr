@@ -30,8 +30,8 @@ if (!empty($_POST["pubpid"])) {
     }
 }
 
-require_once("$srcdir/pid.inc");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/pid.inc.php");
+require_once("$srcdir/patient.inc.php");
 
 //here, we lock the patient data table while we find the most recent max PID
 //other interfaces can still read the data during this lock, however

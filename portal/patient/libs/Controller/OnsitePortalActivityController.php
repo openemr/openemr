@@ -113,7 +113,7 @@ class OnsitePortalActivityController extends AppBasePortalController
             $onsiteportalactivity = $this->Phreezer->Get('OnsitePortalActivity', $pk);
             // only allow patient to update onsiteportalactivity about themself
             if (!empty($GLOBALS['bootstrap_pid'])) {
-                if ($GLOBALS['bootstrap_pid'] !== $onsiteportalactivity->PatientId) {
+                if ($GLOBALS['bootstrap_pid'] != $onsiteportalactivity->PatientId) {
                     $error = 'Unauthorized';
                     throw new Exception($error);
                 }

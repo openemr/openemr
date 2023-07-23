@@ -128,7 +128,7 @@ var page = {
                                     value = 'Unassigned';
                                 }
                                 $('#' + key + 'InputContainer span.help-inline').html(
-                                '<a class="editval text-primary" onclick="page.toggleVal(this); return false;" data-tstate=new data-id="'+key+'">'+value+'</a>');
+                                '<a class="editval text-primary" onclick="page.toggleVal(this); return false;" data-tstate=new data-id="' + _.escape(key) + '">' + _.escape(value) + '</a>');
                                 $('#' + key + 'InputContainer span.help-inline').show();
                             }
                         });
@@ -290,7 +290,7 @@ var page = {
                 page.fetchInProgress = false;
             },
             error: function (m, r) {
-                app.appendAlert(app.getErrorMessage(r), 'alert-danger', 0, 'collectionAlert');
+                app.appendAlert(app.getErrorMessage(r), 'danger', 15000, 'collectionAlert');
                 app.hideProgress('modelLoader');
                 page.fetchInProgress = false;
             }
@@ -316,7 +316,7 @@ var page = {
                     page.getEditedPatient(pm)
                 },
                 error: function (m, r) {
-                    app.appendAlert(app.getErrorMessage(r), 'alert-danger', 0, 'modelAlert');
+                    app.appendAlert(app.getErrorMessage(r), 'danger', 15000, 'modelAlert');
                     app.hideProgress('modelLoader');
                 }
             });
@@ -444,7 +444,7 @@ var page = {
             wait: true,
             success: function () {
                 if (live !== 1) {
-                    setTimeout("app.appendAlert('Patient was successfully " + (isNew ? "inserted" : "updated") + "','alert-success',2000,'collectionAlert')", 200);
+                    setTimeout("app.appendAlert('Patient was successfully " + (isNew ? "inserted" : "updated") + "','success',5000,'collectionAlert')", 200);
                     setTimeout("window.location.href ='" + webRoot + "/portal/home.php'", 2500);
                 } else if (live === 1 && register !== '0') { // for testing
                     //alert('Save Success');
@@ -462,7 +462,7 @@ var page = {
             },
             error: function (model, response, scope) {
                 app.hideProgress('modelLoader');
-                app.appendAlert(app.getErrorMessage(response), 'alert-danger', 0, 'modelAlert');
+                app.appendAlert(app.getErrorMessage(response), 'danger', 15000, 'modelAlert');
                 try {
                     var json = $.parseJSON(response.responseText);
                     if (json.errors) {
@@ -493,7 +493,7 @@ var page = {
             wait: true,
             success: function () {
                 $('#patientDetailDialog').modal('hide');
-                setTimeout("app.appendAlert('The Patient record was deleted','alert-success',3000,'collectionAlert')", 500);
+                setTimeout("app.appendAlert('The Patient record was deleted','success',5000,'collectionAlert')", 500);
                 app.hideProgress('modelLoader');
 
                 if (model.reloadCollectionOnModelUpdate) {
@@ -502,7 +502,7 @@ var page = {
                 }
             },
             error: function (model, response, scope) {
-                app.appendAlert(app.getErrorMessage(response), 'alert-danger', 0, 'modelAlert');
+                app.appendAlert(app.getErrorMessage(response), 'danger', 15000, 'modelAlert');
                 app.hideProgress('modelLoader');
             }
         });

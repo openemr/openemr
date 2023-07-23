@@ -1,19 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		{% block head %}
-            {{ setupHeader(['no_main-theme', 'datetime-picker', 'patientportal-style']) }}
-		{% endblock %}
-		<title>
-			{% block pagetitle %}Index{% endblock %}
-		</title>
-	</head>
-	<body>
-		{% block header %}{% endblock %}
-		<div class="container-fluid">
-			{% block content %}{% endblock %}
-			{% block footer %}{% endblock %}
-			{% block scripts %}{% endblock %}
-		</div>
-		</body>
-	</html>
+<head>
+    {% block head %}
+        {{ setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker', 'i18next']) }}
+    {% endblock %}
+
+    <title>{% block pagetitle %}{{ "Home"|xlt }}{% endblock %}</title>
+</head>
+<body>
+    <div class="container-lg">
+        {% block header %}{% endblock %}
+        {% block content %}{% endblock %}
+        {% block footer %}{% endblock %}
+        {% block scripts %}{% endblock %}
+    </div>
+</body>
+</html>

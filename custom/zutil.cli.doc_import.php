@@ -47,6 +47,10 @@ $arg = array(
 );
 
 foreach ($arg as $key => $def) {
+    if ($key == "path") {
+        // do not let setting of path via GET for security reasons
+        continue;
+    }
     if (isset($_GET[$key])) {
         $arg[$key] = $_GET[$key];
     }
@@ -54,10 +58,6 @@ foreach ($arg as $key => $def) {
 
 require_once(dirname(__FILE__, 2) . "/interface/globals.php");
 require_once("$srcdir/documents.php");
-
-if (isset($GLOBALS[$arg['path']])) {
-    $arg['path'] = $GLOBALS[$arg['path']];
-}
 
 if ($arg['category'] != 1) {
     $rec_cat = sqlQuery('SELECT id FROM categories WHERE name=?', array(urldecode($arg['category'])));
@@ -151,6 +151,7 @@ foreach ($docs as $doc) {
             'category_id' => '1',
             'higher_level_path' => '',
             'path_depth' => '1',
+            'skip_acl_check' => true
         );
         $new_doc = call_user_func_array('addNewDocument', $doc_params);
         printf('%s - %s%s', text($doc_pathname), (isset($new_doc) ? text($new_doc->get_url()) : xlt('Documents setup error')), "\n");

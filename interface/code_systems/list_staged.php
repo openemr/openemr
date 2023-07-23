@@ -186,6 +186,15 @@ if (is_dir($mainPATH)) {
                     $temp_date = array('date' => $date_release, 'version' => $version, 'path' => $mainPATH . "/" . $matches[0]);
                     array_push($revisions, $temp_date);
                     $supported_file = 1;
+                } elseif (preg_match("/SnomedCT_ManagedServiceIE_PRODUCTION_IE1000220_([0-9]{8})[0-9a-zA-Z]{8}.zip/", $file, $matches)) {
+                    // Hard code the version SNOMED feed to be International:English Irish version
+                    //
+                    $version = "International:English";
+                    $rf2 = true;
+                    $date_release = substr($matches[1], 0, 4) . "-" . substr($matches[1], 4, -2) . "-" . substr($matches[1], 6);
+                    $temp_date = array('date' => $date_release, 'version' => $version, 'path' => $mainPATH . "/" . $matches[0]);
+                    array_push($revisions, $temp_date);
+                    $supported_file = 1;
                 } elseif (preg_match("/SnomedCT_USEditionRF2_PRODUCTION_([0-9]{8})[0-9a-zA-Z]{8}.zip/", $file, $matches)) {
                     // Hard code the version SNOMED feed to be Complete US Extension
                     //
@@ -313,7 +322,7 @@ if ($supported_file === 1) {
         }
 
         // collect checksum (if a multiple file import, then can use any one)
-        $file_checksum = $value['checksum'];
+        $file_checksum = $value['checksum'] ?? '';
         // collect path (if a multiple file import, then can use any one)
         $file_revision_path = $value['path'];
     }

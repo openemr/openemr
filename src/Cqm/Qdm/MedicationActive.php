@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class MedicationActive extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $relevantDatetime
      */
@@ -72,3 +71,4 @@ class MedicationActive extends QDMBaseType
 
     public $_type = 'QDM::MedicationActive';
 }
+

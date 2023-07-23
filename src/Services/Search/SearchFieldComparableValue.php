@@ -63,4 +63,11 @@ class SearchFieldComparableValue
         }
         return "(value=" . $value . ",comparator=" . $this->getComparator() ?? "" . ")";
     }
+
+    public function __clone()
+    {
+        if (!empty($this->value) && is_object($this->value)) {
+            $this->value = clone $this->value;
+        }
+    }
 }

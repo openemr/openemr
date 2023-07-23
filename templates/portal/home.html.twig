@@ -1,38 +1,55 @@
 {% extends "portal/base.html.twig" %}
 
 {% block head %}
-	{{parent()}}
+    {{ parent() }}
 
-	<link href="../portal/sign/css/signer_modal.css?v={{ assetVersion | attr }}" rel="stylesheet"/>
-	<script src="../interface/main/tabs/js/dialog_utils.js?v={{ assetVersion | attr }}"></script>
-	<script src="../portal/sign/assets/signature_pad.umd.js?v={{ assetVersion | attr }}"></script>
-	<script src="../portal/sign/assets/signer_api.js?v={{ assetVersion | attr }}"></script>
+    <link href="../portal/sign/css/signer_modal.css?v={{ assetVersion | attr_url }}" rel="stylesheet"/>
+    <script src="../interface/main/tabs/js/dialog_utils.js?v={{ assetVersion | attr_url }}"></script>
+    <script src="../portal/sign/assets/signature_pad.umd.js?v={{ assetVersion | attr_url }}"></script>
+    <script src="../portal/sign/assets/signer_api.js?v={{ assetVersion | attr_url }}"></script>
 
-	{% if payment_gateway == 'Stripe' %}
-		<script src="https://js.stripe.com/v3/"></script>
-	{% endif %}
+    {% if payment_gateway == 'Stripe' %}
+        <script src="https://js.stripe.com/v3/"></script>
+    {% endif %}
 
-	{% if payment_gateway == 'AuthorizeNet' %}
-		{% if gateway_mode_production %}
-			<script src="https://js.authorize.net/v1/Accept.js"></script>
-		{% else %}
-			<script src="https://jstest.authorize.net/v1/Accept.js"></script>
-		{% endif %}
-	{% endif %}
+    {% if payment_gateway == 'AuthorizeNet' %}
+        {% if gateway_mode_production %}
+            <script src="https://js.authorize.net/v1/Accept.js"></script>
+        {% else %}
+            <script src="https://jstest.authorize.net/v1/Accept.js"></script>
+        {% endif %}
+    {% endif %}
 
-	<script>
-		var cpid = {{ patientID | js_escape }},
-		cuser = {{ user | js_escape }},
-		webRoot = {{ web_root | js_escape }},
-		ptName = {{ patientName | js_escape }},
-        whereto = {{ whereto | js_escape }},
-		webroot_url = webRoot,
-		tab_mode = true,
-		isPortal = 1;
+    <script>
+        var cpid = {{ patientID | js_escape }},
+            cuser = {{ user | js_escape }},
+            webRoot = {{ web_root | js_escape }},
+            ptName = {{ patientName | js_escape }},
+            whereto = {{ whereto | js_escape }},
+            siteId = {{ site_id | js_escape }},
+            inactivityTimeOut = {{ portal_timeout | js_escape }},
+            languageDefinitions = {{ language_defs | js_escape }},
+            webroot_url = webRoot,
+            tab_mode = true,
+            isPortal = 1;
 
-		function restoreSession() {
-			return true;
-		}
+        function restoreSession() {
+            return true;
+        }
+
+        i18next.init({
+            lng: 'selected',
+            debug: false,
+            nsSeparator: false,
+            keySeparator: false,
+            resources: {
+                selected: {
+                    translation: languageDefinitions
+                }
+            }
+        }).catch(error => {
+            console.log(error.message);
+        });
 
         function persist(where, portalInit = false) {
             if (where[0] !== '#') {
@@ -42,7 +59,7 @@
             fetch('lib/persist.php', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(
                     {
@@ -50,428 +67,489 @@
                         'where': where,
                         'portal_init': portalInit
                     }
-                ),
+                )
             });
         }
 
-		$(function () {
-            $('li a.dropdown-item').on('click', (e) => {
+        const activityMonitor = function () {
+            let timeOut,
+                warnTimeOut,
+                time;
+            if (Number(inactivityTimeOut) < 300) {
+                inactivityTimeOut = 900; // 15 minutes. < 5 minutes is too short.
+            }
+            time = inactivityTimeOut * 1000;
+
+            window.onload = resetLogOutTimer;
+            window.onmousemove = resetLogOutTimer;
+            window.onmousedown = resetLogOutTimer;
+            window.ontouchstart = resetLogOutTimer;
+            window.ontouchmove = resetLogOutTimer;
+            window.onclick = resetLogOutTimer;
+            window.onkeydown = resetLogOutTimer;
+            window.addEventListener('scroll', resetLogOutTimer, true);
+
+            function logoutWarn() {
+                const warnMsg = xl('Your current log on session will expire in 30 seconds.') + '<br />' + xl('Please take action to prevent being logged out!');
+                syncAlertMsg(warnMsg, 28000); // from utility.js
+            }
+
+            function logout() {
+                let logoutUrl = "./index.php?site=" + encodeURIComponent(siteId);
+                location.replace(logoutUrl);
+            }
+
+            function resetWarnTimer() {
+                clearTimeout(warnTimeOut);
+                warnTimeOut = setTimeout(logoutWarn, time - 30000);
+            }
+
+            function resetLogOutTimer() {
+                $('#alert_box').remove(); // reset alert if set
+                resetWarnTimer();
+                clearTimeout(timeOut);
+                timeOut = setTimeout(logout, time);
+            }
+        };
+
+        $(function () {
+            $('#topNav [data-parent="#cardgroup"]').on('click', (e) => {
                 persist($(e.target).attr('href'), false);
             });
 
-			if ($('body').css('direction') == "rtl") {
-				$('.float-left').each(function () {
-					$(this).addClass('float-right').removeClass('float-left');
-				});
-				$('.dropdown-menu-right').each(function () {
-					$(this).removeClass('dropdown-menu-right');
-				});
-				$('.dropdown-menu-md-right').each(function () {
-					$(this).removeClass('dropdown-menu-md-right');
-				});
-			}
+            if ($('body').css('direction') === "rtl") {
+                $('.float-left').each(function () {
+                    $(this).addClass('float-right').removeClass('float-left');
+                });
+                $('.dropdown-menu-right').each(function () {
+                    $(this).removeClass('dropdown-menu-right');
+                });
+                $('.dropdown-menu-md-right').each(function () {
+                    $(this).removeClass('dropdown-menu-md-right');
+                });
+            }
 
-			$("#profilereport").load("get_profile.php", {}, function () {
-				$("table").addClass("table table-sm");
-				$(".demographics td").removeClass("label");
-				$(".demographics td").addClass("bold");
-				$(".insurance table").addClass("table-sm table-striped");
-				$("#editDems").click(function () {
-					showProfileModal()
-				});
-			});
-
-			$("#medicationlist").load("./get_medications.php", {}, function () {});
-
-			$("#labresults").load("./get_lab_results.php", {}, function () {});
-
-			$("#amendmentslist").load("./get_amendments.php", {}, function () {});
-
-			$("#problemslist").load("./get_problems.php", {}, function () {});
-
-			$("#allergylist").load("./get_allergies.php", {}, function () {});
-
-			$("#reports").load("./report/portal_patient_report.php?pid=" + {{ patientID | js_url }}, {}, function () {
-
+            $("#profilereport").load("get_profile.php", {}, function () {
+                $("table").addClass("table table-sm");
+                $(".demographics td").removeClass("label");
+                $(".demographics td").addClass("bold");
+                $(".insurance table").addClass("table-sm table-striped");
+                $("#editDems").click(function () {
+                    showProfileModal()
+                });
             });
 
-			{% if portal_two_payments %}
-				$("#payment").load("./portal_payment.php", {}, function () {});
-			{% endif %}
+            $("#medicationlist").load("./get_medications.php", {}, function () {});
 
-			$(".generateDoc_download").click(function () {
-				$("#doc_form").submit();
-			});
+            $("#labresults").load("./get_lab_results.php", {}, function () {});
 
-			function showProfileModal() {
-				var title = {{ 'Profile Edits Red = Charted Values and Blue = Patient Edits' | xlj }};
+            $("#amendmentslist").load("./get_amendments.php", {}, function () {});
 
-				var params = {
-					buttons: [{
-					text: {{ 'Help' | xlj }},
-					close: false,
-					style: 'info',
-					id: 'formHelp'
-					},
-					{
-					text: {{ 'Cancel' | xlj }},
-					close: true,
-					style: 'default'
-					},
-					{
-					text: {{ 'Revert Edits' | xlj }},
-					close: false,
-					style: 'danger',
-					id: 'replaceAllButton'
-					},
-					{
-					text: {{ 'Submit Changes' | xlj }},
-					close: false,
-					style: 'success',
-					id: 'donePatientButton'
-					}],
-					sizeHeight: 'full',
-					allowDrag: false,
-					onClosed: 'reload',
-					resolvePromiseOn: 'init',
-					type: 'GET',
-					url: webRoot + '/portal/patient/patientdata?pid=' + encodeURIComponent(cpid) + '&user=' + encodeURIComponent(cuser)
-					};
+            $("#problemslist").load("./get_problems.php", {}, function () {});
 
-					dlgopen('', '', 'modal-xl', 500, '', title, params).then(function (dialog) {
-						$('div.modal-body', dialog).addClass('overflow-auto');
-					});
-			}
+            $("#allergylist").load("./get_allergies.php", {}, function () {});
 
-			function saveProfile() {
-				page.updateModel();
-			}
+            $("#reports").load("./report/portal_patient_report.php?pid=" + {{ patientID | js_url }}, {}, function () {});
 
-			var gowhere = {{ whereto | js_escape }};
+            {% if portal_two_payments %}
+                $("#payment").load("./portal_payment.php", {}, function () {});
+            {% endif %}
 
-			$(gowhere).collapse('show');
+            {% if isEasyPro %}
+                $("#pro").load("./get_pro.php", {}, function () {});
+            {% endif %}
 
-			$('#cardgroup').on('show.bs.collapse', '.collapse', function () {
-				$('#cardgroup').find('.collapse.show').collapse('hide');
-			});
+            //$("#quickstart-div").load("./quickstart_page.php", {}, function () {});
 
-			$('#popwait').addClass('d-none');
+            $(".generateDoc_download").click(function () {
+                $("#doc_form").submit();
+            });
 
-			$('#callccda').click(function () {
-				$('#popwait').removeClass('d-none');
-			});
-		});
+            function showProfileModal() {
+                var title = {{ 'Profile Edits Red = Charted Values and Blue = Patient Edits' | xlj }};
 
-		function editAppointment(mode, deid) {
-			let mdata = {};
-			let title = '';
+                var params = {
+                    buttons: [
+                        {
+                            text: {{ 'Help' | xlj }},
+                            close: false,
+                            style: 'info',
+                            id: 'formHelp'
+                        }, {
+                            text: {{ 'Cancel' | xlj }},
+                            close: true,
+                            style: 'default'
+                        }, {
+                            text: {{ 'Revert Edits' | xlj }},
+                            close: false,
+                            style: 'danger',
+                            id: 'replaceAllButton'
+                        }, {
+                            text: {{ 'Submit Changes' | xlj }},
+                            close: false,
+                            style: 'success',
+                            id: 'donePatientButton'
+                        }
+                    ],
+                    sizeHeight: 'full',
+                    allowDrag: false,
+                    onClosed: 'reload',
+                    resolvePromiseOn: 'init',
+                    type: 'GET',
+                    url: webRoot + '/portal/patient/patientdata?pid=' + encodeURIComponent(cpid) + '&user=' + encodeURIComponent(cuser)
+                };
 
-			if (mode === 'add') {
-				title = {{ 'Request New Appointment' | xlj }};
-				mdata = {
-					pid: deid
-				};
-			} else if (mode === 'recurring') {
-				let msg = {{ 'A Recurring Appointment. Please contact your appointment desk for any changes.' | xlj }};
-				signerAlertMsg(msg, 8000);
-				return false;
-			} else {
-				title = {{ 'Edit Appointment' | xlj }};
-				mdata = {
-					eid: deid
-				};
-			}
+                dlgopen('', '', 'modal-xl', 500, '', title, params).then(function (dialog) {
+                    $('div.modal-body', dialog).addClass('overflow-auto');
+                });
+            }
 
-			var params = {
-				dialogId: 'editpop',
-				buttons: [{text: 'Cancel', close: true, style: 'btn-sm btn-secondary'}],
-				allowDrag: false,
-				sizeHeight: 'full',
-				size: 750,
-				title: title,
-				type: "GET",
-				url: './add_edit_event_user.php',
-				data: mdata
-			};
-			/*
-			* A couple notes on dialog.ajax .alert etc.
-			* opener is not required. library will handle for you.
-			* these run in the same scope as calling script.
-			* so same styles, dependencies are in scope.
-			* a promise is returned for doing other neat stuff.
-			*
-			* */
-			dialog.ajax(params);
-		}
+            function saveProfile() {
+                page.updateModel();
+            }
 
-		function changeCredentials(e) {
-			title = {{ 'Please Enter New Credentials' | xlj }};
-			dlgopen("./account/index_reset.php", '', 575, 600, null, title, {});
-		}
+            let gowhere = {{ whereto | js_escape }};
+            $(gowhere).collapse('show');
 
-		{% if isEasyPro %}
+            $('#cardgroup').on('hide.bs.collapse', '.show', function (e) {
+                let target = this.attributes.id.nodeValue;
+                if (whereto.includes(target)) {
+                    whereto = '';
+                    return false;
+                }
+            });
 
-			$("#pro").load("./get_pro.php", {}, function () {});
+            $('#popwait').addClass('d-none');
 
-			function writeResult(score, stdErr, assessmentOID) {
-				$.ajax({
-				url: '../library/ajax/easipro_util.php',
-				data: {
-					'csrf_token_form': {{ csrfUtils | js_escape }},
-					'function': 'record_result',
-					'score': score,
-					'stdErr': stdErr,
-					'assessmentOID': assessmentOID
-				},
-				type: 'POST',
-				dataType: 'script'
-				});
-			}
+            $('#callccda').click(function () {
+                $('#popwait').removeClass('d-none');
+            });
 
-			function selectResponse(obj, assessmentOID) {
-				$.ajax({
-					url: '../library/ajax/easipro_util.php',
-					type: "POST",
-					data: {
-						'csrf_token_form': {{ csrfUtils | js_escape }},
-						'function': 'select_response',
-						'assessmentOID': assessmentOID,
-						'ItemResponseOID': obj.name,
-						'Response': + obj.id
-					},
-					dataType: "json",
-					success: function (data) {
-						if (data.DateFinished != '') {
-							document.getElementById("Content").innerHTML = jsText({{ 'You have finished the assessment.' | xlj }}) + "<br /> " + jsText({{ 'Thank you' | xlj }});
-							document.getElementById("asst_" + assessmentOID).innerHTML = "<i class='fa fa-check-circle'></i>";
-							document.getElementById("asst_status_" + assessmentOID).innerHTML = "completed";
-							$.ajax({
-								url: '../library/ajax/easipro_util.php',
-								type: "POST",
-								data: {
-									'csrf_token_form': {{ csrfUtils | js_escape }},
-									'function': 'collect_results',
-									'assessmentOID': assessmentOID
-								},
-								dataType: "json",
-								success: function (data) {
-									writeResult(data.Items[0].Theta, data.Items[0].StdError, assessmentOID);
-								}
-							});
-							return
-						}
+            // start watch for inactivity
+            activityMonitor();
+        });
 
-						var screen = "";
-						for (var j = 0; j < data.Items[0].Elements.length; j++) {
-							if (typeof(data.Items[0].Elements[j].Map) == 'undefined') {
-								screen = `<div style="height: 30px>${data.Items[0].Elements[j].Description}</div>`
-							} else {
-									for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
-										screen = `<div style="height: 50px"><input type="button" class="btn-submit" id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick=selectResponse(this,${assessmentOID}) /></div>`;
-									}
-								}
-						}
-						document.getElementById("Content").innerHTML = screen;
-					},
-					error: function (jqXHR, textStatus, errorThrown) { // document.write(jqXHR.responseText + ':' + textStatus + ':' + errorThrown);
-					alert("An error occurred");
-					}
-				});
-			}
+        function editAppointment(mode, deid) {
+            let mdata = {};
+            let title = '';
 
-			function startAssessment(param, assessmentOID) {
-				param.innerHTML = "<i class='fa fa-circle-notch fa-spin'></i> " + jsText({{ 'Loading' | xlj }});
+            if (mode === 'add') {
+                title = {{ 'Request New Appointment' | xlj }};
+                mdata = {
+                    pid: deid
+                };
+            } else if (mode === 'recurring') {
+                let msg = {{ 'A Recurring Appointment. Please contact your appointment desk for any changes.' | xlj }};
+                signerAlertMsg(msg, 8000);
+                return false;
+            } else {
+                title = {{ 'Edit Appointment' | xlj }};
+                mdata = {
+                    eid: deid
+                };
+            }
 
-				$.ajax({
-					url: '../library/ajax/easipro_util.php',
-					type: "POST",
-					data: {
-						'csrf_token_form': {{ csrfUtils | js_escape }},
-						'function': 'start_assessment',
-						'assessmentOID': assessmentOID
-					},
-					dataType: "json",
-					success: function (data) {
-						var screen = "";
-						for (var j = 0; j < data.Items[0].Elements.length; j++) {
-							if (typeof(data.Items[0].Elements[j].Map) == 'undefined') {
-								screen = `<div style="height: 30px">${data.Items[0].Elements[j].Description}</div>`;
-							} else {
-								for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
-									screen = `<div style="height: 50px"><input type="button" class='btn-submit' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick=selectResponse(this, ${assessmentOID})/></div>`;
-								}
-							}
-						}
+            var params = {
+                dialogId: 'editpop',
+                buttons: [
+                    {
+                        text: 'Cancel',
+                        close: true,
+                        style: 'btn-sm btn-secondary'
+                    }
+                ],
+                allowDrag: false,
+                size: 800,
+                title: title,
+                type: "GET",
+                url: './add_edit_event_user.php',
+                data: mdata
+            };
+            /*
+            * A couple notes on dialog.ajax .alert etc.
+            * opener is not required. library will handle for you.
+            * these run in the same scope as calling script.
+            * so same styles, dependencies are in scope.
+            * a promise is returned for doing other neat stuff.
+            *
+            * */
+            dialog.ajax(params);
+        }
 
-						document.getElementById("Content").innerHTML = screen;
+        function changeCredentials(e) {
+            title = {{ 'Please Enter New Credentials' | xlj }};
+            dlgopen("./account/index_reset.php", '', 575, 600, null, title, {});
+        }
 
-						param.innerHTML = jsText({{ 'Start Assessment' | xlj }});
-					},
-					error: function (jqXHR, textStatus, errorThrown) {
-						param.innerHTML = jsText({{ 'Start Assessment' | xlj }});
+        {% if isEasyPro %}
+            function writeResult(score, stdErr, assessmentOID) {
+                $.ajax({
+                    url: '../library/ajax/easipro_util.php',
+                    data: {
+                        'csrf_token_form': {{ csrfUtils | js_escape }},
+                        'function': 'record_result',
+                        'score': score,
+                        'stdErr': stdErr,
+                        'assessmentOID': assessmentOID
+                    },
+                    type: 'POST',
+                    dataType: 'script'
+                });
+            }
 
-						// document.write(jqXHR.responseText);
-						alert("An error occurred");
-					}
-				});
-			}
+            function selectResponse(obj, assessmentOID) {
+                $.ajax({
+                    url: '../library/ajax/easipro_util.php',
+                    type: "POST",
+                    data: {
+                        'csrf_token_form': {{ csrfUtils | js_escape }},
+                        'function': 'select_response',
+                        'assessmentOID': assessmentOID,
+                        'ItemResponseOID': obj.name,
+                        'Response': + obj.id
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.DateFinished != '') {
+                            document.getElementById("Content").innerHTML = jsText({{ 'You have finished the assessment.' | xlj }}) + "<br /> " + jsText({{ 'Thank you' | xlj }});
+                            $('.assessment-row').toggleClass('d-none');
+                            document.getElementById("asst_" + assessmentOID).innerHTML = "<i class='fa fa-check-circle'></i>";
+                            document.getElementById("asst_status_" + assessmentOID).innerHTML = "completed";
+                            $.ajax({
+                                url: '../library/ajax/easipro_util.php',
+                                type: "POST",
+                                data: {
+                                    'csrf_token_form': {{ csrfUtils | js_escape }},
+                                    'function': 'collect_results',
+                                    'assessmentOID': assessmentOID
+                                },
+                                dataType: "json",
+                                success: function (data) {
+                                    writeResult(data.Items[0].Theta, data.Items[0].StdError, assessmentOID);
+                                }
+                            });
+                            return
+                        }
 
-		{% endif %}
-	</script>
-	{{ fireEvent(eventNames.scriptsRenderPre) }}
+                        var screen = "";
+                        for (var j = 0; j < data.Items[0].Elements.length; j++) {
+                            if (typeof(data.Items[0].Elements[j].Map) == 'undefined') {
+                                screen = screen + `<label class="font-weight-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`
+                            } else {
+                                for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
+                                    screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this,'${assessmentOID}')" /></div>`;
+                                }
+                            }
+                        }
+                        document.getElementById("Content").innerHTML = screen;
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        alert("An error occurred");
+                    }
+                });
+            }
+
+            function startAssessment(param, assessmentOID) {
+                param.innerHTML = "<i class='fa fa-circle-notch fa-spin'></i> " + jsText({{ 'Loading' | xlj }});
+
+                $.ajax({
+                    url: '../library/ajax/easipro_util.php',
+                    type: "POST",
+                    data: {
+                        'csrf_token_form': {{ csrfUtils | js_escape }},
+                        'function': 'start_assessment',
+                        'assessmentOID': assessmentOID
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        var screen = "";
+                        let title = $("#" + "hide_assessment_" + assessmentOID).closest('tr').children('td:first').text();
+                        document.getElementById("ContentTitle").innerHTML = "<h5>" + jsText(title) + "</h5>";
+                        $('.assessment-row').toggleClass('d-none');
+                        for (var j = 0; j < data.Items[0].Elements.length; j++) {
+                            if (typeof(data.Items[0].Elements[j].Map) == 'undefined') {
+                                screen = screen + `<label class="font-weight-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`;
+                            } else {
+                                for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
+                                    screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this, '${assessmentOID}')" /></div>`;
+                                }
+                            }
+                        }
+
+                        document.getElementById("Content").innerHTML = screen;
+                        param.innerHTML = jsText({{ 'Assessment Started' | xlj }});
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        param.innerHTML = jsText({{ 'Start Assessment' | xlj }});
+                        alert("An error occurred");
+                    }
+                });
+            }
+
+        {% endif %}
+    </script>
+    {{ fireEvent(eventNames.scriptsRenderPre) }}
 
 {% endblock %}
 
 {% block pagetitle %}
-	{{ pagetitle | text }}
+    {{ pagetitle | text }}
 {% endblock %}
 
 {% block header %}
-	{% include "portal/header.html.twig" %}
+    {% include "portal/header.html.twig" %}
 {% endblock %}
 
 {% block content %}
 
-	<section class="flex-column" id="cardgroup">
+    <section class="flex-column accordion" id="cardgroup">
+        <div id="popwait" class="alert alert-warning d-none">
+            <strong>{{ 'Working!' | xlt }}</strong>
+            {{ 'Please wait...' | xlt }}</div>
+        
+        {#<div class="card collapse overflow-auto" data-parent="#cardgroup" id="quickstart-card">
+            <header class="card-header bg-primary text-light">{{ 'Home' | xlt }}</header>
+            <div id="quickstart-div" class="card-body"></div>
+        </div>#}
 
-		<div id="popwait" class="alert alert-warning d-none">
-			<strong>{{ 'Working!' | xlt }}</strong>
-			{{ 'Please wait...' | xlt }}</div>
+        <div class="collapse overflow-auto" data-parent="#cardgroup" id="lists">
+            <div class="card">
+                <header class="card-header bg-primary text-light">{{ 'Medications' | xlt }}</header>
+                <div id="medicationlist" class="card-body bg-light"></div>
+            </div>
+            <div class="card">
+                <header class="card-header bg-primary text-light">{{ 'Medications Allergy List' | xlt }}</header>
+                <div id="allergylist" class="card-body bg-light"></div>
+            </div>
+            <div class="card">
+                <header class="card-header bg-primary text-light">{{ 'Issues List' | xlt }}</header>
+                <div id="problemslist" class="card-body bg-light"></div>
+            </div>
+            <div class="card">
+                <header class="card-header bg-primary text-light">{{ 'Amendment List' | xlt }}</header>
+                <div id="amendmentslist" class="card-body bg-light"></div>
+            </div>
+            <div class="card">
+                <header class="card-header bg-primary text-light">{{ 'Lab Results' | xlt }}</header>
+                <div id="labresults" class="card-body bg-light"></div>
+            </div>
+        </div>
 
-		<div class="collapse" id="lists">
-			<div class="card">
-				<header class="card-header bg-primary text-light">{{ 'Medications' | xlt }}</header>
-				<div id="medicationlist" class="card-body bg-light"></div>
-			</div>
-			<div class="card">
-				<header class="card-header bg-primary text-light">{{ 'Medications Allergy List' | xlt }}</header>
-				<div id="allergylist" class="card-body bg-light"></div>
-			</div>
-			<div class="card">
-				<header class="card-header bg-primary text-light">{{ 'Issues List' | xlt }}</header>
-				<div id="problemslist" class="card-body bg-light"></div>
-			</div>
-			<div class="card">
-				<header class="card-header bg-primary text-light">{{ 'Amendment List' | xlt }}</header>
-				<div id="amendmentslist" class="card-body bg-light"></div>
-			</div>
-			<div class="card">
-				<header class="card-header bg-primary text-light">{{ 'Lab Results' | xlt }}</header>
-				<div id="labresults" class="card-body bg-light"></div>
-			</div>
-		</div>
+        <div class="card collapse overflow-auto" data-parent="#cardgroup" id="reportcard">
+            <header class="card-header bg-primary text-light">{{ 'Reports' | xlt }}</header>
+            <div id="reports" class="card-body"></div>
+        </div>
 
-		<div class="card collapse" id="reportcard">
-			<header class="card-header bg-primary text-light">{{ 'Reports' | xlt }}</header>
-			<div id="reports" class="card-body"></div>
-		</div>
+        <div class="card collapse" data-parent="#cardgroup" id="profilecard">
+            <div id="profilereport" class="card-body bg-light"></div>
+        </div>
 
-		<div class="card collapse" id="profilecard">
-			<div id="profilereport" class="card-body bg-light"></div>
-		</div>
-		<div class="collapse" id="documentscard">
-			<div class="card">
-				<div id="patdocuments" class="card-body">
-					<iframe src="{{ web_root | attr }}/portal/patient/onsitedocuments?pid={{ patientID | attr_url }}" class="w-100 vh-100 border-0" scrolling="yes"></iframe>
-				</div>
-			</div>
-		</div>
-		<div class="collapse" id="secure-msgs-card">
-			<div class="card">
-				<div id="secure-msgs" class="card-body">
-					<iframe src="{{ web_root | attr }}/portal/messaging/messages.php" class="w-100 vh-100 border-0" scrolling="yes"></iframe>
-				</div>
-			</div>
-		</div>
-		<!-- /.lists -->
+        {#<div class="collapse" data-parent="#cardgroup" id="documentscard">
+            <div class="card">
+                <div id="patdocuments" class="card-body">
+                    <iframe src="{{ web_root | attr }}/portal/patient/onsitedocuments?pid={{ patientID | attr_url }}" class="w-100 vh-100 border-0"></iframe>
+                </div>
+            </div>
+        </div>#}
 
-		{% if allow_portal_appointments %}
-			<div class="collapse mt-2" id="appointmentcard">
-				<div class="jumbotron jumbotron-fluid m-5 p-3">
-					<div class="container-fluid">
-						<h3 class="text-center">{{ 'Appointments' | xlt }}</h3>
+        <div class="collapse" data-parent="#cardgroup" id="secure-msgs-card">
+            <div class="card">
+                <div id="secure-msgs" class="card-body">
+                    <iframe src="{{ web_root | attr }}/portal/messaging/messages.php" class="w-100 vh-100 border-0"></iframe>
+                </div>
+            </div>
+        </div>
 
-						{% if appointments|length > 0 %}
+        {% if allow_portal_appointments %}
+            <div class="collapse mt-2 overflow-auto" data-parent="#cardgroup" id="appointmentcard">
+                <div class="container-fluid">
+                    <h3 class="text-center">{{ 'Appointments' | xlt }}</h3>
+                    <div class="row">
+                        {% if appointments|length > 0 %}
+                            {% for appt in appointments %}
+                                {% include 'portal/appointment-item.html.twig' with {appt: appt} %}
+                            {% endfor %}
 
-							{% for appt in appointments %}
+                            {% if appointmentLimit == appointmentCount %}
+                                <p>{{ 'Display limit reached' | xlt }}
+                                    <br>
+                                    {{ 'More appointments may exist' | xlt }}</p>
+                            {% endif %}
+                        {% else %}
+                            <h3 class='text-center'>{{ 'No Appointments' | xlt }}</h3>
+                        {% endif %}
 
-								{% include 'portal/appointment-item.html.twig' with {appt: appt} %}
-							{% endfor %}
+                    </div>
+                    <div class="mb-3">
+                        <a class='btn btn-primary btn-block' href='#' onclick="editAppointment('add',{{ patientID | attr_js }})">{{ 'Schedule A New Appointment' | xlt }}</a>
+                    </div>
+                </div>
+            </div>
+            <!-- /.row -->
+        {% endif %}
 
-							{% if appointmentLimit == appointmentCount %}
-								<p>{{ 'Display limit reached' | xlt }}
-									<br>
-									{{ 'More appointments may exist' | xlt }}</p>
-							{% endif %}
+        {% if portal_two_payments %}
+            <div class="collapse overflow-auto" data-parent="#cardgroup" id="paymentcard">
+                <div class="card">
+                    <header class="card-header bg-primary text-light">{{ 'Payments' | xlt }}</header>
+                    <div id="payment" class="card-body bg-light"></div>
+                </div>
+            </div>
+        {% endif %}
 
+        {% if allow_portal_chat %}
+            <div class="collapse overflow-auto" data-parent="#cardgroup" id="messagescard">
+                <div class="card pt-0 pb-0">
+                    <header class="card-header bg-primary text-light">{{ 'Secure Chat' | xlt }}</header>
+                    <div id="chat" class="card-body p-0 overflow-auto">
+                        <iframe src="./messaging/secure_chat.php" class="w-100" style="height: calc(100vh - 120px);"></iframe>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
 
-						{% else %}
-							<h3 class='text-center'>{{ 'No Appointments' | xlt }}</h3>
-						{% endif %}
+        {% if portal_onsite_document_download %}
+            <div class="card collapse overflow-auto" data-parent="#cardgroup" id="downloadcard">
+                <header class="card-header bg-primary text-light">{{ 'Download Documents' | xlt }}</header>
+                <div id="docsdownload" class="card-body">
+                    <div>
+                        <span class="text">{{ 'Download all patient documents' | xlt }}</span>
+                        <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
+                            <input type="button" class="generateDoc_download" value="{{ 'Download' | xla }}"/>
+                        </form>
+                    </div>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        {% endif %}
 
-						<span>
-							<a class='btn btn-primary btn-block' href='#' onclick="editAppointment('add',{{ patientID | attr_js }})">{{ 'Schedule A New Appointment' | xlt }}</a>
-						</span>
-					</div>
-				</div>
-			</div>
-				<!-- /.row -->
-			{% endif %}
+        {% if portal_two_ledger %}
+            <div class="collapse overflow-auto" data-parent="#cardgroup" id="ledgercard">
+                <div class="card">
+                    <header class="card-header bg-primary text-light">{{ 'Ledger' | xlt }}</header>
+                    <div id="patledger" class="card-body">
+                        <iframe src="./report/pat_ledger.php" class="w-100 vh-100 border-0"></iframe>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
 
-			{% if portal_two_payments %}
-				<div class="collapse" id="paymentcard">
-					<div class="card">
-						<header class="card-header bg-primary text-light">{{ 'Payments' | xlt }}</header>
-						<div id="payment" class="card-body bg-light"></div>
-					</div>
-				</div>
-			{% endif %}
+        {% if isEasyPro %}
+            <div class="card collapse overflow-auto" data-parent="#cardgroup" id="procard">
+                <header class="card-header bg-primary text-light">{{ 'Patient Reported Outcomes' | xlt }}</header>
+                <div id="pro" class="card-body bg-light"></div>
+            </div>
+        {% endif %}
 
-			{% if allow_portal_chat %}
-				<div class="collapse" id="messagescard">
-					<div class="card pt-0 pb-0">
-						<header class="card-header bg-primary text-light">{{ 'Secure Chat' | xlt }}</header>
-						<div id="chat" class="card-body p-0 overflow-auto" style="height: calc(100vh - 120px);">
-							<iframe src="./messaging/secure_chat.php" class="w-100 h-100"></iframe>
-						</div>
-					</div>
-				</div>
-			{% endif %}
+        <div class="collapse" data-parent="#cardgroup" id="quickstart-card">
+            <div class="card">
+                <div id="app-quickstart" class="card-body p-1">
+                    <iframe src="{{ web_root | attr }}/portal/quickstart_page.php" class="w-100 vh-100 border-0"></iframe>
+                </div>
+            </div>
+        </div>
 
-			{% if portal_onsite_document_download %}
-				<div class="card collapse" id="downloadcard">
-					<header class="card-header bg-primary text-light">{{ 'Download Documents' | xlt }}</header>
-					<div id="docsdownload" class="card-body">
-						<div>
-							<span class="text">{{ 'Download all patient documents' | xlt }}</span>
-							<form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
-								<input type="button" class="generateDoc_download" value="{{ 'Download' | xla }}"/>
-							</form>
-						</div>
-					</div>
-					<!-- /.card-body -->
-				</div>
-			{% endif %}
+        {{ fireEvent(eventNames.sectionRenderPost) }}
 
-			{% if portal_two_ledger %}
-				<div class="collapse" id="ledgercard">
-					<div class="card">
-						<header class="card-header bg-primary text-light">{{ 'Ledger' | xlt }}</header>
-						<div id="patledger" class="card-body">
-							<iframe src="./report/pat_ledger.php" class="w-100 vh-100 border-0" scrolling="yes"></iframe>
-						</div>
-					</div>
-				</div>
-			{% endif %}
-
-			{% if isEasyPro %}
-				<div class="card collapse" id="procard">
-					<header class="card-header bg-primary text-light">{{ 'Patient Reported Outcomes' | xlt }}</header>
-					<div id="pro" class="card-body bg-light"></div>
-				</div>
-			{% endif %}
-
-		{{ fireEvent(eventNames.sectionRenderPost) }}
-
-		</section>
-	{% endblock %}
+    </section>
+{% endblock %}

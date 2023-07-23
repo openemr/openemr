@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class NegativeSubstanceOrder extends SubstanceOrder
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class NegativeSubstanceOrder extends SubstanceOrder
 
     public $_type = 'QDM::NegativeSubstanceOrder';
 }
+

@@ -20,20 +20,25 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 // Author:   Kevin Yeh <kevin.y@integralemr.com>
+// Author:   Jerry Padgett <sjpadgett@gmail.com>
 //
 // +------------------------------------------------------------------------------+
 function updateApptTime(marker, index, y, date, provider) {
-    row = $("#times table tr").eq(index);
-    timeSlot = row.find("td a");
-    params = timeSlot.attr("href").split("(")[1].split(",");
-    newEvtParam = params[0] + "," + params[1] + "," + params[2] + "," + date + "," + provider + "," + "0";
-    onClk = "javascript:newEvt(" + newEvtParam + ")";
-    marker.html(timeSlot.html());
-    marker.attr("href", onClk);
+    let row = $("#times table tr").eq(index);
+    let timeSlot = row.find("td a");
+    if (typeof timeSlot.attr("href") !== 'undefined') {
+        if (index && y) {
+            let params = timeSlot.attr("href").split("(")[1].split(",");
+            let newEvtParam = params[0] + "," + params[1] + "," + params[2] + "," + date + "," + provider + "," + "0";
+            let onClk = "javascript:newEvt(" + newEvtParam + ")";
+            marker.html(timeSlot.html());
+            marker.attr("href", onClk);
+        }
+    }
 }
 
 function displayApptTime(evt) {
-    marker = $(this).find("a.apptMarker");
+    let marker = $(this).find("a.apptMarker");
     if (marker.length == 0) {
         style = "style=\'height:" + tsHeight + ";\'";
         $(this).find("div.calendar_day").append("<a class=\'apptMarker event event_appointment\'" + style + "></a>");
@@ -43,8 +48,8 @@ function displayApptTime(evt) {
     y = evt.pageY - $(this).offset().top;
     rem = y % tsHeightNum;
     y = y - rem;
-    ph = $(this).find("div.providerheader");
-    index = y / tsHeightNum;
+    let ph = $(this).find("div.providerheader");
+    let index = y / tsHeightNum;
     if (ph.length == 1) {
         y = y - ph.height();
         if (index == 0) {
@@ -59,7 +64,7 @@ function displayApptTime(evt) {
 }
 
 function hideApptTime(evt) {
-    marker = $(this).find("a.apptMarker");
+    let marker = $(this).find("a.apptMarker");
     marker.hide();
 }
 

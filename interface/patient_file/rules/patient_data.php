@@ -86,7 +86,7 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
     exit();
 }
 
-if ($_POST['form_complete']) {
+if ($_POST['form_complete'] ?? null) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
@@ -163,21 +163,21 @@ if (isset($entryID)) {
     echo xlt('Date/Time');
     echo ":</td><td class='text'>";
     echo "<input type='text' size='16' class='datetimepicker' name='form_date' id='form_date' " .
-      "value='" . attr($form_date) . "' " .
+      "value='" . attr($form_date ?? '') . "' " .
       "title='" . xla('yyyy-mm-dd hh:mm:ss') . "' />";
     echo "</td></tr>";
 
     echo "<tr><td class='required'>";
     echo xlt('Completed');
     echo ":</td><td class='text'>";
-    generate_form_field(array('data_type' => 1,'field_id' => 'complete','list_id' => 'yesno','empty_title' => 'SKIP'), ($form_complete) ? $form_complete : "YES");
+    generate_form_field(array('data_type' => 1,'field_id' => 'complete','list_id' => 'yesno','empty_title' => 'SKIP'), ($form_complete ?? null) ?: "YES");
     echo "</td></tr>";
 
     echo "<tr><td class='bold'>";
     echo xlt('Results/Details');
     echo ":</td><td class='text'>";
     echo "<textarea name='form_result' cols='40' rows='3'>";
-    echo attr($form_result);
+    echo attr($form_result ?? '');
     echo "</textarea>";
     echo "</td></tr>";
     echo "</table>";

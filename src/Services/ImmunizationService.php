@@ -57,7 +57,7 @@ class ImmunizationService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['uuid', 'puuid'];
+        return ['uuid', 'puuid', 'provider_uuid'];
     }
 
     public function search($search, $isAndCondition = true)
@@ -84,7 +84,11 @@ class ImmunizationService extends BaseService
                 site.title as site_display,
                 site.notes as site_code,
                 completion_status,
-                refusal_reason,
+                immunizations.reason_code,
+                immunizations.refusal_reason,
+                refusal_reasons.refusal_reason_codes,
+                refusal_reasons.refusal_reason_cdc_nip_code,
+                refusal_reasons.refusal_reason_description,
                 providers.provider_uuid,
                 providers.provider_npi,
                 providers.provider_username,
@@ -123,7 +127,15 @@ class ImmunizationService extends BaseService
                         ,id AS provider_id
                     FROM
                         users
-                ) provider ON immunizations.administered_by_id = providers.provider_id";
+                ) providers ON immunizations.administered_by_id = providers.provider_id
+                LEFT JOIN (
+                    SELECT option_id as refusal_reason_id,
+                           notes AS refusal_reason_cdc_nip_code,
+                           codes AS refusal_reason_codes,
+                           title AS refusal_reason_description
+                   FROM list_options 
+                   WHERE list_id = 'immunization_refusal_reason'
+               ) refusal_reasons ON immunizations.refusal_reason = refusal_reasons.refusal_reason_id";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 

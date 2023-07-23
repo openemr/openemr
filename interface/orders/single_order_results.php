@@ -17,12 +17,14 @@ require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
 
 use Mpdf\Mpdf;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('patients', 'med');
 if (!$thisauth) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Order Results")]);
+    exit;
 }
 
 $orderid = intval($_GET['orderid']);

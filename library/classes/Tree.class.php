@@ -48,6 +48,16 @@ class Tree
         $this->load_tree();
     }
 
+    function should_translate_name()
+    {
+        return false;
+    }
+
+    function get_translated_name($name)
+    {
+        return $name;
+    }
+
     function load_tree()
     {
         $root = $this->_root;
@@ -85,14 +95,16 @@ class Tree
 
             //create a lookup table of id to name for every node that will end up in this tree, this is used
             //by the array building code below to find the chain of parents for each node
-
-            // ADDED below by BM on 06-2009 to translate categories, if applicable
-            if ($this->_table == "categories") {
-                $this->_id_name[$row['id']] = array("id" => $row['id'], "name" => xl_document_category($row['name']),
-                "parent" => $row['parent'], "value" => $row['value'], "aco_spec" => $row['aco_spec']);
-            } else {
-                $this->_id_name[$row['id']] = array("id" => $row['id'], "name" => $row['name'], "parent" => $row['parent']);
+            $id_name = [];
+            foreach ($row as $key => $value) {
+                $id_name[$key] = $value;
             }
+
+            // now handle any translations if needed
+            if ($this->should_translate_name()) {
+                $id_name['name'] = $this->get_translated_name($id_name['name']);
+            }
+            $this->_id_name[$id_name['id']] = $id_name;
 
             // only check stack if there is one
             if (count($right) > 0) {
@@ -122,6 +134,13 @@ class Tree
 
             //now eval the string to create the tree array
             //there must be a more efficient way to do this than eval?
+            // TODO: refactor this eval out... there's tons of ways to construct trees w/o needing to do eval code.
+            // not sure how many nodes they needed to account for, but our category heirarchy has to be less than a few
+            // thousand records. An n-ary tree w/ pointers would accomplish this very quickly w/o the potential of sneaking a eval
+            // code execution into our category database names.
+            // There could be tens of thousands of documents,  However, leaf nodes which are documents will not have any
+            // sub-chilsren and so we don't have to deal with this whole left/right nonsense and only need a parent node
+            // which we sort by document name order.
             eval($ar_string);
 
             //merge the evaled array with all of the already exsiting tree elements,
@@ -201,9 +220,10 @@ class Tree
     *   @param string $name the name of the new node, it will be used to reference its value in the tree array
     *   @param string $value optional value this node is to contain
     *   @param string $aco_spec optional ACO value in section|value format
+    *   @param string $codes optional Medical codes to use (LOINC, SNOMED, etc) for this node.
     *   @return int id of newly added node
     */
-    function add_node($parent_id, $name, $value = "", $aco_spec = "patients|docs")
+    function add_node($parent_id, $name, $value = "", $aco_spec = "patients|docs", $codes = "")
     {
 
         $sql = "SELECT * from " . $this->_table . " where parent = ? and name=?";
@@ -228,8 +248,8 @@ class Tree
         $this->_db->Execute($sql, [$next_right]) or die("Error: " . text($this->_db->ErrorMsg()));
 
         $id = $this->_db->GenID($this->_table . "_seq");
-        $sql = "INSERT INTO " . $this->_table . " SET name=?, value=?, aco_spec=?, lft=?, rght=?, parent=?, id=?";
-        $this->_db->Execute($sql, [$name, $value, $aco_spec, $next_right, ($next_right + 1), $parent_id, $id]) or die("Error: " . text($sql) . " :: " . text($this->_db->ErrorMsg()));
+        $sql = "INSERT INTO " . $this->_table . " SET name=?, value=?, aco_spec=?, codes=?, lft=?, rght=?, parent=?, id=?";
+        $this->_db->Execute($sql, [$name, $value, $aco_spec, $codes, $next_right, ($next_right + 1), $parent_id, $id]) or die("Error: " . text($sql) . " :: " . text($this->_db->ErrorMsg()));
       //$this->rebuild_tree(1,1);
         $this->load_tree();
         return $id;
@@ -241,9 +261,10 @@ class Tree
     *   @param string $name the new name of the new node
     *   @param string $value optional value this node is to contain
     *   @param string $aco_spec optional ACO value in section|value format
+    *   @param string $codes optional Medical codes to use (LOINC, SNOMED, etc) for this node.
     *   @return int same as input id
     */
-    function edit_node($id, $name, $value = "", $aco_spec = "patients|docs")
+    function edit_node($id, $name, $value = "", $aco_spec = "patients|docs", $codes = "")
     {
         $sql = "SELECT c2.id FROM " . $this->_table . " AS c1, " . $this->_table . " AS c2 WHERE " .
         "c1.id = ? AND c2.id != c1.id AND c2.parent = c1.parent AND c2.name = ?";
@@ -252,8 +273,8 @@ class Tree
               die(xlt('This name already exists under this parent.') . "<br />");
         }
 
-        $sql = "UPDATE " . $this->_table . " SET name = ?, value = ?, aco_spec = ? WHERE id = ?";
-        $this->_db->Execute($sql, [$name, $value, $aco_spec, $id]) or die(xlt('Error') . ": " . text($this->_db->ErrorMsg()));
+        $sql = "UPDATE " . $this->_table . " SET name = ?, value = ?, aco_spec = ?, codes = ? WHERE id = ?";
+        $this->_db->Execute($sql, [$name, $value, $aco_spec, $codes, $id]) or die(xlt('Error') . ": " . text($this->_db->ErrorMsg()));
         $this->load_tree();
         return $id;
     }

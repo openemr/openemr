@@ -342,4 +342,10 @@ abstract class Reporter implements Serializable
     protected function OnLoad()
     {
     }
+
+    function __serialize()
+    {}
+
+    function __unserialize($data)
+    {}
 }

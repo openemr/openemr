@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class DeviceOrder extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -34,6 +33,11 @@ class DeviceOrder extends QDMBaseType
      * @property BaseTypes\Any $requester
      */
     public $requester = null;
+
+    /**
+     * @property string $qdmTitle
+     */
+    public $qdmTitle = 'Device, Order';
 
     /**
      * @property string $hqmfOid
@@ -57,3 +61,4 @@ class DeviceOrder extends QDMBaseType
 
     public $_type = 'QDM::DeviceOrder';
 }
+

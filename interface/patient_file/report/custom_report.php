@@ -15,12 +15,12 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/forms.inc");
-require_once("$srcdir/pnotes.inc");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/forms.inc.php");
+require_once("$srcdir/pnotes.inc.php");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lists.inc");
-require_once("$srcdir/report.inc");
+require_once("$srcdir/lists.inc.php");
+require_once("$srcdir/report.inc.php");
 require_once(dirname(__file__) . "/../../../custom/code_types.inc.php");
 require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
 require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
@@ -30,9 +30,15 @@ require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 use ESign\Api;
 use Mpdf\Mpdf;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Services\FacilityService;
+
+if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Custom Report")]);
+    exit;
+}
 
 $facilityService = new FacilityService();
 
@@ -57,10 +63,10 @@ if ($PDF_OUTPUT) {
         'default_font' => 'dejavusans',
         'margin_left' => $GLOBALS['pdf_left_margin'],
         'margin_right' => $GLOBALS['pdf_right_margin'],
-        'margin_top' => $GLOBALS['pdf_top_margin'],
-        'margin_bottom' => $GLOBALS['pdf_bottom_margin'],
-        'margin_header' => '',
-        'margin_footer' => '',
+        'margin_top' => $GLOBALS['pdf_top_margin'] * 1.5,
+        'margin_bottom' => $GLOBALS['pdf_bottom_margin'] * 1.5,
+        'margin_header' => $GLOBALS['pdf_top_margin'],
+        'margin_footer' => $GLOBALS['pdf_bottom_margin'],
         'orientation' => $GLOBALS['pdf_layout'],
         'shrink_tables_to_fit' => 1,
         'use_kwt' => true,
@@ -229,10 +235,8 @@ function zip_content($source, $destination, $content = '', $create = true)
 
             if ($printable) {
                 /*******************************************************************
-                 * $titleres = getPatientData($pid, "fname,lname,providerID");
                  * $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
                  *******************************************************************/
-                $titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
                 $facility = null;
                 if ($_SESSION['pc_facility']) {
                     $facility = $facilityService->getById($_SESSION['pc_facility']);
@@ -242,9 +246,9 @@ function zip_content($source, $destination, $content = '', $create = true)
 
                 /******************************************************************/
                 // Setup Headers and Footers for mPDF only Download
-                // in HTML view it's just one line at the top of page 1
-                echo '<page_header class="custom-tag text-right"> ' . xlt("PATIENT") . ':' . text($titleres['lname']) . ', ' . text($titleres['fname']) . ' - ' . text($titleres['DOB_TS']) . '</page_header>    ';
-                echo '<page_footer class="custom-tag text-right">' . xlt('Generated on') . ' ' . text(oeFormatShortDate()) . ' - ' . text($facility['name']) . ' ' . text($facility['phone']) . '</page_footer>';
+                if ($PDF_OUTPUT) {
+                    echo genPatientHeaderFooter($pid);
+                }
 
                 // Use logo if it exists as 'practice_logo.gif' in the site dir
                 // old code used the global custom dir which is no longer a valid
@@ -256,21 +260,12 @@ function zip_content($source, $destination, $content = '', $create = true)
                     $practice_logo = $plogo[$k];
                 }
 
-                echo "<div class='table-responsive'><table class='table'><tbody><tr><td>";
+                $logo = "";
                 if (file_exists($practice_logo)) {
-                    $logo_path = $GLOBALS['OE_SITE_WEBROOT'] . "/images/" . basename($practice_logo);
-                    echo "<img class='h-auto' style='max-width:250px;' src='$logo_path'>"; // keep size within reason
-                    echo "</td><td>";
+                    $logo = $GLOBALS['OE_SITE_WEBROOT'] . "/images/" . basename($practice_logo);
                 }
-                ?>
-                <h5><?php echo text($facility['name']); ?></h5>
-                <?php echo text($facility['street']); ?><br />
-                <?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?><?php echo text($facility['postal_code']); ?><br clear='all'>
-                <?php echo text($facility['phone']); ?><br />
 
-                <a href="javascript:window.close();"><span class='title'><?php echo xlt('Patient') . ": " . text($titleres['fname']) . " " . text($titleres['lname']); ?></span></a><br />
-                <span class='text'><?php echo xlt('Generated on'); ?>: <?php echo text(oeFormatShortDate()); ?></span>
-                <?php echo "</td></tr></tbody></table></div>"; ?>
+                echo genFacilityTitle(getPatientName($pid), $_SESSION['pc_facility'], $logo); ?>
 
             <?php } else { // not printable
                 ?>
@@ -724,13 +719,16 @@ function zip_content($source, $destination, $content = '', $create = true)
 
                         preg_match('/^(.*)_(\d+)$/', $key, $res);
                         $rowid = $res[2];
-                        $irow = sqlQuery("SELECT type, title, comments, diagnosis, udi_data " .
-                            "FROM lists WHERE id = ?", array($rowid));
+                        $irow = sqlQuery("SELECT lists.type, lists.title, lists.comments, lists.diagnosis, " .
+                            "lists.udi_data, medications.drug_dosage_instructions FROM lists LEFT JOIN " .
+                            "( SELECT id AS lists_medication_id, list_id, drug_dosage_instructions " .
+                            "FROM lists_medication ) medications ON medications.list_id = id " .
+                            "WHERE id = ?", array($rowid));
                         $diagnosis = $irow['diagnosis'];
                         if ($prevIssueType != $irow['type']) {
                             // output a header for each Issue Type we encounter
                             $disptype = $ISSUE_TYPES[$irow['type']][0];
-                            echo "<div class='issue_type'>" . text($disptype) . ":</div>\n";
+                            echo "<div class='issue_type font-weight-bold'><h5>" . text($disptype) . ":</h5></div>\n";
                             $prevIssueType = $irow['type'];
                         }
 
@@ -740,14 +738,17 @@ function zip_content($source, $destination, $content = '', $create = true)
                             echo "<span class='issue_title'>" . (new MedicalDevice($irow['udi_data']))->fullOutputHtml() . "</span>";
                             echo "<span class='issue_comments'> " . text($irow['comments']) . "</span><br><br>\n";
                         } else {
-                            echo "<span class='issue_title'>" . text($irow['title']) . ":</span>";
+                            echo "<span class='issue_title font-weight-bold'>" . text($irow['title']) . ":</span>";
                             echo "<span class='issue_comments'> " . text($irow['comments']) . "</span>\n";
+                            if ($prevIssueType == "medication") {
+                                echo "<span class='issue_dosage_instructions'> " . text($irow['drug_dosage_instructions']) . "</span>\n";
+                            }
                         }
 
                         // Show issue's chief diagnosis and its description:
                         if ($diagnosis) {
                             echo "<div class='text issue_diag'>";
-                            echo "<span class='font-weight-bold'>[" . xlt('Diagnosis') . "]</span><br />";
+                            echo "[" . xlt('Diagnosis') . "]<br />";
                             $dcodes = explode(";", $diagnosis);
                             foreach ($dcodes as $dcode) {
                                 echo "<span class='italic'>" . text($dcode) . "</span>: ";
@@ -806,24 +807,26 @@ function zip_content($source, $destination, $content = '', $create = true)
                             ?>
                             <div name="search_div" id="search_div_<?php echo attr($form_id) ?>_<?php echo attr($res[1]) ?>" class="report_search_div class_<?php echo attr($res[1]); ?>">
                                 <?php
-                                $esign = $esignApi->createFormESign($formId, $res[1], $form_encounter);
-                                if ($esign->isSigned('report') && !empty($GLOBALS['esign_report_show_only_signed'])) {
-                                    if (substr($res[1], 0, 3) == 'LBF') {
-                                        call_user_func("lbf_report", $pid, $form_encounter, $N, $form_id, $res[1]);
+                                if (!empty($res[1])) {
+                                    $esign = $esignApi->createFormESign($formId, $res[1], $form_encounter);
+                                    if ($esign->isSigned('report') && !empty($GLOBALS['esign_report_show_only_signed'])) {
+                                        if (substr($res[1], 0, 3) == 'LBF') {
+                                            call_user_func("lbf_report", $pid, $form_encounter, $N, $form_id, $res[1]);
+                                        } else {
+                                            call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
+                                        }
+                                    } elseif (empty($GLOBALS['esign_report_show_only_signed'])) {
+                                        if (substr($res[1], 0, 3) == 'LBF') {
+                                            call_user_func('lbf_report', $pid, $form_encounter, $N, $form_id, $res[1]);
+                                        } else {
+                                            call_user_func($res[1] . '_report', $pid, $form_encounter, $N, $form_id);
+                                        }
                                     } else {
-                                        call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
+                                        echo "<h6>" . xlt("Not signed.") . "</h6>";
                                     }
-                                } elseif (empty($GLOBALS['esign_report_show_only_signed'])) {
-                                    if (substr($res[1], 0, 3) == 'LBF') {
-                                        call_user_func('lbf_report', $pid, $form_encounter, $N, $form_id, $res[1]);
-                                    } else {
-                                        call_user_func($res[1] . '_report', $pid, $form_encounter, $N, $form_id);
+                                    if ($esign->isLogViewable("report")) {
+                                        $esign->renderLog();
                                     }
-                                } else {
-                                    echo "<h6>" . xlt("Not signed.") . "</h6>";
-                                }
-                                if ($esign->isLogViewable("report")) {
-                                    $esign->renderLog();
                                 }
                                 ?>
 
@@ -952,7 +955,7 @@ function zip_content($source, $destination, $content = '', $create = true)
             document.getElementById('backLink').style.marginTop = `${searchBarHeight}px`;
         </script>
     <?php } ?>
-    
+
 </body>
 </html>
 <?php } ?>

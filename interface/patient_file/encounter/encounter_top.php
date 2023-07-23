@@ -13,9 +13,9 @@
  */
 
 require_once(dirname(__FILE__) . '/../../globals.php');
-require_once("$srcdir/pid.inc");
-require_once("$srcdir/encounter.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/pid.inc.php");
+require_once("$srcdir/encounter.inc.php");
+require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Tabs\TabsWrapper;
 use OpenEMR\Core\Header;
@@ -40,7 +40,7 @@ if (isset($_GET["set_encounter"])) {
 $tabset = new TabsWrapper('enctabs');
 $tabset->declareInitialTab(
     xl('Summary'),
-    "<iframe frameborder='0' class='w-100' style='height:94.5%' src='forms.php'>Oops</iframe>"
+    "<iframe class='w-100' style='height:94.5vh;border: 0;' src='forms.php'>" . xlt('Problem loading.') . "</iframe>"
 );
 // We might have been invoked to load a particular encounter form.
 // In that case it will be the second tab, and removable.
@@ -48,7 +48,7 @@ if (!empty($_GET['formname'])) {
     $url = $rootdir . "/patient_file/encounter/load_form.php?formname=" . attr_url($_GET['formname']);
     $tabset->declareInitialTab(
         $_GET['formdesc'],
-        "<iframe name='enctabs-2' frameborder='0' class='w-100' style='height:94.5%' src='$url'>Oops</iframe>",
+        "<iframe name='enctabs-2' class='w-100' style='height:94.5vh;border: 0;' src='$url'>" . xlt('Problem loading.') . "</iframe>",
         true
     );
 }
@@ -57,7 +57,7 @@ if (!empty($_GET['formname'])) {
 $dateres = getEncounterDateByEncounter($encounter);
 $encounter_date = date("Y-m-d", strtotime($dateres["date"]));
 ?>
-
+<!DOCTYPE html>
 <html>
 <head>
 <title><?php echo text(oeFormatShortDate($encounter_date)) . ' ' . xlt('Encounter'); ?></title>

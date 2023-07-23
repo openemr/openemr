@@ -8,7 +8,7 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2015-2017 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2015-2017, 2022 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2021 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -20,6 +20,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // gacl control
@@ -27,10 +28,8 @@ $thisauthview = AclMain::aclCheckCore('admin', 'superbill', false, 'view');
 $thisauthwrite = AclMain::aclCheckCore('admin', 'superbill', false, 'write');
 
 if (!($thisauthwrite || $thisauthview)) {
-    echo "<html>\n<body>\n";
-    echo "<p>" . xlt('You are not authorized for this.') . "</p>\n";
-    echo "</body>\n</html>\n";
-    exit();
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Codes")]);
+    exit;
 }
 // For revenue codes
 $institutional = $GLOBALS['ub04_support'] == "1" ? true : false;
@@ -80,7 +79,7 @@ if (isset($mode) && $thisauthwrite) {
     $active     = empty($_POST['active']) ? 0 : 1;
     $reportable = empty($_POST['reportable']) ? 0 : 1; // dx reporting
     $financial_reporting = empty($_POST['financial_reporting']) ? 0 : 1; // financial service reporting
-    $revenue_code = $_POST['revenue_code'] ?? null;
+    $revenue_code = $_POST['revenue_code'] ?? '';
 
     $taxrates = "";
     if (!empty($_POST['taxrate'])) {
@@ -154,7 +153,7 @@ if (isset($mode) && $thisauthwrite) {
             // $units        = $row['units'];
             $superbill    = $row['superbill'];
             $related_code = $row['related_code'];
-            $revenue_code = $row['revenue_code'];
+            $revenue_code = $row['revenue_code'] ?? '';
             $cyp_factor   = $row['cyp_factor'];
             $taxrates     = $row['taxrates'];
             $active       = 0 + $row['active'];
@@ -176,7 +175,7 @@ if (isset($mode) && $thisauthwrite) {
             // $units        = $row['units'];
             $superbill    = $row['superbill'];
             $related_code = $row['related_code'];
-            $revenue_code = $row['revenue_code'];
+            $revenue_code = $row['revenue_code'] ?? '';
             $cyp_factor   = $row['cyp_factor'];
             $taxrates     = $row['taxrates'];
             $active       = $row['active'];
@@ -198,7 +197,7 @@ if (isset($mode) && $thisauthwrite) {
         $modifier   = $_POST['modifier'];
         $superbill  = $_POST['form_superbill'];
         $related_code = $_POST['related_code'];
-        $revenue_code = $_POST['revenue_code'] ?? null;
+        $revenue_code = $_POST['revenue_code'] ?? '';
         $cyp_factor = $_POST['cyp_factor'] ?? 0;
         $active     = empty($_POST['active']) ? 0 : 1;
         $reportable = empty($_POST['reportable']) ? 0 : 1; // dx reporting

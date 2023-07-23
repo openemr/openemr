@@ -55,14 +55,16 @@ class X12RemoteTracker extends BaseService
     {
         $remoteTracker = new X12RemoteTracker();
         $x12_remotes = $remoteTracker->fetchByStatus(self::STATUS_WAITING);
-        $x12_remote['messages'] = [];
         $cryptoGen = new CryptoGen();
         foreach ($x12_remotes as $x12_remote) {
             // Make sure required parameters are filled in on the X12 partner form, otherwise, log a message
             if (false === $remoteTracker->validateSFTPCredentials($x12_remote)) {
                 // there was a problem, get messages, log them and continue
                 $x12_remote['status'] = self::STATUS_PARAMETER_ERROR;
-                $x12_remote['messages'] = array_merge($x12_remote['messages'], $remoteTracker->validationMessages);
+                $x12_remote['messages'] = array_merge(
+                    ($x12_remote['messages'] ?? []),
+                    $remoteTracker->validationMessages
+                );
                 $remoteTracker->update($x12_remote);
                 continue;
             }

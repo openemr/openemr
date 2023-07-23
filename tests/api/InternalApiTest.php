@@ -14,7 +14,6 @@
 //  (when done, remember to uncomment it again)
 exit;
 
-
 require_once(__DIR__ . "/../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -87,14 +86,15 @@ echo "<br /><br />";
 // CALL the api via route handler
 //  This allows same notation as the calls in the api (ie. '/api/facility'), but
 //  is limited to get requests at this time.
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 
 require_once(__DIR__ . "/../../_rest_config.php");
 $gbl = RestConfig::GetInstance();
 $gbl::setNotRestCall();
-$restRequest = new HttpRestRouteHandler($gbl, $_SERVER);
+$restRequest = new HttpRestRequest($gbl, $_SERVER);
 $restRequest->setRequestMethod("GET");
-$restRequest->setRequestResource("/api/facility");
+$restRequest->setRequestURI("/api/facility");
 // below will return as json
 echo "<b>api via route handler call returning json:</b><br />";
 echo HttpRestRouteHandler::dispatch($gbl::$ROUTE_MAP, $restRequest, 'direct-json');

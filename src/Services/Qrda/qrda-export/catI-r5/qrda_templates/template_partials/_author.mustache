@@ -1,0 +1,29 @@
+<author>
+  <templateId root="2.16.840.1.113883.10.20.24.3.155" extension="2019-12-01"/>
+  {{#authorDatetime}}
+  {{{author_time}}}
+  {{/authorDatetime}}
+  <assignedAuthor>
+    {{#display_author_dispenser_id}}
+      {{#dispenserId}}
+        {{{id_or_null_flavor}}}
+      {{/dispenserId}}
+      {{^dispenserId}}
+        <id nullFlavor="NA"/>
+      {{/dispenserId}}
+    {{/display_author_dispenser_id}}
+    {{^display_author_dispenser_id}}
+      {{#display_author_prescriber_id}}
+        {{#prescriberId}}
+          {{{id_or_null_flavor}}}
+        {{/prescriberId}}
+        {{^prescriberId}}
+          <id nullFlavor="NA"/>
+        {{/prescriberId}}
+      {{/display_author_prescriber_id}}
+      {{^display_author_prescriber_id}}
+        <id nullFlavor="NA"/>
+      {{/display_author_prescriber_id}}
+    {{/display_author_dispenser_id}}
+  </assignedAuthor>
+</author>

@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -22,7 +24,7 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
 $content_type = "text/plain";
 
 // The key contains the filename
-$fname = $_GET['key'];
+$fname = convert_safe_file_dir_name($_GET['key']);
 
 // Because of the way the billing tables are constructed (as of 2021)
 // We may not know exactly where the file is, so we need to try a couple
@@ -34,7 +36,7 @@ $fname = $_GET['key'];
 // The edi directory is the default location.
 
 // the loc, if set, may tell us where the file is
-$location = $_GET['location'];
+$location = $_GET['location'] ?? '';
 $claim_file_found = false;
 if ($location === 'tmp') {
     $claim_file_dir = rtrim($GLOBALS['temporary_files_dir'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
@@ -68,9 +70,6 @@ if (
 
 if ($claim_file_found === false) {
     $claim_file_dir = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/";
-    $fname = preg_replace("[/]", "", $fname);
-    $fname = preg_replace("[\.\.]", "", $fname);
-    $fname = preg_replace("[\\\\]", "", $fname);
 }
 
 $fname = $claim_file_dir . $fname;

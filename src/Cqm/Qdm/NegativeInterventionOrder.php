@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class NegativeInterventionOrder extends InterventionOrder
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class NegativeInterventionOrder extends InterventionOrder
 
     public $_type = 'QDM::NegativeInterventionOrder';
 }
+

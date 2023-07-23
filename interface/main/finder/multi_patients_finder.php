@@ -15,7 +15,7 @@
  */
 
 require_once('../../globals.php');
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -231,7 +231,10 @@ $('#by-name').on('change', function () {
 $('#add-to-list').on('click', function (e) {
     e.preventDefault();
 
-    if($('#by-name').val() == '')return;
+    if($('#by-name').val() == '') {
+        alert(<?php echo xlj("You must provide a patient name or id to add to the list"); ?>);
+        return;
+    }
 
     if(patientsList.length === 0){
         $('#results-table').show();
@@ -242,7 +245,10 @@ $('#add-to-list').on('click', function (e) {
     $.each(patientsList, function (key, patient) {
         if (patient.pid == currentResult.pid) exist = true;
     })
-    if(exist)return;
+    if(exist){
+        alert(<?php echo xlj("This patient has already been added to the list"); ?>);
+        return;
+    }
 
 
     // add to array
@@ -273,10 +279,15 @@ function removePatient(pid) {
 
 //send array of patients to function 'setMultiPatients' of the opener
 function selPatients() {
-    if (opener.closed || ! opener.setMultiPatients)
-        alert("<?php echo xls('The destination form was closed; I cannot act on your selection.'); ?>");
-    else
+    if (!(patientsList && patientsList.length)) {
+        alert(<?php echo xlj("You must add a patient to the list before hitting ok"); ?>);
+        return false;
+    }
+    if (opener.closed || ! opener.setMultiPatients) {
+        alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
+    } else {
         opener.setMultiPatients(patientsList);
+    }
     dlgclose();
     return false;
 }

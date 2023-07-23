@@ -61,7 +61,8 @@ function DistributionInsert($CountRow, $created_time, $user_id)
  //It automatically pushes to next insurance for billing.
  //In the screen a drop down of Ins1,Ins2,Ins3,Pat are given.The posting can be done for any level.
     $Affected = 'no';
-    if (isset($_POST["Payment$CountRow"]) && (int)$_POST["Payment$CountRow"] > 0) {
+    // watch for payments less than $1, thanks @snailwell
+    if (isset($_POST["Payment$CountRow"]) && (floatval($_POST["Payment$CountRow"]) > 0)) {
         if (trim(formData('type_name')) == 'insurance') {
             if (trim(formData("HiddenIns$CountRow")) == 1) {
                 $AccountCode = "IPP";
@@ -100,7 +101,7 @@ function DistributionInsert($CountRow, $created_time, $user_id)
           $Affected = 'yes';
     }
 
-    if (!empty($_POST["AdjAmount$CountRow"]) && (($_POST["AdjAmount$CountRow"] ?? null) * 1 != 0)) {
+    if (!empty($_POST["AdjAmount$CountRow"]) && (floatval($_POST["AdjAmount$CountRow"] ?? null)) != 0) {
         if (trim(formData('type_name')) == 'insurance') {
             $AdjustString = "Ins adjust Ins" . trim(formData("HiddenIns$CountRow"));
             $AccountCode = "IA";
@@ -132,7 +133,7 @@ function DistributionInsert($CountRow, $created_time, $user_id)
           $Affected = 'yes';
     }
 
-    if (!empty($_POST["Deductible$CountRow"]) && (($_POST["Deductible$CountRow"] ?? null) * 1 > 0)) {
+    if (!empty($_POST["Deductible$CountRow"]) && (floatval($_POST["Deductible$CountRow"] ?? null)) > 0) {
          sqlBeginTrans();
          $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array(trim(formData('hidden_patient_code')), trim(formData("HiddenEncounter$CountRow"))));
         sqlStatement("insert into ar_activity set "    .
@@ -156,7 +157,7 @@ function DistributionInsert($CountRow, $created_time, $user_id)
           $Affected = 'yes';
     }
 
-    if (!empty($_POST["Takeback$CountRow"]) && (($_POST["Takeback$CountRow"] ?? null) * 1 > 0)) {
+    if (!empty($_POST["Takeback$CountRow"]) && (floatval($_POST["Takeback$CountRow"] ?? null)) > 0) {
          sqlBeginTrans();
          $sequence_no = sqlQuery("SELECT IFNULL(MAX(sequence_no),0) + 1 AS increment FROM ar_activity WHERE pid = ? AND encounter = ?", array(trim(formData('hidden_patient_code')), trim(formData("HiddenEncounter$CountRow"))));
         sqlStatement("insert into ar_activity set "    .
@@ -212,7 +213,7 @@ function DistributionInsert($CountRow, $created_time, $user_id)
                 //last_level_closed gets increased. unless a follow up is required.
                 // in which case we'll allow secondary to be re setup to current setup.
                 // just not advancing last closed.
-                $tmp = (((!empty($_POST["Payment$CountRow"]) ? $_POST["Payment$CountRow"] : null) * 1) + ((!empty($_POST["AdjAmount$CountRow"]) ? $_POST["AdjAmount$CountRow"] : null) * 1));
+                $tmp = ((!empty($_POST["Payment$CountRow"]) ? floatval($_POST["Payment$CountRow"]) : null) + (!empty($_POST["AdjAmount$CountRow"]) ? floatval($_POST["AdjAmount$CountRow"]) : null));
                 if ((empty($_POST["FollowUp$CountRow"]) || ($_POST["FollowUp$CountRow"] != 'y')) && $tmp !== 0) {
                     sqlStatement("update form_encounter set last_level_closed='" .
                         trim(formData("HiddenIns$CountRow")) .

@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class CareGoal extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\Date $statusDate
      */
@@ -69,3 +68,4 @@ class CareGoal extends QDMBaseType
 
     public $_type = 'QDM::CareGoal';
 }
+

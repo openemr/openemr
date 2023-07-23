@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class LaboratoryTestOrder extends QDMBaseType
 {
-
     /**
      * @property BaseTypes\DateTime $authorDatetime
      */
@@ -34,6 +33,11 @@ class LaboratoryTestOrder extends QDMBaseType
      * @property BaseTypes\Any $requester
      */
     public $requester = null;
+
+    /**
+     * @property string $qdmTitle
+     */
+    public $qdmTitle = 'Laboratory Test, Order';
 
     /**
      * @property string $hqmfOid
@@ -57,3 +61,4 @@ class LaboratoryTestOrder extends QDMBaseType
 
     public $_type = 'QDM::LaboratoryTestOrder';
 }
+

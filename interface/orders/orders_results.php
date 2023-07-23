@@ -14,9 +14,10 @@
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lab.inc");
+require_once("$srcdir/lab.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Indicates if we are entering in batch mode.
@@ -26,21 +27,23 @@ $form_batch = empty($_GET['batch']) ? 0 : 1;
 $form_review = empty($_GET['review']) ? 0 : 1;
 
 // Check authorization.
-$thisauth = AclMain::aclCheckCore('patients', 'med');
+$thisauth = AclMain::aclCheckCore('patients', 'lab');
 if (!$thisauth) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Procedure Results")]);
+    exit;
 }
 
 // Check authorization for pending review.
 $reviewauth = AclMain::aclCheckCore('patients', 'sign');
 if ($form_review and !$reviewauth and !$thisauth) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Procedure Results")]);
+    exit;
 }
 
 // Set pid for pending review.
 if (!empty($_GET['set_pid']) && $form_review) {
-    require_once("$srcdir/pid.inc");
-    require_once("$srcdir/patient.inc");
+    require_once("$srcdir/pid.inc.php");
+    require_once("$srcdir/patient.inc.php");
     setpid($_GET['set_pid']);
 
     $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
@@ -70,7 +73,7 @@ function oresData($name, $index)
 function QuotedOrNull($fld)
 {
     if (empty($fld)) {
-        return "NULL";
+        return "null";
     }
 
     return "'$fld'";
@@ -133,13 +136,15 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                 "procedure_report_id = '" . add_escape_custom($current_report_id) . "', " .
                 "result_code = '" . oresData("form_result_code", $lino) . "', " .
                 "result_text = '" . oresData("form_result_text", $lino) . "', " .
+                "`date` = " . QuotedOrNull(oresData("form_result_date", $lino)) . ", " .
                 "abnormal = '" . oresData("form_result_abnormal", $lino) . "', " .
                 "result = '" . oresData("form_result_result", $lino) . "', " .
                 "`range` = '" . oresData("form_result_range", $lino) . "', " .
                 "units = '" . oresData("form_result_units", $lino) . "', " .
                 "facility = '" . oresData("form_facility", $lino) . "', " .
                 "comments = '" . $form_comments . "', " .
-                "result_status = '" . oresData("form_result_status", $lino) . "'";
+                "result_status = '" . oresData("form_result_status", $lino) . "', " .
+                "`date_end` = " . QuotedOrNull(oresData("form_result_date_end", $lino));
             if ($result_id) { // result already exists
                 sqlStatement("UPDATE procedure_result SET $sets " .
                     "WHERE procedure_result_id = '" . add_escape_custom($result_id) . "'");
@@ -373,6 +378,8 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                     <td><?php echo xlt('Status'); ?></td>
                     <td><?php echo xlt('Code'); ?></td>
                     <td><?php echo xlt('Name'); ?></td>
+                    <td><?php echo xlt('Date'); ?></td>
+                    <td><?php echo xlt('End Date'); ?></td>
                     <td><?php echo xlt('Abn'); ?></td>
                     <td><?php echo xlt('Value'); ?></td>
                     <td><?php echo xlt('Units'); ?></td>
@@ -467,7 +474,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                     $selects = "pt2.procedure_type, pt2.procedure_code, ll.title AS pt2_units, " .
                         "pt2.range AS pt2_range, pt2.procedure_type_id AS procedure_type_id, " .
                         "pt2.name AS name, pt2.description, pt2.seq AS seq, " .
-                        "ps.procedure_result_id, ps.result_code AS result_code, ps.result_text, ps.abnormal, ps.result, " .
+                        "ps.procedure_result_id, ps.result_code AS result_code, ps.result_text, ps.date, ps.date_end, ps.abnormal, ps.result, " .
                         "ps.range, ps.result_status, ps.facility, ps.comments, ps.units, ps.comments";
 
                     // procedure_type_id for order:
@@ -504,6 +511,8 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                         $result_id = empty($rrow['procedure_result_id']) ? 0 : ($rrow['procedure_result_id'] + 0);
                         $result_code = empty($rrow['result_code']) ? $restyp_code : $rrow['result_code'];
                         $result_text = empty($rrow['result_text']) ? $restyp_name : $rrow['result_text'];
+                        $result_date = empty($rrow['date']) ? '' : $rrow['date'];
+                        $result_date_end = empty($rrow['date_end']) ? '' : $rrow['date_end'];
                         $result_abnormal = empty($rrow['abnormal']) ? '' : $rrow['abnormal'];
                         $result_result = empty($rrow['result']) ? '' : $rrow['result'];
                         $result_units = empty($rrow['units']) ? $restyp_units : $rrow['units'];
@@ -612,6 +621,18 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                             <input type='text' size='16' name='form_result_text[<?php echo attr($lino); ?>]'
                                 class='form-control'
                                 value='<?php echo attr($result_text); ?>' />
+                        </td>
+                        <td class="text-nowrap">
+                                <input type='text' size='13' name='form_result_date[<?php echo attr($lino); ?>]'
+                                    id='form_result_date[<?php echo attr($lino); ?>]'
+                                    class='form-control datetimepicker' value='<?php echo attr($result_date); ?>'
+                                    title='<?php echo xla('Date and time of this result'); ?>' />
+                        </td>
+                        <td class="text-nowrap">
+                                <input type='text' size='13' name='form_result_date_end[<?php echo attr($lino); ?>]'
+                                    id='form_result_date_end[<?php echo attr($lino); ?>]'
+                                    class='form-control datetimepicker' value='<?php echo attr($result_date_end); ?>'
+                                    title='<?php echo xla('End date and time of this result'); ?>' />
                         </td>
                         <td>
                             <?php echo generate_select_list(

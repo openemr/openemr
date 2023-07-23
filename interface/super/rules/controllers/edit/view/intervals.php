@@ -34,7 +34,7 @@
   </tr>
 </table>
 
-<div class="rule_detail edit text">
+<div class="rule_detail edit">
     <p class="header"><?php echo xlt('Reminder intervals'); ?> </p>
 
     <form action="index.php?action=edit!submit_intervals" method="post" id="frm_submit" onsubmit="return top.restoreSession()">
@@ -57,7 +57,7 @@
                 <input class="form-control" data-grp-tgt="<?php echo attr($type->code) ?>" type="text" name="<?php echo attr($type->code); ?>-<?php echo attr($range->code); ?>" value="<?php echo is_null($detail) ? "" : attr($detail->amount); ?>" />
             </span>
             <span class="end_col">
-            <?php echo timeunit_select(array( "context" => "rule_reminder_intervals", "target" => $type->code, "name" => $type->code . "-" . $range->code . "-timeunit", "value" => $detail->timeUnit )); ?>
+            <?php echo timeunit_select(array( "context" => "rule_reminder_intervals", "target" => $type->code, "name" => $type->code . "-" . $range->code . "-timeunit", "value" => $detail->timeUnit ?? null )); ?>
             </span>
         </p>
             <?php $first = false; ?>

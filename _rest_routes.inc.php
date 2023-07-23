@@ -18,7 +18,7 @@
  */
 
 /**
- *  @OA\Info(title="OpenEMR API", version="6.1.0")
+ *  @OA\Info(title="OpenEMR API", version="7.0.0")
  *  @OA\Server(url="/apis/default/")
  *  @OA\SecurityScheme(
  *      securityScheme="openemr_auth",
@@ -31,14 +31,19 @@
  *          scopes={
  *              "openid": "Generic mandatory scope",
  *              "offline_access": "Will signal server to provide a refresh token",
+ *              "launch/patient": "Will provide a patient selector when logging in as an OpenEMR user (required for testing patient/* scopes in swagger if not logging in as a patient)",
  *              "api:fhir": "FHIR R4 API",
  *              "patient/AllergyIntolerance.read": "Read allergy intolerance resources for the current patient (api:fhir)",
+ *              "patient/Appointment.read": "Read appointment resources for the current patient (api:fhir)",
+ *              "patient/Binary.read": "Read binary document resources for the current patient (api:fhir)",
  *              "patient/CarePlan.read": "Read care plan resources for the current patient (api:fhir)",
  *              "patient/CareTeam.read": "Read care team resources for the current patient (api:fhir)",
  *              "patient/Condition.read": "Read condition resources for the current patient (api:fhir)",
+ *              "patient/Coverage.read": "Read coverage resources for the current patient (api:fhir)",
  *              "patient/Device.read": "Read device resources for the current patient (api:fhir)",
  *              "patient/DiagnosticReport.read": "Read diagnostic report resources for the current patient (api:fhir)",
  *              "patient/DocumentReference.read": "Read document reference resources for the current patient (api:fhir)",
+ *              "patient/DocumentReference.$docref" : "Generate a document for the current patient or returns the most current Clinical Summary of Care Document (CCD)",
  *              "patient/Encounter.read": "Read encounter resources for the current patient (api:fhir)",
  *              "patient/Goal.read": "Read goal resources for the current patient (api:fhir)",
  *              "patient/Immunization.read": "Read immunization resources for the current patient (api:fhir)",
@@ -53,14 +58,15 @@
  *              "patient/Procedure.read": "Read procedure resources for the current patient (api:fhir)",
  *              "patient/Provenance.read": "Read provenance resources for the current patient (api:fhir)",
  *              "system/AllergyIntolerance.read": "Read all allergy intolerance resources in the system (api:fhir)",
+ *              "system/Binary.read": "Read all binary document resources in the system (api:fhir)",
  *              "system/CarePlan.read": "Read all care plan resources in the system (api:fhir)",
  *              "system/CareTeam.read": "Read all care team resources in the system (api:fhir)",
  *              "system/Condition.read": "Read all condition resources in the system (api:fhir)",
  *              "system/Coverage.read": "Read all coverage resources in the system (api:fhir)",
  *              "system/Device.read": "Read all device resources in the system (api:fhir)",
  *              "system/DiagnosticReport.read": "Read all diagnostic report resources in the system (api:fhir)",
- *              "system/Document.read": "Read all document resources in the system (api:fhir)",
  *              "system/DocumentReference.read": "Read all document reference resources in the system (api:fhir)",
+ *              "system/DocumentReference.$docref" : "Generate a document for any patient in the system or returns the most current Clinical Summary of Care Document (CCD)",
  *              "system/Encounter.read": "Read all encounter resources in the system (api:fhir)",
  *              "system/Goal.read": "Read all goal resources in the system (api:fhir)",
  *              "system/Group.read": "Read all group resources in the system (api:fhir)",
@@ -77,6 +83,7 @@
  *              "system/Procedure.read": "Read all procedure resources in the system (api:fhir)",
  *              "system/Provenance.read": "Read all provenance resources in the system (api:fhir)",
  *              "user/AllergyIntolerance.read": "Read all allergy intolerance resources the user has access to (api:fhir)",
+ *              "user/Binary.read" : "Read all binary documents the user has access to (api:fhir)",
  *              "user/CarePlan.read": "Read all care plan resources the user has access to (api:fhir)",
  *              "user/CareTeam.read": "Read all care team resources the user has access to (api:fhir)",
  *              "user/Condition.read": "Read all condition resources the user has access to (api:fhir)",
@@ -84,6 +91,7 @@
  *              "user/Device.read": "Read all device resources the user has access to (api:fhir)",
  *              "user/DiagnosticReport.read": "Read all diagnostic report resources the user has access to (api:fhir)",
  *              "user/DocumentReference.read": "Read all document reference resources the user has access to (api:fhir)",
+ *              "user/DocumentReference.$docref" : "Generate a document for any patient the user has access to or returns the most current Clinical Summary of Care Document (CCD) (api:fhir)",
  *              "user/Encounter.read": "Read all encounter resources the user has access to (api:fhir)",
  *              "user/Goal.read": "Read all goal resources the user has access to (api:fhir)",
  *              "user/Immunization.read": "Read all immunization resources the user has access to (api:fhir)",
@@ -137,11 +145,14 @@
  *              "user/soap_note.write": "Write soap notes the user has access to (api:oemr)",
  *              "user/surgery.read": "Read surgeries the user has access to (api:oemr)",
  *              "user/surgery.write": "Write surgeries the user has access to (api:oemr)",
+ *              "user/transaction.read": "Read transactions the user has access to (api:oemr)",
+ *              "user/transaction.write": "Write transactions the user has access to (api:oemr)",
  *              "user/vital.read": "Read vitals the user has access to (api:oemr)",
  *              "user/vital.write": "Write vitals the user has access to (api:oemr)",
  *              "api:port": "Standard Patient Portal OpenEMR API",
  *              "patient/encounter.read": "Read encounters the patient has access to (api:port)",
- *              "patient/patient.read": "Write encounters the patient has access to (api:port)"
+ *              "patient/patient.read": "Write encounters the patient has access to (api:port)",
+ *              "patient/appointment.read": "Read appointments the patient has access to (api:port)"
  *          }
  *      )
  *  )
@@ -290,6 +301,7 @@ use OpenEMR\RestControllers\InsuranceRestController;
 use OpenEMR\RestControllers\MessageRestController;
 use OpenEMR\RestControllers\PrescriptionRestController;
 use OpenEMR\RestControllers\ProcedureRestController;
+use OpenEMR\RestControllers\TransactionRestController;
 
 // Note some Http clients may not send auth as json so a function
 // is implemented to determine and parse encoding on auth route's.
@@ -6235,6 +6247,220 @@ RestConfig::$ROUTE_MAP = array(
         return $return;
     },
 
+    /**
+     *  @OA\Get(
+     *      path="/api/patient/{pid}/transaction",
+     *      description="Get Transactions for a patient",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="pid",
+     *          in="path",
+     *          description="The pid for the patient",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+
+    "GET /api/patient/:pid/transaction" => function ($pid) {
+        RestConfig::authorization_check("patients", "trans");
+        $cont = new TransactionRestController();
+        $return = (new TransactionRestController())->GetPatientTransactions($pid);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     * Schema for the transaction request
+     *
+     *  @OA\Schema(
+     *      schema="api_transaction_request",
+     *      @OA\Property(
+     *          property="message",
+     *          description="The message of the transaction.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="type",
+     *          description="The type of transaction. Use an option from resource=/api/transaction_type",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="groupname",
+     *          description="The group name (usually is 'Default').",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="referByNpi",
+     *          description="NPI of the person creating the referral.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="referToNpi",
+     *          description="NPI of the person getting the referral.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="referDiagnosis",
+     *          description="The referral diagnosis.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="riskLevel",
+     *          description="The risk level. (Low, Medium, High)",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="includeVitals",
+     *          description="Are vitals included (0,1)",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="referralDate",
+     *          description="The date of the referral",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="authorization",
+     *          description="The authorization for the referral",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="visits",
+     *          description="The number of vists for the referral",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="validFrom",
+     *          description="The date the referral is valid from",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="validThrough",
+     *          description="The date the referral is valid through",
+     *          type="string"
+     *      ),
+     *      required={"message", "groupname", "title"},
+     *      example={
+     *          "message": "Message",
+     *          "type": "LBTref",
+     *          "groupname": "Default",
+     *          "referByNpi":"9999999999",
+     *          "referToNpi":"9999999999",
+     *          "referDiagnosis":"Diag 1",
+     *          "riskLevel":"Low",
+     *          "includeVitals":"1",
+     *          "referralDate":"2022-01-01",
+     *          "authorization":"Auth_123",
+     *          "visits": "1",
+     *          "validFrom": "2022-01-02",
+     *          "validThrough": "2022-01-03",
+     *          "body": "Reason 1"
+     *      }
+     *  )
+     */
+    /**
+     *  @OA\Post(
+     *      path="/api/patient/{pid}/transaction",
+     *      description="Submits a transaction",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="pid",
+     *          in="path",
+     *          description="The pid for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(ref="#/components/schemas/api_transaction_request")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /api/patient/:pid/transaction" => function ($pid) {
+        RestConfig::authorization_check("patients", "trans");
+         $data = (array) (json_decode(file_get_contents("php://input")));
+         $return = (new TransactionRestController())->CreateTransaction($pid, $data);
+         RestConfig::apiLog($return, $data);
+         return $return;
+    },
+
+    /**
+     *  @OA\PUT(
+     *      path="/api/transaction/{tid}",
+     *      description="Updates a transaction",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="tid",
+     *          in="path",
+     *          description="The id for the transaction.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(ref="#/components/schemas/api_transaction_request")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /api/transaction/:tid" => function ($tid) {
+        RestConfig::authorization_check("patients", "trans");
+         $data = (array) (json_decode(file_get_contents("php://input")));
+         $return = (new TransactionRestController())->UpdateTransaction($tid, $data);
+         RestConfig::apiLog($return, $data);
+         return $return;
+    },
 
     /**
      *  @OA\Put(
@@ -6842,6 +7068,7 @@ RestConfig::$ROUTE_MAP = array(
 use OpenEMR\Common\Http\StatusCode;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\RestControllers\FHIR\FhirAllergyIntoleranceRestController;
+use OpenEMR\RestControllers\FHIR\FhirAppointmentRestController;
 use OpenEMR\RestControllers\FHIR\FhirCarePlanRestController;
 use OpenEMR\RestControllers\FHIR\FhirCareTeamRestController;
 use OpenEMR\RestControllers\FHIR\FhirConditionRestController;
@@ -6850,7 +7077,6 @@ use OpenEMR\RestControllers\FHIR\FhirDeviceRestController;
 use OpenEMR\RestControllers\FHIR\FhirDiagnosticReportRestController;
 use OpenEMR\RestControllers\FHIR\FhirDocumentReferenceRestController;
 use OpenEMR\RestControllers\FHIR\FhirEncounterRestController;
-use OpenEMR\RestControllers\FHIR\FhirExportRestController;
 use OpenEMR\RestControllers\FHIR\FhirObservationRestController;
 use OpenEMR\RestControllers\FHIR\FhirImmunizationRestController;
 use OpenEMR\RestControllers\FHIR\FhirGoalRestController;
@@ -6866,6 +7092,9 @@ use OpenEMR\RestControllers\FHIR\FhirPractitionerRestController;
 use OpenEMR\RestControllers\FHIR\FhirProcedureRestController;
 use OpenEMR\RestControllers\FHIR\FhirProvenanceRestController;
 use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
+use OpenEMR\RestControllers\FHIR\Operations\FhirOperationExportRestController;
+use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDocRefRestController;
+use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDefinitionRestController;
 
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded
@@ -7058,6 +7287,137 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         } else {
             RestConfig::authorization_check("patients", "med");
             $return = (new FhirAllergyIntoleranceRestController($request))->getOne($uuid);
+        }
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/Appointment",
+     *      description="Returns a list of Appointment resources.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="_id",
+     *          in="query",
+     *          description="The uuid for the Appointment resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="patient",
+     *          in="query",
+     *          description="The uuid for the patient.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/AllergyIntolerance"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/Appointment" => function (HttpRestRequest $request) {
+        $getParams = $request->getQueryParams();
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirAppointmentRestController($request))->getAll($getParams, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("patients", "appt");
+            $return = (new FhirAppointmentRestController($request))->getAll($getParams);
+        }
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/Appointment/{uuid}",
+     *      description="Returns a single Appointment resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the Appointment resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={}
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/Appointment/:uuid" => function ($uuid, HttpRestRequest $request) {
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirAppointmentRestController($request))->getOne($uuid, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("patients", "appt");
+            $return = (new FhirAppointmentRestController($request))->getOne($uuid);
         }
         RestConfig::apiLog($return);
         return $return;
@@ -7673,13 +8033,14 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     * 1. Broken when trying to search with parameters.
-     */
     "GET /fhir/Coverage" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "super");
-        $return = (new FhirCoverageRestController())->getAll($request->getQueryParams());
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirCoverageRestController())->getAll($request->getQueryParams(), $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("admin", "super");
+            $return = (new FhirCoverageRestController())->getAll($request->getQueryParams());
+        }
         RestConfig::apiLog($return);
         return $return;
     },
@@ -7700,7 +8061,37 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "960d5f10-edc6-4c65-a6d4-39a1e1da87a8",
+     *                      "meta": {
+     *                          "versionId": "1",
+     *                          "lastUpdated": "2022-04-14T07:58:45+00:00"
+     *                      },
+     *                      "resourceType": "Coverage",
+     *                      "status": "active",
+     *                      "beneficiary": {
+     *                          "reference": "Patient/960d5f08-9fdf-4bdc-9108-84a149e28bac"
+     *                      },
+     *                      "relationship": {
+     *                          "coding": {
+     *                              {
+     *                                  "system": "http://terminology.hl7.org/CodeSystem/subscriber-relationship",
+     *                                  "code": ""
+     *                              }
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -7717,13 +8108,14 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     * 1. Broken. Fix and then add standard response example.
-     */
     "GET /fhir/Coverage/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "super");
-        $return = (new FhirCoverageRestController())->getOne($uuid);
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirCoverageRestController())->getOne($uuid, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("admin", "super");
+            $return = (new FhirCoverageRestController())->getOne($uuid);
+        }
         RestConfig::apiLog($return);
         return $return;
     },
@@ -8200,6 +8592,78 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     },
 
     /**
+     *  @OA\POST(
+     *      path="/fhir/DocumentReference/$docref",
+     *      description="The $docref operation is used to request the server generates a document based on the specified parameters. If no additional parameters are specified then a DocumentReference to the patient's most current Clinical Summary of Care Document (CCD) is returned. The document itself is retrieved using the DocumentReference.content.attachment.url element.  See <a href='http://hl7.org/fhir/us/core/OperationDefinition-docref.html' target='_blank' rel='noopener'>http://hl7.org/fhir/us/core/OperationDefinition-docref.html</a> for more details.",
+     *      tags={"fhir"},
+     *      @OA\ExternalDocumentation(description="Detailed documentation on this operation", url="https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API"),
+     *      @OA\Parameter(
+     *          name="patient",
+     *          in="query",
+     *          description="The uuid for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="start",
+     *          in="query",
+     *          description="The datetime refers to care dates not record currency dates.  All records relating to care provided in a certain date range.  If no start date is provided then all documents prior to the end date are in scope.  If no start and end date are provided, the most recent or current document is in scope.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="end",
+     *          in="query",
+     *          description="The datetime refers to care dates not record currency dates.  All records relating to care provided in a certain date range.  If no end date is provided then all documents subsequent to the start date are in scope.  If no start and end date are provided, the most recent or current document is in scope.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="type",
+     *          in="query",
+     *          description="The type refers to the document type.  This is a LOINC code from the valueset of <a href='http://hl7.org/fhir/R4/valueset-c80-doc-typecodes.html' target='_blank' rel='noopener'>http://hl7.org/fhir/R4/valueset-c80-doc-typecodes.html</a>. The server currently only supports the LOINC code of 34133-9 (Summary of episode node).",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="A search bundle of DocumentReferences is returned"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    'POST /fhir/DocumentReference/$docref' => function (HttpRestRequest $request) {
+
+        // NOTE: The order of this route is IMPORTANT as it needs to come before the DocumentReference single request.
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirOperationDocRefRestController($request))->getAll($request->getQueryParams(), $request->getPatientUUIDString());
+        } else {
+            // TODO: it seems like regular users should be able to grab authorship / provenance information
+            RestConfig::authorization_check("patients", "demo");
+            $return = (new FhirOperationDocRefRestController($request))->getAll($request->getQueryParams());
+        }
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
      *  @OA\Get(
      *      path="/fhir/DocumentReference/{uuid}",
      *      description="Returns a single DocumentReference resource.",
@@ -8269,7 +8733,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *                          {
      *                              "attachment": {
      *                                  "contentType": "image/gif",
-     *                                  "url": "https://localhost:9300/apis/default/fhir/Document/7/Binary"
+     *                                  "url": "https://localhost:9300/apis/default/fhir/Binary/7"
      *                              },
      *                              "format": {
      *                                  "system": "http://ihe.net/fhir/ValueSet/IHE.FormatCode.codesystem",
@@ -8312,8 +8776,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
 
     /**
      *  @OA\Get(
-     *      path="/fhir/Document/{id}/Binary",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.",
+     *      path="/fhir/Binary/{id}",
+     *      description="Used for downloading binary documents generated either with BULK FHIR Export or with the $docref CCD export operation.  Documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
      *      tags={"fhir"},
      *      @OA\Parameter(
      *          name="id",
@@ -8326,7 +8790,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="The documentation for working with BULK FHIR or $docref document exports can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -8339,17 +8803,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     */
-    'GET /fhir/Document/:id/Binary' => function ($documentId, HttpRestRequest $request) {
-        // currently only allow users with the same permissions as export to take a file out
-        // this could be relaxed to allow other types of files ie such as patient access etc.
-        RestConfig::authorization_check("admin", "users");
-
-        // Grab the document id
+    'GET /fhir/Binary/:id' => function ($documentId, HttpRestRequest $request) {
         $docController = new \OpenEMR\RestControllers\FHIR\FhirDocumentRestController($request);
-        $response = $docController->downloadDocument($documentId, $request->getRequestUserId());
+
+        if ($request->isPatientRequest()) {
+            $response = $docController->downloadDocument($documentId, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("admin", "users");
+            $response = $docController->downloadDocument($documentId);
+        }
+
         return $response;
     },
 
@@ -8715,7 +9178,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      *  @OA\Get(
      *      path="/fhir/Group",
-     *      description="Returns a list of Group resources.",
+     *      description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
      *      tags={"fhir"},
      *      @OA\Parameter(
      *          name="_id",
@@ -8774,9 +9237,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     */
     'GET /fhir/Group' => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $getParams = $request->getQueryParams();
@@ -8793,7 +9253,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      *  @OA\Get(
      *      path="/fhir/Group/{uuid}",
-     *      description="Returns a single Group resource.",
+     *      description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
      *      tags={"fhir"},
      *      @OA\Parameter(
      *          name="uuid",
@@ -8806,7 +9266,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -8823,9 +9283,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     */
     "GET /fhir/Group/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         if ($request->isPatientRequest()) {
@@ -8841,11 +9298,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      *  @OA\Get(
      *      path="/fhir/Group/{id}/$export",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.",
+     *      description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
      *      tags={"fhir"},
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -8858,19 +9315,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     */
     'GET /fhir/Group/:id/$export' => function ($groupId, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
-        $fhirExportService = new FhirExportRestController($request);
+        $fhirExportService = new FhirOperationExportRestController($request);
         $exportParams = $request->getQueryParams();
         $exportParams['groupId'] = $groupId;
         $return = $fhirExportService->processExport(
             $exportParams,
             'Group',
-            $request->getHeader('Accept'),
-            $request->getHeader('Prefer')
+            $request->getHeader('Accept')[0] ?? '',
+            $request->getHeader('Prefer')[0] ?? ''
         );
         RestConfig::apiLog($return);
         return $return;
@@ -8938,10 +9392,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     * 1. Broken sql query.
-     */
     "GET /fhir/Immunization" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
@@ -8971,7 +9421,41 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "95e8d8b7-e3e2-4e03-8eb1-31e1d9097d8f",
+     *                      "meta": {
+     *                          "versionId": "1",
+     *                          "lastUpdated": "2022-03-26T05:42:59+00:00"
+     *                      },
+     *                      "resourceType": "Immunization",
+     *                      "status": "completed",
+     *                      "vaccineCode": {
+     *                          "coding": {
+     *                              {
+     *                                  "system": "http://hl7.org/fhir/sid/cvx",
+     *                                  "code": "207",
+     *                                  "display": "SARS-COV-2 (COVID-19) vaccine, mRNA, spike protein, LNP, preservative free, 100 mcg/0.5mL dose"
+     *                              }
+     *                          }
+     *                      },
+     *                      "patient": {
+     *                          "reference": "Patient/95e8d830-3068-48cf-930a-2fefb18c2bcf"
+     *                      },
+     *                      "occurrenceDateTime": "2022-03-26T05:35:00+00:00",
+     *                      "recorded": "2022-03-26T05:42:26+00:00",
+     *                      "primarySource": false
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -8987,10 +9471,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
-     * 1. Broken sql query.
      */
     "GET /fhir/Immunization/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
@@ -9199,7 +9679,38 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "961aa334-9348-4145-8252-de665e3c4afa",
+     *                      "meta": {
+     *                          "versionId": "1",
+     *                          "lastUpdated": "2022-04-19T23:42:14+00:00"
+     *                      },
+     *                      "resourceType": "Medication",
+     *                      "code": {
+     *                          "coding": {
+     *                              {
+     *                                  "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+     *                                  "code": 153165
+     *                              }
+     *                          }
+     *                      },
+     *                      "status": "active",
+     *                      "batch": {
+     *                          "lotNumber": "132",
+     *                          "expirationDate": "0000-00-00"
+     *                      }
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -9216,13 +9727,14 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     * 1. Broken uuid validation.
-     */
     "GET /fhir/Medication/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::authorization_check("patients", "med");
-        $return = (new FhirMedicationRestController())->getOne($uuid);
+        if ($request->isPatientRequest()) {
+            // only allow access to data of binded patient
+            $return = (new FhirMedicationRestController())->getOne($uuid, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("patients", "med");
+            $return = (new FhirMedicationRestController())->getOne($uuid);
+        }
         RestConfig::apiLog($return);
         return $return;
     },
@@ -9801,16 +10313,22 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *                      type="object"
      *                  ),
      *                  example={
-     *                      "id": "946da616-fae2-409d-b24d-56425bfb3316",
+     *                      "id": "95f0e672-be37-4c73-95c9-649c2d200018",
      *                      "meta": {
      *                          "versionId": "1",
-     *                          "lastUpdated": "2021-09-21T16:47:36+00:00"
+     *                          "lastUpdated": "2022-03-30T07:43:23+00:00"
      *                      },
      *                      "resourceType": "Organization",
      *                      "text": {
      *                          "status": "generated",
-     *                          "div": "<div xmlns=""http://www.w3.org/1999/xhtml""> <p>Your Clinic Name Here</p></div>"
+     *                          "div": "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Your Clinic Name Here</p></div>"
      *                      },
+     *                      "identifier": {
+     *                          {
+     *                              "system": "http://hl7.org/fhir/sid/us-npi",
+     *                              "value": "1234567890"
+     *                          }
+     *                       },
      *                      "active": true,
      *                      "type": {
      *                          {
@@ -9828,7 +10346,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *                          {
      *                              "system": "phone",
      *                              "value": "000-000-0000",
-     *                              "use": "work"
+     *                             "use": "work"
      *                          },
      *                          {
      *                              "system": "fax",
@@ -9883,12 +10401,114 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *              @OA\Schema(
      *                  description="The json object for the Organization resource.",
      *                  type="object"
-     *              )
+     *              ),
+     *              example={
+     *                  "id": "95f0e672-be37-4c73-95c9-649c2d200018",
+     *                  "meta": {
+     *                      "versionId": "1",
+     *                      "lastUpdated": "2022-03-30T07:43:23+00:00"
+     *                  },
+     *                  "resourceType": "Organization",
+     *                  "text": {
+     *                      "status": "generated",
+     *                      "div": "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Your Clinic Name Here</p></div>"
+     *                  },
+     *                  "identifier": {
+     *                      {
+     *                          "system": "http://hl7.org/fhir/sid/us-npi",
+     *                          "value": "1234567890"
+     *                      }
+     *                   },
+     *                  "active": true,
+     *                  "type": {
+     *                      {
+     *                          "coding": {
+     *                              {
+     *                                  "system": "http://terminology.hl7.org/CodeSystem/organization-type",
+     *                                  "code": "prov",
+     *                                  "display": "Healthcare Provider"
+     *                              }
+     *                          }
+     *                      }
+     *                  },
+     *                  "name": "Your Clinic Name Here Hey",
+     *                  "telecom": {
+     *                      {
+     *                          "system": "phone",
+     *                          "value": "000-000-0000",
+     *                          "use": "work"
+     *                      },
+     *                      {
+     *                          "system": "fax",
+     *                          "value": "000-000-0000",
+     *                          "use": "work"
+     *                      }
+     *                  },
+     *                  "address": {
+     *                      null
+     *                  }
+     *              }
      *          )
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "95f0e672-be37-4c73-95c9-649c2d200018",
+     *                      "meta": {
+     *                          "versionId": "1",
+     *                          "lastUpdated": "2022-03-30T07:43:23+00:00"
+     *                      },
+     *                      "resourceType": "Organization",
+     *                      "text": {
+     *                          "status": "generated",
+     *                          "div": "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Your Clinic Name Here</p></div>"
+     *                      },
+     *                      "identifier": {
+     *                          {
+     *                              "system": "http://hl7.org/fhir/sid/us-npi",
+     *                              "value": "1234567890"
+     *                          }
+     *                       },
+     *                      "active": true,
+     *                      "type": {
+     *                          {
+     *                              "coding": {
+     *                                  {
+     *                                      "system": "http://terminology.hl7.org/CodeSystem/organization-type",
+     *                                      "code": "prov",
+     *                                      "display": "Healthcare Provider"
+     *                                  }
+     *                              }
+     *                          }
+     *                      },
+     *                      "name": "Your Clinic Name Here Now",
+     *                      "telecom": {
+     *                          {
+     *                              "system": "phone",
+     *                              "value": "000-000-0000",
+     *                             "use": "work"
+     *                          },
+     *                          {
+     *                              "system": "fax",
+     *                              "value": "000-000-0000",
+     *                              "use": "work"
+     *                          }
+     *                      },
+     *                      "address": {
+     *                          null
+     *                      }
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -9900,9 +10520,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
      */
     "POST /fhir/Organization" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "super");
@@ -9933,12 +10550,67 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *              @OA\Schema(
      *                  description="The json object for the Organization resource.",
      *                  type="object"
-     *              )
+     *              ),
+     *              example={
+     *                  "id": "95f0e672-be37-4c73-95c9-649c2d200018",
+     *                  "meta": {
+     *                      "versionId": "1",
+     *                      "lastUpdated": "2022-03-30T07:43:23+00:00"
+     *                  },
+     *                  "resourceType": "Organization",
+     *                  "text": {
+     *                      "status": "generated",
+     *                      "div": "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Your Clinic Name Here</p></div>"
+     *                  },
+     *                  "identifier": {
+     *                      {
+     *                          "system": "http://hl7.org/fhir/sid/us-npi",
+     *                          "value": "1234567890"
+     *                      }
+     *                   },
+     *                  "active": true,
+     *                  "type": {
+     *                      {
+     *                          "coding": {
+     *                              {
+     *                                  "system": "http://terminology.hl7.org/CodeSystem/organization-type",
+     *                                  "code": "prov",
+     *                                  "display": "Healthcare Provider"
+     *                              }
+     *                          }
+     *                      }
+     *                  },
+     *                  "name": "Your Clinic Name Here",
+     *                  "telecom": {
+     *                      {
+     *                          "system": "phone",
+     *                          "value": "000-000-0000",
+     *                          "use": "work"
+     *                      },
+     *                      {
+     *                          "system": "fax",
+     *                          "value": "000-000-0000",
+     *                          "use": "work"
+     *                      }
+     *                  },
+     *                  "address": {
+     *                      null
+     *                  }
+     *              }
      *          )
      *      ),
      *      @OA\Response(
-     *          response="200",
-     *          ref="#/components/responses/standard"
+     *          response="201",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  example={
+     *                      "id": 14,
+     *                      "uuid": "95f217c1-258c-44ca-bf11-909dce369574"
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -9950,9 +10622,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
      */
     "PUT /fhir/Organization/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "super");
@@ -9974,12 +10643,172 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *              @OA\Schema(
      *                  description="The json object for the Patient resource.",
      *                  type="object"
-     *              )
+     *              ),
+     *              example={
+     *                  "id": "95f22ff4-dd25-4290-8b52-1dd2fedf8e54",
+     *                  "meta": {
+     *                      "versionId": "1",
+     *                      "lastUpdated": "2022-03-31T02:48:28+00:00"
+     *                  },
+     *                  "resourceType": "Patient",
+     *                  "text": {
+     *                      "status": "generated",
+     *                      "div": "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Brenda Smith</p></div>"
+     *                  },
+     *                  "extension": {
+     *                      {
+     *                          "valueCode": "F",
+     *                          "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex"
+     *                      },
+     *                      {
+     *                          "extension": {
+     *                              {
+     *                                  "valueCoding": {
+     *                                      "system": "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
+     *                                      "code": "UNK",
+     *                                      "display": "Unknown"
+     *                                  },
+     *                                  "url": "ombCategory"
+     *                              },
+     *                              {
+     *                                  "valueString": "Unknown",
+     *                                  "url": "text"
+     *                              }
+     *                          },
+     *                          "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
+     *                      }
+     *                  },
+     *                  "identifier": {
+     *                      {
+     *                          "use": "official",
+     *                          "type": {
+     *                              "coding": {
+     *                                  {
+     *                                      "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+     *                                      "code": "PT"
+     *                                  }
+     *                              }
+     *                          },
+     *                         "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+     *                         "value": "1"
+     *                      }
+     *                  },
+     *                  "active": true,
+     *                  "name": {
+     *                      {
+     *                          "use": "official",
+     *                          "family": "Smith",
+     *                          "given": {
+     *                              "Brenda"
+     *                          }
+     *                      }
+     *                  },
+     *                  "gender": "female",
+     *                  "birthDate": "2017-03-10",
+     *                  "communication": {
+     *                      {
+     *                          "language": {
+     *                              "coding": {
+     *                                  {
+     *                                      "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+     *                                      "code": "unknown",
+     *                                      "display": "Unknown"
+     *                                  }
+     *                              }
+     *                          }
+     *                      }
+     *                  }
+     *              }
      *          )
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "95f22ff4-dd25-4290-8b52-1dd2fedf8e54",
+     *                      "meta": {
+     *                          "versionId": "1",
+     *                          "lastUpdated": "2022-03-31T02:48:28+00:00"
+     *                      },
+     *                      "resourceType": "Patient",
+     *                      "text": {
+     *                          "status": "generated",
+     *                          "div": "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Brenda Smith</p></div>"
+     *                      },
+     *                      "extension": {
+     *                          {
+     *                              "valueCode": "F",
+     *                              "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex"
+     *                          },
+     *                          {
+     *                              "extension": {
+     *                                  {
+     *                                      "valueCoding": {
+     *                                          "system": "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
+     *                                          "code": "UNK",
+     *                                          "display": "Unknown"
+     *                                      },
+     *                                      "url": "ombCategory"
+     *                                  },
+     *                                  {
+     *                                      "valueString": "Unknown",
+     *                                      "url": "text"
+     *                                  }
+     *                              },
+     *                              "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
+     *                          }
+     *                      },
+     *                      "identifier": {
+     *                          {
+     *                              "use": "official",
+     *                              "type": {
+     *                                  "coding": {
+     *                                      {
+     *                                          "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+     *                                          "code": "PT"
+     *                                      }
+     *                                  }
+     *                              },
+     *                             "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+     *                             "value": "1"
+     *                          }
+     *                      },
+     *                      "active": true,
+     *                      "name": {
+     *                          {
+     *                              "use": "official",
+     *                              "family": "Smith",
+     *                              "given": {
+     *                                  "Brenda"
+     *                              }
+     *                          }
+     *                      },
+     *                      "gender": "female",
+     *                      "birthDate": "2017-03-10",
+     *                      "communication": {
+     *                          {
+     *                              "language": {
+     *                                  "coding": {
+     *                                      {
+     *                                          "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+     *                                          "code": "unknown",
+     *                                          "display": "Unknown"
+     *                                      }
+     *                                  }
+     *                              }
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -9991,9 +10820,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
      */
     "POST /fhir/Patient" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("patients", "demo");
@@ -10024,12 +10850,96 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *              @OA\Schema(
      *                  description="The json object for the Patient resource.",
      *                  type="object"
-     *              )
+     *              ),
+     *              example={
+     *                  "id": "95f22ff4-dd25-4290-8b52-1dd2fedf8e54",
+     *                  "meta": {
+     *                      "versionId": "1",
+     *                      "lastUpdated": "2022-03-31T02:48:28+00:00"
+     *                  },
+     *                  "resourceType": "Patient",
+     *                  "text": {
+     *                      "status": "generated",
+     *                      "div": "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Brenda Smith</p></div>"
+     *                  },
+     *                  "extension": {
+     *                      {
+     *                          "valueCode": "F",
+     *                          "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex"
+     *                      },
+     *                      {
+     *                          "extension": {
+     *                              {
+     *                                  "valueCoding": {
+     *                                      "system": "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
+     *                                      "code": "UNK",
+     *                                      "display": "Unknown"
+     *                                  },
+     *                                  "url": "ombCategory"
+     *                              },
+     *                              {
+     *                                  "valueString": "Unknown",
+     *                                  "url": "text"
+     *                              }
+     *                          },
+     *                          "url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race"
+     *                      }
+     *                  },
+     *                  "identifier": {
+     *                      {
+     *                          "use": "official",
+     *                          "type": {
+     *                              "coding": {
+     *                                  {
+     *                                      "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+     *                                      "code": "PT"
+     *                                  }
+     *                              }
+     *                          },
+     *                         "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+     *                         "value": "1"
+     *                      }
+     *                  },
+     *                  "active": true,
+     *                  "name": {
+     *                      {
+     *                          "use": "official",
+     *                          "family": "Smith",
+     *                          "given": {
+     *                              "Brenda"
+     *                          }
+     *                      }
+     *                  },
+     *                  "gender": "female",
+     *                  "birthDate": "2017-03-10",
+     *                  "communication": {
+     *                      {
+     *                          "language": {
+     *                              "coding": {
+     *                                  {
+     *                                      "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+     *                                      "code": "unknown",
+     *                                      "display": "Unknown"
+     *                                  }
+     *                              }
+     *                          }
+     *                      }
+     *                  }
+     *              }
      *          )
      *      ),
      *      @OA\Response(
-     *          response="200",
-     *          ref="#/components/responses/standard"
+     *          response="201",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  example={
+     *                      "id": 2,
+     *                      "uuid": "95f2ad04-5834-4243-8838-e396a7faadbf"
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -10041,9 +10951,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
      */
     "PUT /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("patients", "demo");
@@ -10242,11 +11149,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      *  @OA\Get(
      *      path="/fhir/Patient/$export",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.",
+     *      description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
      *      tags={"fhir"},
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -10259,18 +11166,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     */
     // we have to have the bulk fhir export operation here otherwise it will match $export to the patient $id
     'GET /fhir/Patient/$export' => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
-        $fhirExportService = new FhirExportRestController($request);
+        $fhirExportService = new FhirOperationExportRestController($request);
         $return = $fhirExportService->processExport(
             $request->getQueryParams(),
             'Patient',
-            $request->getHeader('Accept'),
-            $request->getHeader('Prefer')
+            $request->getHeader('Accept')[0] ?? '',
+            $request->getHeader('Prefer')[0] ?? ''
         );
         RestConfig::apiLog($return);
         return $return;
@@ -10419,10 +11323,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     "GET /fhir/Patient/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            if (empty($id) || ($id != $request->getPatientUUIDString())) {
+            if (empty($uuid) || ($uuid != $request->getPatientUUIDString())) {
                 throw new AccessDeniedException("patients", "demo", "patient id invalid");
             }
-            $id = $request->getPatientUUIDString();
+            $uuid = $request->getPatientUUIDString();
         } else {
             RestConfig::authorization_check("patients", "demo");
         }
@@ -10574,10 +11478,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     * 1. Broken sql query.
-     */
     "GET /fhir/Person" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $return = (new FhirPersonRestController())->getAll($request->getQueryParams());
@@ -10601,7 +11501,74 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "960c7cd6-187a-4119-8cd4-85389d80efb9",
+     *                      "meta": {
+     *                          "versionId": "1",
+     *                          "lastUpdated": "2022-04-13T08:57:32+00:00"
+     *                      },
+     *                      "resourceType": "Person",
+     *                      "text": {
+     *                          "status": "generated",
+     *                          "div": "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Administrator Administrator</p></div>"
+     *                      },
+     *                      "name": {
+     *                          {
+     *                              "use": "official",
+     *                              "family": "Administrator",
+     *                              "given": {
+     *                                  "Administrator",
+     *                                  "Larry"
+     *                              }
+     *                          }
+     *                      },
+     *                      "telecom": {
+     *                          {
+     *                              "system": "phone",
+     *                              "value": "1234567890",
+     *                              "use": "home"
+     *                          },
+     *                          {
+     *                              "system": "phone",
+     *                              "value": "1234567890",
+     *                              "use": "work"
+     *                          },
+     *                          {
+     *                              "system": "phone",
+     *                              "value": "1234567890",
+     *                              "use": "mobile"
+     *                          },
+     *                          {
+     *                              "system": "email",
+     *                              "value": "hey@hey.com",
+     *                              "use": "home"
+     *                          }
+     *                      },
+     *                      "address": {
+     *                          {
+     *                              "line": {
+     *                                  "123 Lane Street"
+     *                              },
+     *                              "city": "Bellevue",
+     *                              "state": "WA",
+     *                              "period": {
+     *                                  "start": "2021-04-13T08:57:32.146+00:00"
+     *                              }
+     *                          }
+     *                      },
+     *                      "active": true
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -10618,13 +11585,21 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     * 1. Broken sql query.
-     */
     "GET /fhir/Person/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
-        $return = (new FhirPersonRestController())->getOne($uuid);
+        // if the api user is requesting their own user we need to let it through
+        // this is because the /Person endpoint needs to be responsive to the fhirUser return value
+        // for the currently logged in user
+        if ($request->getRequestUserUUIDString() == $uuid) {
+            $return = (new FhirPersonRestController())->getOne($uuid);
+        } else if (!$request->isPatientRequest()) {
+            // not a patient ,make sure we have access to the users ACL
+            RestConfig::authorization_check("admin", "users");
+            $return = (new FhirPersonRestController())->getOne($uuid);
+        } else {
+            // if we are a patient bound request we need to make sure we are only bound to the patient
+            $return = (new FhirPersonRestController())->getOne($uuid, $request->getPatientUUIDString());
+        }
+
         RestConfig::apiLog($return);
         return $return;
     },
@@ -10893,12 +11868,78 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *              @OA\Schema(
      *                  description="The json object for the Practitioner resource.",
      *                  type="object"
-     *              )
+     *              ),
+     *              example={
+     *                  "id": "9473b0cf-e969-4eaa-8044-51037767fa4f",
+     *                  "meta": {
+     *                      "versionId": "1",
+     *                      "lastUpdated": "2021-09-21T17:41:57+00:00"
+     *                  },
+     *                  "resourceType": "Practitioner",
+     *                  "text": {
+     *                      "status": "generated",
+     *                      "div": "<div xmlns=""http://www.w3.org/1999/xhtml""> <p>Billy Smith</p></div>"
+     *                  },
+     *                  "identifier": {
+     *                      {
+     *                          "system": "http://hl7.org/fhir/sid/us-npi",
+     *                          "value": "11223344554543"
+     *                      }
+     *                  },
+     *                  "active": true,
+     *                  "name": {
+     *                      {
+     *                          "use": "official",
+     *                          "family": "Smith",
+     *                          "given": {
+     *                              "Danny"
+     *                          }
+     *                      }
+     *                  }
+     *              }
      *          )
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "9473b0cf-e969-4eaa-8044-51037767fa4f",
+     *                      "meta": {
+     *                          "versionId": "1",
+     *                          "lastUpdated": "2021-09-21T17:41:57+00:00"
+     *                      },
+     *                      "resourceType": "Practitioner",
+     *                      "text": {
+     *                          "status": "generated",
+     *                          "div": "<div xmlns=""http://www.w3.org/1999/xhtml""> <p>Billy Smith</p></div>"
+     *                      },
+     *                      "identifier": {
+     *                          {
+     *                              "system": "http://hl7.org/fhir/sid/us-npi",
+     *                              "value": "11223344554543"
+     *                          }
+     *                      },
+     *                      "active": true,
+     *                      "name": {
+     *                          {
+     *                              "use": "official",
+     *                              "family": "Smith",
+     *                              "given": {
+     *                                  "Danny"
+     *                              }
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -10910,10 +11951,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
-     * 1. Broken sql query.
      */
     "POST /fhir/Practitioner" => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
@@ -10944,12 +11981,49 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *              @OA\Schema(
      *                  description="The json object for the Practitioner resource.",
      *                  type="object"
-     *              )
+     *              ),
+     *              example={
+     *                  "id": "9473b0cf-e969-4eaa-8044-51037767fa4f",
+     *                  "meta": {
+     *                      "versionId": "1",
+     *                      "lastUpdated": "2021-09-21T17:41:57+00:00"
+     *                  },
+     *                  "resourceType": "Practitioner",
+     *                  "text": {
+     *                      "status": "generated",
+     *                      "div": "<div xmlns=""http://www.w3.org/1999/xhtml""> <p>Billy Smith</p></div>"
+     *                  },
+     *                  "identifier": {
+     *                      {
+     *                          "system": "http://hl7.org/fhir/sid/us-npi",
+     *                          "value": "11223344554543"
+     *                      }
+     *                  },
+     *                  "active": true,
+     *                  "name": {
+     *                      {
+     *                          "use": "official",
+     *                          "family": "Smith",
+     *                          "given": {
+     *                              "Billy"
+     *                          }
+     *                      }
+     *                  }
+     *              }
      *          )
      *      ),
      *      @OA\Response(
-     *          response="200",
-     *          ref="#/components/responses/standard"
+     *          response="201",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  example={
+     *                      "id": 5,
+     *                      "uuid": "95f294d7-e14c-441d-81a6-309fe369ee21"
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -10961,10 +12035,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
-     * 1. Broken sql query.
      */
     "PUT /fhir/Practitioner/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
@@ -11059,7 +12129,47 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "960c806f-9463-482e-b228-67b5be1fed55",
+     *                      "meta": {
+     *                          "versionId": "1",
+     *                          "lastUpdated": "2022-04-13T06:18:17+00:00"
+     *                      },
+     *                      "resourceType": "PractitionerRole",
+     *                      "practitioner": {
+     *                          "reference": "Practitioner/960c7cd6-187a-4119-8cd4-85389d80efb9",
+     *                          "display": "Administrator Administrator"
+     *                      },
+     *                      "organization": {
+     *                          "reference": "Organization/960c7cc6-b4ae-49bc-877b-1a2913271c43",
+     *                          "display": "Your Clinic Name Here"
+     *                      },
+     *                      "code": {
+     *                          {
+     *                              "coding": {
+     *                                  "102L00000X"
+     *                              },
+     *                              "text": "Psychoanalyst"
+     *                          },
+     *                          {
+     *                              "coding": {
+     *                                  "101Y00000X"
+     *                              },
+     *                              "text": "Counselor"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -11075,10 +12185,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
-     * 1. Broken _id validation.
      */
     "GET /fhir/PractitionerRole/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
@@ -11158,10 +12264,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     * 1. Broken sql query.
-     */
     "GET /fhir/Procedure" => function (HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
@@ -11190,7 +12292,30 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "95e9d3fb-fe7b-448a-aa60-d40b11b486a5",
+     *                      "meta": {
+     *                          "versionId": "1",
+     *                          "lastUpdated": "2022-03-26T17:20:14+00:00"
+     *                      },
+     *                      "resourceType": "Procedure",
+     *                      "status": "in-progress",
+     *                      "subject": {
+     *                          "reference": "Patient/95e8d830-3068-48cf-930a-2fefb18c2bcf",
+     *                          "type": "Patient"
+     *                      }
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -11206,10 +12331,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
-     * 1. Broken sql query.
      */
     "GET /fhir/Procedure/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
@@ -11231,7 +12352,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      @OA\Parameter(
      *          name="uuid",
      *          in="path",
-     *          description="The uuid for the Provenance resource.",
+     *          description="The id for the Provenance resource. Format is \<resource name\>:\<uuid\> (Example: AllergyIntolerance:95ea43f3-1066-4bc7-b224-6c23b985f145).",
      *          required=true,
      *          @OA\Schema(
      *              type="string"
@@ -11239,7 +12360,68 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "id": "AllergyIntolerance:95ea43f3-1066-4bc7-b224-6c23b985f145",
+     *                      "resourceType": "Provenance",
+     *                      "target": {
+     *                          {
+     *                              "reference": "AllergyIntolerance/95ea43f3-1066-4bc7-b224-6c23b985f145",
+     *                              "type": "AllergyIntolerance"
+     *                          }
+     *                      },
+     *                      "recorded": "2022-03-26T22:43:30+00:00",
+     *                      "agent": {
+     *                          {
+     *                              "type": {
+     *                                  "coding": {
+     *                                      {
+     *                                          "system": "http://terminology.hl7.org/CodeSystem/provenance-participant-type",
+     *                                          "code": "author",
+     *                                          "display": "Author"
+     *                                      }
+     *                                  }
+     *                              },
+     *                              "who": {
+     *                                  "reference": "Organization/95e8d810-7e55-44aa-bb48-fecd5b0d88c7",
+     *                                  "type": "Organization"
+     *                              },
+     *                              "onBehalfOf": {
+     *                                  "reference": "Organization/95e8d810-7e55-44aa-bb48-fecd5b0d88c7",
+     *                                  "type": "Organization"
+     *                              }
+     *                          },
+     *                          {
+     *                              "type": {
+     *                                  "coding": {
+     *                                      {
+     *                                          "system": "http://hl7.org/fhir/us/core/CodeSystem/us-core-provenance-participant-type",
+     *                                          "code": "transmitter",
+     *                                          "display": "Transmitter"
+     *                                      }
+     *                                  }
+     *                              }
+     *                          },
+     *                          "who": {
+     *                              "reference": "Organization/95e8d810-7e55-44aa-bb48-fecd5b0d88c7",
+     *                              "type": "Organization"
+     *                          },
+     *                          "onBehalfOf": {
+     *                              "reference": "Organization/95e8d810-7e55-44aa-bb48-fecd5b0d88c7",
+     *                              "type": "Organization"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -11255,9 +12437,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
      */
     "GET /fhir/Provenance/:uuid" => function ($uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
@@ -11279,7 +12458,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      @OA\Parameter(
      *          name="_id",
      *          in="query",
-     *          description="The uuid for the Provenance resource.",
+     *          description="The id for the Provenance resource. Format is \<resource name\>:\<uuid\> (Example: AllergyIntolerance:95ea43f3-1066-4bc7-b224-6c23b985f145).",
      *          required=false,
      *          @OA\Schema(
      *              type="string"
@@ -11323,9 +12502,6 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      ),
      *      security={{"openemr_auth":{}}}
      *  )
-     */
-    /**
-     * TODO
      */
     // NOTE: this GET request only supports requests with an _id parameter.  FHIR inferno test tool requires the 'search'
     // property to support which is why this endpoint exists.
@@ -11379,16 +12555,97 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
 
+    /**
+     *  @OA\Get(
+     *      path="/fhir/OperationDefinition",
+     *      description="Returns a list of the OperationDefinition resources that are specific to this OpenEMR installation",
+     *      tags={"fhir"},
+     *      @OA\Response(
+     *          response="200",
+     *          description="Return list of OperationDefinition resources"
+     *      )
+     *  )
+     */
+    "GET /fhir/OperationDefinition" => function (HttpRestRequest $request) {
+        // for now we will just hard code the custom resources
+        $operationDefinitionController = new FhirOperationDefinitionRestController();
+        $return = $operationDefinitionController->getAll($request->getQueryParams());
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/OperationDefinition/{operation}",
+     *      description="Returns a single OperationDefinition resource that is specific to this OpenEMR installation",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="operation",
+     *          in="path",
+     *          description="The name of the operation to query. For example $bulkdata-status",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "resourceType": "OperationDefinition",
+     *                      "name": "$bulkdata-status",
+     *                      "status": "active",
+     *                      "kind": "operation",
+     *                      "parameter": {
+     *                      {
+     *                          "name": "job",
+     *                          "use": "in",
+     *                          "min": 1,
+     *                          "max": 1,
+     *                          "type": {
+     *                              "system": "http://hl7.org/fhir/data-types",
+     *                              "code": "string",
+     *                              "display": "string"
+     *                          },
+     *                          "searchType": {
+     *                              "system": "http://hl7.org/fhir/ValueSet/search-param-type",
+     *                              "code": "string",
+     *                              "display": "string"
+     *                          }
+     *                      }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *  )
+     */
+    "GET /fhir/OperationDefinition/:operation" => function ($operation, HttpRestRequest $request) {
+        // for now we will just hard code the custom resources
+        $operationDefinitionController = new FhirOperationDefinitionRestController();
+        $return = $operationDefinitionController->getOne($operation);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
     // FHIR root level operations
 
     /**
      *  @OA\Get(
      *      path="/fhir/$export",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.",
+     *      description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
      *      tags={"fhir"},
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -11401,17 +12658,14 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     */
     'GET /fhir/$export' => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
-        $fhirExportService = new FhirExportRestController($request);
+        $fhirExportService = new FhirOperationExportRestController($request);
         $return = $fhirExportService->processExport(
             $request->getQueryParams(),
             'System',
-            $request->getHeader('Accept'),
-            $request->getHeader('Prefer')
+            $request->getHeader('Accept')[0] ?? '',
+            $request->getHeader('Prefer')[0] ?? ''
         );
         RestConfig::apiLog($return);
         return $return;
@@ -11424,11 +12678,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      *  @OA\Get(
      *      path="/fhir/$bulkdata-status",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.",
+     *      description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
      *      tags={"fhir"},
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -11441,15 +12695,12 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     */
     'GET /fhir/$bulkdata-status' => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $jobUuidString = $request->getQueryParam('job');
         // if we were truly async we would return 202 here to say we are in progress with a JSON response
         // since OpenEMR data is so small we just return the JSON from the database
-        $fhirExportService = new FhirExportRestController($request);
+        $fhirExportService = new FhirOperationExportRestController($request);
         $return = $fhirExportService->processExportStatusRequestForJob($jobUuidString);
         RestConfig::apiLog($return);
         return $return;
@@ -11458,11 +12709,11 @@ RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      *  @OA\Delete(
      *      path="/fhir/$bulkdata-status",
-     *      description="THIS ENDPOINT DOCUMENTATION IS UNDER CONSTRUCTION.",
+     *      description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
      *      tags={"fhir"},
      *      @OA\Response(
      *          response="200",
-     *          ref="#/components/responses/standard"
+     *          description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
      *      ),
      *      @OA\Response(
      *          response="400",
@@ -11475,17 +12726,14 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    /**
-     * TODO
-     */
     'DELETE /fhir/$bulkdata-status' => function (HttpRestRequest $request) {
         RestConfig::authorization_check("admin", "users");
         $job = $request->getQueryParam('job');
-        $fhirExportService = new FhirExportRestController($request);
+        $fhirExportService = new FhirOperationExportRestController($request);
         $return = $fhirExportService->processDeleteExportForJob($job);
         RestConfig::apiLog($return);
         return $return;
-    }
+    },
 );
 
 // Note that the portal (api) route is only for patient role
@@ -11574,6 +12822,68 @@ RestConfig::$PORTAL_ROUTE_MAP = array(
      */
     "GET /portal/patient/encounter/:euuid" => function ($euuid, HttpRestRequest $request) {
         $return = (new EncounterRestController())->getOne($request->getPatientUUIDString(), $euuid);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+     /**
+      *  @OA\Get(
+      *      path="/portal/patient/appointment",
+      *      description="Retrieves all appointments for a patient",
+      *      tags={"standard-patient"},
+      *      @OA\Response(
+      *          response="200",
+      *          ref="#/components/responses/standard"
+      *      ),
+      *      @OA\Response(
+      *          response="400",
+      *          ref="#/components/responses/badrequest"
+      *      ),
+      *      @OA\Response(
+      *          response="401",
+      *          ref="#/components/responses/unauthorized"
+      *      ),
+      *      security={{"openemr_auth":{}}}
+      *  )
+      */
+    "GET /portal/patient/appointment" => function (HttpRestRequest $request) {
+        $return = (new AppointmentRestController())->getAllForPatientByUuid($request->getPatientUUIDString());
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+
+     /**
+      *  @OA\Get(
+      *      path="/portal/patient/appointment/{auuid}",
+      *      description="Returns a selected appointment by its uuid.",
+      *      tags={"standard-patient"},
+      *      @OA\Parameter(
+      *          name="auuid",
+      *          in="path",
+      *          description="The uuid for the appointment.",
+      *          required=true,
+      *          @OA\Schema(
+      *          type="string"
+      *          )
+      *      ),
+      *      @OA\Response(
+      *          response="200",
+      *          ref="#/components/responses/standard"
+      *      ),
+      *      @OA\Response(
+      *          response="400",
+      *          ref="#/components/responses/badrequest"
+      *      ),
+      *      @OA\Response(
+      *          response="401",
+      *          ref="#/components/responses/unauthorized"
+      *      ),
+      *      security={{"openemr_auth":{}}}
+      *  )
+      */
+    "GET /portal/patient/appointment/:auuid" => function ($auuid, HttpRestRequest $request) {
+        $return = (new AppointmentRestController())->getOneForPatient($auuid, $request->getPatientUUIDString());
         RestConfig::apiLog($return);
         return $return;
     }

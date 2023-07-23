@@ -38,7 +38,20 @@ class InstModule implements InputFilterAwareInterface
     public $date;
     public $sqlRun;
     public $type;
+    public $fld_type;
+    public $obj_name;
+    public $menu_name;
+    public $id;
+    public $name;
+    public $group_id;
+    public $user;
+    public $cnt;
+    public $mod_directory;
+    public $enabled_hooks;
+    public $attached_to;
+    public $sql_action;
     public $sql_version;
+    public $acl_action;
     public $acl_version;
     public function exchangeArray($data)
     {

@@ -1,0 +1,59 @@
+<component>
+  <section>
+    <!-- 
+      *****************************************************************
+      Measure Section
+      *****************************************************************
+    -->
+    <!-- This is the templateId for Measure Section -->
+    <templateId root="2.16.840.1.113883.10.20.24.2.2"/>
+    <!-- This is the templateId for Measure Section QDM -->
+    <templateId root="2.16.840.1.113883.10.20.24.2.3"/>
+    <!-- This is the LOINC code for "Measure document". This stays the same for all measure section required by QRDA standard -->
+    <code code="55186-1" codeSystem="2.16.840.1.113883.6.1"/>
+    <title>Measure Section</title>
+    <text>
+      <table border="1" width="100%">
+        <thead>
+          <tr>
+            <th>eMeasure Title</th>
+            <th>Version specific identifier</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#measures}}
+          <tr>
+            <td>{{description}}</td>
+            <td>{{hqmf_id}}</td>
+            <td/>
+          </tr>
+          {{/measures}}
+        </tbody>
+      </table>
+    </text>
+    <!-- 1..* Organizers, each containing a reference to an eMeasure -->
+    {{#measures}}
+    <entry>
+      <organizer classCode="CLUSTER" moodCode="EVN">
+        <!-- This is the templateId for Measure Reference -->
+        <templateId root="2.16.840.1.113883.10.20.24.3.98"/>
+        <!-- This is the templateId for eMeasure Reference QDM -->
+        <templateId root="2.16.840.1.113883.10.20.24.3.97"/>
+        <id extension="{{random_id}}" root="1.3.6.1.4.1.115"/>
+        <statusCode code="completed"/>
+        <!-- Containing isBranch external references -->
+        <reference typeCode="REFR">
+          <externalDocument classCode="DOC" moodCode="EVN">
+            <!-- SHALL: This is the version specific identifier for eMeasure: QualityMeasureDocument/id it is a GUID-->
+            <id extension="{{hqmf_id}}" root="2.16.840.1.113883.4.738"/>
+            <!-- SHOULD This is the title of the eMeasure -->
+            <text>{{description}}</text>
+            <!-- SHOULD: setId is the eMeasure version neutral id  -->
+            <setId root="{{hqmf_set_id}}"/>
+          </externalDocument>
+        </reference>
+      </organizer>
+    </entry>
+    {{/measures}}
+  </section>
+</component>

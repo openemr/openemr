@@ -3,6 +3,7 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRImmunization\FHIRImmunizationPerformer;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
@@ -77,7 +78,7 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(gmdate('c'));
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $immunizationResource->setMeta($meta);
 
         $id = new FHIRId();
@@ -92,11 +93,34 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         } else {
             $status->setValue("not-done");
 
+            // TODO: @adunsulag we need to update these codes here as we need to map better from NIP002
+            // to these status codes here: https://terminology.hl7.org/3.1.0/CodeSystem-v3-ActReason.html
+            //
+            if (!empty($dataRecord['refusal_reason_cdc_nip_code'])) {
+                $code = "PATOBJ";
+                $display = "patient objection";
+
+                // we are leaving these here just to document these values as PATOBJ corresponds to both patient or
+                // guardian objection.  Other doesn't have a correspondance, and patient decision is already handled.
+                switch ($dataRecord['refusal_reason_cdc_nip_code']) {
+                    case '00': // Parental exemption
+                        break;
+                    case '01': // Religious exemption
+                        $code = "RELIG";
+                        $display =  "religious objection";
+                        break;
+                    case '02': // other
+                        break;
+                    case '03': // patient decision
+                    default:
+                        break;
+                }
+            }
             $statusReason = new FHIRCodeableConcept();
             $statusReasonCoding = new FHIRCoding();
             $statusReasonCoding->setSystem(FhirCodeSystemConstants::IMMUNIZATION_OBJECTION_REASON);
-            $statusReasonCoding->setCode("PATOBJ");
-            $statusReasonCoding->setDisplay("patient objection");
+            $statusReasonCoding->setCode($code);
+            $statusReasonCoding->setDisplay($display);
             $statusReason->addCoding($statusReasonCoding);
             $immunizationResource->setStatusReason($statusReason);
         }
@@ -165,7 +189,9 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
         }
 
         if (!empty($dataRecord['provider_uuid']) && !empty($dataRecord['provider_npi'])) {
-            $immunizationResource->addPerformer(UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']));
+            $performer = new FHIRImmunizationPerformer();
+            $performer->setActor(UtilsService::createRelativeReference("Practitioner", $dataRecord['provider_uuid']));
+            $immunizationResource->addPerformer($performer);
         }
 
         // education is failing ONC validation, since we don't need it for ONC we are going to leave it off for now.
@@ -201,11 +227,12 @@ class FhirImmunizationService extends FhirServiceBase implements IResourceUSCIGP
             throw new \BadMethodCallException("Data record should be correct instance class");
         }
         $fhirProvenanceService = new FhirProvenanceService();
-        $performer = null;
+        $author = null;
         if (!empty($dataRecord->getPerformer())) {
             $performer = current($dataRecord->getPerformer());
+            $author = $performer->getActor();
         }
-        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $performer);
+        $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $author);
         if ($encode) {
             return json_encode($fhirProvenance);
         } else {

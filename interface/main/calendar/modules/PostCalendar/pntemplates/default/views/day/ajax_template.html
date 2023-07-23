@@ -358,19 +358,13 @@ if (count($facilities) > 1) {
 [-php-]
 if($_SESSION['pc_facility'] == 0){
 [-/php-]
-<div id="facilityColor" class="table-responsive">
- <table>
+<ul class="list-group list-group-flush" id="facilityColor">
 [-php-]
 foreach ($facilities as $f){
-  echo "   <tr>\n";
-  echo "   <td>\n";
-  echo "   <div class='view1 font-weight-bold text-ovr-dark p-1 rounded' style='background-color:".$f['color'].";'>" . text($f['name'])."</div>";
-  echo "   </td>\n";
-  echo "   </tr>\n";
+    echo "<li class='list-group-item' style='border-left: 35px solid ".$f['color'].";'>" . text($f['name'])."</li>";
 }
 [-/php-]
- </table>
-</div>
+</ul>
 [-php-]
 }
 [-/php-]
@@ -497,8 +491,8 @@ foreach ($providers as $provider) {
                 }
 
                 // create a numeric start and end for comparison
-                $starth = substr($e1['startTime'], 0, 2);
-                $startm = substr($e1['startTime'], 3, 2);
+                $starth = (int) substr($e1['startTime'], 0, 2);
+                $startm = (int) substr($e1['startTime'], 3, 2);
                 $e1Start = ($starth * 60) + $startm;
                 $e1End = $e1Start + $e1['duration']/60;
 
@@ -570,8 +564,8 @@ foreach ($providers as $provider) {
             }
 
             // figure the start time and minutes (from midnight)
-            $starth = substr($event['startTime'], 0, 2);
-            $startm = substr($event['startTime'], 3, 2);
+            $starth = (int) substr($event['startTime'], 0, 2);
+            $startm = (int) substr($event['startTime'], 3, 2);
             $eStartMin = $starth * 60 + $startm;
             $dispstarth = ($starth > 12) ? ($starth - $timeformat) : $starth; // used to display the hour
 
@@ -686,9 +680,9 @@ foreach ($providers as $provider) {
             if($eventtype['pc_cattype']==1)
             $pccattype = 'true';
             $patientid = $event['pid'];
-            $commapos = strpos($event['patient_name'], ",");
-            $lname = substr($event['patient_name'], 0, $commapos);
-	        $fname = substr($event['patient_name'], $commapos + 2);
+            $commapos = strpos(($event['patient_name'] ?? ''), ",");
+            $lname = substr(($event['patient_name'] ?? ''), 0, $commapos);
+            $fname = substr(($event['patient_name'] ?? ''), $commapos + 2);
             $patient_dob = oeFormatShortDate($event['patient_dob']);
             $patient_age = $event['patient_age'];
             $catid = $event['catid'];
@@ -749,7 +743,7 @@ foreach ($providers as $provider) {
                 $content .= '&nbsp;' . text($event['apptstatus']);
                 if ($patientid) {
                     $link_title = $fname . " " . $lname . " \n";
-                    $link_title .= xl('Age') . ": " . $patient_age . "\n" . xl('DOB') . ": " . $patient_dob . $comment . "\n";
+                    $link_title .= xl('Age') . ": " . $patient_age . "\n" . xl('DOB') . ": " . $patient_dob . " $comment" . "\n";
                     $link_title .= "(" . xl('Click to view') . ")";
                     $content .= "<a class='link_title' data-pid='". attr($patientid) . "' href='javascript:goPid(" . attr_js($patientid) . ")' title='" . attr($link_title) . "'>";
                     $content .= "<i class='fas fa-user text-success' onmouseover=\"javascript:ShowImage(" . attr_js($GLOBALS['webroot']."/controller.php?document&retrieve&patient_id=".attr($patientid)."&document_id=-1&as_file=false&original_file=true&disable_exit=false&show_original=true&context=patient_picture") . ");\" onmouseout=\"javascript:HideImage();\" title='" . attr($link_title) . "'></i>";

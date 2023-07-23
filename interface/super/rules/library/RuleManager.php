@@ -39,27 +39,27 @@ class RuleManager
       WHERE id = ?";
 
     const SQL_RULE_FILTER =
-    "SELECT PASSWORD(CONCAT( id, include_flag, required_flag, method, method_detail, value )) AS guid, rule_filter.*
+    "SELECT SHA1(CONCAT( id, include_flag, required_flag, method, method_detail, value )) AS guid, rule_filter.*
        FROM rule_filter WHERE id = ?";
 
     const SQL_RULE_TARGET =
-    "SELECT PASSWORD(CONCAT( id, group_id, include_flag, required_flag, method, value, rule_target.interval )) AS guid, rule_target.*
+    "SELECT SHA1(CONCAT( id, group_id, include_flag, required_flag, method, value, rule_target.interval )) AS guid, rule_target.*
        FROM rule_target WHERE id = ?";
 
     const SQL_RULE_FILTER_BY_GUID =
     "SELECT * FROM rule_filter
-     WHERE PASSWORD(CONCAT( id, include_flag, required_flag, method, method_detail, value )) = ?";
+     WHERE SHA1(CONCAT( id, include_flag, required_flag, method, method_detail, value )) = ?";
 
     const SQL_RULE_TARGET_BY_GUID =
     "SELECT * FROM rule_target
-     WHERE PASSWORD(CONCAT( id, group_id, include_flag, required_flag, method, value, rule_target.interval )) = ?";
+     WHERE SHA1(CONCAT( id, group_id, include_flag, required_flag, method, value, rule_target.interval )) = ?";
 
      const SQL_RULE_TARGET_BY_ID_GROUP_ID =
-    "SELECT PASSWORD(CONCAT( id, group_id, include_flag, required_flag, method, value, rule_target.interval )) AS guid, rule_target.*
+    "SELECT SHA1(CONCAT( id, group_id, include_flag, required_flag, method, value, rule_target.interval )) AS guid, rule_target.*
      FROM rule_target WHERE id = ? AND group_id = ?";
 
     const SQL_RULE_ACTIONS =
-    "SELECT PASSWORD( CONCAT(id, category, item, group_id) ) AS guid, rule_action.* FROM rule_action
+    "SELECT SHA1( CONCAT(id, category, item, group_id) ) AS guid, rule_action.* FROM rule_action
      WHERE id = ?";
 
     const SQL_RULE_ACTION_BY_GUID =
@@ -68,7 +68,7 @@ class RuleManager
             rule_action_item.reminder_message,
             rule_action_item.custom_flag
        FROM rule_action JOIN rule_action_item ON (rule_action_item.category = rule_action.category AND rule_action_item.item = rule_action.item )
-     WHERE PASSWORD( CONCAT(rule_action.id, rule_action.category, rule_action.item, rule_action.group_id ) ) = ?";
+     WHERE SHA1( CONCAT(rule_action.id, rule_action.category, rule_action.item, rule_action.group_id ) ) = ?";
 
     const SQL_UPDATE_FLAGS =
     "UPDATE clinical_rules
@@ -77,15 +77,17 @@ class RuleManager
             cqm_flag = ?,
             amc_flag = ?,
             patient_reminder_flag = ?,
-			developer = ?, 
-			funding_source = ?, 
+			developer = ?,
+			funding_source = ?,
 			release_version = ?,
-                        web_reference = ?
+            web_reference = ?,
+            bibliographic_citation = ?,
+            linked_referential_cds = ?
       WHERE id = ? AND pid = 0";
 
     const SQL_UPDATE_TITLE =
     "UPDATE list_options
-        SET title = ?       
+        SET title = ?
       WHERE list_id = 'clinical_rules' AND option_id = ?";
 
     const SQL_REMOVE_INTERVALS =
@@ -99,7 +101,7 @@ class RuleManager
 
     const SQL_UPDATE_FILTER =
     "UPDATE rule_filter SET include_flag = ?, required_flag = ?, method = ?, method_detail = ?, value = ?
-      WHERE PASSWORD(CONCAT( id, include_flag, required_flag, method, method_detail, value )) = ?";
+      WHERE SHA1(CONCAT( id, include_flag, required_flag, method, method_detail, value )) = ?";
 
     const SQL_INSERT_FILTER =
     "INSERT INTO rule_filter (id, include_flag, required_flag, method, method_detail, value )
@@ -107,7 +109,7 @@ class RuleManager
 
     const SQL_UPDATE_TARGET =
     "UPDATE rule_target SET include_flag = ?, required_flag = ?, method = ?, value = ?
-       WHERE PASSWORD(CONCAT( id, group_id, include_flag, required_flag, method, value, rule_target.interval )) = ?";
+       WHERE SHA1(CONCAT( id, group_id, include_flag, required_flag, method, value, rule_target.interval )) = ?";
 
     const SQL_INSERT_TARGET =
     "INSERT INTO rule_target ( id, include_flag, required_flag, method, value, group_id )
@@ -145,10 +147,12 @@ class RuleManager
 
         $rule = new Rule($id, $ruleResult['title']);
 
+        $rule->setBibliographicCitation($ruleResult['bibliographic_citation']);
         $rule->setDeveloper($ruleResult['developer']);
         $rule->setFunding($ruleResult['funding_source']);
         $rule->setRelease($ruleResult['release_version']);
         $rule->setWeb_ref($ruleResult['web_reference']);
+        $rule->setLinkedReferentialCds($ruleResult['linked_referential_cds']);
 
         $this->fillRuleTypes($rule, $ruleResult);
         $this->fillRuleReminderIntervals($rule);
@@ -386,13 +390,13 @@ class RuleManager
     {
         $criterion = array();
         for ($iter = 0; $row = sqlFetchArray($stmt); $iter++) {
-            $guid = $row['guid'];
+            $guid = $row['guid'] ?? null;
             $method = $row['method'];
-            $methodDetail = $row['method_detail'];
+            $methodDetail = $row['method_detail'] ?? null;
             $value = $row['value'];
             $inclusion = $row['include_flag'] == 1;
             $optional = $row['required_flag'] == 1;
-            $groupId =  $row['group_id'];
+            $groupId =  $row['group_id'] ?? null;
 
 
             $criteria = $factory->build(
@@ -477,20 +481,20 @@ class RuleManager
 
     function deleteRuleAction($rule, $guid)
     {
-        sqlStatement("DELETE FROM rule_action WHERE PASSWORD( CONCAT(id, category, item, group_id) ) = ?", [$guid]);
+        sqlStatement("DELETE FROM rule_action WHERE SHA1( CONCAT(id, category, item, group_id) ) = ?", [$guid]);
     }
 
     function deleteRuleTarget($rule, $guid)
     {
-        sqlStatement("DELETE FROM rule_target WHERE PASSWORD(CONCAT( id, group_id, include_flag, required_flag, method, value, rule_target.interval )) = ?", [$guid]);
+        sqlStatement("DELETE FROM rule_target WHERE SHA1(CONCAT( id, group_id, include_flag, required_flag, method, value, rule_target.interval )) = ?", [$guid]);
     }
 
     function deleteRuleFilter($rule, $guid)
     {
-        sqlStatement("DELETE FROM rule_filter WHERE PASSWORD(CONCAT( id, include_flag, required_flag, method, method_detail, value )) = ?", [$guid]);
+        sqlStatement("DELETE FROM rule_filter WHERE SHA1(CONCAT( id, include_flag, required_flag, method, method_detail, value )) = ?", [$guid]);
     }
 
-    function updateSummary($ruleId, $types, $title, $developer, $funding, $release, $web_ref)
+    function updateSummary($ruleId, $types, $title, $developer, $funding, $release, $web_ref, $bibliographic_citation, $linked_referential_cds)
     {
         $rule = $this->getRule($ruleId);
 
@@ -499,8 +503,8 @@ class RuleManager
             $result = sqlQuery("select count(*)+1 AS id from clinical_rules");
             $ruleId = "rule_" . $result['id'];
             sqlStatement(
-                "INSERT INTO clinical_rules (id, pid, active_alert_flag, passive_alert_flag, cqm_flag, amc_flag, patient_reminder_flag, developer, funding_source, release_version, web_reference ) " .
-                    "VALUES (?,?,?,?,?,?,?,?,?,?,?) ",
+                "INSERT INTO clinical_rules (id, pid, active_alert_flag, passive_alert_flag, cqm_flag, amc_flag, patient_reminder_flag, developer, funding_source, release_version, web_reference, bibliographic_citation, linked_referential_cds ) " .
+                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) ",
                 array(
                         $ruleId,
                         0,
@@ -512,7 +516,9 @@ class RuleManager
                         $developer,
                         $funding,
                         $release,
-                                                $web_ref
+                        $web_ref,
+                        $bibliographic_citation,
+                        $linked_referential_cds
                     )
             );
 
@@ -532,6 +538,8 @@ class RuleManager
                 $funding,
                 $release,
                 $web_ref,
+                $bibliographic_citation,
+                $linked_referential_cds,
                 $rule->id ));
 
             // update title
@@ -755,7 +763,7 @@ class RuleManager
             if (!is_null($groupId)) {
                 sqlStatement(
                     "UPDATE rule_action SET group_id = ?, category = ?, item = ? " .
-                     "WHERE PASSWORD( CONCAT(rule_action.id, rule_action.category, rule_action.item, rule_action.group_id ) ) = ? ",
+                     "WHERE SHA1( CONCAT(rule_action.id, rule_action.category, rule_action.item, rule_action.group_id ) ) = ? ",
                     array( $groupId, $category, $item, $guid )
                 );
             }

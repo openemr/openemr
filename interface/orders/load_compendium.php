@@ -28,7 +28,7 @@ set_time_limit(0);
 require_once("../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
-
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // This array is an important reference for the supported labs and their NPI
@@ -62,7 +62,8 @@ function getLabID($npi)
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    die(xlt('Not authorized', '', '', '!'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Load Compendium")]);
+    exit;
 }
 
 $form_step   = isset($_POST['form_step']) ? trim($_POST['form_step']) : '0';

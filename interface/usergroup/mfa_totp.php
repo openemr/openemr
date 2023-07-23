@@ -160,13 +160,13 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                             }
 
                             // Generate a new QR code or existing QR code
-                            $googleAuth = new Totp($secret, $_SESSION['authUser']);
-                            $qr = $googleAuth->generateQrCode();
+                            $mfaAuth = new Totp($secret, $_SESSION['authUser']);
+                            $qr = $mfaAuth->generateQrCode();
 
 
                             // if secret did not exist previously, stores secret in session variable for saving
                             if (!$doesExist) {
-                                $_SESSION['totpSecret'] = $googleAuth->getSecret();
+                                $_SESSION['totpSecret'] = $mfaAuth->getSecret();
                             }
                             ?>
                             <fieldset>

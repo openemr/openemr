@@ -1,0 +1,30 @@
+{#
+ # This overrides the original template file in core
+ # @see /templates/portal/appointment-item.html.twig for original
+ #
+ # @package openemr
+ # @link      http://www.open-emr.org
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div class="card p-2">
+    <div class="card-header">
+        <a href="#" onclick="editAppointment({{ appt.mode | attr_js }},{{ appt.pc_eid | attr_js }})" title="{{ appt.etitle | attr }}">
+            <i class='float-right fa fa-edit {% if appt.pc_recurrtype > 0 %} text-danger {% else %} text-success {% endif %} bg-light'></i>
+        </a>
+    </div>
+    <div class="body font-weight-bold">
+        <p>
+            {{ appt.appointmentDate | text }}<br>
+            {{ appt.appointmentType | text }}<br>
+            {{ appt.provider | text }}<br>
+            {{ appt.status | text }}<br />
+            {% if appt.showTelehealth %}
+            <button class="btn btn-primary btn-comlink-telehealth-launch" data-pc_eid="{{ appt.pc_eid|attr }}">
+                <i class="fa fa-video" aria-label="Start Video Session"></i>
+            </button>
+            {% endif %}
+        </p>
+    </div>
+</div>

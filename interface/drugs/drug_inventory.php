@@ -12,6 +12,7 @@ require_once("drugs.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Check authorizations.
@@ -27,7 +28,8 @@ $auth_anything = $auth_lots                           ||
     AclMain::aclCheckCore('inventory', 'sales') ||
     AclMain::aclCheckCore('inventory', 'reporting');
 if (!$auth_anything) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Drug Inventory")]);
+    exit;
 }
 // Note if user is restricted to any facilities and/or warehouses.
 $is_user_restricted = isUserRestricted();
@@ -207,7 +209,7 @@ function mapToTable($row)
             }
             echo "</td>\n";
         } else {
-                generateEmptyTd(4);
+                generateEmptyTd(5);
         }
         echo " </tr>\n";
     }
@@ -297,7 +299,7 @@ $(function () {
 <table border='0' cellpadding='3' width='100%'>
  <tr>
   <td>
-   <b><?php echo xlt('Inventory Management'); ?></b>
+   <?php echo xlt('Inventory Management'); ?>
   </td>
   <td align='right'>
 <?php
@@ -380,50 +382,24 @@ foreach (
 </table>
 
 <!-- TODO: Why are we not using the BS4 table class here? !-->
-<table id='mymaintable' class="display table-striped">
- <thead>
- <tr class='head'>
-  <th>
-    <?php echo xlt('Name'); ?> </a>
-  </th>
-  <th>
-    <?php echo xlt('Act'); ?>
-  </th>
-  <th>
-    <?php echo xlt('Cons'); ?>
-  </th>
-  <th>
-   <?php echo xlt('NDC'); ?> </a>
-  </th>
-  <th>
-   <?php echo xlt('Form'); ?> </a>
-  </th>
-  <th>
-    <?php echo xlt('Size'); ?>
-  </th>
-  <th title='<?php echo xlt('Measurement Units'); ?>'>
-    <?php echo xlt('Unit'); ?>
-  </th>
-  <th title='<?php echo xla('Purchase or Transfer'); ?>'>
-    <?php echo xlt('Tran'); ?>
-  </th>
-  <th>
-    <?php echo xlt('Lot'); ?> </a>
-  </th>
-  <th>
-    <?php echo xlt('Facility'); ?> </a>
-  </th>
-  <th>
-    <?php echo xlt('Warehouse'); ?> </a>
-  </th>
-  <th>
-    <?php echo xlt('QOH'); ?> </a>
-  </th>
-  <th>
-    <?php echo xlt('Expires'); ?> </a>
-  </th>
- </tr>
- </thead>
+<table id='mymaintable' class="table table-striped">
+    <thead>
+        <tr>
+            <th><?php echo xlt('Name'); ?> </a></th>
+            <th><?php echo xlt('Act'); ?></th>
+            <th><?php echo xlt('Cons'); ?></th>
+            <th><?php echo xlt('NDC'); ?> </a></th>
+            <th><?php echo xlt('Form'); ?> </a></th>
+            <th><?php echo xlt('Size'); ?></th>
+            <th title='<?php echo xlt('Measurement Units'); ?>'><?php echo xlt('Unit'); ?></th>
+            <th title='<?php echo xla('Purchase or Transfer'); ?>'><?php echo xlt('Tran'); ?></th>
+            <th><?php echo xlt('Lot'); ?> </a></th>
+            <th><?php echo xlt('Facility'); ?> </a></th>
+            <th><?php echo xlt('Warehouse'); ?> </a></th>
+            <th><?php echo xlt('QOH'); ?> </a></th>
+            <th><?php echo xlt('Expires'); ?> </a></th>
+        </tr>
+    </thead>
  <tbody>
 <?php
  $prevRow = '';

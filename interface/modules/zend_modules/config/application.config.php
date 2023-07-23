@@ -13,31 +13,19 @@ $core_modules = [
     'Laminas\Validator',  // Handles validations....
     'Laminas\Mvc\I18n', // TODO: since translations seem to be using the OPENEMR translations we may not need this anymore though we load it as a factory
     'Laminas\Form', // needed for the formHelper view plugin.
-    'Laminas\Mvc\Console', // Used for console commands. TODO: Deprecated and plan to remove in the future (plan to upgrade to zf-console)
     'Application', // Main application module starting point.
     'Installer', // Handles the dynamic adding / removing of modules in the system.
     'Acl', // Handles all of the permission checks in the system.
     'FHIR', // Handles FHIR mapped uuid population and other FHIR utility functions
+    'CodeTypes', // Handles CodeType mappings and anything else to do with the system of dealing with code types
     'PatientFlowBoard', // Handle any functionality needed for the patient flow board
 ];
 
-/**
- * Grabs the actively enabled modules from the database and injects them into the system.
- * For the list of active modules you can see them from the modules installer tab, or by querying the modules table
- * Otherwise the modules are found inside the modules/zend_modules folder.  The uninstalled script will dynamically find them
- * in the filesystem.
- */
-function oemr_zend_load_modules_from_db()
-{
-    // we skip the audit log as it has no bearing on user activity and is core system related...
-    $resultSet = sqlStatementNoLog($statement = "SELECT mod_name FROM modules WHERE mod_active = 1 AND type = 1 ORDER BY `mod_ui_order`, `date`");
-    $db_modules = [];
-    while ($row = sqlFetchArray($resultSet)) {
-        $db_modules[] = $row["mod_name"];
-    }
-    return $db_modules;
-}
-$plugin_modules = oemr_zend_load_modules_from_db();
+// $zendConfigurationPath is loaded using ModulesApplication.php from globals.php
+$plugin_modules = \OpenEMR\Core\ModulesApplication::oemr_zend_load_modules_from_db(
+    $webRootPath ?? '',
+    $zendConfigurationPath ?? ''
+);
 $vendor_path = !empty($GLOBALS['vendor_dir']) ? $GLOBALS['vendor_dir'] : (realpath(__DIR__) . '/../vendor');
 
 return [

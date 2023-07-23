@@ -19,6 +19,42 @@ use OpenEMR\Gacl\GaclApi;
 
 class Installer
 {
+    public $iuser;
+    public $iuserpass;
+    public $iuname;
+    public $iufname;
+    public $igroup;
+    public $i2faEnable;
+    public $i2faSecret;
+    public $server;
+    public $loginhost;
+    public $port;
+    public $root;
+    public $rootpass;
+    public $login;
+    public $pass;
+    public $dbname;
+    public $collate;
+    public $site;
+    public $source_site_id;
+    public $clone_database;
+    public $no_root_db_access;
+    public $development_translations;
+    public $new_theme;
+    public $ippf_specific;
+    public $conffile;
+    public $main_sql;
+    public $translation_sql;
+    public $devel_translation_sql;
+    public $ippf_sql;
+    public $icd9;
+    public $cvx;
+    public $additional_users;
+    public $dumpfiles;
+    public $error_message;
+    public $debug_message;
+    public $dbh;
+
     public function __construct($cgi_variables)
     {
         // Installation variables
@@ -40,7 +76,7 @@ class Installer
         $this->pass                     = isset($cgi_variables['pass']) ? ($cgi_variables['pass']) : '';
         $this->dbname                   = isset($cgi_variables['dbname']) ? ($cgi_variables['dbname']) : '';
         $this->collate                  = isset($cgi_variables['collate']) ? ($cgi_variables['collate']) : '';
-        $this->site                     = isset($cgi_variables['site']) ? ($cgi_variables['site']) : '';
+        $this->site                     = isset($cgi_variables['site']) ? ($cgi_variables['site']) : 'default'; // set to default if not set in order for install script to work correctly
         $this->source_site_id           = isset($cgi_variables['source_site_id']) ? ($cgi_variables['source_site_id']) : '';
         $this->clone_database           = isset($cgi_variables['clone_database']) ? ($cgi_variables['clone_database']) : '';
         $this->no_root_db_access        = isset($cgi_variables['no_root_db_access']) ? ($cgi_variables['no_root_db_access']) : ''; // no root access to database. user/privileges pre-configured
@@ -125,6 +161,16 @@ class Installer
         return true;
     }
 
+    public function iuname_is_valid()
+    {
+        if ($this->iuname == "" || !isset($this->iuname)) {
+            $this->error_message = "Initial user last name is invalid: '$this->iuname'";
+            return false;
+        }
+
+        return true;
+    }
+
     public function password_is_valid()
     {
         if ($this->pass == "" || !isset($this->pass)) {
@@ -151,7 +197,7 @@ class Installer
     {
         $this->dbh = $this->connect_to_database($this->server, $this->root, $this->rootpass, $this->port);
         if ($this->dbh) {
-            if (! $this->set_sql_strict()) {
+            if (!$this->set_sql_strict()) {
                 $this->error_message = 'unable to set strict sql setting';
                 return false;
             }
@@ -230,7 +276,15 @@ class Installer
             return $returnSql;
         } else {
             // the mysql user does not yet exist, so create the user
-            return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'");
+            if (getenv('FORCE_DATABASE_X509_CONNECT', true) == 1) {
+                // this use case is to allow enforcement of x509 database connection use in applicable docker and kubernetes auto installations
+                return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "' REQUIRE X509");
+            } elseif (getenv('FORCE_DATABASE_SSL_CONNECT', true) == 1) {
+                // this use case is to allow enforcement of ssl database connection use in applicable docker and kubernetes auto installations
+                return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "' REQUIRE SSL");
+            } else {
+                return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'");
+            }
         }
     }
 
@@ -462,6 +516,10 @@ class Installer
                 $this->error_message = "unable to copy directory: '$source_directory' to '$destination_directory'. " . $this->error_message;
                 return false;
             }
+            // the new site will create it's own keys so okay to delete these copied from the source site
+            if (!$this->clone_database) {
+                array_map('unlink', glob($destination_directory . "/documents/logs_and_misc/methods/*"));
+            }
         }
 
         return true;
@@ -469,6 +527,9 @@ class Installer
 
     public function write_configuration_file()
     {
+        if (!file_exists($GLOBALS['OE_SITE_DIR'])) {
+            $this->create_site_directory();
+        }
         @touch($this->conffile); // php bug
         $fd = @fopen($this->conffile, 'w');
         if (! $fd) {
@@ -965,7 +1026,7 @@ $config = 1; /////////////
         //
         $gacl->add_acl(
             array(
-                'patients' => array('alert','pat_rep')
+                'patients' => array('alert')
             ),
             null,
             array($front),
@@ -1007,7 +1068,7 @@ $config = 1; /////////////
         // xl('Things that front office can read and partly modify')
         $gacl->add_acl(
             array(
-                'patients' => array('appt', 'demo', 'trans', 'notes'),
+                'patients' => array('appt', 'demo'),
                 'groups' => array('gcalendar')
             ),
             null,
@@ -1025,7 +1086,7 @@ $config = 1; /////////////
         //
         $gacl->add_acl(
             array(
-                'patients' => array('alert','pat_rep')
+                'patients' => array('alert')
             ),
             null,
             array($back),
@@ -1316,10 +1377,15 @@ $config = 1; /////////////
                 );
             }
         }
-        if ($mysqlSsl) {
-            $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306, '', MYSQLI_CLIENT_SSL);
-        } else {
-            $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306);
+        try {
+            if ($mysqlSsl) {
+                $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306, '', MYSQLI_CLIENT_SSL);
+            } else {
+                $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306);
+            }
+        } catch (mysqli_sql_exception $e) {
+            $this->error_message = "unable to connect to sql server because of mysql error: " . $e->getMessage();
+            return false;
         }
         if (!$ok) {
             $this->error_message = 'unable to connect to sql server because of: (' . mysqli_connect_errno() . ') ' . mysqli_connect_error();
@@ -1431,7 +1497,7 @@ $config = 1; /////////////
         $cmd = "mysqldump -u " . escapeshellarg($login) .
         " -h " . $host .
         " -p" . escapeshellarg($pass) .
-        " --hex-blob --opt --skip-extended-insert --quote-names -r $backup_file " .
+        " --ignore-table=" . escapeshellarg($dbase . ".onsite_activity_view") . " --hex-blob --opt --skip-extended-insert --quote-names -r $backup_file " .
         escapeshellarg($dbase);
 
         $tmp1 = [];
@@ -1461,12 +1527,16 @@ $config = 1; /////////////
     {
         $current_theme =  $this->execute_sql("SELECT gl_value FROM globals WHERE gl_name LIKE '%css_header%'");
         $current_theme = mysqli_fetch_array($current_theme);
-        return $current_theme [0];
+        return $current_theme[0];
     }
 
     public function setCurrentTheme()
     {
-        $this->getCurrentTheme();//why is this needed ?
+        $current_theme = $this->getCurrentTheme();
+        // for cloned sites since they're not asked about a new theme
+        if (!$this->new_theme) {
+            $this->new_theme = $current_theme;
+        }
         return $this->execute_sql("UPDATE globals SET gl_value='" . $this->escapeSql($this->new_theme) . "' WHERE gl_name LIKE '%css_header%'");
     }
 
@@ -1564,6 +1634,10 @@ DSTD;
 
     public function displayNewThemeDiv()
     {
+        // cloned sites don't get a chance to set a new theme
+        if (!$this->new_theme) {
+            $this->new_theme = $this->getCurrentTheme();
+        }
         $theme_file_name = $this->new_theme;
         $arr_extracted_file_name = $this->extractFileName($theme_file_name);
         $theme_value = $arr_extracted_file_name['theme_value'];

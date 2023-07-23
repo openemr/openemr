@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class Practitioner extends Entity
 {
-
     /**
      * @property BaseTypes\Code $role
      */
@@ -42,3 +41,4 @@ class Practitioner extends Entity
 
     public $_type = 'QDM::Practitioner';
 }
+

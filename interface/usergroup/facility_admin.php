@@ -12,7 +12,6 @@
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/erx_javascript.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -26,7 +25,7 @@ if (isset($_GET["fid"])) {
 ?>
 <html>
 <head>
-    <?php Header::setupHeader(['opener']); ?>
+    <?php Header::setupHeader(['opener', 'erx']); ?>
 
     <script src="../main/calendar/modules/PostCalendar/pnincludes/AnchorPosition.js"></script>
     <script src="../main/calendar/modules/PostCalendar/pnincludes/PopupWindow.js"></script>
@@ -237,7 +236,7 @@ if (isset($_GET["fid"])) {
                             <?php
                                 $disabled = '';
                                 $resPBE = $facilityService->getPrimaryBusinessEntity(array("excludedId" => $my_fid));
-                            if ($resPBE) {
+                            if ($resPBE && ($GLOBALS['erx_enable'] ?? null)) {
                                 $disabled = 'disabled';
                             }
                             ?>
@@ -443,6 +442,13 @@ if (isset($_GET["fid"])) {
                 </div>
                 <div class="col">
                     <textarea class="form-control form-control-sm" size="20" name="info"><?php echo attr($facility["info"]) ?></textarea>
+                </div>
+            </div>
+
+            <div class="form-row custom-control custom-switch my-2">
+                <div class="col">
+                    <input type='checkbox' class='custom-control-input' name='inactive' id='inactive' value='1' <?php echo ($facility['inactive'] != 0) ? 'checked' : ''; ?> />
+                    <label for='inactive' class='custom-control-label'><?php echo xlt('Facility Inactive'); ?></label>
                 </div>
             </div>
 

@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PositiveInterventionRecommended extends InterventionRecommended
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class PositiveInterventionRecommended extends InterventionRecommended
 
     public $_type = 'QDM::PositiveInterventionRecommended';
 }
+

@@ -38,8 +38,13 @@ if (!CsrfUtils::verifyCsrfToken($data['csrf_token_form'])) {
 }
 
 if (!empty($data['where'] ?? null)) {
-    OpenEMR\Common\Session\SessionUtil::setSession('whereto', $data['where']);
+    $_SESSION['whereto'] = $data['where'];
 }
-if (isset($data['portal_init']) && $data['portal_init'] !== '') {
-    OpenEMR\Common\Session\SessionUtil::setSession('portal_init', $data['portal_init']);
+
+// Set a patient setting to persist
+if (!empty($data['setting_patient'] ?? null)) {
+    if (!empty($data['setting_label'] ?? null)) {
+        $sql = "INSERT INTO `patient_settings` (`setting_patient`, `setting_label`, `setting_value`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `setting_patient` = ?,  `setting_label` = ?, `setting_value` = ?";
+        sqlInsert($sql, array($data['setting_patient'] ?? 0, $data['setting_label'], $data['setting_value'] ?? '', $data['setting_patient'] ?? 0, $data['setting_label'], $data['setting_value'] ?? ''));
+    }
 }

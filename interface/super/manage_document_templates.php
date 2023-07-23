@@ -19,10 +19,12 @@ require_once('../globals.php');
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Document Template Management")]);
+    exit;
 }
 
 // Set up crypto object
@@ -97,8 +99,8 @@ if (!empty($_POST['bn_upload'])) {
             die(xlt('Cannot determine a destination filename'));
         }
         $path_parts = pathinfo($form_dest_filename);
-        if (!in_array(strtolower($path_parts['extension']), array('odt', 'txt', 'docx', 'zip'))) {
-            die(text(strtolower($path_parts['extension'])) . ' ' . xlt('filetype is not accepted'));
+        if (!in_array(strtolower($path_parts['extension'] ?? ''), array('odt', 'txt', 'docx', 'zip'))) {
+            die(text(strtolower($path_parts['extension'] ?? '')) . ' ' . xlt('filetype is not accepted'));
         }
 
         $templatepath = "$templatedir/$form_dest_filename";
@@ -221,10 +223,10 @@ if (!empty($_POST['bn_upload'])) {
       </form>
       </div>
       <script>
-      //dislpay file name
+      //display file name
         $(".custom-file-input").on("change", function() {
         var fileName = $(this).val().split("\\").pop();
-        $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        $(this).siblings(".custom-file-label").addClass("selected").html(jsText(fileName));
         });
         </script>
    </body>

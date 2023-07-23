@@ -21,6 +21,8 @@ class ModuleconfigForm extends Form
 {
     protected $zListener;
 
+    protected $application;
+
     public function __construct(AdapterInterface $dbAdapter)
     {
         $this->application  = new ApplicationTable();
@@ -204,6 +206,52 @@ class ModuleconfigForm extends Form
                     'value_options' => $this->getProviders(),
                 ),
             ));
+        $this->add(array(
+            'type' => 'Laminas\Form\Element\Checkbox',
+            'name' => 'hie_force_latest_encounter_provenance_date',
+            'attributes'    => array(
+                'id'        => 'hie_force_latest_encounter_provenance_date'
+            ),
+            'options' => array(
+                'label'         => $this->zListener->z_xlt('Force Provenance Author Date to be most recent encounter'),
+                'checked_value'     => 'yes',
+                'unchecked_value'   => 'no'
+            ),
+        ));
+        $this->add(array(
+
+            'name' => 'hie_author_date',
+            'type' => 'Laminas\Form\Element\DateTimeLocal',
+            'attributes' => [
+                //'min' => '2000-01-01T00:00Z',
+                //'max' => '2030-01-01T00:00:00Z',
+                'step' => '1',
+                'id' => 'hie_author_date',
+            ],
+            'options' => array(
+                //'format' => 'Y-m-d\T:HP',
+                'label' => $this->zListener->z_xlt('Provenance Author Date')
+            ),
+
+        ));
+        /*
+        * Authenticator settings
+        */
+        $this->add(array(
+            'name'  => 'hie_office_contact',
+            'type'      => 'Laminas\Form\Element\Select',
+            'attributes' => array(
+                'class'     => '',
+                'data-options'  => 'required:true',
+                'editable'  => 'false',
+                'required'  => 'required',
+                'id'        => 'hie_office_contact'
+            ),
+            'options' => array(
+                'label'     => $this->zListener->z_xlt('Office Contact'),
+                'value_options' => $this->getUsers(),
+            ),
+        ));
     }
 
     /**
@@ -215,7 +263,7 @@ class ModuleconfigForm extends Form
     public function getUsers()
     {
         $users = array('0' => '');
-        $res = $this->application->zQuery(("SELECT id, fname, lname, street, city, state, zip  FROM users WHERE abook_type='ccda'"));
+        $res = $this->application->zQuery(("SELECT id, fname, lname, street, city, state, zip  FROM users WHERE authorized=1 AND active='1' "));
         foreach ($res as $row) {
             $users[$row['id']] = $row['fname'] . " " . $row['lname'];
         }

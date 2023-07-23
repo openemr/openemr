@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class NegativeProcedureRecommended extends ProcedureRecommended
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class NegativeProcedureRecommended extends ProcedureRecommended
 
     public $_type = 'QDM::NegativeProcedureRecommended';
 }
+

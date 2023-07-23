@@ -6,15 +6,22 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-    $this->assign('title', xlt('Portal') . ' | ' . xlt('Activity'));
-    $this->assign('nav', 'onsiteactivityviews');
+$this->assign('title', xlt('Portal') . ' | ' . xlt('Activity'));
+$this->assign('nav', 'onsiteactivityviews');
 
-    $this->display('_FormsHeader.tpl.php');
-    echo "<script>var cuser='" . $this->cuser . "';</script>";
+use OpenEMR\Common\Acl\AclMain;
+
+if (!AclMain::aclCheckCore('patientportal', 'portal')) {
+    die(xlt("Unauthorized"));
+    exit;
+}
+
+$this->display('_FormsHeader.tpl.php');
+echo "<script>var cuser='" . $this->cuser . "';</script>";
 ?>
 <script>
     $LAB.script("<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/app/onsiteactivityviews.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait(function(){

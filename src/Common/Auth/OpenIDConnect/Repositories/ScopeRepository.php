@@ -17,6 +17,7 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
+use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\System\System;
 use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
@@ -331,18 +332,20 @@ class ScopeRepository implements ScopeRepositoryInterface
 //            "patient/Account.read",
             "patient/AllergyIntolerance.read",
 //            "patient/AllergyIntolerance.write",
-//            "patient/Appointment.read",
+            "patient/Appointment.read",
+            "patient/Binary.read",
 //            "patient/Appointment.write",
             "patient/CarePlan.read",
             "patient/CareTeam.read",
             "patient/Condition.read",
 //            "patient/Condition.write",
 //            "patient/Consent.read",
-//            "patient/Coverage.read",
+            "patient/Coverage.read",
 //            "patient/Coverage.write",
             "patient/DiagnosticReport.read",
             "patient/Device.read",
             "patient/DocumentReference.read",
+            'patient/DocumentReference.$docref', // generate or view most recent CCD for the selected patient
 //            "patient/DocumentReference.write",
             "patient/Encounter.read",
 //            "patient/Encounter.write",
@@ -350,8 +353,8 @@ class ScopeRepository implements ScopeRepositoryInterface
             "patient/Immunization.read",
 //            "patient/Immunization.write",
             "patient/Location.read",
-            "patient/Medication.read",
             "patient/MedicationRequest.read",
+            "patient/Medication.read",
 //            "patient/MedicationRequest.write",
 //            "patient/NutritionOrder.read",
             "patient/Observation.read",
@@ -378,6 +381,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             "user/AllergyIntolerance.write",
             "user/Appointment.read",
             "user/Appointment.write",
+            "user/Binary.read",
             "user/CarePlan.read",
             "user/CareTeam.read",
             "user/Condition.read",
@@ -389,15 +393,16 @@ class ScopeRepository implements ScopeRepositoryInterface
             "user/DiagnosticReport.read",
             "user/DocumentReference.read",
             "user/DocumentReference.write",
+            'user/DocumentReference.$docref', // export CCD for any patient user has access to
             "user/Encounter.read",
             "user/Encounter.write",
             "user/Goal.read",
             "user/Immunization.read",
             "user/Immunization.write",
             "user/Location.read",
-            "user/Medication.read",
             "user/MedicationRequest.read",
             "user/MedicationRequest.write",
+            "user/Medication.read",
             "user/NutritionOrder.read",
             "user/Observation.read",
             "user/Observation.write",
@@ -417,7 +422,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             "user/RelatedPerson.read",
             "user/RelatedPerson.write",
             "user/Schedule.read",
-            "user/ServiceRequest.read"
+            "user/ServiceRequest.read",
         ];
 
         if ($this->restConfig->areSystemScopesEnabled()) {
@@ -433,6 +438,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             "system/AllergyIntolerance.read",
 //            "system/AllergyIntolerance.write",
             "system/Appointment.read",
+            "system/Binary.read", // used for Bulk FHIR export downloads
 //            "system/Appointment.write",
             "system/CarePlan.read",
             "system/CareTeam.read",
@@ -442,8 +448,8 @@ class ScopeRepository implements ScopeRepositoryInterface
             "system/Coverage.read",
 //            "system/Coverage.write",
             "system/Device.read",
-            "system/Document.read", // used for Bulk FHIR export downloads
             "system/DocumentReference.read",
+            'system/DocumentReference.$docref', // generate / view CCD for any patient in the system
             "system/DiagnosticReport.read",
 //            "system/DocumentReference.write",
             "system/Encounter.read",
@@ -453,8 +459,8 @@ class ScopeRepository implements ScopeRepositoryInterface
             "system/Immunization.read",
 //            "system/Immunization.write",
             "system/Location.read",
-            "system/Medication.read",
             "system/MedicationRequest.read",
+            "system/Medication.read",
 //            "system/MedicationRequest.write",
             "system/NutritionOrder.read",
             "system/Observation.read",
@@ -475,7 +481,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             "system/RelatedPerson.read",
 //            "system/RelatedPerson.write",
             "system/Schedule.read",
-            "system/ServiceRequest.read"
+            "system/ServiceRequest.read",
         ];
     }
 
@@ -594,6 +600,8 @@ class ScopeRepository implements ScopeRepositoryInterface
             "user/soap_note.write",
             "user/surgery.read",
             "user/surgery.write",
+            "user/transaction.read",
+            "user/transaction.write",
             "user/vital.read",
             "user/vital.write",
         ];
@@ -664,6 +672,12 @@ class ScopeRepository implements ScopeRepositoryInterface
                         break;
                 }
             }
+            foreach ($resource->getOperation() as $operation) {
+                $operationCall = $resourceType . '.' . $operation->getName();
+                $scopes_api['patient/' . $operationCall]  = 'patient/' . $operationCall;
+                $scopes_api['user/' . $operationCall]  = 'user/' . $operationCall;
+                $scopes_api['system/' . $operationCall]  = 'system/' . $operationCall;
+            }
 
             // if we needed to define scopes based on operations rather than the predefined Bulk-FHIR operations
             // we would handle them here.  Leaving this commented out just for reference
@@ -691,9 +705,10 @@ class ScopeRepository implements ScopeRepositoryInterface
 
         $scopesEvent = new RestApiScopeEvent();
         $scopesEvent->setApiType(RestApiScopeEvent::API_TYPE_FHIR);
-        $scopesEvent->setScopes($scopesSupported);
+        $scopesSupportedList = $scopesSupported;
+        $scopesEvent->setScopes($scopesSupportedList);
 
-        $scopesEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RestApiScopeEvent::EVENT_TYPE_GET_SUPPORTED_SCOPES, $scopesEvent, 10);
+        $scopesEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($scopesEvent, RestApiScopeEvent::EVENT_TYPE_GET_SUPPORTED_SCOPES, 10);
 
         if ($scopesEvent instanceof RestApiScopeEvent) {
             $scopesSupportedList = $scopesEvent->getScopes();
@@ -717,6 +732,8 @@ class ScopeRepository implements ScopeRepositoryInterface
                 $scopeRead =  $resourceType . ".read";
                 $scopeWrite = $resourceType . ".write";
                 $interactionCode = $interaction->getCode()->getValue();
+                // these values come from this valuset http://hl7.org/fhir/2021Mar/valueset-type-restful-interaction.html
+                // for SMART on FHIR 2.0 we will have more granular permissions than *.read and *.write
                 switch ($interactionCode) {
                     case 'read':
                         $scopes_api['user/' . $scopeRead] = 'user/' . $scopeRead;
@@ -727,8 +744,9 @@ class ScopeRepository implements ScopeRepositoryInterface
                         $scopes_api['system/' . $scopeRead] = 'system/' . $scopeRead;
                         break;
                     case 'put':
-                    case 'insert':
+                    case 'create':
                     case 'update':
+                    case 'delete':
                         $scopes_api['user/' . $scopeWrite] = 'user/' . $scopeWrite;
                         $scopes_api['system/' . $scopeWrite] = 'system/' . $scopeWrite;
                         break;
@@ -746,6 +764,8 @@ class ScopeRepository implements ScopeRepositoryInterface
                     $scopeRead =  $resourceType . ".read";
                     $scopeWrite = $resourceType . ".write";
                     $interactionCode = $interaction->getCode()->getValue();
+                    // these values come from this valuset http://hl7.org/fhir/2021Mar/valueset-type-restful-interaction.html
+                    // for SMART on FHIR 2.0 we will have more granular permissions than *.read and *.write
                     switch ($interactionCode) {
                         case 'read':
                             $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
@@ -754,19 +774,21 @@ class ScopeRepository implements ScopeRepositoryInterface
                             $scopes_api_portal['patient/' . $scopeRead] = 'patient/' . $scopeRead;
                             break;
                         case 'put':
-                        case 'insert':
+                        case 'create':
                         case 'update':
+                        case 'delete':
                             $scopes_api_portal['patient/' . $scopeWrite] = 'patient/' . $scopeWrite;
                             break;
                     }
                 }
             }
         }
+        $oidc = array_combine($this->oidcScopes(), $this->oidcScopes());
         $scopes_api = array_merge($scopes_api, $scopes_api_portal);
 
         $scopesSupported = $this->apiScopes();
         $scopes_dict = array_combine($scopesSupported, $scopesSupported);
-        $scopesSupported = null;
+        $scopesSupported = null; // this is odd, why do we have this?
         // verify scope permissions are allowed for role being used.
         foreach ($scopes_api as $key => $scope) {
             if (empty($scopes_dict[$key])) {
@@ -775,13 +797,15 @@ class ScopeRepository implements ScopeRepositoryInterface
             $scopesSupported[$key] = $scope;
         }
         asort($scopesSupported);
+        $serverScopes = $this->getServerScopes();
+        $scopesSupported = array_keys(array_merge($oidc, $serverScopes, $scopesSupported));
 
         $scopesEvent = new RestApiScopeEvent();
         $scopesEvent->setApiType(RestApiScopeEvent::API_TYPE_STANDARD);
-        $scopesSupportedList = array_keys($scopesSupported);
+        $scopesSupportedList = $scopesSupported;
         $scopesEvent->setScopes($scopesSupportedList);
 
-        $scopesEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(RestApiScopeEvent::EVENT_TYPE_GET_SUPPORTED_SCOPES, $scopesEvent, 10);
+        $scopesEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($scopesEvent, RestApiScopeEvent::EVENT_TYPE_GET_SUPPORTED_SCOPES, 10);
 
         if ($scopesEvent instanceof RestApiScopeEvent) {
             $scopesSupportedList = $scopesEvent->getScopes();
@@ -843,10 +867,208 @@ class ScopeRepository implements ScopeRepositoryInterface
         $mergedScopes = array_merge($scopesFhir, $scopesApi);
         $scopes = [];
 
+        $scopes['nonce'] = ['description' => 'Nonce value used to detect replay attacks by third parties'];
+
         foreach ($mergedScopes as $scope) {
+            // TODO: @adunsulag look at adding the actual scope description here and what the ramifications are.
+            // Looks like this line could be
+            // $scopes[$scope] = ['description' => $this->lookupDescriptionForScope($scope, false)];
             $scopes[$scope] = ['description' => 'OpenId Connect'];
         }
 
         return $scopes;
+    }
+
+    public function lookupDescriptionForScope($scope, bool $isPatient)
+    {
+        $requiredSmart = [
+            "openid" => xl("Permission to retrieve information about the current logged-in user"),
+            "fhirUser" => xl("Identity Information - Permission to retrieve information about the current logged-in user"),
+            "online_access" => xl("Request ability to access data while the current logged-in user remains logged in"),
+            "offline_access" => xl("Request ability to access data even when the current logged-in user has logged out"),
+            "launch" => xl("Permission to obtain information from the EHR for the current session context when app is launched from an EHR."),
+            "launch/patient" => xl("When launching outside the EHR, ask for a patient to be selected at launch time."),
+            "api:oemr" => xl("Permission to use the OpenEMR standard api."),
+            "api:fhir" => xl("Permission to use the OpenEMR FHIR api"),
+            "api:port" => xl("Permission to use the OpenEMR apis from inside the patient portal"),
+            'system/Patient.$export' => xl("Permission to export Patient Compartment resources"),
+            'system/Group.$export' => xl("Permission to export Patient Compartment resources connected to a Patient Group"),
+            'system/*.$bulkdata-status' => xl("Permission to check the job status of a bulkdata export"),
+            'system/*.$export' => xl("Permission to export the entire system dataset the is exportable")
+        ];
+
+        if (isset($requiredSmart[$scope])) {
+            return $requiredSmart[$scope];
+        }
+
+        $parts = explode("/", $scope);
+        $context = reset($parts);
+        $resourcePerm = $parts[1] ?? "";
+        $resourcePermParts = explode(".", $resourcePerm);
+        $resource = $resourcePermParts[0] ?? "";
+        $permission = $resourcePermParts[1] ?? "";
+
+        if (!empty($resource)) {
+            $isReadPermission = $permission == "read";
+            if (strpos($permission, "$") !== false) {
+                return $this->lookupDescriptionForResourceOperation($resource, $context, $isPatient, $permission);
+            } else {
+                return $this->lookupDescriptionForResourceScope($resource, $context, $isPatient, $isReadPermission);
+            }
+        } else {
+            return null;
+        }
+    }
+
+    private function lookupDescriptionForResourceOperation($resource, $context, $isPatient, $permission)
+    {
+        $description = null;
+        if ($resource == "DocumentReference" && $permission == '$docref') {
+            $description = xl("Create a Clinical Summary of Care Document (CCD) or retrieve the most current CCD");
+            if ($context == 'user') {
+                $description .= " " . xl("for a patient that the user has access to");
+            } else if ($context == "system") {
+                $description .= " " . xl("for a patient that exists in the system");
+            };
+        }
+        return $description;
+    }
+
+    private function lookupDescriptionForResourceScope($resource, $context, $isPatient, $isReadPermission)
+    {
+
+        $scopesByResource[$resource] = $scopesByResource[$resource] ?? ['permissions' => []];
+
+        $description = $isReadPermission ? xl("Read Access: View, search and access") : xl("Write Access: Create or modify");
+        $description .= " ";
+        switch ($resource) {
+            case 'AllergyIntolerance':
+                $description .= xl("allergies/adverse reactions");
+                break;
+            case 'Appointment':
+                $description .= xl("appointments");
+                break;
+            case 'Observation':
+                $description .= xl("observations including laboratory,vitals, and social history records");
+                break;
+            case 'CarePlan':
+                $description .= xl("care plan information including treatment information and notes");
+                break;
+            case 'CareTeam':
+                $description .= xl("care team information including practitioners, organizations, persons, and related individuals");
+                break;
+            case 'Condition':
+                $description .= xl("conditions including health concerns, problems, and encounter diagnoses");
+                break;
+            case 'Device':
+                $description .= xl("implantable medical device records");
+                break;
+            case 'DiagnosticReport':
+                $description .= xl("diagnostic reports including laboratory,cardiology,radiology, and pathology reports");
+                break;
+            case 'DocumentReference':
+                $description .= xl("clinical and non-clinical documents");
+                break;
+            case 'Encounter':
+                $description .= xl("encounter information");
+                break;
+            case 'Goal':
+                $description .= xl("goals");
+                break;
+            case 'Immunization':
+                $description .= xl("immunization history");
+                break;
+            case 'MedicationRequest':
+                $description .= xl("planned and prescribed medication history including self-reported medications");
+                break;
+            case 'Medication':
+                $description .= xl("drug information related to planned and prescribed medication history");
+                break;
+            case 'Organization':
+                $description .= xl("companies, facilities, insurances, and other organizations");
+                break;
+            case 'Patient':
+                $description .= xl("patient basic demographics including names,communication preferences,race,ethnicity,birth sex,previous names and other administrative information");
+                break;
+            case 'Practitioner':
+                $description .= xl("provider basic demographic information and other administrative information");
+                break;
+            case 'PractitionerRole':
+                $description .= xl("practitioner role for a practitioner (including speciality, location, contact information)");
+                break;
+            case 'Procedure':
+                $description .= xl("procedures");
+                break;
+            case 'Location':
+                $description .= xl("locations associated with a patient, provider, or organization");
+                break;
+            case 'Provenance':
+                $description .= xl("provenance information (including person(s) responsible for the information, author organizations, and transmitter organizations)");
+                break;
+            default:
+                $description .= xl("medical records for this resource type");
+                break;
+        }
+        if ($context == "user") {
+            $description .= ". " . xl("Application is requesting access to all patient data for this resource you have access to");
+        } else if ($context == "system") {
+            $description .= ". " . xl("Application is requesting access to all data in entire system for this resource");
+        }
+        return $description;
+    }
+
+    /**
+     * Checks if the given scopes array requires any manual approval by an administrator before an oauth2 client can be authorized
+     * @param bool $is_confidential_client Whether the client is confidential (can keep a secret safe) or a public app
+     * @param array $scopes The scopes to be checked to see if we need manual approval
+     * @return bool true if there exist scopes that require manual review by an administrator, false otherwise
+     */
+    public function hasScopesThatRequireManualApproval(bool $is_confidential_client, array $scopes)
+    {
+        // note eventually this method could have a db lookup to check against if admins want to vet this
+        // possibly we could have an event dispatched here as well if we want someone to provide / extend that kind of functionality
+
+        // if a public app requests the launch scope we also do not let them through unless they've been manually
+        // authorized by an administrator user.
+        if (!$is_confidential_client) {
+            if (array_search("launch", $scopes) !== false) {
+                return true;
+            }
+        }
+        // as not all jurisdictions have to comply with ONC rules we will still check against the globals flag in case
+        // a user has turned off auto-enabling of apps and wants to lock down their installation
+        if (($GLOBALS['oauth_app_manual_approval'] ?? '0') == '1') {
+            return true;
+        }
+
+        if ($is_confidential_client) {
+            // ONC requires that a patient be allowed to use an app of their choice and as long as it does not use user/system scopes there can be
+            // no prohibiting the patient app selection due to Information Blocking Rule, EMRs must authorize the app within 2 business days
+            // to deal with this we auto-enable confidential apps that ONLY use patient/* scopes even if they request offline_access scope
+            // we still prohibit any confidential app that is allowing an in-EHR context to be auto-enabled since they are listed inside
+            // the patient demographics screen (and other locations possibly in the future)
+            if ($this->hasUserScopes($scopes) || $this->hasSystemScopes($scopes)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    private function hasUserScopes(array $scopes)
+    {
+        return $this->scopeArrayHasString($scopes, 'user/');
+    }
+    private function hasSystemScopes(array $scopes)
+    {
+        return $this->scopeArrayHasString($scopes, 'system/');
+    }
+
+    private function scopeArrayHasString(array $scopes, $str)
+    {
+        foreach ($scopes as $scope) {
+            if (strpos($scope, $str) !== false) {
+                return true;
+            }
+        }
+        return false;
     }
 }

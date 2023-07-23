@@ -429,6 +429,9 @@ class EDI270
         $res = sqlStatement($query, array($pid));
 
         $details = self::requestRealTimeEligible($res, '', "~", ':', true);
+        if ($details === false) {
+            $details = "Error: Nothing returned from X12 Partner.";
+        }
         $isError = strpos($details, "Error:");
         $isError = $isError !== false ? $isError : strpos($details, "AAA");
         if ($isError !== false) {
@@ -445,7 +448,11 @@ class EDI270
     public static function requestRealTimeEligible($res, $X12info, $segTer, $compEleSep, $eFlag = false)
     {
         $rowCount = 0;
-        $totalCount = count($res);
+        if (is_countable($res)) {
+            $totalCount = count($res);
+        } else {
+            return false;
+        }
         $down_accum = $log = $error_accum = '';
         foreach ($res as $row) {
             if (!$X12info) {
@@ -763,15 +770,6 @@ class EDI270
         }
 
         return $returnval;
-    }
-
-// return formated array
-
-    public static function arrFormated(&$item, $key)
-    {
-        $item = strstr($item, '_');
-        $item = substr($item, 1, strlen($item) - 1);
-        $item = "'" . $item;
     }
 
     public static function requestEligibility($partner = '', $x12_270 = '')

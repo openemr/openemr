@@ -66,6 +66,18 @@ var sections_entries_codes = {
             "code_system_name": "LOINC",
             "name": "Assessments"
         },
+        "CareTeamSection": {
+            "code": "85847-2",
+            "code_system": "2.16.840.1.113883.6.1",
+            "code_system_name": "LOINC",
+            "name": "Patient Care Teams"
+        },
+        "CareTeamAct": {
+            "code": "85847-2",
+            "code_system": "2.16.840.1.113883.6.1",
+            "code_system_name": "LOINC",
+            "name": "Care Team Information"
+        },
         "ChiefComplaintAndReasonForVisitSection": {
             "code": "46239-0",
             "code_system": "2.16.840.1.113883.6.1",

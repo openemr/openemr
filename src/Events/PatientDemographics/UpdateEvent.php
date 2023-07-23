@@ -9,7 +9,7 @@
 
 namespace OpenEMR\Events\PatientDemographics;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Event object for restricting access to users updating patients

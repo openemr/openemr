@@ -13,6 +13,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 $alertmsg = '';
@@ -21,7 +22,8 @@ $info_msg = "";
 $tmpl_line_no = 0;
 
 if (!AclMain::aclCheckCore('admin', 'drugs')) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Drug")]);
+    exit;
 }
 
 // Write a line of data for one template to the form.
@@ -125,7 +127,7 @@ function set_related_target(codetype, code, selector, codedesc, target_element, 
                 if (s.indexOf(codetype + ':') == 0 || s.indexOf(';' + codetype + ':') > 0) {
                     return <?php echo xlj('A code of this type is already selected. Erase the field first if you need to replace it.') ?>;
                 }
-            }     
+            }
             if (s.length > 0) {
                 s += ';';
             }
@@ -444,12 +446,12 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
     <div class="form-group">
-        <label class="font-weight-bold"><?php echo xlt('Name'); ?>:</label>
+        <label><?php echo xlt('Name'); ?>:</label>
         <input class="form-control" size="40" name="form_name" maxlength="80" value='<?php echo attr($row['name']) ?>' />
     </div>
 
     <div class="form-group mt-3">
-        <label class="font-weight-bold"><?php echo xlt('Attributes'); ?>:</label>
+        <label><?php echo xlt('Attributes'); ?>:</label>
         <input type='checkbox' name='form_active' value='1'<?php
         if ($row['active']) {
             echo ' checked';
@@ -463,7 +465,7 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
     </div>
 
     <div class="form-group mt-3">
-        <label class="font-weight-bold"><?php echo xlt('Allow'); ?>:</label>
+        <label><?php echo xlt('Allow'); ?>:</label>
         <input type='checkbox' name='form_dispensable' value='1' onclick='dispensable_changed();'<?php
         if ($row['dispensable']) {
             echo ' checked';
@@ -482,26 +484,26 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
     </div>
 
     <div class="form-group mt-3">
-        <label class="font-weight-bold"><?php echo xlt('NDC Number'); ?>:</label>
+        <label><?php echo xlt('NDC Number'); ?>:</label>
         <input class="form-control w-100" size="40" name="form_ndc_number" maxlength="20" value='<?php echo attr($row['ndc_number']) ?>' onkeyup='maskkeyup(this,"<?php echo attr(addslashes($GLOBALS['gbl_mask_product_id'])); ?>")' onblur='maskblur(this,"<?php echo attr(addslashes($GLOBALS['gbl_mask_product_id'])); ?>")' />
     </div>
 
     <div class="form-group mt-3">
-        <label class="font-weight-bold"><?php echo xlt('RXCUI Code'); ?>:</label>
+        <label><?php echo xlt('RXCUI Code'); ?>:</label>
         <input class="form-control w-100" type="text" size="50" name="form_drug_code" value='<?php echo attr($row['drug_code']) ?>'
              onclick='sel_related("?codetype=RXCUI&limit=1&target_element=form_drug_code")' title='<?php echo xla('Click to select RXCUI code'); ?>' data-toggle="tooltip" data-placement="top" readonly />
     </div>
 
     <div class="form-group mt-3">
-        <label class="font-weight-bold"><?php echo xlt('On Order'); ?>:</label>
+        <label><?php echo xlt('On Order'); ?>:</label>
         <input class="form-control" size="5" name="form_on_order" maxlength="7" value='<?php echo attr($row['on_order']) ?>' />
     </div>
 
     <div class="form-group mt-3">
-        <label class="font-weight-bold"><?php echo xlt('Limits'); ?>:</label>
+        <label><?php echo xlt('Limits'); ?>:</label>
         <table class="table table-borderless pl-5">
             <tr>
-                <td class="align-top font-weight-bold">
+                <td class="align-top ">
                     <?php echo !empty($GLOBALS['gbl_min_max_months']) ? xlt('Months') : xlt('Units'); ?>
                 </td>
                 <td class="align-top"><?php echo xlt('Global'); ?></td>
@@ -560,76 +562,79 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
     </div>
 
     <div class="form-group mt-3 drugsonly">
-        <label class="font-weight-bold"><?php echo xlt('Form'); ?>:</label>
+        <label><?php echo xlt('Form'); ?>:</label>
         <?php
             generate_form_field(array('data_type' => 1,'field_id' => 'form','list_id' => 'drug_form','empty_title' => 'SKIP'), $row['form']);
         ?>
     </div>
 
     <div class="form-group mt-3 drugsonly">
-        <label class="font-weight-bold"><?php echo xlt('Size'); ?>:</label>
+        <label><?php echo xlt('Size'); ?>:</label>
         <input class="form-control" size="5" name="form_size" maxlength="7" value='<?php echo attr($row['size']) ?>' />
     </div>
 
     <div class="form-group mt-3 drugsonly" title='<?php echo xlt('Measurement Units'); ?>'>
-        <label class="font-weight-bold"><?php echo xlt('Units'); ?>:</label>
+        <label><?php echo xlt('Units'); ?>:</label>
         <?php
             generate_form_field(array('data_type' => 1,'field_id' => 'unit','list_id' => 'drug_units','empty_title' => 'SKIP'), $row['unit']);
         ?>
     </div>
 
     <div class="form-group mt-3 drugsonly">
-        <label class="font-weight-bold"><?php echo xlt('Route'); ?>:</label>
+        <label><?php echo xlt('Route'); ?>:</label>
         <?php
             generate_form_field(array('data_type' => 1,'field_id' => 'route','list_id' => 'drug_route','empty_title' => 'SKIP'), $row['route']);
         ?>
     </div>
 
     <div class="form-group mt-3 ippfonly" style='display:none'> <!-- Removed per CV 2017-03-29 -->
-        <label class="font-weight-bold"><?php echo xlt('CYP Factor'); ?>:</label>
+        <label><?php echo xlt('CYP Factor'); ?>:</label>
         <input class="form-control" size="10" name="form_cyp_factor" maxlength="20" value='<?php echo attr($row['cyp_factor']) ?>' />
     </div>
 
     <div class="form-group mt-3 drugsonly">
-        <label class="font-weight-bold"><?php echo xlt('Relate To'); ?>:</label>
+        <label><?php echo xlt('Relate To'); ?>:</label>
         <input class="form-control w-100" type="text" size="50" name="form_related_code" value='<?php echo attr($row['related_code']) ?>'
              onclick='sel_related("?target_element=form_related_code")' title='<?php echo xla('Click to select related code'); ?>' data-toggle="tooltip" data-placement="top" readonly />
     </div>
 
     <div class="form-group mt-3">
-        <label class="font-weight-bold">
+        <label>
             <?php echo $GLOBALS['sell_non_drug_products'] == 2 ? xlt('Fees') : xlt('Templates'); ?>:
         </label>
         <table class='table table-borderless'>
-            <tr>
-                <td class='drugsonly font-weight-bold'><?php echo xlt('Name'); ?></td>
-                <td class='drugsonly font-weight-bold'><?php echo xlt('Schedule'); ?></td>
-                <td class='drugsonly font-weight-bold'><?php echo xlt('Interval'); ?></td>
-                <td class='drugsonly font-weight-bold'><?php echo xlt('Basic Units'); ?></td>
-                <td class='drugsonly font-weight-bold'><?php echo xlt('Refills'); ?></td>
-                <?php
-                // Show a heading for each price level.  Also create an array of prices
-                // for new template lines.
-                $emptyPrices = array();
-                $pres = sqlStatement("SELECT option_id, title FROM list_options " .
-                    "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq");
-                while ($prow = sqlFetchArray($pres)) {
-                    $emptyPrices[$prow['option_id']] = '';
-                    echo "     <td class='font-weight-bold'>" .
-                    generate_display_field(array('data_type' => '1','list_id' => 'pricelevel'), $prow['option_id']) .
-                    "</td>\n";
-                }
+            <thead>
+                <tr>
+                    <th class='drugsonly'><?php echo xlt('Name'); ?></th>
+                    <th class='drugsonly'><?php echo xlt('Schedule'); ?></th>
+                    <th class='drugsonly'><?php echo xlt('Interval'); ?></th>
+                    <th class='drugsonly'><?php echo xlt('Basic Units'); ?></th>
+                    <th class='drugsonly'><?php echo xlt('Refills'); ?></th>
+                    <?php
+                    // Show a heading for each price level.  Also create an array of prices
+                    // for new template lines.
+                    $emptyPrices = array();
+                    $pres = sqlStatement("SELECT option_id, title FROM list_options " .
+                        "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq");
+                    while ($prow = sqlFetchArray($pres)) {
+                        $emptyPrices[$prow['option_id']] = '';
+                        echo "     <th>" .
+                        generate_display_field(array('data_type' => '1','list_id' => 'pricelevel'), $prow['option_id']) .
+                        "</th>\n";
+                    }
 
-                // Show a heading for each tax rate.
-                $pres = sqlStatement("SELECT option_id, title FROM list_options " .
-                    "WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq");
-                while ($prow = sqlFetchArray($pres)) {
-                    echo "     <td class='font-weight-bold'>" .
-                        generate_display_field(array('data_type' => '1','list_id' => 'taxrate'), $prow['option_id']) .
-                        "</td>\n";
-                }
-                ?>
-            </tr>
+                    // Show a heading for each tax rate.
+                    $pres = sqlStatement("SELECT option_id, title FROM list_options " .
+                        "WHERE list_id = 'taxrate' AND activity = 1 ORDER BY seq");
+                    while ($prow = sqlFetchArray($pres)) {
+                        echo "     <th>" .
+                            generate_display_field(array('data_type' => '1','list_id' => 'taxrate'), $prow['option_id']) .
+                            "</th>\n";
+                    }
+                    ?>
+                </tr>
+            </thead>
+            <tbody>
             <?php
             $blank_lines = $GLOBALS['sell_non_drug_products'] == 2 ? 1 : 3;
             if ($tres) {
@@ -668,6 +673,7 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
                 writeTemplateLine($selector, '', '', '', '', $emptyPrices, '', '1');
             }
             ?>
+            </tbody>
         </table>
     </div>
 

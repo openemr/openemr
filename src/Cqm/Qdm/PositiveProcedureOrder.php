@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PositiveProcedureOrder extends ProcedureOrder
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class PositiveProcedureOrder extends ProcedureOrder
 
     public $_type = 'QDM::PositiveProcedureOrder';
 }
+

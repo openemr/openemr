@@ -11,7 +11,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../library/patient.inc");
+require_once(__DIR__ . "/../library/patient.inc.php");
 
 class eRxXMLBuilder
 {
@@ -266,14 +266,14 @@ class eRxXMLBuilder
         $eRxCredentials = $this->getGlobals()
             ->getCredentials();
 
-        $elemenet = $this->getDocument()->createElement('Credentials');
-        $elemenet->appendChild($this->createElementTextFieldEmpty('partnerName', $eRxCredentials['0'], xl('NewCrop eRx Partner Name')));
-        $elemenet->appendChild($this->createElementTextFieldEmpty('name', $eRxCredentials['1'], xl('NewCrop eRx Account Name')));
-        $elemenet->appendChild($this->createElementTextFieldEmpty('password', $eRxCredentials['2'], xl('NewCrop eRx Password')));
-        $elemenet->appendChild($this->createElementText('productName', 'OpenEMR'));
-        $elemenet->appendChild($this->createElementText('productVersion', $this->getGlobals()->getOpenEMRVersion()));
+        $element = $this->getDocument()->createElement('Credentials');
+        $element->appendChild($this->createElementTextFieldEmpty('partnerName', $eRxCredentials['0'], xl('NewCrop eRx Partner Name')));
+        $element->appendChild($this->createElementTextFieldEmpty('name', $eRxCredentials['1'], xl('NewCrop eRx Account Name')));
+        $element->appendChild($this->createElementTextFieldEmpty('password', $eRxCredentials['2'], xl('NewCrop eRx Password')));
+        $element->appendChild($this->createElementText('productName', 'OpenEMR'));
+        $element->appendChild($this->createElementText('productVersion', $this->getGlobals()->getOpenEMRVersion()));
 
-        return $elemenet;
+        return $element;
     }
 
     public function getUserRole($authUserId)

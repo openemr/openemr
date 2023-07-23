@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PositivePhysicalExamOrder extends PhysicalExamOrder
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class PositivePhysicalExamOrder extends PhysicalExamOrder
 
     public $_type = 'QDM::PositivePhysicalExamOrder';
 }
+

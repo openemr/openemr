@@ -1,0 +1,8 @@
+To generate new models, update the path to qdm-modelinfo-*.xml and the oids_qdm_*.json files
+The oids_qdm file was pulled from projecttacoma:
+https://github.com/projecttacoma/cqm-models/tree/master/data
+
+Run the "Generate Models" command in the CQM Tools module.
+
+If you are running a remote deployment, you'll have to copy the models from your remote server to the git repo.
+However, do not overwrite the BaseTypes and Traits directories, as they are not auto-generated.

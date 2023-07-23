@@ -12,16 +12,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE CNU General Public License 3
  */
 
-use OpenEMR\Common\Utils\RandomGenUtils;
-use ParagonIE\MultiFactor\Vendor\GoogleAuth;
+use RobThree\Auth\Providers\Qr\BaconQrCodeProvider;
+use RobThree\Auth\TwoFactorAuth;
 
 /**
  * Class Totp
  */
 class Totp
 {
-    /** @var bool|GoogleAuth  */
-    private $_googleAuth = false;
     /** @var bool|string - totp hashed secret */
     private $_secret = false;
     /** @var string - issuer mentioned in the QR App  */
@@ -37,16 +35,15 @@ class Totp
     {
         $this->_username = $username;
 
-        if ($secret) {
+        if (!empty($secret)) {
             $this->_secret = $secret;
         } else {
+            $tfa = new TwoFactorAuth();
             // Shared key (per rfc6238 and rfc4226) should be 20 bytes (160 bits) and encoded in base32, which should
-            //   be 32 characters in base32
-            // Would be nice to use the OpenEMR\Common\Utils\RandomGenUtils\produceRandomBytes() function and then encode to base32,
-            //   but does not appear to be a standard way to encode binary to base32 in php.
-            $this->_secret = RandomGenUtils::produceRandomString(32, "234567ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+            //   be 32 characters in base32 (below line does all this)
+            $this->_secret = $tfa->createSecret(160);
             if (empty($this->_secret)) {
-                error_log('OpenEMR Error : Random String error - exiting');
+                error_log('OpenEMR Error : MFA was unable to create secret - exiting');
                 die();
             }
         }
@@ -54,29 +51,21 @@ class Totp
 
     /**
      * Generates a QR code code
-     * @return bool|string|void
+     * @return bool|string
      */
     public function generateQrCode()
     {
-        if (class_exists('ParagonIE\MultiFactor\Vendor\GoogleAuth')) {
-            // Generates a file with a PNG of the qr code
-            if (!empty($GLOBALS['temporary_files_dir'])) {
-                $tempFilePath = tempnam($GLOBALS['temporary_files_dir'], "oer");
-            } else {
-                $tempFilePath = tempnam(sys_get_temp_dir(), 'oer');
-            }
-            $this->_getGoogleAuth()->makeQRCode(null, $tempFilePath, $this->_username, $this->_issuer);
-
-            // Gets the image file data to return
-            $data = base64_encode(file_get_contents($tempFilePath));
-            $image = sprintf('data:%s;base64,%s', 'image/png', $data);
-
-            // Delete image file before returning
-            unlink($tempFilePath);
-
-            return $image;
+        if (empty($this->_issuer) || empty($this->_username) || empty($this->_secret)) {
+            return false;
         }
-        return false;
+
+        $qrCodeProvider = new BaconQrCodeProvider(4, '#ffffff', '#000000', 'svg');
+        $tfa = new TwoFactorAuth($this->_issuer, 6, 30, 'sha1', $qrCodeProvider);
+        $qr = $tfa->getQRCodeImageAsDataUri($this->_username, $this->_secret);
+        if (empty($qr)) {
+            return false;
+        }
+        return $qr;
     }
 
     /**
@@ -86,10 +75,11 @@ class Totp
      */
     public function validateCode($totp)
     {
-        if (class_exists('ParagonIE\MultiFactor\Vendor\GoogleAuth') && (!empty($this->_secret))) {
-            return $this->_getGoogleAuth()->validateCode($totp, strtotime("now"));
+        if (empty($totp) || empty($this->_secret)) {
+            return false;
         }
-        return false;
+        $tfa = new TwoFactorAuth();
+        return $tfa->verifyCode($this->_secret, $totp);
     }
 
     /**
@@ -99,17 +89,5 @@ class Totp
     public function getSecret()
     {
         return $this->_secret;
-    }
-
-    /**
-     * Gets the GoogleAuth object related this Totp
-     * @return bool|GoogleAuth
-     */
-    private function _getGoogleAuth()
-    {
-        if (!$this->_googleAuth) {
-            $this->_googleAuth = new GoogleAuth($this->getSecret());
-        }
-        return $this->_googleAuth;
     }
 }

@@ -18,12 +18,12 @@
  * @copyright Copyright (c) 2012 fndtn357 <fndtn357@gmail.com>
  * @copyright Copyright (c) 2016 Wakie87 <scott@npclinics.com.au>
  * @copyright Copyright (c) 2016-2019 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2017 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2017-2023 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("../../../library/api.inc");
+require_once("../../../library/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;

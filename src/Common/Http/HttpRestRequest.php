@@ -11,12 +11,24 @@
 
 namespace OpenEMR\Common\Http;
 
+use Http\Message\Encoding\GzipDecodeStream;
+use Nyholm\Psr7\Factory\Psr17Factory;
+use Nyholm\Psr7\ServerRequest;
+use Nyholm\Psr7\Uri;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\System\System;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\UriInterface;
 
-class HttpRestRequest
+class HttpRestRequest implements ServerRequestInterface
 {
+    /**
+     * @var ServerRequestInterface
+     */
+    private $innerServerRequest;
+
     /**
      * @var \RestConfig
      */
@@ -56,9 +68,25 @@ class HttpRestRequest
     private $requestUserRole;
 
     /**
+     * @var string The uuid of the patient in the current EHR context.  Could be logged in patient,
+     * or patient that is in the EHR context session or was selected with a launch/patient context scope
+     */
+    private $patientUUIDString;
+
+    /**
      * @var array
      */
     private $accessTokenScopes;
+
+    /**
+     * @var hashmap of resource => scopeContext where scopeContext is patient,user, or system
+     */
+    private $resourceScopeContexts;
+
+    /*
+     * @var bool True if the current request is a patient context request, false if its not.
+     */
+    private $patientRequest;
 
     /**
      * @var string
@@ -81,11 +109,6 @@ class HttpRestRequest
     private $isLocalApi;
 
     /**
-     * @var string
-     */
-    private $requestMethod;
-
-    /**
      * The kind of REST api request this object represents
      * @var string
      */
@@ -101,39 +124,42 @@ class HttpRestRequest
      */
     private $apiBaseFullUrl;
 
-    /**
-     * @var string[] The request headers
-     */
-    private $headers;
-
-    /**
-     * @var mixed[]
-     */
-    private $queryParams;
-
-    /**
-     * The raw POST or PUT body contents
-     * @var null|string
-     */
-    private $requestBody;
-
     public function __construct($restConfig, $server)
     {
         $this->restConfig = $restConfig;
         $this->requestSite = $restConfig::$SITE;
 
-        $this->setRequestMethod($server["REQUEST_METHOD"]);
-        $this->setRequestURI($server['REQUEST_URI'] ?? "");
-        $this->headers = $this->parseHeadersFromServer($server);
+
+        $headers = $this->parseHeadersFromServer($server);
+        $body = null;
+        $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? '');
+        if ($method == "POST" || $method == "PUT") {
+            $body = file_get_contents("php://input") ?? null;
+        }
+        // we use the URI from the restConfig to handle our ServerRequestInterface
+        $requestUri = $this->restConfig::getRequestEndPoint();
+        $this->requestSite = $this->restConfig::$SITE;
+        $requestUri = str_replace('/' . $this->requestSite, '', $requestUri);
+        // we use this to handle our ServerRequestInterface
+        $this->innerServerRequest =  new ServerRequest(
+            $method,
+            $requestUri ?? "",
+            $headers,
+            $body,
+            '1.1',
+            $server
+        );
+
         $queryParams = $_GET ?? [];
         // remove the OpenEMR queryParams that our rewrite command injected so we don't mess stuff up.
         if (isset($queryParams['_REWRITE_COMMAND'])) {
             unset($queryParams['_REWRITE_COMMAND']);
         }
-        $this->setQueryParams($queryParams);
+        $this->innerServerRequest = $this->innerServerRequest->withQueryParams($queryParams);
+        $this->setPatientRequest(false); // default to false
 
-        if ($this->getRequestMethod() == "POST" || $this->getRequestMethod() == "PUT") {
-            $this->requestBody = file_get_contents("php://input") ?? null;
+        if (!empty($headers['APICSRFTOKEN'])) {
+            $this->setIsLocalApi(true);
         }
     }
 
@@ -142,54 +168,61 @@ class HttpRestRequest
      */
     public function getRequestBody()
     {
-        return $this->requestBody;
+        $stream = $this->innerServerRequest->getBody(); // Nyholm points things at the end of the stream, so we need to rewind it.
+        $stream->rewind();
+        return $stream->getContents();
     }
 
     public function getRequestBodyJSON()
     {
-        if (!empty($this->requestBody)) {
-            return (array) (json_decode($this->requestBody));
+        $stream = $this->innerServerRequest->getBody(); // Nyholm points things at the end of the stream, so we need to rewind it.
+        $stream->rewind();
+        $contentEncoding = $this->getHeader("Content-Encoding");
+        // let's decode the gzip content if we can
+        if (!empty($contentEncoding) && $contentEncoding[0] === "gzip") {
+            $stream = new GzipDecodeStream($stream);
         }
-        return null;
+        return json_decode($stream->getContents(), true);
     }
 
     public function setRequestMethod($requestMethod)
     {
-        $this->requestMethod = $requestMethod;
+        $this->innerServerRequest = $this->innerServerRequest->withMethod($requestMethod);
     }
 
     public function setQueryParams($queryParams)
     {
-        $this->queryParams = $queryParams;
+        return $this->innerServerRequest->withQueryParams($queryParams);
     }
 
     public function getQueryParams()
     {
-        return $this->queryParams;
+        return $this->innerServerRequest->getQueryParams();
     }
 
     public function getQueryParam($key)
     {
-        return $this->queryParams[$key] ?? null;
+        $params = $this->getQueryParams();
+        return $params[$key] ?? null;
     }
 
     /**
      * Return an array of HTTP request headers
-     * @return array|string[]
+     * @return array|string[][]
      */
     public function getHeaders()
     {
-        return array_values($this->headers);
+        return $this->innerServerRequest->getHeaders();
     }
 
     /**
-     * Retrieve the value of the passed in request's HTTP header.  Return's null if the value does not exist
+     * Retrieve the value of the passed in request's HTTP header.  Returns an empty array if the header is not found
      * @param $headerName string the name of the header value to retrieve.
-     * @return mixed|string|null
+     * @return string[]
      */
     public function getHeader($headerName)
     {
-        return $this->headers[$headerName] ?? null;
+        return $this->innerServerRequest->getHeader($headerName);
     }
 
     /**
@@ -199,6 +232,7 @@ class HttpRestRequest
      */
     public function hasHeader($headerName)
     {
+        return $this->innerServerRequest->hasHeader($headerName);
         return !empty($this->headers[$headerName]);
     }
 
@@ -216,16 +250,20 @@ class HttpRestRequest
      */
     public function getRequestURI()
     {
-        return $this->requestURI;
+        return $this->innerServerRequest->getUri();
     }
 
     /**
      * Return the Request URI (matches the $_SERVER['REQUEST_URI'])
+     * changing the request uri, resets all of the populated methods that derive from the URI as we can't determine
+     * what they are, these have to be manually reset
      * @param mixed|string $requestURI
      */
     public function setRequestURI($requestURI): void
     {
-        $this->requestURI = $requestURI;
+        $this->resource = null;
+        $this->requestPath = null;
+        $this->innerServerRequest = $this->innerServerRequest->withUri(new Uri($requestURI));
     }
 
     /**
@@ -304,7 +342,12 @@ class HttpRestRequest
      */
     public function getAccessTokenScopes(): array
     {
-        return $this->accessTokenScopes;
+        return array_values($this->accessTokenScopes);
+    }
+
+    public function requestHasScope($scope)
+    {
+        return isset($this->accessTokenScopes[$scope]);
     }
 
     /**
@@ -312,7 +355,38 @@ class HttpRestRequest
      */
     public function setAccessTokenScopes(array $scopes): void
     {
-        $this->accessTokenScopes = $scopes;
+        // scopes are in format of <context>/<resource>.<permission>
+        $scopeDelimiters = "/.";
+        $validContext = ['patient', 'user','system'];
+        $this->accessTokenScopes = [];
+        $this->resourceScopeContexts = [];
+        foreach ($scopes as $scope) {
+            // make sure to populate our scopes
+            $this->accessTokenScopes[$scope] = $scope;
+
+            $scopeContext = "patient";
+            $context = strtok($scope, $scopeDelimiters) ?? null;
+            $resource = strtok($scopeDelimiters) ?? null;
+            if (empty($context) || empty($resource)) {
+                continue; // nothing to do here
+                // skip over any launch parameters, fhiruser, etc.
+            } else if (array_search($context, $validContext) === false) {
+                continue;
+            }
+            $currentContext = $this->resourceScopeContexts[$resource] ?? $scopeContext;
+            // user scope overwrites user and patient
+            if ($context == "user" && $currentContext != 'system') {
+                $scopeContext = "user";
+            // system scope for the resource overwrites everything
+            } else if ($context == "system") {
+                $scopeContext = "system";
+            } else if ($currentContext != "patient") {
+                // if what we have currently is not a patient context we want to use that value and not overwrite
+                // it with a patient context
+                $scopeContext = $currentContext;
+            }
+            $this->resourceScopeContexts[$resource] = $scopeContext;
+        }
     }
 
     /**
@@ -328,6 +402,9 @@ class HttpRestRequest
      */
     public function setRequestSite(string $requestSite): void
     {
+        // while here parse site from endpoint
+        $resource = str_replace('/' . $requestSite, '', $this->innerServerRequest->getUri()->getPath());
+        $this->innerServerRequest->withUri(new Uri($resource));
         $this->requestSite = $requestSite;
     }
 
@@ -410,9 +487,32 @@ class HttpRestRequest
 
     public function getPatientUUIDString()
     {
-        // we may change how this is set, it will depend on if a 'user' role type can still have
+        // if the logged in account is a patient user this will match with requestUserUUID
+        // If the logged in account is a practitioner user this will be the user selected as part of the launch/patient
+        // EHR context session.
+        // This is used in
         // patient/<resource>.* requests.  IE patient/Patient.read
-        return $this->requestUserUUIDString;
+        return $this->patientUUIDString;
+    }
+
+    public function setPatientUuidString(?string $value)
+    {
+        $this->patientUUIDString = $value;
+    }
+
+    public function setPatientRequest($isPatientRequest)
+    {
+        $this->patientRequest = $isPatientRequest;
+    }
+
+    /**
+     * Returns the scope context (patient,user,system) that is used for the given resource as parsed from the request scopes
+     * @param $resource string The resource to check (IE Patient, AllergyIntolerance, etc).
+     * @return string|null The context or null if the resource does not exist in the scopes.
+     */
+    public function getScopeContextForResource($resource)
+    {
+        return $this->resourceScopeContexts[$resource] ?? null;
     }
 
     /**
@@ -439,13 +539,13 @@ class HttpRestRequest
      */
     public function getRequestMethod(): ?string
     {
-        return $this->requestMethod;
+        return $this->innerServerRequest->getMethod();
     }
 
 
     public function isPatientRequest()
     {
-        return $this->requestUserRole === 'patient';
+        return $this->patientRequest === true;
     }
 
     public function isFhir()
@@ -472,12 +572,12 @@ class HttpRestRequest
 
     public function setRequestPath(string $requestPath)
     {
-        $this->requestPath = $requestPath;
+        $this->innerServerRequest = $this->innerServerRequest->withUri($this->innerServerRequest->getUri()->withPath($requestPath));
     }
 
     public function getRequestPath(): ?string
     {
-        return $this->requestPath;
+        return $this->innerServerRequest->getUri()->getPath();
     }
 
     /**
@@ -498,12 +598,165 @@ class HttpRestRequest
         $this->apiBaseFullUrl = $apiBaseFullUrl;
     }
 
-    /**
-     * Given an array of server variables (typically the $_SERVER superglobal) parse out all of the HTTP_X headers
-     * and convert them into a hashmap of header -> header
-     * @param $server array of server variables typically the $_SERVER superglobal
-     * @return array hashmap of header -> header
-     */
+    public function getProtocolVersion()
+    {
+        return $this->innerServerRequest->getProtocolVersion();
+    }
+
+    public function withProtocolVersion($version)
+    {
+        $clonedRequest = clone $this;
+        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withProtocolVersion($version);
+        return $clonedRequest;
+    }
+
+    public function getHeaderLine($name)
+    {
+        return $this->innerServerRequest->getHeaderLine($name);
+    }
+
+    public function withHeader($name, $value)
+    {
+        $clonedRequest = clone $this;
+        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withHeader($name, $value);
+        return $clonedRequest;
+    }
+
+    public function withAddedHeader($name, $value)
+    {
+        $clonedRequest = clone $this;
+        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withAddedHeader($name, $value);
+        return $clonedRequest;
+    }
+
+    public function withoutHeader($name)
+    {
+        $clonedRequest = clone $this;
+        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withoutHeader($name);
+        return $clonedRequest;
+    }
+
+    public function getBody()
+    {
+        return $this->innerServerRequest->getBody();
+    }
+
+    public function withBody(StreamInterface $body)
+    {
+        $clonedRequest = clone $this;
+        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withBody($body);
+        return $clonedRequest;
+    }
+
+    public function getRequestTarget()
+    {
+        $this->innerServerRequest->getRequestTarget();
+    }
+
+    public function withRequestTarget($requestTarget)
+    {
+        $clonedRequest = clone $this;
+        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withRequestTarget($requestTarget);
+        return $clonedRequest;
+    }
+
+    public function getMethod()
+    {
+        return $this->innerServerRequest->getMethod();
+    }
+
+    public function withMethod($method)
+    {
+        $clonedRequest = clone $this;
+        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withRequestTarget($method);
+        return $clonedRequest;
+    }
+
+    public function getUri()
+    {
+        return $this->innerServerRequest->getUri();
+    }
+
+    public function withUri(UriInterface $uri, $preserveHost = false)
+    {
+        $clonedRequest = clone $this;
+        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withUri($uri, $preserveHost);
+        $clonedRequest->resource = null;
+        $clonedRequest->requestPath = null;
+        return $clonedRequest;
+    }
+
+    public function getServerParams()
+    {
+        return $this->innerServerRequest->getServerParams();
+    }
+
+    public function getCookieParams()
+    {
+        return $this->innerServerRequest->getCookieParams();
+    }
+
+    public function withCookieParams(array $cookies)
+    {
+        $clonedRequest = clone $this;
+        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withCookieParams($cookies);
+        return $clonedRequest;
+    }
+
+    public function withQueryParams(array $query)
+    {
+        $clonedRequest = clone $this;
+        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withQueryParams($query);
+        return $clonedRequest;
+    }
+
+    public function getUploadedFiles()
+    {
+        return $this->innerServerRequest->getUploadedFiles();
+    }
+
+    public function withUploadedFiles(array $uploadedFiles)
+    {
+        $clonedRequest = clone $this;
+        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withUploadedFiles($uploadedFiles);
+        return $clonedRequest;
+    }
+
+    public function getParsedBody()
+    {
+        return $this->innerServerRequest->getParsedBody();
+    }
+
+    public function withParsedBody($data)
+    {
+        $clonedRequest = clone $this;
+        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withParsedBody($data);
+        return $clonedRequest;
+    }
+
+    public function getAttributes()
+    {
+        return $this->innerServerRequest->getAttributes();
+    }
+
+    public function getAttribute($name, $default = null)
+    {
+        return $this->innerServerRequest->getAttribute($name, $default);
+    }
+
+    public function withAttribute($name, $value)
+    {
+        $clonedRequest = clone $this;
+        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withAttribute($name, $value);
+        return $clonedRequest;
+    }
+
+    public function withoutAttribute($name)
+    {
+        $clonedRequest = clone $this;
+        $clonedRequest->innerServerRequest = $clonedRequest->innerServerRequest->withoutAttribute($name);
+        return $clonedRequest;
+    }
     private function parseHeadersFromServer($server)
     {
         $headers = array();
@@ -518,7 +771,10 @@ class HttpRestRequest
             $uppercasedServerHeader = ucwords(str_replace('_', ' ', $serverHeader));
 
             $header = str_replace(' ', '-', $uppercasedServerHeader);
-            $headers[$header] = $value;
+            if (empty($headers[$header])) {
+                $headers[$header] = [];
+            }
+            $headers[$header][] = $value;
         }
         return $headers;
     }

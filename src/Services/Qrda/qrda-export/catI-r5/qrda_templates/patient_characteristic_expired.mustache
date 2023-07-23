@@ -1,0 +1,32 @@
+<entry>
+  <observation classCode="OBS" moodCode="EVN">
+    <!-- C-CDA R2.1 Deceased Observation (V3) templateId -->
+    <templateId root="2.16.840.1.113883.10.20.22.4.79" extension="2015-08-01" />
+    <!-- Patient Characteristic Expired (V3) -->
+    <templateId root="2.16.840.1.113883.10.20.24.3.54" extension="2016-02-01" />
+    <id root="1.3.6.1.4.1.115" extension="{{object_id}}"/>
+    <code code="ASSERTION" codeSystem="2.16.840.1.113883.5.4" codeSystemName="HL7ActCode" />
+    <statusCode code="completed" />
+    {{#expiredDatetime}}
+      <!-- QDM Attributes: expiredDatetime  -->
+      {{{expired_date_time}}}
+    {{/expiredDatetime}}
+    <value xsi:type="CD" code="419099009" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT" displayName="Dead" />
+    {{#cause}}
+      <!-- QDM Attribute: Cause -->
+      <entryRelationship typeCode="CAUS" negationInd="false">
+        <observation classCode="OBS" moodCode="EVN">
+          <!-- C-CDA R2.1 Problem Observation (V3) -->
+          <templateId root="2.16.840.1.113883.10.20.22.4.4" extension="2015-08-01" />
+          <id root="{{random_id}}"/>
+          <code code="64572001" displayName="Condition" codeSystem="2.16.840.1.113883.6.96" codeSystemName="SNOMED CT">
+            <translation code="75323-6" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Condition"/>
+          </code>
+          <statusCode code="completed" />
+          {{{expired_date_time}}}
+          <value {{> _code}} xsi:type="CD"/>
+        </observation>
+      </entryRelationship>
+    {{/cause}}
+  </observation>
+</entry>

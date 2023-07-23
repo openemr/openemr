@@ -17,6 +17,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!empty($_POST)) {
@@ -27,7 +28,8 @@ if (!empty($_POST)) {
 
 // Ensure authorized
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    die(xlt("Unauthorized"));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Facility Specific User Information")]);
+    exit;
 }
 
 $alertmsg = '';

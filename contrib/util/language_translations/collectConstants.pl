@@ -217,6 +217,14 @@ foreach my $var (@filenames) {
     next;
    }
 
+   # skip \. Another rare usage of xl() function.
+   #  Can put in manually if require.
+   if ($de eq "\\") {
+    print LOGFILE "MESSAGE:  Special case character \\ skipped\n";
+    print LOGFILE $editvar2."\n";
+    next;
+   }
+
    # skip if starts with d of date(), since
    #  this is used in calendar frequently
    #  for translation of variables returned

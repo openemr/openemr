@@ -16,10 +16,15 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Validators\ProcessingResult;
 
 class UserService
 {
+    private $_includeUsername;
+
     /**
      * The name of the system user used for api requests.
      */
@@ -30,6 +35,24 @@ class UserService
      */
     public function __construct()
     {
+        $this->_includeUsername = false;
+    }
+
+    /**
+     * Sensitive fields in the database that are excluded by default from the service can be included here.
+     * Things such as username are normally excluded.
+     * @param $fields
+     * @return void
+     */
+    public function toggleSensitiveFields($fields)
+    {
+        foreach ($fields as $field) {
+            switch ($field) {
+                case 'username':
+                    $this->_includeUsername = !$this->_includeUsername;
+                    break;
+            }
+        }
     }
 
     public function getUuidFields()
@@ -135,6 +158,124 @@ class UserService
     }
 
     /**
+     * Retrieves a single user that is authorized for the calendar
+     * @param $userId
+     * @return array|null
+     */
+    public function getUserForCalendar($userId)
+    {
+        // TODO: eventually we'd like to leverage the inner search piece here and combine these methods
+        return $this->searchUsersForCalendar("", $userId);
+    }
+
+    /**
+     * Retrieves all the users that have been set to show up on the calendar optionally filtered by the facility if one
+     * is provided.
+     * @param string $facility
+     * @return array|null
+     */
+    public function getUsersForCalendar($facility = "")
+    {
+        return $this->searchUsersForCalendar($facility);
+    }
+
+    private function searchUsersForCalendar($facility = "", $userId = null)
+    {
+        // this originally came from patient.inc.php::getProviderInfo()
+        $param1 = " AND authorized = 1 AND calendar = 1 ";
+        $bind = [];
+        if (!empty($userId)) {
+            $param1 .= " AND id = ? ";
+            $bind[] = $userId;
+        }
+
+        //--------------------------------
+        //(CHEMED) facility filter
+        $param2 = "";
+        if (!empty($facility)) {
+            if ($GLOBALS['restrict_user_facility']) {
+                $param2 = " AND (facility_id = ? OR  ? IN (select facility_id from users_facility where tablename = 'users' and table_id = id))";
+                $bind[] = $facility;
+                $bind[] = $facility;
+            } else {
+                $param2 = " AND facility_id = ? ";
+                $bind[] = $facility;
+            }
+        }
+
+        $query = "select distinct id, username, lname, fname, authorized, info, facility, suffix " .
+            "from users where username != '' " . $param1 . $param2;
+        // sort by last name -- JRM June 2008
+        $query .= " ORDER BY lname, fname ";
+        $records = QueryUtils::fetchRecords($query, $bind);
+
+        //if only one result returned take the key/value pairs in array [0] and merge them down into
+        // the base array so that $resultval[0]['key'] is also accessible from $resultval['key']
+        if (count($records) == 1) {
+            $akeys = array_keys($records[0]);
+            foreach ($akeys as $key) {
+                $records[0][$key] = $records[0][$key];
+            }
+        }
+
+        return ($records ?? null);
+    }
+
+    public function search($search, $isAndCondition = true)
+    {
+        $sql = "SELECT  id,
+                        uuid,
+                        users.title as title,
+                        fname,
+                        lname,
+                        mname,
+                        federaltaxid,
+                        federaldrugid,
+                        upin,
+                        facility_id,
+                        facility,
+                        npi,
+                        email,
+                        active,
+                        specialty,
+                        billname,
+                        url,
+                        assistant,
+                        organization,
+                        valedictory,
+                        street,
+                        streetb,
+                        city,
+                        state,
+                        zip,
+                        phone,
+                        fax,
+                        phonew1,
+                        phonecell,
+                        users.notes,
+                        state_license_number,
+                        abook.title as abook_title";
+        if ($this->_includeUsername) {
+            $sql .= ", username";
+        }
+        $sql .= "
+                FROM  users
+                LEFT JOIN list_options as abook ON abook.option_id = users.abook_type";
+        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+
+        $sql .= $whereClause->getFragment();
+        $sqlBindArray = $whereClause->getBoundValues();
+        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+
+        $processingResult = new ProcessingResult();
+        while ($row = sqlFetchArray($statementResults)) {
+            $resultRecord = $this->createResultRecordFromDatabaseResult($row);
+            $processingResult->addData($resultRecord);
+        }
+        return $processingResult;
+    }
+
+    /**
      * Returns a list of users matching optional search criteria.
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
@@ -178,7 +319,11 @@ class UserService
                         phonecell,
                         users.notes,
                         state_license_number,
-                        abook.title as abook_title,
+                        abook.title as abook_title";
+        if ($this->_includeUsername) {
+            $sql .= ", username";
+        }
+        $sql .= "
                 FROM  users
                 LEFT JOIN list_options as abook ON abook.option_id = users.abook_type";
 

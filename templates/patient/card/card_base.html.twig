@@ -1,22 +1,19 @@
-<section class="card mb-2">
+<section class="{{ card_container_class_list|default(['card', 'mb-2'])|join(' ') }} card mb-2 {{ card_bg_color }} {{ card_text_color }}">
     <div class="card-body p-1">
-        <div class="card-title mb-0 d-flex p-1 justify-content-between">
-            {% if forceAlwaysOpen == true %}
-                <span class="font-weight-bolder text-primary">{{ title|text }}</span>
-            {% else %}
-                <button class="btn btn-link p-0 btn-block text-left font-weight-bolder" data-toggle="collapse" data-target="#{{ id|attr }}" aria-expanded="true" aria-controls="{{ id|attr }}">{{ title|text }}</button>
-            {% endif %}
+        <h6 class="card-title mb-0 d-flex p-1 justify-content-between">
+            <a class="text-left font-weight-bolder" href="#" {% if forceAlwaysOpen != true %}data-toggle="collapse" data-target="#{{ id|attr }}"{% endif %} aria-expanded="true" aria-controls="{{ id|attr }}">{{ title|text }}</a>
             {% if auth %}
-                {% if btnLabel == "Add" %}
-                    {% set btnIcon = "fa-plus" %}
-                {% else %}
-                    {% set btnIcon = "fa-pencil-alt" %}
+                <span>
+                {% if card.canAdd() or btnLabel == "Add" %}
+                    <a class="{{ btnClass|attr }}" href="{{ linkMethod == "html" ? btnLink : "#" }}" {{ (linkMethod == "html" and requireRestore == true) ? "onclick=\"top.restoreSession()\"" : ""}} {{ linkMethod == "javascript" ? "onclick=\"" ~ btnLink ~ "\"" : ''}}><i class="fa fa-plus fa-sm">&nbsp;</i></a>
                 {% endif %}
-                {# Display the Edit button #}
-                <a class="{{ btnClass|attr }}" href="{{ linkMethod == "html" ? btnLink : "#" }}" {{ (linkMethod == "html" and requireRestore == true) ? "onclick=\"top.restoreSession()\"" : ""}} {{ linkMethod == "javascript" ? "onclick=\"" ~ btnLink ~ "\"" : ''}}><i class="fa {{ btnIcon }} fa-sm">&nbsp;</i></a>
+                {% if card.canEdit() or btnLabel == "Edit" %}
+                    <a class="{{ btnClass|attr }}" href="{{ linkMethod == "html" ? btnLink : "#" }}" {{ (linkMethod == "html" and requireRestore == true) ? "onclick=\"top.restoreSession()\"" : ""}} {{ linkMethod == "javascript" ? "onclick=\"" ~ btnLink ~ "\"" : ''}}><i class="fa fa-pencil-alt fa-sm">&nbsp;</i></a>
+                {% endif %}
+                </span>
             {% endif %}
-        </div>
-        <div id="{{ id|attr }}" class="collapse {{ initiallyCollapsed == 1 ? "show" : ""}}">
+        </h6>
+        <div id="{{ id|attr }}" class="card-text collapse{{ initiallyCollapsed|default(1) == 1 ? " show" : ""}}">
             <div class="clearfix pt-2">
                 {% block content %}{% endblock %}
             </div>

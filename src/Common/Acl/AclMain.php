@@ -25,6 +25,7 @@
  *   acl         ACL Administration
  *   multipledb  Multipledb
  *   menu        Menu
+ *   manage_modules Manage modules
  *
  * Section "acct" (Accounting):
  *   bill        Billing (write optional)
@@ -157,12 +158,9 @@ class AclMain
      * @param string       $value        Subcategory of ACO
      * @param string       $user         Optional user being checked for access.
      * @param string|array $return_value Type or types of access being requested.
-     * @return bool|array  FALSE if access is denied, TRUE if allowed. An
-     *                     array() of bools is returned if $return_value is an
-     *             array, representing results for each type of access
-     *             requested.
+     * @return bool  FALSE if access is denied, TRUE if allowed.
      */
-    public static function aclCheckCore($section, $value, $user = '', $return_value = '')
+    public static function aclCheckCore($section, $value, $user = '', $return_value = ''): bool
     {
         if (! $user) {
             $user = $_SESSION['authUser'];
@@ -341,7 +339,7 @@ class AclMain
     //
     public static function aclCheckForm($formdir, $user = '', $return_value = '')
     {
-        require_once(dirname(__FILE__) . '/../../../library/registry.inc');
+        require_once(dirname(__FILE__) . '/../../../library/registry.inc.php');
         $tmp = getRegistryEntryByDirectory($formdir, 'aco_spec');
         return self::aclCheckAcoSpec($tmp['aco_spec'], $user, $return_value);
     }
@@ -351,7 +349,7 @@ class AclMain
     //
     public static function aclCheckIssue($type, $user = '', $return_value = '')
     {
-        require_once(dirname(__FILE__) . '/../../../library/lists.inc');
+        require_once(dirname(__FILE__) . '/../../../library/lists.inc.php');
         global $ISSUE_TYPES;
         if (empty($ISSUE_TYPES[$type][5])) {
             return true;

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * DateSearchField.php  Holds the DateSearchField class which is represents a date/datetime search field on a piece of
+ * DateSearchField.php  Holds the DateSearchField class which represents a date/datetime search field on a piece of
  * data contained in the OpenEMR system.  The search field will take in an array of values that are in the ISO8601 format
  * and parse them.  Fuzzy matching is supporting from left to right matching (in order of specificity ie a fuzzy search on
  * month must be preceeded by year).  If a time component is specified both hours and minutes are required with seconds
@@ -44,7 +44,7 @@ class DateSearchField extends BasicSearchField
     const DATE_TYPES = [self::DATE_TYPE_DATE, self::DATE_TYPE_DATETIME];
 
     /**
-     * @var Tracks the type of search date this is.  Must be a value contined in the DATE_TYPES constant
+     * @var Tracks the type of search date this is.  Must be a value contained in the DATE_TYPES constant
      */
     private $dateType;
 
@@ -55,12 +55,13 @@ class DateSearchField extends BasicSearchField
      * @param $values
      * @param bool $isAnd
      */
-    public function __construct($field, $values, $dateType = self::DATE_TYPE_DATETIME)
+    public function __construct($field, $values, $dateType = self::DATE_TYPE_DATETIME, $isAnd = false)
     {
         $this->setDateType($dateType);
 
         $modifier = null;
         parent::__construct($field, SearchFieldType::DATE, $field, $values, $modifier);
+        $this->setIsAnd($isAnd);
     }
 
     public function getDateType()
@@ -130,8 +131,8 @@ class DateSearchField extends BasicSearchField
             throw new \InvalidArgumentException("Invalid comparator found for value " . $value);
         }
 
-        $lowerBoundRange = ['y' => $matches[2], 'm' => 1, 'd' => 1, 'H' => 0, 'i' => 0, 's' => 0];
-        $upperBoundRange = ['y' => $matches[2], 'm' => 12, 'd' => 31, 'H' => 23, 'i' => 59, 's' => 59];
+        $lowerBoundRange = ['y' => $matches[2], 'm' => 1, 'd' => 1, 'H' => 0, 'i' => 0, 's' => 0, 'tz' => date('P')];
+        $upperBoundRange = ['y' => $matches[2], 'm' => 12, 'd' => 31, 'H' => 23, 'i' => 59, 's' => 59, 'tz' => date('P')];
 
         // month
         if (!empty($matches[3])) {
@@ -177,14 +178,18 @@ class DateSearchField extends BasicSearchField
             $upperBoundRange['s'] = $seconds;
         }
 
+        // we need to handle the timezone component if they send it, otherwise it defaults to the local timezone
+        if (!empty($matches[7])) {
+            $lowerBoundRange['tz'] = $matches[7];
+            $upperBoundRange['tz'] = $matches[7];
+        }
+
         $startRange = $this->createDateTimeFromArray($lowerBoundRange);
         $endRange = $this->createDateTimeFromArray($upperBoundRange);
 
         // not sure if the date period lazy creates the interval traversal or not so we will go with the maximum interval
         // we can think of.  We just are leveraging an existing PHP object that represents a pair of start/end dates
         $datePeriod = new \DatePeriod($startRange, new \DateInterval('P1Y'), $endRange);
-
-        // TODO: adunsulag figure out how to handle timezones here...
 
         return new SearchFieldComparableValue($datePeriod, $comparator);
     }
@@ -194,9 +199,9 @@ class DateSearchField extends BasicSearchField
         // Not sure how we want to handle timezone
         // we create a DateTime object as not all search fields are a DateTime so we go as precise as we can
         // and let the services go more imprecise if needed.
-        $stringDate = sprintf("%d-%02d-%02d %02d:%02d:%02d", $datetime['y'], $datetime['m'], $datetime['d'], $datetime['H'], $datetime['i'], $datetime['s']);
+        $stringDate = sprintf("%d-%02d-%02dT%02d:%02d:%02d%s", $datetime['y'], $datetime['m'], $datetime['d'], $datetime['H'], $datetime['i'], $datetime['s'], $datetime['tz']);
         // 'n' & 'j' don't have leading zeros
-        $dateValue = \DateTime::createFromFormat("Y-m-d H:i:s", $stringDate);
+        $dateValue = \DateTime::createFromFormat(DATE_ATOM, $stringDate);
         return $dateValue;
     }
 }

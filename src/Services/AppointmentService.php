@@ -17,15 +17,21 @@ namespace OpenEMR\Services;
 use MongoDB\Driver\Query;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Events\Services\ServiceDeleteEvent;
 use OpenEMR\Services\Search\DateSearchField;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Exception\InvalidValueException;
 use Particle\Validator\Validator;
 
 class AppointmentService extends BaseService
 {
     const TABLE_NAME = "openemr_postcalendar_events";
+    const PATIENT_TABLE = "patient_data";
+    const PRACTITIONER_TABLE = "users";
+    const FACILITY_TABLE = "facility";
 
     /**
      * @var EncounterService
@@ -43,6 +49,8 @@ class AppointmentService extends BaseService
     public function __construct()
     {
         parent::__construct(self::TABLE_NAME);
+        UuidRegistry::createMissingUuidsForTables([self::TABLE_NAME, self::PATIENT_TABLE, self::PRACTITIONER_TABLE,
+            self::FACILITY_TABLE]);
     }
 
     public function setEncounterService(EncounterService $service)
@@ -73,7 +81,7 @@ class AppointmentService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['puuid', 'pce_aid_uuid'];
+        return ['puuid', 'pce_aid_uuid', 'pc_uuid'];
     }
 
     public function validate($appointment)
@@ -108,11 +116,79 @@ class AppointmentService extends BaseService
         return $validator->validate($appointment);
     }
 
+    public function search($search, $isAndCondition = true)
+    {
+        $sql = "SELECT pce.pc_eid,
+                       pce.pc_uuid,
+                       pd.puuid,
+                       pd.fname,
+                       pd.lname,
+                       pd.DOB,
+                       pd.pid,
+                       providers.uuid AS pce_aid_uuid,
+                       providers.npi AS pce_aid_npi,
+                       pce.pc_aid,
+                       pce.pc_apptstatus,
+                       pce.pc_eventDate,
+                       pce.pc_startTime,
+                       pce.pc_endTime,
+              	       pce.pc_facility,
+                       pce.pc_billing_location,
+                       pce.pc_catid,
+                       pce.pc_pid,
+                       pce.pc_duration,
+                       f1.name as facility_name,
+                       f2.name as billing_location_name
+                       FROM (
+                             SELECT
+                               pc_eid,
+                               uuid AS pc_uuid, -- we do this because our uuid registry requires the field to be named this way
+                               pc_aid,
+                               pc_apptstatus,
+                               pc_eventDate,
+                               pc_startTime,
+                               pc_duration,
+                               pc_endTime,
+                               pc_facility,
+                               pc_billing_location,
+                               pc_catid,
+                               pc_pid
+                            FROM
+                                 openemr_postcalendar_events
+                       ) pce
+                       LEFT JOIN facility as f1 ON pce.pc_facility = f1.id
+                       LEFT JOIN facility as f2 ON pce.pc_billing_location = f2.id
+                       LEFT JOIN (
+                           select uuid AS puuid
+                           ,fname
+                           ,lname
+                           ,DOB
+                           ,pid
+                           FROM
+                                patient_data
+                      ) pd ON pd.pid = pce.pc_pid
+                       LEFT JOIN users as providers ON pce.pc_aid = providers.id";
+
+        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+
+        $sql .= $whereClause->getFragment();
+        $sqlBindArray = $whereClause->getBoundValues();
+        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+
+        $processingResult = new ProcessingResult();
+        while ($row = sqlFetchArray($statementResults)) {
+            $processingResult->addData($this->createResultRecordFromDatabaseResult($row));
+        }
+
+        return $processingResult;
+    }
+
     public function getAppointmentsForPatient($pid)
     {
         $sqlBindArray = array();
 
         $sql = "SELECT pce.pc_eid,
+                       pce.uuid AS pc_uuid,
                        pd.fname,
                        pd.lname,
                        pd.DOB,
@@ -128,6 +204,7 @@ class AppointmentService extends BaseService
               	       pce.pc_facility,
                        pce.pc_billing_location,
                        pce.pc_catid,
+                       pce.pc_pid,
                        f1.name as facility_name,
                        f2.name as billing_location_name
                        FROM openemr_postcalendar_events as pce
@@ -154,6 +231,7 @@ class AppointmentService extends BaseService
     public function getAppointment($eid)
     {
         $sql = "SELECT pce.pc_eid,
+                       pce.uuid AS pc_uuid,
                        pd.fname,
                        pd.lname,
                        pd.DOB,
@@ -171,6 +249,8 @@ class AppointmentService extends BaseService
                        pce.pc_billing_location,
                        pce.pc_catid,
                        pce.pc_room,
+                       pce.pc_pid,
+                       pce.pc_hometext,
                        f1.name as facility_name,
                        f2.name as billing_location_name
                        FROM openemr_postcalendar_events as pce
@@ -195,8 +275,10 @@ class AppointmentService extends BaseService
         $startTime = date("H:i:s", strtotime($data['pc_startTime']));
         // TODO: Why are we adding strings with numbers?  How is this even working
         $endTime = $startTime . $data['pc_duration'];
+        $uuid = (new UuidRegistry())->createUuid();
 
         $sql  = " INSERT INTO openemr_postcalendar_events SET";
+        $sql .= "     uuid=?,";
         $sql .= "     pc_pid=?,";
         $sql .= "     pc_catid=?,";
         $sql .= "     pc_title=?,";
@@ -216,6 +298,7 @@ class AppointmentService extends BaseService
         $results = sqlInsert(
             $sql,
             array(
+                $uuid,
                 $pid,
                 $data["pc_catid"],
                 $data["pc_title"],
@@ -234,15 +317,129 @@ class AppointmentService extends BaseService
         return $results;
     }
 
-    public function delete($eid)
+    /**
+     * @param $eid
+     * @param $recurr_affect
+     * @param $event_selected_date
+     * @return void
+     */
+    public function deleteAppointment($eid, $recurr_affect, $event_selected_date)
     {
-        QueryUtils::sqlStatementThrowException("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", $eid);
-        return ['message' => 'record deleted'];
+        // =======================================
+        //  multi providers event
+        // =======================================
+        if ($GLOBALS['select_multi_providers']) {
+            // what is multiple key around this $eid?
+            $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
+
+            // obtain current list of providers regarding the multiple key
+            $providers_current = array();
+            $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple=?", array($row['pc_multiple']));
+            while ($current = sqlFetchArray($up)) {
+                $providers_current[] = $current['pc_aid'];
+            }
+
+            // establish a WHERE clause
+            if ($row['pc_multiple']) {
+                $whereClause = "pc_multiple = ?";
+                $whereBind = $row['pc_multiple'];
+            } else {
+                $whereClause = "pc_eid = ?";
+                $whereBind = $eid;
+            }
+
+            if ($recurr_affect == 'current') {
+                // update all existing event records to exclude the current date
+                foreach ($providers_current as $provider) {
+                    // update the provider's original event
+                    // get the original event's repeat specs
+                    $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events " .
+                        " WHERE pc_aid <=> ? AND pc_multiple=?", array($provider,$row['pc_multiple']));
+                    $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
+                    $selected_date = date("Y-m-d", strtotime($event_selected_date));
+                    if ($oldRecurrspec['exdate'] != "") {
+                        $oldRecurrspec['exdate'] .= "," . $selected_date;
+                    } else {
+                        $oldRecurrspec['exdate'] .= $selected_date;
+                    }
+
+                    // mod original event recur specs to exclude this date
+                    sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                        " pc_recurrspec = ? " .
+                        " WHERE " . $whereClause, array(serialize($oldRecurrspec), $whereBind));
+                }
+            } elseif ($recurr_affect == 'future') {
+                // update all existing event records to stop recurring on this date-1
+                $selected_date = date("Y-m-d", (strtotime($event_selected_date) - 24 * 60 * 60));
+                foreach ($providers_current as $provider) {
+                    // In case of a change in the middle of the event
+                    if (strcmp($_POST['event_start_date'], $event_selected_date) != 0) {
+                        // update the provider's original event
+                        sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                            " pc_enddate = ? " .
+                            " WHERE " . $whereClause, array($selected_date), $whereBind);
+                    } else { // In case of a change in the event head
+                        // as we need to notify events that we are deleting this record we need to grab all of the pc_eid
+                        // so we can process the events
+                        $pc_eids = QueryUtils::fetchTableColumn(
+                            "SELECT pc_eid FROM openemr_postcalendar_events WHERE " . $whereClause,
+                            'pc_eid',
+                            [$whereBind]
+                        );
+                        foreach ($pc_eids as $pc_eid) {
+                            $this->deleteAppointmentRecord($pc_eid);
+                        }
+                    }
+                }
+            } else {
+                // really delete the event from the database
+                // as we need to notify events that we are deleting this record we need to grab all of the pc_eid
+                // so we can process the events
+                $pc_eids = QueryUtils::fetchTableColumn(
+                    "SELECT pc_eid FROM openemr_postcalendar_events WHERE " . $whereClause,
+                    'pc_eid',
+                    [$whereBind]
+                );
+                foreach ($pc_eids as $pc_eid) {
+                    $this->deleteAppointmentRecord($pc_eid);
+                }
+            }
+        } else { //  single provider event
+            if ($recurr_affect == 'current') {
+                // mod original event recur specs to exclude this date
+                // get the original event's repeat specs
+                $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
+                $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
+                $selected_date = date("Ymd", strtotime($_POST['selected_date']));
+                if ($oldRecurrspec['exdate'] != "") {
+                    $oldRecurrspec['exdate'] .= "," . $selected_date;
+                } else {
+                    $oldRecurrspec['exdate'] .= $selected_date;
+                }
+
+                sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                    " pc_recurrspec = ? " .
+                    " WHERE pc_eid = ?", array(serialize($oldRecurrspec),$eid));
+            } elseif ($recurr_affect == 'future') {
+                // mod original event to stop recurring on this date-1
+                $selected_date = date("Ymd", (strtotime($_POST['selected_date']) - 24 * 60 * 60));
+                sqlStatement("UPDATE openemr_postcalendar_events SET " .
+                    " pc_enddate = ? " .
+                    " WHERE pc_eid = ?", array($selected_date,$eid));
+            } else {
+                // fully delete the event from the database
+                $this->deleteAppointmentRecord($eid);
+            }
+        }
     }
 
-    protected function createResultRecordFromDatabaseResult($row)
+    public function deleteAppointmentRecord($eid)
     {
-        return parent::createResultRecordFromDatabaseResult($row); // TODO: Change the autogenerated stub
+        $servicePreDeleteEvent = new ServiceDeleteEvent($this, $eid);
+        $this->getEventDispatcher()->dispatch($servicePreDeleteEvent, ServiceDeleteEvent::EVENT_PRE_DELETE);
+        QueryUtils::sqlStatementThrowException("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", $eid);
+        $servicePostDeleteEvent = new ServiceDeleteEvent($this, $eid);
+        $this->getEventDispatcher()->dispatch($servicePostDeleteEvent, ServiceDeleteEvent::EVENT_POST_DELETE);
     }
 
     /**
@@ -286,6 +483,15 @@ class AppointmentService extends BaseService
         }
 
         return(true);
+    }
+
+    public function isPendingStatus($option)
+    {
+        // TODO: @adunsulag is there ANY way to track this in the database of what statii are pending?
+        if ($option == '^') {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -347,7 +553,7 @@ class AppointmentService extends BaseService
     /**
      * @param $eid
      * @param $pid
-     * @return array The most recent encounter for a given encounter
+     * @return array The most recent encounter for a given appointment
      */
     public function getEncounterForAppointment($pc_eid, $pid)
     {
@@ -382,7 +588,7 @@ class AppointmentService extends BaseService
         $pos_code = QueryUtils::fetchSingleValue(
             "SELECT pos_code FROM facility WHERE id = ?",
             'pos_code',
-            $appointment['pc_facility']
+            [$appointment['pc_facility']]
         );
 
         $data = [
@@ -408,5 +614,15 @@ class AppointmentService extends BaseService
             return $result[0]['encounter'];
         }
         return null;
+    }
+
+    /**
+     * Returns the calendar category record from a supplied category id
+     * @return array
+     */
+    public function getOneCalendarCategory($cat_id)
+    {
+        $sql = "SELECT * FROM openemr_postcalendar_categories WHERE pc_catid = ?";
+        return QueryUtils::fetchRecords($sql, [$cat_id]);
     }
 }

@@ -37,6 +37,12 @@ left_nav.setPatient = function(pname, pid, pubpid, frname, str_dob)
     var new_patient=new patient_data_view_model(pname,pid,pubpid,str_dob);
     app_view_model.application_data.patient(new_patient);
     app_view_model.application_data.therapy_group(null);
+
+    if (WindowTitleAddPatient)
+    {
+        top.document.title = WindowTitleBase + " - " + pname;
+    }
+
     navigateTab(webroot_url+"/interface/patient_file/history/encounters.php","enc", function () {
         tabCloseByName('rev');
     });

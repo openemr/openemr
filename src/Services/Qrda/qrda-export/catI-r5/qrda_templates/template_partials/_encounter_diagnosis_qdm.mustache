@@ -1,0 +1,24 @@
+<entryRelationship typeCode="REFR">
+  <observation classCode="OBS" moodCode="EVN">
+    <!--  Encounter Diagnosis QDM  -->
+    <templateId extension="2019-12-01" root="2.16.840.1.113883.10.20.24.3.168"/>
+    <code code="29308-4" codeSystem="2.16.840.1.113883.6.1"/>
+    <statusCode code="completed"/>
+    {{#code}}
+      <value {{> _code}} xsi:type="CD"/>
+    {{/code}}
+    {{#rank}}
+      <!-- QDM Attribute: Rank -->
+      {{> qrda_templates/template_partials/_rank}}
+    {{/rank}}
+    {{#presentOnAdmissionIndicator}}
+      <entryRelationship typeCode="REFR">
+        <observation classCode="OBS" moodCode="EVN">
+          <templateId root="2.16.840.1.113883.10.20.24.3.169" extension="2019-12-01"/>
+          <code code="78026-2" displayName="Present on admission" codeSystem="2.16.840.1.113883.6.1"/>
+          <value {{> _code}} xsi:type="CD"/>
+        </observation>
+      </entryRelationship>
+    {{/presentOnAdmissionIndicator}}
+  </observation>
+</entryRelationship>

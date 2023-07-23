@@ -15,7 +15,7 @@
 
 <script>
 
-{literal}
+
     function my_process_lookup(drug, rxcode = '') {
       // Pass the variable
       let newOption = new Option(drug, drug, true, true);
@@ -24,17 +24,17 @@
       $('#hiddendiv').hide();
       $("#hiddendiv").html( "&nbsp;" );
     }
-{/literal}
+
 </script>
 <!---Gen Look up-->
-{literal}
+
 <script>
 
  // This holds all the default drug attributes.
  // This was html escaped previously
-{/literal}
+
  var drugopts = [{if !empty($DRUG_ATTRIBUTES)}{$DRUG_ATTRIBUTES}{/if}];
-{literal}
+
 
  // Helper to choose an option from its value.
  function selchoose(sel, value) {
@@ -71,7 +71,7 @@
  function dispense() {
   var f = document.forms[0];
   dlgopen('interface/drugs/dispense_drug.php' +
-   {/literal}'?drug_id=' + {$prescription->get_drug_id()|js_url} +{literal}
+   '?drug_id=' + {$prescription->get_drug_id()|js_url} +
    '&prescription=' + encodeURIComponent(f.id.value) +
    '&quantity=' + encodeURIComponent(f.disp_quantity.value) +
    '&fee=' + encodeURIComponent(f.disp_fee.value),
@@ -87,7 +87,7 @@
  }
 
 </script>
-{/literal}
+
 </head>
 <body id="prescription_edit">
 <div class="container">
@@ -283,7 +283,7 @@
         </script>
     </form>
 </div>
-{literal}
+
 <!-- for the fancy jQuery stuff -->
 <script>
 
@@ -317,19 +317,18 @@ $(function () {
         $("#addButton",window.parent.document).css("display", "");
     });
 
-    {/literal}
+
     {if $GLOBALS.weno_rx_enable}
-        {literal}
+
         $("#drug").select2({
         ajax: {
             url: "library/ajax/drug_autocomplete/search.php",
             dataType: 'json',
             data: function(params) {
                 return {
-                  {/literal}
                   csrf_token_form: {$CSRF_TOKEN_FORM|js_escape},
                   term: params.term
-                  {literal}
+
                 };
             },
             processResults: function(data) {
@@ -348,18 +347,16 @@ $(function () {
             minimumInputLength: 3
             }
           });
-        {/literal}
     {else}
-        {literal}
+
         $("#drug").select2({
         ajax: {
             url: "library/ajax/prescription_drugname_lookup.php",
             dataType: 'json',
             data: function(params) {
                 return {
-                  {/literal}
                   csrf_token_form: {$CSRF_TOKEN_FORM|js_escape},
-                  {literal}
+
                   term: params.term,
                   use_rxnorm: document.prescribe.rxcui_select[1].checked,
                   use_rxcui: document.prescribe.rxcui_select[2].checked
@@ -382,17 +379,15 @@ $(function () {
             tags: true,
             minimumInputLength: 3
           });
-        {/literal}
     {/if}
     {if $prescription->drug}
-        {literal}
+
         // Show the current drug name in the select
-        var newOption = new Option({/literal}{$prescription->drug|js_escape}, {$prescription->drug|js_escape}{literal}, true, true);
+        var newOption = new Option({$prescription->drug|js_escape}, {$prescription->drug|js_escape}, true, true);
         $('#drug').append(newOption).trigger('change');
-        {/literal}
     {/if}
 
-    {literal}
+
     $("#drug").focus();
     $("#prescribe").submit(function() { return CheckForErrors(this) });
 });
@@ -417,7 +412,7 @@ function CheckRequired(objID) {
     // for text boxes
     if ($('#'+objID).is('input')) {
         if ($('#'+objID).val() == "") {
-            alert({/literal}{xlj t='Missing a required field and will be highlighted'}{literal});
+            alert({xlj t='Missing a required field and will be highlighted'});
             $('#'+objID).css("backgroundColor", "pink");
             return false;
         }
@@ -426,7 +421,7 @@ function CheckRequired(objID) {
     // for select boxes
     if ($('#'+objID).is('select')) {
         if ($('#'+objID).val() == "0") {
-            alert({/literal}{xlj t='Missing a required field'}{literal});
+            alert({xlj t='Missing a required field'});
             $('#'+objID).css("backgroundColor", "pink");
             return false;
         }
@@ -446,12 +441,11 @@ function CheckRequired(objID) {
         $("#rxnorm_drugcode").val(rxcode);
     });
 
-$(function () {{/literal}
+$(function () {
     {datetimepickerSupport input='format'}
-{literal}});</script>
+});</script>
 
 
 
-{/literal}
 </body>
 </html>

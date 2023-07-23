@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PatientEntity extends Entity
 {
-
     /**
      * @property string $hqmfOid
      */
@@ -27,3 +26,4 @@ class PatientEntity extends Entity
 
     public $_type = 'QDM::PatientEntity';
 }
+

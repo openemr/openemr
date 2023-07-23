@@ -23,7 +23,7 @@
 </head>
 
 <!-- table -->
-<p class="row">
+<p class="form-row">
     <span class="left_col colhead req" data-field="fld_table"><?php echo xlt('Table'); ?></span>
     <span class="end_col">
         <?php echo render_select(array( "id"       =>  "fld_table",
@@ -35,7 +35,7 @@
 </p>
 
 <!-- column -->
-<p class="row">
+<p class="form-row">
     <span class="left_col colhead" data-field="fld_table"><?php echo xlt('Column'); ?></span>
     <span class="end_col">
         <?php echo render_select(array( "id"       =>  "fld_column",
@@ -47,7 +47,7 @@
 </p>
 
 <!-- value -->
-<p class="row">
+<p class="form-row">
     <span class="left_col colhead req" data-field="fld_value"><?php echo xlt('Value'); ?></span>
     <span class="end_col">
         <select class="form-control" data-grp-tgt="" type="dropdown" name="fld_value_comparator" id="">
@@ -65,7 +65,7 @@
 </p>
 
 <!-- frequency -->
-<p class="row">
+<p class="form-row">
     <span class="left_col colhead req" data-field="fld_frequency"><?php echo xlt('Frequency'); ?></span>
     <span class="end_col">
         <select class="form-control" data-grp-tgt="" type="dropdown" name="fld_frequency_comparator" id="">

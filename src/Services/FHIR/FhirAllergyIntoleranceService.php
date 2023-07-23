@@ -113,7 +113,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
         $allergyIntoleranceResource = new FHIRAllergyIntolerance();
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId("1");
-        $fhirMeta->setLastUpdated(gmdate('c'));
+        $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $allergyIntoleranceResource->setMeta($fhirMeta);
 
         $id = new FHIRId();
@@ -214,6 +214,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
                 $display = !empty($codeValues['description']) ? $codeValues['description'] : $dataRecord['title'];
                 // we trim as some of the database values have white space which violates ONC spec
                 $diagnosisCoding->setDisplay(trim($display));
+                $diagnosisCoding->setSystem($codeValues['system']);
                 $diagnosisCode->addCoding($diagnosisCoding);
             }
             $allergyIntoleranceResource->setCode($diagnosisCode);

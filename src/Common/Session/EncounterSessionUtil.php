@@ -1,11 +1,11 @@
 <?php
 
 /**
- * EncounterSessionUtil refactored from encounter.inc handles setting the encounter in the session
+ * EncounterSessionUtil refactored from encounter.inc.php handles setting the encounter in the session
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
- * @author    <Unknown> Authorship was not listed in encounter.inc
+ * @author    <Unknown> Authorship was not listed in encounter.inc.php
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>

@@ -43,7 +43,7 @@ function getListItem($listid, $value)
 
 function myCellText($s)
 {
-    $s = trim($s);
+    $s = trim($s ?? '');
     if ($s === '') {
         return '&nbsp;';
     }
@@ -176,9 +176,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
         ++$ctx['encount'];
     }
 
-    $bgcolor = "#" . (($ctx['encount'] & 1) ? "ddddff" : "ffdddd");
-
-    echo " <tr class='detail' style='background: $bgcolor;'>\n";
+    echo " <tr class='detail'>\n";
 
     if ($ctx['lastpcid'] != $order_seq) {
         $ctx['lastprid'] = -1; // force report fields on first line of each procedure
@@ -269,7 +267,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
             echo "</td>\n";
             $narrative_notes = sqlQuery("select group_concat(note SEPARATOR '\n') as notes from notes where foreign_id = ?", array($result_document_id));
             if (!empty($narrative_notes)) {
-                $nnotes = explode("\n", $narrative_notes['notes']);
+                $nnotes = explode("\n", $narrative_notes['notes'] ?? '');
                 $narrative_note_list = '';
                 foreach ($nnotes as $nnote) {
                     if ($narrative_note_list == '') {
@@ -469,7 +467,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
     ?>
 
     <div class='labres table-responsive'>
-        <table class="table">
+        <table class="table table-sm">
             <tr>
                 <td class="font-weight-bold text-nowrap" width='5%'><?php echo xlt('Patient ID'); ?></td>
                 <td width='45%'><?php echo myCellText($orow['pubpid']); ?></td>
@@ -521,7 +519,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
             </tr>
         </table>
         <br/>
-        <table class="table">
+        <table class="table table-sm">
             <tr class='head'>
                 <td class="align-middle" style="font-size: 1rem;" width='20%'><?php echo xlt('Diagnosis'); ?></td>
                 <td class="align-middle" style="font-size: 1rem;"><?php echo xlt('Diagnosis Description'); ?></td>
@@ -534,7 +532,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
             ?>
         </table>
         <br/>
-        <table class="table">
+        <table class="table table-sm table-striped">
             <tr class='head'>
                 <td class="font-weight-bold align-middle" rowspan='2'><?php echo xlt('Ordered Procedure'); ?></td>
                 <td class="font-weight-bold" colspan='5'><?php echo xlt('Report'); ?></td>
@@ -661,7 +659,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
             ?>
         </table>
         <br/>
-        <table class="table border-0">
+        <table class="table table-sm border-0">
             <tr>
                 <td class="border-0">
                     <?php

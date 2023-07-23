@@ -32,8 +32,8 @@ require_once $GLOBALS['srcdir'] . '/ESign/Utils/Verification.php';
 abstract class DbRow_Signable implements SignableIF
 {
     private $_signatures = array();
-    private $_tableId = null;
-    private $_tableName = null;
+    protected $_tableId = null;
+    protected $_tableName = null;
     private $_verification = null;
 
     public function __construct($tableId, $tableName)

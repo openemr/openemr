@@ -192,19 +192,30 @@ abstract class BaseFixtureManager
         return isset($reference['table']) && isset($reference['columnSearch']) && isset($reference['columnSearchValue']) && isset($reference['columnReference']);
     }
 
-    private function getQueryForForeignReference(array $reference): SearchQueryFragment
+    private function getQueryForForeignReference(array $reference, $limit = 3): SearchQueryFragment
     {
+        // make sure we break our recursion
+        if ($limit <= 0) {
+            throw new \RuntimeException("Maximum recursion depth reached");
+        }
+
         try {
             $table_name = escape_table_name($reference['table']);
             $column = escape_sql_column_name($reference['columnSearch'], [$reference['table']], false, true);
             $referenceColumn = escape_sql_column_name($reference['columnReference'], [$reference['table']], false, true);
             $searchValue = $reference['columnSearchValue'];
-            $sql = "( SELECT $referenceColumn FROM $table_name WHERE $column = ? )";
+            if (is_array($searchValue) && $this->isForeignReference($searchValue)) {
+                $fragment = $this->getQueryForForeignReference($searchValue, $limit - 1);
+                $sql = "( SELECT $referenceColumn FROM $table_name WHERE $column = " . $fragment->getFragment() . " ";
+                return new SearchQueryFragment($sql, $fragment->getBoundValues());
+            } else {
+                $sql = "( SELECT $referenceColumn FROM $table_name WHERE $column = ? )";
+                return new SearchQueryFragment($sql, [$searchValue]);
+            }
         } catch (SqlQueryException $exception) {
             (new SystemLogger())->error("Failed to escape column for foreign key reference ", ['reference' => $reference]);
             throw $exception;
         }
-        return new SearchQueryFragment($sql, [$reference['columnSearchValue']]);
     }
 
     /**

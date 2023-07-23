@@ -1,0 +1,211 @@
+{#*
+* vitals general_new.html
+*
+* @package   OpenEMR
+* @link      http://www.open-emr.org
+* @author    Brady Miller <brady.g.miller@gmail.com>
+* @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+* @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+*#}
+<html>
+<head>
+    <title>{{ "Vitals"|xlt }}</title>
+    {{ setupHeader(["datetime-picker","reason-code-widget"]) }}
+<script src="{{ FORM_ACTION|attr }}/interface/forms/vitals/vitals.js?v={{ assetVersion|attr_url }}" type="text/javascript"></script>
+<script>
+    let vitalsTranslations = {
+        'weight_input': window.xl("Weight") + ' (' + window.xl("lbs") + ')'
+        ,'weight_input_metric': window.xl("Weight") + ' (' + window.xl("kg") + ')'
+        ,'height_input': window.xl("Height/Length") + ' (' + window.xl("in") + ')'
+        ,'height_input_metric': window.xl("Height/Length") + ' (' + window.xl("cm") + ')'
+        ,'bps_input': window.xl("BP Systolic")
+        ,'bpd_input': window.xl("BP Diastolic")
+        ,'validateFailed': window.xl("Please correct the value(s) before proceeding!")
+        ,'invalidField': window.xl("The following field has an invalid value")
+    };
+    if (window.vitalsForm) {
+        window.vitalsForm.init({{ FORM_ACTION|js_url }}, vitalsTranslations);
+    } else {
+        console.error("Failed to find vitalsForm object to initialize javascript vitals form");
+    }
+</script>
+<link rel="stylesheet" href="{{ FORM_ACTION|attr }}/interface/forms/vitals/vitals.css?v={{ assetVersion|attr_url }}" />
+</head>
+<body>
+
+ <div class="container mt-3">
+    <div class="row no-gutters">
+        <div class="col-4">
+            <h2 class="h2-responsive">
+                {{ "Vitals"|xlt }}&nbsp;&nbsp;&nbsp;
+                <a id="vitals-screen-top" href="../summary/demographics.php" class="text-decoration-none" onclick="window.top.restoreSession()"
+                    title="{{ 'Back to patient dashboard'|xla }}">
+                        <i id="advanced-tooltip" class="readonly fas fa-arrow-circle-left fa-2x small" aria-hidden="true"></i>
+                </a>
+            </h2>
+        </div>
+        {% if hasMoreVitals %}
+        <div class="col-8 text-right">
+                <h6 class="h6-responsive"><a href="#patient-vitals-history" class="text-decoration-none">{{ "See More Vital Records History"|xlt }}</a></h6>
+        </div>
+        {% endif %}
+        <div class="col-sm-12">
+            <form id="vitalsForm" name="vitals" method="post" action="{{ FORM_ACTION|attr }}/interface/forms/vitals/save.php">
+                <input type="hidden" name="csrf_token_form" value="{{ CSRF_TOKEN_FORM|attr }}" />
+                {% if has_id %}
+                <div class="row">
+                    <div class="col-md-auto p-3 font-weight-bold text-right">
+                        <label for="date">{{ "Date"|xlt }}</label>
+                    </div>
+                    <div class="col-md-auto p-2">
+                        <input title="{{ 'Date and time of this observation'|xla }}" type='text' size='14' class='form-control datetimepicker oe-patient-background' name='date' id='date' value='{{ vitals.get_date|dateToTime|date("Y-m-d H:i")|attr }}' />
+                    </div>
+                </div>
+                {% endif %}
+                <div id="chart" class="chart-dygraphs" style="margin-left: -15px"></div>
+                    <div class="table-responsive">
+
+                        <table class="table">
+
+                            <thead class="table-head">
+                                <tr>
+                                    <th class="text-left"><span class="vitals-title">{{ "Name"|xlt }}</span></th>
+                                    <th class="text-left">{{ "Unit"|xlt }}</th>
+                                    <th class="editonly">{{ "Value"|xlt }}</th>
+                                    <th class="editonly">{{ "Abn"|xlt }}</th>
+                                    <th class="editonly">{{ "Actions"|xlt }}</th>
+                                    {% for result in vitalsHistoryLookback %}
+                                        <th class='historicalvalues d-none d-md-table-cell'>{{ result.get_date()|dateToTime|date("Y-m-d H:i")|text }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                             {# Most of these fields could be abstracted into some kind of fields array without having to specify each one of these individually #}
+                             {% for field in vitalFields %}
+                                {% if field.type == "textbox_conversion" %}
+                                     {% include "vitals_textbox_conversion.html.twig" with {field: field, vitals:vitals, results: vitalsHistoryLookback, is_edit: true }
+                                     %}
+                                {% endif %}
+                                 {% if field.type == "textbox" %}
+                                     {% include "vitals_textbox.html.twig" with {title:field.title, input:field.input
+                                         , vitals:vitals, vitalsValue:field.vitalsValue, unit:field.unit, unitLabel: field.unitLabel,
+                                         precision:field.precision, codes:field.codes, results: vitalsHistoryLookback, is_edit: true }
+                                     %}
+                                 {% endif %}
+                                 {% if field.type == 'template' %}
+                                    {% include field.templateName with {vitals: vitals, field: field, results: vitalsHistoryLookback, is_edit: true} %}
+                                 {% endif %}
+                             {% endfor %}
+                            </tbody>
+                        </table>
+
+                    </div>
+                <div class="form-group">
+                    <div class="text-left position-override">
+                        <div class="btn-group" role="group">
+                            <button type="submit" class="btn btn-primary btn-save editonly" name="Submit" value=''>{{ "Save"|xlt }}</button>
+                            <button type="button" class="btn btn-secondary btn-cancel editonly" id="cancel" value=''>{{ "Cancel"|xlt }}</button>
+                        </div>
+                    </div>
+                </div>
+            <br /><br />
+            <input type="hidden" name="id" id='id' value="{{ vitals.get_id()|attr }}" />
+            <input type="hidden" name="uuid" id='uuid' value="{{ vitals.get_uuid_string()|attr }}" />
+            <input type="hidden" name="activity" id='activity' value="{{ vitals.get_activity()|attr }}" />
+            <input type="hidden" name="pid" id='pid' value="{{ vitals.get_pid()|attr }}" />
+            <input type="hidden" name="process" id='process' value="true" />
+            </form>
+        </div>
+        {% include "vitals_historical_values_complete.html.twig" with {vitals:vitals, results:results} %}
+    </div>
+    </div>
+<script>
+let formdate = {{ vitals.get_date()|dateToTime|date("Ymd")|js_escape}};
+// vitals array elements are in the format:
+//   date-height-weight-head_circumference
+let vitals = [];
+// get values from the current form elements
+vitals[0] = formdate + '-' + {{ vitals.get_height()|js_escape }} + '-' + {{ vitals.get_weight()|js_escape }}
+    + '-' + {{ vitals.get_head_circ()|js_escape }};
+// historic values
+{% for result in reuslts %}
+vitals[vitals.length] = {{ result.get_date()|dateToTime|date("Ymd")|js_escape }} + '-' + {{ result.get_height()|js_escape }}
+    + '-' + {{ result.get_weight()|js_escape }} + '-' + {{ result.get_head_circ()|js_escape }};
+{% endfor %}
+let patientAge= {{ patient_age|js_escape }};
+let patient_dob= {{ patient_dob|js_escape }};
+let webroot = {{ FORM_ACTION|js_escape }};
+let pid = {{ vitals.get_pid()|js_escape }};
+let cancellink = {{ DONT_SAVE_LINK|js_escape }};
+let birth_xl= window.xl("Birth-24 months");
+let older_xl= window.xl("2-20 years");
+function addGCSelector()
+{
+    let options=[];
+    let birth={'display':birth_xl,'param':'birth'};
+    let age2={'display':older_xl,'param':'2-20'}
+    if((patientAge.toString().indexOf('24 month')>=0) || (patientAge.toString().indexOf('month')==-1))
+        {
+            let dob_data=patient_dob.split("-");
+            let dob_date=new Date(dob_data[0],parseInt(dob_data[1])-1,dob_data[2]);
+            options[0]=age2;
+            for(var idx=0;idx<vitals.length;idx++)
+                {
+                    let str_data_date=vitals[idx].split("-")[0];
+                    let data_date=new Date(str_data_date.substr(0,4),parseInt(str_data_date.substr(4,2))-1,str_data_date.substr(6,2));
+                    if(((data_date-dob_date)/86400000)<=2*365)
+                        {
+                            idx=vitals.length;
+                            options[1]=birth
+                        }
+                }
+        }
+        else
+        {
+            options[0]=birth;
+        }
+        let chart_buttons_cell=$("#pdfchart").parent("td");
+        let select=$("<select id='chart_type'></select>");
+        chart_buttons_cell.prepend(select);
+        for(idx=0;idx<options.length;idx++)
+            {
+                let option=$("<option value='"+options[idx].param+"'>"+options[idx].display+"</option>");
+                select.append(option);
+            }
+        select.find("option:first").attr("selected","true");
+        if(options.length<2)
+            {
+                select.css("display","none");
+            }
+}
+
+$(function () {
+    $("#growthchart").on("click", function() { ShowGrowthchart(); });
+    $("#pdfchart").on("click", function() { ShowGrowthchart(1); });
+    $("#htmlchart").on("click", function() { ShowGrowthchart(2); });
+    $("#cancel").on("click", function() { location.href=cancellink; });
+    addGCSelector();
+
+    {{ jqueryDateTimePicker('.datetimepicker', true, false, false) }}
+});
+
+function ShowGrowthchart(doPDF) {
+    // get values from the current form elements
+    vitals[0] = formdate+'-'+$("#height_input").val()+'-'+$("#weight_input").val()+'-'+$("#head_circ_input").val();
+    // build the data string
+    var datastring = "";
+    for(let i=0; i<vitals.length; i++) {
+        datastring += vitals[i] + "~";
+    }
+    newURL = webroot + '/interface/forms/vitals/growthchart/chart.php?pid=' + encodeURIComponent(pid) + '&data=' + encodeURIComponent(datastring);
+    if (doPDF == 1) newURL += "&pdf=1";
+    if (doPDF == 2) newURL += "&html=1";
+    newURL += "&chart_type=" + encodeURIComponent($("#chart_type").val()) + "&csrf_token_form=" + {{ CSRF_TOKEN_FORM|js_url }};
+    // do the new window stuff
+    window.top.restoreSession();
+    window.open(newURL, '_blank', "menubar=1,toolbar=1,scrollbars=1,resizable=1,width=600,height=450");
+}
+</script>
+</body>
+</html>

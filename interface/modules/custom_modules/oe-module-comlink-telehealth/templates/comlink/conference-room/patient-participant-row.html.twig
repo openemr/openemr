@@ -1,0 +1,39 @@
+{#
+ # Represents a single patient displayed in the add dialog screen list.
+ #
+ # @package openemr
+ # @link      http://www.open-emr.org
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div class="card-body patient-participant {% if template %}d-none template{% endif %}" data-pid="{{ patient.id|attr }}">
+    <div class="row">
+        <div class="col-md-2 telehealth-user-icon h1">
+            <i class="fa fa-user"></i>
+        </div>
+        <div class="col-md-10 p-l-0">
+            <h5 class="text-primary patient-name">{{ patient.callerName|default("")|text }}</h5>
+{#            <h6 class="text-secondary patient-dob">{{ "DOB"|xlt }}: {{ patient.DOB|text}}</h6>#}
+            <h6 class="text-secondary patient-email">{{ "EMAIL"|xlt }}: {{ patient.email|default("")|text}}</h6>
+            {% if isOneTimePasswordLoginEnabled %}
+                {# Note we make this a d-block button because we don't hide it and want it on its own line in case users needs to generate the link again #}
+                <button class="btn btn-sm btn-secondary btn-generate-link d-block mb-2"
+                        >
+                    <i class="fa fa-key"></i>
+                    <small>{{ "Generate Invite Link"|xlt }}</small>
+                </button>
+            {% endif %}
+            <button class="btn btn-sm btn-secondary btn-link-copy{% if isOneTimePasswordLoginEnabled %} d-none{% endif %}"
+                    data-invite-link="{{ patient.invitation.link|default("")|attr }}">
+                <i class="fa fa-copy"></i>
+                <small>{{ "Copy Invite Link"|xlt }}</small>
+            </button>
+            <button class="btn btn-sm btn-secondary btn-invitation-copy{% if isOneTimePasswordLoginEnabled %} d-none{% endif %}">
+                <i class="fa fa-copy"></i>
+                <small>{{ "Copy Invitation"|xlt }}</small>
+            </button>
+            <div class="d-none patient-invitation-text"><pre>{{ patient.invitation.text|default("")|text }}</pre></div>
+        </div>
+    </div>
+</div>

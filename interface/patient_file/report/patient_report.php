@@ -15,12 +15,13 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/lists.inc");
-require_once("$srcdir/forms.inc");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/lists.inc.php");
+require_once("$srcdir/forms.inc.php");
+require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientReport\PatientReportEvent;
 use OpenEMR\Menu\PatientMenuRole;
@@ -29,7 +30,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
 if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
-    die(xlt('Not authorized'));
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Reports")]);
+    exit;
 }
 // get various authorization levels
 $auth_notes_a  = AclMain::aclCheckCore('encounters', 'notes_a');
@@ -270,7 +272,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         <?php
 
-                            $eventDispatcher->dispatch(PatientReportEvent::ACTIONS_RENDER_POST, new GenericEvent());
+                            $eventDispatcher->dispatch(new GenericEvent(), PatientReportEvent::ACTIONS_RENDER_POST);
 
                         ?>
                         <input type='hidden' name='pdf' value='0' />
@@ -753,7 +755,7 @@ $(function () {
 
     <?php
         //event dispatch
-        $eventDispatcher->dispatch(PatientReportEvent::JAVASCRIPT_READY_POST, new GenericEvent());
+        $eventDispatcher->dispatch(new GenericEvent(), PatientReportEvent::JAVASCRIPT_READY_POST);
 
     ?>
 

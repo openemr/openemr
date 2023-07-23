@@ -23,29 +23,6 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 
 abstract class AbstractGenerator extends AbstractProcessingTask
 {
-    protected $action = null;
-
-    public function __construct($action)
-    {
-        $this->action = $action;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getAction()
-    {
-        return $this->action;
-    }
-
-    /**
-     * @param mixed $action
-     */
-    public function setAction($action): void
-    {
-        $this->action = $action;
-    }
-
     /**
      * This abstract class for generators implements the execute method
      * so we can further hone exactly which operation we want to run.
@@ -100,7 +77,7 @@ abstract class AbstractGenerator extends AbstractProcessingTask
                 $this->getAction() === BillingProcessor::VALIDATE_ONLY ||
                 $this->getAction() === BillingProcessor::VALIDATE_AND_CLEAR
             ) {
-                $this->completeToScreen($context);
+                    $this->completeToScreen($context);
             }
         }
 

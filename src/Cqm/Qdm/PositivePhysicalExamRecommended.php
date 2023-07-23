@@ -14,7 +14,6 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class PositivePhysicalExamRecommended extends PhysicalExamRecommended
 {
-
     /**
      * @property string $qdmTitle
      */
@@ -27,3 +26,4 @@ class PositivePhysicalExamRecommended extends PhysicalExamRecommended
 
     public $_type = 'QDM::PositivePhysicalExamRecommended';
 }
+

@@ -15,6 +15,7 @@
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\VersionService;
 
 $facilityService = new FacilityService();
 
@@ -122,7 +123,7 @@ function credentials($doc, $r)
     $b->appendChild($productName);
     $productVersion = $doc->createElement("productVersion");
     $productVersion->appendChild(
-        $doc->createTextNode($GLOBALS['openemr_version'])
+        $doc->createTextNode((new VersionService())->asString())
     );
     $b->appendChild($productVersion);
     $r->appendChild($b);

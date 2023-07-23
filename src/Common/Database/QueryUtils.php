@@ -1,7 +1,7 @@
 <?php
 
 /**
- * QueryUtils.php  Is a helper class for commonly used database functions.  Eventually everything in the sql.inc file
+ * QueryUtils.php  Is a helper class for commonly used database functions.  Eventually everything in the sql.inc.php file
  * could be migrated to this file or at least contained in this namespace.
  * @package openemr
  * @link      http://www.open-emr.org
@@ -227,5 +227,31 @@ class QueryUtils
     public static function generateId()
     {
         return \generate_id();
+    }
+
+    public static function startTransaction()
+    {
+        \sqlBeginTrans();
+    }
+
+    public static function commitTransaction()
+    {
+        \sqlCommitTrans();
+    }
+
+    public static function rollbackTransaction()
+    {
+        \sqlRollbackTrans();
+    }
+
+    public static function getLastInsertId()
+    {
+        return \sqlGetLastInsertId();
+    }
+
+    public static function querySingleRow(string $sql, array $params)
+    {
+        $result = self::sqlStatementThrowException($sql, $params);
+        return \sqlFetchArray($result);
     }
 }

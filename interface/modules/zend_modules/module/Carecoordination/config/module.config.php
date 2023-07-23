@@ -1,7 +1,20 @@
 <?php
 
+/**
+ * module.config.php handles the dependency injection configuration, routes, and other config settings needed by the module.
+ *
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Vinish K <vinish@zhservices.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
+ * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace Carecoordination;
 
+use Carecoordination\Model\CcdaGenerator;
 use Documents\Plugin\Documents;
 use Laminas\ServiceManager\Factory\InvokableFactory;
 use Laminas\Router\Http\Segment;
@@ -22,6 +35,7 @@ use Carecoordination\Controller\ModuleconfigController;
 use Interop\Container\ContainerInterface;
 use Application\Plugin\CommonPlugin;
 use Documents\Controller\DocumentsController;
+use Carecoordination\Listener\CCDAEventsSubscriber;
 
 return array(
     'controllers' => array(
@@ -38,7 +52,7 @@ return array(
             SetupController::class => SetupControllerFactory::class,
             CcdController::class => function (ContainerInterface $container, $requestedName) {
                 return new CcdController($container->get(CcdTable::class), $container->get(CarecoordinationTable::class), $container->get(\Documents\Model\DocumentsTable::class), $container->get(DocumentsController::class));
-            },
+            }
         ],
     ),
 
@@ -160,7 +174,13 @@ return array(
                 return new ModuleconfigController();
             },
             SetupController::class => SetupControllerFactory::class,
-            EncounterccdadispatchController::class => EncounterccdadispatchControllerFactory::class
+            EncounterccdadispatchController::class => EncounterccdadispatchControllerFactory::class,
+            CCDAEventsSubscriber::class => function (ContainerInterface $container, $requestedName) {
+                return new CCDAEventsSubscriber($container->get(CcdaGenerator::class));
+            },
+            CcdaGenerator::class => function (ContainerInterface $container, $requestedName) {
+                return new CcdaGenerator($container->get(EncounterccdadispatchTable::class));
+            }
         ),
     ]
     // These plugins classes get added as methods onto the module controllers.  So you can reference inside a controller

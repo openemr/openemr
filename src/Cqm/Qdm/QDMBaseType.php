@@ -14,6 +14,10 @@ namespace OpenEMR\Cqm\Qdm;
  */
 class QDMBaseType extends \OpenEMR\Cqm\Qdm\BaseTypes\DataElement
 {
+    public $denormalize_as_datetime = null;
+    public $dataElementAttributes = [];
+    public $codeListId = null;
+    public $_id = null;
 
     /**
      * @property string $id
@@ -37,3 +41,4 @@ class QDMBaseType extends \OpenEMR\Cqm\Qdm\BaseTypes\DataElement
 
     public $_type = 'QDM::QDMBaseType';
 }
+

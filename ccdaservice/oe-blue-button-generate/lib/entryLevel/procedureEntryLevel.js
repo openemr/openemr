@@ -133,7 +133,9 @@ exports.procedureActivityProcedure = {
             },
             dataKey: "specimen"
         },
-        [fieldLevel.performer, dataKey("performer")], {
+        [fieldLevel.performer, dataKey("performer")]
+        ,fieldLevel.author
+        , {
             key: "participant",
             attributes: {
                 typeCode: "LOC"
