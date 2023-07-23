@@ -178,9 +178,7 @@ function generate_select_list(
     $got_selected = false;
 
     for ($active = 1; $active == 1 || ($active == 0 && $include_inactive); --$active) {
-        if ($include_inactive) {
-            $s .= "<optgroup label='" . ($active ? xla('Active') : xla('Inactive')) . "'>\n";
-        }
+        $_optgroup = ($include_inactive) ? true : false;
 
         // List order depends on language translation options.
         //  (Note we do not need to worry about the list order in the algorithm
@@ -230,17 +228,23 @@ function generate_select_list(
             // Already has been translated above (if applicable), so do not need to use
             // the xl_list_label() function here
             $optionLabel = text($lrow ['title']);
-            $_options[] = [
+
+            $_tmp= [
                 'label' => $optionLabel,
                 'value' => $optionValue,
                 'isSelected' => $isSelected,
                 'isActive' => $include_inactive,
             ];
+
+            if ($_optgroup) {
+                $_tmp['optGroupOptions'] = $_tmp;
+                $_tmp['optgroupLabel'] = ($active) ? xla('Active') : xla('Inactive');
+
+            }
+
+            $_options[] = $_tmp;
         }
 
-        if ($include_inactive) {
-            $s .= "</optgroup>\n";
-        }
     } // end $active loop
 
     /*
@@ -317,11 +321,24 @@ function generate_select_list(
     }
 
     $_parsedOptions = [];
+    $_og = false;
     foreach ($_options as $o) {
-        $_valStr = (array_key_exists('value', $o)) ? "value=\"{$o['value']}\"" : "";
-        $_selStr = (array_key_exists('isSelected', $o) && $o['isSelected'] == true) ? "selected" : "";
-        $_labStr = (array_key_exists('label', $o)) ? $o['label'] : "";
-        $_parsedOptions[] = "<option $_valStr $_selStr>$_labStr</option>";
+        $_isOG = (array_key_exists('optGroupOptions', $o) && count($o['optGroupOptions']) > 0) ? true : false;
+        $_currOG = $o['optgroupLabel'] ?? false;
+
+        // Render only if the current optgroup label is not triple equal to the previous label
+        if ($_og !== $_currOG) {
+            $_parsedOptions[] = "</optgroup>";
+        }
+
+        // Must have an opt group and it must be different than the previous
+        if ($_isOG && $_og !== $_currOG) {
+            $_parsedOptions[] = sprintf('<optgroup label="%s">', $_currOG);
+        }
+
+        $_parsedOptions[] = _create_option_element($o);
+
+        $_og = $_currOG;
     }
     $optionString = implode("\n", $_parsedOptions);
 
@@ -340,6 +357,14 @@ function generate_select_list(
     }
 
     return implode("", $output);
+}
+
+function _create_option_element(array $o) : string
+{
+    $_valStr = (array_key_exists('value', $o)) ? "value=\"{$o['value']}\"" : "";
+    $_selStr = (array_key_exists('isSelected', $o) && $o['isSelected'] == true) ? "selected" : "";
+    $_labStr = (array_key_exists('label', $o)) ? $o['label'] : "";
+    return "<option $_valStr $_selStr>$_labStr</option>";
 }
 
 // Parsing for data type 31, static text.
