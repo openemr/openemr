@@ -196,17 +196,15 @@ function generate_select_list(
         } else {
             // do translate
             $order_by_sql = str_replace("seq", "lo.seq", $order_by_sql);
-            $lres = sqlStatement(
-                "SELECT lo.option_id, lo.is_default,
-                    COALESCE((SELECT ld.definition FROM lang_constants AS lc, lang_definitions AS ld
-                        WHERE lc.constant_name = lo.title AND ld.cons_id = lc.cons_id AND ld.lang_id = ? AND ld.definition IS NOT NULL
-                            AND ld.definition != ''
-                        LIMIT 1), lo.title) AS title
-                FROM list_options AS lo
-                WHERE lo.list_id = ? AND lo.activity = ?
-                ORDER BY {$order_by_sql}"
-                , [$lang_id, $list_id, $active]
-            );
+            $sql = "SELECT lo.option_id, lo.is_default,
+                        COALESCE((SELECT ld.definition FROM lang_constants AS lc, lang_definitions AS ld
+                            WHERE lc.constant_name = lo.title AND ld.cons_id = lc.cons_id AND ld.lang_id = ? AND ld.definition IS NOT NULL
+                                AND ld.definition != ''
+                            LIMIT 1), lo.title) AS title
+                    FROM list_options AS lo
+                    WHERE lo.list_id = ? AND lo.activity = ?
+                    ORDER BY {$order_by_sql}";
+            $lres = sqlStatement($sql, [$lang_id, $list_id, $active]);
         }
 
         // Populate the options array with pertinent values
@@ -239,12 +237,10 @@ function generate_select_list(
             if ($_optgroup) {
                 $_tmp['optGroupOptions'] = $_tmp;
                 $_tmp['optgroupLabel'] = ($active) ? xla('Active') : xla('Inactive');
-
             }
 
             $_options[] = $_tmp;
         }
-
     } // end $active loop
 
     /*
@@ -359,7 +355,7 @@ function generate_select_list(
     return implode("", $output);
 }
 
-function _create_option_element(array $o) : string
+function _create_option_element(array $o): string
 {
     $_valStr = (array_key_exists('value', $o)) ? "value=\"{$o['value']}\"" : "";
     $_selStr = (array_key_exists('isSelected', $o) && $o['isSelected'] == true) ? "selected" : "";
