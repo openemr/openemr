@@ -129,6 +129,14 @@ function buildNav($newcnt, $pid, $result)
             'messageCount' => $newcnt ?? 0,
             'children' => [
                 [
+                    'url' => '#quickstart-card',
+                    'id' => 'quickstart_id',
+                    'label' => xl('My Quick Start'),
+                    'icon' => 'fa-tasks',
+                    'dataToggle' => 'collapse',
+                ],
+
+                [
                     'url' => '#profilecard',
                     'label' => xl('My Profile'),
                     'icon' => 'fa-user',
@@ -142,12 +150,12 @@ function buildNav($newcnt, $pid, $result)
                     'dataToggle' => 'collapse',
                     'messageCount' => $newcnt ?? 0,
                 ],
-                [
+                /*[
                     'url' => '#documentscard',
                     'label' => xl('My Documents'),
                     'icon' => 'fa-file-medical',
                     'dataToggle' => 'collapse'
-                ],
+                ],*/
                 [
                     'url' => '#lists',
                     'label' => xl('My Dashboard'),
@@ -285,7 +293,7 @@ $navMenu = buildNav($newcnt, $pid, $result);
 $twig = (new TwigContainer('', $GLOBALS['kernel']))->getTwig();
 echo $twig->render('portal/home.html.twig', [
     'user' => $user,
-    'whereto' => $_SESSION['whereto'] ?? null ?: ($whereto ?? '#documentscard'),
+    'whereto' => $_SESSION['whereto'] ?? null ?: ($whereto ?? '#quickstart-card'),
     'result' => $result,
     'msgs' => $msgs,
     'msgcnt' => $msgcnt,

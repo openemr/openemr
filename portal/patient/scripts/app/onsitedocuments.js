@@ -34,7 +34,7 @@ var page = {
     presentAdminSignature: false,
     presentWitnessSignature: false,
     signaturesRequired: false,
-
+    inFormEdit: false,
     init: function () {
         // ensure initialization only occurs once
         if (page.isInitialized || page.isInitializing) {
@@ -624,14 +624,8 @@ var page = {
         page.encounterFormId = 0;
         page.encounterFormName = '';
         if (docid !== 'Help') {
+            page.inFormEdit = true;
             $("#topnav").hide();
-            let menuMsg;
-            if($(parent.document.getElementById('topNav')).is('.collapse:not(.show)')) {
-                menuMsg = xl("Show Top Menu");
-            } else {
-                menuMsg = xl("Hide Top Menu");
-            }
-            document.getElementById("showNav").innerHTML = menuMsg;
         }
         if (currentName === templateName && currentName && !page.isNewDoc) {
             // update form for any submits.(downloads and prints)
@@ -913,6 +907,7 @@ var page = {
                     page.showDetailDialog(page.onsiteDocument);
                 }
                 signerAlertMsg(msgSuccess, 2000, 'success');
+                page.inFormEdit = false;
                 if (page.isCharted && isModule) {
                     $("#a_docReturn").click();
                     return;
@@ -962,17 +957,5 @@ var page = {
                 app.hideProgress('modelLoader');
             }
         });
-    },
-    // removing for testing
-    /* encode: function (content, k) {
-        let encoded = "";
-        content = btoa(content);
-        content = btoa(content);
-        for (i = 0; i < content.length; i++) {
-            let a = content.charCodeAt(i);
-            let b = a ^ k;
-            encoded = encoded + String.fromCharCode(b);
-        }
-        return btoa(encoded);
-    } */
+    }
 };

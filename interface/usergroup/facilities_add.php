@@ -29,7 +29,7 @@ $alertmsg = '';
     <script src="../main/calendar/modules/PostCalendar/pnincludes/ColorPicker2.js"></script>
 
 <!-- validation library -->
-<!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
+<!--//Note lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
 <?php
 $use_validate_js = 1;
 require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php");
@@ -350,6 +350,12 @@ function displayAlert() {
             <div class="form-group">
                 <label for="info"><?php echo xlt('Info'); ?>: </label>
                 <textarea class="form-control" size="20" name="info" ><?php echo attr($facility["info"] ?? '') ?></textarea>
+            </div>
+            <div class="form-row custom-control custom-switch my-2">
+                <div class="col">
+                    <input type="checkbox" class='custom-control-input' name="inactive" id="inactive" value="1" />
+                    <label for="inactive" class='custom-control-label'><?php echo xlt('Facility Inactive'); ?></label>
+                </div>
             </div>
             <p class="text"><span class="mandatory">*</span> <?php echo xlt('Required'); ?></p>
         </form>

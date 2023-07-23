@@ -753,7 +753,7 @@ function generate_form_field($frow, $currvalue)
     } elseif ($data_type == 11) { // provider list, including address book entries with an NPI number
         $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
         "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
-        "AND ( authorized = 1 OR ( username = '' AND npi != '' ) ) " .
+        "AND ( authorized = 1 OR ((username = '' OR username IS NULL) AND npi != '' )) " .
         "ORDER BY lname, fname");
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
         echo " $lbfonchange $disabled>";

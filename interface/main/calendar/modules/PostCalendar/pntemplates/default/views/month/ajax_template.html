@@ -442,8 +442,8 @@ foreach ($providers as $provider) {
             }
 
             // figure the start time and minutes (from midnight)
-            $starth = substr($event['startTime'], 0, 2);
-            $startm = substr($event['startTime'], 3, 2);
+            $starth = (int) substr($event['startTime'], 0, 2);
+            $startm = (int) substr($event['startTime'], 3, 2);
             $eStartMin = $starth * 60 + $startm;
             $startDateTime = strtotime($date." ".$event['startTime']);
 

@@ -27,6 +27,22 @@ function getPnoteById($id, $cols = "*")
 }
 
 /**
+ * Check a note, given its ID to see if it matches the user
+ *
+ * @param string $id the ID of the note to retrieve.
+ * @param string $user the user seeking to view the note
+ */
+function checkPnotesNoteId(int $id, string $user): bool
+{
+    $check = sqlQuery("SELECT `id` FROM pnotes WHERE id = ? AND user = ? AND deleted != 1", array($id, $user));
+    if (!empty($check['id']) && ($check['id'] == $id)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/**
  * Get the patient notes for the given user.
  *
  * This function is used to retrieve notes assigned to the given user, or

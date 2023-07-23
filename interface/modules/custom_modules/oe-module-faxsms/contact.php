@@ -23,14 +23,17 @@ if (!$clientApp->verifyAcl()) {
     die("<h3>" . xlt("Not Authorised!") . "</h3>");
 }
 $logged_in = $clientApp->authenticate();
+$isSMSEmail =  $clientApp->getRequest('isSMSEmail', 0);
 $isSMS = $clientApp->getRequest('isSMS', 0);
-$isForward = ($clientApp->getRequest('mode', null) == 'forward') ? 1 : 0;
+$isForward = 0;
+$isForward = ($clientApp->getRequest('mode', '') == 'forward') ? 1 : 0;
 $isSMTP = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
 $default_message = '';
 $interface_pid = null;
 $file_mime = '';
 $recipient_phone = '';
 if (empty($isSMS)) {
+    // fax contact form
     $interface_pid = $clientApp->getRequest('pid');
     $the_file = $clientApp->getRequest('file');
     $isContent = $clientApp->getRequest('isContent');
@@ -41,11 +44,11 @@ if (empty($isSMS)) {
     $file_name = pathinfo($the_file, PATHINFO_BASENAME);
     $details = json_decode($clientApp->getRequest('details', ''), true);
 } else {
+    // SMS contact dialog. Passed in phone or select patient from popup.
     $interface_pid = $clientApp->getRequest('pid');
-    $doc_name = $clientApp->getRequest('title');
     $portal_url = $GLOBALS['portal_onsite_two_address'];
     $details = json_decode($clientApp->getRequest('details', ''), true);
-    $recipient_phone = $clientApp->getRequest('recipient', $details['phone']);
+    $recipient_phone = $clientApp->getRequest('recipient', $details['phone'] ?? '');
     // TODO need flag for message origin maybe later
     // $default_message = xlt("The following document") . ": " . text($doc_name) . " " . xlt("is available to be completed at") . " " . text($portal_url);
     $pid = $interface_pid ?: $pid;
@@ -60,7 +63,7 @@ $service = $clientApp::getServiceType();
     <title><?php echo xlt('Contact') ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php Header::setupHeader();
-    echo "<script>var pid=" . js_escape($pid) . ";var isSms=" . js_escape($isSMS) . ";var isForward=" . js_escape($isForward) . ";var recipient=" . js_escape($recipient_phone) . ";</script>";
+    echo "<script>var pid=" . js_escape($pid) . ";var isSmsEmail=" . js_escape($isSMSEmail)  . ";var isSms=" . js_escape($isSMS) . ";var isForward=" . js_escape($isForward) . ";var recipient=" . js_escape($recipient_phone) . ";</script>";
     ?>
     <?php if (!empty($GLOBALS['text_templates_enabled'])) { ?>
         <script src="<?php echo $GLOBALS['web_root'] ?>/library/js/CustomTemplateLoader.js"></script>
@@ -70,6 +73,9 @@ $service = $clientApp::getServiceType();
             if (isSms) {
                 $(".smsExclude").addClass("d-none");
                 $("#form_phone").val(recipient);
+                if (pid) {
+                    setpatient(pid);
+                }
             } else {
                 $(".faxExclude").addClass("d-none");
             }
@@ -77,7 +83,7 @@ $service = $clientApp::getServiceType();
                 $(".forwardExclude").addClass("d-none");
                 $(".show-detail").removeClass("d-none");
             }
-                // when the form is submitted
+            // when the form is submitted
             $('#contact-form').on('submit', function (e) {
                 if (!e.isDefaultPrevented()) {
                     let wait = '<div class="text-center wait"><i class="fa fa-cog fa-spin fa-2x"></i></div>';
@@ -136,19 +142,22 @@ $service = $clientApp::getServiceType();
             });
         }
 
-        function setpatient(pid, lname, fname, dob) {
+        // callback for patient select dialog
+        function setpatient(pid) {
             let actionUrl = 'getPatientDetails';
             return $.post(actionUrl, {
                 'pid': pid,
                 'type': <?php echo js_escape($serviceType); ?>
-            }, function (d, s) {
+            }, function () {
                 $("#wait").remove()
-            }, 'json').done(
+            }, 'json')
+            .done(
                 function (data) {
                     $(".show-detail").removeClass('d-none')
                     $("#form_name").val(data['fname']);
                     $("#form_lastname").val(data['lname']);
                     $("#form_phone").val(data['phone_cell']);
+                    $("#form_email").val(data['email']);
                 });
         }
 
@@ -225,7 +234,13 @@ $service = $clientApp::getServiceType();
                     <div class="form-group faxExclude smsExclude show-detail">
                         <label for="form_email"><?php echo xlt('Email') ?></label>
                         <input id="form_email" type="email" name="email" class="form-control"
-                            placeholder="<?php echo ($isSMTP ? xla('Forward to email address.') : xla('Unavailable! Setup SMTP in Config Notifications.')); ?>"
+                            placeholder="<?php
+                            if ($isSMS) {
+                                echo '';
+                            } else {
+                                echo ($isSMTP ? xla('Forward to email address if filled.') : xla('Unavailable! Setup SMTP in Config Notifications.'));
+                            }
+                            ?>"
                             title="<?php echo xla('Forward to an email address.') ?>" />
                         <div class="help-block with-errors"></div>
                     </div>

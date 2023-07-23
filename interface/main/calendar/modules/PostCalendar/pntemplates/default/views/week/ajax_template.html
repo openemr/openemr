@@ -519,8 +519,8 @@ foreach ($providers as $provider) {
                 }
 
                 // create a numeric start and end for comparison
-                $starth = substr($e1['startTime'], 0, 2);
-                $startm = substr($e1['startTime'], 3, 2);
+                $starth = (int) substr($e1['startTime'], 0, 2);
+                $startm = (int) substr($e1['startTime'], 3, 2);
                 $e1Start = ($starth * 60) + $startm;
                 $e1End = $e1Start + $e1['duration']/60;
 
@@ -583,7 +583,7 @@ foreach ($providers as $provider) {
             // figure the start time and minutes (from midnight)
             $starth = substr($event['startTime'], 0, 2);
 
-            $startm = substr($event['startTime'], 3, 2);
+            $startm = (int) substr($event['startTime'], 3, 2);
             $eStartMin = $starth * 60 + $startm;
             $dispstarth = ($starth > 12) ? ($starth - $timeformat) : $starth;
 

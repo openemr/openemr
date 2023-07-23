@@ -21,10 +21,13 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
-use OpenEMR\Services\Search\SearchFieldException;
-use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Services\Search\{
+    DateSearchField,
+    FhirSearchWhereClauseBuilder,
+    SearchFieldException,
+    TokenSearchField,
+    TokenSearchValue
+};
 use OpenEMR\Validators\EncounterValidator;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Validator;
@@ -39,7 +42,7 @@ class EncounterService extends BaseService
      */
     private $encounterValidator;
 
-    private const ENCOUNTER_TABLE = "form_encounter";
+    public const ENCOUNTER_TABLE = "form_encounter";
     private const PATIENT_TABLE = "patient_data";
     private const PROVIDER_TABLE = "users";
     private const FACILITY_TABLE = "facility";
@@ -701,6 +704,24 @@ class EncounterService extends BaseService
         $encounterResult = $this->search(['pid' => $pid, 'eid' => $encounter_id], $options = ['limit' => '1']);
         if ($encounterResult->hasData()) {
             return $encounterResult->getData()[0]['referring_provider_id'] ?? '';
+        }
+        return [];
+    }
+
+    /**
+     * Return an array of encounters within a date range
+     *
+     * @param  $start_date  Any encounter starting on this date
+     * @param  $end_date  Any encounter ending on this date
+     * @return Array Encounter data payload.
+     */
+    public function getEncountersByDateRange($startDate, $endDate)
+    {
+        $dateField = new DateSearchField('date', ['ge' . $startDate, 'le' . $endDate], DateSearchField::DATE_TYPE_DATE, $isAnd = true);
+        $encounterResult = $this->search(['date' => $dateField]);
+        if ($encounterResult->hasData()) {
+            $result = $encounterResult->getData();
+            return $result;
         }
         return [];
     }

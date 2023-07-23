@@ -177,33 +177,6 @@ $GLOBALS_METADATA = array(
     //
     'Appearance' => array(
 
-        'default_top_pane' => array(
-            xl('Main Top Pane Screen(Or Default First Tab)'),       // descriptive name
-            array(
-                'main_info.php' => xl('Calendar Screen'),
-                '../new/new.php' => xl('Patient Search/Add Screen'),
-                '../../interface/main/finder/dynamic_finder.php' => xl('Patient Finder Screen'),
-                '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => xl('Patient Flow Board'),
-                '../../interface/main/messages/messages.php?form_active=1' => xl('Messages Screen')
-            ),
-            'main_info.php',                  // default = calendar
-            xl('Main Top Pane Screen(Or Default First Tab)')
-        ),
-
-        'default_second_tab' => array(
-            xl('Default Second Tab'),       // descriptive name
-            array(
-                '' => xl('None'),
-                '../../interface/main/messages/messages.php?form_active=1' => xl('Messages Screen'),
-                'main_info.php' => xl('Calendar Screen'),
-                '../new/new.php' => xl('Patient Search/Add Screen'),
-                '../../interface/main/finder/dynamic_finder.php' => xl('Patient Finder Screen'),
-                '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => xl('Patient Flow Board'),
-            ),
-            '../../interface/main/messages/messages.php?form_active=1',    // default = messages
-            xl('Default Second Tab')
-        ),
-
         'theme_tabs_layout' => array(
             xl('Tabs Layout Theme') . '*',
             'tabs_css',
@@ -265,13 +238,6 @@ $GLOBALS_METADATA = array(
             xl('Choose your default encounter view')
         ),
 
-        'gbl_nav_area_width' => array(
-            xl('Navigation Area Width for Frames'),
-            'num',
-            '175',
-            xl('Width in pixels of the left navigation frame in frame based layout.')
-        ),
-
         'enable_group_therapy' => array(
             xl('Enable Group Therapy'),
             'bool',                           // data type
@@ -312,13 +278,6 @@ $GLOBALS_METADATA = array(
             ),
             '0',                              // default
             xl('Type of columns displayed for patient search results')
-        ),
-
-        'gbl_tall_nav_area' => array(
-            xl('Tall Navigation Area'),
-            'bool',                           // data type
-            '0',                              // default = false
-            xl('Navigation area uses full height of frameset')
         ),
 
         'gbl_nav_visit_forms' => array(
@@ -423,6 +382,13 @@ $GLOBALS_METADATA = array(
             '3',
             xl('This is the number of messages that will be displayed in the messages widget in the patient summary screen.')
         ),
+
+        'recent_patient_count' => [
+            xl('Maximum number of patients on Recent Patient list'),
+            'num',
+            '20',
+            xl('The maximum number of patients on the Recent Patient list'),
+        ],
 
         'gbl_vitals_options' => array(
             xl('Vitals Form Options'),
@@ -613,6 +579,13 @@ $GLOBALS_METADATA = array(
             '0',                              // default = false
             xl('Show Title on Login')
         ),
+
+        'show_primary_logo' => [
+            xl('Show primary logo on login'),
+            'bool',
+            '1',
+            xl('Show primary logo on login'),
+        ],
 
         'extra_logo_login' => array(
             xl('Show Secondary Logo on Login'),
@@ -3103,6 +3076,16 @@ $GLOBALS_METADATA = array(
             'text',                           // data type
             'https://your_web_site.com/openemr/portal',
             xl('Website link for the Patient Portal.')
+        ),
+
+        'portal_css_header' => array(
+            xl('Portal Default Theme'),
+            array(
+                'style_light.css' => xl('Light'),
+                'style_dark.css' => xl('Dark')
+            ),
+            'style_light.css',
+            xl('Pick a default portal theme.')
         ),
 
         'portal_onsite_two_basepath' => array(

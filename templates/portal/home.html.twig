@@ -159,6 +159,8 @@
                 $("#pro").load("./get_pro.php", {}, function () {});
             {% endif %}
 
+            //$("#quickstart-div").load("./quickstart_page.php", {}, function () {});
+
             $(".generateDoc_download").click(function () {
                 $("#doc_form").submit();
             });
@@ -404,6 +406,11 @@
         <div id="popwait" class="alert alert-warning d-none">
             <strong>{{ 'Working!' | xlt }}</strong>
             {{ 'Please wait...' | xlt }}</div>
+        
+        {#<div class="card collapse overflow-auto" data-parent="#cardgroup" id="quickstart-card">
+            <header class="card-header bg-primary text-light">{{ 'Home' | xlt }}</header>
+            <div id="quickstart-div" class="card-body"></div>
+        </div>#}
 
         <div class="collapse overflow-auto" data-parent="#cardgroup" id="lists">
             <div class="card">
@@ -437,13 +444,13 @@
             <div id="profilereport" class="card-body bg-light"></div>
         </div>
 
-        <div class="collapse" data-parent="#cardgroup" id="documentscard">
+        {#<div class="collapse" data-parent="#cardgroup" id="documentscard">
             <div class="card">
                 <div id="patdocuments" class="card-body">
                     <iframe src="{{ web_root | attr }}/portal/patient/onsitedocuments?pid={{ patientID | attr_url }}" class="w-100 vh-100 border-0"></iframe>
                 </div>
             </div>
-        </div>
+        </div>#}
 
         <div class="collapse" data-parent="#cardgroup" id="secure-msgs-card">
             <div class="card">
@@ -533,6 +540,14 @@
                 <div id="pro" class="card-body bg-light"></div>
             </div>
         {% endif %}
+
+        <div class="collapse" data-parent="#cardgroup" id="quickstart-card">
+            <div class="card">
+                <div id="app-quickstart" class="card-body p-1">
+                    <iframe src="{{ web_root | attr }}/portal/quickstart_page.php" class="w-100 vh-100 border-0"></iframe>
+                </div>
+            </div>
+        </div>
 
         {{ fireEvent(eventNames.sectionRenderPost) }}
 

@@ -1,40 +1,46 @@
 <?php
 
-/**
+/*
  * soap form
- *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2022 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
 require_once("FormSOAP.class.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 
 class C_FormSOAP extends Controller
 {
-    var $template_dir;
-
-    function __construct($template_mod = "general")
+    private TwigContainer $twig;
+    public function __construct()
     {
-        parent::__construct();
-        $this->template_mod = $template_mod;
-        $this->template_dir = dirname(__FILE__) . "/templates/";
-        $this->assign("FORM_ACTION", $GLOBALS['web_root']);
-        $this->assign("DONT_SAVE_LINK", $GLOBALS['form_exit_url']);
-        $this->assign("STYLE", $GLOBALS['style']);
-        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+        $path = $this->getTemplatePath();
+        $this->twig = new TwigContainer($path);
     }
 
+    /**
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
+     * @throws \Twig\Error\LoaderError
+     */
     function default_action()
     {
         $form = new FormSOAP();
-        $this->assign("data", $form);
-        return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
+        return $this->twig->getTwig()->render(
+            'soap_form.twig',
+            [
+                "FORM_ACTION" => $GLOBALS['web_root'],
+                "DONT_SAVE_LINK" => $GLOBALS['form_exit_url'],
+                "data" => $form
+            ]
+        );
     }
 
     function view_action($form_id)
@@ -45,9 +51,14 @@ class C_FormSOAP extends Controller
             $form = new FormSOAP();
         }
 
-        $this->assign("data", $form);
-
-        return $this->fetch($this->template_dir . $this->template_mod . "_new.html");
+        return $this->twig->getTwig()->render(
+            'soap_form.twig',
+            [
+                "FORM_ACTION" => $GLOBALS['web_root'],
+                "DONT_SAVE_LINK" => $GLOBALS['form_exit_url'],
+                "data" => $form
+            ]
+        );
     }
 
     function default_action_process()
@@ -65,10 +76,22 @@ class C_FormSOAP extends Controller
         }
 
         if (empty($_POST['id'])) {
-            addForm($GLOBALS['encounter'], "SOAP", $this->form->id, "soap", $GLOBALS['pid'], $_SESSION['userauthorized']);
+            addForm(
+                $GLOBALS['encounter'],
+                "SOAP",
+                $this->form->id,
+                "soap",
+                $GLOBALS['pid'],
+                $_SESSION['userauthorized']
+            );
             $_POST['process'] = "";
         }
-
-        return;
+    }
+    /**
+     * @return string
+     */
+    private function getTemplatePath(): string
+    {
+        return \dirname(__DIR__) . DIRECTORY_SEPARATOR . "soap/templates" . DIRECTORY_SEPARATOR;
     }
 }
