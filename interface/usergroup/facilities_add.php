@@ -251,6 +251,12 @@ function displayAlert() {
 
                         </div>
                     </div>
+                    <div class="form-row custom-control custom-switch my-2">
+                        <div class="col">
+                            <input type="checkbox" class='custom-control-input' name="inactive" id="inactive" value="1" />
+                            <label for="inactive" class='custom-control-label'><?php echo xlt('Facility Inactive'); ?></label>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label for="ncolor"><?php echo xlt('Color'); ?>: </label>
                         <input class="form-control" type="text" name="ncolor" id="ncolor" size="20" value="" />
@@ -350,12 +356,6 @@ function displayAlert() {
             <div class="form-group">
                 <label for="info"><?php echo xlt('Info'); ?>: </label>
                 <textarea class="form-control" size="20" name="info" ><?php echo attr($facility["info"] ?? '') ?></textarea>
-            </div>
-            <div class="form-row custom-control custom-switch my-2">
-                <div class="col">
-                    <input type="checkbox" class='custom-control-input' name="inactive" id="inactive" value="1" />
-                    <label for="inactive" class='custom-control-label'><?php echo xlt('Facility Inactive'); ?></label>
-                </div>
             </div>
             <p class="text"><span class="mandatory">*</span> <?php echo xlt('Required'); ?></p>
         </form>
