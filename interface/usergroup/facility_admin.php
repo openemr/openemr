@@ -136,12 +136,15 @@ if (isset($_GET["fid"])) {
 </head>
 <body class="body_top">
     <div class="container-fluid">
-        <h5 class="title"><?php echo xlt('Edit Facility'); ?></h5>
-        <div class="py-3">
-            <a class="btn btn-primary" name='form_save' id='form_save' onclick='submitform();' href='#'><?php echo xlt('Save'); ?></a>
-            <a class="btn btn-secondary" id='cancel' onclick='dlgclose();' href='#'><?php echo xlt('Cancel'); ?></a>
+        <div class="row mb-3">
+            <div class="col-sm-12 d-flex justify-content-between align-items-center">
+                <h5 class="m-0"><?php echo xlt('Edit Facility'); ?></h5>
+                <div>
+                    <a class="btn btn-text" id='cancel' onclick='dlgclose();' href='#'><?php echo xlt('Cancel'); ?></a>
+                    <a class="btn btn-primary" name='form_save' id='form_save' onclick='submitform();' href='#'><?php echo xlt('Save'); ?></a>
+                </div>
+            </div>
         </div>
-
         <form name='facility-form' id="facility-form" method='post' action="facilities.php">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <input type=hidden name='mode' value="facility" />
@@ -150,64 +153,195 @@ if (isset($_GET["fid"])) {
             <input type=hidden name=fid value="<?php echo attr($my_fid); ?>" />
             <?php $facility = $facilityService->getById($my_fid); ?>
 
-            <div class="row">
-                <div class="col-6">
-                    <div class="form-row my-2">
-                        <div class="col-2">
-                            <label for='facility' class='col-form-label col-form-label-sm'><?php echo xlt('Name'); ?>:</label>
-                        </div>
-                        <div class="col">
-                            <input type='entry' class='form-control form-control-sm' name='facility' size='20' value='<?php echo attr($facility['name']); ?>' />
+            <div class="form-row">
+                <div class="form-group w-100">
+                    <label for='facility' class="sr-only"><?php echo xlt('Name'); ?>:</label>
+                    <input type='text' class='form-control form-control-lg' name='facility' value='<?php echo attr($facility['name']); ?>'>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="col-sm-12 col-md-7">
+                    <div class="bg-light border">
+                        <ul class="nav nav-pills mt-2" id="addressTab" role="tablist">
+                            <li class="nav-item py-1 px-2" role="presentation">
+                                <button type="button" class="nav-link py-1 px-2 active" id="physical-address-tab" data-toggle="tab" data-target="#physicalAddress" role="tab" aria-controls="physicalAddress" aria-selected="true"><?php echo xlt("Physical Address"); ?></button>
+                            </li>
+                            <li class="nav-item py-1 px-2" role="presentation">
+                                <button type="button" class="nav-link py-1 px-2" id="mailing-address-tab" data-toggle="tab" data-target="#mailingAddress" role="tab" aria-controls="mailingAddress" aria-selected="true"><?php echo xlt("Mailing Address"); ?></button>
+                            </li>
+                        </ul>
+                        <div class="tab-content m-2" id="addressTabContent">
+                            <div class="tab-pane show active" id="physicalAddress" role="tabpanel" aria-labelledby="physical-address-tab">
+                                <div class="form-row">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for='street' class='col-form-label sr-only'><?php echo xlt('Address'); ?>: </label>
+                                            <input type='text' class='form-control' name="street" placeholder="<?php echo xla("Address"); ?>" value="<?php echo attr($facility["street"]); ?>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label for='city' class='col-form-label sr-only'><?php echo xlt('City'); ?>: </label>
+                                            <input type='text' class='form-control' name='city' placeholder="<?php echo xla("City"); ?>" value="<?php echo attr($facility["city"]); ?>">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for='state' class='col-form-label sr-only'><?php echo xlt('State'); ?>:</label>
+                                            <input type='text' class='form-control' name='state' placeholder="<?php echo xla("State"); ?>" value="<?php echo attr($facility["state"]); ?>">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for='postal_code' class='col-form-label sr-only'><?php echo xlt('Zip Code'); ?>:</label>
+                                            <input type='entry' class='form-control' placeholder="<?php echo xla("Zip Code"); ?>" name='postal_code' value="<?php echo attr($facility["postal_code"]); ?>" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label for='country_code' class='col-form-label sr-only'><?php echo xlt('Country'); ?>:</label>
+                                            <input type='text' class='form-control' placeholder="<?php echo xla("Country"); ?>" name='country_code' value="<?php echo attr($facility["country_code"]); ?>">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="mailingAddress" role="tabpanel" aria-labelledby="mailing-address-tab">
+                                <div class="form-row">
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for="mail_street" class="col-form-label sr-only"><?php echo xlt('Mailing Address'); ?>:</label>
+                                            <input type="text" class="form-control" placeholder="<?php echo xla("Street Addres"); ?>" name="mail_street" value="<?php echo attr($facility["mail_street"]) ?>" />
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12">
+                                        <div class="form-group">
+                                            <label for="mail_street2" class="col-form-label sr-only"><?php echo xlt('Suite'); ?>: </label>
+                                            <input type="text" class="form-control" placeholder="<?php echo xla("Address Line Two"); ?>" name="mail_street2" value="<?php echo attr($facility["mail_street2"]) ?>" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="col-sm-4">
+                                        <label for="mail_city" class="col-form-label sr-only"><?php echo xlt('City'); ?>: </label>
+                                        <input type="text" class="form-control" placeholder="<?php echo xla("City"); ?>" name="mail_city" value="<?php echo attr($facility["mail_city"]) ?>" />
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label for="mail_state" class="col-form-label sr-only"><?php echo xlt('State'); ?>: </label>
+                                        <input type="text" class="form-control" placeholder="<?php echo xla("State"); ?>" name="mail_state" value="<?php echo attr($facility["mail_state"]) ?>" />
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label for="mail_zip" class="col-form-label sr-only"><?php echo xlt('Zip'); ?>:</label>
+                                        <input type="text" class="form-control" placeholder="<?php echo xla("Zip Code"); ?>" name="mail_zip" value="<?php echo attr($facility["mail_zip"]) ?>" />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="form-row my-2">
-                        <div class="col-2">
-                            <label for='street' class='col-form-label col-form-label-sm'><?php echo xlt('Address'); ?>: </label>
+                </div>
+                <div class="col-sm-12 col-md-5">
+                    <div class="p-2 bg-light border">
+                        <div class="form-group row">
+                            <label class="col-form-label col-sm-2" for='phone'><?php echo xlt('Phone'); ?></label>
+                            <div class="col-sm-10">
+                                <input type='text' class='form-control' name='phone' placeholder="<?php echo xla("Phone"); ?>" value='<?php echo attr($facility['phone']); ?>'>
+                            </div>
                         </div>
-                        <div class="col">
-                            <input type='entry' class='form-control form-control-sm' size='20' name="street" value="<?php echo attr($facility["street"]); ?>" />
+                        <div class="form-group row">
+                            <label class="col-form-label col-sm-2" for='fax'><?php echo xlt('Fax'); ?>:</label>
+                            <div class="col-sm-10">
+                                <input type='entry' class='form-control' name="fax" placeholder="<?php echo xla("Fax"); ?>" value='<?php echo attr($facility['fax']); ?>' />
+                            </div>
                         </div>
-                    </div>
-                    <div class="form-row my-2">
-                        <div class="col-2">
-                            <label for='city' class='col-form-label col-form-label-sm'><?php echo xlt('City'); ?>: </label>
+                        <div class="form-group row">
+                            <label class="col-form-label col-sm-2" for='website'><?php echo xlt('Website'); ?>:</label>
+                            <div class="col-sm-10"><input type='entry' class='form-control' placeholder="<?php echo xla("Website"); ?>" name='website' value="<?php echo attr($facility["website"]); ?>" /></div>
                         </div>
-                        <div class="col">
-                            <input type='entry' class='form-control form-control-sm' size='20' name='city' value="<?php echo attr($facility["city"]); ?>" />
-                        </div>
-                    </div>
-                    <div class="form-row my-2">
-                        <div class="col-2">
-                            <label for='state' class='col-form-label col-form-label-sm'><?php echo xlt('State'); ?>:</label>
-                        </div>
-                        <div class="col">
-                            <input type='entry' class='form-control form-control-sm' size='20' name='state' value="<?php echo attr($facility["state"]); ?>" />
-                        </div>
-                    </div>
-                    <div class="form-row my-2">
-                        <div class="col-2">
-                            <label for='country_code' class='col-form-label col-form-label-sm'><?php echo xlt('Country'); ?>:</label>
-                        </div>
-                        <div class="col">
-                            <input type='entry' class='form-control form-control-sm' size='20' name='country_code' value="<?php echo attr($facility["country_code"]); ?>" />
+                        <div class="form-group row">
+                            <label class="col-form-label col-sm-2" for='email'><?php echo xlt('Email'); ?>: </label>
+                            <div class="col-sm-10"><input type='entry' class='form-control' placeholder="<?php echo xla("Email"); ?>" name='email' value="<?php echo attr($facility["email"]); ?>" /></div>
                         </div>
                     </div>
-                    <div class="form-row my-2">
-                        <div class="col-2">
-                            <label for='website' class='col-form-label col-form-label-sm'><?php echo xlt('Website'); ?>:</label>
+                </div>
+            </div>
+            <div class="form-row mt-2">
+            <div class="col-sm-12 col-md-7">
+                <div class="border p-2 bg-light d-flex">
+                    <div class="pr-1">
+                        <div class="form-group">
+                            <label for='ncolor'><?php echo xlt('Color'); ?>:</label>
+                            <div class="input-group">
+                                <input type='entry' class='form-control form-control-sm' name='ncolor' id='ncolor' size='20' value="<?php echo attr($facility["color"]); ?>" />
+                                <div class="input-group-append">
+                                    <a href="javascript:void(0);" onClick="pick('pick','newcolor'); return false;" class="btn btn-outline-secondary" NAME="pick" ID="pick"><i class="fa fa-eye-dropper"></i><span class="sr-only"><?php echo xlt('Pick'); ?></span></a>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col">
-                            <input type='entry' class='form-control form-control-sm' size='20' name='website' value="<?php echo attr($facility["website"]); ?>" />
+                        <div class="form-group">
+                            <label for='pos_code'><?php echo xlt('POS Code'); ?>:</label>
+                            <select name="pos_code" class="form-control form-control-sm">
+                                <?php
+                                $pc = new POSRef();
+                                $_t = '<option value="%s"%s>%s</option>';
+                                foreach ($pc->get_pos_ref() as $pos) {
+                                    $_a = [
+                                        attr($pos['code']),
+                                        ($facility['pos_code'] == $pos['code']) ? " selected" : "",
+                                        text($pos['code']) . ": " . text($pos['title'])
+                                    ];
+                                    echo vsprintf($_t, $_a);
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="domain_identifier"><?php echo xlt('CLIA Number'); ?>:</label>
+                            <input type="text" class="form-control form-control-sm" name="domain_identifier" size="45" value="<?php echo attr($facility['domain_identifier']); ?>" />
+                        </div>
+                        <div class="form-group">
+                            <label for='federal_ein'><?php echo xlt('Tax ID'); ?>:</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <select name='tax_id_type' class='form-control form-control-sm'>
+                                        <option value="EI" <?php ($facility['tax_id_type'] != 'SY') ? " selected" : ""; ?>><?php echo xlt('EIN'); ?></option>
+                                        <option value="SY" <?php ($facility['tax_id_type'] == 'SY') ? " selected" : ""; ?>><?php echo xlt('SSN'); ?></option>
+                                    </select>
+                                </div>
+                                <input type='text' class='form-control form-control-sm' name='federal_ein' value="<?php echo attr($facility["federal_ein"]); ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for='facility_npi'><?php echo($GLOBALS['simplified_demographics'] ? xlt('Facility Code') : xlt('Facility NPI')); ?>:</label>
+                            <input type='entry' class='form-control form-control-sm' size='20' name='facility_npi' value="<?php echo attr($facility["facility_npi"]); ?>" />
                         </div>
                     </div>
-                    <div class="form-row my-2">
-                        <div class="col-2">
-                            <label for='iban' class='col-form-label col-form-label-sm'><?php echo xlt('IBAN'); ?>: </label>
-                        </div>
-                        <div class="col">
+                    <div class="pl-1">
+                        <div class="form-group">
+                            <label for='iban'><?php echo xlt('IBAN'); ?>: </label>
                             <input type='entry' class='form-control form-control-sm' size='20' name='iban' value="<?php echo attr($facility["iban"]); ?>" />
                         </div>
+                        <div class="form-group">
+                            <label for='facility_taxonomy'><?php echo xlt('Facility Taxonomy'); ?>:</label>
+                            <input type='entry' class='form-control form-control-sm' size='20' name='facility_taxonomy' value="<?php echo attr($facility["facility_taxonomy"]); ?>" />
+                        </div>
+                        <div class="form-group">
+                            <label for="attn"><?php echo xlt('Billing Attn'); ?>:</label>
+                            <input type="text" class="form-control form-control-sm" name="attn" size="45" value="<?php echo attr($facility['attn']); ?>" />
+                        </div>
+                        <div class="form-group">
+                            <label for="facility_id"><?php echo xlt('Facility ID'); ?>:</label>
+                            <input type="text" class="form-control form-control-sm" name="facility_id" size="45" value="<?php echo attr($facility['facility_code']); ?>" />
+                        </div>
+                        <div class="form-group">
+                            <label for="oid"><?php echo xlt('OID'); ?>: </label>
+                            <input type="text" class="form-control form-control-sm" size="20" name="oid" value="<?php echo attr($facility["oid"]) ?>" />
+                        </div>
                     </div>
+                </div>
+            </div>
+            <div class="col-sm-12 col-md-5">
+                <div class="border p-2 bg-light">
                     <div class="form-row custom-control custom-switch my-2">
                         <div class="col">
                             <input type='checkbox' class='custom-control-input' name='billing_location' id='billing_location' value='1' <?php echo ($facility['billing_location'] != 0) ? 'checked' : ''; ?> />
@@ -245,219 +379,25 @@ if (isset($_GET["fid"])) {
                             <label for='primary_business_entity' class='custom-control-label'><?php echo xlt('Primary Business Entity'); ?></label>
                         </div>
                     </div>
-                    <div class="form-row my-2">
-                        <div class="col-2">
-                            <label for='ncolor' class='col-form-label col-form-label-sm'><?php echo xlt('Color'); ?>:</label>
-                        </div>
+                    <div class="form-row custom-control custom-switch my-2">
                         <div class="col">
-                            <input type='entry' class='form-control form-control-sm' name='ncolor' id='ncolor' size='20' value="<?php echo attr($facility["color"]); ?>" />
-                        </div>
-                        <div class="col">
-                            [<a href="javascript:void(0);" onClick="pick('pick','newcolor'); return false;" NAME="pick" ID="pick"><?php echo xlt('Pick'); ?></a>]
-                        </div>
-                    </div>
-                    <div class="form-row my-2 d-flex align-items-center">
-                        <div class="col-2">
-                            <label for='pos_code' class='col-form-label col-form-label-sm'><?php echo xlt('POS Code'); ?>:</label>
-                        </div>
-                        <div class="col">
-                            <select name="pos_code" class="form-control form-control-sm">
-                                <?php
-                                $pc = new POSRef();
-
-                                foreach ($pc->get_pos_ref() as $pos) {
-                                    echo "<option value=\"" . attr($pos["code"]) . "\" ";
-                                    if ($facility['pos_code'] == $pos['code']) {
-                                        echo "selected";
-                                    }
-
-                                    echo ">" . text($pos['code']) . ": " . text($pos['title']);
-                                    echo "</option>\n";
-                                }
-
-                                ?>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-row my-2 d-flex align-items-center">
-                        <div class="col-2">
-                            <label for="domain_identifier" class="col-form-label col-form-label-sm"><?php echo xlt('CLIA Number'); ?>:</label>
-                        </div>
-                        <div class="col">
-                            <input type="text" class="form-control form-control-sm" name="domain_identifier" size="45" value="<?php echo attr($facility['domain_identifier']); ?>" />
+                            <input type='checkbox' class='custom-control-input' name='inactive' id='inactive' value='1' <?php echo ($facility['inactive'] != 0) ? 'checked' : ''; ?> />
+                            <label for='inactive' class='custom-control-label'><?php echo xlt('Facility Inactive'); ?></label>
                         </div>
                     </div>
                 </div>
-                <div class="col-6">
-                    <div class="form-row my-2">
-                        <div class="col-2">
-                            <label for='phone' class='col-form-label col-form-label-sm'><?php echo xlt('Phone'); ?></label>
-                        </div>
-                        <div class="col">
-                            <input type='text' class='form-control form-control-sm' name='phone' size='20' value='<?php echo attr($facility['phone']); ?>' />
-                            <small class="form-text text-muted"><?php echo xlt('as'); ?> (000) 000-0000</small>
-                        </div>
+                <div class="border p-2 bg-light mt-2">
+                    <div class="form-group">
+                        <label for="info"><?php echo xlt('Info'); ?>:</label>
+                        <textarea class="form-control form-control-sm" rows="5" name="info"><?php echo attr($facility["info"]) ?></textarea>
                     </div>
-                    <div class="form-row my-2">
-                        <div class="col-2">
-                            <label for='fax' class='col-form-label col-form-label-sm'><?php echo xlt('Fax'); ?>:</label>
-                        </div>
-                        <div class="col">
-                            <input type='entry' class='form-control form-control-sm' name="fax" size='20' value='<?php echo attr($facility['fax']); ?>' />
-                            <small class="form-text text-muted"><?php echo xlt('as'); ?> (000) 000-0000</small>
-                        </div>
-                    </div>
-                    <div class="form-row my-2 d-flex align-items-center">
-                        <div class="col-2">
-                            <label for='postal_code' class='col-form-label col-form-label-sm'><?php echo xlt('Zip Code'); ?>:</label>
-                        </div>
-                        <div class="col">
-                            <input type='entry' class='form-control form-control-sm' size='20' name='postal_code' value="<?php echo attr($facility["postal_code"]); ?>" />
-                        </div>
-                    </div>
-                    <div class="form-row my-2">
-                        <?php
-                            $ssn = '';
-                            $ein = '';
-                        if ($facility['tax_id_type'] == 'SY') {
-                            $ssn = 'selected';
-                        } else {
-                            $ein = 'selected';
-                        }
-                        ?>
-                        <div class="col-2">
-                            <label for='federal_ein' class='col-form-label col-form-label-sm'><?php echo xlt('Tax ID'); ?>:</label>
-                        </div>
-                        <div class="col-3">
-                            <select name='tax_id_type' class='form-control form-control-sm'>
-                                <option value="EI" <?php echo $ein; ?>><?php echo xlt('EIN'); ?></option>
-                                <option value="SY" <?php echo $ssn; ?>><?php echo xlt('SSN'); ?></option>
-                            </select>
-                        </div>
-                        <div class="col">
-                            <input type='entry' class='form-control form-control-sm' size='11' name='federal_ein' value="<?php echo attr($facility["federal_ein"]); ?>" />
-                        </div>
-                    </div>
-                    <div class="form-row my-2 d-flex align-items-center">
-                        <div class="col-2">
-                            <label for='facility_npi' class='col-form-label col-form-label-sm'><?php echo($GLOBALS['simplified_demographics'] ? xlt('Facility Code') : xlt('Facility NPI')); ?>:</label>
-                        </div>
-                        <div class="col">
-                            <input type='entry' class='form-control form-control-sm' size='20' name='facility_npi' value="<?php echo attr($facility["facility_npi"]); ?>" />
-                        </div>
-                    </div>
-                    <div class="form-row my-2 d-flex align-items-center">
-                        <div class="col-2">
-                            <label for='facility_taxonomy' class='col-form-label col-form-label-sm'><?php echo xlt('Facility Taxonomy'); ?>:</label>
-                        </div>
-                        <div class="col">
-                            <input type='entry' class='form-control form-control-sm' size='20' name='facility_taxonomy' value="<?php echo attr($facility["facility_taxonomy"]); ?>" />
-                        </div>
-                    </div>
-                    <div class="form-row my-2">
-                        <div class="col-2">
-                            <label for='email' class='col-form-label col-form-label-sm'><?php echo xlt('Email'); ?>: </label>
-                        </div>
-                        <div class="col">
-                            <input type='entry' class='form-control form-control-sm' size='20' name='email' value="<?php echo attr($facility["email"]); ?>" />
-                        </div>
-                    </div>
-                    <div class="form-row my-2 d-flex align-items-center">
-                        <div class="col-2">
-                            <label for="attn" class="col-form-label col-form-label-sm"><?php echo xlt('Billing Attn'); ?>:</label>
-                        </div>
-                        <div class="col">
-                            <input type="text" class="form-control form-control-sm" name="attn" size="45" value="<?php echo attr($facility['attn']); ?>" />
-                        </div>
-                    </div>
-                    <div class="form-row my-2 d-flex align-items-center">
-                        <div class="col-2">
-                            <label for="facility_id" class="col-form-label col-form-label-sm"><?php echo xlt('Facility ID'); ?>:</label>
-                        </div>
-                        <div class="col">
-                            <input type="text" class="form-control form-control-sm" name="facility_id" size="45" value="<?php echo attr($facility['facility_code']); ?>" />
-                        </div>
-                    </div>
-                    <div class="form-row my-2">
-                        <div class="col-2">
-                            <label for="oid" class="col-form-label col-form-label-sm"><?php echo xlt('OID'); ?>: </label>
-                        </div>
-                        <div class="col">
-                            <input type="text" class="form-control form-control-sm" size="20" name="oid" value="<?php echo attr($facility["oid"]) ?>" />
-                        </div>
-                    </div>
+                </div>
+                <div class="p-2">
+                    <p class="text"><span class="mandatory">*</span> <?php echo xlt('Required'); ?></p>
                 </div>
             </div>
-
-            <hr />
-
-            <div class="form-row my-2">
-                <div class="col-2">
-                    <label for="mail_street" class="col-form-label col-form-label-sm"><?php echo xlt('Mailing Address'); ?>:</label>
-                </div>
-                <div class="col">
-                    <input type="text" class="form-control form-control-sm" size="20" name="mail_street" value="<?php echo attr($facility["mail_street"]) ?>" />
-                </div>
-            </div>
-
-            <div class="form-row my-2">
-                <div class="col-2">
-                    <label for="mail_street2" class="col-form-label col-form-label-sm"><?php echo xlt('Suite'); ?>: </label>
-                </div>
-                <div class="col">
-                    <input type="text" class="form-control form-control-sm" size="20" name="mail_street2" value="<?php echo attr($facility["mail_street2"]) ?>" />
-                </div>
-            </div>
-
-            <div class="form-row my-2">
-                <div class="col-2">
-                    <label for="mail_city" class="col-form-label col-form-label-sm"><?php echo xlt('City'); ?>: </label>
-                </div>
-                <div class="col">
-                    <input type="text" class="form-control form-control-sm" size="20" name="mail_city" value="<?php echo attr($facility["mail_city"]) ?>" />
-                </div>
-            </div>
-
-            <div class="form-row my-2">
-                <div class="col-2">
-                    <label for="mail_state" class="col-form-label col-form-label-sm"><?php echo xlt('State'); ?>: </label>
-                </div>
-                <div class="col">
-                    <input type="text" class="form-control form-control-sm" size="20" name="mail_state" value="<?php echo attr($facility["mail_state"]) ?>" />
-                </div>
-            </div>
-
-            <div class="form-row my-2">
-                <div class="col-2">
-                    <label for="mail_zip" class="col-form-label col-form-label-sm"><?php echo xlt('Zip'); ?>:</label>
-                </div>
-                <div class="col">
-                    <input type="text" class="form-control form-control-sm" size="20" name="mail_zip" value="<?php echo attr($facility["mail_zip"]) ?>" />
-                </div>
-            </div>
-
-            <div class="form-row my-2">
-                <div class="col-2">
-                    <label for="info" class="col-form-label col-form-label-sm"><?php echo xlt('Info'); ?>:</label>
-                </div>
-                <div class="col">
-                    <textarea class="form-control form-control-sm" size="20" name="info"><?php echo attr($facility["info"]) ?></textarea>
-                </div>
-            </div>
-
-            <div class="form-row custom-control custom-switch my-2">
-                <div class="col">
-                    <input type='checkbox' class='custom-control-input' name='inactive' id='inactive' value='1' <?php echo ($facility['inactive'] != 0) ? 'checked' : ''; ?> />
-                    <label for='inactive' class='custom-control-label'><?php echo xlt('Facility Inactive'); ?></label>
-                </div>
-            </div>
-
-            <p class="text"><span class="mandatory">*</span> <?php echo xlt('Required'); ?></p>
-        </form>
-        <div class="py-3">
-            <a class="btn btn-primary" name='form_save' id='form_save' onclick='submitform();' href='#'><?php echo xlt('Save'); ?></a>
-            <a class="btn btn-secondary" id='cancel' onclick='dlgclose();' href='#'><?php echo xlt('Cancel'); ?></a>
         </div>
+        </form>
     </div>
 </body>
 </html>

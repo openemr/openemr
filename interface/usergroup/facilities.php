@@ -144,8 +144,8 @@ $(function () {
 
     $(".medium_modal").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
-        dlgopen('', '', 700, 590, '', '', {
-            allowResize: false,
+        dlgopen('', '', 1020, 900, '', '', {
+            allowResize: true,
             allowDrag: true, // note these default to true if not defined here. left as example.
             type: 'iframe',
             url: $(this).attr('href')
