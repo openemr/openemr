@@ -268,7 +268,7 @@ $(function () {
         </div>
         <div class="row">
             <div class="col-6">
-                <button type="button" class="btn-secondary" id="form_inactive" name='form_inactive'><?php echo xlt('Toggle Inactive Facilities'); ?></button>
+                <button type="button" class="btn btn-secondary" id="form_inactive" name='form_inactive'><?php echo xlt('Toggle Inactive Facilities'); ?></button>
             </div>
         </div>
     </div><!-- end of div container -->
