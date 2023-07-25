@@ -171,7 +171,7 @@ function generate_select_list(
     $selectEmptyName = xlt($empty_name);
     if ($empty_name) {
         preg_match_all('/select2/m', $class, $matches, PREG_SET_ORDER, 0);
-        if (count($matches) > 0) {
+        if (array_key_exists('placeholder', $attributes) && count($matches) > 0) {
             // We have a placeholder attribute as well as a select2 class indicating there
             // should be provide a truley empty option.
             $_options[] = [];
