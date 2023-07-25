@@ -46,4 +46,3 @@ $args['alertMsg'] = trim($alertmsg) ? true : false;
 $twig = new TwigContainer(null, $GLOBALS["kernel"]);
 $t = $twig->getTwig();
 echo $t->render("super/facilities/form.html.twig", $args);
-?>
