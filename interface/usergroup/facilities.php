@@ -154,7 +154,7 @@ $(function () {
 
     $(".addfac_modal").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
-        dlgopen('', '', 700, 620, '', '', {
+        dlgopen('', '', 1020, 620, '', '', {
             allowResize: false,
             allowDrag: true,
             type: 'iframe',
