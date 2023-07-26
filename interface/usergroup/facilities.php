@@ -219,7 +219,7 @@ $(function () {
                                 </td>
                                 <td valign="top" class="text"><?php echo text($iter3["federal_ein"]); ?>&nbsp;</td>
                                 <td valign="top" class="text"><?php echo text($iter3["facility_npi"]); ?>&nbsp;</td>
-                                <td valign="top" class="text"><?php echo text($varstreet) . "<br>" . text($varcity) . text($varstate) . text($iter3["country_code"]) . " ". text($iter3["postal_code"]); ?></td>
+                                <td valign="top" class="text"><?php echo text($varstreet) . "<br>" . text($varcity) . text($varstate) . text($iter3["country_code"]) . " " . text($iter3["postal_code"]); ?></td>
                                 <td valign="top" class="text"><?php echo text($varmstreet) . "<br>" . text($varmcity) . text($varmstate) . " " . text($iter3['mail_zip']); ?></td>
                                 <td><?php echo text($iter3["phone"]);?>&nbsp;</td>
                             </tr>
