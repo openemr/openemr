@@ -68,6 +68,25 @@ function submitform() {
     return false;
 }
 
+function copyAddress(base) {
+    let _map = [
+        ["mail_street", "street"],
+        ["mail_city", "city"],
+        ["mail_state", "state"],
+        ["mail_zip", "postal_code"]
+    ];
+
+    _map.forEach(f => {
+        let s = (base == "mailing") ? f[0] : f[1];
+        let d = (base == "mailing") ? f[1] : f[0];
+        let _s = document.querySelector("input[name='" + s + "']");
+        let _d = document.querySelector("input[name='" + d + "']");
+        console.log(_s);
+        console.log(_d);
+        _d.value = _s.value;
+    });
+}
+
 $(function () {
     /**
     * add required/star sign to required form fields
@@ -79,6 +98,12 @@ $(function () {
     }
 
     $("input[name='facility']").focus();
+    $("#btnCopyMailing").on('click', function() {
+        copyAddress("mailing");
+    });
+    $("#btnCopyPhysical").on('click', function() {
+        copyAddress("physical");
+    });
 });
 var cp = new ColorPicker('window');
 
@@ -147,7 +172,12 @@ function displayAlert() {
                                     <div class="col-sm-12">
                                         <div class="form-group">
                                             <label for='street' class='col-form-label sr-only'>{{ 'Address'|xlt }} </label>
-                                            <input type='text' class='form-control' name="street" placeholder="{{ 'Address'|xla }}" value="{{ facility.street|default('')|attr }}">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <button type="button" id="btnCopyMailing" class="btn btn-outline-secondary" title="{{ "Copy from mailing address"|xla }}"><i class="fa fa-clone"></i><span class="sr-only">{{ 'Copy Mailing'|xlt }}</span></button>
+                                                </div>
+                                                <input type='text' class='form-control' name="street" placeholder="{{ 'Address'|xla }}" value="{{ facility.street|default('')|attr }}">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -176,6 +206,9 @@ function displayAlert() {
                                             <input type='text' class='form-control' placeholder="{{ 'Country'|xla }}" name='country_code' value="{{ facility.country_code|default('')|attr }}">
                                         </div>
                                     </div>
+                                    <div class="col-sm-12">
+
+                                    </div>
                                 </div>
                             </div>
                             <div class="tab-pane" id="mailingAddress" role="tabpanel" aria-labelledby="mailing-address-tab">
@@ -183,12 +216,17 @@ function displayAlert() {
                                     <div class="col-sm-12">
                                         <div class="form-group">
                                             <label for="mail_street" class="col-form-label sr-only">{{ 'Mailing Address'|xlt }}</label>
-                                            <input type="text" class="form-control" placeholder="{{ 'Street Addres'|xla }}" name="mail_street" value="{{ facility.mail_street|default('')|attr }}">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                        <button type="button" id="btnCopyPhysical" class="btn btn-outline-secondary" title="{{ "Copy from physical address"|xla }}"><i class="fa fa-clone"></i><span class="sr-only">{{ 'Copy physical address'|xlt }}</span></button>
+                                                    </div>
+                                                <input type="text" class="form-control" placeholder="{{ 'Street Addres'|xla }}" name="mail_street" value="{{ facility.mail_street|default('')|attr }}">
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-sm-12">
                                         <div class="form-group">
-                                            <label for="mail_street2" class="col-form-label sr-only">{{ 'Suite'|xlt }}</label>
+                                            <label for="mail_street2" class="col-form-label sr-only">{{ 'Address Line Two'|xlt }}</label>
                                             <input type="text" class="form-control" placeholder="{{ 'Address Line Two'|xla }}" name="mail_street2" value="{{ facility.mail_street2|default('')|attr }}">
                                         </div>
                                     </div>
