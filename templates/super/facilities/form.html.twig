@@ -77,6 +77,8 @@ $(function () {
         if (collectvalidation[prop].presence)
             $("label[for='" + prop + "']").append('*');
     }
+
+    $("input[name='facility']").focus();
 });
 var cp = new ColorPicker('window');
 
@@ -106,7 +108,7 @@ function displayAlert() {
     <div class="container-fluid">
         <div class="row mb-3">
             <div class="col-sm-12 d-flex justify-content-between align-items-center">
-                <h5 class="m-0">{{ 'Edit Facility'|xlt }}</h5>
+                <h5 class="m-0">{{ ((mode == "add") ? "Add Facility" : "Edit Facility")|xlt }}</h5>
                 <div>
                     <a class="btn btn-text" id='cancel' onclick='dlgclose();' href='#'>{{ 'Cancel'|xlt }}</a>
                     <a class="btn btn-primary" name='form_save' id='form_save' onclick='submitform();' href='#'>{{ 'Save'|xlt }}</a>
@@ -114,16 +116,18 @@ function displayAlert() {
             </div>
         </div>
         <form name='facility-form' id="facility-form" method='post' action="facilities.php">
-            <input type="hidden" name="csrf_token_form" value="{{ csrfTokenRaw() }}" />
-            <input type=hidden name='mode' value="facility" />
-            <input type=hidden name='newmode' value="admin_facility" />
+            <input type="hidden" name="csrf_token_form" value="{{ csrfTokenRaw() }}">
+            <input type="hidden" name='mode' value="facility">
+            {% if mode == "edit" %}
+            <input type="hidden" name='newmode' value="admin_facility">
             <!-- diffrentiate Admin and add post backs !-->
-            <input type=hidden name="fid" value="{{ my_fid|default('')|attr }}" />
+            <input type="hidden" name="fid" value="{{ my_fid|default('')|attr }}">
+            {% endif %}
 
             <div class="form-row">
                 <div class="form-group w-100">
                     <label for='facility' class="sr-only">{{ 'Name'|xlt }}</label>
-                    <input type='text' class='form-control form-control-lg' name='facility' value='{{ facility.name|default('')|attr }}'>
+                    <input type='text' class='form-control form-control-lg' placeholder="{{ 'Facility Name'|xla }}" name='facility' value='{{ facility.name|default('')|attr }}'>
                 </div>
             </div>
             <div class="form-row mb-2">
