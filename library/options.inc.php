@@ -271,16 +271,19 @@ function generate_select_list(
         }
     }
 
-    if (!$got_selected && strlen($currvalue ?? '') > 0 && !$multiple) {
+    $list_id = "sex";
+    $backup_list = "sex";
+    $currvalue = "Male";
+    if (true) {
         $list_id = $backup_list;
-        $lrow = sqlQuery("SELECT title FROM list_options WHERE list_id = ? AND option_id = ?", [$list_id,$currvalue]);
+        $lrow = sqlQuery("SELECT title FROM list_options WHERE list_id = ? AND option_id = ?", [$list_id, $currvalue]);
 
         $_options[] = [
             'value' => attr($currvalue),
             'selected' => true,
             'label' => ($lrow > 0 && !empty($backup_list)) ? text(xl_list_label($lrow['title'])) : text($currvalue),
         ];
-        if ($lrow == 0 && empty($backup_list)) {
+        if (empty($lrow) && empty($backup_list)) {
             $metadata['error'] = [
                 'title' => xlt('Please choose a valid selection from the list.'),
                 'text' => xlt('Fix this'),
