@@ -95,7 +95,7 @@ if (($_POST["mode"] ?? "") == "facility" && $_POST["newmode"] == "admin_facility
     // Update facility name for all users with this facility.
     // This is necessary because some provider based code uses facility name for lookups instead of facility id.
     //
-    $facilityService->updateUsersFacility($newFacility['name'], $newFacility['id']);
+    $facilityService->updateUsersFacility($values['name'], $values['id']);
     exit(); // sjp 12/20/17 for ajax save
 }
 
