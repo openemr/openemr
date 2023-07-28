@@ -996,8 +996,16 @@ if (
             include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
             lbf_report($attendant_id, $encounter, 2, $iter['form_id'], $formdir, true);
         } else {
-            include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
-            call_user_func($formdir . "_report", $attendant_id, $encounter, 2, $iter['form_id']);
+            if (file_exists($GLOBALS['incdir'] . "/forms/$formdir/report.php")) {
+                include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
+                if (function_exists($formdir . "_report")) {
+                    call_user_func($formdir . "_report", $attendant_id, $encounter, 2, $iter['form_id']);
+                } else {
+                    (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller("form is missing report function", ['formdir' => $formdir]);
+                }
+            } else {
+                (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller("form is missing report.php file", ['formdir' => $formdir]);
+            }
         }
 
         if ($esign->isLogViewable()) {
