@@ -34,8 +34,12 @@ function getPnoteById($id, $cols = "*")
  */
 function checkPnotesNoteId(int $id, string $user): bool
 {
-    $check = sqlQuery("SELECT `id` FROM pnotes WHERE id = ? AND user = ? AND deleted != 1", array($id, $user));
-    if (!empty($check['id']) && ($check['id'] == $id)) {
+    $check = sqlQuery("SELECT `id`, `user`, `assigned_to` FROM pnotes WHERE id = ? AND deleted != 1", array($id));
+    if (
+        !empty($check['id'])
+        && ($check['id'] == $id)
+        && (in_array($user, [$check['user'], $check['assigned_to']]))
+    ) {
         return true;
     } else {
         return false;
