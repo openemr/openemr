@@ -41,6 +41,29 @@ function checkPnotesNoteId(int $id, string $user): bool
         && (in_array($user, [$check['user'], $check['assigned_to']]))
     ) {
         return true;
+    } elseif (
+        checkPortalAuthUser($user)
+        && !empty($check['id'])
+        && ($check['id'] == $id)
+        && ('portal-user' === $check['assigned_to'])
+    ) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/**
+ * Check if an auth portal user
+ *
+ * @param string $user the user seeking to view the note
+ * @return bool
+ */
+function checkPortalAuthUser(string $user): bool
+{
+    $check = sqlQuery("SELECT `id` FROM users WHERE portal_user = 1 AND username = ? AND active = 1", array($user));
+    if (!empty($check['id'])) {
+        return true;
     } else {
         return false;
     }
@@ -75,11 +98,14 @@ function getPnotesByUser($activity = "1", $show_all = "no", $user = '', $count =
     } else { //$activity=='all'
         $activity_query = " ";
     }
-
+    $user_plug = '';
   // Set whether to show chosen user or all users
     if ($show_all == 'yes') {
         $usrvar = '_%';
     } else {
+        if (checkPortalAuthUser($user)) {
+            $user_plug = "|| pnotes.assigned_to = 'portal-user'";
+        }
         $usrvar = $user;
     }
 
@@ -91,7 +117,7 @@ function getPnotesByUser($activity = "1", $show_all = "no", $user = '', $count =
           patient_data.fname as patient_data_fname, patient_data.lname as patient_data_lname
           FROM ((pnotes LEFT JOIN users ON pnotes.user = users.username)
           LEFT JOIN patient_data ON pnotes.pid = patient_data.pid) WHERE $activity_query
-          pnotes.deleted != '1' AND pnotes.assigned_to LIKE ?";
+          pnotes.deleted != '1' AND (pnotes.assigned_to LIKE ? $user_plug)";
     if (!empty($sortby) || !empty($sortorder)  || !empty($begin) || !empty($listnumber)) {
         $sql .= " order by " . escape_sql_column_name($sortby, array('users','patient_data','pnotes'), true) .
             " " . escape_sort_order($sortorder) .
