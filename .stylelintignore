@@ -9,3 +9,15 @@ public/assets/**/*.css
 public/assets/**/*.scss
 public/themes/**/*.css
 public/themes/**/*.scss
+
+# To be fixed and removed from this list
+gacl/**/*.css
+gacl/**/*.scss
+interface/**/*.css
+interface/**/*.scss
+library/**/*.css
+library/**/*.scss
+portal/**/*.css
+portal/**/*.scss
+public/**/*.css
+public/**/*.scss
