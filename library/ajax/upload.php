@@ -75,6 +75,7 @@ if ($isPortal ?? false) {
         $note['from'] = 'portal-user';
         $note['message_status'] = 'New';
         $note['title'] = 'New Document';
+        $category = sqlQuery("SELECT id FROM categories WHERE name LIKE ?", array($category_id))['id'] ?: 3;
         foreach ($files["file"] as $file) {
             $name = $file['name'];
             $type = $file['type'];
@@ -87,23 +88,27 @@ if ($isPortal ?? false) {
                 '',
                 $size,
                 $owner,
-                $patient_id,
-                $category_id,
+                $pid,
+                $category,
                 '',
                 '',
                 true
             );
-            if (!empty($data)) {
-                $data['name'] = $name;
-                $note['body'] = xlt('A Portal Patient has uploaded a new document titled') .
-                    ' "' . $name . '" ' .
-                    xlt('to the Documents Onsite Portal Patient category.') . "\n" .
-                    xlt("Please review and take any necessary actions");
-                $messageService->insert($pid, $note);
-            }
             $rtn[] = $data;
         }
-        echo json_encode($rtn);
+        // give user a break and send just one message for multi documents
+        $names = '';
+        foreach ($rtn as $data) {
+            $names .= '"' . $data['name'] . '", ';
+        }
+        if (!empty($names)) {
+            $note['body'] = xl('A Portal Patient has uploaded new documents titled') .
+                ' ' . $names .
+                xl('to the Documents Onsite Portal Patient category.') . "\n" .
+                xl("Please review and take any necessary actions");
+            $messageService->insert($pid, $note);
+        }
+        echo text(json_encode($rtn));
     }
     exit;
 }

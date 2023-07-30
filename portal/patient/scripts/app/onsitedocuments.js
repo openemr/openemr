@@ -1043,7 +1043,6 @@ var page = {
             autoProcessQueue: false,
             init: function (e) {
                 const thisDropzone = this;
-                let thisFile;
                 let fileCnt = 0;
                 $("#idSubmit").click(function (e) {
                     e.preventDefault();
@@ -1056,25 +1055,24 @@ var page = {
                     });
                 });
                 this.on("success", function (file, response) {
-                    thisFile = file;
-                    console.log('upload success ', thisFile + ' | ' + response);
+                    let data = JSON.parse(response);
                 });
                 this.on("complete", function (file) {
-                    console.log('complete success ', file);
-                    this.removeFile(file)
+                    this.removeFile(file);
+                    if (dropzoneCount() < 1){
+                        $("#idShow").click();
+                    }
                 });
                 this.on("queuecomplete", function () {
                     $('.meter').delay(999).slideUp(999);
                 });
                 this.on("removedfile", function (file) {
-                    console.log('removed success ', file);
                     if (dropzoneCount() < 1){
                         $("#idSubmit").addClass('d-none');
                     }
                 });
                 this.on("addedfile", function(file) {
                     $("#idSubmit").removeClass('d-none');
-                    $('.preview-container').css('visibility', 'visible');
                     file.previewElement.classList.add('type-' + fileType(file.name));
                     fileCnt = dropzoneCount();
                 });

@@ -67,12 +67,6 @@ use OpenEMR\Core\Header;
         }
     </script>
 </head>
-<style>
-    .dz-remove {
-      color: var(--danger);
-      font-size: 15px;
-    }
-</style>
 <body class="pt-2">
     <!-- About Dialog -->
     <div class="modal fade" id="formdialog" tabindex="-1" role="dialog" aria-hidden="true">

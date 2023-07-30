@@ -73,7 +73,7 @@ $templateService = new DocumentTemplateService();
     <meta name="description" content="Developed By sjpadgett@gmail.com">
     <?php
     $csrf_php = js_escape(CsrfUtils::collectCsrfToken('doc-lib'));
-    $urlAjax = $GLOBALS['web_root'] . '/library/ajax/upload.php?parent_id=28&patient_id=' . attr_url($pid);
+    $urlAjax = $GLOBALS['web_root'] . '/library/ajax/upload.php?parent_id=Patient&patient_id=' . attr_url($pid);
     // some necessary js globals
     echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($cuser) . ";var ptName=" . js_escape($ptName) .
         ";var catid=" . js_escape($category) . ";var catname=" . js_escape($catname) . ";</script>";
@@ -108,23 +108,27 @@ $templateService = new DocumentTemplateService();
             "<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait().script(
             "<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
     </script>
-    <style>
-      @media print {
-        #templatecontent {
-          width: 1220px;
-        }
-      }
+<style>
+  @media print {
+    #templatecontent {
+      width: 1220px;
+    }
+  }
 
-      .nav-pills-ovr > li > a {
-        border: 1px solid !important;
-        border-radius: .25rem !important;
-      }
+  .nav-pills-ovr > li > a {
+    border: 1px solid !important;
+    border-radius: .25rem !important;
+  }
 
-      .dz-remove {
-        font-size: 16px;
-        color: var(--danger);
-      }
-    </style>
+  .dz-remove {
+    font-size: 16px;
+    color: var(--danger);
+  }
+
+  .dz-progress {
+    opacity: 0.2 !important;
+  }
+</style>
 </head>
 
 <body class="p-0 m-0">
