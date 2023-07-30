@@ -78,7 +78,7 @@ function PrintForm() {
 <input type="button" class="printform" value="<?php echo xla('Print'); ?>"> &nbsp;
 
 <!-- container for the main body of the form -->
-<div id="form_container">
+<div id="form-container">
 
 <div id="general">
 <table>
