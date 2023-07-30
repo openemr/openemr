@@ -574,8 +574,13 @@ function reappearPnote($id)
 
 function deletePnote($id)
 {
+    $assigned = getAssignedToById($id);
+    if (!checkPortalAuthUser($_SESSION['authUser']) && $assigned == 'portal-user') {
+        return false;
+    }
     if (
-        getAssignedToById($id) == $_SESSION['authUser']
+        $assigned == $_SESSION['authUser']
+        || $assigned == 'portal-user'
         || getMessageStatusById($id) == 'Done'
     ) {
         sqlStatement("UPDATE pnotes SET deleted = '1', update_by = ?, update_date = NOW() WHERE id=?", array($_SESSION['authUserID'], $id));
