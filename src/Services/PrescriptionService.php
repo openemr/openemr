@@ -82,7 +82,7 @@ class PrescriptionService extends BaseService
 
         // order comes from our MedicationRequest intent value set, since we are only reporting on completed prescriptions
         // we will put the intent down as 'order' @see http://hl7.org/fhir/R4/valueset-medicationrequest-intent.html
-        $sql = "SELECT 
+        $sql = "SELECT
                 combined_prescriptions.uuid
                 ,combined_prescriptions.source_table
                 ,combined_prescriptions.drug
@@ -142,12 +142,12 @@ class PrescriptionService extends BaseService
                             ,provider_id
                             ,drugs.uuid AS drug_uuid
                             ,prescriptions.drug_dosage_instructions
-                            ,CASE 
+                            ,CASE
                                 WHEN prescriptions.end_date IS NOT NULL AND prescriptions.active = '1' THEN 'completed'
                                 WHEN prescriptions.active = '1' THEN 'active'
                                 ELSE 'stopped'
                             END as 'status'
-                            
+
                     FROM
                         prescriptions
                     LEFT JOIN
@@ -175,20 +175,20 @@ class PrescriptionService extends BaseService
                         ,users.id AS provider_id
                         ,NULL as drug_uuid
                         ,lists_medication.drug_dosage_instructions
-                        ,CASE 
+                        ,CASE
                                 WHEN lists.enddate IS NOT NULL AND lists.activity = 1 THEN 'completed'
                                 WHEN lists.activity = 1 THEN 'active'
                                 ELSE 'stopped'
                         END as 'status'
                     FROM
                         lists
-                    LEFT JOIN 
+                    LEFT JOIN
                             users ON users.username = lists.user
                     LEFT JOIN
                         lists_medication ON lists_medication.list_id = lists.id
                     LEFT JOIN
                     (
-                       select 
+                       select
                               pid AS issues_encounter_pid
                             , list_id AS issues_encounter_list_id
                             -- lists have a 0..* relationship with issue_encounters which is a problem as FHIR treats medications as a 0.1
@@ -214,7 +214,7 @@ class PrescriptionService extends BaseService
                     ,title AS interval_title
                     ,codes AS interval_codes
                   FROM list_options
-                  WHERE list_id='drug_route'      
+                  WHERE list_id='drug_route'
                 ) intervals_list ON intervals_list.interval_id = combined_prescriptions.interval
                 LEFT JOIN
                 (
@@ -239,7 +239,7 @@ class PrescriptionService extends BaseService
                 ) encounter
                 ON encounter.encounter = combined_prescriptions.encounter
                 LEFT JOIN (
-                    SELECT 
+                    SELECT
                            id AS practitioner_id
                            ,uuid AS pruuid
                     FROM users
@@ -297,4 +297,43 @@ class PrescriptionService extends BaseService
     {
         return $this->getAll(['_id' => $uuid], $puuidBind);
     }
+
+    public function insert($data)
+    {
+        $processingResult = $this->allergyIntoleranceValidator->validate(
+            $data,
+            AllergyIntoleranceValidator::DATABASE_INSERT_CONTEXT
+        );
+
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        $puuidBytes = UuidRegistry::uuidToBytes($data['puuid']);
+        $data['pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
+        $data['uuid'] = (new UuidRegistry(['table_name' => self::ALLERGY_TABLE]))->createUuid();
+
+        $query = $this->buildInsertColumns($data);
+        $sql  = " INSERT INTO lists SET";
+        $sql .= "     date=NOW(),";
+        $sql .= "     activity=1,";
+        $sql .= "     type='allergy',";
+        $sql .= $query['set'];
+        $results = sqlInsert(
+            $sql,
+            $query['bind']
+        );
+
+        if ($results) {
+            $processingResult->addData(array(
+                'id' => $results,
+                'uuid' => UuidRegistry::uuidToString($data['uuid'])
+            ));
+        } else {
+            $processingResult->addInternalError("error processing SQL Insert");
+        }
+
+        return $processingResult;
+    }
+
 }
