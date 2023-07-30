@@ -4,10 +4,6 @@
         "stylelint-config-standard",
         "stylelint-config-sass-guidelines"
     ],
-    "ignoreFiles": [
-        "swagger/*.css",
-        "interface/forms/questionnaire_assessments/lforms/webcomponent/styles.css"
-    ],
     "rules": {
         "selector-no-qualifying-type": [
             true,
