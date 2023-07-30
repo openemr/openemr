@@ -647,8 +647,10 @@ var page = {
         page.isSaved = false;
         if (currentName === 'Help') {
             page.isSaved = true;
+            $('#idShow').removeClass('d-none');
             $(".dismissOnsiteDocumentButton").addClass("d-none");
         } else {
+            $('#idShow').addClass('d-none');
             $(".dismissOnsiteDocumentButton").removeClass("d-none");
         }
         page.isFrameForm = 0;
@@ -770,8 +772,7 @@ var page = {
         }
         $('#docPanelHeader').append('<span class="bg-light text-dark px-1">' + jsText(currentNameStyled) + '</span>' +
             jsText(' ' + page.version + ' Version:' + ' Dated:' + cdate + ' Status:' + status));
-    }
-    ,
+    },
     /**
      * show the doc for editing
      * @param m doc id
@@ -802,7 +803,6 @@ var page = {
             });
         }
     },
-
     /**
      * Render the model template in the container
      * @param showDeleteButton
@@ -834,7 +834,6 @@ var page = {
             $('#deleteOnsiteDocumentButtonContainer').hide();
         }
     },
-
     /**
      * update the model that is currently displayed in the dialog
      */
@@ -1028,5 +1027,69 @@ var page = {
         });
         // will send to controller.
         return JSON.stringify(objectArray);
+    },
+    initFileDrop: function (event) {
+        new Dropzone("#patientFileDrop", {
+            paramName: 'file',
+            clickable: true,
+            acceptedFiles: 'application/pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.csv,.tsv,.ppt,.pptx,.odt,.rtf',
+            dictDefaultMessage: xl("Drop file or Click here."),
+            maxFiles: 2,
+            enqueueForUpload: true,
+            maxFilesize: 100,
+            uploadMultiple: true,
+            addRemoveLinks: true,
+            createImageThumbnails: true,
+            autoProcessQueue: false,
+            init: function (e) {
+                const thisDropzone = this;
+                let thisFile;
+                let fileCnt = 0;
+                $("#idSubmit").click(function (e) {
+                    e.preventDefault();
+                    thisDropzone.processQueue();
+                });
+                this.on('sending', function(file, xhr, formData) {
+                    let data = $('#frmTarget').serializeArray();
+                    $.each(data, function(key, el) {
+                        formData.append(el.name, el.value);
+                    });
+                });
+                this.on("success", function (file, response) {
+                    thisFile = file;
+                    console.log('upload success ', thisFile + ' | ' + response);
+                });
+                this.on("complete", function (file) {
+                    console.log('complete success ', file);
+                    this.removeFile(file)
+                });
+                this.on("queuecomplete", function () {
+                    $('.meter').delay(999).slideUp(999);
+                });
+                this.on("removedfile", function (file) {
+                    console.log('removed success ', file);
+                    if (dropzoneCount() < 1){
+                        $("#idSubmit").addClass('d-none');
+                    }
+                });
+                this.on("addedfile", function(file) {
+                    $("#idSubmit").removeClass('d-none');
+                    $('.preview-container').css('visibility', 'visible');
+                    file.previewElement.classList.add('type-' + fileType(file.name));
+                    fileCnt = dropzoneCount();
+                });
+                function fileType(fileName) {
+                    let fileType = /[.]/.exec(fileName) ? /[^.]+$/.exec(fileName) : undefined;
+                    return fileType[0];
+                }
+                function dropzoneCount() {
+                    return $('#patientFileDrop > .dz-preview').length;
+                }
+                if (fileCnt > 0) {
+                    $("#idSubmit").removeClass('d-none');
+                }
+                $(".dz-button").addClass("bg-dark text-light");
+            }
+        });
     }
 };

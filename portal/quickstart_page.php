@@ -27,7 +27,6 @@ use OpenEMR\Core\Header;
     <title><?php echo($title); ?></title>
     <meta name="description" content="Patient Portal" />
     <meta name="author" content="Dashboard | sjpadgett@gmail.com" />
-
     <?php
     Header::setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker']);
     echo "<script>var cpid='" . attr($cpid ?? $pid) . "';var cuser='" . attr($cuser ?? 'portal-user') . "';var webRoot='" . $GLOBALS['web_root'] . "';</script>";
@@ -68,8 +67,14 @@ use OpenEMR\Core\Header;
         }
     </script>
 </head>
-
+<style>
+    .dz-remove {
+      color: var(--danger);
+      font-size: 15px;
+    }
+</style>
 <body class="pt-2">
+    <!-- About Dialog -->
     <div class="modal fade" id="formdialog" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog bg-light">
             <div class="modal-content">
@@ -80,7 +85,7 @@ use OpenEMR\Core\Header;
                 <div class="modal-body">
                     <div>
                     <span><?php echo xlt('Please see forum or wiki'); ?>
-                <a href="<?php echo attr('https://community.open-emr.org/'); ?>" target="_blank"><?php echo xlt("Visit Forum"); ?></a>
+                        <a href="<?php echo attr('https://community.open-emr.org/'); ?>" target="_blank"><?php echo xlt("Visit Forum"); ?></a>
                     </span>
                     </div>
                 </div>
@@ -90,7 +95,7 @@ use OpenEMR\Core\Header;
             </div>
         </div>
     </div>
-    <div class="container p-3">
+    <div class="container-xl p-3">
         <div class="jumbotron jumbotron-fluid text-center p-1">
             <h3><?php echo xlt('My Quick Starts') ?><i class="fa fa-user text-danger ml-2" style="font-size: 3rem;"></i></h3>
             <p>
@@ -99,29 +104,28 @@ use OpenEMR\Core\Header;
         </div>
         <div class='jumbotron jumbotron-fluid p-4'>
             <div class="row" id="inject_card">
-                <div class="card d-flex">
+                <!-- Document -->
+                <div class="card d-flex mr-1 mb-1">
                     <div class="card-body">
-                        <h4 class="card-title"><i class="fa fa-file-text mr-1"></i><?php echo xlt('Forms') ?></h4>
-                        <a class="btn btn-success" href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr_url($pid); ?>"><?php echo xlt('Manage Forms') ?></a>
+                        <h4 class="card-title"><i class="fa fa-file-text mr-1"></i><?php echo xlt('My Documents') ?></h4>
+                        <a class="btn btn-success" href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr_url($pid); ?>"><?php echo xlt('Manage Documents') ?></a>
                     </div>
                 </div>
-                <!--<div class="col">
-                    <h4><i class="fa fa-message mr-1"></i><?php /*echo xlt('Chat') */ ?></h4>
-                    <a class="btn btn-success" href="<?php /*echo $GLOBALS['web_root'];*/ ?>/portal/messaging/secure_chat.php"><?php /*echo xlt('Chat Messaging') */ ?></a>
-                </div>-->
-                <div class="card d-flex">
+                <!-- Signature -->
+                <div class="card d-flex mr-1 mb-1">
                     <div class="card-body">
                         <h4><i class="card-title fa fa-signature mr-1"></i><?php echo xlt('Signature') ?></h4>
                         <a data-type="patient-signature" class="btn btn-primary" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal"><?php echo xlt('Manage Signature'); ?></a>
                     </div>
                 </div>
-                <div class="card d-flex">
+                <!-- Theme -->
+                <div class="card d-flex mr-1 mb-1">
                     <div class="card-body row">
                         <h4 class="card-title"><i class="fa fa-link mr-1"></i><?php echo xlt('Settings') ?></h4>
                         <div class="col-12 form-group">
                             <div class="col">
                                 <div class="input-group">
-                                    <label for='my_theme'><?php echo xlt('Current Theme') ?></label>
+                                    <label class="m-0" for='my_theme'><?php echo xlt('Current Theme') ?></label>
                                     <select class='form-control ml-2' id='my_theme'>
                                         <?php
                                         $theme_dir = "$webserver_root/public/themes";
@@ -173,5 +177,7 @@ use OpenEMR\Core\Header;
                         </div>
                     </div>
                 </div>
-            </div>
-            <!-- /container -->
+        </div>
+    </div>
+</body>
+</html>

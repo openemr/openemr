@@ -72,12 +72,14 @@ $templateService = new DocumentTemplateService();
     </title>
     <meta name="description" content="Developed By sjpadgett@gmail.com">
     <?php
+    $csrf_php = js_escape(CsrfUtils::collectCsrfToken('doc-lib'));
+    $urlAjax = $GLOBALS['web_root'] . '/library/ajax/upload.php?parent_id=28&patient_id=' . attr_url($pid);
     // some necessary js globals
     echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($cuser) . ";var ptName=" . js_escape($ptName) .
         ";var catid=" . js_escape($category) . ";var catname=" . js_escape($catname) . ";</script>";
     echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) . ";var help_id=" . js_escape($help_id) . ";</script>";
     echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";var webroot_url = webRoot;</script>";
-    echo "<script>var csrfTokenDoclib=" . js_escape(CsrfUtils::collectCsrfToken('doc-lib')) . ";</script>";
+    echo "<script>var csrfTokenDoclib=" . $csrf_php . ";</script>";
     // translations
     echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": " . attr($catname) . "';</script>";
     echo "<script>var msgSuccess='" . xlt("Updates Successful") . "';</script>";
@@ -91,7 +93,9 @@ $templateService = new DocumentTemplateService();
         Header::setupHeader(['datetime-picker']);
     }
     ?>
-    <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.css?v=<?php echo $GLOBALS['v_js_includes']; ?>">
+    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
     <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
     <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
     <script src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
@@ -110,9 +114,15 @@ $templateService = new DocumentTemplateService();
           width: 1220px;
         }
       }
+
       .nav-pills-ovr > li > a {
         border: 1px solid !important;
         border-radius: .25rem !important;
+      }
+
+      .dz-remove {
+        font-size: 16px;
+        color: var(--danger);
       }
     </style>
 </head>
@@ -132,8 +142,9 @@ $templateService = new DocumentTemplateService();
                 });
                 $("#Help").click();
                 $(".helpHide").addClass("d-none");
-
                 $(parent.document.getElementById('topNav')).addClass("d-none");
+                // init file upload
+                page.initFileDrop();
             }
             console.log('init done template');
 
@@ -228,13 +239,13 @@ $templateService = new DocumentTemplateService();
                 iframe.height = '0';
                 iframe.id = 'tempFrame';
                 document.body.appendChild(iframe);
-                iframe.onload = function() {
+                iframe.onload = function () {
                     iframe.contentWindow.focus();
                     iframe.contentWindow.print();
                 }
                 // write the content
                 iframe.src = url;
-            }).catch(function(error) {
+            }).catch(function (error) {
                 console.log('PHP PDF Background Service Request failed: ', error);
                 return false;
             });
@@ -402,7 +413,7 @@ $templateService = new DocumentTemplateService();
             page.isFlattened = true;
         }
 
-        const flattenDocument = async () =>  {
+        const flattenDocument = async () => {
             await flattenDocumentAsync();
             page.isFlattened = true;
         }
@@ -469,10 +480,8 @@ $templateService = new DocumentTemplateService();
                     <li class='nav-item mb-1'>
                         <a class='nav-link btn btn-outline-secondary' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'> <span class='fa fa-sync fa-lg'></span></a>
                     </li>
-                    <!--<li class='nav-item mb-1'>
-                        <a id='showNav' class='nav-link btn btn-outline-secondary'><?php /*echo xlt('Top Menu'); */?></a>
-                    </li>-->
                 </ul>
+                <a id="idShow" class="btn btn-outline-primary float-right m-1" href='javascript:' onclick="$('#hideUpload').toggle();"><i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></a>
             </div>
         </nav>
         <div class="d-flex flex-row justify-content-center">
@@ -489,6 +498,22 @@ $templateService = new DocumentTemplateService();
                         <header class="card-header font-weight-bold bg-dark text-light p-1 helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?>
                             <button id="dismissOnsiteDocumentButtonTop" class="dismissOnsiteDocumentButton btn btn-outline-danger btn-sm float-right" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
                         </header>
+                        <!-- File upload -->
+                        <div class="card col-12 col-lg-5 col-md-3">
+                            <div id="hideUpload" class="card-body" style="display: none;">
+                                <h4 class="card-title"><i class="fa fa-file-text mr-1" role="button" onclick="$('#hideUpload').toggle();"></i><?php echo xlt('My Uploads') ?></h4>
+                                <div class="row">
+                                    <div class="container-fluid h-25" id="file-queue-container">
+                                        <div id="file-queue">
+                                            <form id="patientFileDrop" method="post" enctype="multipart/form-data" class="dropzone bg-dark" action='<?php echo $urlAjax; ?>'>
+                                                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                            </form>
+                                            <button name="file_submit" id="idSubmit" class="btn btn-success mt-2 d-none" type="submit" value="upload"><?php echo xlt('Upload to Clinic') ?></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <!-- editor form -->
                         <form class="container-xl p-0" id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
                             <div id="templatediv" class="card-body border overflow-auto">
@@ -508,6 +533,8 @@ $templateService = new DocumentTemplateService();
                             <span>
                                 <button id="dismissOnsiteDocumentButton" class="dismissOnsiteDocumentButton btn btn-sm btn-outline-danger float-right m-1" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
                             </span>
+                            <span>
+                            </span>
                             <!-- delete button is a separate form to prevent enter key from triggering a delete-->
                             <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
                                 <fieldset>
@@ -524,6 +551,7 @@ $templateService = new DocumentTemplateService();
                                 </fieldset>
                             </form>
                         </div>
+                    </div>
                 </script>
                 <div id="onsiteDocumentModelContainer" class="modelContainer">
                     <!-- rendered edit document and action toolbar template -->
@@ -548,7 +576,7 @@ $templateService = new DocumentTemplateService();
                     </tr>
                     </thead>
                     <tbody>
-                    <% items.each(function(item) {  %>
+                    <% items.each(function(item) { %>
                     <tr id="<%= _.escape(item.get('id')) %>">
                         <th scope="row"><%= _.escape(item.get('id') || '') %></th>
                         <td>
