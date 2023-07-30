@@ -21,7 +21,7 @@ require_once("verysimple/Phreeze/Reporter.php");
  * Note that Reporters are read-only and cannot be used for saving data.
  *
  * @package Openemr::Model::DAO
- * @author ClassBuilder
+ * @author  ClassBuilder
  * @version 1.0
  */
 class OnsiteDocumentReporter extends Reporter
@@ -49,6 +49,7 @@ class OnsiteDocumentReporter extends Reporter
     public $FullDocument;
     public $FileName;
     public $FilePath;
+    public $TemplateData;
 
     /*
     * GetCustomQuery returns a fully formed SQL statement.  The result columns
@@ -81,6 +82,7 @@ class OnsiteDocumentReporter extends Reporter
 			,`onsite_documents`.`full_document` as FullDocument
 			,`onsite_documents`.`file_name` as FileName
 			,`onsite_documents`.`file_path` as FilePath
+			,`onsite_documents`.`template_data` as TemplateData
 		from `onsite_documents`";
 
         // the criteria can be used or you can write your own custom logic.
