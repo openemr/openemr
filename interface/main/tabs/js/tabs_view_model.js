@@ -93,6 +93,7 @@ function tabRefresh(data,evt)
     top.restoreSession();
     // To do: Consider modification if part of frame.
     try {
+        /* eslint-disable-next-line no-self-assign */
         data.window.location = data.window.location;
         activateTab(data);
     } catch(e) {
@@ -383,11 +384,11 @@ function clearPatient()
         activateTabByName('fin',true);
     });
 
-    if (WindowTitleAddPatient) 
+    if (WindowTitleAddPatient)
     {
         top.document.title = WindowTitleBase;
     }
- 
+
     //Ajax call to clear active patient in session
     $.ajax({
         type: "POST",

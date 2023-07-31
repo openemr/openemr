@@ -264,11 +264,6 @@ function analyze_menu()
                         });
                         // End Second level menu items
                     }
-                    else
-                    {
-
-
-                    }
                     menu_entries.push(newEntry);
 
 
