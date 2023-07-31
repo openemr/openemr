@@ -240,7 +240,6 @@ function save_item() {
         success: function (thedata) {
             //alert(thedata)
             document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
-            ;
             cancel_item('');
         },
         error: function () {
@@ -270,7 +269,6 @@ function update_item(id) {
         success: function (thedata) {
             //alert(thedata)
             document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
-            ;
             cancel_item(id);
         },
         error: function () {
