@@ -316,12 +316,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $shortModDate = text(trim(oeFormatShortDate($row['modifydate'])));
                             $fullModDate = text(trim(oeFormatDateTime($row['modifydate'])));
 
-                            if ($row['outcome']) {
-                                $outcome = generate_display_field(['data_type' => 1, 'list_id' => 'outcome'], $row['outcome']);
-                            } else {
-                                $outcome = false;
-                            }
-                        ?>
+                            $outcome = ($row['outcome']) ?  generate_display_field(['data_type' => 1, 'list_id' => 'outcome'], $row['outcome']) : false;
+                            ?>
                         <div class="list-group-item p-1">
                             <div class="summary m-0 p-0 d-flex w-100 justify-content-end align-content-center">
                                 <?php if ($canSelect) : ?>
@@ -334,7 +330,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     </div>
                                     <a href="#" data-issue-id="<?php echo attr($row['id']); ?>" class="font-weight-bold issue_title" data-toggle="tooltip" data-placement="right" title="<?php echo text($diag . ": " . $codedesc); ?>">
                                         <?php echo text($disptitle); ?>
-                                    </a>&nbsp;(<?php echo $statusCompute; ?><?php if (!$resolved && $outcome) { echo ", $outcome"; } ?>)
+                                    </a>&nbsp;(<?php echo $statusCompute; ?><?php echo (!$resolved && $outcome) ? ", $outcome" : ""; ?>)
                                     <?php
                                     if ($focustitles[0] == "Allergies") :
                                         echo generate_display_field(array('data_type' => '1','list_id' => 'reaction'), $row['reaction']);
@@ -345,7 +341,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     $l = new ListService();
                                     $sev = $l->getListOption('severity_ccda', $row['severity_al']);
                                     $hgl = (in_array($row['severity_al'], ['severe', 'life_threatening_severity', 'fatal'])) ? 'bg-warning font-weight-bold px-1' : '';
-                                ?>
+                                    ?>
                                 <span class="mr-3 <?php echo attr($hgl); ?>">
                                     <?php echo text($sev['title']); ?>
                                 </span>
@@ -404,9 +400,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 </div>
                             </div>
                         </div>
-                        <?php
-                        endwhile;
-                        ?>
+                            <?php endwhile; ?>
                     </div>
                 <?php endforeach; ?>
             </form>
