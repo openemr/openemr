@@ -11,6 +11,8 @@
 function datekeyup(e, defcc, withtime) {
  if (typeof(withtime) == 'undefined') withtime = false;
 
+ // TODO: rewrite this to avoid the infinite loop
+ /* eslint-disable-next-line no-constant-condition */
  while(true) {
   var delim = '';
   var arr = new Array(0, 0, 0, 0, 0, 0);
