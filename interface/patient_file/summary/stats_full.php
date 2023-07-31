@@ -229,7 +229,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <div class="d-flex align-items-center">
                             <?php if (!($noIssues || $nothingRecorded)) : ?>
                                 <input type="checkbox" class="selection-check mr-1" onclick="headerSelectionChanged(this, <?php echo attr_js($t);?>);"/>
-                                <button type="button" class="btn btn-text px-2" data-issue-type="<?php echo xla($t); ?>" data-action="toggle" aria-label="<?php echo xla("Expand or collapse all items in section"); ?>"><span class="fa fa-fw fa-expand" aria-hidden="true"></span></button>
+                                <button type="button" class="btn btn-text px-2" data-issue-type="<?php echo xla($t); ?>" data-action="toggle" data-expanded="false" aria-label="<?php echo xla("Expand or collapse all items in section"); ?>"><span class="fa fa-fw fa-expand" aria-hidden="true"></span></button>
                             <?php endif; ?>
                             <h4 class="d-inline-block p-0 m-0"><?php echo text($focustitles[0]); ?></h4>
                         </div>
@@ -246,21 +246,18 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         </div>
                     </div>
                     <div class="list-group list-group-flush" id="<?php echo attr($t); ?>">
-                        <?php
-
-                        if ($noIssues && !$nothingRecorded) : ?>
+                        <?php if ($noIssues && !$nothingRecorded) : ?>
                             <div class="list-group-item text-center"><?php echo xlt("None{{Issue}}"); ?></div>
-                        <?php
-                        elseif (!$noIssues && $nothingRecorded) : ?>
+                        <?php elseif (!$noIssues && $nothingRecorded) : ?>
                             <div class="list-group-item">
                                 <div class="form-check">
                                     <input class="form-check-input noneCheck" value="none" <?php echo (!AclMain::aclCheckIssue($t, '', 'write')) ? " disabled" : ""; ?> type="checkbox" name="<?php echo attr($t); ?>" id="<?php echo attr($t); ?>">
                                     <label class="form-check-label" for="<?php echo attr($t); ?>"><?php echo xlt("None{{Issue}}"); ?></label>
                                 </div>
                             </div>
-                        <?php
-                        endif;
+                        <?php endif; ?>
 
+                        <?php
                         // display issues
                         while ($row = sqlFetchArray($pres)) :
                             $rowid = $row['id'];
@@ -292,13 +289,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
 
                             // calculate the status
+                            $resolved = false;
                             if ($row['outcome'] == "1" && $row['enddate'] != null) {
                                 // Resolved
+                                $resolved = true;
                                 $statusCompute = generate_display_field(array('data_type' => '1','list_id' => 'outcome'), $row['outcome']);
                             } elseif ($row['enddate'] == null) {
                                 $statusCompute = xlt("Active");
                             } else {
+                                // MU3 criteria, show medical problem's with end dates as a status of Completed.
                                 $statusCompute = ($t == 'medical_problem') ? xlt("Completed") : xlt("Inactive");
+                                $resolved = ($t == "medical_problems") ? true : false;
                             }
 
                             $click_class = 'statrow';
@@ -323,27 +324,27 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         ?>
                         <div class="list-group-item p-1">
                             <div class="summary m-0 p-0 d-flex w-100 justify-content-end align-content-center">
-                                <?php if ($canSelect): ?>
+                                <?php if ($canSelect) : ?>
                                     <input type="checkbox" class="selection-check mt-1 mr-2" data-issue="<?php echo xla($t); ?>" name="sel_<?php echo attr($rowid); ?>" id="sel_<?php echo attr($rowid); ?>">
                                 <?php endif; ?>
                                 <div class="flex-fill pl-2">
                                     <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-outline-text btn-sm" data-toggle="collapse" data-target="#details_<?php echo attr($row['id']); ?>" aria-expanded="false" aria-controls="details_<?php echo attr($row['id']); ?>"><span aria-hidden="true" class="fa fa-fw fa-chevron-right"></span></button>
+                                        <button type="button" class="btn btn-outline-text btn-sm collapsed" data-toggle="collapse" data-target="#details_<?php echo attr($row['id']); ?>" aria-expanded="false" aria-controls="details_<?php echo attr($row['id']); ?>"><span aria-hidden="true" class="fa fa-fw fa-chevron-right"></span></button>
                                         <button type="button" class="btn btn-outline-text btn-sm editenc" data-issue-id="<?php echo attr($row['id']); ?>"><span aria-hidden="true" class="fa fa-fw fa-link"></span></button>
                                     </div>
                                     <a href="#" data-issue-id="<?php echo attr($row['id']); ?>" class="font-weight-bold issue_title" data-toggle="tooltip" data-placement="right" title="<?php echo text($diag . ": " . $codedesc); ?>">
                                         <?php echo text($disptitle); ?>
-                                    </a>&nbsp;(<?php echo $statusCompute; ?><?php if ($outcome) { echo ", $outcome"; } ?>)
-                                    <?php if ($focustitles[0] == "Allergies") : ?>
-                                        <?php echo xlt($row['reaction']); ?>
-
-                                    <?php endif; ?>
+                                    </a>&nbsp;(<?php echo $statusCompute; ?><?php if (!$resolved && $outcome) { echo ", $outcome"; } ?>)
+                                    <?php
+                                    if ($focustitles[0] == "Allergies") :
+                                        echo generate_display_field(array('data_type' => '1','list_id' => 'reaction'), $row['reaction']);
+                                    endif;
+                                    ?>
                                 </div>
-                                <?php if ($focustitles[0] == "Allergies") : ?>
-                                <?php
-                                $l = new ListService();
-                                $sev = $l->getListOption('severity_ccda', $row['severity_al']);
-                                $hgl = (in_array($row['severity_al'], ['severe', 'life_threatening_severity', 'fatal'])) ? 'bg-warning font-weight-bold px-1' : '';
+                                <?php if ($focustitles[0] == "Allergies") :
+                                    $l = new ListService();
+                                    $sev = $l->getListOption('severity_ccda', $row['severity_al']);
+                                    $hgl = (in_array($row['severity_al'], ['severe', 'life_threatening_severity', 'fatal'])) ? 'bg-warning font-weight-bold px-1' : '';
                                 ?>
                                 <span class="mr-3 <?php echo attr($hgl); ?>">
                                     <?php echo text($sev['title']); ?>
@@ -373,10 +374,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 <div class="" title="<?php echo $fullEndDate; ?>"><?php echo $shortEndDate; ?></div>
                                             </div>
                                         <?php endif; ?>
-                                        <?php if ($row['verification']) : ?>
+                                        <?php if ($t == "allergy" || $t == "medical_problem") : ?>
                                             <div class="pr-3">
                                                 <div class="font-weight-bold"><?php echo xlt("Verification"); ?></div>
-                                                <div><?php echo $row['verification']; ?></div>
+                                                <div>
+                                                <?php
+                                                    $codeListName = (!empty($thistype) && ($thistype == 'medical_problem')) ? 'condition-verification' : 'allergyintolerance-verification';
+                                                    echo generate_display_field(array('data_type' => '1','list_id' => $codeListName), $row['verification']);
+                                                ?>
+                                                </div>
                                             </div>
                                         <?php endif; ?>
                                         <?php if ($row['referredby']) : ?>
@@ -411,17 +417,19 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 <script>
 $(function () {
     $("[data-toggle='collapse']").click(function() {
-        $(this).children("span").toggleClass("fa-chevron-right");
-        $(this).children("span").toggleClass("fa-chevron-down");
+        $(this).children("span").toggleClass(["fa-chevron-right", "fa-chevron-down"]);
     });
     $(".selection-check").on('change', function(e) {
         rowSelectionChanged(this.getAttribute('data-issue'));
     });
     $('[data-action="toggle"]').on('click', function(e) {
         let type = this.getAttribute('data-issue-type');
-        $("#" + type + " .collapse").collapse('toggle');
-        $(this).children(".fa").toggleClass("fa-compress");
-        $(this).children(".fa").toggleClass("fa-expand");
+        let isExp = this.getAttribute('data-expanded');
+        let selector = (isExp === "false") ? "[data-toggle='collapse'].collapsed" : "[data-toggle='collapse']";
+        console.debug(selector);
+        $("#" + type + " " + selector).trigger('click');
+        $(this).children(".fa").toggleClass(["fa-compress", 'fa-expand']);
+        this.setAttribute('data-expanded', (isExp === "false" ? "true" : "false"));
     });
     $(".issue_title").click(function() { dopclick($(this).data('issue-id'),0); });
     $(".editenc").click(function(event) { doeclick($(this).data('issue-id'),0); });
