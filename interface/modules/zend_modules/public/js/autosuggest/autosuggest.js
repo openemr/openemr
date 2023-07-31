@@ -74,6 +74,7 @@ function PreventIt(evt) {
       for(var i = 0; i < count; i++){
         newPath += '../';
       }
+      /* eslint-disable-next-line no-unused-labels */
 	    dataType: "html",
 			$.post(newPath + "public/application/index/search", {
         queryString : inputString,
@@ -84,6 +85,7 @@ function PreventIt(evt) {
         searchEleNo : searchEleNo,
         searchMode  : searchMode,
       }, function(data){
+        /* eslint-disable-next-line no-unused-labels */
 				cache: false;
 				if(data.length > 0) {
           if (searchEleNo > 0) {
