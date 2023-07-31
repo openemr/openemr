@@ -113,7 +113,7 @@ var processOptions = function (opts) {
     return {
         resultType: (opts && opts.resultType && opts.resultType.toLowerCase()) || 'value',
         flatten: (opts && opts.flatten) || false,
-        wrap: (opts && opts.hasOwnProperty('wrap')) ? opts.wrap : null,
+        wrap: (opts && Object.prototype.hasOwnProperty.call(opts, 'wrap')) ? opts.wrap : null,
         sandbox: (opts && opts.sandbox) || {},
         functions: (opts && opts.functions) || {}
     };
@@ -237,7 +237,7 @@ var Tracer = {
     },
     traceProperty: function (property, accumulator) {
         var obj = accumulator.currentObject();
-        if (obj && obj.hasOwnProperty(property)) {
+        if (obj && Object.prototype.hasOwnProperty.call(obj, property)) {
             accumulator.add(obj[property], property);
             this.traceNext(accumulator);
         }
