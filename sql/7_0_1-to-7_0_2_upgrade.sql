@@ -246,3 +246,8 @@ CREATE TABLE recent_patients (
     PRIMARY KEY (user_id)
 ) ENGINE=InnoDB;
 #EndIf
+
+#IfMissingColumn document_template_profiles notify_trigger
+ALTER TABLE `document_template_profiles` ADD `notify_trigger` VARCHAR(31) NOT NULL;
+ALTER TABLE `document_template_profiles` ADD `notify_period` INT(4) NOT NULL;
+#EndIf
