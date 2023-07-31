@@ -5,6 +5,7 @@
         "stylelint-config-sass-guidelines"
     ],
     "rules": {
+        "selector-id-pattern": null,
         "selector-no-qualifying-type": [
             true,
             {
