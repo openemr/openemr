@@ -83,7 +83,7 @@ export class ConfigureSessionCallDialog
                     console.error("Failed to update session " + this.pc_eid + " with settings " + settings);
                 }
             });
-    };
+    }
 
     getSettings() {
         let thirdPartyEnabledNode = document.querySelector("input[name='enable-participant-invite']");

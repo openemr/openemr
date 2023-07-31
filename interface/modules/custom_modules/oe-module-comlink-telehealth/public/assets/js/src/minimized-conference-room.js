@@ -60,7 +60,7 @@ export class MinimizedConferenceRoom {
         let conferenceVideoBar = this.minimizedConferenceNode.querySelector(".telehealth-button-bar");
         this.videoBar = new VideoBar(conferenceVideoBar, minimizedSettings);
         return this.videoBar;
-    };
+    }
 
     minimizeConferenceRoom(minimizedVideoButtonSettings) {
 
