@@ -65,7 +65,7 @@ function getSignature(othis, isInit = false, returnSignature = false) {
                 $(othis).attr('src', signhere);
                 return;
             }
-            if (typeof webRoot !== 'undefined' && typeof webRoot !== null) {
+            if (typeof webRoot !== 'undefined' && webRoot !== null) {
                 libUrl = webRoot + '/portal/';
             } else {
                 libUrl = top.webroot_url ? (top.webroot_url + '/portal/') : "./";
@@ -77,7 +77,7 @@ function getSignature(othis, isInit = false, returnSignature = false) {
             }
             let otype = $(othis).attr('data-type');
             type = otype;
-            if (typeof otype === 'undefined' || typeof otype === null) {
+            if (typeof otype === 'undefined' || otype === null) {
                 otype = $(othis).data('type');
             }
             if (otype == 'admin-signature') {
@@ -173,7 +173,7 @@ function archiveSignature(signImage = '', edata = '') {
     let pid = 0;
     let data = {};
 
-    if (typeof webRoot !== 'undefined' && typeof webRoot !== null) {
+    if (typeof webRoot !== 'undefined' && webRoot !== null) {
         libUrl = webRoot + '/portal/';
     } else {
         libUrl = "./";
