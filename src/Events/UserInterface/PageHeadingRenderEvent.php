@@ -109,7 +109,7 @@ class PageHeadingRenderEvent
 
             // Unset the item if the user does not have access
             $acl = $i->getAcl();
-            $rv = (count($acl) > 2) ? $acl[2] : [];
+            $rv = (count($acl) > 2) ? $acl[2] : '';
             if (AclMain::aclCheckCore($acl[0], $acl[1], '', $rv) === false) {
                 unset($items[$k]);
             }
