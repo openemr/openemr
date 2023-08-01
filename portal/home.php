@@ -311,7 +311,7 @@ echo $twig->render('portal/home.html.twig', [
     'youHave' => xl('You have'),
     'navMenu' => $navMenu,
     'primaryMenuLogoHeight' => $GLOBALS['portal_primary_menu_logo_height'] ?? '30',
-    'pagetitle' => xl('Home') . ' | ' . xl($GLOBALS['openemr_name']) . ' ' . xl('Portal'),
+    'pagetitle' => xl('Home') . ' | ' . $GLOBALS['openemr_name'] . ' ' . xl('Portal'),
     'messagesURL' => $messagesURL,
     'patientID' => $pid,
     'patientName' => $_SESSION['ptName'] ?? null,

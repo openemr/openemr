@@ -512,7 +512,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'primary_logo_width' => [
-            xl('Width of logo compared to the container'),
+            xl('Width of primary logo compared to the container'),
             [
                 'w-25' => '25%',
                 'w-50' => '50%',
@@ -524,7 +524,7 @@ $GLOBALS_METADATA = array(
         ],
 
         'secondary_logo_width' => [
-            xl('Width of secondary compared to the container'),
+            xl('Width of secondary logo compared to the container'),
             [
                 'w-25' => '25%',
                 'w-50' => '50%',
