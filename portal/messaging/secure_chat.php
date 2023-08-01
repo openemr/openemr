@@ -8,7 +8,7 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
- * @copyright Copyright (c) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2022 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -90,8 +90,13 @@ $msgApp = new ChatController();
 <head>
     <meta charset="utf-8" />
     <?php
-    Header::setupHeader(['no_main-theme', 'ckeditor', 'angular', 'angular-sanitize', 'checklist-model']);
+    if (IS_PORTAL) {
+        Header::setupHeader(['no_main-theme',  'portal-theme', 'ckeditor', 'angular', 'angular-sanitize', 'checklist-model']);
+    } else {
+        Header::setupHeader(['ckeditor', 'angular', 'angular-sanitize', 'checklist-model']);
+    }
     ?>
+
     <title><?php echo xlt('Secure Chat'); ?></title>
     <meta name="author" content="Jerry Padgett sjpadgett{{at}} gmail {{dot}} com" />
 </head>

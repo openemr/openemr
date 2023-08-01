@@ -296,7 +296,18 @@ class PatientService extends BaseService
             // Tell subscribers that a new patient has been updated
             // We have to do this here and in the databaseUpdate() because this lookup is
             // by uuid where the databseUpdate updates by pid.
-            $patientUpdatedEvent = new PatientUpdatedEvent($dataBeforeUpdate, $processingResult->getData());
+
+
+            $originalData = [];
+            if ($dataBeforeUpdate->hasData()) {
+                $originalData = $dataBeforeUpdate->getData()[0]; // so wierd the findOne returns an array
+            }
+            // in order to be consistent and backwards compatible with the other PatientUpdatedEvent event
+            // we need the uuid to be the same binary fomrat as the other event firing.
+            if (!empty($originalData['uuid'])) {
+                $originalData['uuid'] = UuidRegistry::uuidToBytes($originalData['uuid']);
+            }
+            $patientUpdatedEvent = new PatientUpdatedEvent($originalData, $processingResult->getData());
             $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE, 10);
         }
         return $processingResult;
@@ -391,7 +402,7 @@ class PatientService extends BaseService
                     FROM patient_history
                 ) patient_history ON patient_data.pid = patient_history.patient_history_pid
                 LEFT JOIN (
-                    SELECT  
+                    SELECT
                         contact.id AS contact_address_contact_id
                         ,contact.foreign_id AS contact_address_patient_id
                         ,contact_address.`id` AS contact_address_id
@@ -885,6 +896,47 @@ class PatientService extends BaseService
         return compact('age', 'age_in_months', 'ageinYMD');
     }
 
+    public function getProviderIDsForPatientPids(array $patientPids)
+    {
+        // get integer only filtered pids for sql safety
+        $pids = array_map('intval', $patientPids);
+        $pids = array_filter($pids, function ($pid) {
+            return $pid > 0;
+        });
+
+        $sql = "SELECT pid,providerID FROM patient_data WHERE pid IN (" . implode(",", $pids) . ") "
+        . " AND providerID IS NOT NULL AND providerID != 0 ORDER BY pid";
+        $providerIds = QueryUtils::fetchRecords($sql, []);
+        $mappedPids = [];
+        if (!empty($providerIds)) {
+            foreach ($providerIds as $record) {
+                $mappedPids[$record['pid']] = $record['providerID'];
+            }
+        }
+        return $mappedPids;
+    }
+
+    public function getProviderIDsForPatientUuids(array $patientUuids)
+    {
+        // get integer only filtered pids for sql safety
+        $bindString = rtrim(str_repeat("?,", count($patientUuids) - 1)) . "?";
+        $patientUuids = array_map(function ($uuid) {
+            return UuidRegistry::uuidToBytes($uuid);
+        }, $patientUuids);
+
+        $sql = "SELECT uuid,providerID FROM patient_data WHERE uuid IN (" . $bindString . ") "
+            . " AND providerID IS NOT NULL AND providerID != 0 ORDER BY uuid";
+        $providerIds = QueryUtils::fetchRecords($sql, $patientUuids);
+        $mappedUuids = [];
+        if (!empty($providerIds)) {
+            foreach ($providerIds as $record) {
+                $uuid = UuidRegistry::uuidToString($record['uuid']);
+                $mappedUuids[$uuid] = $record['providerID'];
+            }
+        }
+        return $mappedUuids;
+    }
+
     private function parseSuffixForPatientRecord($patientRecord)
     {
         // if we have a suffix populated (that wasn't entered into last name) let's use that.
@@ -910,5 +962,76 @@ class PatientService extends BaseService
             $this->patientSuffixKeys = array(xl('Jr.'), ' ' . xl('Jr'), xl('Sr.'), ' ' . xl('Sr'), xl('II{{patient suffix}}'), xl('III{{patient suffix}}'), xl('IV{{patient suffix}}'));
         }
         return $this->patientSuffixKeys;
+    }
+
+    /**
+     * Add the provided patient to the list of recent patients.
+     *
+     * If the patient already exists in the list, the old row gets dropped and
+     * the patient is added to the front of the array to provide a first in,
+     * first out list.
+     *
+     * @param Array $patient
+     * @return void
+     */
+    public function touchRecentPatientList(array $patient): void
+    {
+        $user = new UserService();
+        $curUser = $user->getCurrentlyLoggedInUser();
+
+        $query = "SELECT patients FROM recent_patients WHERE user_id = ?";
+        $row = sqlQuery($query, $curUser['id']);
+        $rp = ($row) ? unserialize($row['patients']) : [];
+
+        // In case we are returning to an already recently viewed patient, drop them from the current position
+        foreach ($rp as $k => $p) {
+            if ($p['pid'] == $patient['pid']) {
+                unset($rp[$k]);
+            }
+        }
+
+        // Get the columns we are storing
+        $query = "SELECT option_id FROM list_options WHERE list_id = 'recent_patient_columns' and activity = '1'";
+        $res = sqlStatement($query);
+        $cols = ['pid'];
+        while ($row = sqlFetchArray($res)) {
+            $cols[] = $row['option_id'];
+        }
+
+        // Trim down the incoming patient array to just the whitelisted columns
+        foreach ($patient as $k => $v) {
+            if (!in_array($k, $cols)) {
+                unset($patient[$k]);
+            }
+        }
+
+        // Push the new patient to the front of the FIFO list
+        array_unshift($rp, $patient);
+        // Cap out at max count as set in globals
+        $rp = array_slice($rp, 0, $GLOBALS['recent_patient_count']);
+        $_rp = serialize($rp);
+
+        $sql = "INSERT INTO recent_patients (user_id, patients) VALUES (?, ?) ON DUPLICATE KEY UPDATE patients=?";
+        $res = sqlStatement($sql, [$curUser['id'], $_rp, $_rp]);
+    }
+
+    /**
+     * Get an array of recent patients based for a given user
+     *
+     * Control the columns returned by modifying the
+     * Recent Patient Column List. Set the maximum number of patients to be
+     * store by setting the global variable recent_patient_count in
+     * Admin > Config > Appearance.
+     *
+     * @param int $user_id The id of a given user, defaults to the currently logged in user
+     * @return array
+     */
+    public function getRecentPatientList(int $user_id = 0): array
+    {
+        $user = new UserService();
+        $currUser = ($user_id > 0) ? ['id' => $user_id] : $user->getCurrentlyLoggedInUser();
+        $sql = "SELECT patients FROM recent_patients WHERE user_id = ?";
+        $res = sqlQuery($sql, [$currUser['id']]);
+        return ($res) ? unserialize($res['patients']) : [];
     }
 }

@@ -209,7 +209,7 @@ function mapToTable($row)
             }
             echo "</td>\n";
         } else {
-                generateEmptyTd(4);
+                generateEmptyTd(5);
         }
         echo " </tr>\n";
     }

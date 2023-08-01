@@ -55,7 +55,7 @@ $comarr = array
 );
 
 // get array of all insurance companies from function in patient.inc.php
-$insarr = getInsuranceProviders();
+$insarr = getInsuranceProvidersExtra();
 
 $_POST['form_details'] = true;
 

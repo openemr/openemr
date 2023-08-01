@@ -9,7 +9,7 @@
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @author Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
  * @copyright Copyright (c) 2009 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2018-2021 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2018-2023 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
  * @link https://github.com/openemr/openemr/tree/master
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -50,11 +50,6 @@ class X125010837P
         $out = '';
         $claim = new Claim($pid, $encounter, $x12_partner);
 
-        if ($GLOBALS['gen_x12_based_on_ins_co']) {
-            $log .= "Generating directly to insurance claim $pid" . "-" . $encounter . " for ";
-        } else {
-            $log .= "Generating claim $pid" . "-" . $encounter . " for ";
-        }
         $log .= $claim->patientFirstName() . ' ' .
         $claim->patientMiddleName() . ' ' .
         $claim->patientLastName() . ' on ' .
@@ -557,13 +552,15 @@ class X125010837P
         }
         $out .= "*";
         if (
-            (strlen($claim->payerZip()) == 5)
-            || (strlen($claim->payerZip()) == 9)
+            !(
+                (strlen($claim->payerZip()) == 5)
+                || (strlen($claim->payerZip()) == 9)
+            )
         ) {
-            $out .= $claim->x12Zip($claim->payerZip());
-        } else {
             $log .= "*** Payer zip is not 5 or 9 digits.\n";
         }
+
+        $out .= $claim->x12Zip($claim->payerZip());
         $out .= "~\n";
 
         // Segment REF (Payer Secondary Identification) omitted.
@@ -876,7 +873,7 @@ class X125010837P
         // Segment HI*BP (Anesthesia Related Procedure) omitted.
         // Segment HI*BG (Condition Information) omitted.
         // Segment HCP (Claim Pricing/Repricing Information) omitted.
-        if ($claim->referrerLastName()) {
+        if ($claim->referrer ?? null) {
             // Medicare requires referring provider's name and NPI.
             ++$edicount;
             $out .= "NM1" .     // Loop 2310A Referring Provider
@@ -1025,11 +1022,10 @@ class X125010837P
                 $log .= "*** Missing service facility state.\n";
             }
             $out .= "*";
-            if (strlen($claim->facilityZip()) == 9) {
-                $out .= $claim->facilityZip();
-            } else {
+            if (strlen($claim->facilityZip()) != 9) {
                 $log .= "*** Service facility zip is not 9 digits.\n";
             }
+            $out .= $claim->facilityZip();
             $out .= "~\n";
         }
         // Segment REF (Service Facility Location Secondary Identification) omitted.
@@ -1204,13 +1200,15 @@ class X125010837P
             }
             $out .= "*";
             if (
-                strlen($claim->insuredZip($ins)) == 5
-                || strlen($claim->insuredZip($ins)) == 9
+                !(
+                    (strlen($claim->insuredZip($ins)) == 5)
+                    || (strlen($claim->insuredZip($ins) == 9))
+                )
             ) {
-                $out .= $claim->insuredZip($ins);
-            } else {
                 $log .= "*** Other insco insured zip is not 5 or 9 digits.\n";
             }
+
+            $out .= $claim->x12Zip($claim->insuredZip($ins));
             $out .= "~\n";
 
             // Segment REF (Other Subscriber Secondary Identification) omitted.
@@ -1264,13 +1262,15 @@ class X125010837P
             }
             $out .= "*";
             if (
-                (strlen($claim->payerZip($ins)) == 5)
-                || (strlen($claim->payerZip() == 9))
+                !(
+                    (strlen($claim->payerZip($ins)) == 5)
+                    || (strlen($claim->payerZip() == 9))
+                )
             ) {
-                $out .= $claim->x12Zip($claim->payerZip($ins));
-            } else {
                 $log .= "*** Other payer zip is not 5 or 9 digits.\n";
             }
+
+            $out .= $claim->x12Zip($claim->payerZip($ins));
             $out .= "~\n";
 
             // Segment DTP*573 (Claim Check or Remittance Date) omitted.

@@ -83,7 +83,7 @@ class BillingProcessor
         $processing_task = $this->buildProcessingTaskFromPost($this->post);
 
         // Based on UI form input, get the claims we actually need to bill
-        $claims = $this->prepareClaims();
+        $claims = $this->prepareClaims($processing_task->getAction());
 
         // What task are we running, as directed by the user. Process the claims using
         // each Processing Task's execute method
@@ -96,7 +96,7 @@ class BillingProcessor
         return $processing_task->getLogger();
     }
 
-    protected function prepareClaims()
+    protected function prepareClaims($processing_task_action)
     {
         $claims = [];
         // Build the claims we actually want to process from the post
@@ -109,7 +109,7 @@ class BillingProcessor
                 // [ encounter-pid => [ 'partner' => partnerId, 'payor' => 'p'.payorId ], ... ]
                 // Since the format is cryptic, we use the BillingClaim constructor to parse that into meaningful
                 // attributes
-                $billingClaim = new BillingClaim($claimId, $partner_and_payor);
+                $billingClaim = new BillingClaim($claimId, $partner_and_payor, $processing_task_action);
                 $bn_x12 = $_SESSION['bn_x12'] ?? '';
                 if (($billingClaim->getPartner() == -1) && $bn_x12) {
                     // If the x-12 partner is unassigned, don't process it.
@@ -160,9 +160,9 @@ class BillingProcessor
         $processing_task = null;
         SessionUtil::unsetSession(['bn_x12']);
         if (isset($post['bn_reopen'])) {
-            $processing_task = new Tasks\TaskReopen();
+            $processing_task = new Tasks\TaskReopen($this->extractAction());
         } elseif (isset($post['bn_mark'])) {
-            $processing_task = new Tasks\TaskMarkAsClear();
+            $processing_task = new Tasks\TaskMarkAsClear($this->extractAction());
         } elseif ($GLOBALS['gen_x12_based_on_ins_co'] && isset($post['bn_x12'])) {
             SessionUtil::setSession('bn_x12', true);
             $processing_task = new Tasks\GeneratorX12Direct($this->extractAction());

@@ -10,9 +10,11 @@ Render the primary and secondary (if set) logos.
 #}
 {% set secondaryLogoPosition = (secondaryLogoPosition == 'first') ? 'flex-column-reverse' : ''  %}
 <div class="{{ logo_container_class_list|default(['d-flex', 'flex-column', 'justify-content-between', 'align-items-center'])|join(' ')|attr }} {{ logo_flex_direction|default([])|join(' ')|attr }} {{ secondaryLogoPosition|attr }}">
-    <div class="{{ primary_logo_container_class_list|default(['flex-fill'])|join(' ')|attr }}">
-        <img src="{{ primaryLogo|attr }}" class="img-fluid" alt="">
-    </div>
+    {% if displayPrimaryLogo %}
+        <div class="{{ primary_logo_container_class_list|default(['flex-fill'])|join(' ')|attr }}">
+            <img src="{{ primaryLogo|attr }}" class="img-fluid" alt="">
+        </div>
+    {% endif %}
     {% if displaySecondaryLogo and secondaryLogo %}
         <div class="{{ logo_divider_container_class_list|default(['px-3', 'py-2', 'flex-fill'])|join(' ')|attr }}">
             <i class="fas fa-plus"></i>
@@ -22,3 +24,8 @@ Render the primary and secondary (if set) logos.
         </div>
     {% endif %}
 </div>
+{% if showTitleOnLogin %}
+<div class="w-100 text-center my-3">
+    <h1>{{ title|text }}</h1>
+</div>
+{% endif %}

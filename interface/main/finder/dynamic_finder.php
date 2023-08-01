@@ -22,11 +22,13 @@ require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
 use OpenEMR\Menu\BaseMenuItem;
 use OpenEMR\OeUI\OemrUI;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use OpenEMR\Services\PatientService;
 
 $uspfx = 'patient_finder.'; //substr(__FILE__, strlen($webserver_root)) . '.';
 $patient_finder_exact_search = prevSetting($uspfx, 'patient_finder_exact_search', 'patient_finder_exact_search', ' ');
@@ -41,8 +43,7 @@ $header0 = "";
 $header = "";
 $coljson = "";
 $orderjson = "";
-$res = sqlStatement("SELECT option_id, title, toggle_setting_1 FROM list_options WHERE " .
-    "list_id = 'ptlistcols' AND activity = 1 ORDER BY seq, title");
+$res = sqlStatement("SELECT option_id, title, toggle_setting_1 FROM list_options WHERE list_id = 'ptlistcols' AND activity = 1 ORDER BY seq, title");
 $sort_dir_map = generate_list_map('Sort_Direction');
 while ($row = sqlFetchArray($res)) {
     $colname = $row['option_id'];
@@ -69,7 +70,7 @@ while ($row = sqlFetchArray($res)) {
     $orderjson .= "[\"$colcount\", \"" . addcslashes($colorder, "\t\r\n\"\\") . "\"]";
     ++$colcount;
 }
-$loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . xlt("Loading") . "...</span></div>";
+$loading = "";
 ?>
 <!DOCTYPE html>
 <html>
@@ -387,60 +388,38 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
     ?>
 </head>
 <body>
-    <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?>">
-         <div class="">
-            <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
-            <div>
-                <div id="dynamic" class="pt-3"><!-- TBD: id seems unused, is this div required? -->
-                    <!-- Class "display" is defined in demo_table.css -->
-                    <div class="table-responsive">
-                        <table class="table" class="border-0 display" id="pt_table">
-                            <thead class="thead-light">
-                                <tr id="advanced_search" class="">
-                                    <?php echo $header0; ?>
-                                </tr>
-                                <tr class="">
-                                    <?php echo $header; ?>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <!-- Class "dataTables_empty" is defined in jquery.dataTables.css -->
-                                    <td class="dataTables_empty" colspan="<?php echo attr($colcount); ?>"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-          </div>
-        </div>
-        <!-- form used to open a new top level window when a patient row is clicked -->
-        <form name='fnew' method='post' target='_blank' action='../main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-            <input type='hidden' name='patientID' value='0'/>
-        </form>
-    </div> <!--End of Container div-->
-    <?php $oemr_ui->oeBelowContainerDiv();?>
+<?php
 
-<script>
-    $(window).on("resize", function() { //portrait vs landscape
-        $("#pt_table").removeAttr("style");
-    });
+function rp()
+{
+    $sql = "SELECT option_id, title FROM list_options WHERE list_id = 'recent_patient_columns' AND activity = '1' ORDER BY seq ASC";
+    $res = sqlStatement($sql);
+    $headers = [];
+    while ($row = sqlFetchArray($res)) {
+        $headers[] = $row;
+    }
+    $patientService = new PatientService();
+    $rp = $patientService->getRecentPatientList();
+    return ['headers' => $headers, 'rp' => $rp];
+}
 
-    $(function() {
-        $("#exp_cont_icon").click(function () {
-            $("#pt_table").removeAttr("style");
-        });
-        $("#pt_table_filter").addClass("d-md-initial");
-        $("#pt_table_length").addClass("d-md-initial");
-        $("#show_hide").addClass("d-md-initial");
-        $("#search_hide").addClass("d-md-initial");
-        $("#show_hide").addClass("d-none");
-        $("#search_hide").addClass("d-none");
-        $('div.dataTables_filter input').focus();
-    });
-    document.addEventListener('touchstart', {});
-</script>
+$rp = rp();
+
+$templateVars = [
+    'oeContainer' => $oemr_ui->oeContainer(),
+    'oeBelowContainerDiv' => $oemr_ui->oeBelowContainerDiv(),
+    'hageHeading' => $oemr_ui->pageHeading(),
+    'header0' => $header0,
+    'header' => $header,
+    'colcount' => $colcount,
+    'headers' => $rp['headers'],
+    'rp' => $rp['rp'],
+];
+
+$twig = new TwigContainer(null, $GLOBALS['kernel']);
+$t = $twig->getTwig();
+echo $t->render('patient_finder/finder.html.twig', $templateVars);
+
+?>
 </body>
 </html>
