@@ -371,7 +371,7 @@ $loading = "";
     );
     $oemr_ui = new OemrUI($arrOeUiSettings);
 
-    $eventDispatcher->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, function($event) {
+    $eventDispatcher->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, function ($event) {
         if ($event->getPageId() !== 'dynamic_finder') {
             return;
         }
@@ -382,8 +382,6 @@ $loading = "";
             'id' => '/interface/new/new.php',
             'acl' => ['patients', 'demo', ['write', 'addonly']]
         ]));
-
-
     });
     ?>
 </head>
