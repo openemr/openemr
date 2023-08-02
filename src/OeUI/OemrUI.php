@@ -136,7 +136,7 @@ class OemrUI
          */
         $pageHeadingEvent = $this->ed->dispatch(new PageHeadingRenderEvent($this->page_id), PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER);
         $vars = [
-            "primaryMenu" => $pageHeadingEvent->getPrimaryMenu(),
+            "primaryMenu" => $pageHeadingEvent->getPrimaryMenuItems(),
             "buttonList" => $pageHeadingEvent->getActions(),
             "heading" => $this->heading,
         ];
@@ -548,7 +548,7 @@ class OemrUI
             if (shouldDisplay) {
                 if (document.querySelector('.hideaway')) {
                     document.querySelector('.hideaway').classList.remove('d-none');
-                }    
+                }
                 if (document.getElementById(showActionClass) && document.getElementById(hideActionClass)) {
                     elementIcon.classList.remove(showActionClass);
                     elementIcon.classList.add(hideActionClass);

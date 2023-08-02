@@ -24,7 +24,10 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
+use OpenEMR\Menu\BaseMenuItem;
 use OpenEMR\OeUI\OemrUI;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use OpenEMR\Services\PatientService;
 
 $uspfx = 'patient_finder.'; //substr(__FILE__, strlen($webserver_root)) . '.';
@@ -352,6 +355,8 @@ $loading = "";
 
 </script>
 <?php
+    /** @var EventDispatcher */
+    $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
     $arrOeUiSettings = array(
     'heading_title' => xl('Patient Finder'),
     'include_patient_name' => false,
@@ -361,9 +366,23 @@ $loading = "";
     'action_title' => "",//only for action link, leave empty for conceal, reveal, search
     'action_href' => "",//only for actions - reset, link or back
     'show_help_icon' => false,
-    'help_file_name' => ""
+    'help_file_name' => "",
+    'page_id' => 'dynamic_finder',
     );
     $oemr_ui = new OemrUI($arrOeUiSettings);
+
+    $eventDispatcher->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, function ($event) {
+        if ($event->getPageId() !== 'dynamic_finder') {
+            return;
+        }
+
+        $event->setPrimaryMenuItem(new BaseMenuItem([
+            'displayText' => xl('Add New Patient'),
+            'linkClassList' => ['btn-add'],
+            'id' => '/interface/new/new.php',
+            'acl' => ['patients', 'demo', ['write', 'addonly']]
+        ]));
+    });
     ?>
 </head>
 <body>
@@ -387,7 +406,7 @@ $rp = rp();
 $templateVars = [
     'oeContainer' => $oemr_ui->oeContainer(),
     'oeBelowContainerDiv' => $oemr_ui->oeBelowContainerDiv(),
-    'hageHeading' => $oemr_ui->pageHeading(),
+    'pageHeading' => $oemr_ui->pageHeading(),
     'header0' => $header0,
     'header' => $header,
     'colcount' => $colcount,
