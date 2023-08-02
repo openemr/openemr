@@ -170,18 +170,18 @@ function generate_select_list(
 
     $selectEmptyName = xlt($empty_name);
     if ($empty_name) {
-        preg_match_all('/select2/m', $class, $matches, PREG_SET_ORDER, 0);
-        if (array_key_exists('placeholder', $attributes) && count($matches) > 0) {
-            // We have a placeholder attribute as well as a select2 class indicating there
-            // should be provide a truley empty option.
-            $_options[] = [];
-        } else {
+        // preg_match_all('/select2/m', $class, $matches, PREG_SET_ORDER, 0);
+        // if (array_key_exists('placeholder', $attributes) && count($matches) > 0) {
+        //     // We have a placeholder attribute as well as a select2 class indicating there
+        //     // should be provide a truley empty option.
+        //     $_options[] = [];
+        // } else {
             $_options[] = [
                 'label' => $selectEmptyName,
                 'value' => '',
                 'isSelected' => true,
             ];
-        }
+        // }
     }
 
     $got_selected = false;
@@ -271,10 +271,7 @@ function generate_select_list(
         }
     }
 
-    $list_id = "sex";
-    $backup_list = "sex";
-    $currvalue = "Male";
-    if (true) {
+    if (!$got_selected && strlen($currvalue ?? '') > 0 && !$multiple) {
         $list_id = $backup_list;
         $lrow = sqlQuery("SELECT title FROM list_options WHERE list_id = ? AND option_id = ?", [$list_id, $currvalue]);
 
