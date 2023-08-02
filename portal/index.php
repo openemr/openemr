@@ -525,6 +525,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
         </div>
     </form>
 <?php else : ?> <!-- Main logon -->
+
     <div class="row">
         <div class="col-sm-12 col-md-6 offset-md-3">
             <img class="img-fluid login-logo" src='<?php echo $logoSrc; ?>'>
