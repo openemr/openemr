@@ -75,7 +75,7 @@ final class CDAParseEvent extends Event
     /**
      * @param string $componentName The name of the component. allergies, encounters, etc.
      */
-    public function setcomponentName(string $componentName) : void {
+    public function setComponentName(string $componentName) : void {
         $this->componentName = $componentName;
     }
 
