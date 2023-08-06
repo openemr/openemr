@@ -1,12 +1,18 @@
 <?php
 /**
+ * CDA Parse Event
  *
+ * This event is dispatched when the CDA document is parsed.  It is dispatched for each component
+ *
+ * @package OpenEMR
+ * @subpackage CareCoordination
+ * @author Robert Down <robertdown@live.com>
+ * @copyright 2023 Robert Down <robertdown@live.com>
+ * @copyright 2023 Providence Healthtech
  */
 
 namespace OpenEMR\Events\CDA;
 
-use Carecoordination\Model\CcdaDocumentTemplateOids;
-use OpenEMR\Services\Cda\CdaTemplateParse;
 use Symfony\Contracts\EventDispatcher\Event;
 
 final class CDAParseEvent extends Event
