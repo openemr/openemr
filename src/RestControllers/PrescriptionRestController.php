@@ -17,6 +17,32 @@ use OpenEMR\RestControllers\RestControllerHelper;
 
 class PrescriptionRestController
 {
+
+    /**
+     * White list of search/insert fields
+     */
+    private const WHITELISTED_FIELDS = [
+        "start_date",
+        "route",
+        "encounter_uuid",
+        "drug",
+        "drug_id",
+        "quantity",
+        "form_id",
+        "route_id",
+        "interval_id",
+        "dosage",
+        "size",
+        "refills",
+        "per_refill",
+        "note",
+        "medication",
+        "substitute",
+        "rxnorm_drugcode",
+        "drug_dosage_instructions",
+        "enddate",
+    ];
+
     private $prescriptionService;
 
     public function __construct()
@@ -26,7 +52,7 @@ class PrescriptionRestController
 
     /**
      * Fetches a single prescription resource by id.
-     * @param $uuid- The prescription uuid identifier in string format.
+     * @param $uuid - The prescription uuid identifier in string format.
      */
     public function getOne($uuid)
     {
@@ -46,5 +72,14 @@ class PrescriptionRestController
     {
         $processingResult = $this->prescriptionService->getAll($search);
         return RestControllerHelper::handleProcessingResult($processingResult, 200, true);
+    }
+
+    public function post($puuid, $data)
+    {
+        $filteredData = $this->prescriptionService->filterData($data, static::WHITELISTED_FIELDS);
+        $filteredData['puuid'] = $puuid;
+        $processingResult = $this->prescriptionService->insert($filteredData);
+
+        return RestControllerHelper::handleProcessingResult($processingResult, 201);
     }
 }
