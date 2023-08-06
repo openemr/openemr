@@ -8,36 +8,37 @@ class PrescriptionValidator extends BaseValidator
 {
     protected function configureValidator()
     {
+        parent::configureValidator();
+
         $this->validator->context(
             self::DATABASE_INSERT_CONTEXT,
             function (Validator $context) {
                 $context->required("start_date", "Start Date")->datetime('Y-m-d');
                 $context->required("route", 'Route')->string();
-                $context->required("provider_id", "Patient Id")->numeric()->callback(function ($value) {
-                    // check if patient exist
-                    return $this->validateId('id', 'patient_data', $value);
+                $context->required('puuid', "Patient UUID")->callback(function ($value) {
+                    return $this->validateId("uuid", "patient_data", $value, true);
                 });
-
                 $context->optional("encounter_uuid", "Encounter")->numeric()->callback(function ($value) {
-                    return $this->validateId('id', 'form_encounter', $value);
+                    return $this->validateId("id", "form_encounter", $value);
                 });
-
                 $context->optional("drug", "Drug")->string();
                 $context->optional("drug_id", "Drug Id")->numeric()->callback(function ($value) {
                     return $this->validateId('drug_id', 'drugs', $value);
                 });
-
+                // TODO check if the type is string? database implied looks like its string
                 $context->optional("quantity", "Drug Quantity")->string();
+
+                // TODO check with openemr team for the form route and interval ids
                 $context->optional("form_id", "Drug Form")->string()->callback(function ($value) {
-                    return $this->validateCode($value, 'list_options', 'drug_form');
+                    return $this->validateCode($value, "list_options", 'drug_form');
                 });
 
                 $context->optional("route_id", "Drug Route")->string()->callback(function ($value) {
-                    return $this->validateCode($value, 'list_options', 'drug_route');
+                    return $this->validateCode($value, "list_options", 'drug_route');
                 });
 
                 $context->optional("interval_id", "Drug Interval")->string()->callback(function ($value) {
-                    return $this->validateCode($value, 'list_options', 'drug_interval');
+                    return $this->validateCode($value, "list_options", 'drug_interval');
                 });
 
                 $context->optional("dosage", "Dosage")->string();
