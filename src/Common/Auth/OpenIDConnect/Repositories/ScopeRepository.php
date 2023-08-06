@@ -595,6 +595,7 @@ class ScopeRepository implements ScopeRepositoryInterface
             "user/practitioner.read",
             "user/practitioner.write",
             "user/prescription.read",
+            "user/prescription.write",
             "user/procedure.read",
             "user/soap_note.read",
             "user/soap_note.write",
