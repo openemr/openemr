@@ -13,6 +13,8 @@
 namespace OpenEMR\Services\Cda;
 
 use DOMDocument;
+use Laminas\I18n\View\Helper\DateFormat;
+use OpenEMR\Events\CDA\CDAParseEvent;
 use OpenEMR\Services\CodeTypesService;
 
 class CdaTemplateParse
@@ -22,11 +24,18 @@ class CdaTemplateParse
     private $currentOid;
     protected $is_qrda_import;
 
+    /**
+     * @var \Symfony\Contracts\EventDispatcher\EventDispatcherInterface
+     */
+    private $ed;
+
     public function __construct()
     {
+        global $GLOBALS;
         $this->templateData = [];
         $this->is_qrda_import = false;
         $this->codeService = new CodeTypesService();
+        $this->ed = $GLOBALS['kernel']->getEventDispatcher();
     }
 
     public function parseCDAEntryComponents($components): array
@@ -67,6 +76,8 @@ class CdaTemplateParse
                     $this->currentOid = $component['section']['templateId']['root'];
                     $func_name = $components_oids[$component['section']['templateId']['root']];
                     $this->$func_name($component);
+                    $parseEvent = new CdaParseEvent($func_name, $this->currentOid, $component, $this->templateData);
+                    $dispatch = $this->ed->dispatch($parseEvent, CdaParseEvent::EVENT_HANDLE);
                 }
             } elseif (empty($component['section']['templateId'])) {
                 // uncomment for debugging information.
@@ -78,10 +89,13 @@ class CdaTemplateParse
                         $this->currentOid = $component['section']['templateId'][$key_1]['root'];
                         $func_name = $components_oids[$component['section']['templateId'][$key_1]['root']];
                         $this->$func_name($component);
+                        $parseEvent = new CdaParseEvent($func_name, $this->currentOid, $component, $this->templateData);
+                        $dispatch = $this->ed->dispatch($parseEvent, CdaParseEvent::EVENT_HANDLE);
                         break;
                     }
                 }
             }
+            $this->templateData = $dispatch->getTemplateData();
         }
         return $this->templateData;
     }
