@@ -13,7 +13,6 @@
 namespace OpenEMR\Services\Cda;
 
 use DOMDocument;
-use Laminas\I18n\View\Helper\DateFormat;
 use OpenEMR\Events\CDA\CDAParseEvent;
 use OpenEMR\Services\CodeTypesService;
 
