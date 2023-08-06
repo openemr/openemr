@@ -4395,7 +4395,7 @@ function get_layout_form_value($frow, $prefix = 'form_')
     }
 
     // Better to die than to silently truncate data!
-    if ($maxlength && $maxlength != 0 && strlen(trim($value)) > $maxlength && !$frow['list_id']) {
+    if ($maxlength && $maxlength != 0 && mb_strlen(trim($value)) > $maxlength && !$frow['list_id']) {
         die(htmlspecialchars(xl('ERROR: Field') . " '$field_id' " . xl('is too long'), ENT_NOQUOTES) .
         ":<br />&nbsp;<br />" . htmlspecialchars($value, ENT_NOQUOTES));
     }
