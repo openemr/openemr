@@ -11,7 +11,7 @@
     "gulp-build": "gulp -b --dev",
     "gulp-watch": "gulp watch",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint:js": "eslint **/*.js --quiet"
+    "lint:js": "eslint '**/*.js' --quiet"
   },
   "keywords": [
     "openemr"
