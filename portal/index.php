@@ -562,7 +562,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                     <label class="col-form-label col-sm-12 col-md-3" for="selLanguage"><?php echo xlt('Language'); ?></label>
                     <div class="col-sm-12 col-md-9">
                         <select class="form-control" id="selLanguage" name="languageChoice">
-                            <option value="<?php echo attr($defaultLangID); ?>" selected><?php echo xlt("Deault") . " - " . xl($defaultLangName); ?></option>
+                            <option value="<?php echo attr($defaultLangID); ?>" selected><?php echo xlt("Default") . " - " . xlt($defaultLangName); ?></option>
                             <?php
                             foreach ($result3 as $iter) :
                                 if ($GLOBALS['language_menu_showall']) {
