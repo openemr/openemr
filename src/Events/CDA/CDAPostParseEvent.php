@@ -1,7 +1,7 @@
 <?php
 
 /**
- * CDAPreParseEvent.php
+ * CDAPostParseEvent.php
  *
  * @package     OpenEMR
  * @subpackage  CareCoordination
