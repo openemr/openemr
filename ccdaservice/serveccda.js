@@ -16,6 +16,7 @@ const server = net.createServer();
 const to_json = require('xmljson').to_json;
 const bbg = require(__dirname + '/oe-blue-button-generate');
 const fs = require('fs');
+const DataStack = require('./data-stack/data-stack').DataStack;
 
 var conn = ''; // make our connection scope global to script
 var oidFacility = "";
@@ -25,48 +26,6 @@ var npiFacility = "";
 var webRoot = "";
 var authorDateTime = '';
 var documentLocation = '';
-
-class DataStack {
-    constructor(delimiter) {
-        this.delimiter = delimiter;
-        this.buffer = "";
-    }
-
-    endOfCcda() {
-        return this.buffer.length === 0 || this.buffer.indexOf(this.delimiter) === -1;
-    }
-
-    pushToStack(data) {
-        this.buffer += data;
-    }
-
-    fetchBuffer() {
-        const delimiterIndex = this.buffer.indexOf(this.delimiter);
-        if (delimiterIndex !== -1) {
-            const bufferMsg = this.buffer.slice(0, delimiterIndex);
-            this.buffer = this.buffer.replace(bufferMsg + this.delimiter, "");
-            return bufferMsg;
-        }
-        return null
-    }
-
-    returnData() {
-        return this.fetchBuffer();
-    }
-
-    clearStack() {
-        this.buffer = "";
-    }
-
-    readStackByDelimiter(delimiter) {
-        let backup = this.delimiter;
-        let part = '';
-        this.delimiter = delimiter;
-        part = this.fetchBuffer();
-        this.delimiter = backup;
-        return part;
-    }
-}
 
 function trim(s) {
     if (typeof s === 'string') return s.trim();
@@ -3515,7 +3474,7 @@ function processConnection(connection) {
     // CCM will send one File Separator characters to mark end of array.
     let received = new DataStack(String.fromCharCode(28));
     conn.on("data", data => {
-        received.pushToStack(data);
+        received.push(data);
         while (!received.endOfCcda() && data.length > 0) {
             data = "";
             eventData(received.returnData());
