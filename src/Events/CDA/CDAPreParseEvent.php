@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CDAPreParseEvent.php
  *
@@ -41,7 +42,7 @@ final class CDAPreParseEvent extends Event
     /**
      * @return array The components of the CDA document, see parseCDAEntryComponentss() in CdaTemplateParse
      */
-    public function getComponents() : array
+    public function getComponents(): array
     {
         return $this->components;
     }
@@ -49,7 +50,7 @@ final class CDAPreParseEvent extends Event
     /**
      * @param string $components
      */
-    public function setComponents(array $components) : void
+    public function setComponents(array $components): void
     {
         $this->components = $components;
     }

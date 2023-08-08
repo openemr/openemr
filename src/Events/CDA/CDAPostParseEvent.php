@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CDAPreParseEvent.php
  *
@@ -61,14 +62,15 @@ final class CDAPostParseEvent extends Event
     /**
      * @return string The name of the component. allergies, encounters, etc.
      */
-    public function getComponentName() : string {
+    public function getComponentName(): string
+    {
         return $this->componentName;
     }
 
     /**
      * @return array The component of the CDA document, see parseCDAEntryComponents() in CdaTemplateParse
      */
-    public function getComponent() : array
+    public function getComponent(): array
     {
         return $this->component;
     }
@@ -76,7 +78,7 @@ final class CDAPostParseEvent extends Event
     /**
      * @return array Should equal the $templateData property in CdaTemplateParse
      */
-    public function getTemplateData() : array
+    public function getTemplateData(): array
     {
         return $this->templateData;
     }
@@ -84,7 +86,7 @@ final class CDAPostParseEvent extends Event
     /**
      * @return string The OID of the template
      */
-    public function getOid() : string
+    public function getOid(): string
     {
         return $this->oid;
     }
@@ -92,14 +94,15 @@ final class CDAPostParseEvent extends Event
     /**
      * @param string $componentName The name of the component. allergies, encounters, etc.
      */
-    public function setComponentName(string $componentName) : void {
+    public function setComponentName(string $componentName): void
+    {
         $this->componentName = $componentName;
     }
 
     /**
      * @param string $component
      */
-    public function setComponent(array $component) : void
+    public function setComponent(array $component): void
     {
         $this->component = $component;
     }
@@ -107,7 +110,7 @@ final class CDAPostParseEvent extends Event
     /**
      * @param array $templateData
      */
-    public function setTemplateData($templateData) : void
+    public function setTemplateData($templateData): void
     {
         $this->templateData = $templateData;
     }
@@ -115,9 +118,8 @@ final class CDAPostParseEvent extends Event
     /**
      * Set the OID
      */
-    public function setOid(string $oid) : void
+    public function setOid(string $oid): void
     {
         $this->oid = $oid;
     }
-
 }
