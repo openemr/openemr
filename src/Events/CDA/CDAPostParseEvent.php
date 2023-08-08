@@ -1,23 +1,28 @@
 <?php
 /**
- * CDA Parse Event
+ * CDAPreParseEvent.php
  *
- * This event is dispatched when the CDA document is parsed.  It is dispatched for each component
- *
- * @package OpenEMR
- * @subpackage CareCoordination
- * @author Robert Down <robertdown@live.com>
- * @copyright 2023 Robert Down <robertdown@live.com>
- * @copyright 2023 Providence Healthtech
+ * @package     OpenEMR
+ * @subpackage  CareCoordination
+ * @author      Robert Down <robertdown@live.com>
+ * @copyright   2023 Robert Down <robertdown@live.com>
+ * @copyright   2023 Providence Healthtech
+ * @license     https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Events\CDA;
 
 use Symfony\Contracts\EventDispatcher\Event;
 
-final class CDAParseEvent extends Event
+/**
+ *
+ * This event is dispatched when the CDA document is parsed. It is dispatched
+ * once for each component in the list of components and occurs after the core
+ * processing has occurred. It can return the manipulated templateData.
+ */
+final class CDAPostParseEvent extends Event
 {
-    public const EVENT_HANDLE = 'cda.component.parse';
+    public const EVENT_HANDLE = 'cda.component.post.parse';
 
     /**
      * @var array The component of the CDA document, see parseCDAEntryComponents() in CdaTemplateParse
@@ -53,6 +58,9 @@ final class CDAParseEvent extends Event
         $this->oid = $oid;
     }
 
+    /**
+     * @return string The name of the component. allergies, encounters, etc.
+     */
     public function getComponentName() : string {
         return $this->componentName;
     }
@@ -73,6 +81,9 @@ final class CDAParseEvent extends Event
         return $this->templateData;
     }
 
+    /**
+     * @return string The OID of the template
+     */
     public function getOid() : string
     {
         return $this->oid;

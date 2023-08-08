@@ -13,7 +13,8 @@
 namespace OpenEMR\Services\Cda;
 
 use DOMDocument;
-use OpenEMR\Events\CDA\CDAParseEvent;
+use OpenEMR\Events\CDA\CDAPreParseEvent;
+use OpenEMR\Events\CDA\CDAPostParseEvent;
 use OpenEMR\Services\CodeTypesService;
 
 class CdaTemplateParse
@@ -69,14 +70,17 @@ class CdaTemplateParse
             '2.16.840.1.113883.10.20.22.2.41' => 'dischargeSummary'
         );
 
-        foreach ($components as $component) {
+        $preParseEvent = new CDAPreParseEvent($components);
+        $preParseEventDispatch = $this->ed->dispatch($preParseEvent, CDAPreParseEvent::EVENT_HANDLE);
+
+        foreach ($preParseEventDispatch->getCompnents() as $component) {
             if (!empty($component['section']['templateId']['root'])) {
                 if (!empty($components_oids[$component['section']['templateId']['root']])) {
                     $this->currentOid = $component['section']['templateId']['root'];
                     $func_name = $components_oids[$component['section']['templateId']['root']];
                     $this->$func_name($component);
-                    $parseEvent = new CdaParseEvent($func_name, $this->currentOid, $component, $this->templateData);
-                    $dispatch = $this->ed->dispatch($parseEvent, CdaParseEvent::EVENT_HANDLE);
+                    $postParseEvent = new CDAPostParseEvent($func_name, $this->currentOid, $component, $this->templateData);
+                    $postParseEventDispatch = $this->ed->dispatch($postParseEvent, CDAPostParseEvent::EVENT_HANDLE);
                 }
             } elseif (empty($component['section']['templateId'])) {
                 // uncomment for debugging information.
@@ -88,13 +92,13 @@ class CdaTemplateParse
                         $this->currentOid = $component['section']['templateId'][$key_1]['root'];
                         $func_name = $components_oids[$component['section']['templateId'][$key_1]['root']];
                         $this->$func_name($component);
-                        $parseEvent = new CdaParseEvent($func_name, $this->currentOid, $component, $this->templateData);
-                        $dispatch = $this->ed->dispatch($parseEvent, CdaParseEvent::EVENT_HANDLE);
+                        $postParseEvent = new CDAPostParseEvent($func_name, $this->currentOid, $component, $this->templateData);
+                        $postParseEventDispatch = $this->ed->dispatch($postParseEvent, CDAPostParseEvent::EVENT_HANDLE);
                         break;
                     }
                 }
             }
-            $this->templateData = $dispatch->getTemplateData();
+            $this->templateData = $postParseEventDispatch->getTemplateData();
         }
         return $this->templateData;
     }
