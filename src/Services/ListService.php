@@ -235,12 +235,10 @@ class ListService extends BaseService
         $isPatientValid = $this->listValidator->validateId('pid', self::LISTS_TABLE, $pid);
 
         if ($isValidList !== true) {
-            $processingResult->setValidationMessages(['sid' => $isValidList->getValidationMessages()['id']]);
             return $processingResult;
         }
 
         if ($isPatientValid !== true) {
-            $processingResult->setValidationMessages($isPatientValid->getValidationMessages());
             return $processingResult;
         }
 

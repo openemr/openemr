@@ -280,6 +280,7 @@
 
 // Lets keep our controller classes with the routes.
 //
+use OpenApi\Annotations as OA;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\RestControllers\AllergyIntoleranceRestController;
@@ -7062,7 +7063,313 @@ RestConfig::$ROUTE_MAP = array(
         $return = (new PrescriptionRestController())->getOne($uuid);
         RestConfig::apiLog($return);
         return $return;
-    }
+    },
+
+    /**
+     * TODO add swagger
+     *  @OA\Get(
+     *      path="/api/patient/{puuid}/prescription",
+     *      description="Retrieves a list of all prescriptions",
+     *      tags={"standard"},
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /api/patient/:puuid/prescription" => function ($puuid) {
+        RestConfig::authorization_check("patients", "med");
+        $return = (new PrescriptionRestController())->getAll(['patient.uuid' => $puuid]);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     * TODO add swagger
+     *  @OA\Get(
+     *      path="/api/patient/{puuid}/prescription/{peuuid}",
+     *      description="Retrieves a prescription for a patient",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="puuid",
+     *          in="path",
+     *          description="The uuid for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="peuuid",
+     *          in="path",
+     *          description="The uuid for the prescription.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /api/patient/:puuid/prescription/:presuuid" => function ($puuid, $presuuid) {
+        RestConfig::authorization_check("patients", "med");
+        $return = (new PrescriptionRestController())->getAll(['patient.uuid' => $puuid, 'prescription.uuid' => $presuuid]);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     * TODO add swagger
+     * Schema for the prescription request
+     *
+     *  @OA\Schema(
+     *      schema="api_prescription_request",
+     *      @OA\Property(
+     *          property="start_date",
+     *          description="The date when the drug therapy for the patient is initiated.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="route",
+     *          description="The method by which the drug is administered or taken by the patient.",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="encounter_uuid",
+     *          description="The encounter UUID.",
+     *          type="integer"
+     *      ),
+     *      @OA\Property(
+     *          property="drug",
+     *          description="The drug name",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="drug_id",
+     *          description="The drug Id from drug inventory",
+     *          type="integer"
+     *      ),
+     *      @OA\Property(
+     *          property="quantity",
+     *          description="The amount or dosage of the drug.",
+     *          type="string"
+     *      ),
+     *     @OA\Property(
+     *         property="form_id",
+     *         type="integer",
+     *         description="The physical presentation or formulation of the drug.",
+     *         enum={0, 1, 10, 11, 12, 2, 3, 4, 5, 6, 7, 8, 9},
+     *         example="1",
+     *         description="Enum values:
+     *                      1: suspension,
+     *                      10: cream,
+     *                      11: ointment,
+     *                      12: puff,
+     *                      2: tablet,
+     *                      3: capsule,
+     *                      4: solution,
+     *                      5: tsp,
+     *                      6: ml,
+     *                      7: units,
+     *                      8: inhalations,
+     *                      9: gtts(drops)"
+     *     ),
+     *     @OA\Property(
+     *         property="route_id",
+     *         type="string",
+     *         enum={1, 10, 11, 12, 13, 14, 15, 2, 3, 4, 5, 6, 7, 8, 9, "bymouth", "inhale", "intradermal", "intramuscular", "other", "transdermal"},
+     *         example="1",
+     *         description="Enum values:
+     *                      1: Per Oris,
+     *                      10: IM,
+     *                      11: IV,
+     *                      12: Per Nostril,
+     *                      13: Both Ears,
+     *                      14: Left Ear,
+     *                      15: Right Ear,
+     *                      2: Per Rectum,
+     *                      3: To Skin,
+     *                      4: To Affected Area,
+     *                      5: Sublingual,
+     *                      5: Sublingual,
+     *                      6: OS,
+     *                      7: OD,
+     *                      8: OU,
+     *                      9: SQ,
+     *                      bymouth: By Mouth,
+     *                      inhale: Inhale,
+     *                      intradermal: Intradermal,
+     *                      intramuscular: Intramuscular,
+     *                      other: Other/Miscellaneous,
+     *                      transdermal: Transdermal"
+     *     ),
+     *     required={"start_date", "route"},
+     *  ),
+     */
+    /**
+     *  @OA\Post(
+     *      path="/api/patient/{puuid}/prescription",
+     *      description="Submits a new prescription",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="puuid",
+     *          in="path",
+     *          description="The uuid for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(ref="#/components/schemas/api_prescription_request")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /api/patient/:puuid/prescription" => function ($puuid) {
+        RestConfig::authorization_check("patients", "med");
+        $data = (array) (json_decode(file_get_contents("php://input")));
+        $return = (new PrescriptionRestController())->post($puuid, $data);
+        RestConfig::apiLog($return, $data);
+        return $return;
+    },
+
+    /**
+     * TODO add swagger
+     *  @OA\Put(
+     *      path="/api/patient/{puuid}/allergy/{auuid}",
+     *      description="Edit a allergy",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="puuid",
+     *          in="path",
+     *          description="The uuid for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="auuid",
+     *          in="path",
+     *          description="The uuid for the allergy.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(ref="#/components/schemas/api_allergy_request")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "PUT /api/patient/:puuid/prescription/:presuuid" => function ($puuid, $presuuid) {
+        RestConfig::authorization_check("patients", "med");
+        $data = (array) (json_decode(file_get_contents("php://input")));
+        $return = (new PrescriptionRestController())->put($puuid, $presuuid, $data);
+        RestConfig::apiLog($return, $data);
+        return $return;
+    },
+
+    /**
+     * TODO add swagger
+     *  @OA\Delete(
+     *      path="/api/patient/{puuid}/allergy/{auuid}",
+     *      description="Delete a medical problem",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="puuid",
+     *          in="path",
+     *          description="The uuid for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="auuid",
+     *          in="path",
+     *          description="The uuid for the allergy.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *      )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "DELETE /api/patient/:puuid/prescription/:presuuid" => function ($puuid, $presuuid) {
+        RestConfig::authorization_check("patients", "med");
+        $return = (new PrescriptionRestController())->delete($puuid, $presuuid);
+        RestConfig::apiLog($return);
+        return $return;
+    },
 );
 
 use OpenEMR\Common\Http\StatusCode;
@@ -7099,6 +7406,7 @@ use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDefinitionRestControlle
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded
 //   to only see the data of the one patient)
+// TODO prescription apis for FHIR :( not fun
 RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      *  @OA\Get(

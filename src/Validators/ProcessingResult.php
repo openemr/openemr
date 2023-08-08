@@ -63,12 +63,12 @@ class ProcessingResult
     }
 
     /**
-     * Appends an internal  error to the current instance.
+     * Appends an internal error to the current instance.
      * @param $internalError - The internal error to append.
      */
     public function addInternalError($internalError)
     {
-        array_push($this->internalErrors, $internalError);
+        $this->internalErrors[] = $internalError;
     }
 
     public function hasData()

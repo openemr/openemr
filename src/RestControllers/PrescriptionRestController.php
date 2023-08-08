@@ -13,7 +13,6 @@
 namespace OpenEMR\RestControllers;
 
 use OpenEMR\Services\PrescriptionService;
-use OpenEMR\RestControllers\RestControllerHelper;
 
 class PrescriptionRestController
 {
@@ -81,5 +80,18 @@ class PrescriptionRestController
         $processingResult = $this->prescriptionService->insert($filteredData);
 
         return RestControllerHelper::handleProcessingResult($processingResult, 201);
+    }
+
+    public function put($puuid, $peuuid, array $data)
+    {
+        $filterDate = $this->prescriptionService->filterData($data, self::WHITELISTED_FIELDS);
+        $processingResult = $this->prescriptionService->update($puuid, $peuuid, $filterDate);
+        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+    }
+
+    public function delete($puuid, $presuuid)
+    {
+        $processingResult = $this->prescriptionService->delete($puuid, $presuuid);
+        return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 }
