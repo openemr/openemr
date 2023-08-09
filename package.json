@@ -34,13 +34,13 @@
     "bb >= 10"
   ],
   "devDependencies": {
-    "@types/jest": "^29.5.3",
+    "@types/jest": "29.5.3",
     "autoprefixer": "10.4.14",
     "colors": "1.4.0",
     "del": "6.1.1",
     "eslint": "8.46.0",
     "eslint-plugin-import": "2.28.0",
-    "eslint-plugin-jest": "^27.2.3",
+    "eslint-plugin-jest": "27.2.3",
     "glob": "8.1.0",
     "gulp": "4.0.2",
     "gulp-append-prepend": "1.0.9",
