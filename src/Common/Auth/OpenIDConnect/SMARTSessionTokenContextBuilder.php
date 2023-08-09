@@ -19,6 +19,7 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
+use OpenEMR\Services\FHIR\UtilsService;
 
 class SMARTSessionTokenContextBuilder
 {
@@ -57,6 +58,9 @@ class SMARTSessionTokenContextBuilder
             }
             if (!empty($launchToken->getIntent())) {
                 $context['intent'] = $launchToken->getIntent();
+            }
+            if (!empty($launchToken->getAppointmentUuid())) {
+                $context['fhirContext'] = [UtilsService::createRelativeReference('Appointment', $launchToken->getAppointmentUuid())];
             }
             $context['smart_style_url'] = $this->getSmartStyleURL();
         } catch (\Exception $ex) {

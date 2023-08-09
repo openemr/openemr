@@ -19,11 +19,23 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 class SMARTLaunchToken
 {
     public const INTENT_PATIENT_DEMOGRAPHICS_DIALOG = 'patient.demographics.dialog';
-    public const VALID_INTENTS = [self::INTENT_PATIENT_DEMOGRAPHICS_DIALOG];
+    public const VALID_INTENTS = [self::INTENT_PATIENT_DEMOGRAPHICS_DIALOG, self::INTENT_APPOINTMENT_DIALOG];
 
+    // used on the appointment add/edit dialog, context will include the selected appointment
+    // for now this intent is used by custom apps that consume the openemr.appointment.add_edit_event.close.before event
+    // to present a SMART app as a 2nd step to the add/edit appointment workflow
+    public const INTENT_APPOINTMENT_DIALOG = 'appointment.edit.dialog';
+
+    /**
+     * @var string|null The patient UUID If
+     */
     private $patient;
     private $intent;
     private $encounter;
+    /**
+     * @var string The uuid of the appointment
+     */
+    private ?string $appointmentUuid;
 
     public function __construct($patientUUID = null, $encounterUUID = null)
     {
@@ -35,6 +47,7 @@ class SMARTLaunchToken
         }
         $this->patient = $patientUUID;
         $this->encounter = $encounterUUID;
+        $this->appointmentUuid = null;
     }
 
     /**
@@ -100,6 +113,9 @@ class SMARTLaunchToken
         if (!empty($intent)) {
             $context['i'] = $intent;
         }
+        if (!empty($this->getAppointmentUuid())) {
+            $context['apt'] = $this->getAppointmentUuid();
+        }
 
         // no security is really needed here... just need to be able to wrap
         // the current context into some kind of opaque id that the app will pass to the server and we can then
@@ -138,10 +154,22 @@ class SMARTLaunchToken
         if (!empty($context['i']) && $this->isValidIntent($context['i'])) {
             $this->setIntent($context['i']);
         }
+        if (!empty($context['apt'])) {
+            $this->setAppointmentUuid($context['apt']);
+        }
     }
 
     public function isValidIntent($intent)
     {
         return array_search($intent, self::VALID_INTENTS) !== false;
+    }
+    public function setAppointmentUuid(string $appointmentUuid)
+    {
+        $this->appointmentUuid = $appointmentUuid;
+    }
+
+    public function getAppointmentUuid(): ?string
+    {
+        return $this->appointmentUuid;
     }
 }

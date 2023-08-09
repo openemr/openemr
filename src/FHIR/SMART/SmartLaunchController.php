@@ -12,9 +12,15 @@
 
 namespace OpenEMR\FHIR\SMART;
 
+use OpenEMR\Common\Acl\AccessDeniedException;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
+use OpenEMR\Services\AppointmentService;
+use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\PatientService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use OpenEMR\FHIR\Config\ServerConfig;
@@ -121,6 +127,62 @@ class SmartLaunchController
         <?php
         // it's too bad we don't have a centralized page renderer we could tie this into and render javascript at the
         // end of our footer pages on everything...
+    }
+
+    public function redirectAndLaunchSmartApp($intent, $client_id, $csrf_token, array $intentData)
+    {
+        $clientRepository = new ClientRepository();
+        $client = $clientRepository->getClientEntity($client_id);
+        if (empty($client)) {
+            throw new \Exception("Invalid client id");
+        }
+        CsrfUtils::verifyCsrfToken($csrf_token);
+        $puuid = null;
+        $euuid = null;
+        if (isset($_SESSION['pid'])) {
+            // grab the patient puuid
+            $patientService = new PatientService();
+            $puuid = UuidRegistry::uuidToString($patientService->getUuid($_SESSION['pid']));
+        }
+        if (!empty($_SESSION['encounter'])) {
+            // grab the encounter euuid
+            $euuid = UuidRegistry::uuidToString(EncounterService::getUuidById($_SESSION['encounter'], 'form_encounter', 'encounter'));
+        }
+        $appointmentUuid = null;
+        if (!empty($intentData)) {
+            // let's grab specific data
+            if (!empty($intentData['appointment_id'])) {
+                if (!AclMain::aclCheckCore('patients', 'appt')) {
+                    throw new AccessDeniedException("patients", "appt", "You do not have permission to access appointments");
+                }
+                $appointmentService = new AppointmentService();
+                $appointment = $appointmentService->getAppointment($intentData['appointment_id']);
+                if (!empty($appointment)) {
+                    $patientService = new PatientService();
+                    $appointmentUuid = $appointment[0]['pc_uuid'];
+                    $pid = $appointment[0]['pid'];
+                    $puuid = UuidRegistry::uuidToString($patientService->getUuid($pid));
+                    // at some point if the appointment has a link to encounters we could grab that here.
+//                    $euuid = UuidRegistry::uuidToString(EncounterService::getUuidById($appointment['encounter'], 'form_encounter', 'encounter'));
+                }
+            }
+        }
+
+        $issuer = (new ServerConfig())->getFhirUrl();
+        $launchCode = $this->getLaunchCodeContext($puuid, $euuid, $intent);
+
+        if (!empty($appointmentUuid)) {
+            $launchCode->setAppointmentUuid($appointmentUuid);
+        }
+        $serializedCode = $launchCode->serialize();
+        $launchParams = "?launch=" . urlencode($serializedCode) . "&iss=" . urlencode($issuer) . "&aud=" . urlencode($issuer);
+        $redirectUrl = $client->getLaunchUri($launchParams);
+        header("Location: " . $redirectUrl);
+        exit;
+    }
+
+    public function renderLaunchScript()
+    {
         ?>
         <script>
             (function(window) {
@@ -164,10 +226,14 @@ class SmartLaunchController
         return $smartList;
     }
 
-    private function getLaunchCodeContext($patientUUID, $encounterId = null)
+    private function getLaunchCodeContext($patientUUID, $encounterId = null, $intent = null)
     {
         $token = new SMARTLaunchToken($patientUUID, $encounterId);
-        $token->setIntent(SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG);
-        return $token->serialize();
+        $token->setIntent($intent);
+        if (empty($intent)) {
+            $intent = SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG;
+        }
+        $token->setIntent($intent);
+        return $token;
     }
 }
