@@ -251,3 +251,12 @@ CREATE TABLE recent_patients (
 ALTER TABLE `document_template_profiles` ADD `notify_trigger` VARCHAR(31) NOT NULL;
 ALTER TABLE `document_template_profiles` ADD `notify_period` INT(4) NOT NULL;
 #EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id preferred_name
+SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='suffix' AND form_id='DEM');
+SET @seq_start := 0;
+UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_id = @group_id AND form_id='DEM' ORDER BY `seq`;
+SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='suffix' AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('DEM','preferred_name',@group_id,'Preferred Name',@seq_add_to+5,2,1,32,64,'',1,3,'','[\"J\",\"DAP\"]','Patient preferred name or name patient is commonly known.',0);
+ALTER TABLE `patient_data` ADD `preferred_name` VARCHAR(64) NOT NULL;
+#Endif
