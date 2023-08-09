@@ -3,7 +3,8 @@
         "browser": true,
         "commonjs": true,
         "es6": true,
-        "jquery": true
+        "jquery": true,
+        "jest/globals": true
     },
     "extends": ["eslint:recommended"],
     "globals": {
@@ -20,5 +21,12 @@
         "no-redeclare": "warn",
         "no-useless-escape": "warn",
         "no-mixed-spaces-and-tabs": "warn"
-    }
+    },
+    "overrides": [
+        {
+            "files": "**/*.spec.js",
+            "plugins": ["jest"],
+            "extends": ["plugin:jest/recommended"]
+        }
+    ]
 }
