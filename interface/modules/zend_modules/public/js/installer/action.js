@@ -114,7 +114,7 @@ function configure(id,imgpath){
 			function(data) {
 				$(".config").hide();
 				$("#ConfigRow_"+id).hide();
-				$("#ConfigRow_"+id).html('<td colspan="10" align="center">'+data+'</td>').fadeIn();
+				$("#ConfigRow_"+id).html('<td colspan="10" style="background: ghostwhite;">'+data+'</td>').fadeIn();
 			}
 		);
 	}

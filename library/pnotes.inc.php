@@ -27,6 +27,49 @@ function getPnoteById($id, $cols = "*")
 }
 
 /**
+ * Check a note, given its ID to see if it matches the user
+ *
+ * @param string $id the ID of the note to retrieve.
+ * @param string $user the user seeking to view the note
+ */
+function checkPnotesNoteId(int $id, string $user): bool
+{
+    $check = sqlQuery("SELECT `id`, `user`, `assigned_to` FROM pnotes WHERE id = ? AND deleted != 1", array($id));
+    if (
+        !empty($check['id'])
+        && ($check['id'] == $id)
+        && (in_array($user, [$check['user'], $check['assigned_to']]))
+    ) {
+        return true;
+    } elseif (
+        checkPortalAuthUser($user)
+        && !empty($check['id'])
+        && ($check['id'] == $id)
+        && ('portal-user' === $check['assigned_to'])
+    ) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/**
+ * Check if an auth portal user
+ *
+ * @param string $user the user seeking to view the note
+ * @return bool
+ */
+function checkPortalAuthUser(string $user): bool
+{
+    $check = sqlQuery("SELECT `id` FROM users WHERE portal_user = 1 AND username = ? AND active = 1", array($user));
+    if (!empty($check['id'])) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/**
  * Get the patient notes for the given user.
  *
  * This function is used to retrieve notes assigned to the given user, or
@@ -55,11 +98,14 @@ function getPnotesByUser($activity = "1", $show_all = "no", $user = '', $count =
     } else { //$activity=='all'
         $activity_query = " ";
     }
-
+    $user_plug = '';
   // Set whether to show chosen user or all users
     if ($show_all == 'yes') {
         $usrvar = '_%';
     } else {
+        if (checkPortalAuthUser($user)) {
+            $user_plug = "|| pnotes.assigned_to = 'portal-user'";
+        }
         $usrvar = $user;
     }
 
@@ -71,7 +117,7 @@ function getPnotesByUser($activity = "1", $show_all = "no", $user = '', $count =
           patient_data.fname as patient_data_fname, patient_data.lname as patient_data_lname
           FROM ((pnotes LEFT JOIN users ON pnotes.user = users.username)
           LEFT JOIN patient_data ON pnotes.pid = patient_data.pid) WHERE $activity_query
-          pnotes.deleted != '1' AND pnotes.assigned_to LIKE ?";
+          pnotes.deleted != '1' AND (pnotes.assigned_to LIKE ? $user_plug)";
     if (!empty($sortby) || !empty($sortorder)  || !empty($begin) || !empty($listnumber)) {
         $sql .= " order by " . escape_sql_column_name($sortby, array('users','patient_data','pnotes'), true) .
             " " . escape_sort_order($sortorder) .
@@ -528,8 +574,13 @@ function reappearPnote($id)
 
 function deletePnote($id)
 {
+    $assigned = getAssignedToById($id);
+    if (!checkPortalAuthUser($_SESSION['authUser']) && $assigned == 'portal-user') {
+        return false;
+    }
     if (
-        getAssignedToById($id) == $_SESSION['authUser']
+        $assigned == $_SESSION['authUser']
+        || $assigned == 'portal-user'
         || getMessageStatusById($id) == 'Done'
     ) {
         sqlStatement("UPDATE pnotes SET deleted = '1', update_by = ?, update_date = NOW() WHERE id=?", array($_SESSION['authUserID'], $id));

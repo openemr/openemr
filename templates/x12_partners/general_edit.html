@@ -16,9 +16,11 @@
         </div>
     </div>
     <div class="form-row my-sm-2">
-        <label for="name" class="col-form-label col-sm-2">{xlt t='Submitter Name (3rd Party Submitter Only)'}</label>
+        <label for="x12_submitter_id" class="col-form-label col-sm-2">{xlt t='Submitter Name (3rd Party Submitter Only)'}</label>
         <div class="col-sm-8">
-            <input type="text" id="x12_submitter_name" name="x12_submitter_name" class="form-control" value="{$partner->get_x12_submitter_name()|attr}" onKeyDown="PreventIt(event)">
+            <select id="x12_submitter_id" name="x12_submitter_id" class="form-control">
+                {html_options options=$partner->get_x12_submitter_array() selected=$partner->get_x12_submitter_id()}
+            </select>    
         </div>
     </div>
     <div class="form-row my-sm-2">

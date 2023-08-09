@@ -61,6 +61,8 @@ class BillingLogger
      */
     protected $onLogCompleteCallback;
 
+    protected $cryptoGen;
+
     public function __construct()
     {
         $this->cryptoGen = new CryptoGen();

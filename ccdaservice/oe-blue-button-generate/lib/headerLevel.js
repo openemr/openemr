@@ -224,18 +224,23 @@ var providers = exports.providers = {
     dataKey: "data.demographics"
 };
 
-var participants = exports.participant = [{
-    key: "participant"
-    , attributes: {
-        typeCode: leafLevel.inputProperty("typeCode")
-    }
-    , content: [
-        [fieldLevel.effectiveTime, required, key("time")],
-        // associatedEntity
-        , fieldLevel.associatedEntity
-    ]
-    , dataKey: "meta.ccda_header.participants"
-}];
+var participants = (exports.participant = [
+    {
+        key: "participant",
+        attributes: {
+            typeCode: leafLevel.inputProperty("typeCode"),
+        },
+        // TODO: check if this middle element can be removed
+        /* eslint-disable-next-line no-sparse-arrays */
+        content: [
+            [fieldLevel.effectiveTime, required, key("time")],
+            ,
+            // associatedEntity
+            fieldLevel.associatedEntity,
+        ],
+        dataKey: "meta.ccda_header.participants",
+    },
+]);
 
 var attributed_provider = exports.attributed_provider = {
     key: "providerOrganization",

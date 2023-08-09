@@ -28,8 +28,19 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
 }
 
 $facilityService = new FacilityService();
+$encounterService = new EncounterService();
 
-$date = isset($_POST['form_date']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_date']) : null;
+if ($_POST['mode'] == 'new' && ($GLOBALS['enc_service_date'] == 'hide_both' || $GLOBALS['enc_service_date'] == 'show_edit')) {
+    $date = (new DateTime())->format('Y-m-d H:i:s');
+} elseif ($_POST['mode'] == 'update' && ($GLOBALS['enc_service_date'] == 'hide_both' || $GLOBALS['enc_service_date'] == 'show_new')) {
+    $enc_from_id = sqlQuery("SELECT `encounter` FROM `form_encounter` WHERE `id` = ?", [intval($_POST['id'])]);
+    $enc = $encounterService->getEncounterById($enc_from_id['encounter']);
+    $enc_data = $enc->getData();
+    $date = $enc_data[0]['date'];
+} else {
+    $date = isset($_POST['form_date']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_date']) : null;
+}
+
 $onset_date = isset($_POST['form_onset_date']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_onset_date']) : null;
 $sensitivity = $_POST['form_sensitivity'] ?? null;
 $pc_catid = $_POST['pc_catid'] ?? null;
@@ -80,61 +91,35 @@ if (!empty($encounter_type)) {
 
 if ($mode == 'new') {
     $encounter = generate_id();
-    addForm(
-        $encounter,
-        "New Patient Encounter",
-        sqlInsert(
-            "INSERT INTO form_encounter SET
-                date = ?,
-                onset_date = ?,
-                reason = ?,
-                facility = ?,
-                pc_catid = ?,
-                facility_id = ?,
-                billing_facility = ?,
-                sensitivity = ?,
-                referral_source = ?,
-                pid = ?,
-                encounter = ?,
-                pos_code = ?,
-                class_code = ?,
-                external_id = ?,
-                parent_encounter_id = ?,
-                provider_id = ?,
-                discharge_disposition = ?,
-                referring_provider_id = ?,
-                encounter_type_code = ?,
-                encounter_type_description = ?,
-                in_collection = ?",
-            [
-                $date,
-                $onset_date,
-                $reason,
-                $facility,
-                $pc_catid,
-                $facility_id,
-                $billing_facility,
-                $sensitivity,
-                $referral_source,
-                $pid,
-                $encounter,
-                $pos_code,
-                $class_code,
-                $external_id,
-                $parent_enc_id,
-                $provider_id,
-                $discharge_disposition,
-                $referring_provider_id,
-                $encounter_type_code,
-                $encounter_type_description,
-                $in_collection
-            ]
-        ),
-        "newpatient",
-        $pid,
-        $userauthorized,
-        $date
-    );
+    $data = [
+        'date' => $date,
+        'onset_date' => $onset_date,
+        'reason' => $reason,
+        'facility' => $facility,
+        'pc_catid' => $pc_catid,
+        'facility_id' => $facility_id,
+        'billing_facility' => $billing_facility,
+        'sensitivity' => $sensitivity,
+        'referral_source' => $referral_source,
+        'pid' => $pid,
+        'encounter' => $encounter,
+        'pos_code' => $pos_code,
+        'class_code' => $class_code,
+        'external_id' => $external_id,
+        'parent_encounter_id' => $parent_enc_id,
+        'provider_id' => $provider_id,
+        'discharge_disposition' => $discharge_disposition,
+        'referring_provider_id' => $referring_provider_id,
+        'encounter_type_code' => $encounter_type_code,
+        'encounter_type_description' => $encounter_type_description,
+        'in_collection' => $in_collection,
+    ];
+
+    $col_string = implode(" = ?, ", array_keys($data)) . " = ?";
+    $sql = sprintf("INSERT INTO form_encounter SET %s", $col_string);
+    $enc_id = sqlInsert($sql, array_values($data));
+
+    addForm($encounter, "New Patient Encounter", $enc_id, "newpatient", $pid, $userauthorized, $date);
 } elseif ($mode == 'update') {
     $id = $_POST["id"];
     $result = sqlQuery("SELECT encounter, sensitivity FROM form_encounter WHERE id = ?", array($id));
@@ -170,28 +155,25 @@ if ($mode == 'new') {
         $in_collection,
         $id
     );
-    sqlStatement(
-        "UPDATE form_encounter SET
-            $datepart
-            onset_date = ?,
-            provider_id = ?,
-            reason = ?,
-            facility = ?,
-            pc_catid = ?,
-            facility_id = ?,
-            billing_facility = ?,
-            sensitivity = ?,
-            referral_source = ?,
-            class_code = ?,
-            pos_code = ?,
-            discharge_disposition = ?,
-            referring_provider_id = ?,
-            encounter_type_code = ?,
-            encounter_type_description = ?,
-            in_collection = ?
-            WHERE id = ?",
-        $sqlBindArray
-    );
+    $col_string = implode(" = ?, ", [
+        'onset_date',
+        'provider_id',
+        'reason',
+        'facility',
+        'pc_catid',
+        'facility_id',
+        'billing_facility',
+        'sensitivity',
+        'referral_source',
+        'class_code',
+        'pos_code',
+        'discharge_disposition',
+        'referring_provider_id',
+        'encounter_type_code',
+        'encounter_type_description',
+        'in_collection'
+    ]) . " =?";
+    sqlStatement("UPDATE form_encounter SET $datepart $col_string WHERE id = ?", $sqlBindArray);
 } else {
     die("Unknown mode '" . text($mode) . "'");
 }

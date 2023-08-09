@@ -61,15 +61,18 @@ VALUES (
 #IfNotTable comlink_telehealth_appointment_session
 CREATE TABLE IF NOT EXISTS `comlink_telehealth_appointment_session`
 (
-    `id`              	        BIGINT(20)         NOT NULL AUTO_INCREMENT,
-    `user_id`                   BIGINT(20)         NOT NULL COMMENT 'Foreign key reference to users.id',
-    `pc_eid`                    INT(11) UNSIGNED   NOT NULL COMMENT 'Foreign key reference to openemr_postcalendar_events.pc_eid',
-    `encounter`                 BIGINT(20)         NOT NULL COMMENT 'Foreign key reference to forms.encounter',
-    `pid`                       BIGINT(20)         NOT NULL COMMENT 'Foreign key reference to patient_data.pid',
-    `provider_start_time`       DATETIME           DEFAULT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT 'Provider start time',
-    `provider_last_update`      DATETIME           DEFAULT NULL COMMENT 'Provider last communication timestamp',
-    `patient_start_time`        DATETIME           DEFAULT NULL COMMENT 'Patient join time',
-    `patient_last_update`       DATETIME           DEFAULT NULL COMMENT 'Last communication timestamp with patient',
+    `id`              	            BIGINT(20)         NOT NULL AUTO_INCREMENT,
+    `user_id`                       BIGINT(20)         NOT NULL COMMENT 'Foreign key reference to users.id',
+    `pc_eid`                        INT(11) UNSIGNED   NOT NULL COMMENT 'Foreign key reference to openemr_postcalendar_events.pc_eid',
+    `encounter`                     BIGINT(20)         NOT NULL COMMENT 'Foreign key reference to forms.encounter',
+    `pid`                           BIGINT(20)         NOT NULL COMMENT 'Foreign key reference to patient_data.pid',
+    `provider_start_time`           DATETIME           DEFAULT NULL DEFAULT CURRENT_TIMESTAMP  COMMENT 'Provider start time',
+    `provider_last_update`          DATETIME           DEFAULT NULL COMMENT 'Provider last communication timestamp',
+    `patient_start_time`            DATETIME           DEFAULT NULL COMMENT 'Patient join time',
+    `patient_last_update`           DATETIME           DEFAULT NULL COMMENT 'Last communication timestamp with patient',
+    `pid_related`                   BIGINT(20)         DEFAULT NULL COMMENT 'Foreign key reference to patient_data.pid for related patient',
+    `patient_related_start_time`    DATETIME           DEFAULT NULL COMMENT 'Related Patient join time',
+    `patient_related_last_update`   DATETIME           DEFAULT NULL COMMENT 'Last communication timestamp with related patient',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 #EndIf
@@ -85,4 +88,10 @@ UPDATE globals SET gl_value=1 WHERE gl_name="set_pos_code_encounter";
 
 #IfMissingColumn comlink_telehealth_auth app_registration_code
 ALTER TABLE `comlink_telehealth_auth` ADD COLUMN `app_registration_code` TEXT COMMENT 'mobile app registration code';
+#EndIf
+
+#IfMissingColumn comlink_telehealth_appointment_session pid_related
+ALTER TABLE `comlink_telehealth_appointment_session` ADD COLUMN `pid_related` BIGINT(20) DEFAULT NULL COMMENT 'Foreign key reference to patient_data.pid for related patient';
+ALTER TABLE `comlink_telehealth_appointment_session` ADD COLUMN `patient_related_start_time` DATETIME DEFAULT NULL COMMENT 'Related Patient join time';
+ALTER TABLE `comlink_telehealth_appointment_session` ADD COLUMN `patient_related_last_update` DATETIME DEFAULT NULL COMMENT 'Last communication timestamp with related patient';
 #EndIf

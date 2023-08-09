@@ -85,6 +85,7 @@ class procedure extends code_info
     public $justify;
     public $modifiers;
     public $units;
+    public $mod_size;
 
     //modifier, units, fee, justify
 

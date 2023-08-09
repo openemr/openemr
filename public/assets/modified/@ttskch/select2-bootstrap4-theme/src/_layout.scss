@@ -1,0 +1,168 @@
+// basic
+.select2-container {
+  display: block;
+
+  *:focus {
+    outline: 0;
+  }
+}
+
+// input-group
+.input-group .select2-container--bootstrap4 {
+  flex-grow: 1;
+}
+// for prepended input
+.input-group-prepend ~ .select2-container--bootstrap4 .select2-selection {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+// for appended input
+.input-group > .select2-container--bootstrap4:not(:last-child) .select2-selection {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.select2-container--bootstrap4 {
+
+  // input box
+  .select2-selection {
+    width: 100%;
+    background-color: $input-bg;
+    border: $input-border-width solid $input-border-color;
+    @include border-radius($input-border-radius);
+    @include box-shadow($input-box-shadow);
+    @include transition($input-transition);
+  }
+
+  // focused input box
+  &.select2-container--focus {
+    .select2-selection {
+      border-color: $input-focus-border-color;
+      box-shadow: $input-focus-box-shadow;
+    }
+
+    // when open, hide bottom border
+    &.select2-container--open .select2-selection {
+      border-bottom: none;
+      @include border-bottom-radius(0);
+    }
+  }
+
+  // open input box
+  &.select2-container--open {
+    &.select2-container--above {
+      .select2-selection {
+        @include border-top-radius(0);
+      }
+    }
+    &.select2-container--below {
+      .select2-selection {
+        @include border-bottom-radius(0);
+      }
+    }
+  }
+
+  // disabled input box
+  &.select2-container--disabled,
+  &.select2-container--disabled.select2-container--focus {
+    .select2-selection {
+      cursor: not-allowed;
+      background-color: $input-disabled-bg;
+      border-color: $input-border-color;
+      box-shadow: none;
+    }
+    .select2-search__field {
+      background-color: transparent;
+    }
+  }
+
+  // validated input box
+  // stylelint-disable selector-no-qualifying-type
+  select.is-invalid ~ & .select2-selection,
+  form.was-validated select:invalid ~ & .select2-selection {
+    border-color: $danger;
+  }
+  select.is-valid ~ & .select2-selection,
+  form.was-validated select:valid ~ & .select2-selection {
+    border-color: $success;
+  }
+  // stylelint-enable selector-no-qualifying-type
+
+  // fixes placeholder width
+  .select2-search {
+    width: 100%;
+  }
+
+  // dropdown
+  .select2-dropdown {
+    border-color: $input-border-color;
+    border-radius: 0; // overwrite select2.css
+
+    // dropdown opened below
+    &.select2-dropdown--below {
+      border-top: none;
+      @include border-bottom-radius($input-border-radius);
+    }
+
+    // dropdown opened above
+    &.select2-dropdown--above {
+      border-top: 1px solid $input-border-color;
+      @include border-top-radius($input-border-radius);
+    }
+
+    // selected item
+    .select2-results__option[aria-selected="true"] {
+      color: color-yiq(darken($input-bg, 5%));
+      background-color: darken($input-bg, 5%);
+    }
+  }
+
+  // mouse hovered item
+  .select2-results__option--highlighted,
+  .select2-results__option--highlighted.select2-results__option[aria-selected="true"] {
+    color: color-yiq($primary);
+    background-color: $primary;
+  }
+
+  // for <optgroup>
+  .select2-results__option[role="group"] {
+    padding: 0;
+    .select2-results__options--nested .select2-results__option {
+      padding-left: 1em;
+    }
+  }
+
+  .select2-results__option {
+    padding: $input-padding-y $input-padding-x;
+  }
+
+  // fixes vertical overflow
+  .select2-results > .select2-results__options {
+    max-height: 15em;
+    overflow-y: auto;
+  }
+
+  .select2-results__group {
+    display: list-item;
+    padding: 6px;
+    color: $secondary;
+  }
+
+  // all clear button
+  .select2-selection__clear {
+    $bg: #c8c8c8;
+    float: right;
+    width: .9em;
+    height: .9em;
+    padding-left: .15em;
+    margin-top: .7em;
+    margin-right: .3em;
+    line-height: .75em;
+    color: $light;
+    background-color: $bg;
+    border-radius: 100%;
+    &:hover {
+      background-color: darken($bg, 10%);
+    }
+  }
+}

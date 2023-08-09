@@ -11,9 +11,17 @@
         <div class="col">{{ insuranceBalance|money|text }}</div>
     </div>
     <div class="row">
-        <div class="col-4 font-weight-bold">{{ "Total Balance Due"|xlt }}</div>
-        <div class="col font-weight-bold">{{ totalBalance|money|text }}</div>
+        <div class="col-4">{{ "Total Balance Due"|xlt }}</div>
+        <div class="col">{{ totalBalance|money|text }}</div>
     </div>
+
+    {% if unallocated > 0 %}
+    <div class="row">
+        <div class="col-4">{{ "Unallocated Patient Pre-Payment"|xlt }}</div>
+        <div class="col">{{ unallocated|money|text }}</font></div>
+    </div>
+    {% endif %}
+
     {% if billingNote %}
     <div class="row">
         <div class="col-4">{{ "Billing Note"|xlt }}</div>

@@ -23,5 +23,8 @@ $action = $_REQUEST['action'] ?? '';
 $queryVars = $_REQUEST ?? [];
 $queryVars['pid'] = $_SESSION['pid'] ?? null;
 $queryVars['authUser'] = $_SESSION['authUser'] ?? null;
+if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
+    $queryVars['csrf_token'] = $_SERVER['HTTP_APICSRFTOKEN'];
+}
 $roomController->dispatch($action, $queryVars);
 exit;

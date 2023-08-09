@@ -209,7 +209,7 @@ function DOBandEncounter($pc_eid)
 {
      global $event_date,$info_msg;
      // Save new DOB if it's there.
-     $patient_dob = trim($_POST['form_dob'] ?? null);
+     $patient_dob = trim($_POST['form_dob'] ?? '');
      $tmph = $_POST['form_hour'] + 0;
      $tmpm = $_POST['form_minute'] + 0;
     if (!empty($_POST['form_ampm']) && ($_POST['form_ampm'] == '2' && $tmph < 12)) {
@@ -338,8 +338,8 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "duplicate" || $_
         $tmpm = 0;
         $duration = 24 * 60;
     } else {
-        $tmph = $_POST['form_hour'] + 0;
-        $tmpm = $_POST['form_minute'] + 0;
+        $tmph = (int) $_POST['form_hour'] + 0;
+        $tmpm = (int) $_POST['form_minute'] + 0;
         if (!empty($_POST['form_ampm']) && ($_POST['form_ampm'] == '2' && $tmph < 12)) {
             $tmph += 12;
         }
@@ -759,92 +759,8 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
 
         DOBandEncounter(isset($eid) ? $eid : null);
 } elseif (!empty($_POST['form_action']) && ($_POST['form_action'] == "delete")) { //    DELETE EVENT(s)
-    // =======================================
-    //  multi providers event
-    // =======================================
-    if ($GLOBALS['select_multi_providers']) {
-        // what is multiple key around this $eid?
-        $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
-
-        // obtain current list of providers regarding the multiple key
-        $providers_current = array();
-        $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple=?", array($row['pc_multiple']));
-        while ($current = sqlFetchArray($up)) {
-            $providers_current[] = $current['pc_aid'];
-        }
-
-        // establish a WHERE clause
-        if ($row['pc_multiple']) {
-            $whereClause = "pc_multiple = '{$row['pc_multiple']}'";
-        } else {
-            $whereClause = "pc_eid = '$eid'";
-        }
-
-        if ($_POST['recurr_affect'] == 'current') {
-            // update all existing event records to exlude the current date
-            foreach ($providers_current as $provider) {
-                // update the provider's original event
-                // get the original event's repeat specs
-                $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events " .
-                " WHERE pc_aid <=> ? AND pc_multiple=?", array($provider,$row['pc_multiple']));
-                $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
-                $selected_date = date("Y-m-d", strtotime($_POST['selected_date']));
-                if ($oldRecurrspec['exdate'] != "") {
-                    $oldRecurrspec['exdate'] .= "," . $selected_date;
-                } else {
-                        $oldRecurrspec['exdate'] .= $selected_date;
-                }
-
-                // mod original event recur specs to exclude this date
-                    sqlStatement("UPDATE openemr_postcalendar_events SET " .
-                    " pc_recurrspec = ? " .
-                    " WHERE " . $whereClause, array(serialize($oldRecurrspec)));
-            }
-        } elseif ($_POST['recurr_affect'] == 'future') {
-            // update all existing event records to stop recurring on this date-1
-            $selected_date = date("Y-m-d", (strtotime($_POST['selected_date']) - 24 * 60 * 60));
-            foreach ($providers_current as $provider) {
-                // In case of a change in the middle of the event
-                if (strcmp($_POST['event_start_date'], $_POST['selected_date']) != 0) {
-                    // update the provider's original event
-                    sqlStatement("UPDATE openemr_postcalendar_events SET " .
-                    " pc_enddate = ? " .
-                    " WHERE " . $whereClause, array($selected_date));
-                } else { // In case of a change in the event head
-                    sqlStatement("DELETE FROM openemr_postcalendar_events WHERE " . $whereClause);
-                }
-            }
-        } else {
-            // really delete the event from the database
-            sqlStatement("DELETE FROM openemr_postcalendar_events WHERE " . $whereClause);
-        }
-    } else { //  single provider event
-        if ($_POST['recurr_affect'] == 'current') {
-            // mod original event recur specs to exclude this date
-            // get the original event's repeat specs
-            $origEvent = sqlQuery("SELECT pc_recurrspec FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
-            $oldRecurrspec = unserialize($origEvent['pc_recurrspec'], ['allowed_classes' => false]);
-            $selected_date = date("Ymd", strtotime($_POST['selected_date']));
-            if ($oldRecurrspec['exdate'] != "") {
-                $oldRecurrspec['exdate'] .= "," . $selected_date;
-            } else {
-                $oldRecurrspec['exdate'] .= $selected_date;
-            }
-
-                sqlStatement("UPDATE openemr_postcalendar_events SET " .
-                " pc_recurrspec = ? " .
-                " WHERE pc_eid = ?", array(serialize($oldRecurrspec),$eid));
-        } elseif ($_POST['recurr_affect'] == 'future') {
-            // mod original event to stop recurring on this date-1
-            $selected_date = date("Ymd", (strtotime($_POST['selected_date']) - 24 * 60 * 60));
-            sqlStatement("UPDATE openemr_postcalendar_events SET " .
-                " pc_enddate = ? " .
-                " WHERE pc_eid = ?", array($selected_date,$eid));
-        } else {
-            // fully delete the event from the database
-            sqlStatement("DELETE FROM openemr_postcalendar_events WHERE pc_eid = ?", array($eid));
-        }
-    }
+    $appointmentService = new \OpenEMR\Services\AppointmentService();
+    $appointmentService->deleteAppointment($eid, $_POST['recurr_affect'], $_POST['selected_date']);
 }
 
 if (!empty($_POST['form_action'])) {
@@ -1084,6 +1000,11 @@ function setpatient(pid, lname, fname, dob) {
     f.form_pid.value = pid;
     dobstyle = (dob == '' || dob.substr(5, 10) == '00-00') ? '' : 'none';
     document.getElementById('dob_row').style.display = dobstyle;
+    let event = new CustomEvent('openemr:appointment:patient:set', {
+        bubbles: true
+        ,detail: {form: f, pid: pid, lname: lname, fname: fname, dob: dob}
+    });
+    f.dispatchEvent(event);
 }
 
 // This invokes the find-patient popup.
@@ -1500,7 +1421,7 @@ if (empty($_GET['prov']) && empty($_GET['group'])) { ?>
     // DOB is important for the clinic, so if it's missing give them a chance
     // to enter it right here.  We must display or hide this row dynamically
     // in case the patient-select popup is used.
-    $patient_dob = trim($prow['DOB'] ?? null);
+    $patient_dob = trim($prow['DOB'] ?? '');
     $is_group = $groupname;
     $dobstyle = (!empty($prow) && (!$patient_dob || substr($patient_dob, 5) == '00-00') && !$is_group) ?
         '' : 'none';
@@ -1597,7 +1518,7 @@ if ($_GET['group'] === true && $have_group_global_enabled) { ?>
             $defaultProvider = $_SESSION['authUserID'];
           // or, if we have chosen a provider in the calendar, default to them
           // choose the first one if multiple have been selected
-            if (is_array($_SESSION['pc_username'])) {
+            if (is_array($_SESSION['pc_username'] ?? null)) {
                 if (count($_SESSION['pc_username']) >= 1) {
                     // get the numeric ID of the first provider in the array
                     $pc_username = $_SESSION['pc_username'];
@@ -1798,6 +1719,10 @@ if (empty($_GET['prov'])) { ?>
         <input class='form-control' type='text' name='form_comments' value='<?php echo attr($hometext); ?>' title='<?php echo xla('Optional information about this event'); ?>' />
     </div>
 </div>
+<?php
+    // This invokes render below patient listener.
+    $eventDispatcher->dispatch(new AppointmentRenderEvent($row), AppointmentRenderEvent::RENDER_BEFORE_ACTION_BAR, 10);
+?>
 <div class="form-row mx-2">
     <div id="recurr_popup" class="col-sm input-group alert bg-warning text-left" style="display: none; position: relative; max-width: 400px;">
         <p class="lead small font-weight-bold" style="font-size: 16px;"><?php echo xlt('Option one, apply the changes to only the Current event. Option two, apply to this event and all Future occurrences or lastly, apply to All event occurrences?') ?></p>

@@ -35,6 +35,7 @@ class BillingClaimBatch
     protected $bat_icn;
     protected $bat_filename;
     protected $bat_filedir;
+    protected $bat_gs06;
 
     /**
      * Array of claims contained in this batch

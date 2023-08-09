@@ -52,6 +52,7 @@ class AllergyIntoleranceService extends BaseService
         $sql = "SELECT lists.*,
         lists.pid AS patient_id,
         lists.title,
+        lists.comments,
         practitioners.uuid as practitioner,
         practitioners.practitioner_uuid,
         organizations.uuid as organization,
@@ -107,6 +108,7 @@ class AllergyIntoleranceService extends BaseService
             $row['uuid'] = UuidRegistry::uuidToString($row['allergy_uuid']);
             $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
             $row['patient_uuid'] = UuidRegistry::uuidToString($row['patient_uuid']);
+            $row['allergy_uuid'] = UuidRegistry::uuidToString($row['allergy_uuid']);
             $row['practitioner'] = $row['practitioner'] ?
                 UuidRegistry::uuidToString($row['practitioner']) :
                 $row['practitioner'];

@@ -90,7 +90,7 @@ if (isset($_POST['submit'])) {
 <head>
     <title><?php echo xlt('Change Portal Credentials'); ?></title>
     <?php
-    Header::setupHeader(['opener']);
+    Header::setupHeader(['no_main-theme',  'portal-theme', 'opener']);
     if (!empty($_POST['submit'])) {
         unset($_POST['submit']);
         echo "<script>dlgclose();</script>\n";

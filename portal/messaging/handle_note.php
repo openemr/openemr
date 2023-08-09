@@ -34,6 +34,29 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
     }
     // owner is the patient portal_username
     $owner = $_SESSION['portal_username'];
+
+    // ensure the owner is bootstrapped to the $_POST['sender_id'] and
+    //   $_POST['sender_name'], if applicable
+    if (empty($_POST['sender_id']) && !empty($_POST['sender_name'])) {
+        echo xlt("illegal Action");
+        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        exit;
+    }
+    if (!empty($_POST['sender_id'])) {
+        if ($_POST['sender_id'] != $owner) {
+            echo xlt("illegal Action");
+            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            exit;
+        }
+    }
+    if (!empty($_POST['sender_name'])) {
+        $nameCheck = sqlQuery("SELECT `fname`, `lname` FROM `patient_data` WHERE `pid` = ?", [$_SESSION['pid']]);
+        if (empty($nameCheck) || ($_POST['sender_name'] != ($nameCheck['fname'] . " " . $nameCheck['lname']))) {
+            echo xlt("illegal Action");
+            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            exit;
+        }
+    }
 } else {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     $ignoreAuth = false;

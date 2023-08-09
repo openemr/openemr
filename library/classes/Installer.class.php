@@ -19,6 +19,42 @@ use OpenEMR\Gacl\GaclApi;
 
 class Installer
 {
+    public $iuser;
+    public $iuserpass;
+    public $iuname;
+    public $iufname;
+    public $igroup;
+    public $i2faEnable;
+    public $i2faSecret;
+    public $server;
+    public $loginhost;
+    public $port;
+    public $root;
+    public $rootpass;
+    public $login;
+    public $pass;
+    public $dbname;
+    public $collate;
+    public $site;
+    public $source_site_id;
+    public $clone_database;
+    public $no_root_db_access;
+    public $development_translations;
+    public $new_theme;
+    public $ippf_specific;
+    public $conffile;
+    public $main_sql;
+    public $translation_sql;
+    public $devel_translation_sql;
+    public $ippf_sql;
+    public $icd9;
+    public $cvx;
+    public $additional_users;
+    public $dumpfiles;
+    public $error_message;
+    public $debug_message;
+    public $dbh;
+
     public function __construct($cgi_variables)
     {
         // Installation variables
@@ -240,7 +276,15 @@ class Installer
             return $returnSql;
         } else {
             // the mysql user does not yet exist, so create the user
-            return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'");
+            if (getenv('FORCE_DATABASE_X509_CONNECT', true) == 1) {
+                // this use case is to allow enforcement of x509 database connection use in applicable docker and kubernetes auto installations
+                return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "' REQUIRE X509");
+            } elseif (getenv('FORCE_DATABASE_SSL_CONNECT', true) == 1) {
+                // this use case is to allow enforcement of ssl database connection use in applicable docker and kubernetes auto installations
+                return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "' REQUIRE SSL");
+            } else {
+                return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'");
+            }
         }
     }
 
@@ -483,6 +527,9 @@ class Installer
 
     public function write_configuration_file()
     {
+        if (!file_exists($GLOBALS['OE_SITE_DIR'])) {
+            $this->create_site_directory();
+        }
         @touch($this->conffile); // php bug
         $fd = @fopen($this->conffile, 'w');
         if (! $fd) {

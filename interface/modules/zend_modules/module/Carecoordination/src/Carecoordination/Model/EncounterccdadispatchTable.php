@@ -728,7 +728,17 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         if (empty($details)) {
             return '';
         } else {
-            $organization_uuid = UuidRegistry::uuidToString($details['facility_uuid']);
+            if (!empty($details['facility_uuid'])) {
+                $organization_uuid = UuidRegistry::uuidToString($details['facility_uuid']);
+            } else {
+                $organization_uuid = ''; // leave it an empty string as we don't even know if we have a connected organization.
+                (new SystemLogger())->errorLogCaller(
+                    "Failed to find facility uuid for Carecoordination hie_office_contact, uuid is either missing or office contact has no connected organization",
+                    ['fname' => $details['fname'], 'lname' => $details['lname'], 'organization' => $details['organization']
+                    ,
+                    'npi' => $details['facility_npi']]
+                );
+            }
         }
 
         $time = $this->getAuthorDate($pid, $encounter);
@@ -1382,7 +1392,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getImmunization($pid)
     {
         $immunizations = '';
-        $query = "SELECT im.*, cd.code_text, DATE(administered_date) AS administered_date, 
+        $query = "SELECT im.*, cd.code_text, DATE(administered_date) AS administered_date,
             DATE_FORMAT(administered_date,'%Y%m%d') AS administered_formatted, lo.title as route_of_administration,
             u.title, u.fname, u.mname, u.lname, u.npi, u.street, u.streetb, u.city, u.state, u.zip, u.phonew1,
             f.name, f.phone, SUBSTRING(lo.codes, LOCATE(':',lo.codes)+1, LENGTH(lo.codes)) AS route_code, lo.notes AS route_code_notes,
@@ -1503,7 +1513,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     FROM procedure_order AS po
     JOIN procedure_order_code AS poc ON poc.procedure_order_id = po.procedure_order_id
     LEFT JOIN form_encounter AS fe ON fe.pid = po.patient_id AND fe.encounter = po.encounter_id
-    LEFT JOIN users AS u ON u.id = po.provider_id 
+    LEFT JOIN users AS u ON u.id = po.provider_id
     LEFT JOIN facility AS f ON f.id = fe.facility_id
     WHERE $wherCon (po.procedure_order_type = 'order' OR po.procedure_order_type = 'procedure') AND po.patient_id = ? AND po.activity = ?";
         // same bindings
@@ -1526,7 +1536,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             ];
             $provenanceXml = $this->getAuthorXmlForRecord($provenanceRecord, $pid, $encounter);
             $procedure .= "<procedure>" . $provenanceXml . "
-            <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . $row['encounter'])) . "</extension>
+            <extension>" . xmlEscape(base64_encode($_SESSION['site_id'] . ($row['encounter'] ?? ''))) . "</extension>
             <sha_extension>" . xmlEscape("d68b7e32-7810-4f5b-9cc2-acd54b0fd85d") . "</sha_extension>
             <description>" . xmlEscape($row['code_text']) . "</description>
             <code>" . xmlEscape($row['code']) . "</code>
@@ -3946,7 +3956,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                         JOIN lbt_data ref_to ON ref_to.form_id=t.id AND ref_to.field_id = 'refer_to'
                         JOIN lbt_data ref_date ON ref_date.form_id=t.id AND ref_date.field_id = 'refer_date'
                         JOIN lbt_data ref_from ON ref_from.form_id=t.id AND ref_from.field_id = 'refer_from'
-                        JOIN lbt_data ref_billing_facility_id ON ref_billing_facility_id.form_id=t.id 
+                        JOIN lbt_data ref_billing_facility_id ON ref_billing_facility_id.form_id=t.id
                         LEFT JOIN users u ON t.user = u.username
                             AND ref_billing_facility_id.field_id = 'billing_facility_id'
                     WHERE pid = ? $wherCon";

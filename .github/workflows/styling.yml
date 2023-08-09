@@ -63,8 +63,34 @@ jobs:
       - name: Check CSS Styling
         run: |
           failTest=false
-          npx stylelint "**/*.css" || failTest=true
-          npx stylelint "**/*.scss" || failTest=true
+          npx stylelint "**/*.{css,scss}" || failTest=true
+          if $failTest; then
+            exit 1
+          fi
+
+  js_linting:
+    runs-on: ubuntu-22.04
+    name: JS
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install npm package
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: npm install
+        run: |
+          failTest=false
+          npm install || failTest=true
+          if $failTest; then
+            exit 1
+          fi
+
+      - name: Check JS Linting
+        run: |
+          failTest=false
+          npm run lint:js || failTest=true
           if $failTest; then
             exit 1
           fi

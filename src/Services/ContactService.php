@@ -168,6 +168,9 @@ class ContactService extends BaseService
      */
     public function getContactsForPatient($pid, $includeInactive = false): array
     {
+        if (empty($pid)) {
+            return [];
+        }
 
         $sql = "SELECT ca.* FROM contact_address ca JOIN contact c ON ca.contact_id = c.id AND c.foreign_table_name = 'patient_data' AND c.foreign_id = ?";
         if ($includeInactive !== true) {

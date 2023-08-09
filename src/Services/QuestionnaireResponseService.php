@@ -13,7 +13,10 @@
 namespace OpenEMR\Services;
 
 use Exception;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Events\Services\ServiceSaveEvent;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaireResponse;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
@@ -22,6 +25,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrativeStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
+use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Validators\ProcessingResult;
 
 class QuestionnaireResponseService extends BaseService
 {
@@ -243,6 +248,80 @@ class QuestionnaireResponseService extends BaseService
         return $question_results;
     }
 
+    public function getUuidFields(): array
+    {
+        return ['questionnaire_response_uuid', 'encounter_uuid', 'puuid'];
+    }
+
+    public function search($search, $isAndCondition = true)
+    {
+        $sqlSelectIds = "SELECT DISTINCT qr.questionnaire_response_uuid ";
+        $sqlSelectData = " SELECT qr.*
+        ,fe.encounter_uuid
+        ,pd.puuid ";
+        $sql = "FROM (
+                SELECT
+                    uuid AS questionnaire_response_uuid
+                    ,id AS id
+                    ,response_id
+                    ,questionnaire_foreign_id
+                    ,questionnaire_id
+                    ,questionnaire_name
+                    ,patient_id
+                    ,encounter
+                    ,audit_user_id
+                    ,creator_user_id
+                    ,create_time
+                    ,last_updated
+                    ,version
+                    ,status
+                    ,questionnaire
+                    ,questionnaire_response
+                    ,form_response
+                    ,form_score
+                    ,tscore
+                    ,error
+                FROM questionnaire_response
+             ) qr "
+            . " LEFT JOIN form_questionnaire_assessments fqa ON fqa.response_id = qr.response_id " // TODO: @adunsulag is this field indexed?
+            . " LEFT JOIN (SELECT uuid AS questionnaire_uuid,id AS q_repo_id FROM questionnaire_repository)  q_repo ON qr.questionnaire_foreign_id = q_repo.q_repo_id "
+            . " LEFT JOIN forms f ON fqa.id = f.form_id AND f.formdir='questionnaire_assessments' "
+            . " LEFT JOIN (
+                    SELECT
+                        uuid AS encounter_uuid
+                        ,encounter
+                    FROM form_encounter
+             ) fe ON f.encounter = fe.encounter "
+            . " LEFT JOIN (
+                    SELECT
+                        uuid AS puuid
+                        ,pid
+                    FROM patient_data
+             ) pd ON qr.patient_id = pd.pid "
+            // we only grab users that are actual Practitioners with a valid NPI number
+            . " LEFT JOIN users ON qr.creator_user_id = users.id AND users.username IS NOT NULL and users.npi IS NOT NULL AND users.npi != ''" ;
+
+        $whereUuidClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+        $sqlUuids = $sqlSelectIds . " " . $sql . " " . $whereUuidClause->getFragment();
+        $uuidResults = QueryUtils::fetchTableColumn($sqlUuids, 'questionnaire_response_uuid', $whereUuidClause->getBoundValues());
+
+        if (!empty($uuidResults)) {
+            // now we are going to run through this again and grab all of our data w only the uuid search as our filter
+            // this makes sure we grab the entire patient record and associated data
+            $whereClause = " WHERE qr.questionnaire_response_uuid IN (" . implode(",", array_map(function ($uuid) {
+                    return "?";
+            }, $uuidResults)) . ") ORDER BY qr.create_time DESC ";
+            $statementResults = QueryUtils::sqlStatementThrowException($sqlSelectData . $sql . $whereClause, $uuidResults);
+            $processingResult = new ProcessingResult();
+            foreach ($statementResults as $record) {
+                $processingResult->addData($this->createResultRecordFromDatabaseResult($record));
+            }
+            return $processingResult;
+        } else {
+            return new ProcessingResult();
+        }
+    }
+
     /**
      * @param       $response
      * @param       $pid
@@ -351,7 +430,8 @@ class QuestionnaireResponseService extends BaseService
         }
 
         $fhirResponseOb->setId(new FHIRId($qr_id));
-        $fhirResponseOb->setQuestionnaire(new FHIRCanonical('fhir/Questionnaire/' . $q_id));
+        $serverConfig = new ServerConfig();
+        $fhirResponseOb->setQuestionnaire(new FHIRCanonical($serverConfig->getFhirUrl() . '/Questionnaire/' . $q_id));
         if (is_numeric($encounter)) {
             $encounter_uuid = $this::getUuidById($encounter, 'form_encounter', 'encounter');
             if (!empty($encounter_uuid)) {
@@ -369,41 +449,80 @@ class QuestionnaireResponseService extends BaseService
         // todo add author and other meta
         $r_content = $this->jsonSerialize($fhirResponseOb);
 
-        $bind = array(
-            $qr_uuid,
-            $qr_id,
-            $q_record_id,
-            $q_id,
-            $q_title,
-            $_SESSION['authUserID'],
-            $pid,
-            $encounter,
-            1,
-            $r_status ?: 'in-progress',
-            $q_content,
-            $r_content,
-            $form_response
-        );
+        $dataValues = [
+            'uuid' => $qr_uuid
+            ,'response_id' => $qr_id
+            ,'questionnaire_foreign_id' => $q_record_id
+            ,'questionnaire_id' => $q_id
+            ,'questionnaire_name' => $q_title
+            // if its created by a patient we won't have an authUserID
+            ,'audit_user_id' => $update_flag ? ($_SESSION['authUserID'] ?? null) : null
+            ,'creator_user_id' => $_SESSION['authUserID'] ?? null
+            ,'version' => $update_flag ? (int)$id['version'] + 1 : 1
+            ,'last_updated' => date("Y-m-d H:i:s")
+            ,'patient_id' => $pid
+            ,'encounter' => $encounter
+            ,'status' => $r_status ?: 'in-progress'
+            ,'questionnaire' => $q_content
+            ,'questionnaire_response' => $r_content
+            ,'form_response' => $form_response
+            ,'form_score' => null
+            ,'tscore' => null
+            ,'error' => null
+            ,'id' => $id['id'] ?? null
+            ,'isNew' => !$update_flag
+        ];
+
 
         $sql_insert = "INSERT INTO `questionnaire_response` (`uuid`, `response_id`, `questionnaire_foreign_id`, `questionnaire_id`, `questionnaire_name`, `audit_user_id`, `creator_user_id`, `create_time`, `last_updated`, `patient_id`,`encounter`, `version`, `status`, `questionnaire`, `questionnaire_response`, `form_response`, `form_score`, `tscore`, `error`) VALUES (?, ?, ?, ?, ?, NULL, ?, current_timestamp(), current_timestamp(), ?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL)";
 
         $sql_update = "UPDATE `questionnaire_response` SET `audit_user_id` = ?,`version` = ?, `last_updated` = ?, `status` = ?, `questionnaire_response` = ?, `form_response` = ?, `form_score` = ?, `tscore`= ?, `error` = ? WHERE `id` = ?";
 
+        $preSaveEvent = new ServiceSaveEvent($this, $dataValues);
+        $updatedPreSaveEvent = $this->getEventDispatcher()->dispatch($preSaveEvent, ServiceSaveEvent::EVENT_PRE_SAVE);
+        if (!$updatedPreSaveEvent instanceof ServiceSaveEvent) {
+            $this->getLogger()->error(self::class . "->saveQuestionnaireResponse() failed ot receive valid class for " . ServiceSaveEvent::class);
+        }
+        $dataValues = $updatedPreSaveEvent->getSaveData();
+
         if ($update_flag) {
-            $version_update = (int)$id['version'] + 1;
             $bind = array(
-                $_SESSION['authUserID'],
-                $version_update,
-                date("Y-m-d H:i:s"),
-                $r_status ?: 'in-progress',
-                $r_content,
-                $form_response, null, null, null,
-                $id['id']
+                $dataValues['audit_user_id']
+                ,$dataValues['version']
+                ,$dataValues['last_updated']
+                ,$dataValues['status']
+                ,$dataValues['questionnaire_response']
+                ,$dataValues['form_response']
+                ,$dataValues['form_score']
+                ,$dataValues['tscore']
+                ,$dataValues['error']
+                ,$dataValues['id']
             );
             $result = sqlQuery($sql_update, $bind);
             $id = $id['id'];
         } else {
+            $bind = array(
+                $dataValues['uuid'],
+                $dataValues['response_id'],
+                $dataValues['questionnaire_foreign_id'],
+                $dataValues['questionnaire_id'],
+                $dataValues['questionnaire_name'],
+                $dataValues['creator_user_id'],
+                $dataValues['patient_id'],
+                $dataValues['encounter'],
+                $dataValues['version'],
+                $dataValues['status'],
+                $dataValues['questionnaire'],
+                $dataValues['questionnaire_response'],
+                $dataValues['form_response']
+            );
             $id = sqlInsert($sql_insert, $bind) ?: 0;
+            $dataValues['id'] = $id;
+        }
+        $postSaveEvent = new ServiceSaveEvent($this, $dataValues);
+        $updatedPostSaveEvent = $this->getEventDispatcher()->dispatch($postSaveEvent, ServiceSaveEvent::EVENT_POST_SAVE);
+        if (!$updatedPostSaveEvent instanceof ServiceSaveEvent) {
+            $this->getLogger()->error(self::class . "->saveQuestionnaireResponse() failed to receive valid class for " . ServiceSaveEvent::class);
         }
 
         return ['id' => $id, 'response_id' => $qr_id, 'new' => !$update_flag];
@@ -552,5 +671,10 @@ class QuestionnaireResponseService extends BaseService
         $resource = sqlQuery($sql, array($record_id, $qr_id));
 
         return $resource ?: [];
+    }
+
+    public function fetchQuestionnaireResponseByResponseId($qr_id)
+    {
+        return $this->fetchQuestionnaireResponse(null, $qr_id);
     }
 }

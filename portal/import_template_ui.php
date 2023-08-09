@@ -17,14 +17,18 @@ require_once("../interface/globals.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\QuestionnaireService;
+use OpenEMR\Events\Messaging\SendSmsEvent;
+
 
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
     echo xlt('Patient Portal is turned off');
     exit;
 }
 
+$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
 $authUploadTemplates = AclMain::aclCheckCore('admin', 'forms');
 
 $templateService = new DocumentTemplateService();
@@ -52,6 +56,9 @@ $none_message = xlt("Nothing to show for current actions.");
         let editor;
         let callBackCmd = null;
 
+        <?php
+        $eventDispatcher->dispatch(new SendNotificationEvent($pid), SendNotificationEvent::JAVASCRIPT_READY_NOTIFICATION_POST);
+        ?>
         // a callback from dlgclose(fn) in render form
         function doImportSubmit() {
             // todo add message to user
@@ -68,7 +75,7 @@ $none_message = xlt("Nothing to show for current actions.");
                 }
             }
             top.restoreSession();
-            callBack = '';
+            let callBack = '';
             let url = './questionnaire_render.php?mode=' + encodeURIComponent(mode);
             dlgopen(url, 'pop-questionnaire', 'modal-lg', 850, '', '', {
                 allowDrag: true,
@@ -426,6 +433,7 @@ $none_message = xlt("Nothing to show for current actions.");
                 document.querySelector('.select2-search__field').focus();
             });
         });
+        
     </script>
     <style>
       caption {
@@ -500,7 +508,7 @@ $none_message = xlt("Nothing to show for current actions.");
                     </div>
                     <div class="form-group">
                         <div class='btn-group ml-1'>
-                            <button type='submit' class='btn btn-search btn-light'><i class="btn-refresh"></i></button>
+                            <button type='submit' class='btn btn-search btn-secondary'><i class="btn-refresh"></i></button>
                             <button type='button' id="send-button" class='btn btn-transmit btn-success d-none' onclick="return sendTemplate()">
                                 <?php echo xlt('Send'); ?>
                             </button>
@@ -820,13 +828,13 @@ $none_message = xlt("Nothing to show for current actions.");
                         //echo '<caption><h5>' . text($name) . '</h5></caption>';
                         echo "<thead>\n";
                         echo "<tr>\n" .
-                            '</th><th>' . xlt('Category') . '</th>' .
-                            '<th>' . xlt('Profile') .
-                            '<th>' . xlt('Template Actions') .
-                            '</th><th>' . xlt('Status') .
+                            '<th>' . xlt('Category') . '</th>' .
+                            '<th>' . xlt('Profile') . '</th>' .
+                            '<th>' . xlt('Template Actions') . '</th>' .
+                            '<th>' . xlt('Status') .
                             '</th><th>' . xlt('Last Action') . '</th>' .
-                            '</th><th>' . xlt('Next Due') .
-                            "</tr>\n";
+                            '<th>' . xlt('Next Due') .
+                            "</th></tr>\n";
                         echo "</thead>\n";
                         echo "<tbody>\n";
                         foreach ($templates as $cat => $files) {
@@ -882,9 +890,11 @@ $none_message = xlt("Nothing to show for current actions.");
                                 }
                                 if ($authUploadTemplates && empty($file['member_of']) && !empty($file['status'])) {
                                     echo '<button type="button" id="patientDelete' . attr($template_id) .
-                                        '" class="btn btn-sm btn-outline-danger" onclick="templateDelete(' . attr_js($template_id) . ')">' . xlt('Delete') . "</button></td>\n";
+                                        '" class="btn btn-sm btn-outline-danger" onclick="templateDelete(' . attr_js($template_id) . ')">' . xlt('Delete') . "</button>\n";
                                 }
-                                echo '<td>' . text($audit_status['denial_reason']) . '</td>';
+                                $eventDispatcher->dispatch(new SendNotificationEvent($fetch_pid, $file), SendNotificationEvent::ACTIONS_RENDER_NOTIFICATION_POST);
+
+                                echo '</td><td>' . text($audit_status['denial_reason']) . '</td>';
                                 echo '<td>' . text(date('m/d/Y H:i:s', strtotime($audit_status['create_date']))) . '</td>';
                                 echo '<td>' . text($next_due) . '</td>';
                                 echo "</tr>\n";

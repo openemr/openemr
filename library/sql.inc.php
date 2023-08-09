@@ -41,12 +41,12 @@ if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
             file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
         ) {
             // with client side certificate/key
-            $database->ssl_key = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key";
-            $database->ssl_cert = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert";
-            $database->ssl_ca = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
+            $database->ssl_key = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key";
+            $database->ssl_cert = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert";
+            $database->ssl_ca = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
         } else {
             // without client side certificate/key
-            $database->ssl_ca = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
+            $database->ssl_ca = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
         }
         $database->clientFlags = MYSQLI_CLIENT_SSL;
     }
@@ -677,7 +677,7 @@ function generic_sql_select_db($database, $link = null)
  */
 function generic_sql_affected_rows()
 {
-    return mysqli_affected_rows($GLOBALS['dbh']);
+    return $GLOBALS['adodb']['db']->affected_rows();
 }
 
 /**
@@ -765,12 +765,12 @@ function getPrivDB()
                         file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
                     ) {
                         // with client side certificate/key
-                        $GLOBALS['PRIV_DB']->ssl_key = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key";
-                        $GLOBALS['PRIV_DB']->ssl_cert = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert";
-                        $GLOBALS['PRIV_DB']->ssl_ca = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
+                        $GLOBALS['PRIV_DB']->ssl_key = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key";
+                        $GLOBALS['PRIV_DB']->ssl_cert = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert";
+                        $GLOBALS['PRIV_DB']->ssl_ca = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
                     } else {
                         // without client side certificate/key
-                        $GLOBALS['PRIV_DB']->ssl_ca = "${GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
+                        $GLOBALS['PRIV_DB']->ssl_ca = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
                     }
                     $GLOBALS['PRIV_DB']->clientFlags = MYSQLI_CLIENT_SSL;
                 }

@@ -13,7 +13,7 @@
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2016 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2017-2022 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2017-2023 Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2018 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
@@ -94,7 +94,6 @@ switch ($search_any_type) {
                 endswitch;
                 echo "<$wrapperElement class=\"$wrapperElementClass\">";
                 ?>
-
                     <a class="ptName <?php echo $classes ?? ''; ?> " data-bind="click:refreshPatient,with: patient" href="#" title="<?php echo xla("To Dashboard") ?>">
                         <span data-bind="text: pname()"></span>
                         <<?php echo $pubpidElement;?> class="text-muted">(<span data-bind="text: pubpid"></span>)</<?php echo $pubpidElement;?>>
@@ -180,7 +179,7 @@ switch ($search_any_type) {
             </span>
             <!-- /ko --><!-- messages -->
             <!-- ko if: portal() -->
-            <span class="btn-group dropdown mr-auto">
+            <nav class="btn-group dropdown mr-auto">
                 <button class="btn btn-secondary btn-sm dropdown-toggle"
                     type="button" id="portalMsgAlerts"
                     data-toggle="dropdown"
@@ -218,8 +217,36 @@ switch ($search_any_type) {
                         </a>
                     </li>
                 </ul>
-            </span>
+            </nav>
             <!-- /ko --><!-- portal alert -->
+            <!-- ko if: servicesOther() -->
+            <nav class="btn-group dropdown mr-auto">
+                <button class="btn btn-secondary btn-sm dropdown-toggle"
+                    type="button" id="servicesMsgAlerts"
+                    data-toggle="dropdown"
+                    aria-haspopup="true"
+                    aria-expanded="true">
+                    <?php echo xlt("Services"); ?>&nbsp;
+                    <span class="badge badge-danger" data-bind="text: serviceAlerts()"></span>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="servicesMsgAlerts">
+                    <li>
+                        <a class="dropdown-item" href="#" data-bind="click: viewFaxCount">
+                            <i class="fa fa-solid fa-fax"></i>&nbsp;<?php echo xlt("Pending Faxes"); ?>&nbsp;
+                            <span class="badge badge-success" style="display:inline" data-bind="text: faxAlerts()"></span>
+                        </a>
+                    </li>
+                    <li class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="#" data-bind="click: viewSmsCount">
+                            <i class="fa fa-sms"></i>&nbsp;<?php echo xlt("Pending SMS"); ?>&nbsp;
+                            <span class="badge badge-success" style="display:inline" data-bind="text: smsAlerts()"></span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <!-- /ko --><!-- servicesOther alert -->
             <!-- /ko --><!-- with user -->
             <!-- /ko --><!-- user -->
         </div>

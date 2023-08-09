@@ -10,7 +10,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2011 Cassian LUP <cassi.lup@gmail.com>
- * @copyright Copyright (c) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -23,6 +23,7 @@ Header("Content-Security-Policy: frame-ancestors 'none'");
 //setting the session & other config options
 
 // Will start the (patient) portal OpenEMR session/cookie.
+
 require_once __DIR__ . "/../src/Common/Session/SessionUtil.php";
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
@@ -30,18 +31,31 @@ OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 $ignoreAuth_onsite_portal = true;
 
 //includes
+
 require_once '../interface/globals.php';
 require_once __DIR__ . "/lib/appsql.class.php";
 $logit = new ApplicationTable();
 
+use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
+use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
+use OpenEMR\Common\Auth\OneTimeAuth;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\LogoService;
 
 //For redirect if the site on session does not match
 $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
+$logoService = new LogoService();
+$logoSrc = $logoService->getLogo("portal/login/primary");
+
+// allow both get and post redirect params here... everything will be sanitized in get_patient_info.php before we
+// actually do anything with the redirect
+// this value should already be url encoded.
+$redirectUrl = $_REQUEST['redirect'] ?? '';
 
 //exit if portal is turned off
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
@@ -52,6 +66,71 @@ $auth['portal_pwd'] = '';
 if (isset($_GET['woops'])) {
     unset($_GET['woops']);
     unset($_SESSION['password_update']);
+}
+
+/*
+ * Patient for onetime is verified when token redirect is decoded.
+ * The embedded pid in token is compared to the token looked up result pid.
+ * Also verified as the portal account id is rebuilt from patient data
+ * and compared to portal credential account id lookup.
+ * */
+if (!empty($_REQUEST['service_auth'] ?? null)) {
+    if (!empty($_GET['service_auth'] ?? null)) {
+        // we have to setup the csrf key to preven CSRF Login attacks
+        // we also implement this mechanism in order to handle Same-Site cookie blocking when being referred by
+        // an external site domain.  We used to auto process via GET but now we submit via the POST in order to make it
+        // a same site cookie origin request. This is a workaround for the Same-Site cookie blocking.
+        CsrfUtils::setupCsrfKey();
+        $twig = new TwigContainer(null, $GLOBALS['kernel']);
+        echo $twig->getTwig()->render('portal/login/autologin.html.twig', [
+            'action' => $GLOBALS['web_root'] . '/portal/index.php',
+            'service_auth' => $_GET['service_auth'],
+            'target' => $_GET['target'] ?? null,
+            'csrf_token' => CsrfUtils::collectCsrfToken('autologin'),
+            'pagetitle' => xl("OpenEMR Patient Portal"),
+            'images_static_relative' => $GLOBALS['images_static_relative'] ?? ''
+        ]);
+        exit;
+    } elseif (!empty($_POST['service_auth'] ?? null)) {
+        $token = $_POST['service_auth'];
+        $redirect_token = $_POST['target'] ?? null;
+        $csrfToken = $_POST['csrf_token'] ?? null;
+        try {
+            if (!CsrfUtils::verifyCsrfToken($csrfToken, 'autologin')) {
+                throw new OneTimeAuthException('Invalid CSRF token');
+            }
+            $oneTime = new OneTimeAuth();
+            $auth = $oneTime->processOnetime($token, $redirect_token);
+            $logit->portalLog('onetime login attempt', $auth['pid'], 'patient logged in and redirecting', '', '1');
+            exit();
+        } catch (OneTimeAuthExpiredException $exception) {
+            $logit->portalLog(
+                'onetime login attempt',
+                $exception->getPid() ?? '',
+                ':invalid one time',
+                '',
+                '0'
+            );
+            // do we want a separate message that their token has expired?
+            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            header('Location: ' . $landingpage . '&oe');
+            exit();
+        } catch (OneTimeAuthException $exception) {
+            $logit->portalLog(
+                'onetime login attempt',
+                $exception->getPid() ?? '',
+                ':invalid one time',
+                '',
+                '0'
+            );
+            OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+            header('Location: ' . $landingpage . '&oi');
+            exit();
+        }
+    } else {
+        (new SystemLogger())->errorLogCaller("Invalid service_auth request - should never reach here");
+        exit();
+    }
 }
 
 if (!empty($_GET['forward_email_verify'])) {
@@ -235,7 +314,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
 <head>
     <title><?php echo xlt('Patient Portal Login'); ?></title>
     <?php
-    Header::setupHeader(['no_main-theme', 'datetime-picker', 'patientportal-style', 'patientportal-base', 'patientportal-register']);
+    Header::setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker']);
     ?>
     <script>
         function checkUserName() {
@@ -325,7 +404,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
     <?php if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])) { ?>
         <script src="https://www.google.com/recaptcha/api.js" async defer></script>
         <script>
-            function enableVerifyBtn(){
+            function enableVerifyBtn() {
                 document.getElementById("submitRequest").disabled = false;
             }
         </script>
@@ -335,184 +414,204 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
     <?php } ?>
 
 </head>
-<body class="login container mt-2">
-    <div id="wrapper" class="container-fluid text-center">
-        <?php if (isset($_SESSION['password_update']) || isset($_GET['password_update'])) {
-            $_SESSION['password_update'] = 1;
-            ?>
-            <h2 class="title"><?php echo xlt('Please Enter New Credentials'); ?></h2>
-            <form class="form pb-5" action="get_patient_info.php" method="POST" onsubmit="return process_new_pass()">
-                <input style="display: none" type="text" name="dummyuname" />
-                <input style="display: none" type="password" name="dummypass" />
-                <div class="form-row my-3">
-                    <label class="col-md-2 col-form-label" for="uname"><?php echo xlt('Account Name'); ?></label>
-                    <div class="col-md">
-                        <input class="form-control" name="uname" id="uname" type="text" readonly autocomplete="none" value="<?php echo attr($_SESSION['portal_username']); ?>" />
-                    </div>
+<body class="login">
+<div id="wrapper" class="container mx-auto">
+<?php if (isset($_SESSION['password_update']) || isset($_GET['password_update'])) :
+    $_SESSION['password_update'] = 1;
+    ?>
+    <h2 class="title"><?php echo xlt('Please Enter New Credentials'); ?></h2>
+    <form class="form pb-5" action="get_patient_info.php" method="POST" onsubmit="return process_new_pass()">
+        <input style="display: none" type="text" name="dummyuname" />
+        <input style="display: none" type="password" name="dummypass" />
+        <?php if (isset($redirectUrl)) { ?>
+            <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
+        <?php } ?>
+        <div class="form-row my-3">
+            <label class="col-md-2 col-form-label" for="uname"><?php echo xlt('Account Name'); ?></label>
+            <div class="col-md">
+                <input class="form-control" name="uname" id="uname" type="text" readonly autocomplete="none" value="<?php echo attr($_SESSION['portal_username']); ?>" />
+            </div>
+        </div>
+        <div class="form-row my-3">
+            <label class="col-md-2 col-form-label" for="login_uname"><?php echo xlt('Use Username'); ?></label>
+            <div class="col-md">
+                <input class="form-control" name="login_uname" id="login_uname" type="text" autofocus autocomplete="none" title="<?php echo xla('Please enter a username of 12 to 80 characters. Recommended to include symbols and numbers but not required.'); ?>" placeholder="<?php echo xla('Must be 12 to 80 characters'); ?>" pattern=".{12,80}" value="<?php echo attr($_SESSION['portal_login_username']); ?>" onblur="checkUserName()" />
+            </div>
+        </div>
+        <div class="form-row my-3">
+            <label class="col-md-2 col-form-label" for="pass"><?php echo empty($_SESSION['onetime'] ?? null) ? xlt('Current Password') : ''; ?></label>
+            <div class="col-md">
+                <input class="form-control" name="pass" id="pass" <?php echo ($_SESSION['onetime'] ?? null) ? 'type="hidden" ' : 'type="password" '; ?> autocomplete="none" value="<?php echo attr($_SESSION['onetime'] ?? '');
+                $_SESSION['password_update'] = ($_SESSION['onetime'] ?? null) ? 2 : 1;
+                unset($_SESSION['onetime']); ?>" required />
+            </div>
+        </div>
+        <?php if ($_SESSION['pin'] ?? null) { ?>
+            <div class="form-row my-3">
+                <label class="col-md-2 col-form-label" for="token_pin"><?php echo xlt('One Time PIN'); ?></label>
+                <div class="col-md">
+                    <input class="form-control" name="token_pin" id="token_pin" type="password" autocomplete="none" value="" required pattern=".{6,20}" />
                 </div>
-                <div class="form-row my-3">
-                    <label class="col-md-2 col-form-label" for="login_uname"><?php echo xlt('Use Username'); ?></label>
-                    <div class="col-md">
-                        <input class="form-control" name="login_uname" id="login_uname" type="text" autofocus autocomplete="none" title="<?php echo xla('Please enter a username of 12 to 80 characters. Recommended to include symbols and numbers but not required.'); ?>" placeholder="<?php echo xla('Must be 12 to 80 characters'); ?>" pattern=".{12,80}" value="<?php echo attr($_SESSION['portal_login_username']); ?>" onblur="checkUserName()" />
-                    </div>
+            </div>
+        <?php } ?>
+        <div class="form-row my-3">
+            <label class="col-md-2 col-form-label" for="pass_new"><?php echo xlt('New Password'); ?></label>
+            <div class="col-md">
+                <input class="form-control" name="pass_new" id="pass_new" type="password" required placeholder="<?php echo xla('Min length is 8 with upper,lowercase,numbers mix'); ?>" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
+            </div>
+        </div>
+        <div class="form-row my-3">
+            <label class="col-md-2 col-form-label" for="pass_new_confirm"><?php echo xlt('Confirm New Password'); ?></label>
+            <div class="col-md">
+                <input class="form-control" name="pass_new_confirm" id="pass_new_confirm" type="password" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
+            </div>
+        </div>
+        <?php if ($GLOBALS['enforce_signin_email']) { ?>
+            <div class="form-row my-3">
+                <label class="col-md-2 col-form-label" for="passaddon"><?php echo xlt('Confirm Email Address'); ?></label>
+                <div class="col-md">
+                    <input class="form-control" name="passaddon" id="passaddon" required placeholder="<?php echo xla('Current on record trusted email'); ?>" type="email" autocomplete="none" value="" />
                 </div>
-                <div class="form-row my-3">
-                    <label class="col-md-2 col-form-label" for="pass"><?php echo empty($_SESSION['onetime'] ?? null) ? xlt('Current Password') : ''; ?></label>
-                    <div class="col-md">
-                        <input class="form-control" name="pass" id="pass" <?php echo ($_SESSION['onetime'] ?? null) ? 'type="hidden" ' : 'type="password" '; ?> autocomplete="none" value="<?php echo attr($_SESSION['onetime'] ?? '');
-                        $_SESSION['password_update'] = ($_SESSION['onetime'] ?? null) ? 2 : 1;
-                        unset($_SESSION['onetime']); ?>" required />
-                    </div>
-                </div>
-                <?php if ($_SESSION['pin'] ?? null) { ?>
-                    <div class="form-row my-3">
-                        <label class="col-md-2 col-form-label" for="token_pin"><?php echo xlt('One Time PIN'); ?></label>
-                        <div class="col-md">
-                            <input class="form-control" name="token_pin" id="token_pin" type="password" autocomplete="none" value="" required pattern=".{6,20}" />
-                        </div>
-                    </div>
-                <?php } ?>
-                <div class="form-row my-3">
-                    <label class="col-md-2 col-form-label" for="pass_new"><?php echo xlt('New Password'); ?></label>
-                    <div class="col-md">
-                        <input class="form-control" name="pass_new" id="pass_new" type="password" required placeholder="<?php echo xla('Min length is 8 with upper,lowercase,numbers mix'); ?>" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
-                    </div>
-                </div>
-                <div class="form-row my-3">
-                    <label class="col-md-2 col-form-label" for="pass_new_confirm"><?php echo xlt('Confirm New Password'); ?></label>
-                    <div class="col-md">
-                        <input class="form-control" name="pass_new_confirm" id="pass_new_confirm" type="password" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
-                    </div>
-                </div>
-                <?php if ($GLOBALS['enforce_signin_email']) { ?>
-                    <div class="form-row my-3">
-                        <label class="col-md-2 col-form-label" for="passaddon"><?php echo xlt('Confirm Email Address'); ?></label>
-                        <div class="col-md">
-                            <input class="form-control" name="passaddon" id="passaddon" required placeholder="<?php echo xla('Current on record trusted email'); ?>" type="email" autocomplete="none" value="" />
-                        </div>
-                    </div>
-                <?php } ?>
-                <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?>');" value="<?php echo xla('Cancel'); ?>" />
-                <input class="btn btn-primary float-right" type="submit" value="<?php echo xla('Log In'); ?>" />
-            </form>
-        <?php } elseif (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])) { ?>
-            <form id="resetPass" action="#" method="post">
-                <input type='hidden' id='csrf_token_form' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('passwordResetCsrf')); ?>' />
-                <div class="text-center">
-                    <fieldset>
-                        <legend class='bg-primary text-white pt-2 py-1'><h3><?php echo xlt('Patient Credentials Reset') ?></h3></legend>
-                        <div class="jumbotron jumbotron-fluid px-5 py-3">
-                            <div class="form-row my-3">
-                                <label class="col-md-2 col-form-label" for="fname"><?php echo xlt('First Name') ?></label>
-                                <div class="col-md">
-                                    <input type="text" class="form-control" id="fname" required placeholder="<?php echo xla('First Name'); ?>" />
-                                </div>
-                            </div>
-                            <div class="form-row my-3">
-                                <label class="col-md-2 col-form-label" for="lname"><?php echo xlt('Last Name') ?></label>
-                                <div class="col-md">
-                                    <input type="text" class="form-control" id="lname" required placeholder="<?php echo xla('Last Name'); ?>" />
-                                </div>
-                            </div>
-                            <div class="form-row my-3">
-                                <label class="col-md-2 col-form-label" for="dob"><?php echo xlt('Birth Date') ?></label>
-                                <div class="col-md">
-                                    <input id="dob" type="text" required class="form-control datepicker" placeholder="<?php echo xla('YYYY-MM-DD'); ?>" />
-                                </div>
-                            </div>
-                            <div class="form-row my-3">
-                                <label class="col-md-2 col-form-label" for="emailInput"><?php echo xlt('Enter E-Mail Address') ?></label>
-                                <div class="col-md">
-                                    <input id="emailInput" type="email" class="form-control" required placeholder="<?php echo xla('Current trusted email address on record.'); ?>" maxlength="100" />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="d-flex justify-content-center">
-                                <div class="g-recaptcha" data-sitekey="<?php echo attr($GLOBALS['google_recaptcha_site_key']); ?>" data-callback="enableVerifyBtn"></div>
-                            </div>
-                        </div>
-                        <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?>');" value="<?php echo xla('Cancel'); ?>" />
-                        <button id="submitRequest" class="btn btn-primary nextBtn float-right" type="submit" disabled="disabled"><?php echo xlt('Verify') ?></button>
-                    </fieldset>
-                </div>
-            </form>
-        <?php } else {
-            ?> <!-- Main logon -->
-        <img class="img-responsive center-block login-image" src='<?php echo $GLOBALS['images_static_relative']; ?>/login-logo.png' />
-        <form class="text-center" action="get_patient_info.php" method="POST" onsubmit="return process()">
+            </div>
+        <?php } ?>
+        <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) {
+            echo "&redirect=" . attr_url($redirectUrl); } ?>');" value="<?php echo xla('Cancel'); ?>" />
+        <input class="btn btn-primary float-right" type="submit" value="<?php echo xla('Log In'); ?>" />
+    </form>
+<?php elseif (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])) : ?>
+    <form id="resetPass" action="#" method="post">
+        <input type='hidden' id='csrf_token_form' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('passwordResetCsrf')); ?>' />
+        <?php if (isset($redirectUrl)) { ?>
+            <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
+        <?php } ?>
+        <div class="text-center">
             <fieldset>
-                <legend class="bg-primary text-white pt-2 py-1"><h3><?php echo xlt('Patient Portal Login'); ?></h3></legend>
+                <legend class='bg-primary text-white pt-2 py-1'><h3><?php echo xlt('Patient Credentials Reset') ?></h3></legend>
                 <div class="jumbotron jumbotron-fluid px-5 py-3">
                     <div class="form-row my-3">
-                        <label class="col-md-2 col-form-label" for="uname"><?php echo xlt('Username') ?></label>
+                        <label class="col-md-2 col-form-label" for="fname"><?php echo xlt('First Name') ?></label>
                         <div class="col-md">
-                            <input type="text" class="form-control" name="uname" id="uname" autocomplete="none" required />
+                            <input type="text" class="form-control" id="fname" required placeholder="<?php echo xla('First Name'); ?>" />
                         </div>
                     </div>
-                    <div class="form-row mt-3">
-                        <label class="col-md-2 col-form-label" for="pass"><?php echo xlt('Password') ?></label>
+                    <div class="form-row my-3">
+                        <label class="col-md-2 col-form-label" for="lname"><?php echo xlt('Last Name') ?></label>
                         <div class="col-md">
-                            <input class="form-control" name="pass" id="pass" type="password" required autocomplete="none" />
+                            <input type="text" class="form-control" id="lname" required placeholder="<?php echo xla('Last Name'); ?>" />
                         </div>
                     </div>
-                    <?php if ($GLOBALS['enforce_signin_email']) { ?>
-                        <div class="form-row mt-3">
-                            <label class="col-md-2 col-form-label" for="passaddon"><?php echo xlt('E-Mail Address') ?></label>
-                            <div class="col-md">
-                                <input class="form-control" name="passaddon" id="passaddon" type="email" autocomplete="none" />
-                            </div>
+                    <div class="form-row my-3">
+                        <label class="col-md-2 col-form-label" for="dob"><?php echo xlt('Birth Date') ?></label>
+                        <div class="col-md">
+                            <input id="dob" type="text" required class="form-control datepicker" placeholder="<?php echo xla('YYYY-MM-DD'); ?>" />
                         </div>
-                    <?php } ?>
-                    <?php if ($GLOBALS['language_menu_login']) { ?>
-                        <?php if (count($result3) != 1) { ?>
-                            <div class="form-group mt-1">
-                                <label class="col-form-label-sm" for="selLanguage"><?php echo xlt('Language'); ?></label>
-                                <select class="form-control form-control-sm" id="selLanguage" name="languageChoice">
-                                    <?php
-                                    echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
-                                        text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
-                                    foreach ($result3 as $iter) {
-                                        if ($GLOBALS['language_menu_showall']) {
-                                            if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
-                                                continue; // skip the dummy language
-                                            }
-                                            echo "<option value='" . attr($iter['lang_id']) . "'>" .
-                                                text($iter['trans_lang_description']) . "</option>\n";
-                                        } else {
-                                            if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
-                                                if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
-                                                    continue; // skip the dummy language
-                                                }
-                                                echo "<option value='" . attr($iter['lang_id']) . "'>" .
-                                                    text($iter['trans_lang_description']) . "</option>\n";
-                                            }
-                                        }
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                        <?php }
-                    } ?>
-                </div>
-                <div class="row">
-                    <div class="col-12">
-                        <?php if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) { ?>
-                            <button class="btn btn-secondary float-left" onclick="location.replace('./account/verify.php?site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Register'); ?></button>
-                        <?php } ?>
-                        <?php if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
-                            <button class="btn btn-danger ml-2" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Reset Credentials'); ?></button>
-                        <?php } ?>
-                        <button class="btn btn-success float-right" type="submit"><?php echo xlt('Log In'); ?></button>
+                    </div>
+                    <div class="form-row my-3">
+                        <label class="col-md-2 col-form-label" for="emailInput"><?php echo xlt('Enter E-Mail Address') ?></label>
+                        <div class="col-md">
+                            <input id="emailInput" type="email" class="form-control" required placeholder="<?php echo xla('Current trusted email address on record.'); ?>" maxlength="100" />
+                        </div>
                     </div>
                 </div>
+                <div class="form-group">
+                    <div class="d-flex justify-content-center">
+                        <div class="g-recaptcha" data-sitekey="<?php echo attr($GLOBALS['google_recaptcha_site_key']); ?>" data-callback="enableVerifyBtn"></div>
+                    </div>
+                </div>
+                <input class="btn btn-secondary float-left" type="button" onclick="document.location.replace('./index.php?woops=1&site=<?php echo attr_url($_SESSION['site_id']); ?><?php if (!empty($redirectUrl)) {
+                    echo "&redirect=" . attr_url($redirectUrl); } ?>');" value="<?php echo xla('Cancel'); ?>" />
+                <button id="submitRequest" class="btn btn-primary nextBtn float-right" type="submit" disabled="disabled"><?php echo xlt('Verify') ?></button>
             </fieldset>
-            <?php if (!(empty($hiddenLanguageField))) {
-                echo $hiddenLanguageField;
-            } ?>
-        </form>
-    </div><!-- div wrapper -->
-    <?php } ?> <!--  logon wrapper -->
+        </div>
+    </form>
+<?php else :
+    ?> <!-- Main logon -->
+
+    <div class="row">
+        <div class="col-sm-12 col-md-6 offset-md-3">
+            <img class="img-fluid login-logo" src='<?php echo $logoSrc; ?>'>
+        </div>
+    </div>
+    <form class="text-center mx-1" action="get_patient_info.php" method="POST" onsubmit="return process()">
+        <?php if (isset($redirectUrl)) : ?>
+            <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
+        <?php endif; ?>
+        <div class="form-group row">
+            <label class="col-form-label col-sm-12 col-md-3" for="uname"><?php echo xlt('Username') ?></label>
+            <div class="col-sm-12 col-md-9">
+                <input type="text" class="form-control" name="uname" id="uname" autocomplete="none" required>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-form-label col-sm-12 col-md-3" for="pass"><?php echo xlt('Password') ?></label>
+            <div class="col-sm-12 col-md-9">
+                <input class="form-control" name="pass" id="pass" type="password" required autocomplete="none">
+            </div>
+        </div>
+        <?php if ($GLOBALS['enforce_signin_email']) : ?>
+            <div class="form-group row">
+                <label class="col-form-label col-sm-12 col-md-3" for="passaddon"><?php echo xlt('E-Mail Address') ?></label>
+                <div class="col-sm-12 col-md-9">
+                    <input class="form-control" name="passaddon" id="passaddon" type="email" autocomplete="none">
+                </div>
+            </div>
+        <?php endif; ?>
+        <?php if ($GLOBALS['language_menu_login']) : ?>
+            <?php if (count($result3) != 1) : ?>
+                <div class="form-group row">
+                    <label class="col-form-label col-sm-12 col-md-3" for="selLanguage"><?php echo xlt('Language'); ?></label>
+                    <div class="col-sm-12 col-md-9">
+                        <select class="form-control" id="selLanguage" name="languageChoice">
+                            <option value="<?php echo attr($defaultLangID); ?>" selected><?php echo xlt("Default") . " - " . xlt($defaultLangName); ?></option>
+                            <?php
+                            foreach ($result3 as $iter) :
+                                if ($GLOBALS['language_menu_showall']) {
+                                    if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
+                                        continue; // skip the dummy language
+                                    }
+                                    echo "<option value='" . attr($iter['lang_id']) . "'>" . text($iter['trans_lang_description']) . "</option>\n";
+                                } else {
+                                    if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
+                                        if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
+                                            continue; // skip the dummy language
+                                        }
+                                        echo "<option value='" . attr($iter['lang_id']) . "'>" . text($iter['trans_lang_description']) . "</option>\n";
+                                    }
+                                }
+                            endforeach;
+                            ?>
+                        </select>
+                    </div>
+                </div>
+            <?php endif; ?>
+        <?php endif; ?>
+        <div class="form-group row">
+            <div class="col-sm-12">
+                <button class="btn btn-primary btn-block" type="submit"><?php echo xlt('Log In'); ?></button>
+                <?php if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) : ?>
+                    <div class="text-center my-4">
+                        <?php echo xlt("No account?") ; ?> <a href="./account/verify.php?site=<?php echo attr_url($_SESSION['site_id']); ?>"><?php echo xlt('Create One Here'); ?></a>
+                    </div>
+                <?php endif; ?>
+                <?php if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) : ?>
+                    <div class="text-center my-4">
+                        <?php
+                        $href = "./index.php?requestNew=1&site=" . attr_url($_SESSION['site_id']);
+                        if (!empty($redirectUrl)) {
+                            $href .= "&redirect=" . attr_url($redirectUrl);
+                        }
+                        ?>
+                        <?php echo xlt("Forgot your password?") ; ?> <a href="<?php echo $href; ?>"><?php echo xlt('Reset Your Password'); ?></a>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php if (!(empty($hiddenLanguageField))) {
+            echo $hiddenLanguageField;
+        } ?>
+    </form>
+</div><!-- div wrapper -->
+<?php endif; ?> <!--  logon wrapper -->
 
     <div id="alertStore" class="d-none">
         <div class="h6 alert alert-warning alert-dismissible fade show my-1 py-1" role="alert">
@@ -559,6 +658,14 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             // mdsupport - Would be good to include some clue about what went wrong!
             bsAlert(<?php echo xlj('Something went wrong. Please try again.'); ?>);
             <?php } ?>
+            <?php if (isset($_GET['oe'])) { ?>
+            // mdsupport - Would be good to include some clue about what went wrong!
+            bsAlert(<?php echo xlj('Something went wrong. Onetime Authentication! Expired.'); ?>);
+            <?php } ?>
+            <?php if (isset($_GET['oi'])) { ?>
+            // mdsupport - Would be good to include some clue about what went wrong!
+            bsAlert(<?php echo xlj('Something went wrong. Onetime Authentication! Invalid.'); ?>);
+            <?php } ?>
             <?php // if successfully logged out
             if (isset($_GET['logout'])) { ?>
             bsAlert(<?php echo xlj('You have been successfully logged out.'); ?>);
@@ -591,7 +698,12 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                 data: data
             }).done(function (rtn) {
                 if (action === "cleanup") {
-                    window.location.href = "./index.php?site=" + <?php echo js_url($_SESSION['site_id']); ?>; // Goto landing page.
+                    let url = "./index.php?site=" + <?php echo js_url($_SESSION['site_id']); ?>; // Goto landing page.
+                    let redirectUrl = $("#redirect").val();
+                    if (redirectUrl) {
+                        url += "&redirect=" + encodeURIComponent(redirectUrl);
+                    }
+                    window.location.href = url;
                 } else if (action === "reset_password") {
                     if (JSON.parse(rtn) === 1) {
                         dialog.alert(<?php echo xlj("Check your email inbox (and possibly your spam folder) for further instructions to reset your password. If you have not received an email, then recommend contacting the clinic.") ?>);
@@ -615,7 +727,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             divAlert.prepend(strongMsg);
             setTimeout(() => {
                 document.querySelector("div.alert").remove();
-            }, 3000);
+            }, 6000);
         }
     </script>
 </body>

@@ -1982,6 +1982,18 @@
               "admin",
               "super"
             ]
+          },
+          {
+            "label": "IP Tracker",
+            "menu_id": "rep0",
+            "target": "rep",
+            "url": "/interface/reports/ip_tracker.php",
+            "children": [],
+            "requirement": 0,
+            "acl_req": [
+              "admin",
+              "super"
+            ]
           }
         ],
         "requirement": 0,

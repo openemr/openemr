@@ -131,8 +131,12 @@ class OemrUI
     */
     public function pageHeading(bool $render = false): null|string
     {
+        /**
+         * @var PageHeadingRenderEvent
+         */
         $pageHeadingEvent = $this->ed->dispatch(new PageHeadingRenderEvent($this->page_id), PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER);
         $vars = [
+            "primaryMenu" => $pageHeadingEvent->getPrimaryMenuItems(),
             "buttonList" => $pageHeadingEvent->getActions(),
             "heading" => $this->heading,
         ];
@@ -542,7 +546,9 @@ class OemrUI
             // We display if we remember we're showing it, but we don't intentionally hide it (no else here to hide)
             // Because the hideaway is probably shown by default for a reason like in the billing manager
             if (shouldDisplay) {
-                document.querySelector('.hideaway').classList.remove('d-none');
+                if (document.querySelector('.hideaway')) {
+                    document.querySelector('.hideaway').classList.remove('d-none');
+                }
                 if (document.getElementById(showActionClass) && document.getElementById(hideActionClass)) {
                     elementIcon.classList.remove(showActionClass);
                     elementIcon.classList.add(hideActionClass);

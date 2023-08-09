@@ -8,9 +8,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Robert Down <robertdown@live.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2007-2022 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2022 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2022-2023 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2017-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -343,9 +345,18 @@ function getCodeDescriptions($codes)
         }
         $arrcode = explode('|', $codestring);
         $code_type = $arrcode[0];
-        $code = $arrcode[1];
+        // test for code with a modifier.
+        $modifier = '';
+        if (stripos($arrcode[1], ':') !== false) {
+            $tmp = explode(':', $arrcode[1]);
+            if (!empty($tmp[0] ?? null)) {
+                $code = $tmp[0] ?? '';
+                $modifier = $tmp[1] ?? '';
+            }
+        } else {
+            $code = $arrcode[1];
+        }
         $selector = $arrcode[2];
-        $desc = '';
         if ($code_type == 'PROD') {
             $row = sqlQuery("SELECT name FROM drugs WHERE drug_id = ?", array($code));
             $desc = "$code:$selector " . $row['name'];
@@ -356,6 +367,9 @@ function getCodeDescriptions($codes)
             $desc = "$code_type:$code " . ucfirst(strtolower($row['code_text'] ?? ''));
         }
         $desc = str_replace('~', ' ', $desc);
+        if (!empty($modifier ?? '')) {
+            $desc .= " " . xlt("Modifier") . ": " . $modifier;
+        }
         if ($s) {
             $s .= '~';
         }
@@ -965,14 +979,16 @@ function writeITLine($it_array)
         }
 
         // This is for callback by the find-code popup.
-        function set_related(codetype, code, selector, codedesc) {
+        function set_related(codetype, code, selector, codedesc, modifier = '') {
             var f = document.forms[0];
             if (current_sel_clin_term) {
                 // Coming from the Clinical Terms Code(s) edit
                 var e = f[current_sel_clin_term];
                 var s = e.value;
                 if (code) {
-                    if (s.length > 0) s += ';';
+                    if (s.length > 0) {
+                        s += ';';
+                    }
                     s += codetype + ':' + code;
                 }
                 else {
@@ -1001,6 +1017,9 @@ function writeITLine($it_array)
                     codedesc = codedesc.substring(0, i) + ' ' + codedesc.substring(i+1);
                 }
                 if (code) {
+                    if (modifier) {
+                        code = code + ':' + modifier;
+                    }
                     if (celem.value) {
                         celem.value += '~';
                         delem.value += '~';
@@ -1227,9 +1246,9 @@ function writeITLine($it_array)
     <thead>
     <tr>
         <?php if ($list_id == 'feesheet') : ?>
-            <th><?php echo xlt('Group'); ?></td>
-            <th><?php echo xlt('Option'); ?></td>
-            <th><?php echo xlt('Generates'); ?></td>
+            <th><?php echo xlt('Group'); ?></th>
+            <th><?php echo xlt('Option'); ?></th>
+            <th><?php echo xlt('Generates'); ?></th>
         <?php elseif ($list_id == 'code_types') : ?>
             <th><?php echo xlt('Active{{Code}}'); ?></th>
             <th><?php echo xlt('Key'); ?></th>
@@ -1348,6 +1367,8 @@ function writeITLine($it_array)
                 echo xlt('Attributes');
             } elseif ($list_id == "external_patient_education") {
                 echo xlt('External URL');
+            } elseif ($list_id == "default_open_tabs") {
+                echo xlt("URL");
             } else {
                 echo xlt('Notes');
             } ?></th>

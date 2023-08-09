@@ -1,15 +1,17 @@
 {
     "plugins": ["stylelint-order", "stylelint-scss"],
-    "extends": "stylelint-config-standard",
-    "extends": "stylelint-config-sass-guidelines",
-    "ignoreFiles": [
-        "swagger/*.css",
-        "interface/forms/questionnaire_assessments/lforms/webcomponent/styles.css"
+    "extends": [
+        "stylelint-config-standard",
+        "stylelint-config-sass-guidelines"
     ],
     "rules": {
-        "selector-no-qualifying-type": [true, {
-            "ignore": ["attribute", "class", "id"]
-        }],
+        "selector-id-pattern": null,
+        "selector-no-qualifying-type": [
+            true,
+            {
+                "ignore": ["attribute", "class", "id"]
+            }
+        ],
         "string-quotes": null,
         "selector-class-pattern": null,
         "selector-max-id": null,

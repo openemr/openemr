@@ -383,11 +383,25 @@ if (!empty($glrow)) {
             $GLOBALS['language_menu_show'][] = $gl_value;
         } elseif ($gl_name == 'css_header') {
             //Escape css file name using 'attr' for security (prevent XSS).
+            if (!file_exists($webserver_root . '/public/themes/' . attr($gl_value))) {
+                $gl_value = 'style_light.css';
+            }
             $GLOBALS[$gl_name] = $web_root . '/public/themes/' . attr($gl_value) . '?v=' . $v_js_includes;
             $GLOBALS['compact_header'] = $web_root . '/public/themes/compact_' . attr($gl_value) . '?v=' . $v_js_includes;
             $compact_header = $GLOBALS['compact_header'];
             $css_header = $GLOBALS[$gl_name];
             $temp_css_theme_name = $gl_value;
+        } elseif ($gl_name == 'portal_css_header' && $ignoreAuth_onsite_portal) {
+            // does patient have a portal theme selected?
+            $current_theme = sqlQueryNoLog(
+                "SELECT `setting_value` FROM `patient_settings` " .
+                "WHERE setting_patient = ? AND `setting_label` = ?",
+                array($_SESSION['pid'] ?? 0, 'portal_theme')
+            )['setting_value'] ?? null;
+            $gl_value = $current_theme ?? null ?: $gl_value;
+            $GLOBALS[$gl_name] = $web_root . '/public/themes/' . attr($gl_value) . '?v=' . $v_js_includes;
+            $portal_css_header = $GLOBALS[$gl_name];
+            $portal_temp_css_theme_name = $gl_value;
         } elseif ($gl_name == 'weekend_days') {
             $GLOBALS[$gl_name] = explode(',', $gl_value);
         } elseif ($gl_name == 'specific_application') {
@@ -434,7 +448,8 @@ if (!empty($glrow)) {
 // Additional logic to override theme name.
 // For RTL languages we substitute the theme name with the name of RTL-adapted CSS file.
     $rtl_override = false;
-    if (isset($_SESSION['language_direction'])) {
+    $rtl_portal_override = false;
+    if (isset($_SESSION['language_direction']) && empty($_SESSION['patient_portal_onsite_two'])) {
         if (
             $_SESSION['language_direction'] == 'rtl' &&
             !strpos($GLOBALS['css_header'], 'rtl')
@@ -447,10 +462,10 @@ if (!empty($glrow)) {
         $_SESSION['language_direction'] = getLanguageDir($_SESSION['language_choice']);
         if (
             $_SESSION['language_direction'] == 'rtl' &&
-            !strpos($GLOBALS['css_header'], 'rtl')
+            !strpos($GLOBALS['portal_css_header'], 'rtl')
         ) {
             // the $css_header_value is set above
-            $rtl_override = true;
+            $rtl_portal_override = true;
         }
     } else {
         //$_SESSION['language_direction'] is not set, so will use the default language
@@ -481,7 +496,22 @@ if (!empty($glrow)) {
         }
     }
 
-    unset($temp_css_theme_name, $new_theme, $rtl_override);
+    // change portal theme name, if the override file exists.
+    if ($rtl_portal_override) {
+        // the $css_header_value is set above
+        $new_theme = 'rtl_' . $portal_temp_css_theme_name;
+
+        // Check file existance
+        if (file_exists($webserver_root . '/public/themes/' . $new_theme)) {
+            //Escape css file name using 'attr' for security (prevent XSS).
+            $GLOBALS['portal_css_header'] = $web_root . '/public/themes/' . attr($new_theme) . '?v=' . $v_js_includes;
+            $portal_css_header = $GLOBALS['portal_css_header'];
+        } else {
+            // throw a warning if rtl'ed file does not exist.
+            error_log("Missing theme file " . errorLogEscape($webserver_root) . '/public/themes/' . errorLogEscape($new_theme));
+        }
+    }
+    unset($temp_css_theme_name, $new_theme, $rtl_override, $rtl_portal_override, $portal_temp_css_theme_name);
     // end of RTL section
 
   //
@@ -582,6 +612,9 @@ $GLOBALS['include_de_identification'] = 0;
 // don't include the authentication module - we do this to avoid
 // include loops.
 
+// EMAIL SETTINGS
+$GLOBALS['SMTP_Auth'] = !empty($GLOBALS['SMTP_USER']);
+
 if (($ignoreAuth_onsite_portal === true) && ($GLOBALS['portal_onsite_two_enable'] == 1)) {
     $ignoreAuth = true;
 }
@@ -593,9 +626,6 @@ if (!$ignoreAuth) {
 // This is the background color to apply to form fields that are searchable.
 // Currently it is applicable only to the "Search or Add Patient" form.
 $GLOBALS['layout_search_color'] = '#ff9919';
-
-// EMAIL SETTINGS
-$SMTP_Auth = !empty($GLOBALS['SMTP_USER']);
 
 // module configurations
 // upgrade fails for versions prior to 4.2.0 since no modules table
@@ -619,6 +649,10 @@ if (!file_exists($webserver_root . "/interface/modules/")) {
             $GLOBALS['baseModDir'],
             $GLOBALS['zendModDir']
         );
+    } catch (\OpenEMR\Common\Acl\AccessDeniedException $accessDeniedException) {
+        // this occurs when the current SCRIPT_PATH is to a module that is not currently allowed to be accessed
+        http_response_code(401);
+        error_log(errorLogEscape($accessDeniedException->getMessage() . $accessDeniedException->getTraceAsString()));
     } catch (\Exception $ex) {
         error_log(errorLogEscape($ex->getMessage() . $ex->getTraceAsString()));
         die();

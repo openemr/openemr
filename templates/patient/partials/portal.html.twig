@@ -2,7 +2,7 @@
 The Patient Portal card for the Medical Record Dashboard
 
 @author       Robert Down <robertdown@live.com>
-@copyright    Copyright (c) 2022 Robert Down <robertdown@live.com>
+@copyright    Copyright (c) 2022-2023 Robert Down <robertdown@live.com>
 @package      OpenEMR
 #}
 
@@ -21,7 +21,7 @@ The Patient Portal card for the Medical Record Dashboard
             <p class="font-weight-bold">{{  "Portal Status"|xlt }}</p>
             <p> {{ "Patient Portal Not Enabled. Admin Can Enable Patient Portal."|xlt }} </p>
         </div>
-    {% endif %} 
+    {% endif %}
 
     {% if isPortalSiteAddressValid == false %}
     <div class="alert alert-warning" role="alert">
@@ -44,12 +44,12 @@ The Patient Portal card for the Medical Record Dashboard
             <div class="alert alert-warning" role="alert">
                 <p class="font-weight-bold">{{  "Email Address"|xlt }}</p>
                 <p> {{ "Enter an Email in Demographics Contact for Sending Credentials."|xlt }} </p>
-            </div>        
+            </div>
     {% elseif isPortalEnabled and isPortalSiteAddressValid %}
     <div class="alert alert-info" role="alert">
         <p class="font-weight-bold">{{ "Documents"|xlt }}</p>
          <button type="button" class="btn btn-link btn-sm w-50" onclick='top.assignPatientDocuments({{pid|attr_js}})'><i class="fa fa-file-signature"></i>&nbsp;{{ "Assign"|xlt }}</button>
-        </div>           
+        </div>
     {% endif %}
 
 
@@ -58,7 +58,7 @@ The Patient Portal card for the Medical Record Dashboard
             <p class="font-weight-bold">{{  "API Access"|xlt }}</p>
             <p> {{ "Prevent API Access can be disabled in Demographics Choices."|xlt }} </p>
         </div>
-    {% endif %}     
+    {% endif %}
 
     {% if (
         isPortalAllowed
@@ -70,7 +70,7 @@ The Patient Portal card for the Medical Record Dashboard
                 isEnforceSigninEmailPortal
                 and isContactEmail
                )
-            ) 
+            )
         or isApiAllowed == true
         ) %}
         <div class="alert alert-info" role="alert">

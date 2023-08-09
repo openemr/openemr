@@ -6,11 +6,14 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 /** import supporting libraries */
+
+use OpenEMR\Services\DocumentTemplates\DocumentTemplateRender;
+
 require_once("AppBasePortalController.php");
 require_once("Model/OnsiteDocument.php");
 
@@ -20,7 +23,7 @@ require_once("Model/OnsiteDocument.php");
  * the model as necessary and displaying the appropriate view.
  *
  * @package Patient Portal::Controller
- * @author ClassBuilder
+ * @author  ClassBuilder
  * @version 1.0
  */
 class OnsiteDocumentController extends AppBasePortalController
@@ -40,7 +43,7 @@ class OnsiteDocumentController extends AppBasePortalController
      */
     public function ListView()
     {
-        $recid = $pid = $user = $encounter =  0;
+        $recid = $pid = $user = $encounter = 0;
         $is_module = $catid = 0;
         $is_portal = GlobalConfig::$PORTAL;
         $docid = $new_filename = "";
@@ -48,7 +51,7 @@ class OnsiteDocumentController extends AppBasePortalController
         $help_id = sqlQuery('SELECT * FROM `document_templates` WHERE `template_name` = ? Order By modified_date DESC Limit 1', array('Help'))['id'] ?? 0;
 
         if (isset($_GET['pid'])) {
-            $pid = (int) $_GET['pid'];
+            $pid = (int)$_GET['pid'];
         }
 
         // only allow patient to see themselves
@@ -65,11 +68,11 @@ class OnsiteDocumentController extends AppBasePortalController
         }
 
         if (isset($_GET['enc'])) {
-            $encounter = (int) $_GET['enc'];
+            $encounter = (int)$_GET['enc'];
         }
 
         if (isset($_GET['recid'])) {
-            $recid = (int) $_GET['recid'];
+            $recid = (int)$_GET['recid'];
         }
 
         if (isset($_GET['is_module'])) {
@@ -79,6 +82,7 @@ class OnsiteDocumentController extends AppBasePortalController
         if (isset($_GET['catid'])) {
             $catid = $_GET['catid'];
         }
+
         if (isset($_GET['new'])) {
             $new_filename = $_GET['new'];
         }
@@ -97,6 +101,8 @@ class OnsiteDocumentController extends AppBasePortalController
 
     /**
      * API Method queries for OnsiteDocument records and render as JSON
+     * Basically the CRUD for the History table.
+     * Or custom searches.
      */
     public function Query()
     {
@@ -173,15 +179,19 @@ class OnsiteDocumentController extends AppBasePortalController
             $this->RenderExceptionJSON($ex);
         }
     }
+
+    /**
+     * @return void
+     */
     public function SingleView()
     {
         $rid = $pid = $user = $encounter = 0;
         if (isset($_GET['id'])) {
-            $rid = (int) $_GET['id'];
+            $rid = (int)$_GET['id'];
         }
 
         if (isset($_GET['pid'])) {
-            $pid = (int) $_GET['pid'];
+            $pid = (int)$_GET['pid'];
         }
 
         // only allow patient to see themself
@@ -203,6 +213,7 @@ class OnsiteDocumentController extends AppBasePortalController
         $this->Assign('encounter', $encounter);
         $this->Render();
     }
+
     /**
      * API Method retrieves a single OnsiteDocument record and render as JSON
      */
@@ -220,6 +231,17 @@ class OnsiteDocumentController extends AppBasePortalController
                 }
             }
 
+            $isLegacy = stripos($onsitedocument->FullDocument, 'portal_version') === false;
+            if (!empty($onsitedocument->TemplateData) && !$isLegacy) {
+                $templateRender = new DocumentTemplateRender($onsitedocument->Pid, $onsitedocument->Provider, $onsitedocument->Encounter);
+                // use original template saved in create/insert or get new raw template so same version stay with edits.
+                // document data will save separately then repopulate this document on edit fetch.
+                $prepared_doc = $templateRender->doRender(null, $onsitedocument->FullDocument, $onsitedocument->TemplateData);
+                $onsitedocument->FullDocument = $prepared_doc;
+            } else {
+                // Is legacy document.
+            }
+            // Send back to UI collection.
             $this->RenderJSON($onsitedocument, $this->JSONPCallback(), true, $this->SimpleObjectParams());
         } catch (Exception $ex) {
             $this->RenderExceptionJSON($ex);
@@ -228,6 +250,7 @@ class OnsiteDocumentController extends AppBasePortalController
 
     /**
      * API Method inserts a new OnsiteDocument record and render response as JSON
+     *
      */
     public function Create()
     {
@@ -240,12 +263,7 @@ class OnsiteDocumentController extends AppBasePortalController
 
             $onsitedocument = new OnsiteDocument($this->Phreezer);
 
-            // TODO: any fields that should not be inserted by the user should be commented out
-
-            // this is an auto-increment.  uncomment if updating is allowed
-            // $onsitedocument->Id = $this->SafeGetVal($json, 'id');
-
-            // only allow patient to add to themself
+            // only allow patient to add to themselves
             if (!empty($GLOBALS['bootstrap_pid'])) {
                 $onsitedocument->Pid = $GLOBALS['bootstrap_pid'];
             } else {
@@ -266,16 +284,30 @@ class OnsiteDocumentController extends AppBasePortalController
             $onsitedocument->DenialReason = $this->SafeGetVal($json, 'denialReason');
             $onsitedocument->AuthorizedSignature = $this->SafeGetVal($json, 'authorizedSignature');
             $onsitedocument->PatientSignature = $this->SafeGetVal($json, 'patientSignature');
-            $onsitedocument->FullDocument = $this->SafeGetVal($json, 'fullDocument');
-            $onsitedocument->FileName = $this->SafeGetVal($json, 'fileName');
-            $onsitedocument->FilePath = $this->SafeGetVal($json, 'filePath');
+            $onsitedocument->FullDocument = null; // Prevent unauth'ed templates from interface.
+            $onsitedocument->FileName = $this->SafeGetVal($json, 'fileName', '');
+            $onsitedocument->FilePath = $this->SafeGetVal($json, 'filePath', '');
+            $onsitedocument->TemplateData = $this->SafeGetVal($json, 'templateData', null);
+            $version = $this->SafeGetVal($json, 'version');
 
             $onsitedocument->Validate();
             $errors = $onsitedocument->GetValidationErrors();
 
-            if (count($errors) > 0) {
+            if (count($errors ?? []) > 0) {
                 $this->RenderErrorJSON('Please check the form for errors', $errors);
             } else {
+                // fetch and save original template so the same version will stay with edits.
+                // TODO It may be useful to also store a rendered version for reports etc.
+                // TODO In this case doc can be populated from JS.
+                $templateRender = new DocumentTemplateRender($onsitedocument->Pid, $onsitedocument->Provider, $onsitedocument->Encounter);
+                // Add raw template to table for this version.
+                $template_raw = $templateRender->fetchTemplateDocument($onsitedocument->FilePath)['template_content'];
+                // if versioned then is new templating.
+                if ($version == 'New') {
+                    $template_raw = $template_raw . "<input id='portal_version' name='portal_version' type='hidden' value='New' />";
+                }
+                $onsitedocument->FullDocument = $template_raw; // persist original for life of document.
+
                 $onsitedocument->Save();
                 $this->RenderJSON($onsitedocument, $this->JSONPCallback(), true, $this->SimpleObjectParams());
             }
@@ -289,36 +321,59 @@ class OnsiteDocumentController extends AppBasePortalController
      */
     public function Update()
     {
+        $is_portal = GlobalConfig::$PORTAL;
         try {
             $json = json_decode(RequestUtil::GetBody());
 
             if (!$json) {
                 throw new Exception('The request body does not contain valid JSON');
             }
-
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
 
-            // only allow patient to update themself (part 1)
+            $existing_template = $onsitedocument->FullDocument;
+
+            $hasVersion = stripos($existing_template, 'portal_version') !== false;
+            if ($this->SafeGetVal($json, 'type') == 'flattened') {
+                $existing = $this->SafeGetVal($json, 'fullDocument');
+                if (!empty($existing)) {
+                    $config = HTMLPurifier_Config::createDefault();
+                    $config->set('Core.Encoding', 'UTF-8');
+                    $config->set('CSS.AllowedProperties', '*');
+                    // purifier will only allow base64 data urls in img tag.
+                    // all other element will be removed. Flatten document have already been sanitized
+                    // by replacing all inputs, checks and radios tags to their answers.
+                    // Thus Enter Comment: <input name="element" value="This is my comment I don't like purifier" />
+                    // renders to Enter Comment: 'This is my comment I don't like purifier in document.'
+                    $config->set('URI.AllowedSchemes', array('data' => true));
+                    $purify = new HTMLPurifier($config);
+                    $existing_template = $purify->purify($existing);
+                    // since this is a flatten document won't need to track legacy or not.
+                    if (!$hasVersion) {
+                        $existing_template = $existing_template . "<input id='portal_version' name='portal_version' type='hidden' value='New' />";
+                    }
+                }
+            } elseif (!empty($this->SafeGetVal($json, 'fullDocument'))) { // test if an unexpected document is sent.
+                // the only time a document is allow from interface is fo flattened documents
+                // which should be flagged and even still if flagged HTMLPurifier will blow it up.
+                error_log(xlt("Invalid save attempt. Suspected portal document attack!"));
+                throw new Exception(xlt("Invalid save attempt"));
+            }
+
+            // only allow patient to update themselves (part 1)
             if (!empty($GLOBALS['bootstrap_pid'])) {
                 if ($GLOBALS['bootstrap_pid'] != $onsitedocument->Pid) {
                     $error = 'Unauthorized';
                     throw new Exception($error);
                 }
             }
-
-            // TODO: any fields that should not be updated by the user should be commented out
-
-            // this is a primary key.  uncomment if updating is allowed
-            // $onsitedocument->Id = $this->SafeGetVal($json, 'id', $onsitedocument->Id);
-
-            // only allow patient to update themself (part 2)
+            // only allow patient to update themselves (part 2)
             if (!empty($GLOBALS['bootstrap_pid'])) {
                 $onsitedocument->Pid = $GLOBALS['bootstrap_pid'];
             } else {
                 $onsitedocument->Pid = $this->SafeGetVal($json, 'pid', $onsitedocument->Pid);
             }
-
+            // Set values from API interface.
             $onsitedocument->Facility = $this->SafeGetVal($json, 'facility', $onsitedocument->Facility);
             $onsitedocument->Provider = $this->SafeGetVal($json, 'provider', $onsitedocument->Provider);
             $onsitedocument->Encounter = $this->SafeGetVal($json, 'encounter', $onsitedocument->Encounter);
@@ -333,13 +388,14 @@ class OnsiteDocumentController extends AppBasePortalController
             $onsitedocument->DenialReason = $this->SafeGetVal($json, 'denialReason', $onsitedocument->DenialReason);
             $onsitedocument->AuthorizedSignature = $this->SafeGetVal($json, 'authorizedSignature', $onsitedocument->AuthorizedSignature);
             $onsitedocument->PatientSignature = $this->SafeGetVal($json, 'patientSignature', $onsitedocument->PatientSignature);
-            $onsitedocument->FullDocument = $this->SafeGetVal($json, 'fullDocument', $onsitedocument->FullDocument);
+            $onsitedocument->FullDocument = $existing_template; // retain original template that was populated during create save.
             $onsitedocument->FileName = $this->SafeGetVal($json, 'fileName', $onsitedocument->FileName);
             $onsitedocument->FilePath = $this->SafeGetVal($json, 'filePath', $onsitedocument->FilePath);
+            $onsitedocument->TemplateData = $this->SafeGetVal($json, 'templateData', $onsitedocument->TemplateData);
+            $version = $this->SafeGetVal($json, 'version');
 
             $onsitedocument->Validate();
             $errors = $onsitedocument->GetValidationErrors();
-
             if (count($errors) > 0) {
                 $this->RenderErrorJSON('Please check the form for errors', $errors);
             } else {
@@ -358,7 +414,6 @@ class OnsiteDocumentController extends AppBasePortalController
     {
         try {
             // TODO: if a soft delete is prefered, change this to update the deleted flag instead of hard-deleting
-
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsitedocument = $this->Phreezer->Get('OnsiteDocument', $pk);
 
@@ -379,4 +434,46 @@ class OnsiteDocumentController extends AppBasePortalController
             $this->RenderExceptionJSON($ex);
         }
     }
+
+    // TODO Eventually remove but I want to keep around for a bit as it's a pretty clever routine.
+    // TODO I may find a use for it!
+    /* private function diff($old, $new): array
+     {
+         $matrix = array();
+         $maxlen = 0;
+         foreach ($old as $oindex => $ovalue) {
+             $nkeys = array_keys($new, $ovalue);
+             foreach ($nkeys as $nindex) {
+                 $matrix[$oindex][$nindex] = isset($matrix[$oindex - 1][$nindex - 1]) ?
+                     $matrix[$oindex - 1][$nindex - 1] + 1 : 1;
+                 if ($matrix[$oindex][$nindex] > $maxlen) {
+                     $maxlen = $matrix[$oindex][$nindex];
+                     $omax = $oindex + 1 - $maxlen;
+                     $nmax = $nindex + 1 - $maxlen;
+                 }
+             }
+         }
+         if ($maxlen == 0) {
+             return array(array('d' => $old, 'i' => $new));
+         }
+         return array_merge(
+             $this->diff(array_slice($old, 0, $omax), array_slice($new, 0, $nmax)),
+             array_slice($new, $nmax, $maxlen),
+             $this->diff(array_slice($old, $omax + $maxlen), array_slice($new, $nmax + $maxlen))
+         );
+     }
+
+     private function htmlDiff($old, $new): string
+     {
+         $ret = '';
+         $diff = $this->diff(preg_split("/[\s]+/", $old), preg_split("/[\s]+/", $new));
+         foreach ($diff as $k) {
+             if (is_array($k)) {
+                 $ret .= (!empty($k['i']) ? attr(implode(' ', $k['i'])) : '');
+             } else {
+                 $ret .= $k . ' ';
+             }
+         }
+         return $ret;
+     }*/
 }

@@ -1589,7 +1589,7 @@ STP4TOP;
                     echo "<h3 class='mb-3 border-bottom'>Step " . text($state) . " - Configure Apache Web Server</h3>";
                     echo "<div class='jumbotron p-5'>";
                     echo "<p>Configuration of Apache web server...</p><br />\n";
-                    echo "The <code>\"" . text(preg_replace("/${site_id}/", "*", realpath($docsDirectory))) . "\"</code> directory contain patient information, and
+                    echo "The <code>\"" . text(preg_replace("/{$site_id}/", "*", realpath($docsDirectory))) . "\"</code> directory contain patient information, and
                     it is important to secure these directories. Additionally, some settings are required for the Zend Framework to work in OpenEMR. This can be done by pasting the below to end of your apache configuration file:<br /><br />
                     &nbsp;&nbsp;<code>&lt;Directory \"" . text(realpath(dirname(__FILE__))) . "\"&gt;<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride FileInfo<br />
@@ -1598,7 +1598,7 @@ STP4TOP;
                     &nbsp;&nbsp;&lt;Directory \"" . text(realpath(dirname(__FILE__))) . "/sites\"&gt;<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride None<br />
                     &nbsp;&nbsp;&lt;/Directory&gt;</code><br />
-                    &nbsp;&nbsp;<code>&lt;Directory \"" . text(preg_replace("/${site_id}/", "*", realpath($docsDirectory))) . "\"&gt;<br />
+                    &nbsp;&nbsp;<code>&lt;Directory \"" . text(preg_replace("/{$site_id}/", "*", realpath($docsDirectory))) . "\"&gt;<br />
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all denied<br />
                     &nbsp;&nbsp;&lt;/Directory&gt;</code><br /><br />";
 

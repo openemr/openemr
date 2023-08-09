@@ -88,6 +88,8 @@ var somethingChanged = false;
 $(function () {
     tabbify();
 
+    $('.swapIns').hide();
+
     $(".select-previous-names").select2({
         theme: "bootstrap4",
         dropdownAutoWidth: true,
@@ -150,6 +152,7 @@ $(function () {
     $(".medium_modal").on('click', function(e) {
         e.preventDefault();e.stopPropagation();
         let title = <?php echo xlj('Insurance Search/Select/Add'); ?>;
+        let ins_url = $(this).attr('href') + encodeURIComponent(sendInsToSearch(insurance_index));
         dlgopen('', '', 700, 600, '', title, {
             buttons: [
                 {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
@@ -158,7 +161,7 @@ $(function () {
             allowDrag: true,
             dialogId: '',
             type: 'iframe',
-            url: $(this).attr('href')
+            url: ins_url
         });
     });
 
@@ -232,6 +235,15 @@ $(function () {
   if (window.checkSkipConditions) {
     checkSkipConditions();
   }
+  // Hide swap ins button if insurance is primary
+  $('#INSURANCE .tabNav a').click(function(){
+    let text = $(this).text();
+    if ( text != 'Primary') {
+        $('.swapIns').show();
+    } else {
+        $('.swapIns').hide();
+    }
+  })
 });
 
 var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
@@ -334,6 +346,13 @@ function ins_search(ins) {
     insurance_index = ins;
     return false;
 }
+
+function sendInsToSearch(ins) {
+    let thesel = $('#i' + ins + 'provider');
+    let theseldata = $(thesel).select2('data');
+    return theseldata[0]['id'];
+}
+
 function InsSaveClose() {
     top.restoreSession();
     document.location.reload();
@@ -548,6 +567,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <input type='hidden' name='mode' value='save' />
 <input type='hidden' name='db_id' value="<?php echo attr($result['id']); ?>" />
+<input type="hidden" name="isSwapClicked" value="" />
 
     <div class="container-xl">
         <div class="row">
@@ -632,8 +652,8 @@ if (! $GLOBALS['simplified_demographics']) {
               <span class='required'><?php echo text($insurance_headings[$i - 1]); ?>:</span>
             </div>
             <div class="col-md-9">
-              <a href="../../practice/ins_search.php" class="medium_modal btn btn-primary"
-               onclick="ins_search(<?php echo attr_js($i); ?>)"><?php echo xlt('Search/Add') ?></a>
+              <a class="medium_modal btn btn-primary" href="../../practice/ins_search.php?ins=" role="button"
+                onclick="ins_search(<?php echo attr_js($i); ?>)"><?php echo xlt('Search/Add/Edit') ?></a>
               <select id="i<?php echo attr($i); ?>provider" name="i<?php echo attr($i); ?>provider" class="form-control form-control-sm sel2 mb-1" style="width: 250px;">
                 <option value=""><?php echo xlt('Unassigned'); ?></option>
                 <?php
@@ -653,11 +673,17 @@ if (! $GLOBALS['simplified_demographics']) {
             <div class="col-md-3 pb-1 label_custom">
               <span class='required'><?php echo xlt('Plan Name'); ?>:</span>
             </div>
-            <div class="col-md-9">
+            <div class="col-md-6">
               <input type='entry' class='form-control form-control-sm mb-1' size='20'
                name='i<?php echo attr($i); ?>plan_name'
                value="<?php echo attr($result3["plan_name"] ?? ''); ?>"
                onchange="capitalizeMe(this);" />
+            </div>
+            <div class="col-md-3 swapIns <?php echo (empty($GLOBALS['enable_swap_secondary_insurance'])) ? ' d-none"' : '"'; ?>>
+                <a class="btn btn-secondary pb-1" href="#" role="button"
+                    onclick="document.forms[0].isSwapClicked.value=<?php echo attr($i); ?>; document.forms[0].submit()">
+                        <?php echo ($i == '2') ? xlt('Swap with Primary') : xlt('Swap with Secondary'); ?>
+                </a>
             </div>
           </div><!-- end nested row -->
 

@@ -1,3 +1,13 @@
+{#
+ # This overrides the original template file in core
+ # @see /templates/portal/appointment-item.html.twig for original
+ #
+ # @package openemr
+ # @link      http://www.open-emr.org
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
 <div class="card p-2">
     <div class="card-header">
         <a href="#" onclick="editAppointment({{ appt.mode | attr_js }},{{ appt.pc_eid | attr_js }})" title="{{ appt.etitle | attr }}">

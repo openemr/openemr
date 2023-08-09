@@ -16,6 +16,8 @@ use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Utils\HttpUtils;
+use OpenEMR\Common\Utils\RandomGenUtils;
 use Psr\Log\LoggerInterface;
 
 class ClientRepository implements ClientRepositoryInterface
@@ -25,9 +27,104 @@ class ClientRepository implements ClientRepositoryInterface
      */
     private $logger;
 
+    private $cryptoGen;
+
     public function __construct()
     {
         $this->logger = new SystemLogger();
+        $this->cryptoGen = new CryptoGen();
+    }
+
+    /**
+     * @return CryptoGen
+     */
+    public function getCryptoGen(): CryptoGen
+    {
+        return $this->cryptoGen;
+    }
+
+    /**
+     * @param CryptoGen $cryptoGen
+     * @return ClientRepository
+     */
+    public function setCryptoGen(CryptoGen $cryptoGen): ClientRepository
+    {
+        $this->cryptoGen = $cryptoGen;
+        return $this;
+    }
+
+    public function insertNewClient($clientId, $info, $site): bool
+    {
+        $user = $_SESSION['authUserID'] ?? null; // future use for provider client.
+        $is_confidential_client = empty($info['client_secret']) ? 0 : 1;
+
+        $contacts = $info['contacts'];
+        $redirects = $info['redirect_uris'];
+        if (is_array($redirects)) {
+            // need to combine our redirects if we are an array... this is due to the legacy implementation of this data
+            $redirects = implode("|", $redirects);
+        }
+        $logout_redirect_uris = $info['post_logout_redirect_uris'] ?? null;
+        $info['client_secret'] = $info['client_secret'] ?? null; // just to be sure empty is null;
+        // set our list of default scopes for the registration if our scope is empty
+        // This is how a client can set if they support SMART apps and other stuff by passing in the 'launch'
+        // scope to the dynamic client registration.
+        // per RFC 7591 @see https://tools.ietf.org/html/rfc7591#section-2
+        // TODO: adunsulag do we need to reject the registration if there are certain scopes here we do not support
+        // TODO: adunsulag should we check these scopes against our '$this->supportedScopes'?
+        $info['scope'] = $info['scope'] ?? 'openid email phone address api:oemr api:fhir api:port';
+
+        $scopes = explode(" ", $info['scope']);
+        $scopeRepo = new ScopeRepository();
+
+        if ($scopeRepo->hasScopesThatRequireManualApproval($is_confidential_client == 1, $scopes)) {
+            $is_client_enabled = 0; // disabled
+        } else {
+            $is_client_enabled = 1; // enabled
+        }
+
+        // encrypt the client secret
+        if (!empty($info['client_secret'])) {
+            $cryptoGen = $this->getCryptoGen();
+            $info['client_secret'] = $cryptoGen->encryptStandard($info['client_secret']);
+        }
+
+        // TODO: @adunsulag why do we skip over request_uris when we have it in the outer function?
+        $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`, `jwks_uri`, `jwks`, `initiate_login_uri`, `endorsements`, `policy_uri`, `tos_uri`, `is_enabled`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $i_vals = array(
+            $clientId,
+            $info['client_role'],
+            $info['client_name'],
+            $info['client_secret'],
+            $info['registration_access_token'],
+            $info['registration_client_uri_path'],
+            $contacts,
+            $redirects,
+            $info['scope'],
+            $user,
+            $site,
+            $is_confidential_client,
+            $logout_redirect_uris,
+            ($info['jwks_uri'] ?? null),
+            ($info['jwks'] ?? null),
+            ($info['initiate_login_uri'] ?? null),
+            ($info['endorsements'] ?? null),
+            ($info['policy_uri'] ?? null),
+            ($info['tos_uri'] ?? null),
+            $is_client_enabled
+        );
+
+        return sqlQueryNoLog($sql, $i_vals, true); // throw an exception if it fails
+    }
+
+    public function generateClientId()
+    {
+        return HttpUtils::base64url_encode(RandomGenUtils::produceRandomBytes(32));
+    }
+
+    public function generateClientSecret()
+    {
+        return HttpUtils::base64url_encode(RandomGenUtils::produceRandomBytes(64));
     }
 
     /**
@@ -140,6 +237,13 @@ class ClientRepository implements ClientRepositoryInterface
      */
     private function hydrateClientEntityFromArray($client_record): ClientEntity
     {
+        // note redirect_uris in the database is actually named redirect_uri
+        $pipedValues = array('contacts', 'redirect_uri', 'request_uri', 'post_logout_redirect_uris', 'grant_types', 'response_types', 'default_acr_values');
+        foreach ($pipedValues as $value) {
+            if (!empty($client_record[$value])) {
+                $client_record[$value] = explode('|', $client_record[$value]);
+            }
+        }
         $client = new ClientEntity();
         $client->setIdentifier($client_record['client_id']);
         $client->setName($client_record['client_name']);
@@ -157,5 +261,15 @@ class ClientRepository implements ClientRepositoryInterface
         $client->setContacts($client_record['contacts']);
         $client->setRegistrationDate($client_record['register_date']);
         return $client;
+    }
+
+    public function generateRegistrationAccessToken()
+    {
+        return HttpUtils::base64url_encode(RandomGenUtils::produceRandomBytes(32));
+    }
+
+    public function generateRegistrationClientUriPath()
+    {
+        return HttpUtils::base64url_encode(RandomGenUtils::produceRandomBytes(16));
     }
 }

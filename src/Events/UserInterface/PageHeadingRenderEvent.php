@@ -15,6 +15,10 @@
 
 namespace OpenEMR\Events\UserInterface;
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Menu\MenuItems;
+use OpenEMR\Menu\MenuItemInterface;
+
 class PageHeadingRenderEvent
 {
     const EVENT_PAGE_HEADING_RENDER = 'oemrui.page.header.render';
@@ -29,6 +33,13 @@ class PageHeadingRenderEvent
     private array $actions;
 
     /**
+     * The MenuItems container for the Primary Menu section
+     *
+     * @var MenuItems
+     */
+    private MenuItems $primary_menu;
+
+    /**
      * UserEditRenderEvent constructor.
      * @param string $pageName
      * @param int|null $userId The userid that is being edited, null if this is a brand new user
@@ -38,6 +49,7 @@ class PageHeadingRenderEvent
     {
         $this->page_id = $page_id;
         $this->actions = [];
+        $this->primary_menu = new MenuItems();
     }
 
     /**
@@ -48,6 +60,61 @@ class PageHeadingRenderEvent
     public function getPageId(): string
     {
         return $this->page_id;
+    }
+
+    public function getPrimaryMenu(): MenuItems
+    {
+        return $this->primary_menu;
+    }
+
+    /**
+     * Add a new MenuItem to the Primary menu
+     *
+     * @param MenuItemInterface $item The item to add
+     * @param integer|null $position The position to push the item too. Optional, default behavior appends. Must be position
+     * @return PageHeadingRenderEvent
+     */
+    public function setPrimaryMenuItem(MenuItemInterface $item, ?int $position = null): PageHeadingRenderEvent
+    {
+        if (!$position || ($this->primary_menu->offsetExists($position) == false)) {
+            // No $position, or $position is not a valid position in array, just append
+            $this->primary_menu->append($item);
+        } else {
+            $_tmp = $this->primary_menu->getArrayCopy();
+
+            // Get all the elements before the requested position of new element
+            $_prev = array_slice($_tmp, 0, $position);
+
+            // Get all elements starting at new position to the end of array
+            $_post = array_slice($_tmp, $position, (count($_tmp) - $position));
+
+            // Append the requested element, merge the partials together, update the array
+            $_prev[] = $item;
+            $_new = array_merge($_prev, $_post);
+            $this->primary_menu->exchangeArray($_new);
+        }
+
+        return $this;
+    }
+
+    public function getPrimaryMenuItems(): MenuItems
+    {
+        $items = $this->primary_menu;
+
+        foreach ($items as $k => $i) {
+            // No check if ACL element is absent
+            if (count($i->getAcl()) == 0) {
+                continue;
+            }
+
+            // Unset the item if the user does not have access
+            $acl = $i->getAcl();
+            $rv = (count($acl) > 2) ? $acl[2] : '';
+            if (AclMain::aclCheckCore($acl[0], $acl[1], '', $rv) === false) {
+                unset($items[$k]);
+            }
+        }
+        return $items;
     }
 
     /**

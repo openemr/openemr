@@ -55,6 +55,7 @@ class FeeSheet
     public $provider_id = 0;
     public $supervisor_id = 0;
     public $code_is_in_fee_sheet = false;       // Set by genCodeSelectorValue()
+    public $payer_id;
 
   // Possible units of measure for NDC drug quantities.
     public $ndc_uom_choices = array(

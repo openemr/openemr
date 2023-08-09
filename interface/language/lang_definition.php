@@ -14,7 +14,7 @@
  * @copyright Copyright (c) 2008-2009, 2022 sunsetsystems <sunsetsystems>
  * @copyright Copyright (c) 2005 andres_paglayan <andres_paglayan>
  * @copyright Copyright (c) 2016 Wakie87 <scott@npclinics.com.au>
- * @copyright Copyright (c) 2017-2022 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2017-2023 Robert Down <robertdown@live.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -151,7 +151,7 @@ if (!empty($_POST['load'])) {
             $value = trim($value);
 
             // only continue if the definition is new
-            $sql = "SELECT * FROM lang_definitions WHERE def_id=? AND definition=? " . $case_sensitive_collation;
+            $sql = "SELECT * FROM lang_definitions WHERE def_id=? AND definition " . $case_sensitive_collation . " =?";
             $res_test = SqlStatement($sql, array($key, $value));
             if (!SqlFetchArray($res_test)) {
                 // insert into the main language tables

@@ -1,0 +1,69 @@
+{#
+ # Main layout for the conference room
+ #
+ # @package openemr
+ # @link      http://www.open-emr.org
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div class="row conference-room bg-dark active {% if testTemplateLayout %}d-none{% endif %}">
+    <div class="col-12 p-0 d-flex flex-column">
+        <div class="sidebar col-xl-2 col-lg-2 col-md-3 col-sm-4 col-5 p-0">
+            <div class="sidebar-highlight conference-highlight"></div>
+            <div id="participant-list-container"
+                 class="participant-list-container pt-2 pl-2 pr-2 align-items-start d-flex flex-column"
+                 data-class-minimize="participant-list-container p-0 d-flex flex-row"
+                 data-class-maximize="participant-list-container p-0"
+            >
+                {% if not testTemplateLayout %}
+                    {% include 'comlink/local-participant-container.html.twig' with {callerName: callerName} %}
+                    {% include 'comlink/conference-room/room-participant-container.html.twig' with {template: true} %}
+                {% else %}
+                    {% include 'comlink/local-participant-container.html.twig' with {callerName: "Test Local Caller", testVideoSrc:testTemplateLayout.mainVideoSrc} %}
+
+                    {% for participant in testTemplateLayout.participants %}
+                        {% include 'comlink/conference-room/room-participant-container.html.twig' with
+                            {template: false, videoSrc: participant.videoSrc, callerName: participant.callerName}
+                        %}
+                    {% endfor %}
+                {% endif %}
+                <div class="sidebar-controls list-minimize d-flex">
+                    <button class="btn btn-default btn-list-minimize align-self-center text-light">
+                        <i class="fa fa-chevron-right participant-list-expand"></i>
+                        <i class="fa fa-chevron-left participant-list-collapse"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="sidebar-controls conference-highlight"></div>
+        </div>
+        <!-- each additional remote participant will get added here using the participant-list-template-node as a clone -->
+        <div class="row no-gutters flex-grow-1">
+            <div class="remote-video-container text-center col-12 align-items-center d-flex flex-row">
+                <video id="presentation-screen" class="remote-video {% if not testTemplateLayout %}d-none {% endif %}w-100"
+                       autoplay="true" muted="muted" playsinline="true" preload="none"
+                        {% if testTemplateLayout %}
+                            src="{{ testTemplateLayout.mainVideoSrc|attr }}"
+                        {% endif %}
+                ></video>
+                {% if not testTemplateLayout %}
+                    <div class="waiting-container w-100">
+                        <h1 class="h1-responsive text-light text-center">{{ "Waiting for participants to join"|xlt }}<div class="spinner-border" role="status">
+                                <span class="sr-only">{{ "Waiting"|xlt }}...</span>
+                            </div></h1>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row no-gutters">
+            <div class="col-12">
+                {% if testTemplateLayout.buttons %}
+                    {% include 'comlink/video-control-bar.twig' with {buttons: testTemplateLayout.buttons}%}
+                {% else %}
+                    {% include 'comlink/video-control-bar.twig' %}
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</div>

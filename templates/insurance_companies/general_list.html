@@ -1,9 +1,7 @@
-<a href="{$CURRENT_ACTION}action=edit" onclick="top.restoreSession()"
-   class="btn btn-secondary btn-add">
-    {xlt t='Add a Company'}</a>
-    <br /><br />
-<div class="table-responsive">
-  <table class="table table-striped">
+{headerTemplate assets='common|datatables|datatables-colreorder|datatables-dt|datatables-bs'}
+<a href="{$CURRENT_ACTION}action=edit" onclick="top.restoreSession()" class="btn btn-secondary btn-add">{xlt t='Add a Company'}</a>
+<div class="table-responsive pt-3">
+    <table class="table table-striped" id="insurance">
       <thead>
           <tr>
               <th>{xlt t='Name'}</th>
@@ -34,9 +32,23 @@
           </tr>
           {foreachelse}
           <tr>
-              <td colspan="8">{xlt t='No Insurance Companies Found'}</td>
+              <td>{xlt t='No Insurance Companies Found'}</td>
+              <!-- DataTables requires the number of cols in the table header match the table body,
+                  https://datatables.net/manual/tech-notes/18 -->
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
           </tr>
           {/foreach}
       </tbody>
   </table>
 </div>
+<script>
+$(document).ready(function () {
+    $('#insurance').DataTable();
+});
+</script>

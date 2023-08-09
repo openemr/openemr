@@ -930,7 +930,7 @@ if (
                                 array($formname, $formid)
                             );
                             $form_issue_id = empty($firow['issue_id']) ? 0 : intval($firow['issue_id']);
-                            $default = empty($firow['provider_id']) ? $_SESSION['authUserID'] : intval($firow['provider_id']);
+                            $default = empty($firow['provider_id']) ? ($_SESSION['authUserID'] ?? null) : intval($firow['provider_id']);
 
                             if (!$patient_portal) {
                                 // Provider selector.
@@ -1834,7 +1834,7 @@ if (
 
                 <?php if (!$from_trend_form) { // end row and container divs ?>
                     <p style='text-align:center' class='small'>
-                        <?php echo text(xl('Rev.') . ' ' . substr($grp_last_update, 0, 10)); ?>
+                        <?php echo text(xl('Rev.') . ' ' . substr($grp_last_update ?? '', 0, 10)); ?>
                     </p>
 
                 <?php } ?>

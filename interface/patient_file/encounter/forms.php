@@ -29,6 +29,7 @@ use OpenEMR\Events\Encounter\EncounterMenuEvent;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
 
 $expand_default = (int)$GLOBALS['expand_form'] ? 'show' : 'hide';
 $reviewMode = false;
@@ -64,7 +65,7 @@ if ($GLOBALS['kernel']->getEventDispatcher() instanceof EventDispatcher) {
 
 <?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
 
-<?php Header::setupHeader(['common','esign','dygraphs']); ?>
+<?php Header::setupHeader(['common','esign','dygraphs', 'utility']); ?>
 
 <?php
 $esignApi = new Api();
@@ -260,7 +261,7 @@ $(function () {
      $(".deleteme").click(function(evt) { deleteme(); evt.stopPropogation(); });
 
 <?php
-  // If the user was not just asked about orphaned orders, build javascript for that.
+ // If the user was not just asked about orphaned orders, build javascript for that.
 if (!isset($_GET['attachid'])) {
     $ares = sqlStatement(
         "SELECT procedure_order_id, date_ordered " .
@@ -628,6 +629,15 @@ echo $t->render('encounter/forms/navbar.html.twig', [
 
 <div id="encounter_forms" class="mx-1">
 <div class='encounter-summary-container'>
+    <?php
+    $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+    if ($dispatcher instanceof EventDispatcher) {
+        $event = new EncounterFormsListRenderEvent($_SESSION['encounter'], $attendant_type);
+        $event->setGroupId($groupId ?? null);
+        $event->setPid($pid ?? null);
+        $dispatcher->dispatch($event, EncounterFormsListRenderEvent::EVENT_SECTION_RENDER_PRE);
+    }
+    ?>
     <div class='encounter-summary-column'>
         <div>
             <?php
@@ -662,12 +672,12 @@ echo $t->render('encounter/forms/navbar.html.twig', [
 
         </div>
     </div>
+
 <div class='encounter-summary-column'>
 <?php if ($esign->isLogViewable()) {
     $esign->renderLog();
 } ?>
 </div>
-
 <div class='encounter-summary-column'>
 <?php if ($GLOBALS['enable_amc_prompting']) { ?>
     <div class="float-right border border-dark mr-2">
@@ -986,8 +996,16 @@ if (
             include_once($GLOBALS['incdir'] . "/forms/LBF/report.php");
             lbf_report($attendant_id, $encounter, 2, $iter['form_id'], $formdir, true);
         } else {
-            include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
-            call_user_func($formdir . "_report", $attendant_id, $encounter, 2, $iter['form_id']);
+            if (file_exists($GLOBALS['incdir'] . "/forms/$formdir/report.php")) {
+                include_once($GLOBALS['incdir'] . "/forms/$formdir/report.php");
+                if (function_exists($formdir . "_report")) {
+                    call_user_func($formdir . "_report", $attendant_id, $encounter, 2, $iter['form_id']);
+                } else {
+                    (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller("form is missing report function", ['formdir' => $formdir]);
+                }
+            } else {
+                (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller("form is missing report.php file", ['formdir' => $formdir]);
+            }
         }
 
         if ($esign->isLogViewable()) {
@@ -1001,6 +1019,14 @@ if (
 }
 if (!$pass_sens_squad) {
     echo xlt("Not authorized to view this encounter");
+}
+
+$dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+if ($dispatcher instanceof EventDispatcher) {
+    $event = new EncounterFormsListRenderEvent($_SESSION['encounter'], $attendant_type);
+    $event->setGroupId($groupId ?? null);
+    $event->setPid($pid ?? null);
+    $dispatcher->dispatch($event, EncounterFormsListRenderEvent::EVENT_SECTION_RENDER_POST);
 }
 ?>
 

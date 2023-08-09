@@ -1,0 +1,25 @@
+{
+    "name": "openemr/oe-module-faxsms",
+    "description": "OpenEMR Fax and SMS module",
+    "type": "openemr-module",
+    "license": "GPL-3.0",
+    "authors": [
+        {
+            "name": "Jerry Padgett",
+            "email": "sjpadgett@gmail.com"
+        },
+        {
+            "name": "Stephen Nielson",
+            "email": "stephen@nielson.org"
+        }
+    ],
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {"OpenEMR\\Modules\\FaxSMS\\": "src/"}
+    },
+    "require": {
+    },
+    "conflict": {
+        "openemr/openemr": "<7.0.1"
+    }
+}

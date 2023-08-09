@@ -40,7 +40,7 @@ class RuleCriteriaDatabaseBucket extends RuleCriteria
 
     function getRequirements()
     {
-        $requirements .= xl("Completed") . ": ";
+        $requirements = xl("Completed") . ": ";
         $requirements .= $this->completed ? xl("Yes") : xl("No");
         $requirements .= " | ";
         $requirements .= xl("Frequency") . ": ";

@@ -753,7 +753,7 @@ function generate_form_field($frow, $currvalue)
     } elseif ($data_type == 11) { // provider list, including address book entries with an NPI number
         $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
         "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
-        "AND ( authorized = 1 OR ( username = '' AND npi != '' ) ) " .
+        "AND ( authorized = 1 OR ((username = '' OR username IS NULL) AND npi != '' )) " .
         "ORDER BY lname, fname");
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
         echo " $lbfonchange $disabled>";
@@ -786,7 +786,7 @@ function generate_form_field($frow, $currvalue)
         $got_selected = false;
         $zone = '';
         while ($prow = sqlFetchArray($pres)) {
-            if ($zone != strtolower(trim($prow['city']))) {
+            if ($zone != strtolower(trim($prow['city'] ?? ''))) {
                 if ($zone != '') {
                     echo "</optgroup>";
                 }
@@ -1575,7 +1575,7 @@ function generate_form_field($frow, $currvalue)
         $mywidth  = 50 + ($canWidth  > 250 ? $canWidth  : 250);
         $myheight = 31 + ($canHeight > 261 ? $canHeight : 261);
         echo "<div>"; // wrapper for myHideOrShow()
-        echo "<div id='form_$field_id_esc' style='width:${mywidth}px; height:${myheight}px;'></div>";
+        echo "<div id='form_$field_id_esc' style='width:{$mywidth}px; height:{$myheight}px;'></div>";
         // Hidden form field exists to send updated data to the server at submit time.
         echo "<input type='hidden' name='form_$field_id_esc' value='' />";
         // Hidden image exists to support initialization of the canvas.
@@ -2832,7 +2832,7 @@ function generate_display_field($frow, $currvalue)
         }
     } elseif ($data_type == 35) { // facility
         $urow = $facilityService->getById($currvalue);
-        $s = htmlspecialchars($urow['name'], ENT_NOQUOTES);
+        $s = htmlspecialchars($urow['name'] ?? '', ENT_NOQUOTES);
     } elseif ($data_type == 36 || $data_type == 33) { // Multi select. Supports backup lists
         $values_array = explode("|", $currvalue);
         $i = 0;
@@ -4395,7 +4395,7 @@ function get_layout_form_value($frow, $prefix = 'form_')
     }
 
     // Better to die than to silently truncate data!
-    if ($maxlength && $maxlength != 0 && strlen(trim($value)) > $maxlength && !$frow['list_id']) {
+    if ($maxlength && $maxlength != 0 && mb_strlen(trim($value)) > $maxlength && !$frow['list_id']) {
         die(htmlspecialchars(xl('ERROR: Field') . " '$field_id' " . xl('is too long'), ENT_NOQUOTES) .
         ":<br />&nbsp;<br />" . htmlspecialchars($value, ENT_NOQUOTES));
     }

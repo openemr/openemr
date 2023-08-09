@@ -90,7 +90,7 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements
     protected function updateBatch(BillingClaim $claim)
     {
         // Do the actual claim processing
-        $log = '';
+        $log = 'HCFA PDF ' . $claim->action . ' ';
         $hcfa = new Hcfa1500();
         $lines = $hcfa->genHcfa1500($claim->getPid(), $claim->getEncounter(), $log);
         $this->appendToLog($log);

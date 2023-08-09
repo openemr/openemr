@@ -16,7 +16,7 @@
  * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2022 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2022-2023 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -559,6 +559,21 @@ function authorized_clicked() {
  f.calendar.checked  =  f.authorized.checked;
 }
 
+function resetCounter(username) {
+    top.restoreSession();
+    request = new FormData;
+    request.append("function", "resetUsernameCounter");
+    request.append("username", username);
+    request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('counter')); ?>);
+    fetch("<?php echo $GLOBALS["webroot"]; ?>/library/ajax/login_counter_ip_tracker.php", {
+        method: 'POST',
+        credentials: 'same-origin',
+        body: request
+    });
+    let loginCounterElement = document.getElementById('login-counter-' + username);
+    loginCounterElement.innerHTML = "0";
+}
+
 </script>
 
 </head>
@@ -618,6 +633,7 @@ function authorized_clicked() {
                                 echo '<th>' . xlt('Password Expiration') . '</th>';
                             }
                             ?>
+                            <th><?php echo xlt('Failed Login Counter'); ?></th>
                         </tr>
                     <tbody>
                         <?php
@@ -687,6 +703,41 @@ function authorized_clicked() {
                                 }
                                 echo '</td>';
                             }
+                            if (empty($iter["active"])) {
+                                echo '<td>';
+                                echo xlt('Not Applicable');
+                            } else {
+                                echo '<td id="login-counter-' . attr($iter["username"]) .  '">';
+                                $queryCounter = privQuery("SELECT `login_fail_counter`, `last_login_fail`, TIMESTAMPDIFF(SECOND, `last_login_fail`, NOW()) as `seconds_last_login_fail` FROM `users_secure` WHERE BINARY `username` = ?", [$iter["username"]]);
+                                if (!empty($queryCounter['login_fail_counter'])) {
+                                    echo text($queryCounter['login_fail_counter']);
+                                    if (!empty($queryCounter['last_login_fail'])) {
+                                        echo ' (' . xlt('last on') . ' ' . text(oeFormatDateTime($queryCounter['last_login_fail'])) . ')';
+                                    }
+                                    echo ' ' . '<button type="button" class="btn btn-sm btn-danger ml-1" onclick="resetCounter(' . attr_js($iter["username"]) . ')">' . xlt("Reset Counter") . '</button>';
+                                    $autoBlocked = false;
+                                    $autoBlockEnd = null;
+                                    if ((int)$GLOBALS['password_max_failed_logins'] != 0 && ($queryCounter['login_fail_counter'] > (int)$GLOBALS['password_max_failed_logins'])) {
+                                        if ((int)$GLOBALS['time_reset_password_max_failed_logins'] != 0) {
+                                            if ($queryCounter['seconds_last_login_fail'] < (int)$GLOBALS['time_reset_password_max_failed_logins']) {
+                                                $autoBlocked = true;
+                                                $autoBlockEnd = date('Y-m-d H:i:s', (time() + ((int)$GLOBALS['time_reset_password_max_failed_logins'] - $queryCounter['seconds_last_login_fail'])));
+                                            }
+                                        } else {
+                                            $autoBlocked = true;
+                                        }
+                                    }
+                                    if ($autoBlocked) {
+                                        echo '<br>' . xlt("Currently Autoblocked");
+                                        if (!empty($autoBlockEnd)) {
+                                            echo ' (' . xlt("Autoblock ends on") . ' ' . text(oeFormatDateTime($autoBlockEnd)) . ')';
+                                        }
+                                    }
+                                } else {
+                                    echo '0';
+                                }
+                            }
+                            echo '</td>';
                             print "</tr>\n";
                         }
                         ?>

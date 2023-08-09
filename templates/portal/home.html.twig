@@ -3,7 +3,7 @@
 {% block head %}
     {{ parent() }}
 
-    <link href="../portal/sign/css/signer_modal.css?v={{ assetVersion | attr_url }}" rel="stylesheet" />
+    <link href="../portal/sign/css/signer_modal.css?v={{ assetVersion | attr_url }}" rel="stylesheet"/>
     <script src="../interface/main/tabs/js/dialog_utils.js?v={{ assetVersion | attr_url }}"></script>
     <script src="../portal/sign/assets/signature_pad.umd.js?v={{ assetVersion | attr_url }}"></script>
     <script src="../portal/sign/assets/signer_api.js?v={{ assetVersion | attr_url }}"></script>
@@ -59,7 +59,7 @@
             fetch('lib/persist.php', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(
                     {
@@ -67,12 +67,14 @@
                         'where': where,
                         'portal_init': portalInit
                     }
-                ),
+                )
             });
         }
 
         const activityMonitor = function () {
-            let timeOut, warnTimeOut, time;
+            let timeOut,
+                warnTimeOut,
+                time;
             if (Number(inactivityTimeOut) < 300) {
                 inactivityTimeOut = 900; // 15 minutes. < 5 minutes is too short.
             }
@@ -88,8 +90,7 @@
             window.addEventListener('scroll', resetLogOutTimer, true);
 
             function logoutWarn() {
-                const warnMsg = xl('Your current log on session will expire in 30 seconds.') +
-                    '<br />' + xl('Please take action to prevent being logged out!');
+                const warnMsg = xl('Your current log on session will expire in 30 seconds.') + '<br />' + xl('Please take action to prevent being logged out!');
                 syncAlertMsg(warnMsg, 28000); // from utility.js
             }
 
@@ -138,34 +139,27 @@
                 });
             });
 
-            $("#medicationlist").load("./get_medications.php", {}, function () {
-            });
+            $("#medicationlist").load("./get_medications.php", {}, function () {});
 
-            $("#labresults").load("./get_lab_results.php", {}, function () {
-            });
+            $("#labresults").load("./get_lab_results.php", {}, function () {});
 
-            $("#amendmentslist").load("./get_amendments.php", {}, function () {
-            });
+            $("#amendmentslist").load("./get_amendments.php", {}, function () {});
 
-            $("#problemslist").load("./get_problems.php", {}, function () {
-            });
+            $("#problemslist").load("./get_problems.php", {}, function () {});
 
-            $("#allergylist").load("./get_allergies.php", {}, function () {
-            });
+            $("#allergylist").load("./get_allergies.php", {}, function () {});
 
-            $("#reports").load("./report/portal_patient_report.php?pid=" + {{ patientID | js_url }}, {}, function () {
-
-            });
+            $("#reports").load("./report/portal_patient_report.php?pid=" + {{ patientID | js_url }}, {}, function () {});
 
             {% if portal_two_payments %}
-            $("#payment").load("./portal_payment.php", {}, function () {
-            });
+                $("#payment").load("./portal_payment.php", {}, function () {});
             {% endif %}
 
             {% if isEasyPro %}
-            $("#pro").load("./get_pro.php", {}, function () {
-            });
+                $("#pro").load("./get_pro.php", {}, function () {});
             {% endif %}
+
+            //$("#quickstart-div").load("./quickstart_page.php", {}, function () {});
 
             $(".generateDoc_download").click(function () {
                 $("#doc_form").submit();
@@ -175,29 +169,28 @@
                 var title = {{ 'Profile Edits Red = Charted Values and Blue = Patient Edits' | xlj }};
 
                 var params = {
-                    buttons: [{
-                        text: {{ 'Help' | xlj }},
-                        close: false,
-                        style: 'info',
-                        id: 'formHelp'
-                    },
+                    buttons: [
                         {
+                            text: {{ 'Help' | xlj }},
+                            close: false,
+                            style: 'info',
+                            id: 'formHelp'
+                        }, {
                             text: {{ 'Cancel' | xlj }},
                             close: true,
                             style: 'default'
-                        },
-                        {
+                        }, {
                             text: {{ 'Revert Edits' | xlj }},
                             close: false,
                             style: 'danger',
                             id: 'replaceAllButton'
-                        },
-                        {
+                        }, {
                             text: {{ 'Submit Changes' | xlj }},
                             close: false,
                             style: 'success',
                             id: 'donePatientButton'
-                        }],
+                        }
+                    ],
                     sizeHeight: 'full',
                     allowDrag: false,
                     onClosed: 'reload',
@@ -258,7 +251,13 @@
 
             var params = {
                 dialogId: 'editpop',
-                buttons: [{text: 'Cancel', close: true, style: 'btn-sm btn-secondary'}],
+                buttons: [
+                    {
+                        text: 'Cancel',
+                        close: true,
+                        style: 'btn-sm btn-secondary'
+                    }
+                ],
                 allowDrag: false,
                 size: 800,
                 title: title,
@@ -283,109 +282,109 @@
         }
 
         {% if isEasyPro %}
-        function writeResult(score, stdErr, assessmentOID) {
-            $.ajax({
-                url: '../library/ajax/easipro_util.php',
-                data: {
-                    'csrf_token_form': {{ csrfUtils | js_escape }},
-                    'function': 'record_result',
-                    'score': score,
-                    'stdErr': stdErr,
-                    'assessmentOID': assessmentOID
-                },
-                type: 'POST',
-                dataType: 'script'
-            });
-        }
+            function writeResult(score, stdErr, assessmentOID) {
+                $.ajax({
+                    url: '../library/ajax/easipro_util.php',
+                    data: {
+                        'csrf_token_form': {{ csrfUtils | js_escape }},
+                        'function': 'record_result',
+                        'score': score,
+                        'stdErr': stdErr,
+                        'assessmentOID': assessmentOID
+                    },
+                    type: 'POST',
+                    dataType: 'script'
+                });
+            }
 
-        function selectResponse(obj, assessmentOID) {
-            $.ajax({
-                url: '../library/ajax/easipro_util.php',
-                type: "POST",
-                data: {
-                    'csrf_token_form': {{ csrfUtils | js_escape }},
-                    'function': 'select_response',
-                    'assessmentOID': assessmentOID,
-                    'ItemResponseOID': obj.name,
-                    'Response': +obj.id
-                },
-                dataType: "json",
-                success: function (data) {
-                    if (data.DateFinished != '') {
-                        document.getElementById("Content").innerHTML = jsText({{ 'You have finished the assessment.' | xlj }}) + "<br /> " + jsText({{ 'Thank you' | xlj }});
+            function selectResponse(obj, assessmentOID) {
+                $.ajax({
+                    url: '../library/ajax/easipro_util.php',
+                    type: "POST",
+                    data: {
+                        'csrf_token_form': {{ csrfUtils | js_escape }},
+                        'function': 'select_response',
+                        'assessmentOID': assessmentOID,
+                        'ItemResponseOID': obj.name,
+                        'Response': + obj.id
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.DateFinished != '') {
+                            document.getElementById("Content").innerHTML = jsText({{ 'You have finished the assessment.' | xlj }}) + "<br /> " + jsText({{ 'Thank you' | xlj }});
+                            $('.assessment-row').toggleClass('d-none');
+                            document.getElementById("asst_" + assessmentOID).innerHTML = "<i class='fa fa-check-circle'></i>";
+                            document.getElementById("asst_status_" + assessmentOID).innerHTML = "completed";
+                            $.ajax({
+                                url: '../library/ajax/easipro_util.php',
+                                type: "POST",
+                                data: {
+                                    'csrf_token_form': {{ csrfUtils | js_escape }},
+                                    'function': 'collect_results',
+                                    'assessmentOID': assessmentOID
+                                },
+                                dataType: "json",
+                                success: function (data) {
+                                    writeResult(data.Items[0].Theta, data.Items[0].StdError, assessmentOID);
+                                }
+                            });
+                            return
+                        }
+
+                        var screen = "";
+                        for (var j = 0; j < data.Items[0].Elements.length; j++) {
+                            if (typeof(data.Items[0].Elements[j].Map) == 'undefined') {
+                                screen = screen + `<label class="font-weight-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`
+                            } else {
+                                for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
+                                    screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this,'${assessmentOID}')" /></div>`;
+                                }
+                            }
+                        }
+                        document.getElementById("Content").innerHTML = screen;
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        alert("An error occurred");
+                    }
+                });
+            }
+
+            function startAssessment(param, assessmentOID) {
+                param.innerHTML = "<i class='fa fa-circle-notch fa-spin'></i> " + jsText({{ 'Loading' | xlj }});
+
+                $.ajax({
+                    url: '../library/ajax/easipro_util.php',
+                    type: "POST",
+                    data: {
+                        'csrf_token_form': {{ csrfUtils | js_escape }},
+                        'function': 'start_assessment',
+                        'assessmentOID': assessmentOID
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        var screen = "";
+                        let title = $("#" + "hide_assessment_" + assessmentOID).closest('tr').children('td:first').text();
+                        document.getElementById("ContentTitle").innerHTML = "<h5>" + jsText(title) + "</h5>";
                         $('.assessment-row').toggleClass('d-none');
-                        document.getElementById("asst_" + assessmentOID).innerHTML = "<i class='fa fa-check-circle'></i>";
-                        document.getElementById("asst_status_" + assessmentOID).innerHTML = "completed";
-                        $.ajax({
-                            url: '../library/ajax/easipro_util.php',
-                            type: "POST",
-                            data: {
-                                'csrf_token_form': {{ csrfUtils | js_escape }},
-                                'function': 'collect_results',
-                                'assessmentOID': assessmentOID
-                            },
-                            dataType: "json",
-                            success: function (data) {
-                                writeResult(data.Items[0].Theta, data.Items[0].StdError, assessmentOID);
-                            }
-                        });
-                        return
-                    }
-
-                    var screen = "";
-                    for (var j = 0; j < data.Items[0].Elements.length; j++) {
-                        if (typeof (data.Items[0].Elements[j].Map) == 'undefined') {
-                            screen = screen + `<label class="font-weight-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`
-                        } else {
-                            for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
-                                screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this,'${assessmentOID}')" /></div>`;
+                        for (var j = 0; j < data.Items[0].Elements.length; j++) {
+                            if (typeof(data.Items[0].Elements[j].Map) == 'undefined') {
+                                screen = screen + `<label class="font-weight-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`;
+                            } else {
+                                for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
+                                    screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this, '${assessmentOID}')" /></div>`;
+                                }
                             }
                         }
+
+                        document.getElementById("Content").innerHTML = screen;
+                        param.innerHTML = jsText({{ 'Assessment Started' | xlj }});
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        param.innerHTML = jsText({{ 'Start Assessment' | xlj }});
+                        alert("An error occurred");
                     }
-                    document.getElementById("Content").innerHTML = screen;
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    alert("An error occurred");
-                }
-            });
-        }
-
-        function startAssessment(param, assessmentOID) {
-            param.innerHTML = "<i class='fa fa-circle-notch fa-spin'></i> " + jsText({{ 'Loading' | xlj }});
-
-            $.ajax({
-                url: '../library/ajax/easipro_util.php',
-                type: "POST",
-                data: {
-                    'csrf_token_form': {{ csrfUtils | js_escape }},
-                    'function': 'start_assessment',
-                    'assessmentOID': assessmentOID
-                },
-                dataType: "json",
-                success: function (data) {
-                    var screen = "";
-                    let title = $("#" + "hide_assessment_" + assessmentOID).closest('tr').children('td:first').text();
-                    document.getElementById("ContentTitle").innerHTML = "<h5>" + jsText(title) + "</h5>";
-                    $('.assessment-row').toggleClass('d-none');
-                    for (var j = 0; j < data.Items[0].Elements.length; j++) {
-                        if (typeof (data.Items[0].Elements[j].Map) == 'undefined') {
-                            screen = screen + `<label class="font-weight-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`;
-                        } else {
-                            for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
-                                screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this, '${assessmentOID}')" /></div>`;
-                            }
-                        }
-                    }
-
-                    document.getElementById("Content").innerHTML = screen;
-                    param.innerHTML = jsText({{ 'Assessment Started' | xlj }});
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    param.innerHTML = jsText({{ 'Start Assessment' | xlj }});
-                    alert("An error occurred");
-                }
-            });
-        }
+                });
+            }
 
         {% endif %}
     </script>
@@ -407,6 +406,11 @@
         <div id="popwait" class="alert alert-warning d-none">
             <strong>{{ 'Working!' | xlt }}</strong>
             {{ 'Please wait...' | xlt }}</div>
+        
+        {#<div class="card collapse overflow-auto" data-parent="#cardgroup" id="quickstart-card">
+            <header class="card-header bg-primary text-light">{{ 'Home' | xlt }}</header>
+            <div id="quickstart-div" class="card-body"></div>
+        </div>#}
 
         <div class="collapse overflow-auto" data-parent="#cardgroup" id="lists">
             <div class="card">
@@ -440,13 +444,13 @@
             <div id="profilereport" class="card-body bg-light"></div>
         </div>
 
-        <div class="collapse" data-parent="#cardgroup" id="documentscard">
+        {#<div class="collapse" data-parent="#cardgroup" id="documentscard">
             <div class="card">
                 <div id="patdocuments" class="card-body">
                     <iframe src="{{ web_root | attr }}/portal/patient/onsitedocuments?pid={{ patientID | attr_url }}" class="w-100 vh-100 border-0"></iframe>
                 </div>
             </div>
-        </div>
+        </div>#}
 
         <div class="collapse" data-parent="#cardgroup" id="secure-msgs-card">
             <div class="card">
@@ -511,7 +515,7 @@
                     <div>
                         <span class="text">{{ 'Download all patient documents' | xlt }}</span>
                         <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
-                            <input type="button" class="generateDoc_download" value="{{ 'Download' | xla }}" />
+                            <input type="button" class="generateDoc_download" value="{{ 'Download' | xla }}"/>
                         </form>
                     </div>
                 </div>
@@ -536,6 +540,14 @@
                 <div id="pro" class="card-body bg-light"></div>
             </div>
         {% endif %}
+
+        <div class="collapse" data-parent="#cardgroup" id="quickstart-card">
+            <div class="card">
+                <div id="app-quickstart" class="card-body p-1">
+                    <iframe src="{{ web_root | attr }}/portal/quickstart_page.php" class="w-100 vh-100 border-0"></iframe>
+                </div>
+            </div>
+        </div>
 
         {{ fireEvent(eventNames.sectionRenderPost) }}
 

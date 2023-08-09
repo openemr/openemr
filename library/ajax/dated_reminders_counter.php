@@ -33,19 +33,23 @@ if (SessionTracker::isSessionExpired()) {
 // keep this below above time out check.
 OpenEMR\Common\Session\SessionUtil::setSession('keepAliveTime', time());
 
-$portal_count = array();
+$total_counts = array();
+$other_count = array();
 // if portal is enabled get various alerts
 if (!empty($_POST['isPortal'])) {
-    $portal_count = GetPortalAlertCounts();
+    $total_counts = GetPortalAlertCounts();
 }
 
+if (!empty($_POST['isServicesOther'])) {
+    $other_count = GetServiceOtherCounts();
+    $total_counts = array_merge($total_counts, $other_count);
+}
 //Collect number of due reminders
 $dueReminders = GetDueReminderCount(5, strtotime(date('Y/m/d')));
-
 //Collect number of active messages
 $activeMessages = getPnotesByUser("1", "no", $_SESSION['authUser'], true);
-
+// Below for Message Button count display.
 $totalNumber = $dueReminders + $activeMessages;
-$portal_count['reminderText'] = ($totalNumber > 0 ? text((int)$totalNumber) : '');
+$total_counts['reminderText'] = ($totalNumber > 0 ? text((int)$totalNumber) : '');
 
-echo json_encode($portal_count);
+echo json_encode($total_counts);
