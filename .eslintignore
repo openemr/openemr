@@ -19,3 +19,4 @@ portal/sign/assets/signature_pad.umd.js
 portal/patient/scripts
 public/assets
 swagger
+vendor
