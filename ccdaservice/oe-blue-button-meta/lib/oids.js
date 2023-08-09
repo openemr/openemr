@@ -81,6 +81,8 @@ module.exports = OIDs = {
         name: "CPT",
         uri: "http://purl.bioontology.org/ontology/CPT/"
     },
+    // TODO: check why this property is duplicated
+    /* eslint-disable-next-line no-dupe-keys */
     "2.16.840.1.113883.6.12": {
         name: "CPT4",
         uri: "http://purl.bioontology.org/ontology/CPT/"
