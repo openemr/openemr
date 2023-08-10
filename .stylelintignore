@@ -17,5 +17,3 @@ swagger/**/*.scss
 gacl/**/*.css
 interface/**/*.css
 interface/**/*.scss
-library/**/*.css
-public/**/*.css
