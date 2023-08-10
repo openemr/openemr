@@ -121,14 +121,16 @@ class ConditionService extends BaseService
     {
         $newSearch = [];
 
-        // override puuid with the token search field for binary search
-        if (isset($search)) {
+        // override puuid with the token search field
+        // standard api will send a string which needs to be a token to be converted to the binary field value
+        // FHIR api will send an already populated TokenSearchField 
+        if (!empty($search['puuid']) && !($search['puuid'] instanceof ISearchField)) {
             $newSearch['puuid'] = new TokenSearchField('puuid', $search['puuid'], true);
         }
 
         foreach ($search as $key => $value) {
             if (!$value instanceof ISearchField) {
-                $newSearch[] = new StringSearchField($key, [$value], SearchModifier::EXACT);
+                $newSearch[$key] = new StringSearchField($key, [$value], SearchModifier::EXACT);
             } else {
                 $newSearch[$key] = $value;
             }
