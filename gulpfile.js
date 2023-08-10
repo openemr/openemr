@@ -429,49 +429,61 @@ function install(done) {
     // combine dependencies and napa sources into one object
     const dependencies = packages.dependencies;
     for (let key in packages.napa) {
-        if (packages.napa.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(packages.napa, key)) {
             dependencies[key] = packages.napa[key];
         }
     }
 
     for (let key in dependencies) {
         // check if the property/key is defined in the object itself, not in parent
-        if (dependencies.hasOwnProperty(key)) {
-            if (key == 'dwv') {
+        if (Object.prototype.hasOwnProperty.call(dependencies, key)) {
+            if (key == "dwv") {
                 // dwv is special and need to copy dist, decoders and locales
-                gulp.src('node_modules/' + key + '/dist/**/*')
-                    .pipe(gulp.dest(config.dist.assets + key + '/dist'));
-                gulp.src('node_modules/' + key + '/decoders/**/*')
-                    .pipe(gulp.dest(config.dist.assets + key + '/decoders'));
-                gulp.src('node_modules/' + key + '/locales/**/*')
-                    .pipe(gulp.dest(config.dist.assets + key + '/locales'));
-            } else if (key == 'bootstrap' || key == 'bootstrap-rtl') {
+                gulp.src("node_modules/" + key + "/dist/**/*").pipe(
+                    gulp.dest(config.dist.assets + key + "/dist")
+                );
+                gulp.src("node_modules/" + key + "/decoders/**/*").pipe(
+                    gulp.dest(config.dist.assets + key + "/decoders")
+                );
+                gulp.src("node_modules/" + key + "/locales/**/*").pipe(
+                    gulp.dest(config.dist.assets + key + "/locales")
+                );
+            } else if (key == "bootstrap" || key == "bootstrap-rtl") {
                 // bootstrap and bootstrap-v4-rtl are special and need to copy dist and scss
-                gulp.src('node_modules/' + key + '/dist/**/*')
-                    .pipe(gulp.dest(config.dist.assets + key + '/dist'));
-                gulp.src('node_modules/' + key + '/scss/**/*')
-                    .pipe(gulp.dest(config.dist.assets + key + '/scss'));
-            } else if (key == '@fortawesome/fontawesome-free') {
+                gulp.src("node_modules/" + key + "/dist/**/*").pipe(
+                    gulp.dest(config.dist.assets + key + "/dist")
+                );
+                gulp.src("node_modules/" + key + "/scss/**/*").pipe(
+                    gulp.dest(config.dist.assets + key + "/scss")
+                );
+            } else if (key == "@fortawesome/fontawesome-free") {
                 // @fortawesome/fontawesome-free is special and need to copy css, scss, and webfonts
-                gulp.src('node_modules/' + key + '/css/**/*')
-                    .pipe(gulp.dest(config.dist.assets + key + '/css'));
-                gulp.src('node_modules/' + key + '/scss/**/*')
-                    .pipe(gulp.dest(config.dist.assets + key + '/scss'));
-                gulp.src('node_modules/' + key + '/webfonts/**/*')
-                    .pipe(gulp.dest(config.dist.assets + key + '/webfonts'));
+                gulp.src("node_modules/" + key + "/css/**/*").pipe(
+                    gulp.dest(config.dist.assets + key + "/css")
+                );
+                gulp.src("node_modules/" + key + "/scss/**/*").pipe(
+                    gulp.dest(config.dist.assets + key + "/scss")
+                );
+                gulp.src("node_modules/" + key + "/webfonts/**/*").pipe(
+                    gulp.dest(config.dist.assets + key + "/webfonts")
+                );
             } else if (key == "moment") {
-                gulp.src('node_modules/' + key + '/min/**/*')
-                    .pipe(gulp.dest(config.dist.assets + key + '/min'));
-                gulp.src('node_modules/' + key + '/moment.js')
-                    .pipe(gulp.dest(config.dist.assets + key));
-            } else if (fs.existsSync('node_modules/' + key + '/dist')) {
+                gulp.src("node_modules/" + key + "/min/**/*").pipe(
+                    gulp.dest(config.dist.assets + key + "/min")
+                );
+                gulp.src("node_modules/" + key + "/moment.js").pipe(
+                    gulp.dest(config.dist.assets + key)
+                );
+            } else if (fs.existsSync("node_modules/" + key + "/dist")) {
                 // only copy dist directory, if it exists
-                gulp.src('node_modules/' + key + '/dist/**/*')
-                    .pipe(gulp.dest(config.dist.assets + key + '/dist'));
+                gulp.src("node_modules/" + key + "/dist/**/*").pipe(
+                    gulp.dest(config.dist.assets + key + "/dist")
+                );
             } else {
                 // copy everything
-                gulp.src('node_modules/' + key + '/**/*')
-                    .pipe(gulp.dest(config.dist.assets + key));
+                gulp.src("node_modules/" + key + "/**/*").pipe(
+                    gulp.dest(config.dist.assets + key)
+                );
             }
         }
     }

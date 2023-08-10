@@ -16,6 +16,7 @@ const server = net.createServer();
 const to_json = require('xmljson').to_json;
 const bbg = require(__dirname + '/oe-blue-button-generate');
 const fs = require('fs');
+const DataStack = require('./data-stack/data-stack').DataStack;
 
 var conn = ''; // make our connection scope global to script
 var oidFacility = "";
@@ -25,48 +26,6 @@ var npiFacility = "";
 var webRoot = "";
 var authorDateTime = '';
 var documentLocation = '';
-
-class DataStack {
-    constructor(delimiter) {
-        this.delimiter = delimiter;
-        this.buffer = "";
-    }
-
-    endOfCcda() {
-        return this.buffer.length === 0 || this.buffer.indexOf(this.delimiter) === -1;
-    }
-
-    pushToStack(data) {
-        this.buffer += data;
-    }
-
-    fetchBuffer() {
-        const delimiterIndex = this.buffer.indexOf(this.delimiter);
-        if (delimiterIndex !== -1) {
-            const bufferMsg = this.buffer.slice(0, delimiterIndex);
-            this.buffer = this.buffer.replace(bufferMsg + this.delimiter, "");
-            return bufferMsg;
-        }
-        return null
-    }
-
-    returnData() {
-        return this.fetchBuffer();
-    }
-
-    clearStack() {
-        this.buffer = "";
-    }
-
-    readStackByDelimiter(delimiter) {
-        let backup = this.delimiter;
-        let part = '';
-        this.delimiter = delimiter;
-        part = this.fetchBuffer();
-        this.delimiter = backup;
-        return part;
-    }
-}
 
 function trim(s) {
     if (typeof s === 'string') return s.trim();
@@ -93,7 +52,7 @@ function populateTimezones(node, tzOffset, depthCheck) {
         return node;
     }
 
-    if (node.hasOwnProperty('precision') && node.precision == 'tz' && !node.hasOwnProperty('timezoneOffset')) {
+    if (Object.prototype.hasOwnProperty.call(node, 'precision') && node.precision == 'tz' && !Object.prototype.hasOwnProperty.call(node, 'timezoneOffset')) {
         node.timezoneOffset = tzOffset;
     } else {
         for (const [key, value] of Object.entries(node)) {
@@ -129,10 +88,7 @@ function fDate(str, lim8 = false) {
 
         let str1 = strDate + ' ' + strTime + '-' + strZone[1];
         return str1;
-    } else {
-        return str;
     }
-
     return str;
 }
 
@@ -174,13 +130,13 @@ function cleanCode(code) {
 function isOne(who) {
     try {
         if (who !== null && typeof who === 'object') {
-            return (who.hasOwnProperty('npi')
-                || who.hasOwnProperty('code')
-                || who.hasOwnProperty('extension')
-                || who.hasOwnProperty('id')
-                || who.hasOwnProperty('date')
-                || who.hasOwnProperty('use')
-                || who.hasOwnProperty('type')
+            return (Object.prototype.hasOwnProperty.call(who, 'npi')
+                || Object.prototype.hasOwnProperty.call(who, 'code')
+                || Object.prototype.hasOwnProperty.call(who, 'extension')
+                || Object.prototype.hasOwnProperty.call(who, 'id')
+                || Object.prototype.hasOwnProperty.call(who, 'date')
+                || Object.prototype.hasOwnProperty.call(who, 'use')
+                || Object.prototype.hasOwnProperty.call(who, 'type')
             ) ? 1 : Object.keys(who).length;
         }
     } catch (e) {
@@ -1587,7 +1543,7 @@ function getPlanOfCare(pd) {
 
     for (let key in all.encounter_list.encounter) {
         // skip loop if the property is from prototype
-        if (!all.encounter_list.encounter.hasOwnProperty(key)) {
+        if (!Object.prototype.hasOwnProperty.call(all.encounter_list.encounter, key)) {
             continue;
         }
         encounter = all.encounter_list.encounter[key];
@@ -3276,9 +3232,7 @@ function generateCcda(pd) {
         switch (pd.clinical_notes[currentNote].clinical_notes_type) {
             case 'evaluation_note':
                 continue;
-                break;
             case 'progress_note':
-
                 break;
             case 'history_physical':
                 pd.clinical_notes[currentNote].code_text = "History and Physical";
@@ -3442,22 +3396,28 @@ function processConnection(connection) {
         if (xml_complete.match(/^<CCDA/g) && xml_complete.match(/<\/CCDA>$/g)) {
             let doc = "";
             let xslUrl = "";
+            /* eslint-disable-next-line no-control-regex */
             xml_complete = xml_complete.replace(/(\u000b\u001c)/gm, "").trim();
-            xml_complete = xml_complete.replace(/\t\s+/g, ' ').trim();
+            xml_complete = xml_complete.replace(/\t\s+/g, " ").trim();
             // convert xml data set for document to json array
             to_json(xml_complete, function (error, data) {
                 if (error) {
-                    console.log('toJson error: ' + error + 'Len: ' + xml_complete.length);
-                    return 'ERROR: Failed json build';
+                    console.log(
+                        "toJson error: " + error + "Len: " + xml_complete.length
+                    );
+                    return "ERROR: Failed json build";
                 }
                 let unstructured = "";
                 let isUnstruturedData = !!data.CCDA.patient_files;
                 // extract unstructured documents file component templates. One per file.
                 if (isUnstruturedData) {
-                    unstructuredTemplate = xml_complete.substring(xml_complete.lastIndexOf('<patient_files>') + 15, xml_complete.lastIndexOf('</patient_files>'));
+                    unstructuredTemplate = xml_complete.substring(
+                        xml_complete.lastIndexOf("<patient_files>") + 15,
+                        xml_complete.lastIndexOf("</patient_files>")
+                    );
                 }
                 // create doc_type document i.e. CCD Referral etc.
-                if (data.CCDA.doc_type !== 'unstructured') {
+                if (data.CCDA.doc_type !== "unstructured") {
                     doc = generateCcda(data.CCDA);
                     if (data.CCDA.xslUrl) {
                         xslUrl = data.CCDA.xslUrl || "";
@@ -3473,7 +3433,10 @@ function processConnection(connection) {
                     doc += unstructured;
                 }
                 // auto build an Unstructured document of supplied embedded files.
-                if (data.CCDA.doc_type !== 'unstructured' && isUnstruturedData) {
+                if (
+                    data.CCDA.doc_type !== "unstructured" &&
+                    isUnstruturedData
+                ) {
                     unstructured = generateUnstructured(data.CCDA);
                     unstructured = headReplace(unstructured, xslUrl);
                     // combine the two documents to send back all at once.
@@ -3481,14 +3444,18 @@ function processConnection(connection) {
                 }
             });
             // send results back to eagerly awaiting CCM for disposal.
-            doc = doc.toString().replace(/(\u000b\u001c|\r)/gm, "").trim();
+            doc = doc
+                .toString()
+                /* eslint-disable-next-line no-control-regex */
+                .replace(/(\u000b\u001c|\r)/gm, "")
+                .trim();
             let chunk = "";
             let numChunks = Math.ceil(doc.length / 1024);
             for (let i = 0, o = 0; i < numChunks; ++i, o += 1024) {
                 chunk = doc.substring(o, o + 1024);
                 conn.write(chunk);
             }
-            conn.write(String.fromCharCode(28) + "\r\r" + '');
+            conn.write(String.fromCharCode(28) + "\r\r" + "");
             conn.end();
         }
     }
@@ -3507,7 +3474,7 @@ function processConnection(connection) {
     // CCM will send one File Separator characters to mark end of array.
     let received = new DataStack(String.fromCharCode(28));
     conn.on("data", data => {
-        received.pushToStack(data);
+        received.push(data);
         while (!received.endOfCcda() && data.length > 0) {
             data = "";
             eventData(received.returnData());

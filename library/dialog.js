@@ -126,6 +126,7 @@
     if (typeof includeScript !== 'function') {
         // Obviously utility.js has not been included for an unknown reason!
         // Will include below.
+        /* eslint-disable-next-line no-inner-declarations */
         function includeScript(srcUrl, type) {
             return new Promise(function (resolve, reject) {
                 if (type == 'script') {
@@ -312,11 +313,11 @@ if (typeof top.webroot_url === "undefined" && opener) {
 //
 if (typeof top.set_opener !== "function") {
     var opener_list = [];
-
+    /* eslint-disable-next-line no-inner-declarations */
     function set_opener(window, opener) {
         top.opener_list[window] = opener;
     }
-
+    /* eslint-disable-next-line no-inner-declarations */
     function get_opener(window) {
         return top.opener_list[window];
     }
@@ -324,6 +325,7 @@ if (typeof top.set_opener !== "function") {
 
 // universal alert popup message
 if (typeof alertMsg !== "function") {
+    /* eslint-disable-next-line no-inner-declarations */
     function alertMsg(message, timer = 5000, type = 'danger', size = '', persist = '') {
         // this xl() is just so cool.
         let gotIt = xl("Got It");
@@ -395,25 +397,26 @@ if (typeof alertMsg !== "function") {
 //
 if (typeof dlgclose !== "function") {
     if (!opener) {
+        /* eslint-disable-next-line no-global-assign */
         opener = window;
     }
-
+    /* eslint-disable-next-line no-inner-declarations */
     function dlgclose(call, args) {
         var frameName = window.name;
         var wframe = top;
-        if (frameName === '') {
+        if (frameName === "") {
             // try to find dialog. dialogModal is embedded dialog class
             // It has to be here somewhere.
-            frameName = $(".dialogModal").attr('id');
+            frameName = $(".dialogModal").attr("id");
             if (!frameName) {
-                frameName = parent.$(".dialogModal").attr('id');
+                frameName = parent.$(".dialogModal").attr("id");
                 if (!frameName) {
                     console.log("Unable to find dialog.");
                     return false;
                 }
             }
         }
-        var dialogModal = top.$('div#' + frameName);
+        var dialogModal = top.$("div#" + frameName);
 
         var removeFrame = dialogModal.find("iframe[name='" + frameName + "']");
         if (removeFrame.length > 0) {
@@ -424,10 +427,10 @@ if (typeof dlgclose !== "function") {
             if (call) {
                 wframe.setCallBack(call, args); // sets/creates callback function in dialogs scope.
             }
-            dialogModal.modal('hide');
+            dialogModal.modal("hide");
         } else {
             // no opener not iframe must be in here
-            $(this.document).find(".dialogModal").modal('hide');
+            $(this.document).find(".dialogModal").modal("hide");
         }
     }
 }
@@ -826,23 +829,25 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                     btnOp.style = "";
                 }
                 for (var index in btnOp) {
-                    if (btnOp.hasOwnProperty(index)) {
+                    if (Object.prototype.hasOwnProperty.call(btnOp, index)) {
                         switch (index) {
-                            case 'close':
+                            case "close":
                                 //add close event
                                 if (btnOp[index]) {
-                                    btn.attr('data-dismiss', 'modal');
+                                    btn.attr("data-dismiss", "modal");
                                 }
                                 break;
-                            case 'click':
+                            case "click":
                                 //binds button to click event of fn defined in calling document/form
-                                var fn = btnOp.click.bind(dlgContainer.find('.modal-content'));
+                                var fn = btnOp.click.bind(
+                                    dlgContainer.find(".modal-content")
+                                );
                                 btn.click(fn);
                                 break;
-                            case 'text':
+                            case "text":
                                 btn.html(btnOp[index]);
                                 break;
-                            case 'class':
+                            case "class":
                                 break;
                             default:
                                 //all other possible HTML attributes to button element
