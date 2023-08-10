@@ -379,7 +379,7 @@ $loading = "";
         $event->setPrimaryMenuItem(new BaseMenuItem([
             'displayText' => xl('Add New Patient'),
             'linkClassList' => ['btn-add'],
-            'id' => '/interface/new/new.php',
+            'id' => $GLOBALS['webroot'] . '/interface/new/new.php',
             'acl' => ['patients', 'demo', ['write', 'addonly']]
         ]));
     });
