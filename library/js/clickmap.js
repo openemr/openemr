@@ -48,7 +48,7 @@ var clickmap = function(args) {
 				const marker = fn_buildMarker(x, y, label, detail);
 				container.append(marker);
 				if (fn_isnumber(label)) {
-				    counter = parseInt(label);
+                    counter = parseInt(label);
 				}
 			}
 		}
