@@ -14,7 +14,9 @@
     "lint:js": "eslint '**/*.js' --quiet",
     "lint:js-fix": "npm run lint:js -- --fix",
     "test:js": "jest",
-    "test:js-coverage": "jest --coverage"
+    "test:js-coverage": "jest --coverage",
+    "stylelint": "npx stylelint '**/*.{css,scss}'",
+    "stylelint-fix": "npm run stylelint -- --fix"
   },
   "keywords": [
     "openemr"

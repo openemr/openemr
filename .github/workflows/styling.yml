@@ -63,7 +63,7 @@ jobs:
       - name: Check CSS Styling
         run: |
           failTest=false
-          npx stylelint "**/*.{css,scss}" || failTest=true
+          npm run stylelint || failTest=true
           if $failTest; then
             exit 1
           fi
