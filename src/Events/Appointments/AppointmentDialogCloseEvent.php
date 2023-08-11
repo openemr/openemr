@@ -1,5 +1,18 @@
 <?php
 
+
+/**
+ * AppointmentDialogCloseEvent fires when the appointment dialog screen (add_edit_event.php) is triggered to be closed
+ * This event is fired before the server sends the instructions to the client to close the dialog, and allows a plugin
+ * to perform any actions before the dialog is closed (such as preventing the closure, or by performing some action)
+ *
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2023 Discover and Change, Inc. <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Events\Appointments;
 
 use Symfony\Contracts\EventDispatcher\Event;
