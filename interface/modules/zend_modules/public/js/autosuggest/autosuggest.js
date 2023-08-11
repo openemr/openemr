@@ -24,7 +24,7 @@ function PreventIt(evt) {
 	if (charCode == 38 || charCode == 40) {
 		if (evt.preventDefault) evt.preventDefault();
 		if (evt.stopPropagation) evt.stopPropagation();
-	 }
+	}
 }
 
 /**
@@ -75,7 +75,7 @@ function PreventIt(evt) {
         newPath += '../';
       }
       /* eslint-disable-next-line no-unused-labels */
-	    dataType: "html",
+      dataType: "html",
 			$.post(newPath + "public/application/index/search", {
         queryString : inputString,
         leading     : leading,

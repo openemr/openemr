@@ -393,17 +393,13 @@ function clearPatient()
     $.ajax({
         type: "POST",
         url: webroot_url+"/library/ajax/unset_session_ajax.php",
-	    data: {
+        data: {
             func: "unset_pid",
             csrf_token_form: csrf_token_js
         },
-	    success:function( msg ) {
-
-
-	    }
+        success:function( msg ) { }
 	});
 }
-
 
 function clearTherapyGroup()
 {
