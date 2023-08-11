@@ -229,7 +229,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <div class="d-flex align-items-center">
                             <?php if (!($noIssues || $nothingRecorded)) : ?>
                                 <input type="checkbox" class="selection-check mr-1" onclick="headerSelectionChanged(this, <?php echo attr_js($t);?>);"/>
-                                <button type="button" class="btn btn-text px-2" data-issue-type="<?php echo xla($t); ?>" data-action="toggle" data-expanded="false" aria-label="<?php echo xla("Expand or collapse all items in section"); ?>"><span class="fa fa-fw fa-expand" aria-hidden="true"></span></button>
+                                <button type="button" class="btn btn-text px-2" data-issue-type="<?php echo attr($t); ?>" data-action="toggle" data-expanded="false" aria-label="<?php echo xla("Expand or collapse all items in section"); ?>"><span class="fa fa-fw fa-expand" aria-hidden="true"></span></button>
                             <?php endif; ?>
                             <h4 class="d-inline-block p-0 m-0"><?php echo text($focustitles[0]); ?></h4>
                         </div>
@@ -237,11 +237,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         <div class="btn-group" role="group">
 
                             <?php if ($btnAdd) : ?>
-                            <a href="<?php echo xla($btnAdd['href']); ?>" class="btn btn-sm btn-text" onclick='<?php echo $btnAdd['onclick']; ?>'><span class="fa fa-fw fa-plus"></span>&nbsp;<?php echo xlt('Add'); ?></a>
+                            <a href="<?php echo attr($btnAdd['href']); ?>" class="btn btn-sm btn-text" onclick='<?php echo $btnAdd['onclick']; ?>'><span class="fa fa-fw fa-plus"></span>&nbsp;<?php echo xlt('Add'); ?></a>
                             <?php endif; ?>
 
                             <?php if ($btnDelete) : ?>
-                            <button type="button" id="<?php echo xla($t); ?>-delete" class="btn btn-sm btn-text" disabled onclick="deleteSelectedIssues('<?php echo attr($t); ?>')"><span class="fa fa-fw fa-trash-can"></span>&nbsp;<?php echo xlt('Delete'); ?></a>
+                            <button type="button" id="<?php echo attr($t); ?>-delete" class="btn btn-sm btn-text" disabled onclick="deleteSelectedIssues(<?php echo attr_js($t); ?>)"><span class="fa fa-fw fa-trash-can"></span>&nbsp;<?php echo xlt('Delete'); ?></a>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -309,19 +309,19 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $click_class = '';
                             }
 
-                            $shortBegDate = text(trim(oeFormatShortDate($row['begdate'])));
-                            $shortEndDate = text(trim(oeFormatShortDate($row['enddate'])));
-                            $fullBegDate = text(trim(oeFormatDateTime($row['begdate'])));
-                            $fullEndDate = text(trim(oeFormatDateTime($row['enddate'])));
-                            $shortModDate = text(trim(oeFormatShortDate($row['modifydate'])));
-                            $fullModDate = text(trim(oeFormatDateTime($row['modifydate'])));
+                            $shortBegDate = trim(oeFormatShortDate($row['begdate']));
+                            $shortEndDate = trim(oeFormatShortDate($row['enddate']));
+                            $fullBegDate = trim(oeFormatDateTime($row['begdate']));
+                            $fullEndDate = trim(oeFormatDateTime($row['enddate']));
+                            $shortModDate = trim(oeFormatShortDate($row['modifydate']));
+                            $fullModDate = trim(oeFormatDateTime($row['modifydate']));
 
                             $outcome = ($row['outcome']) ?  generate_display_field(['data_type' => 1, 'list_id' => 'outcome'], $row['outcome']) : false;
                             ?>
                         <div class="list-group-item p-1">
                             <div class="summary m-0 p-0 d-flex w-100 justify-content-end align-content-center">
                                 <?php if ($canSelect) : ?>
-                                    <input type="checkbox" class="selection-check mt-1 mr-2" data-issue="<?php echo xla($t); ?>" name="sel_<?php echo attr($rowid); ?>" id="sel_<?php echo attr($rowid); ?>">
+                                    <input type="checkbox" class="selection-check mt-1 mr-2" data-issue="<?php echo attr($t); ?>" name="sel_<?php echo attr($rowid); ?>" id="sel_<?php echo attr($rowid); ?>">
                                 <?php endif; ?>
                                 <div class="flex-fill pl-2">
                                     <div class="btn-group" role="group">
@@ -356,18 +356,18 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <div class="d-flex w-100">
                                         <div class="pr-3">
                                             <div class="font-weight-bold"><?php echo xlt("Last Modified"); ?></div>
-                                            <div class="pl-1" title="<?php echo $fullModDate; ?>"><?php echo $shortModDate; ?></div>
+                                            <div class="pl-1" title="<?php echo attr($fullModDate); ?>"><?php echo text($shortModDate); ?></div>
                                         </div>
                                         <?php if ($row['begdate']) : ?>
                                             <div class="pr-3">
                                                 <div class="font-weight-bold "><?php echo xlt("Start Date"); ?></div>
-                                                <div class="" title="<?php echo $fullBegDate; ?>"><?php echo $shortBegDate; ?></div>
+                                                <div class="" title="<?php echo text($fullBegDate); ?>"><?php echo text($shortBegDate); ?></div>
                                             </div>
                                         <?php endif; ?>
                                         <?php if ($row['enddate']) : ?>
                                             <div class="pr-3">
                                                 <div class="font-weight-bold "><?php echo xlt("End Date"); ?></div>
-                                                <div class="" title="<?php echo $fullEndDate; ?>"><?php echo $shortEndDate; ?></div>
+                                                <div title="<?php echo attr($fullEndDate); ?>"><?php echo text($shortEndDate); ?></div>
                                             </div>
                                         <?php endif; ?>
                                         <?php if ($t == "allergy" || $t == "medical_problem") : ?>
@@ -384,13 +384,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <?php if ($row['referredby']) : ?>
                                             <div class="pr-3">
                                                 <div class="font-weight-bold"><?php echo xlt("Referred By"); ?></div>
-                                                <div><?php echo $row['referredby']; ?></div>
+                                                <div><?php echo text($row['referredby']); ?></div>
                                             </div>
                                         <?php endif; ?>
                                         <?php if ($row['comments']) : ?>
                                             <div class="flex-fill">
                                                 <div class="font-weight-bold"><?php echo xlt("Comments"); ?></div>
-                                                <div><?php echo $row['comments']; ?></div>
+                                                <div><?php echo text($row['comments']); ?></div>
                                             </div>
                                         <?php endif; ?>
                                     </div>
