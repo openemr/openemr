@@ -13,6 +13,7 @@ describe('DataStack', () => {
     });
 
     it('should store and return data', () => {
+        expect(stack.returnData()).toEqual(null);
         const hello = 'Hello';
         const world = 'World!';
         stack.push(hello + delimiter);
