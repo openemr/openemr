@@ -56,6 +56,8 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Appointments\AppointmentSetEvent;
 use OpenEMR\Events\Appointments\AppointmentRenderEvent;
+use OpenEMR\Events\Appointments\AppointmentDialogCloseEvent;
+use OpenEMR\Common\Logging\SystemLogger;
 
  //Check access control
 if (!AclMain::aclCheckCore('patients', 'appt', '', array('write','wsome'))) {
@@ -764,6 +766,20 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
 }
 
 if (!empty($_POST['form_action'])) {
+    $closeEvent = new AppointmentDialogCloseEvent();
+    $closeEvent->setDialogAction($_POST['form_action']);
+    $closeEventData = ['form_action' => $_POST['form_action']];
+    if (isset($eid)) {
+        $closeEvent->setAppointmentId($eid);
+    }
+    $event = $GLOBALS['kernel']->getEventDispatcher()->dispatch($closeEvent, AppointmentDialogCloseEvent::EVENT_NAME);
+    // listeners can stop the window from closing if they want to add any additional workflow steps
+    // to the calendar appointment flow for their own workflow dialogs here they will need
+    // to implement the dialog closing and duplicate the logic of what happens here in this closing event.
+    if ($event->isPropagationStopped()) {
+        (new SystemLogger())->debug("add_edit_event.php: event propagation stopped before closing dialog, exiting");
+        exit();
+    }
     // Close this window and refresh the calendar (or the patient_tracker) display.
     echo "<html>\n<body>\n<script>\n";
     if ($info_msg) {
