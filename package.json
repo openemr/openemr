@@ -13,7 +13,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint:js": "eslint '**/*.js' --quiet",
     "lint:js-fix": "npm run lint:js -- --fix",
-    "test:js": "jest"
+    "test:js": "jest",
+    "test:js-coverage": "jest --coverage"
   },
   "keywords": [
     "openemr"
