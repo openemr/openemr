@@ -121,6 +121,7 @@ class AllergyIntoleranceService extends BaseService
             if (!empty($row['reaction']) && !empty($row['reaction_codes'])) {
                 $row['reaction'] = $this->addCoding($row['reaction_codes']);
             }
+            unset($row['allergy_uuid']);
             $processingResult->addData($row);
         }
         return $processingResult;
@@ -186,7 +187,14 @@ class AllergyIntoleranceService extends BaseService
                 return $isValidPatient;
             }
         }
+
         $newSearch = [];
+        // override puuid with the token search field for binary search
+        if (isset($search['puuid'])) {
+            $newSearch['puuid'] = new TokenSearchField('puuid', $search['puuid'], true);
+            unset($search['puuid']);
+        }
+
         foreach ($search as $key => $value) {
             if (!$value instanceof ISearchField) {
                 $newSearch[] = new StringSearchField($key, [$value], SearchModifier::EXACT);
@@ -197,10 +205,10 @@ class AllergyIntoleranceService extends BaseService
 
         // override puuid, this replaces anything in search if it is already specified.
         if (isset($puuidBind)) {
-            $search['puuid'] = new TokenSearchField('puuid', $puuidBind, true);
+            $newSearch['puuid'] = new TokenSearchField('puuid', $puuidBind, true);
         }
 
-        return $this->search($search, $isAndCondition);
+        return $this->search($newSearch, $isAndCondition);
     }
 
     /**

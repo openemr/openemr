@@ -1069,7 +1069,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     // ALLERGY CARD
                     if (AclMain::aclCheckIssue('allergy')) {
                         $allergyService = new AllergyIntoleranceService();
-                        $_rawAllergies = filterActiveIssues($allergyService->getAll()->getData());
+                        $_rawAllergies = filterActiveIssues($allergyService->getAll(['lists.pid' => $pid])->getData());
                         $_priority = [];
                         $_standard = [];
                         foreach ($_rawAllergies as $_) {

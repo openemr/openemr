@@ -134,12 +134,13 @@ function generate_select_list(
     $include_inactive = false,
     $tabIndex = false
 ) {
-
     $attributes = [];
     $_options = [];
     $_metadata = [];
 
-    $tag_name_esc = attr($tag_name);
+    $attributes = [];
+    $_options = [];
+    $_metadata = [];
 
     $attributes['name'] = ($multiple) ? $tag_name_esc . "[]" : $tag_name_esc;
 
@@ -171,16 +172,23 @@ function generate_select_list(
     $selectEmptyName = xlt($empty_name);
     if ($empty_name) {
         preg_match_all('/select2/m', $class, $matches, PREG_SET_ORDER, 0);
-        $selectEmptyName = (count($matches) == 0) ? "" : $selectEmptyName;
-        $_options[] = [];
+        if (array_key_exists('placeholder', $attributes) && count($matches) > 0) {
+            // We have a placeholder attribute as well as a select2 class indicating there
+            // should be provide a truley empty option.
+            $_options[] = [];
+        } else {
+            $_options[] = [
+                'label' => $selectEmptyName,
+                'value' => '',
+                'isSelected' => true,
+            ];
+        }
     }
 
     $got_selected = false;
 
     for ($active = 1; $active == 1 || ($active == 0 && $include_inactive); --$active) {
-        if ($include_inactive) {
-            $s .= "<optgroup label='" . ($active ? xla('Active') : xla('Inactive')) . "'>\n";
-        }
+        $_optgroup = ($include_inactive) ? true : false;
 
         // List order depends on language translation options.
         //  (Note we do not need to worry about the list order in the algorithm
@@ -198,16 +206,15 @@ function generate_select_list(
         } else {
             // do translate
             $order_by_sql = str_replace("seq", "lo.seq", $order_by_sql);
-            $lres = sqlStatement(
-                "SELECT lo.option_id, lo.is_default,
-                    COALESCE((SELECT ld.definition FROM lang_constants AS lc, lang_definitions AS ld
-                        WHERE lc.constant_name = lo.title AND ld.cons_id = lc.cons_id AND ld.lang_id = ? AND ld.definition IS NOT NULL
-                            AND ld.definition != ''
-                        LIMIT 1), lo.title) AS title
-                FROM list_options AS lo
-                WHERE lo.list_id = ? AND lo.activity = ?
-                ORDER BY {$order_by_sql}", [$lang_id, $list_id, $active]
-            );
+            $sql = "SELECT lo.option_id, lo.is_default,
+                        COALESCE((SELECT ld.definition FROM lang_constants AS lc, lang_definitions AS ld
+                            WHERE lc.constant_name = lo.title AND ld.cons_id = lc.cons_id AND ld.lang_id = ? AND ld.definition IS NOT NULL
+                                AND ld.definition != ''
+                            LIMIT 1), lo.title) AS title
+                    FROM list_options AS lo
+                    WHERE lo.list_id = ? AND lo.activity = ?
+                    ORDER BY {$order_by_sql}";
+            $lres = sqlStatement($sql, [$lang_id, $list_id, $active]);
         }
 
         // Populate the options array with pertinent values
@@ -229,16 +236,20 @@ function generate_select_list(
             // Already has been translated above (if applicable), so do not need to use
             // the xl_list_label() function here
             $optionLabel = text($lrow ['title']);
-            $_options[] = [
+
+            $_tmp = [
                 'label' => $optionLabel,
                 'value' => $optionValue,
                 'isSelected' => $isSelected,
                 'isActive' => $include_inactive,
             ];
-        }
 
-        if ($include_inactive) {
-            $s .= "</optgroup>\n";
+            if ($_optgroup) {
+                $_tmp['optGroupOptions'] = $_tmp;
+                $_tmp['optgroupLabel'] = ($active) ? xla('Active') : xla('Inactive');
+            }
+
+            $_options[] = $_tmp;
         }
     } // end $active loop
 
@@ -263,14 +274,14 @@ function generate_select_list(
 
     if (!$got_selected && strlen($currvalue ?? '') > 0 && !$multiple) {
         $list_id = $backup_list;
-        $lrow = sqlQuery("SELECT title FROM list_options WHERE list_id = ? AND option_id = ?", [$list_id,$currvalue]);
+        $lrow = sqlQuery("SELECT title FROM list_options WHERE list_id = ? AND option_id = ?", [$list_id, $currvalue]);
 
         $_options[] = [
             'value' => attr($currvalue),
             'selected' => true,
             'label' => ($lrow > 0 && !empty($backup_list)) ? text(xl_list_label($lrow['title'])) : text($currvalue),
         ];
-        if ($lrow == 0 && empty($backup_list)) {
+        if (empty($lrow) && empty($backup_list)) {
             $metadata['error'] = [
                 'title' => xlt('Please choose a valid selection from the list.'),
                 'text' => xlt('Fix this'),
@@ -316,16 +327,29 @@ function generate_select_list(
     }
 
     $_parsedOptions = [];
+    $_og = false;
     foreach ($_options as $o) {
-        $_valStr = (array_key_exists('value', $o)) ? "value=\"{$o['value']}\"" : "";
-        $_selStr = (array_key_exists('isSelected', $o) && $o['isSelected'] == true) ? "selected" : "";
-        $_labStr = (array_key_exists('label', $o)) ? $o['label'] : "";
-        $_parsedOptions[] = "<option $_valStr $_selStr>$_labStr</option>";
+        $_isOG = (array_key_exists('optGroupOptions', $o) && count($o['optGroupOptions']) > 0) ? true : false;
+        $_currOG = $o['optgroupLabel'] ?? false;
+
+        // Render only if the current optgroup label is not triple equal to the previous label
+        if ($_og !== $_currOG) {
+            $_parsedOptions[] = "</optgroup>";
+        }
+
+        // Must have an opt group and it must be different than the previous
+        if ($_isOG && $_og !== $_currOG) {
+            $_parsedOptions[] = sprintf('<optgroup label="%s">', $_currOG);
+        }
+
+        $_parsedOptions[] = _create_option_element($o);
+
+        $_og = $_currOG;
     }
     $optionString = implode("\n", $_parsedOptions);
 
     $_parsedAttributes = [];
-    foreach($attributes as $attr => $val) {
+    foreach ($attributes as $attr => $val) {
         $_parsedAttributes[] = sprintf('%s="%s"', $attr, $val);
     }
     $attributeString = implode("\n", $_parsedAttributes);
@@ -339,6 +363,14 @@ function generate_select_list(
     }
 
     return implode("", $output);
+}
+
+function _create_option_element(array $o): string
+{
+    $_valStr = (array_key_exists('value', $o)) ? "value=\"{$o['value']}\"" : "";
+    $_selStr = (array_key_exists('isSelected', $o) && $o['isSelected'] == true) ? "selected" : "";
+    $_labStr = (array_key_exists('label', $o)) ? $o['label'] : "";
+    return "<option $_valStr $_selStr>$_labStr</option>";
 }
 
 // Parsing for data type 31, static text.
@@ -4403,7 +4435,7 @@ function get_layout_form_value($frow, $prefix = 'form_')
     }
 
     // Better to die than to silently truncate data!
-    if ($maxlength && $maxlength != 0 && strlen(trim($value)) > $maxlength && !$frow['list_id']) {
+    if ($maxlength && $maxlength != 0 && mb_strlen(trim($value)) > $maxlength && !$frow['list_id']) {
         die(htmlspecialchars(xl('ERROR: Field') . " '$field_id' " . xl('is too long'), ENT_NOQUOTES) .
         ":<br />&nbsp;<br />" . htmlspecialchars($value, ENT_NOQUOTES));
     }

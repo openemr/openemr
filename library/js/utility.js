@@ -352,6 +352,7 @@ function oeSortable(callBackFn) {
 *
 */
 if (typeof asyncAlertMsg !== "function") {
+    /* eslint-disable-next-line no-inner-declarations */
     function asyncAlertMsg(message, timer = 5000, type = 'danger', size = '') {
         let alertMsg = xl("Alert Notice");
         $('#alert_box').remove();

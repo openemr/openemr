@@ -13189,6 +13189,8 @@ CREATE TABLE `document_template_profiles` (
   `recurring` tinyint(1) NOT NULL DEFAULT 1,
   `event_trigger` varchar(31) NOT NULL,
   `period` int(4) NOT NULL,
+  `notify_trigger` varchar(31) NOT NULL,
+  `notify_period` int(4) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `location` (`profile`,`template_id`,`member_of`)
 ) ENGINE=InnoDB;
