@@ -38,7 +38,7 @@ function nl2br(str) {
 }
 
 function br2nl(str) {
-    return str.replace(/<\s*\/?br\s*[\/]?>/gi, "\r\n");
+    return str.replace(/<\s*\/?br\s*[/]?>/gi, "\r\n");
 }
 
 function edit(id, ccFlag = '') {
