@@ -138,9 +138,7 @@ function generate_select_list(
     $_options = [];
     $_metadata = [];
 
-    $attributes = [];
-    $_options = [];
-    $_metadata = [];
+    $tag_name_esc = attr($tag_name);
 
     $attributes['name'] = ($multiple) ? $tag_name_esc . "[]" : $tag_name_esc;
 
