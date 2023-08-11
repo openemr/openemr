@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * AppointmentDialogCloseEvent fires when the appointment dialog screen (add_edit_event.php) is triggered to be closed
  * This event is fired before the server sends the instructions to the client to close the dialog, and allows a plugin
