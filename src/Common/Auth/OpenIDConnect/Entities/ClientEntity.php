@@ -253,12 +253,13 @@ class ClientEntity implements ClientEntityInterface
      * Whether the ehr launch should skip the authorization flow for a logged in user.
      * @return bool
      */
-    public function shouldSkipEHRLaunchAuthorizationFlow() : bool
+    public function shouldSkipEHRLaunchAuthorizationFlow(): bool
     {
         return $this->skipEHRLaunchAuthorizationFlow;
     }
 
-    public function setSkipEHRLaunchAuthorizationFlow(bool $shouldSkip) {
+    public function setSkipEHRLaunchAuthorizationFlow(bool $shouldSkip)
+    {
         $this->skipEHRLaunchAuthorizationFlow = $shouldSkip;
     }
 }

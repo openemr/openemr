@@ -20,8 +20,7 @@ try {
     $controller->redirectAndLaunchSmartApp(
         $_REQUEST['intent'] ?? null,
         $_REQUEST['client_id'] ?? null,
-        $_REQUEST['csrf_token'] ?? null,
-        $intentData
+        $_REQUEST['csrf_token'] ?? null
     );
 } catch (CsrfInvalidException $exception) {
     CsrfUtils::csrfNotVerified();

@@ -40,13 +40,6 @@ class SMARTLaunchToken
      */
     private ?string $appointmentUuid;
 
-    private ?string $userUuid;
-
-    /**
-     * @var string The user type, either 'user' or 'patient' referring to coming from users table or patient_data
-     */
-    private string $userType;
-
     public function __construct($patientUUID = null, $encounterUUID = null)
     {
         if (isset($patientUUID) && !is_string($patientUUID)) {
@@ -140,7 +133,7 @@ class SMARTLaunchToken
         return $launchParams;
     }
 
-    public static function deserializeToken($serialized) : self
+    public static function deserializeToken($serialized): self
     {
         $token = new self();
         $token->deserialize($serialized);

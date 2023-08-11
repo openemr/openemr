@@ -1138,7 +1138,8 @@ class ClientAdminController
         <?php
         $this->renderFooter();
     }
-    private function enableAuthorizationFlowSkipAction(string$clientId,array$request){
+    private function enableAuthorizationFlowSkipAction(string $clientId, array $request)
+    {
          $client = $this->clientRepo->getClientEntity($clientId);
         if ($client === false) {
             $this->notFoundAction($request);
@@ -1148,7 +1149,8 @@ class ClientAdminController
         $this->handleAuthorizationFlowSkipAction($client, true, $message);
         exit;
     }
-    private function disableAuthorizationFlowSkipAction(string $clientId ,array $request){
+    private function disableAuthorizationFlowSkipAction(string $clientId, array $request)
+    {
          $client = $this->clientRepo->getClientEntity($clientId);
         if ($client === false) {
             $this->notFoundAction($request);
@@ -1158,7 +1160,8 @@ class ClientAdminController
         $this->handleAuthorizationFlowSkipAction($client, false, $message);
         exit;
     }
-    private function handleAuthorizationFlowSkipAction(ClientEntity$client,bool $skipFlow,string $successMessage){
+    private function handleAuthorizationFlowSkipAction(ClientEntity $client, bool $skipFlow, string $successMessage)
+    {
         $client->setSkipEHRLaunchAuthorizationFlow($skipFlow);
         try {
             $this->clientRepo->saveSkipEHRLaunchFlow($client, $skipFlow);

@@ -59,6 +59,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\HttpUtils;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -144,14 +145,26 @@ class AuthorizationController
         // true will display client/user server sign in. false, not.
         $this->providerForm = $providerForm;
 
-        $this->smartAuthController = new SMARTAuthorizationController(
-            $this->logger,
-            $this->authBaseFullUrl,
-            $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM,
-            __DIR__ . "/../../oauth2/"
-        );
+
 
         $this->trustedUserService = new TrustedUserService();
+    }
+
+    private function getSmartAuthController(): SMARTAuthorizationController
+    {
+        if (!isset($this->smartAuthController)) {
+            $twigContainer = new TwigContainer(__DIR__ . "/../../oauth2/", $GLOBALS['kenerl']);
+            $twig = $twigContainer->getTwig();
+
+            $this->smartAuthController = new SMARTAuthorizationController(
+                $this->logger,
+                $this->authBaseFullUrl,
+                $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM,
+                __DIR__ . "/../../oauth2/",
+                $twig
+            );
+        }
+        return $this->smartAuthController;
     }
 
     private function configKeyPairs(): void
@@ -485,7 +498,6 @@ class AuthorizationController
             $this->logger->debug("AuthorizationController->oauthAuthorizationFlow() session updated", ['session' => $_SESSION]);
             if (!empty($_SESSION['launch']) && $this->shouldSkipAuthorizationFlow($authRequest)) {
                 $this->processAuthorizeFlowForLaunch($authRequest, $request, $response);
-                exit;
             }
             // If needed, serialize into a users session
             if ($this->providerForm) {
@@ -738,7 +750,7 @@ class AuthorizationController
 
         // if we need to authorize any smart context as part of our OAUTH handler we do that here
         // otherwise we send on to our scope authorization confirm.
-        if ($this->smartAuthController->needSmartAuthorization()) {
+        if ($this->getSmartAuthController()->needSmartAuthorization()) {
             $redirect = $this->authBaseFullUrl . $this->smartAuthController->getSmartAuthorizationPath();
         } else {
             $redirect = $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM;
@@ -797,7 +809,7 @@ class AuthorizationController
      */
     public function isSMARTAuthorizationEndPoint($end_point)
     {
-        return $this->smartAuthController->isValidRoute($end_point);
+        return $this->getSmartAuthController()->isValidRoute($end_point);
     }
 
     /**
@@ -806,7 +818,7 @@ class AuthorizationController
      */
     public function dispatchSMARTAuthorizationEndpoint($end_point)
     {
-        return $this->smartAuthController->dispatchRoute($end_point);
+        return $this->getSmartAuthController()->dispatchRoute($end_point);
     }
 
     private function verifyLogin($username, $password, $email = '', $type = 'api'): bool
@@ -1379,8 +1391,43 @@ class AuthorizationController
 
     private function processAuthorizeFlowForLaunch(AuthorizationRequest $authRequest, ServerRequestInterface $request, ResponseInterface $response)
     {
+        $queryParams = $request->getQueryParams();
+
+        if (empty($queryParams['autosubmit']) || $queryParams['autosubmit'] !== '1') {
+            // we are going to display a form here with a javascript to autosubmit this page so we can make our session
+            // cookies on a first party domain to verify the user is logged in.  It requires a whole page load and it's
+            // a slower approach but we can then rely on the session cookie as a first party domain.
+            //  We can't rely on the session cookie from the launch endpoint because of third party browser blocking
+            // we don't want to deal with storing the user information in the launch token as we don't want to have to
+            // deal with the security implications of the launch token being hijacked/MITM.
+            $this->getSmartAuthController()->dispatchRoute(SMARTAuthorizationController::EHR_SMART_LAUNCH_AUTOSUBMIT);
+            exit;
+        }
+        // if we have come back from an autosubmit we are going to check to see if we are logged in
+
         $launch = $request->getQueryParams()['launch'];
         $launchToken = SMARTLaunchToken::deserializeToken($launch);
+
+        // if we can deserialize let's now check to see if the user is logged in
+        // note this switching of sessions can slow things down a bit depending on how the php session storage is setup.
+        SessionUtil::switchToCoreSession($GLOBALS['webroot'], true);
+        // for now we only handle in-ehr launch for providers not patients.  We can add this later if needed.
+        if (empty($_SESSION['authUserID'])) {
+            $this->logger->debug("AuthorizationController->processAuthorizeFlowForLaunch() no user logged in, redirecting to login page");
+            // switch back so we don't destroy the original session
+            SessionUtil::switchToOAuthSession($GLOBALS['webroot']);
+            return;
+        }
+        $userId = $_SESSION['authUserID'];
+        $userService = new UserService();
+        $user = $userService->getUser($userId);
+        if (empty($user)) {
+            // switch back so we don't destroy the original session
+            SessionUtil::switchToOAuthSession($GLOBALS['webroot']);
+            return;
+        }
+        $userUuid = $user['uuid'];
+        SessionUtil::switchToOAuthSession($GLOBALS['webroot']);
 
         $client = $authRequest->getClient();
         // only authorize scopes specifically allowed by the client regardless of what is sent in the request
@@ -1393,14 +1440,8 @@ class AuthorizationController
         // make sure we get our serialized session data
         $this->serializeUserSession($authRequest, $request);
         $apiSession = $_SESSION;
-
-        if (empty($launchToken->getUserUuid())) {
-            $this->logger->debug("AuthorizationController->processAuthorizeFlowForLaunch() no user logged in, redirecting to login page");
-            throw OAuthServerException::accessDenied("Access Denied");
-        }
-
         $user = new UserEntity();
-        $user->setIdentifier($launchToken->getUserUuid());
+        $user->setIdentifier($userUuid);
         $authRequest->setUser($user);
         $authRequest->setAuthorizationApproved(true);
         $result = $server->completeAuthorizationRequest($authRequest, $response);
@@ -1412,7 +1453,7 @@ class AuthorizationController
         $code = $code["code"];
         $apiSession['launch'] = $launch;
         $apiSession['client_id'] = $client->getIdentifier();
-        $apiSession['user_id'] = $launchToken->getUserUuid();
+        $apiSession['user_id'] = $userUuid;
         // scopes in the session are a single string.
         $apiSession['scopes'] = implode(" ", $scopes);
         $apiSession['persist_login'] = 0;
@@ -1424,5 +1465,6 @@ class AuthorizationController
         $this->logger->debug("AuthorizationController->processAuthorizeFlowForLaunch() sending server response");
         SessionUtil::oauthSessionCookieDestroy();
         $this->emitResponse($result);
+        exit;
     }
 }
