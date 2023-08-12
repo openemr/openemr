@@ -20,7 +20,7 @@ class SMARTLaunchToken
 {
     public const INTENT_PATIENT_DEMOGRAPHICS_DIALOG = 'patient.demographics.dialog';
 
-    public const VALID_INTENTS = [self::INTENT_PATIENT_DEMOGRAPHICS_DIALOG, self::INTENT_APPOINTMENT_DIALOG];
+    public const VALID_INTENTS = [self::INTENT_PATIENT_DEMOGRAPHICS_DIALOG, self::INTENT_APPOINTMENT_DIALOG, self::INTENT_ENCOUNTER_DIALOG];
 
     // used on the appointment add/edit dialog, context will include the selected appointment
     // for now this intent is used by custom apps that consume the openemr.appointment.add_edit_event.close.before event
@@ -191,15 +191,18 @@ class SMARTLaunchToken
         $this->userUuid = $userUuid;
     }
 
-    public function getUserUuid() : ?string{
+    public function getUserUuid(): ?string
+    {
         return $this->userUuid;
     }
 
-    public function getUserType() : string {
+    public function getUserType(): string
+    {
         return $this->userType;
     }
 
-    public function setUserType(string $userType) {
+    public function setUserType(string $userType)
+    {
         if ($userType !== 'patient') {
             $userType = 'user';
         }
