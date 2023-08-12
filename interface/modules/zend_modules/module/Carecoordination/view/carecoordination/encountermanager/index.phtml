@@ -402,117 +402,122 @@ foreach ($this->status_details as $row_status) {
                                     }
                                 }
                             </script>
-                            <table class="responsive" style="<?php if (count($this->details) == 0) { ?>display: none; <?php } ?>">
-                                <tr class="se_in_9">
-                                    <th width="1%" id="expand_all" class="expand_all se_in_23">&nbsp;</th>
-                                    <th width="3%"><label><?php echo $this->escapeHtml('#'); ?></label></th>
-                                    <th width="5%"><label><?php echo $this->listenerObject->z_xlt('PID'); ?></label></th>
-                                    <th><label><?php echo $this->listenerObject->z_xlt('Name'); ?></label></th>
-                                    <th><label><?php echo $this->listenerObject->z_xlt('Encounter Count'); ?></label></th>
-                                    <th><label><?php echo $this->listenerObject->z_xlt('Total Transfers'); ?></label></th>
-                                    <th><label><?php echo $this->listenerObject->z_xlt('Successful Transfers'); ?></label></th>
-                                    <th><label><?php echo $this->listenerObject->z_xlt('Last Visit'); ?></label></th>
-                                    <th><label><?php echo $this->listenerObject->z_xlt("Creation Date"); ?></label></th>
-                                    <th width="3%"><input type="checkbox" value="1" name="form_select_all" id="form_select_all" <?php if ($this->form_data['select_all'] == 1) echo "checked"; ?> /></th>
-                                    <th width="4%"><label><?php echo $this->listenerObject->z_xlt('Views'); ?></label></th>
-                                </tr>
-                                <?php
-                                $slno = ($this->escapeHtml($this->form_data['current_page']) - 1) * $this->escapeHtml($this->form_data['results']);
-
-                                foreach ($this->details as $row) {
-                                    $qualified = true;
-                                    if (is_array($this->form_data['measures']) && !empty($this->form_data['measures'][0])) {
-                                        if (empty($reportService ?? null)) {
-                                            $reportService = new QrdaReportService();
-                                        }
-                                        $qualified = $reportService->qualifyPatientMeasure($row['pid'], $this->form_data['measures']);
-                                    }
-                                    $slno++; ?>
-                                    <tr>
-                                        <td id="expand_details_<?php echo $this->escapeHtml($row['pid']); ?>" class="expand_details se_in_23" style="cursor: pointer;"></td>
-                                        <td><label><?php echo $slno; ?>)</label></td>
-                                        <td><label><?php echo $this->escapeHtml($row['pid']); ?></label></td>
-                                        <td><label style="<?php echo !$qualified ? 'color: red;' : '' ?>"><?php echo $this->escapeHtml($row['fname']) . " " . $this->escapeHtml($row['mname']) . " " . $this->escapeHtml($row['lname']); ?></label></td>
-                                        <td><label><?php echo $this->escapeHtml($row['enc_count']); ?></label></td>
-                                        <td><label><?php echo $this->escapeHtml($row['ccda_transfer_count']); ?></label></td>
-                                        <td><label><?php echo $this->escapeHtml($row['ccda_successfull_transfer_count']); ?></label></td>
-                                        <td><label><?php echo $this->commonplugin->date_format($row['last_visit_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd'); ?></label></td>
-                                        <td><label><?php echo $this->commonplugin->date_format($row['patient_creation_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd'); ?></label></td>
-                                        <td nowrap>
-                                            <?php if ($qualified) { ?>
-                                                <input class="check_pid check_pid_<?php echo $this->escapeHtml($row['pid']); ?>" type="checkbox" name="ccda_pid[]" value="<?php echo $this->escapeHtml($row['pid']); ?>" <?php if ($this->form_data['select_all'] == 1) echo "checked"; ?>>
-                                            <?php } ?>
-                                        </td>
-                                        <td style="padding: 5px;">
-                                            <a href="<?php echo $this->basePath(); ?>/encounterccdadispatch/index?combination=<?php echo $this->escapeHtml($row['pid']); ?>&view=1&doctype=ccda&recipient=self&param=<?php echo $_SESSION['authUserID']; ?>" rel="noopener" target="_blank" style="text-decoration: none;">
-                                                <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath(); ?>/css/icons/view.png" title="<?php echo $this->listenerObject->z_xlt('View CCDA'); ?>">
-                                            </a>
-                                            <a href="<?php echo $this->basePath(); ?>/encounterccdadispatch/index?combination=<?php echo $this->escapeHtml($row['pid']); ?>&view=1&doctype=qrda&recipient=self&param=<?php echo $_SESSION['authUserID']; ?>" rel="noopener" target="_blank" style="text-decoration: none;">
-                                                <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath(); ?>/css/icons/view.png" title="<?php echo $this->listenerObject->z_xlt('View QRDA'); ?>">
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    <?php ?>
-                                    <tr>
-                                        <td colspan="9" id="hide_<?php echo $this->escapeHtml($row['pid']); ?>" class="ccda_details" style="display: none;">
-                                            <table style="width: 85% !important; margin-left: auto !important; margin-right: auto !important;">
-                                                <tr class="se_in_9">
-                                                    <th width="1%"><?php echo '#'; ?></th>
-                                                    <th><label><?php echo $this->listenerObject->z_xlt('Encounter'); ?></label></th>
-                                                    <th><label><?php echo $this->listenerObject->z_xlt('DOS'); ?></label></th>
-                                                    <th><label><?php echo $this->listenerObject->z_xlt('Transferred Date'); ?></label></th>
-                                                    <th><label><?php echo $this->listenerObject->z_xlt('Transferred By'); ?></label></th>
-                                                    <th><label><?php echo $this->listenerObject->z_xlt('Status'); ?></label></th>
-                                                    <th><label>&nbsp;</label></th>
-                                                </tr>
-                                                <?php
-                                                $slno_sub = 0;
-                                                if (!empty($status_details[$row['pid']]) && is_array($status_details[$row['pid']])) {
-                                                    foreach ($status_details[$row['pid']] as $row_status) {
-                                                        $slno_sub++;
-                                                        ?>
-                                                        <tr>
-                                                            <td><?php echo $slno_sub; ?>)</td>
-                                                            <td><?php echo $this->escapeHtml($row_status['encounter']); ?></td>
-                                                            <td><?php echo $this->commonplugin->date_format(
-                                                                    $row_status['dos'],
-                                                                    $GLOBALS['date_display_format'], 'yyyy-mm-dd'
-                                                                ); ?></td>
-                                                            <td><?php echo $this->commonplugin->date_format(
-                                                                    date('Y-m-d H:i:s', $row_status['time']),
-                                                                    $GLOBALS['date_display_format'],
-                                                                    'yyyy-mm-dd'); ?></td>
-                                                            <td><?php echo($row_status['user_id'] == 'Scheduler' ? $this->listenerObject->z_xlt('Auto Transfer') : $this->escapeHtml($row_status['user_name'])); ?></td>
-                                                            <td>
-                                                                <?php
-                                                                if ($row_status['emr_transfer'] == 1) {
-                                                                    echo $this->listenerObject->z_xlt($status_title[2]);
-                                                                } else {
-                                                                    if ($row_status['view'] == 1) {
-                                                                        echo $this->listenerObject->z_xlt($status_title[3]);
-                                                                    } else {
-                                                                        echo $this->listenerObject->z_xlt($status_title[$row_status['status']]);
-                                                                    }
-                                                                }
-                                                                ?>
-                                                            </td>
-                                                            <td title="<?php echo $this->listenerObject->z_xlt('Download CCDA file'); ?>">
-                                                                <a rel="noopener" target="_blank"
-                                                                    href="<?php echo $this->basePath(); ?>/encountermanager/download?id=<?php echo $this->escapeHtml($row_status['id']); ?>">
-                                                                    <img src="<?php echo $this->basePath(); ?>/css/icons/request.png"
-                                                                        width="17px">
-                                                                </a>
-                                                            </td>
+                            <div class="table-responsive">
+                                <table class="table table-sm <?php if (count($this->details) == 0) { ?>d-none <?php } ?>">
+                                    <thead>
+                                        <tr class="se_in_9">
+                                            <th width="1%" id="expand_all" class="expand_all se_in_23">&nbsp;</th>
+                                            <th width="3%"><label><?php echo $this->escapeHtml('#'); ?></label></th>
+                                            <th width="5%"><label><?php echo $this->listenerObject->z_xlt('PID'); ?></label></th>
+                                            <th><label><?php echo $this->listenerObject->z_xlt('Name'); ?></label></th>
+                                            <th><label><?php echo $this->listenerObject->z_xlt('Encounter Count'); ?></label></th>
+                                            <th><label><?php echo $this->listenerObject->z_xlt('Total Transfers'); ?></label></th>
+                                            <th><label><?php echo $this->listenerObject->z_xlt('Successful Transfers'); ?></label></th>
+                                            <th><label><?php echo $this->listenerObject->z_xlt('Last Visit'); ?></label></th>
+                                            <th><label><?php echo $this->listenerObject->z_xlt("Creation Date"); ?></label></th>
+                                            <th width="3%"><input type="checkbox" value="1" name="form_select_all" id="form_select_all" <?php if ($this->form_data['select_all'] == 1) echo "checked"; ?> /></th>
+                                            <th width="4%"><label><?php echo $this->listenerObject->z_xlt('Views'); ?></label></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                        $slno = ($this->escapeHtml($this->form_data['current_page']) - 1) * $this->escapeHtml($this->form_data['results']);
+                                        foreach ($this->details as $row) {
+                                            $qualified = true;
+                                            if (is_array($this->form_data['measures']) && !empty($this->form_data['measures'][0])) {
+                                                if (empty($reportService ?? null)) {
+                                                    $reportService = new QrdaReportService();
+                                                }
+                                                $qualified = $reportService->qualifyPatientMeasure($row['pid'], $this->form_data['measures']);
+                                            }
+                                            $slno++; ?>
+                                            <tr>
+                                                <td id="expand_details_<?php echo $this->escapeHtml($row['pid']); ?>" class="expand_details se_in_23" style="cursor: pointer;"></td>
+                                                <td><label><?php echo $slno; ?>)</label></td>
+                                                <td><label><?php echo $this->escapeHtml($row['pid']); ?></label></td>
+                                                <td><label style="<?php echo !$qualified ? 'color: red;' : '' ?>"><?php echo $this->escapeHtml($row['fname']) . " " . $this->escapeHtml($row['mname']) . " " . $this->escapeHtml($row['lname']); ?></label></td>
+                                                <td><label><?php echo $this->escapeHtml($row['enc_count']); ?></label></td>
+                                                <td><label><?php echo $this->escapeHtml($row['ccda_transfer_count']); ?></label></td>
+                                                <td><label><?php echo $this->escapeHtml($row['ccda_successfull_transfer_count']); ?></label></td>
+                                                <td><label><?php echo $this->commonplugin->date_format($row['last_visit_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd'); ?></label></td>
+                                                <td><label><?php echo $this->commonplugin->date_format($row['patient_creation_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd'); ?></label></td>
+                                                <td nowrap>
+                                                    <?php if ($qualified) { ?>
+                                                        <input class="check_pid check_pid_<?php echo $this->escapeHtml($row['pid']); ?>" type="checkbox" name="ccda_pid[]" value="<?php echo $this->escapeHtml($row['pid']); ?>" <?php if ($this->form_data['select_all'] == 1) echo "checked"; ?>>
+                                                    <?php } ?>
+                                                </td>
+                                                <td style="padding: 5px;">
+                                                    <a href="<?php echo $this->basePath(); ?>/encounterccdadispatch/index?combination=<?php echo $this->escapeHtml($row['pid']); ?>&view=1&doctype=ccda&recipient=self&param=<?php echo $_SESSION['authUserID']; ?>" rel="noopener" target="_blank" style="text-decoration: none;">
+                                                        <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath(); ?>/css/icons/view.png" title="<?php echo $this->listenerObject->z_xlt('View CCDA'); ?>">
+                                                    </a>
+                                                    <a href="<?php echo $this->basePath(); ?>/encounterccdadispatch/index?combination=<?php echo $this->escapeHtml($row['pid']); ?>&view=1&doctype=qrda&recipient=self&param=<?php echo $_SESSION['authUserID']; ?>" rel="noopener" target="_blank" style="text-decoration: none;">
+                                                        <img style="height:20px; cursor: pointer;" src="<?php echo $this->basePath(); ?>/css/icons/view.png" title="<?php echo $this->listenerObject->z_xlt('View QRDA'); ?>">
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <?php ?>
+                                            <tr>
+                                                <td colspan="9" id="hide_<?php echo $this->escapeHtml($row['pid']); ?>" class="ccda_details" style="display: none;">
+                                                    <table style="width: 85% !important; margin-left: auto !important; margin-right: auto !important;">
+                                                        <tr class="se_in_9">
+                                                            <th width="1%"><?php echo '#'; ?></th>
+                                                            <th><label><?php echo $this->listenerObject->z_xlt('Encounter'); ?></label></th>
+                                                            <th><label><?php echo $this->listenerObject->z_xlt('DOS'); ?></label></th>
+                                                            <th><label><?php echo $this->listenerObject->z_xlt('Transferred Date'); ?></label></th>
+                                                            <th><label><?php echo $this->listenerObject->z_xlt('Transferred By'); ?></label></th>
+                                                            <th><label><?php echo $this->listenerObject->z_xlt('Status'); ?></label></th>
+                                                            <th><label>&nbsp;</label></th>
                                                         </tr>
                                                         <?php
-                                                    }
-                                                }
-                                                ?>
-                                            </table>
-                                        </td>
-                                    </tr>
-                                <?php } ?>
-                            </table>
+                                                        $slno_sub = 0;
+                                                        if (!empty($status_details[$row['pid']]) && is_array($status_details[$row['pid']])) {
+                                                            foreach ($status_details[$row['pid']] as $row_status) {
+                                                                $slno_sub++;
+                                                                ?>
+                                                                <tr>
+                                                                    <td><?php echo $slno_sub; ?>)</td>
+                                                                    <td><?php echo $this->escapeHtml($row_status['encounter']); ?></td>
+                                                                    <td><?php echo $this->commonplugin->date_format(
+                                                                            $row_status['dos'],
+                                                                            $GLOBALS['date_display_format'], 'yyyy-mm-dd'
+                                                                        ); ?></td>
+                                                                    <td><?php echo $this->commonplugin->date_format(
+                                                                            date('Y-m-d H:i:s', $row_status['time']),
+                                                                            $GLOBALS['date_display_format'],
+                                                                            'yyyy-mm-dd'); ?></td>
+                                                                    <td><?php echo($row_status['user_id'] == 'Scheduler' ? $this->listenerObject->z_xlt('Auto Transfer') : $this->escapeHtml($row_status['user_name'])); ?></td>
+                                                                    <td>
+                                                                        <?php
+                                                                        if ($row_status['emr_transfer'] == 1) {
+                                                                            echo $this->listenerObject->z_xlt($status_title[2]);
+                                                                        } else {
+                                                                            if ($row_status['view'] == 1) {
+                                                                                echo $this->listenerObject->z_xlt($status_title[3]);
+                                                                            } else {
+                                                                                echo $this->listenerObject->z_xlt($status_title[$row_status['status']]);
+                                                                            }
+                                                                        }
+                                                                        ?>
+                                                                    </td>
+                                                                    <td title="<?php echo $this->listenerObject->z_xlt('Download CCDA file'); ?>">
+                                                                        <a rel="noopener" target="_blank"
+                                                                            href="<?php echo $this->basePath(); ?>/encountermanager/download?id=<?php echo $this->escapeHtml($row_status['id']); ?>">
+                                                                            <img src="<?php echo $this->basePath(); ?>/css/icons/request.png"
+                                                                                width="17px">
+                                                                        </a>
+                                                                    </td>
+                                                                </tr>
+                                                                <?php
+                                                            }
+                                                        }
+                                                        ?>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
                             <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if (count($this->details) > 0) { ?>display: none; <?php } ?>">
                                 <?php echo $this->listenerObject->z_xlt('Nothing to display'); ?>
                             </div>

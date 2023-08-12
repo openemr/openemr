@@ -18,10 +18,9 @@
         ->prependStylesheet($this->basePath() . '/css/responsive-tables.css')
         ->prependStylesheet($this->basePath() . '/css/bootstrap-responsive.min.css')
         ->prependStylesheet($this->basePath() . '/css/carecoordination_style.css')
-        ->prependStylesheet($this->basePath() . '/css/style.css')
+        ->prependStylesheet('/public/themes/style_dark.css')
         ->prependStylesheet($this->basePath() . '/css/sendTo.css')
 		->prependStylesheet($this->basePath() . '/css/autosuggest/autosuggest.css')
-        ->prependStylesheet($this->basePath() . '/css/bootstrap.min.css')
         ?>
 
         <?php echo $this->headScript()
@@ -39,7 +38,7 @@
 
     </head>
     <body  class="body_top">
-        <div class="container" style="width:100%">
+        <div class="container-fluid" style="width:100%">
 			<?php echo $this->javascriptGlobals(); ?>
             <?php echo $this->content; ?>
         </div>

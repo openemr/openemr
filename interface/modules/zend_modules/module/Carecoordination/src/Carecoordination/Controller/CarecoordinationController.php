@@ -400,18 +400,19 @@ class CarecoordinationController extends AbstractActionController
 
         $components = array_diff($components, array('instructions' => 'Instructions'));
 
-        $temp = '<table>';
+        $temp = '<div class="table-responsive"><table class="table table-sm">';
         foreach ($components as $key => $value) {
-            $temp .= '<tr class="se_in_9">
-<th colspan="1" id="expandCompDetails-' . CommonPlugin::escape($key . $amid . $pid) . '" class="expandCompDetails se_in_23" component="' . CommonPlugin::escape($key) . '" amid="' . CommonPlugin::escape($amid) . '" style="padding: 0px 5px!important;"></th>
-<th colspan="8" style="padding: 0px 0px!important;"><label>' . CommonPlugin::escape($value) . '</th>
-</tr>
-<tr>
-<td colspan="9" id="hideComp-' . CommonPlugin::escape($key . $amid . $pid) . '" class="imported_ccdaComp_details" style="display: none;"></td>
-</tr>';
+            $temp .= '
+            <tr class="se_in_9">
+                <th colspan="1" id="expandCompDetails-' . CommonPlugin::escape($key . $amid . $pid) . '" class="expandCompDetails se_in_23" component="' . CommonPlugin::escape($key) . '" amid="' . CommonPlugin::escape($amid) . '"></th>
+                <th colspan="8">' . CommonPlugin::escape($value) . '</th>
+            </tr>
+            <tr>
+                <td colspan="9" id="hideComp-' . CommonPlugin::escape($key . $amid . $pid) . '" class="imported_ccdaComp_details"></td>
+            </tr>';
         }
 
-        $temp .= '</table>';
+        $temp .= '</table></div>';
         echo $temp;
         exit;
     }
