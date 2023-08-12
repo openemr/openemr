@@ -21,14 +21,13 @@
 **/
 
 .esign-signature-log-container {
-  display: table;	
+  display: table;
 }
 
 .esign-signature-log-table {
   font-size: small;
   margin-top: 10px;
   width: 100%;
-	
 }
 
 .esign-log-row.header {
@@ -65,7 +64,7 @@
 }
 
 .span9 {
-  width: 100%; 
+  width: 100%;
 }
 
 .esign-log-element {
@@ -76,4 +75,3 @@
 .esign-log-element span {
   padding: 4px;
 }
-
