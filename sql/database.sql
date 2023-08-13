@@ -7521,6 +7521,7 @@ CREATE TABLE `patient_data` (
   `provider_since_date` TINYTEXT,
   `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record',
   `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record',
+  `preferred_name` TINYTEXT,
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `id` (`id`)
