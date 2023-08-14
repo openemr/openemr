@@ -1,0 +1,12 @@
+diff a/library/custom_template/custom_template.php b/library/custom_template/custom_template.php	(rejected hunks)
+@@ -28,8 +28,8 @@
+ // +------------------------------------------------------------------------------+
+ 
+ require_once("../../interface/globals.php");
+-require_once("$srcdir/lists.inc.php");
+-require_once("$srcdir/user.inc.php");
++require_once("$srcdir/lists.inc");
++require_once("$srcdir/user.inc");
+ 
+ use OpenEMR\Core\Header;
+ use OpenEMR\Common\Csrf\CsrfUtils;

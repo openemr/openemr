@@ -1,0 +1,17 @@
+diff a/interface/patient_file/report/custom_report.php b/interface/patient_file/report/custom_report.php	(rejected hunks)
+@@ -811,13 +811,13 @@ function zip_content($source, $destination, $content = '', $create = true)
+                                     $esign = $esignApi->createFormESign($formId, $res[1], $form_encounter);
+                                     if ($esign->isSigned('report') && !empty($GLOBALS['esign_report_show_only_signed'])) {
+                                         if (substr($res[1], 0, 3) == 'LBF') {
+-                                            call_user_func("lbf_report", $pid, $form_encounter, $N, $form_id, $res[1]);
++                                            call_user_func("lbf_report", $pid, $form_encounter, $N, $form_id, $res[1], true);
+                                         } else {
+                                             call_user_func($res[1] . "_report", $pid, $form_encounter, $N, $form_id);
+                                         }
+                                     } elseif (empty($GLOBALS['esign_report_show_only_signed'])) {
+                                         if (substr($res[1], 0, 3) == 'LBF') {
+-                                            call_user_func('lbf_report', $pid, $form_encounter, $N, $form_id, $res[1]);
++                                            call_user_func('lbf_report', $pid, $form_encounter, $N, $form_id, $res[1], true);
+                                         } else {
+                                             call_user_func($res[1] . '_report', $pid, $form_encounter, $N, $form_id);
+                                         }

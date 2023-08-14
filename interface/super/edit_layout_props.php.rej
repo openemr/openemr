@@ -1,0 +1,11 @@
+diff a/interface/super/edit_layout_props.php b/interface/super/edit_layout_props.php	(rejected hunks)
+@@ -132,7 +132,8 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
+             "grp_unchecked = ?, "  .
+             "grp_services = ?, "   .
+             "grp_products = ?, "   .
+-            "grp_diags = ?";
++            "grp_diags = ?,      "  .
++            "grp_active_copy = ? ";
+         $sqlvars = array(
+             $_POST['form_title'],
+             $_POST['form_subtitle'],

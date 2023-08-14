@@ -149,6 +149,7 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
             empty($_POST['form_services']) ? '' : (empty($_POST['form_services_codes']) ? '*' : $_POST['form_services_codes']),
             empty($_POST['form_products']) ? '' : (empty($_POST['form_products_codes']) ? '*' : $_POST['form_products_codes']),
             empty($_POST['form_diags'   ]) ? '' : (empty($_POST['form_diags_codes'   ]) ? '*' : $_POST['form_diags_codes'   ]),
+            empty($_POST['form_active_copy']) ? 0 : 1,
         );
     }
 
@@ -477,6 +478,16 @@ for ($cols = 2; $cols <= 12; ++$cols) {
   </td>
   <td>
    <input type='text' class='form-control' size='40' name='form_diags_codes' onclick='sel_related(this, "ICD10")' value='<?php echo ($row['grp_diags'] != '*') ? attr($row['grp_diags']) : ""; ?>' />
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' width='1%' nowrap>
+    <?php echo xlt('Active Global Copy'); ?>
+  </td>
+  <td>
+   <input type='checkbox' name='form_active_copy' <?php if ($row['grp_active_copy']) {
+        echo "checked";} ?> />
   </td>
  </tr>
 
