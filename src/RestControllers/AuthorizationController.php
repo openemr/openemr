@@ -1379,10 +1379,12 @@ class AuthorizationController
         // if don't allow our globals settings to allow skipping the authorization flow when inside an ehr launch
         // we just return false
         if ($GLOBALS['oauth_ehr_launch_authorization_flow_skip'] !== '1') {
+            $this->logger->debug("AuthorizationController->shouldSkipAuthorizationFlow() - oauth_ehr_launch_authorization_flow_skip not set, not skipping even though launch is present.");
             return false;
         }
         if ($client instanceof ClientEntity) {
             if ($client->shouldSkipEHRLaunchAuthorizationFlow()) {
+                $this->logger->debug("AuthorizationController->shouldSkipAuthorizationFlow() - client is configured to skip authorization flow.");
                 return true;
             }
         }
@@ -1394,6 +1396,7 @@ class AuthorizationController
         $queryParams = $request->getQueryParams();
 
         if (empty($queryParams['autosubmit']) || $queryParams['autosubmit'] !== '1') {
+            $this->logger->debug("AuthorizationController->processAuthorizeFlowForLaunch() - autosubmit not set, redirecting to autosubmit page.");
             // we are going to display a form here with a javascript to autosubmit this page so we can make our session
             // cookies on a first party domain to verify the user is logged in.  It requires a whole page load and it's
             // a slower approach but we can then rely on the session cookie as a first party domain.
@@ -1403,6 +1406,7 @@ class AuthorizationController
             $this->getSmartAuthController()->dispatchRoute(SMARTAuthorizationController::EHR_SMART_LAUNCH_AUTOSUBMIT);
             exit;
         }
+        $this->logger->debug("AuthorizationController->processAuthorizeFlowForLaunch() - autosubmit set, processing authorization flow.");
         // if we have come back from an autosubmit we are going to check to see if we are logged in
 
         $launch = $request->getQueryParams()['launch'];

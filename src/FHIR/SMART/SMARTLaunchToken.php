@@ -20,7 +20,7 @@ class SMARTLaunchToken
 {
     public const INTENT_PATIENT_DEMOGRAPHICS_DIALOG = 'patient.demographics.dialog';
 
-    public const VALID_INTENTS = [self::INTENT_PATIENT_DEMOGRAPHICS_DIALOG, self::INTENT_APPOINTMENT_DIALOG, self::INTENT_ENCOUNTER_DIALOG];
+    public const VALID_INTENTS = [self::INTENT_PATIENT_DEMOGRAPHICS_DIALOG, self::INTENT_APPOINTMENT_DIALOG, self::INTENT_ENCOUNTER_DIALOG, self::INTENT_MAIN_TAB];
 
     // used on the appointment add/edit dialog, context will include the selected appointment
     // for now this intent is used by custom apps that consume the openemr.appointment.add_edit_event.close.before event
@@ -28,6 +28,11 @@ class SMARTLaunchToken
     public const INTENT_APPOINTMENT_DIALOG = 'appointment.edit.dialog';
 
     public const INTENT_ENCOUNTER_DIALOG = 'encounter.forms.dialog';
+
+    /*
+     * When a module is launched from a main menu item into a main tab, the intent is set to this value.
+     */
+    public const INTENT_MAIN_TAB = 'main.tab';
 
     /**
      * @var string|null The patient UUID If
@@ -51,8 +56,6 @@ class SMARTLaunchToken
         $this->patient = $patientUUID;
         $this->encounter = $encounterUUID;
         $this->appointmentUuid = null;
-        $this->userUuid = null;
-        $this->setUserType('user');
     }
 
     /**
@@ -121,7 +124,6 @@ class SMARTLaunchToken
         if (!empty($this->getAppointmentUuid())) {
             $context['apt'] = $this->getAppointmentUuid();
         }
-        $context['sub'] = $this->userType . '/' . $this->userUuid;
 
         // no security is really needed here... just need to be able to wrap
         // the current context into some kind of opaque id that the app will pass to the server and we can then
@@ -163,13 +165,6 @@ class SMARTLaunchToken
         if (!empty($context['apt'])) {
             $this->setAppointmentUuid($context['apt']);
         }
-        $sub = $context['sub'] ?? '';
-        $subParts = explode('/', $sub);
-        if (count($subParts) !== 2) {
-            throw new \InvalidArgumentException("sub field in token must be in the format of 'user/uuid' or 'patient/uuid'");
-        }
-        $this->setUserType($subParts[0]);
-        $this->setUserUuid($subParts[1]);
     }
 
     public function isValidIntent($intent)
@@ -184,28 +179,5 @@ class SMARTLaunchToken
     public function getAppointmentUuid(): ?string
     {
         return $this->appointmentUuid;
-    }
-
-    public function setUserUuid(?string $userUuid)
-    {
-        $this->userUuid = $userUuid;
-    }
-
-    public function getUserUuid(): ?string
-    {
-        return $this->userUuid;
-    }
-
-    public function getUserType(): string
-    {
-        return $this->userType;
-    }
-
-    public function setUserType(string $userType)
-    {
-        if ($userType !== 'patient') {
-            $userType = 'user';
-        }
-        $this->userType = $userType;
     }
 }

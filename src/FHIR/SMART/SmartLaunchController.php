@@ -142,7 +142,7 @@ class SmartLaunchController
         <?php
     }
 
-    public function redirectAndLaunchSmartApp($intent, $client_id, $csrf_token)
+    public function redirectAndLaunchSmartApp($intent, $client_id, $csrf_token, array $intentData)
     {
         $clientRepository = new ClientRepository();
         $client = $clientRepository->getClientEntity($client_id);
@@ -180,7 +180,7 @@ class SmartLaunchController
                 }
             }
         }
-        if (isset($_SESSION['encounter'])) {
+        if (!empty($_SESSION['encounter'])) {
             // grab the encounter euuid
             $euuid = UuidRegistry::uuidToString(EncounterService::getUuidById($_SESSION['encounter'], 'form_encounter', 'encounter'));
         }
@@ -190,16 +190,6 @@ class SmartLaunchController
 
         if (!empty($appointmentUuid)) {
             $launchCode->setAppointmentUuid($appointmentUuid);
-        }
-        if (isset($_SESSION['authUser'])) {
-            $userService = new UserService();
-            $user = $userService->getUserByUsername($_SESSION['authUser']);
-            $launchCode->setUserUuid($user['uuid']);
-            $launchCode->setUserType('provider');
-        } else {
-            // we don't have authUser and we are a patient at this point
-            $launchCode->setUserUuid($puuid);
-            $launchCode->setUserType('patient');
         }
         $serializedCode = $launchCode->serialize();
         $launchParams = "?launch=" . urlencode($serializedCode) . "&iss=" . urlencode($issuer) . "&aud=" . urlencode($issuer);
