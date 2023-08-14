@@ -3646,6 +3646,8 @@ function display_layout_rows($formtype, $result1, $result2 = '')
 
             // Handle a data category (group) change.
             if (strcmp($this_group, $last_group) != 0) {
+                $bdClass = $last_group != '' && $cell_count > 0 ? "border-top" : "";
+
                 $group_name = $grparr[$this_group]['grp_title'];
                 // totally skip generating the employer category, if it's disabled.
                 if ($group_name === 'Employer' && $GLOBALS['omit_employers']) {
@@ -3662,11 +3664,11 @@ function display_layout_rows($formtype, $result1, $result2 = '')
                 if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
                     disp_end_row();
                     if ($prepend_blank_row) {
-                        echo "<tr><td class='label' colspan='" . ($CPR + 1) . "'>&nbsp;</td></tr>\n";
+                        echo "<tr><td class='label border-bottom p-1' colspan='" . ($CPR + 1) . "'>&nbsp;</td></tr>\n";
                     }
                     echo "<tr>";
                     if ($group_name) {
-                        echo "<td class='groupname'>";
+                        echo "<td class='groupname align-top ".$bdClass."'>";
                         echo text(xl_layout_label($group_name));
                         $group_name = '';
                     } else {
@@ -3686,7 +3688,7 @@ function display_layout_rows($formtype, $result1, $result2 = '')
                     $titlecols = $span_col_row ? 0 : $titlecols;
                     $titlecols_esc = htmlspecialchars($titlecols, ENT_QUOTES);
                     if (!$span_col_row) {
-                        echo "<td class='label_custom' colspan='$titlecols_esc' ";
+                        echo "<td class='label_custom border-bottom align-top p-1' colspan='$titlecols_esc' ";
                         echo ">";
                     }
                     $cell_count += $titlecols;
@@ -3713,8 +3715,15 @@ function display_layout_rows($formtype, $result1, $result2 = '')
                     disp_end_cell();
                     $datacols = $span_col_row ? $CPR : $datacols;
                     $datacols_esc = htmlspecialchars($datacols, ENT_QUOTES);
-                    echo "<td class='text data' colspan='$datacols_esc'";
+                    echo "<td class='text data border-bottom p-1 ctextdata' colspan='$datacols_esc'";
                     echo ">";
+
+                    // OEMR - Add Style
+                    global $t_style;
+                    if(empty($t_style)) {
+                        $t_style = '<style type="text/css">.ctextdata .table tr:first-child > td {  border-top: 0px !important; }</style>';
+                        echo $t_style;
+                    }
                     $cell_count += $datacols;
                 }
 
@@ -4490,8 +4499,19 @@ function generate_layout_validation($form_id)
                 echo " lbfSetSignature(" . js_escape($fldid) . ");\n";
                 continue;
             }
-            if ($frow['uor'] < 2) {
-                continue;
+            // Section field required validation
+            if($frow['uor'] != 3) {
+                if ($frow['uor'] < 2) {
+                    continue;
+                }
+            }
+
+            // Section field required validation
+            if ($frow['uor'] == 3) {
+                echo "var secId = $('#" . $fldname . "').parents('div.section').attr('id');\n";
+                echo "var secParent = $('#" . $fldname . "').parents('div.section').parent();\n";
+                echo "var secInputIsChecked = $(secParent).find('input[type=\'checkbox\'][onclick=\'return divclick(this,\"'+secId+'\");\']').is(':checked');\n";
+                echo " if (secInputIsChecked === true) {\n";
             }
 
             echo " if (f.$fldname && !f.$fldname.disabled) {\n";
@@ -4555,6 +4575,9 @@ function generate_layout_validation($form_id)
                     break;
             }
             echo " }\n";
+
+            // Section field required validation
+            if ($frow['uor'] == 3) echo " }\n";
         }
     } // End this layout, there may be more in the case of history.
 }

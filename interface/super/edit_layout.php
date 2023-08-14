@@ -1740,6 +1740,7 @@ foreach ($sources as $key => $value) {
      <option value="0"><?php echo xlt('Unused'); ?></option>
      <option value="1" selected><?php echo xlt('Optional'); ?></option>
      <option value="2"><?php echo xlt('Required'); ?></option>
+     <option value="3"><?php echo xlt('Required (Section)'); ?></option>
     </select>
    </td>
    <td align='center'>

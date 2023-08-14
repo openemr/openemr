@@ -19,8 +19,22 @@ function moveOptions_11(theSelFrom, theSelTo) {
         //dlgopen(url,'quest_pop', '', 640, 190);
     } else {
         val = str;
+        // OEMR - Removed text before ~
+        val = jsText1(val.replace(/^(.*?~[\W]*)(.*)$/gm, '$2'));
+
         CKEDITOR.instances.textarea1.insertText(val);
     }
+}
+
+// OEMR - HtmlDecode
+function jsText1(string) {
+    const htmlEscapesText = {
+        '&amp;': '&'
+    };
+
+    return ('' + string).replace(/(&amp;)/gm, function (match) {
+        return htmlEscapesText[match];
+    });
 }
 
 function movePD(val, theSelTo) {
@@ -117,7 +131,9 @@ function SelectToSave(textara, ccFlag = '') {
                 textEl = mainForm.querySelector("input[name=" + textara + "]");
             }
         }
-        textEl.value = jsText(br2nl(textAreaContent));
+
+        // OEMR - Added jsText1 function to replace some character
+        textEl.value = jsText1(jsText(br2nl(textAreaContent)));
     } else {
         // must be html for nation note.
         textAreaContent = window.frames[0].document.body.innerHTML;
@@ -240,6 +256,7 @@ function save_item() {
         success: function (thedata) {
             //alert(thedata)
             document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
+            ;
             cancel_item('');
         },
         error: function () {
@@ -269,6 +286,7 @@ function update_item(id) {
         success: function (thedata) {
             //alert(thedata)
             document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
+            ;
             cancel_item(id);
         },
         error: function () {

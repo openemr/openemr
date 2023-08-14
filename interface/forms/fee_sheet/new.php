@@ -1255,7 +1255,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         // ++$bill_lino;
                                         $bill_lino = count($fs->serviceitems);
                                         $bline = $_POST['bill']["$bill_lino"] ?? null;
-                                        $del = $bline['del'] ?? null; // preserve Delete if checked
+                                        $del = !isset($_POST['bn_save_stay']) && $bline['del'] ?? null; // preserve Delete if checked
                                         if ($institutional) {
                                             $revenue_code   = trim($iter["revenue_code"]);
                                         }

@@ -82,4 +82,5 @@ $UOR = array(
     0 => xl('Unused'),
     1 => xl('Optional'),
     2 => xl('Required'),
+    3 => xl('Required (Section)'),
 );
