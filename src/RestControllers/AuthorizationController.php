@@ -153,7 +153,7 @@ class AuthorizationController
     private function getSmartAuthController(): SMARTAuthorizationController
     {
         if (!isset($this->smartAuthController)) {
-            $twigContainer = new TwigContainer(__DIR__ . "/../../oauth2/", $GLOBALS['kenerl']);
+            $twigContainer = new TwigContainer(__DIR__ . "/../../oauth2/", $GLOBALS['kernel']);
             $twig = $twigContainer->getTwig();
 
             $this->smartAuthController = new SMARTAuthorizationController(
