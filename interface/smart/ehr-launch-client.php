@@ -12,7 +12,13 @@
 
 require_once("../globals.php");
 
-$controller = new \OpenEMR\FHIR\SMART\SmartLaunchController();
+use OpenEMR\Common\Acl\AccessDeniedException;
+use OpenEMR\Common\Csrf\CsrfInvalidException;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\FHIR\SMART\SmartLaunchController;
+
+$controller = new SmartLaunchController();
 
 $intentData = [];
 try {

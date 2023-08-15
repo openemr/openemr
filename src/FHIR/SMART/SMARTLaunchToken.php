@@ -19,12 +19,20 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 class SMARTLaunchToken
 {
     public const INTENT_PATIENT_DEMOGRAPHICS_DIALOG = 'patient.demographics.dialog';
-    public const VALID_INTENTS = [self::INTENT_PATIENT_DEMOGRAPHICS_DIALOG, self::INTENT_APPOINTMENT_DIALOG];
+
+    public const VALID_INTENTS = [self::INTENT_PATIENT_DEMOGRAPHICS_DIALOG, self::INTENT_APPOINTMENT_DIALOG, self::INTENT_ENCOUNTER_DIALOG, self::INTENT_MAIN_TAB];
 
     // used on the appointment add/edit dialog, context will include the selected appointment
     // for now this intent is used by custom apps that consume the openemr.appointment.add_edit_event.close.before event
     // to present a SMART app as a 2nd step to the add/edit appointment workflow
     public const INTENT_APPOINTMENT_DIALOG = 'appointment.edit.dialog';
+
+    public const INTENT_ENCOUNTER_DIALOG = 'encounter.forms.dialog';
+
+    /*
+     * When a module is launched from a main menu item into a main tab, the intent is set to this value.
+     */
+    public const INTENT_MAIN_TAB = 'main.tab';
 
     /**
      * @var string|null The patient UUID If
@@ -127,7 +135,7 @@ class SMARTLaunchToken
         return $launchParams;
     }
 
-    public static function deserializeToken($serialized)
+    public static function deserializeToken($serialized): self
     {
         $token = new self();
         $token->deserialize($serialized);

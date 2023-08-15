@@ -22,6 +22,7 @@ use OpenEMR\Events\PatientDemographics\RenderEvent;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use OpenEMR\FHIR\Config\ServerConfig;
 
@@ -42,7 +43,7 @@ class SmartLaunchController
      */
     private $dispatcher;
 
-    public function __construct(EventDispatcher $dispatcher = null)
+    public function __construct(?EventDispatcher $dispatcher = null)
     {
         $this->dispatcher = $dispatcher;
     }
@@ -71,6 +72,7 @@ class SmartLaunchController
         UuidRegistry::createMissingUuidsForTables(['patient_data']);
         // going to work with string uuids
         $puuid = UuidRegistry::uuidToString($patientService->getUuid($pid));
+        // TODO: @adunsulag could this all be moved to twig?
         ?>
         <section>
             <?php
@@ -92,7 +94,7 @@ class SmartLaunchController
 
             $issuer = (new ServerConfig())->getFhirUrl();
             // issuer and audience are the same in a EHR SMART Launch
-            $launchParams = "?launch=" . urlencode($launchCode) . "&iss=" . urlencode($issuer) . "&aud=" . urlencode($issuer);
+
 
             expand_collapse_widget(
                 $widgetTitle,
@@ -114,10 +116,7 @@ class SmartLaunchController
                         <?php endif; ?>
                         <?php foreach ($smartClients as $client) : ?>
                             <li class="summary_item">
-                                <button class='btn btn-primary btn-sm smart-launch-btn' data-smart-name="<?php echo attr($client->getName()); ?>"
-                                        data-smart-redirect-url="<?php echo attr($client->getLaunchUri($launchParams)); ?>">
-                                    <?php echo xlt("Launch"); ?>
-                                </button>
+                                <?php $this->renderLaunchButton($client, $issuer, $launchCode); ?>
                                 <?php echo text($client->getName()); ?>
                             </li>
                         <?php endforeach; ?>
@@ -127,6 +126,20 @@ class SmartLaunchController
         <?php
         // it's too bad we don't have a centralized page renderer we could tie this into and render javascript at the
         // end of our footer pages on everything...
+        $this->renderLaunchScript();
+    }
+
+    public function renderLaunchButton(ClientEntity $client, string $issuer, SMARTLaunchToken $launchToken, $launchText = "Launch")
+    {
+        $launchCode = $launchToken->serialize();
+        $launchParams = "?launch=" . urlencode($launchCode) . "&iss=" . urlencode($issuer) . "&aud=" . urlencode($issuer);
+        ?>
+        <button class='btn btn-primary btn-sm smart-launch-btn' data-smart-name="<?php echo attr($client->getName()); ?>"
+                            data-intent="<?php echo attr(SMARTLaunchToken::INTENT_PATIENT_DEMOGRAPHICS_DIALOG); ?>"
+                            data-client-id="<?php echo attr($client->getIdentifier()); ?>">
+                                    <?php echo xlt($launchText); ?>
+        </button>
+        <?php
     }
 
     public function redirectAndLaunchSmartApp($intent, $client_id, $csrf_token, array $intentData)
@@ -167,6 +180,10 @@ class SmartLaunchController
                 }
             }
         }
+        if (!empty($_SESSION['encounter'])) {
+            // grab the encounter euuid
+            $euuid = UuidRegistry::uuidToString(EncounterService::getUuidById($_SESSION['encounter'], 'form_encounter', 'encounter'));
+        }
 
         $issuer = (new ServerConfig())->getFhirUrl();
         $launchCode = $this->getLaunchCodeContext($puuid, $euuid, $intent);
@@ -185,22 +202,11 @@ class SmartLaunchController
     {
         ?>
         <script>
-            (function(window) {
-                let smartLaunchers = document.querySelectorAll('.smart-launch-btn');
-                for (let launch of smartLaunchers) {
-                    let url =
-                        launch.addEventListener('click', function(evt) {
-                            let node = evt.target;
-                            let url = node.dataset.smartRedirectUrl;
-                            if (!url) {
-                                return;
-                            }
-                            let title = node.dataset.smartName || "<?php echo xlt("Smart App"); ?>";
-                            // we allow external dialog's  here because that is what a SMART app is
-                            dlgopen(url, '_blank', 950, 650, '', title, {allowExternal: true});
-                        });
+            (function(oeSMART) {
+                if (oeSMART && oeSMART.initLaunch) {
+                    oeSMART.initLaunch(<?php echo js_escape($GLOBALS['webroot']); ?>, <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
                 }
-            })(window);
+            })(window.oeSMART || {});
 
         </script>
         <?php

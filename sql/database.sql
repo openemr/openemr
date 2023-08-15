@@ -13077,6 +13077,7 @@ CREATE TABLE `oauth_clients` (
 `policy_uri` text,
 `tos_uri` text,
 `is_enabled` tinyint(1) NOT NULL DEFAULT '0',
+`skip_ehr_launch_authorization_flow` tinyint(1) NOT NULL DEFAULT '0',
 PRIMARY KEY (`client_id`)
 ) ENGINE=InnoDB;
 

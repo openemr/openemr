@@ -348,7 +348,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
 <head>
     <?php
-    Header::setupHeader(['common']);
+    Header::setupHeader(['common','utility']);
     require_once("$srcdir/options.js.php");
     ?>
     <script>
