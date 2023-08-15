@@ -95,7 +95,7 @@ $gbl::setNotRestCall();
 $restRequest = new HttpRestRequest($gbl, $_SERVER);
 $restRequest->setRequestMethod("GET");
 $restRequest->setRequestPath("/api/facility");
-$restRequest->setIsLocalApi(true); 
+$restRequest->setIsLocalApi(true);
 $restRequest->setApiType("oemr");
 // below will return as json
 echo "<b>api via route handler call returning json:</b><br />";
