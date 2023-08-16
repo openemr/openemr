@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Encounter form report function.
  *
