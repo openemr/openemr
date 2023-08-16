@@ -344,9 +344,15 @@ body {
   width: 100%;
 }
 
+/**
+ * The colors of --light and --dark are flipped. 
+ * Instead of making changes to --dark and --light, which may have unintended consequences,
+ * this localized change was made to ensure the nav bar met contrast requirements when hovering.
+ */
+
 .menuLabel:hover {
-  background: #cce3f8;
-  color: var(--dark);
+  background-color: var(--dark);
+  color: var(--light);
 }
 
 /** Only apply if not an actual link **/
@@ -362,8 +368,8 @@ div.menuLabel:hover {
 }
 
 .menuEntries li .menuLabel:hover {
-  background-color: #cce3f8;
-  color: var(--dark);
+  background-color: var(--dark);
+  color: var(--light);
 }
 
 .logo {
