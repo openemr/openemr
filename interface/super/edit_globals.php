@@ -373,8 +373,13 @@ $arrOeUiSettings = array(
     'help_file_name' => ""
 );
 $oemr_ui = new OemrUI($arrOeUiSettings);
+$serverConfig = new \OpenEMR\FHIR\Config\ServerConfig();
+$apiUrl = $serverConfig->getBaseApiUrl();
 ?>
 <script src="edit_globals.js" type="text/javascript"></script>
+<script>
+    window.oeUI.api.setApiUrlAndCsrfToken(<?php echo js_escape($apiUrl); ?>, <?php echo js_escape(CsrfUtils::collectCsrfToken('api')); ?>);
+</script>
 </head>
 
 <body <?php if ($userMode) {
@@ -754,6 +759,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 echo "  </select>\n";
                                             } elseif ($fldtype == GlobalSetting::DATA_TYPE_MULTI_SORTED_LIST_SELECTOR) {
                                                 include 'templates/field_multi_sorted_list_selector.php';
+                                            } else if ($fldtype == GlobalSetting::DATA_TYPE_ADDRESS_BOOK) {
+                                                include 'templates/globals-address-book.php';
                                             }
 
                                             if ($userMode) {
