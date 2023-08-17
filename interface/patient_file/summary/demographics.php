@@ -1025,33 +1025,19 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         ?>
         <div class="main mb-1">
             <!-- start main content div -->
-            <div class="row">
+            <div class="form-row">
                     <?php
                     $t = $twig->getTwig();
 
                     $allergy = (AclMain::aclCheckIssue('allergy')) ? 1 : 0;
                     $pl = (AclMain::aclCheckIssue('medical_problem')) ? 1 : 0;
                     $meds = (AclMain::aclCheckIssue('medication')) ? 1 : 0;
-                    $cards = $allergy + $pl + $meds;
+                    $rx = (!$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx')) ? 1 : 0;
+                    $cards = $allergy + $pl + $meds + $rx;
                     $col = "p-1 ";
 
-                    switch ($cards) {
-                        case '1':
-                            $col .= "col-12";
-                            break;
-
-                        case '2':
-                            $col .= "col-6";
-                            break;
-
-                        case '3':
-                            $col .= "col-4";
-                            break;
-
-                        default:
-                            $col .= "col";
-                            break;
-                    }
+                    $colInt = 12 / $cards;
+                    $col = "col-" . $colInt;
 
                     /**
                      * Helper function to return only issues with an outcome not equal to resolved
@@ -1205,7 +1191,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $viewArgs['content'] = ob_get_contents();
                         ob_end_clean();
 
+                        echo "<div class=\"$col\">";
                         echo $t->render('patient/card/rx.html.twig', $viewArgs);
+                        echo "</div>";
                     endif;
                     ?>
                 </div>
