@@ -18,7 +18,7 @@ OpenEMR is a leader in healthcare open source software and comprises a large and
 
 Community and Professional support can be found [here](https://open-emr.org/wiki/index.php/OpenEMR_Support_Guide).
 
-Extensive documentation and forums can be found on the [OpenEMR website](https://open-emr.org) that can help you to become more familiar about the project 📖.
+Extensive documentation and forums can be found on the [OpenEMR website](https://open-emr.org) that can help you to become more familiar about the projects 📖.
 
 ### Reporting Issues and Bugs
 
