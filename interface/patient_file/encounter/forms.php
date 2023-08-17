@@ -352,17 +352,6 @@ function refreshVisitDisplay() {
         padding: 8px;
     }
 
-    div.form_header {
-        float: left;
-        min-width: 400px;
-    }
-
-    div.form_header_controls {
-        float: left;
-        margin-bottom: 2px;
-        margin-left: 6px;
-    }
-
     div.formname {
         float: left;
         min-width: 160px;
@@ -627,7 +616,7 @@ echo $t->render('encounter/forms/navbar.html.twig', [
 ]);
 ?>
 
-<div id="encounter_forms" class="mx-1">
+<div id="encounter_forms" class="container">
 <div class='encounter-summary-container'>
     <?php
     $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
@@ -680,7 +669,7 @@ echo $t->render('encounter/forms/navbar.html.twig', [
 </div>
 <div class='encounter-summary-column'>
 <?php if ($GLOBALS['enable_amc_prompting']) { ?>
-    <div class="float-right border border-dark mr-2">
+    <div class="float-right border border-dark mb-2">
         <a class="btn btn-link p-0 m-1 float-right" data-toggle="collapse" data-target="#amc-requires"><?php echo xlt('AMC Requires'); ?></a>
         <div id="amc-requires" class="float-left m-2 collapse">
           <table>
@@ -905,7 +894,7 @@ if (
 
         // echo "<tr>"; // Removed as bug fix.
 
-        echo "<td class='border-bottom border-dark'>";
+        echo "<td class='border-bottom border-dark w-100 d-flex justify-content-between'>";
 
         // Figure out the correct author (encounter authors are the '$providerNameRes', while other
         // form authors are the '$user['fname'] . "  " . $user['lname']').
@@ -921,68 +910,68 @@ if (
         $by_text = xlt("by");
         $form_text = text($form_name);
         echo <<<HTML
-        <div class="form_header">
+        <div class="form_header flex-fill">
             <a href="#" data-toggle="collapse" data-target="#divid_{$div_nums_attr}" class="" id="aid_{$div_nums_attr}">
-                <h5>{$form_text}</h5>
-                {$by_text} {$author_text}
+                <h5>{$form_text} <small class="text-muted">({$by_text} {$author_text})</small></h5>
             </a>
         </div>
-        <div class='form_header_controls btn-group' role='group'>
+        <div>
+            <div class='form_header_controls btn-group' role='group'>
         HTML;
 
-        // If the form is locked, it is no longer editable
-        if ($esign->isLocked()) {
-                 echo "<a href='#' class='btn btn-secondary btn-sm form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><i class='fa fa-lock fa-fw'></i>&nbsp;" . xlt('Locked') . "</a>";
-        } else {
-            if (
-                (!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write') and $is_group == 0 and $authPostCalendarCategoryWrite)
-                or (((!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write')) and $is_group and AclMain::aclCheckCore("groups", "glog", false, 'write')) and $authPostCalendarCategoryWrite)
-            ) {
-                echo "<a class='btn btn-secondary btn-sm form-edit-button btn-edit' " .
-                    "id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "' " .
-                    "href='#' " .
-                    "title='" . xla('Edit this form') . "' " .
-                    "onclick=\"return openEncounterForm(" . attr_js($formdir) . ", " .
-                    attr_js($form_name) . ", " . attr_js($iter['form_id']) . ")\">";
-                echo "" . xlt('Edit') . "</a>";
-            }
-        }
-
-        if (($esign->isButtonViewable() and $is_group == 0 and $authPostCalendarCategoryWrite) or ($esign->isButtonViewable() and $is_group and AclMain::aclCheckCore("groups", "glog", false, 'write') and $authPostCalendarCategoryWrite)) {
-            if (!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write')) {
-                echo $esign->buttonHtml();
-            }
-        }
-
-        if (substr($formdir, 0, 3) == 'LBF') {
-          // A link for a nice printout of the LBF
-            echo "<a target='_blank' " .
-            "href='$rootdir/forms/LBF/printable.php?"   .
-            "formname="   . attr_url($formdir)         .
-            "&formid="    . attr_url($iter['form_id']) .
-            "&visitid="   . attr_url($encounter)       .
-            "&patientid=" . attr_url($pid)             .
-            "' class='btn btn-secondary btn-sm' title='" . xla('Print this form') .
-            "' onclick='top.restoreSession()'>" . xlt('Print') . "</a>";
-        }
-
-        if (AclMain::aclCheckCore('admin', 'super')) {
-            if ($formdir != 'newpatient' && $formdir != 'newGroupEncounter') {
-                // a link to delete the form from the encounter
-                echo "<a href='$rootdir/patient_file/encounter/delete_form.php?" .
-                    "formname=" . attr_url($formdir) .
-                    "&id=" . attr_url($iter['id']) .
-                    "&encounter=" . attr_url($encounter) .
-                    "&pid=" . attr_url($pid) .
-                    "' class='btn btn-danger btn-sm btn-delete' title='" . xla('Delete this form') . "' onclick='top.restoreSession()'>" . xlt('Delete') . "</a>";
+            // If the form is locked, it is no longer editable
+            if ($esign->isLocked()) {
+                    echo "<a href='#' class='btn btn-secondary btn-sm form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><i class='fa fa-lock fa-fw'></i>&nbsp;" . xlt('Locked') . "</a>";
             } else {
-                // do not show delete button for main encounter here since it is displayed at top
+                if (
+                    (!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write') and $is_group == 0 and $authPostCalendarCategoryWrite)
+                    or (((!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write')) and $is_group and AclMain::aclCheckCore("groups", "glog", false, 'write')) and $authPostCalendarCategoryWrite)
+                ) {
+                    echo "<a class='btn btn-secondary btn-sm form-edit-button btn-edit' " .
+                        "id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "' " .
+                        "href='#' " .
+                        "title='" . xla('Edit this form') . "' " .
+                        "onclick=\"return openEncounterForm(" . attr_js($formdir) . ", " .
+                        attr_js($form_name) . ", " . attr_js($iter['form_id']) . ")\">";
+                    echo "" . xlt('Edit') . "</a>";
+                }
             }
-        }
 
-        echo "<a class='btn btn-secondary btn-sm collapse-button-form' title='" . xla('Expand/Collapse this form') . "' data-toggle='collapse' data-target='#divid_" . attr($divnos) . "'>" . xlt('Expand / Collapse') . "</a>";
-        echo "</div>\n"; // Added as bug fix.
+            if (($esign->isButtonViewable() and $is_group == 0 and $authPostCalendarCategoryWrite) or ($esign->isButtonViewable() and $is_group and AclMain::aclCheckCore("groups", "glog", false, 'write') and $authPostCalendarCategoryWrite)) {
+                if (!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write')) {
+                    echo $esign->buttonHtml();
+                }
+            }
 
+            if (substr($formdir, 0, 3) == 'LBF') {
+            // A link for a nice printout of the LBF
+                echo "<a target='_blank' " .
+                "href='$rootdir/forms/LBF/printable.php?"   .
+                "formname="   . attr_url($formdir)         .
+                "&formid="    . attr_url($iter['form_id']) .
+                "&visitid="   . attr_url($encounter)       .
+                "&patientid=" . attr_url($pid)             .
+                "' class='btn btn-secondary btn-sm' title='" . xla('Print this form') .
+                "' onclick='top.restoreSession()'>" . xlt('Print') . "</a>";
+            }
+
+            if (AclMain::aclCheckCore('admin', 'super')) {
+                if ($formdir != 'newpatient' && $formdir != 'newGroupEncounter') {
+                    // a link to delete the form from the encounter
+                    echo "<a href='$rootdir/patient_file/encounter/delete_form.php?" .
+                        "formname=" . attr_url($formdir) .
+                        "&id=" . attr_url($iter['id']) .
+                        "&encounter=" . attr_url($encounter) .
+                        "&pid=" . attr_url($pid) .
+                        "' class='btn btn-danger btn-sm btn-delete' title='" . xla('Delete this form') . "' onclick='top.restoreSession()'>" . xlt('Delete') . "</a>";
+                } else {
+                    // do not show delete button for main encounter here since it is displayed at top
+                }
+            }
+
+            echo "<a class='btn btn-secondary btn-sm collapse-button-form' title='" . xla('Expand/Collapse this form') . "' data-toggle='collapse' data-target='#divid_" . attr($divnos) . "'>" . xlt('Expand / Collapse') . "</a>";
+            echo "</div>\n"; // Added as bug fix.
+        echo "</div>";
         echo "</td>\n";
         echo "</tr>";
         echo "<tr>";
