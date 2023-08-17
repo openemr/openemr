@@ -241,3 +241,6 @@ assets:
     checkpwd_validation:
         basePath: '%webroot%/interface/usergroup/'
         script: checkpwd_validation.js
+    ajax-functions-writer:
+        basePath: '%webroot%/library/js/'
+        script: ajax_functions_writer.js

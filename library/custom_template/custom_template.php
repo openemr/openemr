@@ -72,8 +72,7 @@ if (empty($isNN) && empty($rowContext)) {
         cursor: move !important;
     }
 </style>
-<?php Header::setupHeader(['common', 'opener', 'select2', 'ckeditor']); ?>
-<script src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajax_functions_writer.js"></script>
+<?php Header::setupHeader(['common', 'opener', 'select2', 'ckeditor', 'ajax-functions-writer']); ?>
 
 <script>
     let allowTemplateWarning = <?php echo $allowTemplateWarning; ?>;
@@ -237,12 +236,14 @@ if (empty($isNN) && empty($rowContext)) {
                         <ul id="menu5" class="example_menu w-100">
                             <li>
                                 <a class="expanded"><?php echo htmlspecialchars(xl('Components'), ENT_QUOTES); ?></a>
-                                <ul>
-                                    <div id="template_sentence"></div>
+                                <ul id="template_sentence">
+                                    <li>
+                                        <a href="#" class="btn btn-block btn-text"><?php echo xlt("Add New Component"); ?></a>
+                                    </li>
                                 </ul>
                             </li>
                             <?php
-                            if ($pid != '') {
+                            if ($pid != '') :
                                 $row = sqlQuery("SELECT p.*, IF(ISNULL(p.providerID), NULL, CONCAT(u.lname,',',u.fname)) pcp " .
                                     "FROM patient_data p LEFT OUTER JOIN users u " .
                                     "ON u.id=p.providerID WHERE pid=?", array($pid));
@@ -251,6 +252,9 @@ if (empty($isNN) && empty($rowContext)) {
                                     <a class="collapsed"><?php echo htmlspecialchars(xl('Patient Details'), ENT_QUOTES); ?></a>
                                     <ul>
                                         <?php
+                                        $mname = ($row['mname'] != '') ? ' ' . $row['mname'] . ' ' : ' ';
+                                        $fullName = $row['fname'] . $mname . $row['lname'];
+                                        listitemCode(xl('Full name'), $fullName);
                                         listitemCode(xl('First name'), $row['fname']);
                                         listitemCode(xl('Last name'), $row['lname']);
                                         listitemCode(xl('Phone'), $row['phone_home']);
@@ -261,13 +265,14 @@ if (empty($isNN) && empty($rowContext)) {
                                     </ul>
                                 </li>
                                 <?php
-                                foreach ($ISSUE_TYPES as $issType => $issTypeDesc) {
+                                foreach ($ISSUE_TYPES as $issType => $issTypeDesc) :
                                     $res = sqlStatement('SELECT title, id, IF(diagnosis="","",CONCAT(" [",diagnosis,"]")) codes FROM lists WHERE pid=? AND type=? AND enddate IS NULL ORDER BY title', array($pid, $issType));
-                                    if (sqlNumRows($res)) { ?>
+                                    if (sqlNumRows($res)) : ?>
                                     <li>
                                         <a class="collapsed"><?php echo htmlspecialchars(xl($issTypeDesc[0]), ENT_QUOTES); ?></a>
                                         <ul>
                                             <?php
+
                                             while ($row = sqlFetchArray($res)) {
                                                 if (!empty($isNN)) {
                                                     $row['id'] = "";
@@ -277,14 +282,14 @@ if (empty($isNN) && empty($rowContext)) {
                                             ?>
                                         </ul>
                                     </li>
-                                    <?php }
-                                }
-                            } ?>
+                                    <?php endif;
+                                endforeach;
+                            endif; ?>
                         </ul>
                     </div>
                 </div>
-                <a href="personalize.php?list_id=<?php echo $rowContext['cl_list_id'] ?? ''; ?>" id="personalize_link" class="iframe_medium btn btn-primary btn-sm"><?php echo htmlspecialchars(xl('Personalize'), ENT_QUOTES); ?></a>
-                <a href="add_custombutton.php" id="custombutton" class="iframe_medium btn btn-primary btn-sm" title="<?php echo htmlspecialchars(xl('Add Buttons for Special Chars,Texts to be Displayed on Top of the Editor for inclusion to the text on a Click'), ENT_QUOTES); ?>"><?php echo htmlspecialchars(xl('Add Buttons'), ENT_QUOTES); ?></a>
+                <a href="personalize.php?list_id=<?php echo $rowContext['cl_list_id'] ?? ''; ?>" id="personalize_link" class="iframe_medium btn btn-secondary btn-sm"><?php echo htmlspecialchars(xl('Personalize'), ENT_QUOTES); ?></a>
+                <a href="add_custombutton.php" id="custombutton" class="iframe_medium btn btn-secondary btn-sm" title="<?php echo htmlspecialchars(xl('Add Buttons for Special Chars,Texts to be Displayed on Top of the Editor for inclusion to the text on a Click'), ENT_QUOTES); ?>"><?php echo htmlspecialchars(xl('Add Buttons'), ENT_QUOTES); ?></a>
               </div>
               <div class="col-md-8">
                 <textarea class="ckeditor" cols="100" rows="180" id="textarea1" name="textarea1"></textarea>
@@ -318,5 +323,96 @@ if (empty($isNN) && empty($rowContext)) {
       </script>
   </table>
 </div>
+<template id="componentRow">
+    <li>
+        <div class="d-flex py-1">
+            <a href="#" id="btnEdit" class="btn btn-sm btn-text d-none"><i class="fa fa-pencil"></i><span class="sr-only"><?php echo xlt("Edit Component"); ?></span></a>
+            <div class="flex-fill">
+                <a href="#" class="d-block"></a>
+            </div>
+            <a href="#" id="btnDelete" class="btn btn-sm btn-text d-none"><i class="fa fa-trash"></i><span class="sr-only"><?php echo xlt("Delete Component"); ?></span></a>
+        </div>
+        <div class="w-100 d-none" data-type="detail_holder">
+            <textarea name="update_item_txt_" class="w-100" id="update_item_txt_"></textarea>
+            <button type="submit" onclick="save_item()" class="btn btn-primary btn-sm"><?php echo xlt("Save"); ?></button>
+            <button type="button" class="btn btn-secondary btn-sm"><?php echo xlt("Cancel"); ?></button>
+        </div>
+    </li>
+</template>
+<script>
+const componentMap = new Map();
+
+function processComponents(components)
+{
+    components.map(function (c) {
+        let row = document.getElementById("componentRow").content.cloneNode(true);
+        row.querySelector("textarea").value = c.text;
+        row.querySelector(".flex-fill a").innerText = c.short_text;
+        row.querySelector(".flex-fill a").setAttribute("data-component_id", c.id);
+        row.querySelector(".flex-fill a").addEventListener("click", function (e) {
+            e.preventDefault();
+            insertComponentToEditor(c.id);
+        });
+
+        if (c.can_configure) {
+            // Hook up the cancel edit button
+            row.querySelector("button[type='button']").setAttribute("onclick", `cancel_item('${c.id_attr}')`);
+
+            // Hook up the edit button
+            let btnEdit = row.getElementById("btnEdit");
+            btnEdit.id = `edit_${c.id_attr}`;
+            btnEdit.classList.remove("d-none");
+            btnEdit.addEventListener("click", function (e) {
+                let elm = (e.target.tagName == "I") ? e.target.parentElement : e.target;
+                let cid = elm.id.split("_")[1];
+                document.getElementById(`update_item${cid}`).classList.remove("d-none");
+            });
+
+            // Hook up the delete button
+            let btnDelete = row.getElementById("btnDelete");
+            btnDelete.id = `delete_${c.id_attr}`;
+            btnDelete.classList.remove("d-none");
+            btnDelete.addEventListener("click", function (e) {
+                let elm = (e.target.tagName == "I") ? e.target.parentElement : e.target;
+                let cid = elm.id.split("_")[1];
+                delete_item(cid);
+            });
+
+            row.querySelector("[data-type='detail_holder']").id = `update_item${c.id_attr}`;
+        }
+        document.getElementById("template_sentence").appendChild(row);
+        componentMap.set(c.id, c);
+    });
+    console.log(componentMap);
+}
+
+function insertComponentToEditor(component_id)
+{
+    const listElement = document.querySelector(`[data-component_id="${component_id}"]`);
+    listElement.classList.add("text-info");
+    listElement.style.fontStyle = "italic";
+    let str = componentMap.get(component_id).text;
+    if (window.frames[0].document.body.innerHTML == '<br />')
+        window.frames[0].document.body.innerHTML = "";
+    var patt = /\?\?/;
+    var result = patt.test(str);
+    if (result) {
+        url = 'quest_popup.php?content=' + str;
+        window.open(url, 'quest_pop', 'width=640,height=190,menubar=no,toolbar=0,location=0, directories=0, status=0,left=400,top=375');
+        //dlgopen(url,'quest_pop', '', 640, 190);
+    } else {
+        val = str;
+        CKEDITOR.instances.textarea1.insertText(val);
+    }
+}
+
+const btnInsert = document.querySelectorAll("[data-target='insert']");
+btnInsert.forEach(function (btn) {
+    btn.addEventListener("click", function (e) {
+        const text = btn.getAttribute("data-text");
+        CKEDITOR.instances.textarea1.insertText(text);
+    });
+});
+</script>
 </body>
 </html>

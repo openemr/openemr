@@ -30,6 +30,7 @@
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use Symfony\Component\HttpFoundation\Response;
 
 $templateid = $_REQUEST['templateid'];
 $Source = $_REQUEST['source'];
@@ -148,30 +149,63 @@ if ($Source == "add_template") {
         echo "0";
     }
     $Source = "add_template";
+} elseif ($source != "add_template" && ($_REQUEST['json'] ?? '') == "true") {
+    $sql = "SELECT *
+        FROM customlists AS cl
+        LEFT OUTER JOIN template_users AS tu ON cl.cl_list_slno=tu.tu_template_id
+        WHERE cl_list_type=4
+            AND cl_list_id=?
+            AND cl_deleted=0
+            AND tu.tu_user_id=?
+        ORDER BY tu.tu_template_order";
+    $res = sqlStatement($sql, [$templateid, $_SESSION['authUserID']]);
+    $return = [];
+    while ($row = sqlFetchArray($res)) {
+        $return[] = [
+            'id' => $row['cl_list_slno'],
+            'text' => $row['cl_list_item_long'],
+            'id_attr' => attr($row['cl_list_slno']),
+            'text_text' => text($row['cl_list_item_long']),
+            'short_text' => ($row['cl_list_item_short'] != "") ? text($row['cl_list_item_short']) : text($row['cl_list_item_long']),
+            'can_configure' => AclMain::aclCheckCore('nationnotes', 'nn_configure'),
+        ];
+    }
+    $r = new Response(json_encode($return), Response::HTTP_OK, ['Content-Type' => 'text/json']);
+    $r->send();
 }
-if ($Source != "add_template") {
+if ($Source != "add_template" && ($_REQUEST['json'] ?? '') != "true") {
     $res = sqlStatement(
         "SELECT * FROM customlists AS cl LEFT  OUTER JOIN template_users AS tu ON cl.cl_list_slno=tu.tu_template_id
                         WHERE cl_list_type=4 AND cl_list_id=? AND cl_deleted=0 AND tu.tu_user_id=? ORDER BY tu.tu_template_order",
         array($templateid, $_SESSION['authUserID'])
     );
     $i = 0;
+    $dataMap = [];
     while ($row = sqlFetchArray($res)) {
         $i++;
-        echo "<li id='clorder_" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "' style='cursor:pointer'><span>";
+        echo "<li id='clorder_" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "' style='cursor:pointer'><span class='d-flex py-1'>";
         if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
-            echo "<img src='" . $GLOBALS['images_static_relative'] . "/b_edit.png' onclick=update_item_div('" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "')>";
+            echo "<a href='#' class='btn btn-sm btn-text' onclick='update_item_div(\"" . attr($row['cl_list_slno']) . "\")'><i class='fa fa-pencil'></i></a>";
         }
-        echo "<div style='display:inline' id='" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "' onclick=\"moveOptions_11('" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "', 'textarea1');\">" . htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES) . "</div>";
+        $slno = htmlspecialchars($row['cl_list_slno']);
+        $title = text($row['cl_list_item_short'] ?? '');
+        echo "<div class='flex-fill' data-component-title='" . attr($title) . "' id='" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "' onclick=\"moveOptions_11('" . attr($row['cl_list_slno']) . "', 'textarea1');\">" . attr($row['cl_list_item_long']) . "</div>";
+        if (AclMain::aclCheckCore('nationnoates', 'nn_configure')) {
+            echo '<a href="#" class="btn btn-sm btn-text" onclick="delete_item(' . attr($row['cl_list_slno']) . ')"><i class="fa fa-times"></i></a>';
+        }
+        echo "</span>";
         if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
-            echo "<img src='" . $GLOBALS['images_static_relative'] . "/deleteBtn.png' onclick=\"delete_item('" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "')\">";
             echo "<div id='update_item" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "' style='display:none'><textarea name='update_item_txt" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "' id='update_item_txt" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "' class='w-100'>" . htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES) . "</textarea><br />";
             echo "<input type='button' name='update' onclick=update_item('" . $row['cl_list_slno'] . "') value='" . htmlspecialchars(xl('Update'), ENT_QUOTES) . "'><input type='button' name='cancel' value='" . htmlspecialchars(xl('Cancel'), ENT_QUOTES) . "' onclick=cancel_item('" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "')></div>";
         }
-        echo "</span></li>";
+        echo "</li>";
+        $dataMap[] = [
+            'id' => $row['cl_list_slno'],
+            'text' => $row['cl_list_item_long'],
+        ];
     }
     if (AclMain::aclCheckCore('nationnotes', 'nn_configure') && $templateid) {
-        echo "<li style='cursor:pointer'><span onclick='add_item()'>" . htmlspecialchars(xl('Click to add new components'), ENT_QUOTES);
+        echo "<li style='cursor:pointer'><span onclick='add_item()' class='py-1'><i class='fa fa-plus'></i>&nbsp;" . htmlspecialchars(xl('Click to add new components'), ENT_QUOTES);
         echo "</span><div id='new_item' style='display:none' class='w-100'>";
         echo "<textarea name='item' id='item' class='w-100'></textarea><br />";
         echo "<input type='button' name='save' value='" . htmlspecialchars(xl('Save'), ENT_QUOTES) . "' onclick='save_item()'><input type='button' name='cancel' value='" . htmlspecialchars(xl('Cancel'), ENT_QUOTES) . "' onclick=cancel_item('" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "')></div></li>";

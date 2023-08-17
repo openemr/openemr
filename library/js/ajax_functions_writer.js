@@ -5,10 +5,15 @@
 // modified to use activeElement for general edit sjpadgett@gmail.com 06/18/2019
 //
 
+/**
+ * @deprecated See library/custom_template/custom_template.php insertComponentToEditor()
+ */
 function moveOptions_11(theSelFrom, theSelTo) {
-    document.getElementById(theSelFrom).style.color = "red";
+    document.getElementById(theSelFrom).classList.add('text-info');
     document.getElementById(theSelFrom).style.fontStyle = "italic";
-    var str = document.getElementById(theSelFrom).innerHTML;
+    // var str = document.getElementById(theSelFrom).innerHTML;
+    console.log(componentMap);
+    let str = componentMap.get(theSelFrom);
     if (window.frames[0].document.body.innerHTML == '<br />')
         window.frames[0].document.body.innerHTML = "";
     var patt = /\?\?/;
@@ -165,27 +170,25 @@ function supportDragAndDrop(thedata) {
     return finalEl;
 }
 
-function TemplateSentence(val) {
+async function TemplateSentence(val) {
     if (val) {
         document.getElementById('share').style.display = '';
     } else {
         document.getElementById('share').style.display = 'none';
     }
-    $.ajax({
-        type: "POST",
-        url: "ajax_code.php",
-        dataType: "html",
-        data: {
-            templateid: val
-        },
-        success: function (thedata) {
-            //alert(thedata)
-            document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
-        },
-        error: function () {
-            //alert("fail");
-        }
+
+    const response = await fetch(`ajax_code.php?templateid=${val}&json=true`, {
+        method: "GET",
+        headers: {"Content-Type": "text/json"},
     });
+
+    if (response.status === 200) {
+        const r = await response.json();
+        processComponents(r);
+        // document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
+    } else {
+        console.log(response);
+    }
     return;
 }
 
@@ -221,9 +224,9 @@ function add_item() {
 
 function cancel_item(id) {
     if (document.getElementById('new_item'))
-        document.getElementById('new_item').style.display = 'none';
+        document.getElementById('new_item').classList.toggle('d-none');
     if (document.getElementById('update_item' + id))
-        document.getElementById('update_item' + id).style.display = 'none';
+        document.getElementById('update_item' + id).classList.toggle('d-none');
 }
 
 function save_item() {

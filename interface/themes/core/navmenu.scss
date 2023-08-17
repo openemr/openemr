@@ -149,43 +149,15 @@
       margin: 0;
       padding: 0;
 
-      a:hover {
-        background: lighten($light, 20%);
-        text-decoration: underline;
-      }
-
       ul {
         display: block;
-      }
-
-      li {
-        span {
-          background: lighten($yellow, 60%);
-          color: $body-color;
-          display: block;
-          font-weight: normal;
-          width: 100%;
-        }
-
-        &.active a {
-          background: $white;
-        }
-
-        &.active li a {
-          background: $gray-200;
-        }
       }
     }
 
     a {
-      color: $body-color;
       cursor: pointer;
-      display: block;
-      font-weight: bold;
-      padding: 0.125rem 0.125rem 0.125rem 1.0625rem;
 
       &.expanded {
-        background-color: $gray-300;
 
         &::before {
           @extend %fa-defaults;
@@ -224,8 +196,7 @@
   #menu2 li,
   #menu3 li,
   #menu4 li,
-  #menu5 li,
-  .example_menu li {
+  #menu5 li {
     background-image: none;
     border-bottom: 1px solid $white;
     margin: 0;
@@ -236,8 +207,7 @@
   #menu2 li.footer,
   #menu3 li.footer,
   #menu4 li.footer,
-  #menu5 li.footer,
-  .example_menu .footer {
+  #menu5 li.footer {
     background-color: transparent;
     border-top: 2px solid $white;
     height: 0.5625rem;
