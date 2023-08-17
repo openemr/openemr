@@ -66,7 +66,7 @@ enabled on your system.  These include:
 - Session variables
 - PHP libcurl support (optional for operation, mandatory for billing)
 
-Copy the OpenEMR folder into the root folder of the webserver. On Mandrake
+Extract OpenEMR or copy the OpenEMR folder into the root folder of the webserver. On Mandrake
 Linux, for example, use the command:
 
   bash# mv openemr /var/www/html/
@@ -145,7 +145,7 @@ The "Initial User" is the username of the first user, which is what they will
 use to login.  Limit this to one word only.
 
 The "Initial User Password" is the password of the user entered into the above
-"Initial User" field.
+"Initial User" field. This should be left blank on initial setup.
 
 The "Initial User's First Name" is the value to be used as their first name.  This
 information may be changed in the user administration page.
