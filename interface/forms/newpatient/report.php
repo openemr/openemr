@@ -32,10 +32,11 @@ function newpatient_report($pid, $encounter, $cols, $id)
         $rawProvider = $userService->getUser($result["provider_id"]);
         $rawRefProvider = $userService->getUser($result["referring_provider_id"]);
         $calendar_category = (new AppointmentService())->getOneCalendarCategory($result['pc_catid']);
-        $reason = (!$hasAccess) ? false : nl2br(text($result['reason']));
-        $provider = (!$hasAccess) ? false : text($rawProvider['fname'] . " " . $rawProvider['lname']);
-        $referringProvider = (!$hasAccess) ? false : $rawRefProvider;
-        $posCode = (!$hasAccess) ? false : text(sprintf('%02d', trim($result['pos_code'] ?? false)));
+        $reason = (!$hasAccess) ? false : $result['reason'];
+        $provider = (!$hasAccess) ? false : $rawProvider['fname'] . " " . $rawProvider['lname'];
+        $referringProvider = (!$hasAccess || !$rawRefProvider) ? false : $rawRefProvider['fname'] . " " . $rawRefProvider['lname'];
+        $posCode = (!$hasAccess) ? false : sprintf('%02d', trim($result['pos_code'] ?? false));
+        $posCode = ($posCode && $posCode != '00') ? $posCode : false;
         $facility_name = (!$hasAccess) ? false : $result['facility_name'];
 
         $encounters[] = [
