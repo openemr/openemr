@@ -1065,8 +1065,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $_standard[] = $_;
                             }
                         }
-                        $sql = "SELECT COUNT(*) as touched FROM lists_touch WHERE pid = ? AND type = 'allergy'";
-                        $result = sqlQuery($sql, [$pid]);
+                        $allergyTouchListSQL = "SELECT COUNT(*) as touched FROM lists_touch WHERE pid = ? AND type = 'allergy'";
+                        $allergyTouchListResult = sqlQuery($allergyTouchListSQL, [$pid]);
 
                         $viewArgs = [
                             'title' => xl('Allergies'),
@@ -1075,7 +1075,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'forceAlwaysOpen' => false,
                             'linkMethod' => "javascript",
                             'list' => ['priority' => $_priority, 'standard' => $_standard],
-                            'listTouched' => ($result['touched'] > 0) ? true : false,
+                            'listTouched' => ($allergyTouchListResult['touched'] > 0) ? true : false,
                             'auth' => true,
                             'btnLabel' => 'Edit',
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=allergy')"
