@@ -19,6 +19,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Common\Logging\SystemLogger;
 
 $firsttime = true;
 
@@ -262,21 +263,38 @@ if ($form_action == 'U') {
         array($_POST['form_toppid'])
     );
 } else if ($form_action == 'R') {
-    updateDupScore($_POST['form_toppid']);
+    updateDupScore($_POST['form_toppid']); /* this is not a new patient so check against all other patients */
 }
 
+/* generate a new table of possible duplicate patients */
 $query = "SELECT * FROM patient_data WHERE dupscore > 7 " .
     "ORDER BY dupscore DESC, pid DESC LIMIT 100";
 $res1 = sqlStatement($query);
+$used = array(); /* record which patients we display in the table, so as not to use them more than once */
 while ($row1 = sqlFetchArray($res1)) {
-    displayRow($row1);
-    $query = "SELECT p2.*, ($scorecalc) AS myscore " .
-    "FROM patient_data AS p1, patient_data AS p2 WHERE " .
-    "p1.pid = ? AND p2.pid < p1.pid AND ($scorecalc) > 7 " .
-    "ORDER BY myscore DESC, p2.pid DESC";
-    $res2 = sqlStatement($query, array($row1['pid']));
-    while ($row2 = sqlFetchArray($res2)) {
-        displayRow($row2, $row1['pid']);
+    (new SystemLogger())->debug("array used: ", $used);
+    (new SystemLogger())->debug("p1 & score ", [$row1['pid'], $row1['dupscore']]);
+    if (array_search($row1['pid'], $used) === false) { //haven't used this one yet
+    // build the sql query to compare to all other patients
+        $query = "SELECT p2.*, ($scorecalc) AS myscore " .
+        "FROM patient_data AS p1, patient_data AS p2 WHERE " .
+  /* check against all other patients - e.g. when demogrphics changed */
+        "p1.pid = ? AND p2.pid != p1.pid AND ($scorecalc) > 7 " .
+        "ORDER BY myscore DESC, p2.pid DESC";
+        $res2 = sqlStatement($query, array($row1['pid']));
+    /*only if more patients are potential duplicates display the first one -correct bug where only 1 patient in agroup displayed*/
+        $displayFirst = true;
+        while ($row2 = sqlFetchArray($res2)) {
+            (new SystemLogger())->debug("p2 & score ", [$row2['pid'], $row2['dupscore']]);
+            if ($row2['dupscore'] != -1) { // don't use if marked as unique
+                if ($displayFirst) {
+                    displayRow($row1);
+                    $displayFirst = false;
+                }
+                displayRow($row2, $row1['pid']);
+                $used[] = $row2['pid'];
+            }
+        }
     }
 }
 ?>
