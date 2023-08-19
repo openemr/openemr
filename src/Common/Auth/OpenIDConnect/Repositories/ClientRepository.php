@@ -57,6 +57,7 @@ class ClientRepository implements ClientRepositoryInterface
     {
         $user = $_SESSION['authUserID'] ?? null; // future use for provider client.
         $is_confidential_client = empty($info['client_secret']) ? 0 : 1;
+        $skip_ehr_launch_authorization_flow = $info['skip_ehr_launch_authorization_flow'] == true ? 1 : 0;
 
         $contacts = $info['contacts'];
         $redirects = $info['redirect_uris'];
@@ -90,7 +91,7 @@ class ClientRepository implements ClientRepositoryInterface
         }
 
         // TODO: @adunsulag why do we skip over request_uris when we have it in the outer function?
-        $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`, `jwks_uri`, `jwks`, `initiate_login_uri`, `endorsements`, `policy_uri`, `tos_uri`, `is_enabled`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO `oauth_clients` (`client_id`, `client_role`, `client_name`, `client_secret`, `registration_token`, `registration_uri_path`, `register_date`, `revoke_date`, `contacts`, `redirect_uri`, `grant_types`, `scope`, `user_id`, `site_id`, `is_confidential`, `logout_redirect_uris`, `jwks_uri`, `jwks`, `initiate_login_uri`, `endorsements`, `policy_uri`, `tos_uri`, `is_enabled`, `skip_ehr_launch_authorization_flow`) VALUES (?, ?, ?, ?, ?, ?, NOW(), NULL, ?, ?, 'authorization_code', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $i_vals = array(
             $clientId,
             $info['client_role'],
@@ -111,7 +112,8 @@ class ClientRepository implements ClientRepositoryInterface
             ($info['endorsements'] ?? null),
             ($info['policy_uri'] ?? null),
             ($info['tos_uri'] ?? null),
-            $is_client_enabled
+            $is_client_enabled,
+            $skip_ehr_launch_authorization_flow
         );
 
         return sqlQueryNoLog($sql, $i_vals, true); // throw an exception if it fails
@@ -260,6 +262,7 @@ class ClientRepository implements ClientRepositoryInterface
         $client->setLogoutRedirectUris($client_record['logout_redirect_uris']);
         $client->setContacts($client_record['contacts']);
         $client->setRegistrationDate($client_record['register_date']);
+        $client->setSkipEHRLaunchAuthorizationFlow($client_record['skip_ehr_launch_authorization_flow'] == "1");
         return $client;
     }
 
@@ -271,5 +274,20 @@ class ClientRepository implements ClientRepositoryInterface
     public function generateRegistrationClientUriPath()
     {
         return HttpUtils::base64url_encode(RandomGenUtils::produceRandomBytes(16));
+    }
+
+    public function saveSkipEHRLaunchFlow(ClientEntity $client, bool $skipFlow)
+    {
+        // TODO: adunsulag do we want to eventually just have a save() method.. it would be very handy but not sure
+        // we want any oauth2 values being overwritten.
+        $skipFlowValue = $skipFlow === true ? 1 : 0;
+        $clientId = $client->getIdentifier();
+        $params = [$skipFlowValue, $clientId];
+        $res = sqlStatement("UPDATE oauth_clients SET skip_ehr_launch_authorization_flow=? WHERE client_id = ?", $params);
+        if ($res === false) {
+            // TODO: adunsulag is there a better exception to throw here in OpenEMR than runtime?
+            throw new \RuntimeException("Failed to save oauth_clients skip_ehr_launch_authorization_flow flag.  Check logs for sql error");
+        }
+        return true;
     }
 }

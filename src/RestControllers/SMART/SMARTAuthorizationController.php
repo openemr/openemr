@@ -22,6 +22,7 @@ use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Services\PatientService;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Twig\Environment;
 
 class SMARTAuthorizationController
 {
@@ -48,6 +49,11 @@ class SMARTAuthorizationController
      */
     private $oauthTemplateDir;
 
+    /**
+     * @var Environment The twig template engine
+     */
+    private $twig;
+
     const PATIENT_SELECT_PATH = "/smart/patient-select";
 
     const PATIENT_SELECT_CONFIRM_ENDPOINT = "/smart/patient-select-confirm";
@@ -59,18 +65,21 @@ class SMARTAuthorizationController
      */
     const PATIENT_SEARCH_MAX_RESULTS = 100;
 
+    const EHR_SMART_LAUNCH_AUTOSUBMIT = "/smart/ehr-launch-autosubmit";
+
 
     /**
      * SMARTAuthorizationController constructor.
      * @param $authBaseFullURL
      * @param $smartFinalRedirectURL The URL that should be redirected to once all SMART authorizations are complete.
      */
-    public function __construct(LoggerInterface $logger, $authBaseFullURL, $smartFinalRedirectURL, $oauthTemplateDir)
+    public function __construct(LoggerInterface $logger, $authBaseFullURL, $smartFinalRedirectURL, $oauthTemplateDir, Environment $twig)
     {
         $this->logger = $logger;
         $this->authBaseFullURL = $authBaseFullURL;
         $this->smartFinalRedirectURL = $smartFinalRedirectURL;
         $this->oauthTemplateDir = $oauthTemplateDir;
+        $this->twig = $twig;
     }
 
     /**
@@ -87,6 +96,9 @@ class SMARTAuthorizationController
             return true;
         }
         if (false !== stripos($end_point, self::PATIENT_SEARCH_ENDPOINT)) {
+            return true;
+        }
+        if (false !== stripos($end_point, self::EHR_SMART_LAUNCH_AUTOSUBMIT)) {
             return true;
         }
         return false;
@@ -112,10 +124,23 @@ class SMARTAuthorizationController
             // session is maintained
             $this->patientSearch();
             exit;
+        } else if (false !== stripos($end_point, self::EHR_SMART_LAUNCH_AUTOSUBMIT)) {
+            $this->ehrLaunchAutoSubmit();
+            exit;
         } else {
             $this->logger->error("SMARTAuthorizationController->dispatchRoute() called with invalid route. verify isValidRoute configured properly", ['end_point' => $end_point]);
             http_response_code(404);
         }
+    }
+
+    public function ehrLaunchAutoSubmit()
+    {
+        // grab the server query string and let's go back to our authorize endpoint
+        $endpoint = $this->authBaseFullURL . "/authorize?autosubmit=1&" . http_build_query($_GET);
+        $data = [
+            'endpoint' => $endpoint
+        ];
+        echo $this->twig->render("smart/ehr-launch-autosubmit.html.twig", $data);
     }
 
     /**

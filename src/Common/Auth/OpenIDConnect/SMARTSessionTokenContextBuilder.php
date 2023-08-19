@@ -33,6 +33,7 @@ class SMARTSessionTokenContextBuilder
     public function getEHRLaunchContext()
     {
         $launch = $this->sessionArray['launch'] ?? null;
+        $this->logger->debug("SMARTSessionTokenContextBuilder->getEHRLaunchContext() launch context is", ['launch' => $launch]);
         if (empty($launch)) {
             return [];
         }
@@ -101,6 +102,7 @@ class SMARTSessionTokenContextBuilder
     public function getContextForScopes($scopes): array
     {
         $context = [];
+        $this->logger->debug("SMARTSessionTokenContextBuilder->getContextForScopes()");
         if ($this->isStandaloneLaunchPatientRequest($scopes)) {
             $context = $this->getStandaloneLaunchContext();
         } else if ($this->isEHRLaunchRequest($scopes)) {
