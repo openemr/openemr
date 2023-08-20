@@ -242,7 +242,12 @@ function refreshme() {
 // Process click to pop up the add window.
 function doedclick_add(type) {
  top.restoreSession();
- dlgopen('addrbook_edit.php?type=' + encodeURIComponent(type), '_blank', 650, (screen.availHeight * 75/100));
+ let url = 'addrbook_edit.php?type=' + encodeURIComponent(type);
+ const urlParams = new URLSearchParams(window.location.search);
+ if (urlParams.has("popup")) {
+     url += "&popup=" + urlParams.get("popup");
+ }
+ dlgopen(url, '_blank', 650, (screen.availHeight * 75/100));
 }
 
 // Process click to pop up the edit window.
