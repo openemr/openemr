@@ -405,6 +405,9 @@ if ($GLOBALS['login_into_facility']) {
     }
 }
 
+$listSvc = new ListService();
+$_tabs = $listSvc->getOptionsByListName('default_open_tabs', ['activity' => 1]);
+
 // Fetch the password expiration date (note LDAP skips this)
 $is_expired = false;
 if ((!AuthUtils::useActiveDirectory()) && ($GLOBALS['password_expiration_days'] != 0) && (check_integer($GLOBALS['password_expiration_days']))) {
@@ -425,10 +428,21 @@ if ((!AuthUtils::useActiveDirectory()) && ($GLOBALS['password_expiration_days'] 
     } elseif (strtotime($current_date) >= strtotime($pwd_alert_date)) {
         $is_expired = true;
     }
-}
 
-$listSvc = new ListService();
-$_tabs = $listSvc->getOptionsByListName('default_open_tabs', ['activity' => 1]);
+    if (!$is_expired) {
+        $passwordResetSql = "SELECT force_new_password FROM users_secure WHERE id = ?";
+        $binder = [$_SESSION['authUserID']];
+        $passwordReset = sqlQuery($passwordResetSql, $binder);
+        if ($passwordReset['force_new_password'] == 1) {
+            // array_unshift($_tabs, [
+            //     'notes' => "interface/usergroup/user_info.php",
+            //     'id' => "adm",
+            //     "label" => xl("Change Password"),
+            // ]);
+            exit();
+        }
+    }
+}
 
 if ($is_expired) {
     //display the php file containing the password expiration message.
