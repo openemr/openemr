@@ -115,7 +115,6 @@ foreach ($insurance as $row) {
                     $individualJson = $check["individual_json"];
                     $individual = json_decode($individualJson);
                     $results = $individual->eligibility;
-                   
                     $index = 0;
             foreach ($results as $result) {
                 $index++;
