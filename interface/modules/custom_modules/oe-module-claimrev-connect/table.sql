@@ -4,16 +4,23 @@ CREATE TABLE IF NOT EXISTS `mod_claimrev_eligibility`(
     ,`pid` bigint(20)
     ,`payer_responsibility` varchar(2)
     ,`request_json` TEXT
-    ,`response_json` TEXT
-	,`eligibility_json` TEXT
-	,`individual_json` TEXT
+    ,`response_json` LONGTEXT
+	,`eligibility_json` LONGTEXT
+	,`individual_json` LONGTEXT
     ,`response_message` TEXT
     ,`status` varchar(25)
     ,`last_checked` datetime default NULL
     ,`create_date` datetime default NULL
-    ,`raw271` MEDIUMTEXT
-);
+    ,`raw271` LONGTEXT
+); 
 
+ALTER TABLE `mod_claimrev_eligibility` 
+CHANGE COLUMN `response_json` `response_json` LONGTEXT NULL DEFAULT NULL ,
+CHANGE COLUMN `eligibility_json` `eligibility_json` LONGTEXT NULL DEFAULT NULL ,
+CHANGE COLUMN `individual_json` `individual_json` LONGTEXT NULL DEFAULT NULL ,
+CHANGE COLUMN `raw271` `raw271` LONGTEXT NULL DEFAULT NULL ;
+  
+  
 -- Add the background service for sending claims
 #IfNotRow background_services name ClaimRev_Send
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
