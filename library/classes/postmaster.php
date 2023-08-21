@@ -79,8 +79,7 @@ class MyMailer extends PHPMailer
             $body = json_encode($templateData);
             QueryUtils::sqlInsert("INSERT into `email_queue` (`sender`, `recipient`, `subject`, `body`,  `template_name`, `datetime_queued`) VALUES (?, ?, ?, ?, ?, NOW())", [$sender, $recipient, $subject, $body, $template]);
             return true;
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             (new SystemLogger())->errorLogCaller("Failed to add email to queue notification error " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
         }
         return false;
@@ -143,12 +142,10 @@ class MyMailer extends PHPMailer
                             sqlStatement("UPDATE `email_queue` SET `error` = 1, `error_message`= ?, , `datetime_error` = NOW() WHERE `id` = ?", [$mail->ErrorInfo, $ret['id']]);
                             error_log("Failed to send email notification through Mymailer emailServiceRun with error " . errorLogEscape($mail->ErrorInfo));
                         }
-                    }
-                    catch (\Exception $e) {
+                    } catch (\Exception $e) {
                         (new SystemLogger())->errorLogCaller("Failed to generate email contents for queued email" . $e->getMessage(), ['trace' => $e->getTraceAsString(), 'id' => $ret['id']]);
                         sqlStatement("UPDATE `email_queue` SET `error` = 1, `error_message`= ?, `datetime_error` = NOW() WHERE `id` = ?", [$e->getMessage(), $ret['id']]);
                     }
-
                 } else {
                     sqlStatement("UPDATE `email_queue` SET `error` = 1, `error_message`= 'email method is not configured correctly', `datetime_error` = NOW() WHERE `id` = ?", [$ret['id']]);
                     error_log("Failed to send email notification through Mymailer since email method is not configured correctly");
