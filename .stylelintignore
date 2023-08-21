@@ -12,6 +12,7 @@ public/themes/**/*.css
 public/themes/**/*.scss
 swagger/**/*.css
 swagger/**/*.scss
+coverage/**/*.css
 
 # To be fixed and removed from this list
 gacl/**/*.css
