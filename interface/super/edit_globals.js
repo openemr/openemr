@@ -361,7 +361,7 @@ window.document.addEventListener("DOMContentLoaded", window.oeUI.multiSortedList
     class AddressBookWidget {
         #api = oeUI.api; // store a reference so no one can replace it later on
         updateUserDetails(userId, label) {
-            this.#api.fetchStandardApiJSON('/user?id=' + encodeURIComponent(userId))
+            this.#api.fetchStandardApiJSON('user?id=' + encodeURIComponent(userId))
                 .then(userData => {
                     if (userData && userData.data) {
                         userData = userData.data[0];

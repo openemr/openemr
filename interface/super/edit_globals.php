@@ -375,7 +375,7 @@ $arrOeUiSettings = array(
 );
 $oemr_ui = new OemrUI($arrOeUiSettings);
 $serverConfig = new ServerConfig();
-$apiUrl = $serverConfig->getBaseApiUrl();
+$apiUrl = $serverConfig->getInternalBaseApiUrl();
 ?>
 <script src="edit_globals.js" type="text/javascript"></script>
 <script>

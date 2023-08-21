@@ -57,9 +57,14 @@ class ServerConfig
         return $this->getBaseApiUrl() . "/api";
     }
 
+    public function getInternalBaseApiUrl()
+    {
+        return $this->webRoot . '/apis/' . $this->siteId;
+    }
+
     public function getBaseApiUrl()
     {
-        return $this->oauthAddress . $this->webRoot . '/apis/' . $this->siteId;
+        return $this->oauthAddress . $this->getInternalBaseApiUrl();
     }
 
     public function getFhir3rdPartyAppRequirementsDocument()
