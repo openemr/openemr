@@ -31,6 +31,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\GlobalSetting;
 use Ramsey\Uuid\Uuid;
@@ -373,7 +374,7 @@ $arrOeUiSettings = array(
     'help_file_name' => ""
 );
 $oemr_ui = new OemrUI($arrOeUiSettings);
-$serverConfig = new \OpenEMR\FHIR\Config\ServerConfig();
+$serverConfig = new ServerConfig();
 $apiUrl = $serverConfig->getBaseApiUrl();
 ?>
 <script src="edit_globals.js" type="text/javascript"></script>

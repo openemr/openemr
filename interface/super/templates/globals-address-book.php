@@ -13,21 +13,23 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\FHIR\Config\ServerConfig;
+use OpenEMR\Common\Database\QueryUtils;
 
 $textLabel = "";
 $i = $i ?? 0;
 if (!empty($fldvalue)) {
-    $users = \OpenEMR\Common\Database\QueryUtils::fetchRecords("SELECT fname, lname FROM users WHERE id = ?", [$fldvalue]);
+    $users = QueryUtils::fetchRecords("SELECT fname, lname FROM users WHERE id = ?", [$fldvalue]);
     $user = $users[0] ?? ['fname' => '', 'lname' => ''];
     $textLabel = trim($user['fname'] . ' ' . $user['lname']);
 }
-$serverConfig = new \OpenEMR\FHIR\Config\ServerConfig();
+$serverConfig = new ServerConfig();
 $apiUrl = $serverConfig->getStandardApiUrl();
 ?>
 <div class="gbl-field-address-book-widget">
     <input type='hidden' class="address-book-widget-input" name='form_<?php echo attr($i); ?>' id='form_<?php echo attr($i); ?>' value='<?php echo attr($fldvalue); ?>' />
     <div class="input-group">
-        <input type='text' class="address-book-widget-label form-control" readonly="readonly" id='form_label_<?php echo attr($i); ?>' value='<?php echo text($textLabel); ?>'/>
+        <input type='text' class="address-book-widget-label form-control" readonly="readonly" id='form_label_<?php echo attr($i); ?>' value='<?php echo attr($textLabel); ?>'/>
         <div class="input-group-append">
             <button class="btn btn-danger address-book-widget-delete" id='form_button_delete_<?php echo attr($i); ?>' aria-label="<?php echo xla("Delete");?>">
                 <i class='fa fa-trash'></i>
