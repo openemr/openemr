@@ -228,7 +228,7 @@ function isDataURL(dataUrl = '') {
     return !!dataUrl.match(isDataURL.regex);
 }
 
-isDataURL.regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+=[a-z\-]+)?)?(;base64)?,[a-z0-9!$&',()*+;=\-._~:@\/?%\s]*\s*$/i;
+isDataURL.regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z-]+=[a-z-]+)?)?(;base64)?,[a-z0-9!$&',()*+;=\-._~:@/?%\s]*\s*$/i;
 
 // call if need to bind pen clicks after a dynamic template load. ie templates.
 var bindFetch = '';

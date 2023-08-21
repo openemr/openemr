@@ -33,7 +33,7 @@
     }
 
     function checkSpecialCharacter(eleName, eleVal) {
-        var regE = /[^a-zA-Z'\s,.\-]/;
+        var regE = /[^a-zA-Z'\s,.-]/;
         var m = '';
         eleName = eleName.replace('form_', '');
         if (regE.test(eleVal) == true)
@@ -42,7 +42,7 @@
     }
 
     function checkFacilityName(eleName, eleVal) {
-        var regE = /[^a-zA-Z0-9 '().,#:\/\-@_%]/;
+        var regE = /[^a-zA-Z0-9 '().,#:/\-@_%]/;
         var m = '';
         eleName = eleName.replace('form_', '');
         if (regE.test(eleVal) == true)
@@ -76,7 +76,7 @@
     }
 
     function checkFederalEin(eleName, eleVal) {
-        var regE = /[^a-zA-Z0-9 '().,#:\/\-@_%]/;
+        var regE = /[^a-zA-Z0-9 '().,#:/\-@_%]/;
         var m = '';
         eleName = eleName.replace('_', ' ');
         if (regE.test(eleVal) == true)
@@ -85,7 +85,7 @@
     }
 
     function checkStateLicenseNumber(eleName, eleVal) {
-        var regE = /[^a-zA-Z0-9 '.,()#:\/\-@_%\r\n]/;
+        var regE = /[^a-zA-Z0-9 '.,()#:/\-@_%\r\n]/;
         var m = '';
         eleName = eleName.replace('_', ' ');
         if (regE.test(eleVal) == true)
@@ -94,7 +94,7 @@
     }
 
     function checkUsername(eleName, eleVal) {
-        var regE = /[^a-zA-Z0-9 '().,#:\/\-@_%]/;
+        var regE = /[^a-zA-Z0-9 '().,#:/\-@_%]/;
         var m = '';
         eleName = eleName.replace('form_', '');
         if (regE.test(eleVal) == true)
@@ -113,7 +113,7 @@
     }
 
     function checkAlphaNumericExtended(eleName, eleVal) {
-        var regE = /[^a-zA-Z0-9 '().,#:\/\-@_%]/;
+        var regE = /[^a-zA-Z0-9 '().,#:/\-@_%]/;
         var m = '';
         eleName = eleName.replace('form_', '');
         eleName = eleName.replace('_', ' ');
