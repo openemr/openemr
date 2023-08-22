@@ -1529,6 +1529,7 @@ CREATE TABLE `email_queue` (
   `error` tinyint DEFAULT 0,
   `error_message` text,
   `datetime_error` datetime default NULL,
+  `template_name` VARCHAR(255) DEFAULT NULL COMMENT 'The folder prefix and base filename (w/o extension) of the twig template file to use for this email',
 PRIMARY KEY (`id`),
 KEY `sent` (`sent`)
 ) ENGINE=InnoDb AUTO_INCREMENT=1;
