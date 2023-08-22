@@ -13,7 +13,16 @@ public/themes/**/*.scss
 swagger/**/*.css
 swagger/**/*.scss
 coverage/**/*.css
+coverage/**/*.scss
 
 # To be fixed and removed from this list
-interface/**/*.css
-interface/**/*.scss
+interface/forms/**/*.css
+interface/forms/**/*.scss
+interface/main/**/*.css
+interface/main/**/*.scss
+interface/modules/**/*.css
+interface/modules/**/*.scss
+interface/super/**/*.css
+interface/super/**/*.scss
+interface/themes/**/*.css
+interface/themes/**/*.scss
