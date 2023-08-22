@@ -16,7 +16,6 @@ coverage/**/*.css
 coverage/**/*.scss
 
 # To be fixed and removed from this list
-gacl/**/*.css
 interface/forms/**/*.css
 interface/forms/**/*.scss
 interface/main/**/*.css
