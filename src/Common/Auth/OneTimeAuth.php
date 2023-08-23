@@ -49,7 +49,7 @@ class OneTimeAuth
      * @throws \Exception
      *
      *   $p[
-     *    'pid' => '', // required for most onetime auth
+     *   'pid' => '', // required for most onetime auth
      *   'target_link' => '', // Onetime endpoint
      *   'redirect_link' => '', // Where to redirect the user after auth
      *   'enabled_datetime' => 'NOW', // Use a datetime if wish to enable for a future date.
@@ -68,7 +68,7 @@ class OneTimeAuth
         $date_base = ($p['enabled_datetime'] ?? null) ?: 'NOW';
         $expiry = new DateTime($date_base);
         $expiry->add(new DateInterval($p['expiry_interval'] ?? 'PT15M'));
-        $token_raw = RandomGenUtils::createUniqueToken(32);
+        $token_raw = RandomGenUtils::createUniqueToken(16);
         $token_encrypt = $this->cryptoGen->encryptStandard($token_raw);
         $pin = substr(str_shuffle(str_shuffle("0123456789")), 0, 6);
         if (empty($p['pid']) || empty($token_raw)) {
@@ -129,6 +129,7 @@ class OneTimeAuth
         $rtn['redirect'] = null;
         $rtn['error'] = null;
         $one_time = '';
+        $t_info = [];
 
         if (strlen($onetime_token) >= 64) {
             if ($this->cryptoGen->cryptCheckStandard($onetime_token)) {

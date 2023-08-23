@@ -811,7 +811,7 @@ class DocumentTemplateService extends QuestionnaireService
      */
     public function fetchTemplateStatus($pid, $name)
     {
-        $sql = "SELECT `pid`, `create_date`, `doc_type`, `patient_signed_time`, `authorize_signed_time`, `patient_signed_status`, `review_date`, `denial_reason`, `file_name`, `file_path`, `encounter` FROM `onsite_documents` WHERE `pid` = ? AND `file_path` = ? ORDER BY `create_date` DESC LIMIT 1";
+        $sql = "SELECT  `id` as audit_id, `pid`, `create_date`, `doc_type`, `patient_signed_time`, `authorize_signed_time`, `patient_signed_status`, `review_date`, `denial_reason`, `file_name`, `file_path`, `encounter` FROM `onsite_documents` WHERE `pid` = ? AND `file_path` = ? ORDER BY `create_date` DESC LIMIT 1";
         return sqlQuery($sql, array($pid, $name));
     }
 
