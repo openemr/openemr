@@ -14,11 +14,21 @@ CREATE TABLE IF NOT EXISTS `mod_claimrev_eligibility`(
     ,`raw271` LONGTEXT
 ); 
 
-ALTER TABLE `mod_claimrev_eligibility` 
-CHANGE COLUMN `response_json` `response_json` LONGTEXT NULL DEFAULT NULL ,
-CHANGE COLUMN `eligibility_json` `eligibility_json` LONGTEXT NULL DEFAULT NULL ,
-CHANGE COLUMN `individual_json` `individual_json` LONGTEXT NULL DEFAULT NULL ,
-CHANGE COLUMN `raw271` `raw271` LONGTEXT NULL DEFAULT NULL ;
+#IfNotColumnType mod_claimrev_eligibility response_json LONGTEXT
+ALTER TABLE `mod_claimrev_eligibility` CHANGE `response_json` `response_json` LONGTEXT;
+#EndIf
+
+#IfNotColumnType mod_claimrev_eligibility eligibility_json LONGTEXT
+ALTER TABLE `mod_claimrev_eligibility` CHANGE `eligibility_json` `eligibility_json` LONGTEXT;
+#EndIf
+
+#IfNotColumnType mod_claimrev_eligibility individual_json LONGTEXT
+ALTER TABLE `mod_claimrev_eligibility` CHANGE `individual_json` `individual_json` LONGTEXT;
+#EndIf
+
+#IfNotColumnType mod_claimrev_eligibility raw271 LONGTEXT
+ALTER TABLE `mod_claimrev_eligibility` CHANGE `raw271` `raw271` LONGTEXT;
+#EndIf
   
   
 -- Add the background service for sending claims

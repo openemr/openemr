@@ -153,19 +153,19 @@ foreach ($insurance as $row) {
                     $first = "true";
                 ?>
                                 <li class="nav-item" role="presentation">
-                                        <a id="claimrev-ins-quick-tab" aria-selected="<?php echo($first); ?>" class="nav-link active"  data-toggle="tab" role="tab" href="#eligibility-quick-<?php echo($index); ?>"> <?php echo xlt("Quick Info "); ?></a>
+                                        <a id="claimrev-ins-quick-tab" aria-selected="<?php echo($first); ?>" class="nav-link active"  data-toggle="tab" role="tab" href="#eligibility-quick-<?php echo(attr($index)); ?>"> <?php echo xlt("Quick Info "); ?></a>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <a id="claimrev-ins-deductibles-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-deductibles-<?php echo($index); ?>"> <?php echo xlt("Deductibles"); ?></a>
+                                        <a id="claimrev-ins-deductibles-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-deductibles-<?php echo(attr($index)); ?>"> <?php echo xlt("Deductibles"); ?></a>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <a id="claimrev-ins-benefits-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-benefits-<?php echo($index); ?>"><?php echo xlt("Benefits"); ?></a>
+                                        <a id="claimrev-ins-benefits-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-benefits-<?php echo(attr($index)); ?>"><?php echo xlt("Benefits"); ?></a>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <a id="claimrev-ins-medicare-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-medicare-<?php echo($index); ?>"><?php echo xlt("Medicare"); ?></a>
+                                        <a id="claimrev-ins-medicare-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-medicare-<?php echo(attr($index)); ?>"><?php echo xlt("Medicare"); ?></a>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <a id="claimrev-ins-validations-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-validations-<?php echo($index); ?>"> <?php echo xlt("Validations"); ?></a>
+                                        <a id="claimrev-ins-validations-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-validations-<?php echo(attr($index)); ?>"> <?php echo xlt("Validations"); ?></a>
                                     </li>                                 
                 <?php
                         $first = "false";
@@ -173,7 +173,7 @@ foreach ($insurance as $row) {
                 ?>
                                 </ul>
                             <div class="tab-content">
-                                <div id="eligibility-quick-<?php echo($index); ?>" class="tab-pane active">
+                                <div id="eligibility-quick-<?php echo(attr($index)); ?>" class="tab-pane active">
                                     <div class="row">
                                         <div class="col">
                 <?php
@@ -182,7 +182,7 @@ foreach ($insurance as $row) {
                                         </div>
                                     </div>
                                 </div>
-                                <div id="eligibility-deductibles-<?php echo($index); ?>" class="tab-pane">
+                                <div id="eligibility-deductibles-<?php echo(attr($index)); ?>" class="tab-pane">
                                     <div class="row">
                                         <div class="col">
                 <?php
@@ -191,7 +191,7 @@ foreach ($insurance as $row) {
                                         </div>
                                     </div>
                                 </div>
-                                <div id="eligibility-medicare-<?php echo($index); ?>" class="tab-pane">
+                                <div id="eligibility-medicare-<?php echo(attr($index)); ?>" class="tab-pane">
                                     <div class="row">
                                         <div class="col">
                 <?php
@@ -200,7 +200,7 @@ foreach ($insurance as $row) {
                                         </div>
                                     </div>
                                 </div>
-                                <div id="eligibility-benefits-<?php echo($index); ?>" class="tab-pane">
+                                <div id="eligibility-benefits-<?php echo(attr($index)); ?>" class="tab-pane">
                                  
                                     <div class="row">
                                         <div class="col">
@@ -230,7 +230,7 @@ foreach ($insurance as $row) {
                                         </div>
                                     </div>
                                 </div>
-                                <div id="eligibility-validations-<?php echo($index); ?>" class="tab-pane">
+                                <div id="eligibility-validations-<?php echo(attr($index)); ?>" class="tab-pane">
                                     <div class="row">
                                         <div class="col">
                     <?php
