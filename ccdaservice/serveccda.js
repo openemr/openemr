@@ -17,6 +17,7 @@ const to_json = require('xmljson').to_json;
 const bbg = require(__dirname + '/oe-blue-button-generate');
 const fs = require('fs');
 const DataStack = require('./data-stack/data-stack').DataStack;
+const cleanCode = require('./utils/clean-code/clean-code').cleanCode;
 
 var conn = ''; // make our connection scope global to script
 var oidFacility = "";
@@ -114,17 +115,6 @@ function getPrecision(str) {
 
 function templateDate(date, precision) {
     return {'date': fDate(date), 'precision': precision}
-}
-
-function cleanCode(code) {
-    if (typeof code === 'undefined') {
-        return "null_flavor";
-    }
-    if (code.length < 1) {
-        code = "null_flavor";
-        return code;
-    }
-    return code.replace(/[.#]/, "");
 }
 
 function isOne(who) {
