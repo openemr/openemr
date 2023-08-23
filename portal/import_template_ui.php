@@ -20,7 +20,6 @@ use OpenEMR\Core\Header;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\QuestionnaireService;
-use OpenEMR\Events\Messaging\SendSmsEvent;
 
 
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
@@ -57,7 +56,7 @@ $none_message = xlt("Nothing to show for current actions.");
         let callBackCmd = null;
 
         <?php
-        $eventDispatcher->dispatch(new SendNotificationEvent($pid), SendNotificationEvent::JAVASCRIPT_READY_NOTIFICATION_POST);
+        $eventDispatcher->dispatch(new SendNotificationEvent($pid ?? 0, ['is_onetime' => 1]), SendNotificationEvent::JAVASCRIPT_READY_NOTIFICATION_POST);
         ?>
         // a callback from dlgclose(fn) in render form
         function doImportSubmit() {
@@ -433,7 +432,7 @@ $none_message = xlt("Nothing to show for current actions.");
                 document.querySelector('.select2-search__field').focus();
             });
         });
-        
+
     </script>
     <style>
       caption {
@@ -876,7 +875,6 @@ $none_message = xlt("Nothing to show for current actions.");
                                 } elseif ($next_due === true && empty($file['recurring'] ?? 0)) {
                                     $next_due = xl('Active');
                                 }
-
                                 echo '<tr><td>' . text(ucwords($cat)) . '</td>';
                                 echo '<td>' . text($profile_list[$file['profile']]['title'] ?? '') . '</td>';
                                 echo '<td>' .
@@ -892,6 +890,9 @@ $none_message = xlt("Nothing to show for current actions.");
                                     echo '<button type="button" id="patientDelete' . attr($template_id) .
                                         '" class="btn btn-sm btn-outline-danger" onclick="templateDelete(' . attr_js($template_id) . ')">' . xlt('Delete') . "</button>\n";
                                 }
+                                $file['onetime_period'] = "P2D";
+                                $file['is_onetime'] = 1;
+                                $file['audit_id'] = $audit_status['audit_id'] ?? '';
                                 $eventDispatcher->dispatch(new SendNotificationEvent($fetch_pid, $file), SendNotificationEvent::ACTIONS_RENDER_NOTIFICATION_POST);
 
                                 echo '</td><td>' . text($audit_status['denial_reason']) . '</td>';

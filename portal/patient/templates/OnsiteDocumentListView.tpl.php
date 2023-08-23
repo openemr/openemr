@@ -29,6 +29,8 @@ $new_filename = $this->new_filename;
 $webroot = $GLOBALS['web_root'];
 $encounter = '';
 $include_auth = true;
+$auto_render = $this->auto_render ?? 0;
+$audit_render = $this->audit_render ?? 0;
 // for location assign
 $referer = $GLOBALS['web_root'] . "/controller.php?document&upload&patient_id=" . attr_url($pid) . "&parent_id=" . attr_url($category) . "&";
 $referer_portal = $GLOBALS['web_root'] . "/portal/quickstart_page.php";
@@ -76,6 +78,7 @@ $templateService = new DocumentTemplateService();
     $urlAjax = $GLOBALS['web_root'] . '/library/ajax/upload.php?parent_id=Patient&patient_id=' . attr_url($pid);
     // some necessary js globals
     echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($cuser) . ";var ptName=" . js_escape($ptName) .
+        ";var autoRender=" . js_escape($auto_render) . ";var auditRender=" . js_escape($audit_render) .
         ";var catid=" . js_escape($category) . ";var catname=" . js_escape($catname) . ";</script>";
     echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) . ";var help_id=" . js_escape($help_id) . ";</script>";
     echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";var webroot_url = webRoot;</script>";
@@ -108,27 +111,27 @@ $templateService = new DocumentTemplateService();
             "<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait().script(
             "<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
     </script>
-<style>
-  @media print {
-    #templatecontent {
-      width: 1220px;
-    }
-  }
+    <style>
+      @media print {
+        #templatecontent {
+          width: 1220px;
+        }
+      }
 
-  .nav-pills-ovr > li > a {
-    border: 1px solid !important;
-    border-radius: .25rem !important;
-  }
+      .nav-pills-ovr > li > a {
+        border: 1px solid !important;
+        border-radius: .25rem !important;
+      }
 
-  .dz-remove {
-    font-size: 16px;
-    color: var(--danger);
-  }
+      .dz-remove {
+        font-size: 16px;
+        color: var(--danger);
+      }
 
-  .dz-progress {
-    opacity: 0.2 !important;
-  }
-</style>
+      .dz-progress {
+        opacity: 0.2 !important;
+      }
+    </style>
 </head>
 
 <body class="p-0 m-0">
@@ -144,14 +147,14 @@ $templateService = new DocumentTemplateService();
                     e.preventDefault();
                     $(".helpHide").addClass("d-none");
                 });
-                $("#Help").click();
                 $(".helpHide").addClass("d-none");
                 $(parent.document.getElementById('topNav')).addClass("d-none");
-                // init file upload
-                page.initFileDrop();
+                if (autoRender > 0 && auditRender <= 0) {
+                    $("#" + autoRender).click();
+                } else if (auditRender <= 0) {
+                    $("#Help").click();
+                }
             }
-            console.log('init done template');
-
             setTimeout(function () {
                 if (!page.isInitialized) {
                     page.init();
@@ -160,7 +163,16 @@ $templateService = new DocumentTemplateService();
                         console.log('secondary init done!');
                     }
                 }
-            }, 2000);
+                if (isPortal) {
+                    if (auditRender > 0) {
+                        page.editHistoryDocument(auditRender);
+                    }
+                    console.log('init done template');
+                    page.initFileDrop();
+                }
+            }, 1000);
+        }).wait(function () {
+            console.log('init 2 done template');
         });
 
         function printaDocHtml(divName) {
@@ -476,7 +488,14 @@ $templateService = new DocumentTemplateService();
                             <a class="nav-link text-danger btn btn-outline-secondary" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
                         </li>
                     <?php } ?>
-                    <?php if (!empty($is_portal)) { ?>
+                    <?php if (!empty($is_portal) && empty($auto_render)) { ?>
+                        <li class="nav-item mb-1">
+                            <a class="nav-link text-danger btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer_portal ?>")'><?php echo xlt('Exit'); ?></a>
+                        </li>
+                    <?php } else {
+                        //$referer_portal = $referer_portal . "?site=" . ($_SESSION['site_id'] ?? null) ?: 'default';
+                        $referer_portal = "../home.php?site=" . ($_SESSION['site_id'] ?? null) ?: 'default';
+                        ?>
                         <li class="nav-item mb-1">
                             <a class="nav-link text-danger btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer_portal ?>")'><?php echo xlt('Exit'); ?></a>
                         </li>

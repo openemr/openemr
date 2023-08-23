@@ -86,6 +86,12 @@ class OnsiteDocumentController extends AppBasePortalController
         if (isset($_GET['new'])) {
             $new_filename = $_GET['new'];
         }
+
+        $auto_render = $_GET['auto_render_id'] ?? 0;
+        unset($_GET['auto_render_id']);
+        $audit_render = $_GET['audit_render_id'] ?? 0;
+        unset($_GET['audit_render_id']);
+
         $this->Assign('recid', $recid);
         $this->Assign('help_id', $help_id);
         $this->Assign('cpid', $pid);
@@ -96,6 +102,8 @@ class OnsiteDocumentController extends AppBasePortalController
         $this->Assign('is_portal', $is_portal);
         $this->Assign('save_catid', $catid);
         $this->Assign('new_filename', $new_filename);
+        $this->Assign('auto_render', $auto_render);
+        $this->Assign('audit_render', $audit_render);
         $this->Render();
     }
 

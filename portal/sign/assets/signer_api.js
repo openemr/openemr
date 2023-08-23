@@ -65,7 +65,7 @@ function getSignature(othis, isInit = false, returnSignature = false) {
                 $(othis).attr('src', signhere);
                 return;
             }
-            if (typeof webRoot !== 'undefined' && webRoot !== null) {
+            if (typeof webRoot !== 'undefined' && typeof webRoot !== null) {
                 libUrl = webRoot + '/portal/';
             } else {
                 libUrl = top.webroot_url ? (top.webroot_url + '/portal/') : "./";
@@ -77,7 +77,7 @@ function getSignature(othis, isInit = false, returnSignature = false) {
             }
             let otype = $(othis).attr('data-type');
             type = otype;
-            if (typeof otype === 'undefined' || otype === null) {
+            if (typeof otype === 'undefined' || typeof otype === null) {
                 otype = $(othis).data('type');
             }
             if (otype == 'admin-signature') {
@@ -173,7 +173,7 @@ function archiveSignature(signImage = '', edata = '') {
     let pid = 0;
     let data = {};
 
-    if (typeof webRoot !== 'undefined' && webRoot !== null) {
+    if (typeof webRoot !== 'undefined' && typeof webRoot !== null) {
         libUrl = webRoot + '/portal/';
     } else {
         libUrl = "./";
@@ -228,7 +228,7 @@ function isDataURL(dataUrl = '') {
     return !!dataUrl.match(isDataURL.regex);
 }
 
-isDataURL.regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z-]+=[a-z-]+)?)?(;base64)?,[a-z0-9!$&',()*+;=\-._~:@/?%\s]*\s*$/i;
+isDataURL.regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+=[a-z\-]+)?)?(;base64)?,[a-z0-9!$&',()*+;=\-._~:@\/?%\s]*\s*$/i;
 
 // call if need to bind pen clicks after a dynamic template load. ie templates.
 var bindFetch = '';
