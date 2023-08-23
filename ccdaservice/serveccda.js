@@ -18,6 +18,7 @@ const bbg = require(__dirname + '/oe-blue-button-generate');
 const fs = require('fs');
 const DataStack = require('./data-stack/data-stack').DataStack;
 const cleanCode = require('./utils/clean-code/clean-code').cleanCode;
+const safeTrim = require('./utils/safe-trim/safe-trim').safeTrim;
 
 var conn = ''; // make our connection scope global to script
 var oidFacility = "";
@@ -27,19 +28,6 @@ var npiFacility = "";
 var webRoot = "";
 var authorDateTime = '';
 var documentLocation = '';
-
-function trim(s) {
-    if (typeof s === 'string') return s.trim();
-    return s;
-}
-
-function cleanText(s) {
-    if (typeof s === 'string') {
-        //s = s.replace(new RegExp('\r?\n','g'), '<br />');
-        return s.trim();
-    }
-    return s;
-}
 
 // do a recursive descent transformation of the node object populating the timezone offset value if we have
 // a precision property (inside a date) with the value of timezone.
@@ -1150,9 +1138,9 @@ function populateProblem(pd) {
         }],
         "problem": {
             "code": {
-                "name": trim(pd.title),
+                "name": safeTrim(pd.title),
                 "code": cleanCode(pd.code),
-                "code_system_name": trim(pd.code_type)
+                "code_system_name": safeTrim(pd.code_type)
             },
             "date_time": {
                 "low": {
@@ -1571,7 +1559,7 @@ function getPlanOfCare(pd) {
         }],
         "goal": {
             "code": cleanCode(pd.code) || "",
-            "name": cleanText(pd.description) || ""
+            "name": safeTrim(pd.description) || ""
         },
         "date_time": {
             "point": {
@@ -1647,7 +1635,7 @@ function getPlanOfCare(pd) {
             "status": status,
             "reason": encounter.encounter_reason
         }],
-        "name": cleanText(pd.description),
+        "name": safeTrim(pd.description),
         "mood_code": pd.moodCode
     };
 }
@@ -1728,7 +1716,7 @@ function getFunctionalStatus(pd) {
 
         "observation": {
             "value": {
-                "name": pd.code_text !== "NULL" ? cleanText(pd.code_text) : "",
+                "name": pd.code_text !== "NULL" ? safeTrim(pd.code_text) : "",
                 "code": cleanCode(pd.code) || "",
                 "code_system_name": pd.code_type || "SNOMED-CT"
             },
@@ -1759,7 +1747,7 @@ function getMentalStatus(pd) {
             "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809ccc",
             "extension": pd.extension,
         }],
-        "note": cleanText(pd.description),
+        "note": safeTrim(pd.description),
         "date_time": {
             "low": templateDate(pd.date, "day")
             //"high": templateDate(pd.date, "day")
@@ -1807,7 +1795,7 @@ function getMentalStatus(pd) {
 
 function getAssessments(pd) {
     return {
-        "description": cleanText(pd.description),
+        "description": safeTrim(pd.description),
         "author": populateAuthorFromAuthorContainer(pd)
     };
 }
@@ -1843,7 +1831,7 @@ function getHealthConcerns(pd) {
     return {
         // todo need to make array of health concerns
         "type": "act",
-        "text": cleanText(pd.text),
+        "text": safeTrim(pd.text),
         "value": {
             "name": pd.code_text || "",
             "code": cleanCode(pd.code) || "",
@@ -1860,7 +1848,7 @@ function getHealthConcerns(pd) {
 
 function getReferralReason(pd) {
     return {
-        "reason": cleanText(pd.text),
+        "reason": safeTrim(pd.text),
         "author": populateAuthorFromAuthorContainer(pd)
     };
 }
@@ -2524,7 +2512,7 @@ function populateNote(pd) {
             name: pd.code_text || ""
         },
         "author": populateAuthorFromAuthorContainer(pd),
-        "note": cleanText(pd.description),
+        "note": safeTrim(pd.description),
     };
 }
 
