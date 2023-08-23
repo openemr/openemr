@@ -12,9 +12,9 @@
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
-use DateTime;
 use Document;
 use Exception;
+use MyMailer;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
@@ -66,6 +66,37 @@ class EtherFaxActions extends AppDispatch
         $this->uriDir = $this->serverUrl . $this->uriDir;
 
         return $credentials;
+    }
+
+    /**
+     * @param       $email
+     * @param       $body
+     * @param       $file
+     * @param array $user
+     * @return string
+     */
+    public static function emailDocument($email, $body, $file, $user = []): string
+    {
+        $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
+        $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached fax document.");
+        $mail = new MyMailer();
+        $from_name = text($from_name);
+        $from = $GLOBALS["practice_return_email_path"];
+        $mail->AddReplyTo($from, $from_name);
+        $mail->SetFrom($from, $from);
+        $to = $email;
+        $to_name = $email;
+        $mail->AddAddress($to, $to_name);
+        $subject = xlt("Forwarded Fax Document");
+        $mail->Subject = $subject;
+        $mail->Body = $desc;
+        $mail->AddAttachment($file);
+        if ($mail->Send()) {
+            $status = xlt("Email successfully sent.");
+        } else {
+            $status = xlt("Error: Email failed") . text($mail->ErrorInfo);
+        }
+        return $status;
     }
 
     /**
@@ -236,21 +267,6 @@ class EtherFaxActions extends AppDispatch
     }
 
     /**
-     * Credit to Stephen Neilson
-     *
-     * @param $email
-     * @return bool
-     */
-    private function validEmail($email): bool
-    {
-        if (preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-\+]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/i", $email)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * @return string
      */
     public function forwardFax(): string
@@ -286,7 +302,7 @@ class EtherFaxActions extends AppDispatch
             }
             if ($hasEmail) {
                 if ($smtpEnabled) {
-                    $statusMsg .= $this->emailDocument($email, $comment, $filepath, $user) . "<br />";
+                    $statusMsg .= self::emailDocument($email, $comment, $filepath, $user) . "<br />";
                 } else {
                     $statusMsg .= 'Error: ' . xlt("Fax was not forwarded. A SMTP client is not set up in Config Notifications!.");
                     return js_escape($statusMsg);
@@ -788,5 +804,13 @@ class EtherFaxActions extends AppDispatch
         }
 
         return null;
+    }
+
+    /**
+     * @return mixed
+     */
+    function sendEmail(): mixed
+    {
+        // TODO: Implement sendEmail() method.
     }
 }
