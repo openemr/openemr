@@ -1,3 +1,5 @@
+'use strict';
+
 const NULL_FLAVOR = require('../constants').NULL_FLAVOR;
 
 function cleanCode(code) {
