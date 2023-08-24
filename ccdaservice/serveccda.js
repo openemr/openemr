@@ -19,6 +19,7 @@ const fs = require('fs');
 const DataStack = require('./data-stack/data-stack').DataStack;
 const cleanCode = require('./utils/clean-code/clean-code').cleanCode;
 const safeTrim = require('./utils/safe-trim/safe-trim').safeTrim;
+const headReplace = require('./utils/head-replace/head-replace').headReplace;
 
 var conn = ''; // make our connection scope global to script
 var oidFacility = "";
@@ -121,19 +122,6 @@ function isOne(who) {
         return false;
     }
     return 0;
-}
-
-function headReplace(content, xslUrl = "") {
-
-    let xsl = "CDA.xsl";
-    if (typeof xslUrl == "string" && xslUrl.trim() != "") {
-        xsl = xslUrl;
-    }
-
-    let r = '<?xml version="1.0" encoding="UTF-8"?>' + "\n" +
-        '<?xml-stylesheet type="text/xsl" href="' + xsl + '"?>';
-    r += "\n" + content.substring(content.search(/<ClinicalDocument/i));
-    return r;
 }
 
 function fetchPreviousAddresses(pd) {
