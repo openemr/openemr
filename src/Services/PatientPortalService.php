@@ -26,9 +26,33 @@ class PatientPortalService
     }
 
     /**
-     * @throws \Exception
+     * @param $pid
+     * @return array
      */
-    public function dispatchPortalOneTimeDocumentRequest($pid, $details, $content = '')
+    public static function isValidPortalPatient($pid): array
+    {
+        // ensure both portal and patient data match using portal account id.
+        $patient = sqlQuery(
+            "Select `pid`, `email`, `email_direct` From `patient_data` Where `pid` = ?",
+            array($pid)
+        );
+        $portal = sqlQuery(
+            "Select `pid`, `portal_username` From `patient_access_onsite` Where `pid` = ?",
+            array($patient['pid'])
+        );
+
+        $patient['valid'] = !empty($portal['portal_username']) && ((int)$pid === (int)$portal['pid']);
+
+        return $patient;
+    }
+
+    /**
+     * @param $pid
+     * @param $details
+     * @param $content
+     * @return bool|string
+     */
+    public function dispatchPortalOneTimeDocumentRequest($pid, $details, $content = ''): bool|string
     {
         $pid = $pid ?: $details['pid'] ?? 0;
         $document_id = $details['document_id'] ?? 0; // if 0 will allow a portal onetime login
@@ -36,15 +60,14 @@ class PatientPortalService
         $name = $details['document_name'];
         $period = $details['onetime_period'];
         $method = $details['notification_method'] ?? 'both';
+
         $message = '';
-
         if (!empty($content)) {
-            $message = xl("Provider comment") . ": " . $content . "\n";
+            $message = xl("Comment from provider") . ": " . $content . "\n";
         }
-        $message = $message .  xl("Click link to complete document") . " " . $name . ".\n";
+        $message = $message . xl("Please follow below to edit document.") . ': "' . $name . "\".\n";
 
-        $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
-        $statusMsg = xlt("SMS and or Email notify requests in process.") . "<br />";
+        $statusMsg = xl("Notification requests in process!") . "<br />";
         $event_data = [
             'notification_method' => $method,
             'text_message' => $message,
@@ -54,10 +77,16 @@ class PatientPortalService
             'audit_id' => $audit_id,
             'expiry_interval' => $period
         ];
+        $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
         $eventDispatcher->dispatch(new SendNotificationEvent($pid, $event_data), SendNotificationEvent::SEND_NOTIFICATION_SERVICE_ONETIME);
         return js_escape($statusMsg);
     }
 
+    /**
+     * @param $param
+     * @param $default
+     * @return mixed
+     */
     public function getRequest($param = null, $default = null): mixed
     {
         if ($param) {
@@ -67,6 +96,11 @@ class PatientPortalService
         return $_REQUEST;
     }
 
+    /**
+     * @param $param
+     * @param $default
+     * @return mixed
+     */
     public function getPost($param = null, $default = null): mixed
     {
         if ($param) {
@@ -77,6 +111,11 @@ class PatientPortalService
     }
 
 
+    /**
+     * @param $param
+     * @param $default
+     * @return mixed
+     */
     public function getGET($param = null, $default = null): mixed
     {
         if ($param) {

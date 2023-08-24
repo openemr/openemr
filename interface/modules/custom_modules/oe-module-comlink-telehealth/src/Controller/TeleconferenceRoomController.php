@@ -46,6 +46,7 @@ use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\PatientAccessOnsiteService;
+use OpenEMR\Services\PatientPortalService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
 use OpenEMR\Validators\PatientValidator;
@@ -158,6 +159,11 @@ class TeleconferenceRoomController
         $this->participantListService = $participantListService;
     }
 
+    /**
+     * @param $action
+     * @param $queryVars
+     * @return void|null
+     */
     public function dispatch($action, $queryVars)
     {
         $this->logger->debug("TeleconferenceRoomController->dispatch()", ['action' => $action, 'queryVars' => $queryVars, 'isPatient' => $this->isPatient]);
@@ -196,6 +202,10 @@ class TeleconferenceRoomController
         }
     }
 
+    /**
+     * @param $queryVars
+     * @return void
+     */
     public function getParticipantListAction($queryVars)
     {
         try {
@@ -235,6 +245,12 @@ class TeleconferenceRoomController
         }
     }
 
+    /**
+     * @param $userName
+     * @param $session
+     * @return array|\OpenEMR\Services\The
+     * @throws AccessDeniedException
+     */
     private function verifyUsernameCanAccessSession($userName, $session)
     {
         // grab user id and make sure we can access this
@@ -246,6 +262,12 @@ class TeleconferenceRoomController
         return $user;
     }
 
+    /**
+     * @param $pid
+     * @param $session
+     * @return void
+     * @throws AccessDeniedException
+     */
     private function verifyPidCanAccessSession($pid, $session)
     {
         $primaryPid = intval($session['pid'] ?? 0);
@@ -257,6 +279,10 @@ class TeleconferenceRoomController
         }
     }
 
+    /**
+     * @param $queryVars
+     * @return void
+     */
     public function launchPatientSessionAction($queryVars)
     {
         try {
@@ -328,6 +354,10 @@ class TeleconferenceRoomController
         }
     }
 
+    /**
+     * @param $queryVars
+     * @return void
+     */
     public function validatePatientIsTelehealthReadyAction($queryVars)
     {
 
@@ -353,11 +383,9 @@ class TeleconferenceRoomController
             if (!AclMain::aclCheckCore('patients', 'appt')) {
                 throw new AccessDeniedException("patients", "appt", "Does not have ACL permission to patient appointments");
             }
-            // feels odd to use the OneTimeAuth for verifying if the patient is a valid portal user...
-            // TODO: @adunsulag look at moving this isValidPortalPatient function the Patient service or perhaps a PatientPortal service.
             $oneTimeAuth = new OneTimeAuth();
-            $patient = $oneTimeAuth->isValidPortalPatient($validatePid) ?? ['valid' => false];
-            if (!empty($patient['valid']) && $patient['valid'] == true) {
+            $patient = PatientPortalService::isValidPortalPatient($validatePid) ?? ['valid' => false];
+            if (($patient['valid'] ?? false)) {
                 http_response_code(200);
                 header("Content-type: application/json");
                 echo json_encode(['success' => true]);
@@ -383,6 +411,10 @@ class TeleconferenceRoomController
         }
     }
 
+    /**
+     * @param $queryVars
+     * @return void
+     */
     public function generateParticipantLinkAction($queryVars)
     {
         try {
@@ -452,6 +484,10 @@ class TeleconferenceRoomController
 
     // TODO: @adunsulag we need to break this up into another class, however there's a lot of tight coupling here
     // that will require some refactoring.
+    /**
+     * @param $queryVars
+     * @return void
+     */
     public function saveSessionParticipantAction($queryVars)
     {
         // let's grab the json data if we have it in the post
@@ -509,6 +545,10 @@ class TeleconferenceRoomController
         }
     }
 
+    /**
+     * @param $data
+     * @return mixed
+     */
     private function createPatientFromSessionInvitationData($data)
     {
         $patientService = new PatientService();
@@ -567,6 +607,12 @@ class TeleconferenceRoomController
         return $pid;
     }
 
+    /**
+     * @param $session
+     * @param $pid
+     * @param $isNewPatient
+     * @return void
+     */
     private function sendSessionInvitationToRelatedParty($session, $pid, $isNewPatient = false)
     {
         // need to send out the invitation to the patient
@@ -581,6 +627,10 @@ class TeleconferenceRoomController
         }
     }
 
+    /**
+     * @param $queryVars
+     * @return void
+     */
     public function verifyInstallationSettings($queryVars)
     {
         $configVerifier = new TelehealthConfigurationVerifier(
@@ -599,6 +649,10 @@ class TeleconferenceRoomController
         $configVerifier->verifyInstallationSettings($user);
     }
 
+    /**
+     * @param $queryVars
+     * @return void
+     */
     public function setAppointmentStatusAction($queryVars)
     {
         $pc_eid = $queryVars['pc_eid'];
@@ -661,6 +715,10 @@ class TeleconferenceRoomController
         }
     }
 
+    /**
+     * @param $queryVars
+     * @return void
+     */
     public function getTeleHealthLaunchDataAction($queryVars)
     {
         try {
@@ -698,11 +756,19 @@ class TeleconferenceRoomController
         }
     }
 
+    /**
+     * @param $queryVars
+     * @return void
+     */
     public function getTeleHealthFrontendSettingsAction($queryVars)
     {
         echo $this->settingsController->renderFrontendSettings($this->isPatient);
     }
 
+    /**
+     * @param $queryVars
+     * @return void
+     */
     public function conferenceSessionUpdateAction($queryVars)
     {
         $pc_eid = $queryVars['pc_eid'];
@@ -748,6 +814,10 @@ class TeleconferenceRoomController
         }
     }
 
+    /**
+     * @param $queryVars
+     * @return void
+     */
     public function patientAppointmentReadyAction($queryVars)
     {
         $pc_eid = $queryVars['eid'];
@@ -828,6 +898,10 @@ class TeleconferenceRoomController
         }
     }
 
+    /**
+     * @param $queryVars
+     * @return void
+     */
     public function checkRegistrationAction($queryVars)
     {
         try {
@@ -859,6 +933,11 @@ class TeleconferenceRoomController
         }
     }
 
+    /**
+     * @param $appt
+     * @param $userId
+     * @return bool
+     */
     public function shouldChangeProvider($appt, $userId)
     {
         if ($appt['pc_aid'] != $userId) {
@@ -867,6 +946,12 @@ class TeleconferenceRoomController
         return false;
     }
 
+    /**
+     * @param $appt
+     * @param $user
+     * @return mixed
+     * @throws AccessDeniedException
+     */
     public function copyAppointmentAndChangeProvider($appt, $user)
     {
         $userId = $user['id'];
@@ -910,6 +995,10 @@ class TeleconferenceRoomController
         return $appt;
     }
 
+    /**
+     * @param $queryVars
+     * @return void
+     */
     public function setCurrentAppointmentEncounter($queryVars)
     {
         try {
@@ -1024,16 +1113,28 @@ class TeleconferenceRoomController
         }
     }
 
+    /**
+     * @param EncounterService $service
+     * @return void
+     */
     public function setEncounterService(EncounterService $service)
     {
         $this->encounterService = $service;
     }
 
+    /**
+     * @param AppointmentService $service
+     * @return void
+     */
     public function setAppointmentService(AppointmentService $service)
     {
         $this->appointmentService = $service;
     }
 
+    /**
+     * @param $pid
+     * @return mixed
+     */
     private function getPatientForPid($pid)
     {
         $formattedPatientService = new FormattedPatientService();
@@ -1041,6 +1142,12 @@ class TeleconferenceRoomController
     }
 
 
+    /**
+     * @param $queryVars
+     * @return mixed
+     * @throws AccessDeniedException
+     * @throws TelehealthProvisioningServiceRequestException
+     */
     public function renderWaitingRoom($queryVars)
     {
         if ($this->isPatient) {
@@ -1053,11 +1160,20 @@ class TeleconferenceRoomController
         return $this->twig->render('comlink/waiting-room.twig', $data);
     }
 
+    /**
+     * @param $appointment
+     * @return bool
+     */
     public function isPendingAppointment($appointment)
     {
         return $this->appointmentService->isPendingStatus($appointment['pc_apptstatus']);
     }
 
+    /**
+     * @param $appointment
+     * @param $userId
+     * @return mixed
+     */
     public function removeAppointmentPendingStatus($appointment, $userId)
     {
         $listService = new ListService();
@@ -1079,6 +1195,10 @@ class TeleconferenceRoomController
         return $appointment;
     }
 
+    /**
+     * @param $pc_eid
+     * @return mixed
+     */
     public function initalizeAppointmentForTelehealth($pc_eid)
     {
         $appointmentService = $this->appointmentService;
@@ -1119,6 +1239,13 @@ class TeleconferenceRoomController
         return $appointment;
     }
 
+    /**
+     * @param $pc_eid
+     * @param $user_id
+     * @param $encounter
+     * @param $pid
+     * @return array|null
+     */
     private function initalizeTelehealthSession($pc_eid, $user_id, $encounter, $pid)
     {
         $telehealthSession = $this->sessionRepository->getSessionByAppointmentId($pc_eid);
@@ -1129,6 +1256,12 @@ class TeleconferenceRoomController
         return $telehealthSession;
     }
 
+    /**
+     * @param $queryVars
+     * @return mixed
+     * @throws AccessDeniedException
+     * @throws TelehealthProvisioningServiceRequestException
+     */
     public function renderConferenceRoom($queryVars)
     {
         if ($this->isPatient) {
@@ -1321,6 +1454,11 @@ class TeleconferenceRoomController
         return $data;
     }
 
+    /**
+     * @param $pid
+     * @param $session
+     * @return bool
+     */
     private function isPatientPidAuthorizedForSession($pid, $session)
     {
         $convertedPid = intval($pid);
@@ -1333,6 +1471,11 @@ class TeleconferenceRoomController
         return false;
     }
 
+    /**
+     * @param $user
+     * @param $session
+     * @return array[]
+     */
     private function getParticipantListForAppointment($user, $session)
     {
         return $this->participantListService->getParticipantListForAppointment($user, $session);
@@ -1358,6 +1501,10 @@ class TeleconferenceRoomController
         return $this->provisioningService->getOrCreateTelehealthPatient($patient);
     }
 
+    /**
+     * @param $password
+     * @return string
+     */
     private function getApiKeyForPassword($password)
     {
         $decrypted = $this->telehealthUserRepo->decryptPassword($password);
