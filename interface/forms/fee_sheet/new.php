@@ -1109,14 +1109,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <div class="text-center">
                                     <div class="form-group">
                                         <?php
-                                            $nofs_code_types = array();
-                                            foreach ($code_types as $key => $value) {
-                                                if (!empty($value['nofs'])) {
-                                                    continue;
-                                                }
-                                                $nofs_code_types[$key] = $value;
+                                        $nofs_code_types = array();
+                                        foreach ($code_types as $key => $value) {
+                                            if (!empty($value['nofs'])) {
+                                                continue;
                                             }
-                                            $size_select = (count($nofs_code_types) < 5) ? count($nofs_code_types) : 5;
+                                            $nofs_code_types[$key] = $value;
+                                        }
+                                        $size_select = (count($nofs_code_types) < 5) ? count($nofs_code_types) : 5;
                                         ?>
 
                                         <div class="btn-group" data-toggle="buttons">
