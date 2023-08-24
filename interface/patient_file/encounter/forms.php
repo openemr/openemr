@@ -616,7 +616,7 @@ echo $t->render('encounter/forms/navbar.html.twig', [
 ]);
 ?>
 
-<div id="encounter_forms" class="container">
+<div id="encounter_forms" class="container-xl">
 <div class='encounter-summary-container'>
     <?php
     $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
