@@ -590,14 +590,19 @@ function renderProfileHtml()
                                         continue;
                                     }
                                     /* The drag container */
-                                    echo "<li class='list-group-item px-1 py-1 mb-2 bg-primary' data-id='$template_id' data-name='$this_name' data-category='$title_esc'>" .
+                                    echo "<li class='list-group-item px-1 py-1 mb-1 bg-primary' data-id='$template_id' data-name='$this_name' data-category='$title_esc'>" .
                                         "<strong>" . text($file['template_name']) .
                                         '</strong>' . ' ' . xlt('in category') . ' ' .
                                         '<strong>' . text($title) . '</strong>';
                                     ?>
                                     <form class='form form-inline bg-light text-dark py-1 pl-1 d-none'>
+                                        <div class='input-group-sm input-group-prepend'>
+                                            <label class="form-check-inline"><?php echo xlt('OneTime') ?>
+                                                <input name="onetimeIsOkay" type='checkbox' class="input-control-sm ml-1 mt-1" title="<?php echo xla('Enable Auto Portal log in for presenting document to patient.') ?>" />
+                                            </label>
+                                        </div>
                                         <label class='font-weight-bold mr-1'><?php echo xlt('Notify') ?></label>
-                                        <div class='input-group-sm input-group-prepend ml-auto'>
+                                        <div class='input-group-sm input-group-prepend'>
                                             <input name="notify_days" type="text" style="width: 50px;" class='input-control-sm ml-1' placeholder="<?php echo xla('days') ?>" value="" />
                                             <label class="mx-1"><?php echo xlt('Days') ?></label>
                                         </div>
@@ -611,7 +616,7 @@ function renderProfileHtml()
                                                 <option value="in_edit"><?php echo xlt('In Edit'); ?></option>
                                             </select>
                                         </div>
-                                        <div class='input-group-sm input-group-prepend ml-auto'>
+                                        <div class='input-group-sm input-group-prepend'>
                                             <label class="form-check-inline"><?php echo xlt('Recurring') ?>
                                                 <input name="recurring" type='checkbox' class="input-control-sm ml-1 mt-1" />
                                             </label>
@@ -646,7 +651,7 @@ function renderProfileHtml()
                             $profile_items_list = $templateService->getTemplateListByProfile($profile);
                             $profile_esc = attr($profile);
                             ?>
-                            <div class='bg-dark text-light py-1 pl-1'><?php echo xlt($profiles['title']) ?></div>
+                            <div class='bg-dark text-light mb-1 py-1 pl-1'><?php echo xlt($profiles['title']) ?></div>
                             <?php
                             echo "<ul id='$profile_esc' class='list-group mx-2 mb-2' data-profile='$profile_esc'>\n";
                             foreach ($profile_items_list as $cat => $files) {
@@ -668,8 +673,13 @@ function renderProfileHtml()
                                         continue;
                                     }
                                     ?>
-                                    <li class='list-group-item bg-info px-1 py-1 mb-2' data-id="<?php echo $template_id; ?>" data-name="<?php echo $this_name; ?>" data-category="<?php echo $this_cat; ?>"><span class="p-1 font-weight-bold"><?php echo text($file['template_name']) . ' ' . xlt('in category') . ' ' . text($title); ?></span>
+                                    <li class='list-group-item bg-warning text-light px-1 py-1 mb-1' data-id="<?php echo $template_id; ?>" data-name="<?php echo $this_name; ?>" data-category="<?php echo $this_cat; ?>"><span class="p-1 font-weight-bold"><?php echo text($file['template_name']) . ' ' . xlt('in category') . ' ' . text($title); ?></span>
                                         <form class='form form-inline bg-light text-dark py-1 pl-1'>
+                                            <div class='input-group-sm input-group-prepend'>
+                                                <label class="form-check-inline"><?php echo xlt('OneTime') ?>
+                                                    <input name="onetimeIsOkay" type='checkbox' class="input-control-sm ml-1 mt-1" title="<?php echo xla('Enable Auto Portal log in for presenting document to patient.') ?>" />
+                                                </label>
+                                            </div>
                                             <label class='font-weight-bold mr-1'><?php echo xlt('Notify') ?></label>
                                             <div class='input-group-sm input-group-prepend'>
                                                 <input name="notify_days" type="text" style="width: 50px;" class='input-control-sm ml-1' placeholder="<?php echo xla('days') ?>" value="<?php echo $notify_days ?>" />

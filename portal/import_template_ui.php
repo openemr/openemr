@@ -21,7 +21,6 @@ use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\QuestionnaireService;
 
-
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
     echo xlt('Patient Portal is turned off');
     exit;
@@ -29,19 +28,55 @@ if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_
 
 $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
 $authUploadTemplates = AclMain::aclCheckCore('admin', 'forms');
-
+// Service
 $templateService = new DocumentTemplateService();
 $from_demo_pid = $_GET['from_demo_pid'] ?? '0';
 $patient = $_REQUEST['selected_patients'] ?? null;
 $patient = $patient ?: ($_REQUEST['upload_pid'] ?? 0);
-
+// our lists
 $category = $_REQUEST['template_category'] ?? '';
 $category_list = $templateService->fetchDefaultCategories();
 $profile_list = $templateService->fetchDefaultProfiles();
 $group_list = $templateService->fetchDefaultGroups();
-
+// for empty lists
 $none_message = xlt("Nothing to show for current actions.");
-
+// init status array
+$audit_status_blank = array(
+'audit_id' => null,
+'pid' => null,
+'create_date' => null,
+'doc_type' => null,
+'id' => null,
+'facility' => null,
+'provider' => null,
+'encounter' => null,
+'patient_signed_status' => null,
+'patient_signed_time' => null,
+'authorize_signed_time' => null,
+'accept_signed_status' => null,
+'authorizing_signator' => null,
+'review_date' => null,
+'denial_reason' => null,
+'authorized_signature' => null,
+'patient_signature' => null,
+'full_document' => null,
+'file_name' => null,
+'file_path' => null,
+'template_data' => null,
+'date' => null,
+'patient_id' => null,
+'activity' => null,
+'require_audit' => null,
+'pending_action' => null,
+'action_taken' => null,
+'status' => null,
+'narrative' => null,
+'table_action' => null,
+'table_args' => null,
+'action_user' => null,
+'action_taken_time' => null,
+'checksum' => null,
+);
 ?>
 <!DOCTYPE html>
 <head>
@@ -752,6 +787,7 @@ $none_message = xlt("Nothing to show for current actions.");
                         '<th>' . xlt('Category') . '</th>' .
                         '<th>' . xlt('Template Actions') . '</th>' .
                         '<th>' . xlt('Size') . '</th>' .
+                        '<th>' . xlt('Created') . '</th>' .
                         '<th>' . xlt('Last Modified') . '</th>' .
                         "</tr>\n";
                     echo "</thead>\n";
@@ -842,21 +878,15 @@ $none_message = xlt("Nothing to show for current actions.");
                             }
                             foreach ($files as $file) {
                                 $template_id = $file['id'];
-                                $audit_status = array(
-                                    'pid' => '',
-                                    'create_date' => (($file['profile_date'] ?? null) ?: $file['modified_date']) ?? '',
-                                    'doc_type' => '',
-                                    'patient_signed_time' => '',
-                                    'authorize_signed_time' => '',
-                                    'patient_signed_status' => '',
-                                    'review_date' => '',
-                                    'denial_reason' => $file['status'] ?? '',
-                                    'file_name' => '',
-                                    'file_path' => '',
-                                );
-                                $audit_status_fetch = $templateService->fetchTemplateStatus($file['pid'], $file['id']);
+
+                                $audit_status = $audit_status_blank;
+                                $audit_status['create_date'] = (($file['profile_date'] ?? null) ?: $file['modified_date']) ?? null;
+                                $audit_status['denial_reason'] = $file['status'] ?? '';
+                                $audit_status_fetch = $templateService->fetchPatientDocumentStatus($file['pid'], $file['id']);
                                 if (is_array($audit_status_fetch)) {
-                                    $audit_status = $audit_status_fetch;
+                                    $audit_status = array_merge($audit_status_blank, $file, $audit_status_fetch);
+                                } else {
+                                    $audit_status = array_merge($audit_status_blank, $file);
                                 }
                                 $next_due = $templateService->showTemplateFromEvent($file, true);
                                 if ($next_due > 1) {
