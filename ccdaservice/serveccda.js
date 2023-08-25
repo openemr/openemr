@@ -53,26 +53,6 @@ function populateTimezones(node, tzOffset, depthCheck) {
     return node;
 }
 
-function getPrecision(str) {
-    str = String(str);
-    let pflg = "day";
-
-    if (Number(str) === 0) {
-        return "day";
-    }
-    if (str.length > 8) {
-        pflg = "day";
-    }
-    if (str.length > 12) {
-        pflg = "second";
-    }
-    if (str.length > 23) {
-        pflg = "tz";
-    }
-
-    return pflg;
-}
-
 function isOne(who) {
     try {
         if (who !== null && typeof who === 'object') {
