@@ -20,6 +20,7 @@ const DataStack = require('./data-stack/data-stack').DataStack;
 const cleanCode = require('./utils/clean-code/clean-code').cleanCode;
 const safeTrim = require('./utils/safe-trim/safe-trim').safeTrim;
 const headReplace = require('./utils/head-replace/head-replace').headReplace;
+const { fDate, templateDate } = require('./utils/date/date');
 
 var conn = ''; // make our connection scope global to script
 var oidFacility = "";
@@ -52,36 +53,6 @@ function populateTimezones(node, tzOffset, depthCheck) {
     return node;
 }
 
-function fDate(str, lim8 = false) {
-    str = String(str);
-    if (lim8) {
-        let rtn = str.substring(0, 8);
-        return rtn;
-    }
-    if (Number(str) === 0) {
-        return (new Date()).toISOString();
-    }
-    if (str.length === 1 || str === "0000-00-00") return (new Date()).toISOString();
-    if (str.length === 8 || (str.length === 14 && (1 * str.substring(12, 14)) === 0)) {
-        return [str.slice(0, 4), str.slice(4, 6), str.slice(6, 8)].join('-');
-    } else if (str.length === 10 && (1 * str.substring(0, 2)) <= 12) {
-        // case mm/dd/yyyy or mm-dd-yyyy
-        return [str.slice(6, 10), str.slice(0, 2), str.slice(3, 5)].join('-');
-    } else if (str.length === 17) {
-        str = str.split(' ');
-        str = [str[0].slice(0, 4), str[0].slice(4, 6), str[0].slice(6, 8)].join('-') + ' ' + str[1];
-        return str;
-    } else if (str.length === 19 && (str.substring(14, 15)) == '-') {
-        let strZone = str.split('-');
-        let strDate = [strZone[0].substring(0, 4), strZone[0].substring(4, 6), strZone[0].substring(6, 8)].join('-');
-        let strTime = [str.substring(8, 10), str.substring(10, 12), str.substring(12, 14)].join(':');
-
-        let str1 = strDate + ' ' + strTime + '-' + strZone[1];
-        return str1;
-    }
-    return str;
-}
-
 function getPrecision(str) {
     str = String(str);
     let pflg = "day";
@@ -100,10 +71,6 @@ function getPrecision(str) {
     }
 
     return pflg;
-}
-
-function templateDate(date, precision) {
-    return {'date': fDate(date), 'precision': precision}
 }
 
 function isOne(who) {
