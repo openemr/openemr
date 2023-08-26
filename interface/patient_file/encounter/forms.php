@@ -886,7 +886,7 @@ if (
         $display = text($form_name) . " " . xlt("by") . " " . text($form_author);
         $author_text = text($form_author);
         $by_text = xlt("by");
-        $chevron = ($divnos == 1) ? "fa-chevron-down" : "fa-chevron-down";
+        $chevron = "fa-chevron-down";
         $form_text = text($form_name);
         echo <<<HTML
         <div class="form-header border-bottom border-dark w-100 d-flex align-items-center justify-content-between">
