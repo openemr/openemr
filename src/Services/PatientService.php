@@ -16,6 +16,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryPagination;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\ORDataObject\Address;
 use OpenEMR\Common\ORDataObject\ContactAddress;
@@ -26,6 +27,8 @@ use OpenEMR\Events\Patient\PatientCreatedEvent;
 use OpenEMR\Events\Patient\PatientUpdatedEvent;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\SearchConfigClauseBuilder;
+use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
@@ -334,10 +337,11 @@ class PatientService extends BaseService
      * @param  $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @param $config - Search Query Config has sorting, pagination and other query configuration options for the request.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
+    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null, SearchQueryConfig $config = null)
     {
         $querySearch = [];
         if (!empty($search)) {
@@ -360,16 +364,17 @@ class PatientService extends BaseService
                 }
             }
         }
-        return $this->search($querySearch, $isAndCondition);
+        return $this->search($querySearch, $isAndCondition, $config);
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search($search, $isAndCondition = true, SearchQueryConfig $config = null)
     {
         // we run two queries in this search.  The first query is to grab all of the uuids of the patients that match
         // the search.  Because we are joining several tables with a 1:m relationship on several tables (previous name,
         // patient history, address) we have to grab all of our patients uuids and then run our query AGAIN without any
         // search filters so that we can make sure to grab the ENTIRE patient record (all of their names, addresses, etc).
         $sqlSelectIds = "SELECT DISTINCT patient_data.uuid ";
+        $sqlSelectIdsCount = "SELECT COUNT(DISTINCT patient_data.uuid) AS cnt ";
         $sqlSelectData = "SELECT
                     patient_data.*
                     ,patient_history_uuid
@@ -428,7 +433,22 @@ class PatientService extends BaseService
                 ) patient_additional_addresses ON patient_data.pid = patient_additional_addresses.contact_address_patient_id";
         $whereUuidClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
-        $sqlUuids = $sqlSelectIds . $sql . $whereUuidClause->getFragment();
+        if (!empty($config)) {
+            $pagination = $config->getPagination();
+            $orderBy = SearchConfigClauseBuilder::buildSortOrderClauseFromConfig($config);
+            $offset = SearchConfigClauseBuilder::buildQueryPaginationClause($pagination);
+        } else {
+            $orderBy = "";
+            $offset = "";
+            $pagination = new QueryPagination();
+        }
+
+        $sqlUUidsCount = $sqlSelectIdsCount . $sql . $whereUuidClause->getFragment() . " " . $orderBy;
+        $uuidCount = QueryUtils::fetchSingleValue($sqlUUidsCount, 'cnt', $whereUuidClause->getBoundValues());
+        if (empty($uuidCount) || intval($uuidCount) <= 0) {
+            return new ProcessingResult();
+        }
+        $sqlUuids = $sqlSelectIds . $sql . $whereUuidClause->getFragment() . " " . $orderBy . " " . $offset;
         $uuidResults = QueryUtils::fetchTableColumn($sqlUuids, 'uuid', $whereUuidClause->getBoundValues());
 
         if (!empty($uuidResults)) {
@@ -436,18 +456,22 @@ class PatientService extends BaseService
             // this makes sure we grab the entire patient record and associated data
             $whereClause = " WHERE patient_data.uuid IN (" . implode(",", array_map(function ($uuid) {
                 return "?";
-            }, $uuidResults)) . ")";
+            }, $uuidResults)) . ") " . $orderBy; // make sure we keep our sort order
             $statementResults = QueryUtils::sqlStatementThrowException($sqlSelectData . $sql . $whereClause, $uuidResults);
-            $processingResult = $this->hydrateSearchResultsFromQueryResource($statementResults);
+            $processingResult = $this->hydrateSearchResultsFromQueryResource($statementResults, $pagination);
+            $processingResult->getPagination()->setTotalCount($uuidCount);
             return $processingResult;
         } else {
             return new ProcessingResult();
         }
     }
 
-    private function hydrateSearchResultsFromQueryResource($queryResource)
+    private function hydrateSearchResultsFromQueryResource($queryResource, QueryPagination $pagination = null)
     {
         $processingResult = new ProcessingResult();
+        if (!empty($pagination)) {
+            $processingResult->setPagination($pagination);
+        }
         $patientsByUuid = [];
         $alreadySeenPatientHistoryUuids = [];
         $alreadySeenContactAddressIds = [];

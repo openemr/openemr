@@ -392,6 +392,8 @@ paths:
       description: 'Retrieves a list of patients'
       parameters:
         -
+          $ref: '#/components/parameters/_sort'
+        -
           name: fname
           in: query
           description: 'The first name for the patient.'
@@ -496,6 +498,29 @@ paths:
           required: false
           schema:
             type: string
+        -
+          name: date
+          in: query
+          description: 'The date this patient resource was last modified.'
+          required: false
+          schema:
+            type: string
+        -
+          name: _offset
+          in: query
+          description: 'The number of records to offset from this index in the search result.'
+          required: false
+          schema:
+            type: integer
+        -
+          name: _limit
+          in: query
+          description: 'The maximum number of resources to return in the result set. 0 means unlimited.'
+          required: false
+          schema:
+            type: integer
+            maximum: 200
+            minimum: 0
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -5688,6 +5713,8 @@ paths:
           required: false
           schema:
             type: string
+        -
+          $ref: '#/components/parameters/_lastUpdated'
       responses:
         '200':
           description: 'Standard Response'
@@ -7679,6 +7706,21 @@ components:
                 type: object
             type: object
             example: []
+  parameters:
+    _sort:
+      name: _sort
+      in: query
+      description: 'The sort criteria specified in comma separated order with Descending order being specified by a dash before the search parameter name. (Example: name,-category)'
+      required: false
+      schema:
+        type: string
+    _lastUpdated:
+      name: _lastUpdated
+      in: query
+      description: 'The date the resource was last updated.'
+      required: false
+      schema:
+        type: string
   securitySchemes:
     openemr_auth:
       type: oauth2
