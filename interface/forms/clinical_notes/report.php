@@ -40,5 +40,3 @@ function clinical_notes_report($pid, $encounter, $cols, $id)
     $t = $twig->getTwig();
     echo $t->render('templates/report.html.twig', $viewArgs);
 }
-
-?>
