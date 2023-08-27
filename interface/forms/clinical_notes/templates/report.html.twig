@@ -13,7 +13,7 @@ The Report template of the clinical note form.
         <div class="d-flex justify-content-between bg-light border border-dark p-1">
             <div class="form-group mb-0">
                 <div class="font-weight-bold">{{ "Date"|xlt }}</div>
-                <div>{{ n.date|date() }}</div>
+                <div>{{ n.date|date()|text }}</div>
             </div>
             <div class="form-group mb-0">
                 <div class="font-weight-bold">{{ "Type"|xlt }}</div>
