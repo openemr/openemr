@@ -76,8 +76,8 @@ class NotificationEventListener implements EventSubscriberInterface
         $patient = $event->fetchPatientDetails($pid);
         $text_message = $data['text_message'] ?? xl("Click link to complete document.");
         $html_message = $data['html_message'] ?? '';
-        $recipientEmail = $data['recipient_email'] ?? '' ?: $patient['email'];
-        $recipientPhone = $data['recipient_phone'] ?? '' ?: $patient['phone'];
+        $recipientEmail = $patient['email'];
+        $recipientPhone = $patient['phone'];
         $document_id = $data['document_id'] ?? 0;
         $audit_id = $data['audit_id'];
         $sendMethod = $data['notification_method'] ?? 'sms';
@@ -213,7 +213,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $name = $notificationEvent->getEventData()['template_name'] ?? '';
         $details = array_merge($p_data, $notificationEvent->getEventData());
         ?>
-        <button type="button" class="sendsms btn btn-success btn-sm btn-send-msg"
+        <button type="button" class="sendsms float-right btn btn-success btn-sm btn-send-msg"
             onclick="sendNotification(
             <?php echo attr_js($notificationEvent->getPid()); ?>,
             <?php echo attr_js($name); ?>,

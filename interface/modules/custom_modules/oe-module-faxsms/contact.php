@@ -26,31 +26,36 @@ if (!$clientApp->verifyAcl()) {
 $logged_in = $clientApp->authenticate();
 $isEmail = $clientApp->getRequest('isEmail', 0);
 $isSMS = $clientApp->getRequest('isSMS', 0);
-$isForward = 0;
+$isForward = $isFax = 0;
 $isForward = ($clientApp->getRequest('mode', '') == 'forward') ? 1 : 0;
+$isFax = ($serviceType == 'fax') ? 1 : 0;
 $isSMTP = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
 $default_message = '';
 $interface_pid = null;
 $file_mime = '';
 $recipient_phone = '';
-
+if (empty($isSMS)) {
 // fax contact form
-$interface_pid = $clientApp->getRequest('pid');
-$the_file = $clientApp->getRequest('file');
-$isContent = $clientApp->getRequest('isContent');
-$the_docid = $clientApp->getRequest('docid', $clientApp->getRequest('template_id'));
-$form_pid = $clientApp->getRequest('form_pid');
-$isDoc = (int)$clientApp->getRequest('isDocuments');
-$isQueue = $clientApp->getRequest('isQueue');
-$file_name = pathinfo($the_file, PATHINFO_BASENAME);
-$details = json_decode($clientApp->getRequest('details', ''), true);
-$template_name = $clientApp->getRequest('title');
+    $interface_pid = $clientApp->getRequest('pid');
+    $the_file = $clientApp->getRequest('file');
+    $isContent = $clientApp->getRequest('isContent');
+    $the_docid = $clientApp->getRequest('docid', $clientApp->getRequest('template_id'));
+    $form_pid = $clientApp->getRequest('form_pid');
+    $isDoc = (int)$clientApp->getRequest('isDocuments');
+    $isQueue = $clientApp->getRequest('isQueue');
+    $file_name = pathinfo($the_file, PATHINFO_BASENAME);
+    $details = json_decode($clientApp->getRequest('details', ''), true);
+    $template_name = $clientApp->getRequest('title');
+} else {
 // SMS contact dialog. Passed in phone or select patient from popup.
-$portal_url = $GLOBALS['portal_onsite_two_address'];
-$recipient_phone = $clientApp->getRequest('recipient', $details['phone'] ?? '');
+    $interface_pid = $clientApp->getRequest('pid');
+    $portal_url = $GLOBALS['portal_onsite_two_address'];
+    $details = json_decode($clientApp->getRequest('details', ''), true);
+    $recipient_phone = $clientApp->getRequest('recipient', $details['phone'] ?? '');
 // TODO need flag for message origin maybe later
 // $default_message = xlt("The following document") . ": " . text($doc_name) . " " . xlt("is available to be completed at") . " " . text($portal_url);
-$pid = $interface_pid;
+    $pid = $interface_pid;
+}
 $isOnetime = $clientApp->getRequest('isOnetime', false);
 $isEmail = $clientApp->getRequest('isEmail', false);
 
@@ -63,7 +68,7 @@ $service = $clientApp::getServiceType();
     <title><?php echo xlt('Contact') ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php Header::setupHeader();
-    echo "<script>var pid=" . js_escape($pid) . ";var isOnetime=" . js_escape($isOnetime) . ";var isEmail=" . js_escape($isEmail) . ";var isSms=" . js_escape($isSMS) . ";var isForward=" . js_escape($isForward) . ";var recipient=" . js_escape($recipient_phone) . ";</script>";
+    echo "<script>var pid=" . js_escape($pid) . ";var isFax=" . js_escape($isFax) . ";var isOnetime=" . js_escape($isOnetime) . ";var isEmail=" . js_escape($isEmail) . ";var isSms=" . js_escape($isSMS) . ";var isForward=" . js_escape($isForward) . ";var recipient=" . js_escape($recipient_phone) . ";</script>";
     ?>
     <?php if (!empty($GLOBALS['text_templates_enabled'])) { ?>
         <script src="<?php echo $GLOBALS['web_root'] ?>/library/js/CustomTemplateLoader.js"></script>
@@ -71,13 +76,13 @@ $service = $clientApp::getServiceType();
     <script>
         $(function () {
             if (isSms) {
-                $(".smsExclude").addClass("d-none");
                 $("#form_phone").val(recipient);
                 if (pid) {
                     setpatient(pid);
                 }
+                $(".smsExclude").addClass("d-none");
             } else {
-                $(".faxExclude").addClass("d-none");
+                //$(".faxExclude").addClass("d-none");
             }
             if (isForward) {
                 $(".forwardExclude").addClass("d-none");
@@ -172,6 +177,9 @@ $service = $clientApp::getServiceType();
                 $("#wait").remove()
             }, 'json').done(
                 function (data) {
+                    if (recipient && !data['phone_cell']) {
+                        data['phone_cell'] = recipient;
+                    }
                     $(".show-detail").removeClass('d-none')
                     $("#form_name").val(data['fname']);
                     $("#form_lastname").val(data['lname']);
@@ -228,7 +236,7 @@ $service = $clientApp::getServiceType();
             <input type="hidden" id="form_isSMS" name="isSMS" value='<?php echo attr($isSMS); ?>'>
             <input type="hidden" id="form_mime" name="mime" value='<?php echo attr($file_mime); ?>'>
             <input type="hidden" id="form_file" name="templateName" value='<?php echo attr($template_name); ?>'>
-            <input type="hidden" id="form_details" name="details" value='<?php echo json_encode($details); ?>'>
+            <input type="hidden" id="form_details" name="details" value='<?php echo attr_js($details); ?>'>
             <div class="messages"></div>
             <div class="row">
                 <div class="col-md-12">
@@ -237,58 +245,51 @@ $service = $clientApp::getServiceType();
                         <input id="form_pid" type="text" name="form_pid" class="form-control"
                             placeholder="<?php echo xla('If Applicable for charting.') ?>"
                             value="<?php echo attr($interface_pid ?? 0) ?>" />
-                        <div class="help-block with-errors"></div>
                     </div>
                     <div class="form-group show-detail smsExclude faxExclude">
-                        <label for="form_name"><?php echo xlt('Firstname') ?></label>
+                        <label for="form_name"><?php echo xlt('Name') ?></label>
                         <input id="form_name" type="text" name="name" class="form-control"
                             placeholder="<?php echo xla('Not Required') ?>"
                             value="<?php echo attr($details['fname'] ?? '') ?>" />
-                        <div class="help-block with-errors"></div>
-                    </div>
-                    <div class="form-group show-detail smsExclude faxExclude">
-                        <label for="form_lastname"><?php echo xlt('Lastname') ?></label>
-                        <input id="form_lastname" type="text" name="surname" class="form-control"
-                            placeholder="<?php echo xla('Not Required') ?>"
-                            value="<?php echo attr($details['lname'] ?? '') ?>" />
-                        <div class="help-block with-errors"></div>
-                    </div>
-                    <div class="form-group faxExclude smsExclude show-detail">
-                        <label for="form_email"><?php echo xlt('Email') ?></label>
-                        <input id="form_email" type="email" name="email" class="form-control"
-                            placeholder="<?php
-                            if ($isSMS || $isEmail) {
-                                echo '';
-                            } else {
-                                echo($isSMTP ? xla('Forward to email address if filled.') : xla('Unavailable! Setup SMTP in Config Notifications.'));
-                            }
-                            ?>"
-                            title="<?php echo xla('Forward to an email address.') ?>" />
-                        <div class="help-block with-errors"></div>
-                    </div>
-                    <div class="form-group">
-                        <label for="form_phone"><?php echo xlt('Recipient Phone') ?></label>
-                        <input id="form_phone" type="tel" name="phone" class="form-control"
-                            placeholder="<?php echo xla('Phone number of recipient') ?>"
-                            title="<?php echo xla('You may also forward to a new fax number.') ?>"
-                            value="" <?php echo(!$isForward ? 'required' : ''); ?> />
-                        <div class="help-block with-errors"></div>
-                    </div>
-                    <?php if ($service == "1" || !empty($isSMS) || $isForward || $isEmail) { ?>
-                        <div class="form-group">
-                            <label for="form_message"><?php echo xlt('Message') ?></label>
-                            <textarea id="form_message" name="comments" class="form-control" placeholder="
-                            <?php echo empty($isSMS) ? xla('Add a note to recipient.') : xla('SMS text message.') ?>" rows="6"><?php echo $default_message; ?></textarea>
-                            <div class="help-block with-errors"></div>
+                        <div class="form-group show-detail smsExclude faxExclude">
+                            <!--<label for="form_lastname"><?php /*echo xlt('Lastname') */ ?></label>-->
+                            <input id="form_lastname" type="text" name="surname" class="form-control"
+                                placeholder="<?php echo xla('Not Required') ?>"
+                                value="<?php echo attr($details['lname'] ?? '') ?>" />
                         </div>
-                    <?php } ?>
-                    <div>
-                        <span class="text-center forwardExclude smsExclude"><strong><?php echo xlt('Sending File') . ': ' ?></strong><?php echo text($file_name) ?></span>
-                    </div>
-                    <div class="mt-2">
-                        <button type="button" class="btn btn-primary smsExclude" onclick="getContactBook(event, pid)" value="Contacts"><?php echo xlt('Contacts') ?></button>
-                        <?php if ($isOnetime ?? 0) { ?>
-                        <span class="form-group">
+                        <div class="form-group faxExclude smsExclude show-detail">
+                            <label for="form_email"><?php echo xlt('Email') ?></label>
+                            <input id="form_email" type="email" name="email" class="form-control"
+                                placeholder="<?php
+                                if (($isSMS || $isEmail || $isFax) && !$isForward) {
+                                    echo '';
+                                } else {
+                                    echo($isSMTP ? xla('Forward to email address if address is included.') : xla('Unavailable! Setup SMTP in Config Notifications.'));
+                                }
+                                ?>"
+                                title="<?php echo xla('Forward to an email address.') ?>" />
+                        </div>
+                        <div class="form-group">
+                            <label for="form_phone"><?php echo xlt('Recipient Phone') ?></label>
+                            <input id="form_phone" type="tel" name="phone" class="form-control"
+                                placeholder="<?php echo xla('Phone number of recipient') ?>"
+                                title="<?php echo xla('You may also forward to a new fax number.') ?>"
+                                value="" <?php echo(!$isForward ? 'required' : ''); ?> />
+                        </div>
+                        <?php if ($service == "1" || !empty($isSMS) || $isForward || $isEmail) { ?>
+                            <div class="form-group">
+                                <label for="form_message"><?php echo xlt('Message') ?></label>
+                                <textarea id="form_message" name="comments" class="form-control" placeholder="
+                            <?php echo xla('Add a note to recipient.'); ?>" rows="6"><?php echo $default_message; ?></textarea>
+                            </div>
+                        <?php } ?>
+                        <div>
+                            <span class="text-center forwardExclude smsExclude"><strong><?php echo xlt('Sending File') . ': ' ?></strong><?php echo text($file_name) ?></span>
+                        </div>
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-primary smsExclude" onclick="getContactBook(event, pid)" value="Contacts"><?php echo xlt('Contacts') ?></button>
+                            <?php if ($isOnetime ?? 0) { ?>
+                                <span class="form-group">
                             <div class="form-check-inline">
                                 <label><?php echo xlt("Send Using"); ?></label>
                             </div>
@@ -308,13 +309,13 @@ $service = $clientApp::getServiceType();
                                 </label>
                             </div>
                         </span>
-                        <?php } ?>
-                        <!-- patient picker ready once get patient info is added. -->
-                        <button type="button" class="btn btn-primary faxExclude" onclick="sel_patient()" value="Patients"><?php echo xlt('Patients') ?></button>
-                        <button type="submit" class="btn btn-success float-right" value=""><?php echo empty($isSMS) || $isOnetime ? xlt('Send') : xlt('Send SMS') ?></button>
+                            <?php } ?>
+                            <!-- patient picker ready once get patient info is added. -->
+                            <button type="button" class="btn btn-primary faxExclude" onclick="sel_patient()" value="Patients"><?php echo xlt('Patients') ?></button>
+                            <button type="submit" class="btn btn-success float-right" value=""><?php echo empty($isSMS) || $isOnetime ? xlt('Send') : xlt('Send SMS') ?></button>
+                        </div>
                     </div>
                 </div>
-            </div>
         </form>
     </div>
 </body>

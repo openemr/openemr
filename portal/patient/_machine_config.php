@@ -28,11 +28,7 @@ if (isset($_SESSION['pid']) && (isset($_SESSION['patient_portal_onsite_two']) ||
     GlobalConfig::$PORTAL = 1;
     require_once(__DIR__ . "/../../interface/globals.php");
 } else {
-    try {
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
-    } catch (Exception $e) {
-        // throw it away so we can continue
-    }
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     GlobalConfig::$PORTAL = 0;
     $ignoreAuth = false;
     require_once(__DIR__ . "/../../interface/globals.php");

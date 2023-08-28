@@ -597,17 +597,17 @@ function renderProfileHtml()
                                     ?>
                                     <form class='form form-inline bg-light text-dark py-1 pl-1 d-none'>
                                         <div class='input-group-sm input-group-prepend'>
-                                            <label class="form-check-inline"><?php echo xlt('OneTime') ?>
+                                            <label class="form-check-inline d-none"><?php echo xlt('OneTime') ?>
                                                 <input name="onetimeIsOkay" type='checkbox' class="input-control-sm ml-1 mt-1" title="<?php echo xla('Enable Auto Portal log in for presenting document to patient.') ?>" />
                                             </label>
                                         </div>
-                                        <label class='font-weight-bold mr-1'><?php echo xlt('Notify') ?></label>
-                                        <div class='input-group-sm input-group-prepend'>
+                                        <label class='font-weight-bold mr-1 d-none'><?php echo xlt('Notify') ?></label>
+                                        <div class='input-group-sm input-group-prepend d-none'>
                                             <input name="notify_days" type="text" style="width: 50px;" class='input-control-sm ml-1' placeholder="<?php echo xla('days') ?>" value="" />
                                             <label class="mx-1"><?php echo xlt('Days') ?></label>
                                         </div>
                                         <div class='input-group-sm input-group-prepend'>
-                                            <select name="notify_when" class='input-control-sm mx-1'>
+                                            <select name="notify_when" class='input-control-sm mx-1 d-none'>
                                                 <option value=""><?php echo xlt('Unassigned'); ?></option>
                                                 <option value="new"><?php echo xlt('New'); ?></option>
                                                 <option value='before_appointment'><?php echo xlt('Before Appointment'); ?></option>
@@ -674,18 +674,19 @@ function renderProfileHtml()
                                     }
                                     ?>
                                     <li class='list-group-item bg-warning text-light px-1 py-1 mb-1' data-id="<?php echo $template_id; ?>" data-name="<?php echo $this_name; ?>" data-category="<?php echo $this_cat; ?>"><span class="p-1 font-weight-bold"><?php echo text($file['template_name']) . ' ' . xlt('in category') . ' ' . text($title); ?></span>
+                                        <!-- Notice! The notify event input is patched out until I get around to it. -->
                                         <form class='form form-inline bg-light text-dark py-1 pl-1'>
-                                            <div class='input-group-sm input-group-prepend'>
+                                            <div class='input-group-sm input-group-prepend d-none'>
                                                 <label class="form-check-inline"><?php echo xlt('OneTime') ?>
                                                     <input name="onetimeIsOkay" type='checkbox' class="input-control-sm ml-1 mt-1" title="<?php echo xla('Enable Auto Portal log in for presenting document to patient.') ?>" />
                                                 </label>
                                             </div>
-                                            <label class='font-weight-bold mr-1'><?php echo xlt('Notify') ?></label>
-                                            <div class='input-group-sm input-group-prepend'>
+                                            <label class='font-weight-bold mr-1 d-none'><?php echo xlt('Notify') ?></label>
+                                            <div class='input-group-sm input-group-prepend d-none'>
                                                 <input name="notify_days" type="text" style="width: 50px;" class='input-control-sm ml-1' placeholder="<?php echo xla('days') ?>" value="<?php echo $notify_days ?>" />
                                                 <label class="mx-1"><?php echo xlt('Days') ?></label>
                                             </div>
-                                            <div class='input-group-sm input-group-prepend'>
+                                            <div class='input-group-sm input-group-prepend d-none'>
                                                 <select name="notify_when" class='input-control-sm mx-1'>
                                                     <option value=""><?php echo xlt('Unassigned'); ?></option>
                                                     <option <?php echo $notify_trigger === 'new' ? 'selected' : ''; ?> value="new"><?php echo xlt('New'); ?></option>

@@ -866,10 +866,10 @@ $audit_status_blank = array(
                             '<th>' . xlt('Category') . '</th>' .
                             '<th>' . xlt('Profile') . '</th>' .
                             '<th>' . xlt('Template Actions') . '</th>' .
-                            '<th>' . xlt('Status') .
-                            '</th><th>' . xlt('Last Action') . '</th>' .
-                            '<th>' . xlt('Next Due') .
-                            "</th></tr>\n";
+                            '<th>' . xlt('Status') . '</th>' .
+                            '<th>' . xlt('Last Action') . '</th>' .
+                            '<th>' . xlt('Next Due') . '</th>' .
+                            "</tr>\n";
                         echo "</thead>\n";
                         echo "<tbody>\n";
                         foreach ($templates as $cat => $files) {
@@ -880,14 +880,14 @@ $audit_status_blank = array(
                                 $template_id = $file['id'];
 
                                 $audit_status = $audit_status_blank;
-                                $audit_status['create_date'] = (($file['profile_date'] ?? null) ?: $file['modified_date']) ?? null;
-                                $audit_status['denial_reason'] = $file['status'] ?? '';
                                 $audit_status_fetch = $templateService->fetchPatientDocumentStatus($file['pid'], $file['id']);
                                 if (is_array($audit_status_fetch)) {
                                     $audit_status = array_merge($audit_status_blank, $file, $audit_status_fetch);
                                 } else {
                                     $audit_status = array_merge($audit_status_blank, $file);
                                 }
+                                $last_date = $audit_status['create_date'] ?? '' ?: $file['modified_date'] ?? '';
+                                $audit_status['denial_reason'] = $file['status'] ?? '';
                                 $next_due = $templateService->showTemplateFromEvent($file, true);
                                 if ($next_due > 1) {
                                     if ($audit_status['denial_reason'] === 'In Review') {
@@ -926,7 +926,7 @@ $audit_status_blank = array(
                                 $eventDispatcher->dispatch(new SendNotificationEvent($fetch_pid, $file), SendNotificationEvent::ACTIONS_RENDER_NOTIFICATION_POST);
 
                                 echo '</td><td>' . text($audit_status['denial_reason']) . '</td>';
-                                echo '<td>' . text(date('m/d/Y H:i:s', strtotime($audit_status['create_date']))) . '</td>';
+                                echo '<td>' . text(date('m/d/Y H:i:s', strtotime($last_date))) . '</td>';
                                 echo '<td>' . text($next_due) . '</td>';
                                 echo "</tr>\n";
                             }

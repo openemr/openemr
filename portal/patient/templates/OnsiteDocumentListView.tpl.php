@@ -490,14 +490,13 @@ $templateService = new DocumentTemplateService();
                     <?php } ?>
                     <?php if (!empty($is_portal) && empty($auto_render)) { ?>
                         <li class="nav-item mb-1">
-                            <a class="nav-link text-danger btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer_portal ?>")'><?php echo xlt('Exit'); ?></a>
+                            <a class="nav-link text-danger btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit'); ?></a>
                         </li>
                     <?php } else {
-                        //$referer_portal = $referer_portal . "?site=" . ($_SESSION['site_id'] ?? null) ?: 'default';
-                        $referer_portal = "../home.php?site=" . ($_SESSION['site_id'] ?? null) ?: 'default';
+                        $referer_portal = "../home.php?site=" . (urlencode($_SESSION['site_id']) ?? null) ?: 'default';
                         ?>
                         <li class="nav-item mb-1">
-                            <a class="nav-link text-danger btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer_portal ?>")'><?php echo xlt('Exit'); ?></a>
+                            <a class="nav-link text-danger btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit'); ?></a>
                         </li>
                     <?php } ?>
                     <li class='nav-item mb-1'>

@@ -20,14 +20,30 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'contact-form')) {
 }
 
 if (isset($_REQUEST['sendOneTime'])) {
-    $rtn = doOnetimeRequest();
+    try {
+        $rtn = doOnetimeRequest();
+    } catch (Exception $e) {
+        die($e->getMessage());
+    }
 }
 
+/**
+ * @throws Exception
+ */
 function doOnetimeRequest()
 {
     $service = new PatientPortalService();
+    if (!$service::verifyAcl()) {
+        throw new Exception(xlt("Error! Not authorised."));
+    }
     $details = json_decode($service->getRequest('details'), true);
     $content = $service->getRequest('comments');
+    $ot_pid = $details['pid'] ?? $service->getRequest('pid');
+    if (!empty($ot_pid)) {
+        $patient = $service->getPatientDetails($ot_pid);
+    } else {
+        throw new Exception(xlt("Error! Missing patient id."));
+    }
     $data = [
         'pid' => $details['pid'] ?? 0,
         'onetime_period' => $details['onetime_period'] ?? 'PT60M',
@@ -36,14 +52,14 @@ function doOnetimeRequest()
         'audit_id' => $details['audit_id'] ?? 0,
         'document_name' => $details['template_name'] ?? '',
         'notification_method' => $service->getRequest('notification_method', 'both'),
-        'phone' => $details['phone'] ?? '',
-        'email' => $details['email'] ?? '',
+        'phone' => $patient['phone'] ?? '',
+        'email' => $patient['email'] ?? '',
         'onetime' => $details['onetime'] ?? 0
     ];
     try {
-        $rtn = $service->dispatchPortalOneTimeDocumentRequest($data['pid'], $data, $content);
+        $rtn = $service->dispatchPortalOneTimeDocumentRequest($ot_pid, $data, $content);
     } catch (Exception $e) {
-        // todo add logging
+        die($e->getMessage());
     }
-    echo $rtn;
+    echo js_escape($rtn);
 }
