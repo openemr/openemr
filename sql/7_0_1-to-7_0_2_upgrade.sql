@@ -278,3 +278,7 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2023-10-01', 'Zip File 3 2024 ICD-10-PCS Codes File.zip', '30e096ed9971755c4dfc134b938f3c1f');
 #EndIf
+
+#IfMissingColumn onsite_documents template_data
+ALTER TABLE `onsite_documents` ADD `template_data` LONGTEXT;
+#EndIf

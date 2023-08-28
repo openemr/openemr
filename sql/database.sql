@@ -7070,6 +7070,7 @@ CREATE TABLE `onsite_documents` (
   `full_document` mediumblob,
   `file_name` varchar(255) NOT NULL,
   `file_path` varchar(255) NOT NULL,
+  `template_data` longtext,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
