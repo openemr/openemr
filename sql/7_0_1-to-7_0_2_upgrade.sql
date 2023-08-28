@@ -265,6 +265,16 @@ INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`,
 ALTER TABLE `patient_data` ADD `preferred_name` TINYTEXT;
 #EndIf
 
-#IfNotColumn email_queue template_name
+#IfMissingColumn email_queue template_name
 ALTER TABLE `email_queue` ADD `template_name` VARCHAR(255) DEFAULT NULL COMMENT 'The folder prefix and base filename (w/o extension) of the twig template file to use for this email';
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2023-10-01 load_filename Code Descriptions.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2023-10-01', 'Code Descriptions.zip', '15404ef88e0ffa15474e6d6076aa0a8a');
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2023-10-01 load_filename Zip File 3 2024 ICD-10-PCS Codes File.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2023-10-01', 'Zip File 3 2024 ICD-10-PCS Codes File.zip', '30e096ed9971755c4dfc134b938f3c1f');
 #EndIf
