@@ -4154,7 +4154,7 @@ function menu_overhaul_left($pid, $encounter)
                                     "a.state, p.area_code, p.prefix, p.number FROM pharmacies AS d " .
                                     "LEFT OUTER JOIN addresses AS a ON a.foreign_id = d.id " .
                                     "LEFT OUTER JOIN phone_numbers AS p ON p.foreign_id = d.id " .
-                                    "AND p.type = 2 where d.id=?" .
+                                    "AND p.type = 2 where d.id=? " .
                                     "ORDER BY state, city, name, area_code, prefix, number";
                                 $pharm = sqlQuery($sql, array($pat_data['pharmacy_id']));
                                 echo text($pharm['name'] . ", " . $pharm['city'] . " " . $pharm['state']);
