@@ -268,11 +268,11 @@ class InstallerController extends AbstractActionController
         //INSERT MODULE HOOKS IF NOT EXISTS
         $moduleDirectory = $this->getInstallerTable()->getModuleDirectory($modId);
         //GET MODULE HOOKS FROM A FUNCTION IN CONFIGURATION MODEL CLASS
-        $hooksArr = $this->getInstallerTable()->getModuleHooks($moduleDirectory);
+        $hooksArr = $this->getInstallerTable()->getModuleHooks($moduleDirectory) ?: [];
 
         if (count($hooksArr) > 0) {
             foreach ($hooksArr as $hook) {
-                if (count($hook) > 0) {
+                if (count($hook ?? []) > 0) {
                     if ($this->getInstallerTable()->checkModuleHookExists($modId, $hook['name']) == "0") {
                         $this->getInstallerTable()->saveModuleHooks($modId, $hook['name'], $hook['title'], $hook['path']);
                     }
@@ -424,6 +424,13 @@ class InstallerController extends AbstractActionController
         if (!is_dir($sqldir)) {
             $sqldir = $ModulePath;
         }
+        if (!is_dir($sqldir)) {
+            $ModulePath = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "custom_modules/" . $dirModule->modDirectory;
+            $sqldir = $ModulePath . "/sql";
+            if (!is_dir($sqldir)) {
+                $sqldir = $ModulePath;
+            }
+        }
         $mod->sql_action = "";
 
         if (file_exists($sqldir . "/install.sql") && file_exists($ModulePath . "/version.php") && empty($mod->sql_version)) {
@@ -431,7 +438,7 @@ class InstallerController extends AbstractActionController
         }
 
         if (!empty($mod->sql_version) && $mod->sqlRun == 1) {
-            $versions = $this->getFilesForUpgrade($mod->modDirectory, $sqldir);
+            $versions = $this->getFilesForUpgrade($mod->modDirectory, $sqldir) ?: [];
 
             if (count($versions) > 0) {
                 foreach ($versions as $version => $sfname) {
@@ -561,7 +568,7 @@ class InstallerController extends AbstractActionController
                     $div[] = $string;
                     $add_query_string++;
                 }
-                if (count($matches[1]) == (count($div) - $add_ended_divs) && (!$prev_html_tag && !$curr_html_tag)) {
+                if (count($matches[1]) == (count($div ?? []) - $add_ended_divs) && (!$prev_html_tag && !$curr_html_tag)) {
                     $div[] = "</div>";
                 }
                 $k++;
@@ -626,7 +633,7 @@ class InstallerController extends AbstractActionController
         $resp = $this->getInstallerTable()->updateRegistered($modId, "mod_active=1");
         if ($resp['status'] == 'failure' && $resp['code'] == '200') {
             $plural = "Module";
-            if (count($resp['value']) > 1) {
+            if (count($resp['value'] ?? []) > 1) {
                 $plural = "Modules";
             }
 
