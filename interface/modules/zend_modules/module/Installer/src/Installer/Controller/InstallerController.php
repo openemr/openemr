@@ -375,7 +375,9 @@ class InstallerController extends AbstractActionController
         //SQL version of Module
         $dirModule = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
         $ModulePath = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule->modDirectory;
-
+        if (!is_dir($ModulePath)) {
+            $ModulePath = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "custom_modules/" . $dirModule->modDirectory;
+        }
         $version_of_module = $ModulePath . "/version.php";
         $table_sql = $ModulePath . "/table.sql";
         $install_sql = $ModulePath . "/sql/install.sql";
