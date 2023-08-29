@@ -1,6 +1,6 @@
-const { isSingleEntity } = require('./single-entity');
+const { countEntities } = require('./count-entities');
 
-describe('isSingleEntity', () => {
+describe('countEntities', () => {
     test.each([
         { description: 'I only have one value!' },
         { npi: '2.16.840.1.113883.4.6', other: true },
@@ -11,7 +11,7 @@ describe('isSingleEntity', () => {
         { use: 'work place', other: [] },
         { type: 'primary home', other: () => true },
     ])('should return 1 if the input represents a single entity', (input) => {
-        expect(isSingleEntity(input)).toEqual(1);
+        expect(countEntities(input)).toEqual(1);
     });
 
     test.each([
@@ -26,18 +26,18 @@ describe('isSingleEntity', () => {
     ])(
         'should return the number of enumerable keys in the object if the input does not represent a single entity',
         (input, result) => {
-            expect(isSingleEntity(input)).toEqual(result);
+            expect(countEntities(input)).toEqual(result);
         }
     );
 
     test.each([null, undefined, 10, true, 'OpenEMR', () => {}])(
         'should return zero if the input is %p',
         (input) => {
-            expect(isSingleEntity(input)).toEqual(0);
+            expect(countEntities(input)).toEqual(0);
         }
     );
 
     it('should return zero if the input is an empty array', () => {
-        expect(isSingleEntity([])).toEqual(0);
+        expect(countEntities([])).toEqual(0);
     });
 });

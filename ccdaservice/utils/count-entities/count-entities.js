@@ -6,9 +6,9 @@ function hasEntityKey(input) {
     );
 }
 
-function isSingleEntity(input) {
+function countEntities(input) {
     if (input === null || typeof input !== 'object') return 0;
     return hasEntityKey(input) ? 1 : Object.keys(input).length;
 }
 
-exports.isSingleEntity = isSingleEntity;
+exports.countEntities = countEntities;
