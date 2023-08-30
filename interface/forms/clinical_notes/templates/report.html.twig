@@ -35,7 +35,7 @@ The Report template of the clinical note form.
                 </div>
                 {% endif %}
             </header>
-            <section>{{ n.description|text|nl2br }}</section>
+            <section class="mb-3">{{ n.description|text|nl2br }}</section>
         </article>
     {% endfor %}
 </section>
