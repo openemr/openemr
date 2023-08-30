@@ -366,7 +366,7 @@ class ClinicalNotesService extends BaseService
 
         $selectList = [];
         foreach ($optionsList as $option) {
-            $selectList[] = ['value' => $option['option_id'], 'code' => $option['notes'], 'title' => xl_list_label($option['title'])];
+            $selectList[] = ['value' => $option['option_id'], 'code' => $option['notes'], 'title' => $option['title'], 'xlTitle' => xl_list_label($option['title'])];
         }
         return $selectList;
     }
