@@ -18,11 +18,11 @@ The Report template of the clinical note form.
                 </div>
                 <div class="form-group mb-0">
                     <div class="font-weight-bold">{{ "Type"|xlt }}</div>
-                    <div>{{ n.codetext is defined ? n.codetext|xlListLabel|text : "Unspecified"|xlt }}</div>
+                    <div>{{ n.codetext is not empty ? n.codetext|xlListLabel|text : "Unspecified"|xlt }}</div>
                 </div>
                 <div class="form-group mb-0">
                     <div class="font-weight-bold">{{ "Category"|xlt }}</div>
-                    <div>{{ n.category_title is defined ? n.category_title|xlListLabel|text : "Unspecified"|xlt }}</div>
+                    <div>{{ n.category_title is not empty ? n.category_title|xlListLabel|text : "Unspecified"|xlt }}</div>
                 </div>
                 <div class="form-group mb-0">
                     <div class="font-weight-bold">{{ "Author"|xlt }}</div>
