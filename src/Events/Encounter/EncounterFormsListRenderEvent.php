@@ -16,16 +16,6 @@ namespace OpenEMR\Events\Encounter;
 class EncounterFormsListRenderEvent
 {
     /**
-     * @var int|null The patient pid that the encounter is for (matches the patient_data.pid column)
-     */
-    private ?int $pid;
-
-    /**
-     * @var int|null The encounter id that the encounter is for (matches the forms.encounter db id)
-     */
-    private ?int $encounter;
-
-    /**
      * Allows screen output after all of the encounter forms have been rendered for the encounter/forms.php screen
      */
     const EVENT_SECTION_RENDER_PRE = 'forms.encounter.list.render.pre';
@@ -35,12 +25,14 @@ class EncounterFormsListRenderEvent
      */
     const EVENT_SECTION_RENDER_POST = "forms.encounter.list.render.post";
 
-    public function __construct(?int $encounter = null, $attendantType = 'pid')
-    {
-        $this->encounter = $encounter;
-        $this->setPid(null);
-        $this->setGroupId(null);
-        $this->setAttendantType($attendantType);
+    public function __construct(
+        /** @var int|null The encounter id that the encounter is for (matches the forms.encounter db id)  */
+        private ?int $encounter = null,
+        private string $attendantType = 'pid',
+        /** @var int|null The patient pid that the encounter is for (matches the patient_data.pid column) */
+        private ?int $pid = null,
+        private ?int $groupId = null
+    ) {
     }
 
     public function getAttendantType(): string
