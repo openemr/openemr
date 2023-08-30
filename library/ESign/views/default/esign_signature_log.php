@@ -52,7 +52,8 @@ use OpenEMR\Common\Logging\EventAuditLogger;
             
             <div class="esign-log-row">
                 <div class="esign-log-element span3"><span><?php echo text($signature->getFirstName()); ?></span></div> 
-                <div class="esign-log-element span3"><span><?php echo text($signature->getLastName()); ?></span></div> 
+                <div class="esign-log-element span3"><span><?php echo text($signature->getLastName()); ?></span></div>
+                <div class="esign-log-element span3"><span><?php echo text($signature->getValedictory()); ?></span></div>
                 <div class="esign-log-element span3"><span><?php echo text($signature->getDatetime()); ?></span></div>
             </div>
 
