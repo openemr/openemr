@@ -87,7 +87,6 @@
         }
     },
     "require-dev": {
-        "phpstan/phpstan": "^1.10",
         "phpunit/phpunit": "9.*",
         "symfony/panther": "1.*",
         "zircote/swagger-php": "^3.2"

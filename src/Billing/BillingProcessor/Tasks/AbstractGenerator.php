@@ -19,10 +19,9 @@ namespace OpenEMR\Billing\BillingProcessor\Tasks;
 use OpenEMR\Billing\BillingProcessor\BillingClaim;
 use OpenEMR\Billing\BillingProcessor\BillingProcessor;
 use OpenEMR\Billing\BillingProcessor\GeneratorCanValidateInterface;
-use OpenEMR\Billing\BillingProcessor\GeneratorInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
-abstract class AbstractGenerator extends AbstractProcessingTask implements GeneratorInterface
+abstract class AbstractGenerator extends AbstractProcessingTask
 {
     /**
      * This abstract class for generators implements the execute method
