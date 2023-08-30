@@ -202,7 +202,7 @@ class DocumentTemplateService extends QuestionnaireService
         if (!$in_review) {
             return false;
         }
-        if (!isset($template['trigger_event'])) {
+        if (!isset($template['event_trigger'])) {
             // these are sent templates. Not in group.
             if (!empty($template['profile'])) {
                 $event = $this->fetchTemplateEvent($template['profile'], $template['id'] ?? 0);
@@ -822,11 +822,6 @@ class DocumentTemplateService extends QuestionnaireService
         if ($q && !$return_content) {
             $q['full_document'] = null;
             $q["template_data"] = null;
-            $r = [];
-            foreach ($q as $k => $v) {
-                $r[$k] = null;
-            }
-            return $r;
         }
         return $q;
     }
@@ -902,7 +897,8 @@ class DocumentTemplateService extends QuestionnaireService
                     $id = $template['id'];
                     $btnname = $template['template_name'];
                     if (!empty($in_edit)) {
-                        $menu .= '<a class="dropdown-item template-item text-primary btn btn-link font-weight-bold" id="' . attr($id) . '"' . ' href="#" onclick="page.editHistoryDocument(' . attr_js($in_edit['id']) . ')">' . text($btnname) . "</a>\n";
+                        $menu .= '<a class="dropdown-item template-item text-primary btn btn-link font-weight-bold" id="' . attr($id) . '"' .
+                            ' data-history_id="' . attr($in_edit['id']) . '"' . ' href="#" onclick="page.editHistoryDocument(' . attr_js($in_edit['id']) . ')">' . text($btnname) . "</a>\n";
                     } else {
                         $menu .= '<a class="dropdown-item template-item text-success btn btn-link" id="' . attr($id) . '"' . ' href="#" onclick="page.newDocument(' . attr_js($current_patient) . ', ' . attr_js($current_user) . ', ' . attr_js($btnname) . ', ' . attr_js($id) . ')">' . text($btnname) . "</a>\n";
                     }

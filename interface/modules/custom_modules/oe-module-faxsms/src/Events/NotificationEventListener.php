@@ -79,14 +79,16 @@ class NotificationEventListener implements EventSubscriberInterface
         $recipientEmail = $patient['email'];
         $recipientPhone = $patient['phone'];
         $document_id = $data['document_id'] ?? 0;
+        $document_name = $data['document_name'] ?? '';
         $audit_id = $data['audit_id'];
         $sendMethod = $data['notification_method'] ?? 'sms';
         $includeSMS = ($sendMethod == 'sms' || $sendMethod == 'both') && $this->isSmsEnabled;
         $includeEmail = $sendMethod == 'email' || $sendMethod == 'both';
         $parameters = [
             'pid' => $pid,
-            'redirect_link' => $GLOBALS['web_root'] . "/portal/patient/onsitedocuments?pid=" . urlencode($pid)
-                . "&auto_render_id=" . urlencode($document_id) . "&audit_render_id=" . urlencode($audit_id) . "&site=" . urlencode($site_id),
+            'redirect_link' => $GLOBALS['web_root'] . "/portal/patient/onsitedocuments?pid=" . urlencode($pid) .
+                "&auto_render_id=" . urlencode($document_id) . "&auto_render_name=" . urlencode($document_name) .
+                "&audit_render_id=" . urlencode($audit_id) . "&site=" . urlencode($site_id),
             'email' => '',
             'expiry_interval' => $data['expiry_interval'] ?? 'PT60M',
         ];

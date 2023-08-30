@@ -519,7 +519,7 @@ $audit_status_blank = array(
                         <select class="form-control select-dropdown d-none" id="selected_patients" name="selected_patients[]" multiple="multiple">
                             <?php echo $auth ?>
                         </select>
-                        <a class='btn-refresh ml-1' onclick="$('#selected_patients').val(null).trigger('change');" role="button"></a>
+                        <a class='btn btn-refresh bg-dark text-primary mx-1' onclick="$('#selected_patients').val(null).trigger('change');" role="button"></a>
                     </div>
                     <?php
                     $select_cat_options = '<option value="">' . xlt('General') . "</option>\n";
@@ -542,7 +542,7 @@ $audit_status_blank = array(
                     </div>
                     <div class="form-group">
                         <div class='btn-group ml-1'>
-                            <button type='submit' class='btn btn-search btn-secondary'><i class="btn-refresh"></i></button>
+                            <button type='submit' class='btn btn-search btn-primary'><i class="btn-refresh"></i></button>
                             <button type='button' id="send-button" class='btn btn-transmit btn-success d-none' onclick="return sendTemplate()">
                                 <?php echo xlt('Send'); ?>
                             </button>
@@ -887,20 +887,23 @@ $audit_status_blank = array(
                                     $audit_status = array_merge($audit_status_blank, $file);
                                 }
                                 $last_date = $audit_status['create_date'] ?? '' ?: $file['modified_date'] ?? '';
-                                $audit_status['denial_reason'] = $file['status'] ?? '';
                                 $next_due = $templateService->showTemplateFromEvent($file, true);
                                 if ($next_due > 1) {
                                     if ($audit_status['denial_reason'] === 'In Review') {
-                                        $audit_status['denial_reason'] = xl('Scheduled') . ' ' . xl('but Needs Review');
+                                        $action_status = xl('Scheduled but Needs Review');
                                     } else {
-                                        $audit_status['denial_reason'] = xl('Scheduled');
+                                        $action_status = xl('Scheduled');
                                     }
                                     $next_due = date('m/d/Y', $next_due);
                                 } elseif ($next_due === 1 || ($next_due === true && ($file['recurring'] ?? 0))) {
-                                    $audit_status['denial_reason'] = xl('Recurring');
+                                    if ($audit_status['denial_reason'] === 'In Review') {
+                                        $action_status = xl('In audit. Needs Review');
+                                    } else {
+                                        $action_status = xl('Recurring');
+                                    }
                                     $next_due = xl('Active');
                                 } elseif ($next_due === 0) {
-                                    $audit_status['denial_reason'] = xl('Completed');
+                                    $action_status = xl('Completed');
                                     $next_due = xl('Inactive');
                                 } elseif ($next_due === true && empty($file['recurring'] ?? 0)) {
                                     $next_due = xl('Active');
@@ -922,10 +925,13 @@ $audit_status_blank = array(
                                 }
                                 $file['onetime_period'] = "P2D";
                                 $file['is_onetime'] = 1;
-                                $file['audit_id'] = $audit_status['audit_id'] ?? '';
+                                $file['audit_id'] = 0;
+                                if ($audit_status['denial_reason'] == 'In Review' || $audit_status['denial_reason'] == 'Editing') {
+                                    $file['audit_id'] = $audit_status['audit_id'] ?? 0;
+                                }
                                 $eventDispatcher->dispatch(new SendNotificationEvent($fetch_pid, $file), SendNotificationEvent::ACTIONS_RENDER_NOTIFICATION_POST);
 
-                                echo '</td><td>' . text($audit_status['denial_reason']) . '</td>';
+                                echo '</td><td>' . text($action_status) . '</td>';
                                 echo '<td>' . text(date('m/d/Y H:i:s', strtotime($last_date))) . '</td>';
                                 echo '<td>' . text($next_due) . '</td>';
                                 echo "</tr>\n";

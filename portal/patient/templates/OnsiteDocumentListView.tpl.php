@@ -31,9 +31,10 @@ $encounter = '';
 $include_auth = true;
 $auto_render = $this->auto_render ?? 0;
 $audit_render = $this->audit_render ?? 0;
+$auto_render_name = $this->auto_render_name ?? '';
 // for location assign
 $referer = $GLOBALS['web_root'] . "/controller.php?document&upload&patient_id=" . attr_url($pid) . "&parent_id=" . attr_url($category) . "&";
-$referer_portal = $GLOBALS['web_root'] . "/portal/quickstart_page.php";
+$referer_portal = "../home.php?site=" . (urlencode($_SESSION['site_id']) ?? null) ?: 'default';
 
 if (empty($is_module)) {
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Documents"));
@@ -78,7 +79,7 @@ $templateService = new DocumentTemplateService();
     $urlAjax = $GLOBALS['web_root'] . '/library/ajax/upload.php?parent_id=Patient&patient_id=' . attr_url($pid);
     // some necessary js globals
     echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($cuser) . ";var ptName=" . js_escape($ptName) .
-        ";var autoRender=" . js_escape($auto_render) . ";var auditRender=" . js_escape($audit_render) .
+        ";var autoRender=" . js_escape($auto_render) . ";var auditRender=" . js_escape($audit_render) . ";var renderDocumentName=" . js_escape($auto_render_name) .
         ";var catid=" . js_escape($category) . ";var catname=" . js_escape($catname) . ";</script>";
     echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) . ";var help_id=" . js_escape($help_id) . ";</script>";
     echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";var webroot_url = webRoot;</script>";
@@ -149,9 +150,7 @@ $templateService = new DocumentTemplateService();
                 });
                 $(".helpHide").addClass("d-none");
                 $(parent.document.getElementById('topNav')).addClass("d-none");
-                if (autoRender > 0 && auditRender <= 0) {
-                    $("#" + autoRender).click();
-                } else if (auditRender <= 0) {
+                if (autoRender < 1 && auditRender < 1) {
                     $("#Help").click();
                 }
             }
@@ -164,10 +163,30 @@ $templateService = new DocumentTemplateService();
                     }
                 }
                 if (isPortal) {
-                    if (auditRender > 0) {
+                    /* Render may start as a new document onetime request however for the sake
+                    *  of allowing patient to stay in portal after doc edit or patient uses
+                    *  same onetime that started as a new doc to come back and
+                    *  continue an edit of a saved/submitted doc.
+                    *  auditRender is a history doc.
+                    *
+                    *  CONFUSED! Welcome.
+                    * */
+                    if (autoRender > 0 && auditRender <= 0) {
+                        // is it in menu?
+                        if ($("#" + autoRender).data('history_id') > 0) {
+                            // has it been submitted?
+                            let historyId = $("#" + autoRender).data('history_id');
+                            page.editHistoryDocument(historyId);
+                            console.log('Onetime history template id ' + historyId);
+                        } else {
+                            page.newDocument(cpid, "-patient-", renderDocumentName, autoRender);
+                            console.log('Onetime new template init');
+                        }
+                    } else if (auditRender > 0) {
                         page.editHistoryDocument(auditRender);
+                        console.log('Onetime history template init');
                     }
-                    console.log('init done template');
+                    // init upload drop box
                     page.initFileDrop();
                 }
             }, 1000);

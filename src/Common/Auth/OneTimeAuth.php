@@ -21,10 +21,11 @@ use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Services\PatientPortalService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
+use RuntimeException;
 
 class OneTimeAuth
 {
@@ -60,9 +61,9 @@ class OneTimeAuth
     {
         $redirect_token = null;
         $passed_in_pid = $p['pid'] ?? 0;
-        $valid = $this->isValidPortalPatient($passed_in_pid);
+        $valid = PatientPortalService::isValidPortalPatient($passed_in_pid);
         if (empty($valid['valid'] ?? null) || empty($passed_in_pid)) {
-            throw new \RuntimeException(xlt("Invalid Pid or patient not found!"));
+            throw new RuntimeException(xlt("Invalid Pid or patient not found!"));
         }
         $email = ($valid['email'] ?? '') ?: ($p['email'] ?? '');
         $date_base = ($p['enabled_datetime'] ?? null) ?: 'NOW';
@@ -72,9 +73,9 @@ class OneTimeAuth
         $token_encrypt = $this->cryptoGen->encryptStandard($token_raw);
         $pin = substr(str_shuffle(str_shuffle("0123456789")), 0, 6);
         if (empty($p['pid']) || empty($token_raw)) {
-            $err = xlt("Onetime failed missing PID or token creation failed");
+            $err = xlt("Onetime failed with missing PID or the token creation failed");
             $this->systemLogger->error($err);
-            throw new \RuntimeException($err);
+            throw new RuntimeException($err);
         }
 
         $redirect_raw = trim($p['redirect_link'] ?? null);
@@ -93,7 +94,7 @@ class OneTimeAuth
         } else {
             $err = xlt("Onetime creation failed. Missing site address!");
             $this->systemLogger->error($err);
-            throw new \RuntimeException($err);
+            throw new RuntimeException($err);
         }
 
         $rtn['encoded_link'] = $this->encodeLink($site_addr, $token_encrypt, $redirect_token);
@@ -106,7 +107,7 @@ class OneTimeAuth
         if (empty($save)) {
             $err = xlt("Onetime save failed!");
             $this->systemLogger->error($err);
-            throw new \RuntimeException($err);
+            throw new RuntimeException($err);
         }
 
         $this->systemLogger->debug(xlt("New standard onetime token created and saved successfully."));
@@ -158,8 +159,8 @@ class OneTimeAuth
             $this->systemLogger->error($rtn['error']);
             throw new OneTimeAuthExpiredException($rtn['error'], $auth['pid']);
         }
-        // We'll rely on the stored redirect address as default but
-        // leave the option of using embedded encrypted redirect.
+        // We'll rely on the stored redirect address as default.
+        // However, leave the option of using embedded encrypted redirect.
         $redirect = $t_info['redirect_url'] ?? null;
         if (!empty($redirect_token)) {
             if ($this->cryptoGen->cryptCheckStandard($redirect_token)) {
@@ -200,7 +201,7 @@ class OneTimeAuth
             if (stripos($site_addr, "index.php") !== false) {
                 $site_addr = dirname($site_addr);
             }
-            if (substr($site_addr, -1) == '/') {
+            if (str_ends_with($site_addr, '/')) {
                 $site_addr = substr($site_addr, 0, -1);
             }
         }
@@ -235,70 +236,6 @@ class OneTimeAuth
         $this->systemLogger->debug("Onetime link " . text($encoded_link) . " encoded");
 
         return $encoded_link;
-    }
-
-    /**
-     * Credit to Stephen Neilson
-     *
-     * @param $email
-     * @return bool
-     */
-    private function isValidEmail($email): bool
-    {
-        if (preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-\+]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/i", $email)) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * @param       $email
-     * @param       $body
-     * @param array $user
-     * @return string
-     */
-    public function emailNotification($email, $body, array $user = ['fname' => 'Portal', 'lname' => 'Administration']): string
-    {
-        $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
-        $mail = new MyMailer();
-        $from_name = text($from_name);
-        $from = $GLOBALS["practice_return_email_path"];
-        $mail->AddReplyTo($from, $from_name);
-        $mail->SetFrom($from, $from);
-        $to = $email;
-        $to_name = $email;
-        $mail->AddAddress($to, $to_name);
-        $subject = xlt("Session Request");
-        $mail->isHTML(true);
-        $mail->Subject = $subject;
-        $mail->Body = $body;
-        if ($mail->Send()) {
-            $status = xlt("Email successfully sent.");
-        } else {
-            $status = xlt("Error: Email failed") . text($mail->ErrorInfo);
-        }
-        return $status;
-    }
-
-    /**
-     * @param $pid
-     * @return array
-     */
-    public function isValidPortalPatient($pid): array
-    {
-        // ensure both portal and patient data match using portal account id.
-        $patient = sqlQuery(
-            "Select `pid`, `email`, `email_direct` From `patient_data` Where `pid` = ?",
-            array($pid)
-        );
-        $portal = sqlQuery(
-            "Select `pid`, `portal_username` From `patient_access_onsite` Where `pid` = ?",
-            array($patient['pid'])
-        );
-
-        $patient['valid'] = !empty($portal['portal_username']) && ((int)$pid === (int)$portal['pid']);
-
-        return $patient;
     }
 
     /**

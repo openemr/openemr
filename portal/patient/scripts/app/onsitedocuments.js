@@ -447,7 +447,7 @@ var page = {
                     if (autoRender + auditRender > 0) {
                         auditRender = 0;
                         autoRender = 0;
-                        location.assign("https://opensourcedemr.us/portal/patient/onsitedocuments?pid=" + encodeURIComponent(cpid))
+                        location.assign("https://opensourcedemr.us/portal/patient/onsitedocuments?pid=" + encodeURIComponent(cpid));
                     }
 
                 }
@@ -490,9 +490,9 @@ var page = {
             $('.navCollapse li.nav-item>a').on('click', function () {
                 $('.navbar-collapse').collapse('hide');
             });
-            if (page.version === 'Legacy' && isPortal) {
+            if (page.version === 'Legacy' && isPortal && !page.isLocked) {
                 alert(page.onsiteDocument.get('docType') + " is available for one last edit." + "\n" +
-                    "Then must be deleted and redone or submitted for review. This is due to our new document workflow.\n" +
+                    "Then document must be deleted and a new document submitted or submit this document for review. This is due to our new document workflow.\n" +
                     "We appreciate your patience."
                 )
             }
@@ -505,13 +505,13 @@ var page = {
         // These are set on init for save alerts
         page.isFlattened = false;
         page.isSaved = true;
-        /* $(window).bind('beforeunload', function () {
-             if (page.isSaved === false) {
+         $(window).bind('beforeunload', function () {
+             if (!page.isSaved) {
                  // You have unsaved changes auto browser popup
                  event.preventDefault();
                  event.returnValue = '';
              }
-         });*/
+         });
         page.formOrigin = isPortal ? 0 : isModule ? 2 : 1;
     },
 // page scoped functions
@@ -642,7 +642,7 @@ var page = {
         $('#status').val('New');
         page.isSaved = true;
         if (docid !== 'Help') {
-            page.isSaved = false;
+            //page.isSaved = false;
         }
         page.showDetailDialog(m); // saved in rendered event
     },
@@ -657,7 +657,7 @@ var page = {
         }
         let currentNameStyled = page.currentName.substr(0, page.currentName.lastIndexOf('.')) || page.currentName;
         currentNameStyled = currentNameStyled.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
-        page.isSaved = false;
+
         if (page.currentName === 'Help') {
             page.isSaved = true;
             $("#saveTemplate").hide();
@@ -713,6 +713,10 @@ var page = {
                     $(this).attr('data-user', cuser);
                 }
             });
+            if (page.onsiteDocument.get('denialReason') === 'Locked') {
+                $("#sendTemplate").hide();
+                signerAlertMsg("History Document. Edits unavailable", 2000, 'warning');
+            }
             initSignerApi();
         } else { // this makes it a new template
             const libUrl = webRoot + '/portal/lib/download_template.php';
@@ -730,7 +734,7 @@ var page = {
                     if (templateHtml.includes('Error') && (autoRender + auditRender) > 0) {
                         autoRender = auditRender = 0;
                         $("#Help").click();
-                        signerAlertMsg("Onetime document is no longer available!", 4000, 'warning');
+                        signerAlertMsg("Onetime document is no longer available!" + "<br />" +templateHtml, 5000, 'warning');
                         return false;
                     }
                     page.version = $("#portal_version").val() ? $("#portal_version").val() : 'Legacy';
@@ -801,8 +805,14 @@ var page = {
         if (cnt !== -1) {
             cdate = cdate.toString().substring(0, cnt);
         }
-        $('#docPanelHeader').append('<span class="bg-light text-dark px-1">' + jsText(currentNameStyled) + '</span>' +
-            jsText(' ' + page.version + ' Version:' + ' Dated:' + cdate + ' Status:' + status));
+        $(document).one('change','body *',function(){
+            page.isSaved = false;
+            $(document).off('change','body *');
+        });
+        if (page.currentName !== 'Help') {
+            $('#docPanelHeader').append('<span class="bg-light text-dark px-1">' + jsText(currentNameStyled) + '</span>' +
+                jsText(' ' + page.version + ' Version:' + ' Dated:' + cdate + ' Status:' + status));
+        }
     },
     /**
      * show the doc for editing

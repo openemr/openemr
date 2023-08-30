@@ -89,6 +89,8 @@ class OnsiteDocumentController extends AppBasePortalController
 
         $auto_render = $_GET['auto_render_id'] ?? 0;
         unset($_GET['auto_render_id']);
+        $auto_render_name = $_GET['auto_render_name'] ?? 0;
+        unset($_GET['auto_render_name']);
         $audit_render = $_GET['audit_render_id'] ?? 0;
         unset($_GET['audit_render_id']);
 
@@ -104,6 +106,7 @@ class OnsiteDocumentController extends AppBasePortalController
         $this->Assign('new_filename', $new_filename);
         $this->Assign('auto_render', $auto_render);
         $this->Assign('audit_render', $audit_render);
+        $this->Assign('auto_render_name', $auto_render_name);
         $this->Render();
     }
 

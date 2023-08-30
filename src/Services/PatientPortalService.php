@@ -95,7 +95,7 @@ class PatientPortalService
         if (!empty($content)) {
             $message = xl("Comment from provider") . ": " . $content . "\n";
         }
-        $message = $message . xl("Please follow below to edit document.") . ': "' . $name . "\".\n";
+        $message = $message . xl("Please click the below link (only valid for 48 hours) to edit document") . ': "' . $name . "\".\n";
 
         $statusMsg = xl("Notification requests in process!") . "<br />";
         $event_data = [
@@ -103,6 +103,7 @@ class PatientPortalService
             'text_message' => $message,
             'html_message' => null,
             'document_id' => $document_id,
+            'document_name' => $name,
             'audit_id' => $audit_id,
             'expiry_interval' => $period
         ];
