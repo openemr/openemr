@@ -4,7 +4,9 @@
 * @package   OpenEMR
 * @link      http://www.open-emr.org
 * @author    Stephen Nielson <snielson@discoverandchange.com>
+* @author    Jerry Padgett <sjpadgett@gmail.com>
 * @copyright Copyright (c) 2022 Discover and Change, Inc.
+* @copyright Copyright (c) 2023 Jerry Padgett <sjpadgett@gmail.com>
 * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 #}
 <html>
@@ -33,13 +35,23 @@
             document.getElementById('form_save').value='submit';
             document.forms[0].submit();
         }
+        function persistCriteria(el, e) {
+            e.preventDefault();
+            let target = "portal_login.credential_reset_disable";
+            let val = el.checked ? 1 : 0;
+            let csrf = document.getElementById('csrf_token_form').value;
+            $.post("./../../../library/ajax/user_settings.php", {
+                target: target,
+                setting: val,
+                csrf_token_form: csrf
+            });
+        }
+
         {% if (credMessage is not empty) %}
-        // <?php if (!empty($credMessage)) { ?>
             $(function () {
                 top.printLogPrint(window);
             });
         {% endif %}
-        // <?php } ?>
         {% if extensionsJavascript is not empty %}
             {% for file, data in extensionsJavascript %}
                 {# Extension writers can overload the patient/partials in their module and include their own data #}
@@ -58,7 +70,7 @@
     </div>
     {% else %}
     <form name="portallogin" action="" method="post">
-        <input type="hidden" name="csrf_token_form" value="{{ csrfToken|attr }}" />
+        <input type="hidden" id = "csrf_token_form" name="csrf_token_form" value="{{ csrfToken|attr }}" />
 
         <p class="text-center font-weight-bold">{{ "Generate Username And Password For"|xlt }} {{ fname|text }}</p>
 
@@ -85,6 +97,11 @@
             {% else %}
                 {{ "Is Required. Please Add in Contacts."|xlt}}
             {% endif %}
+        </div>
+        <div class="form-check-inline">
+            <label class="form-check-label">{{ 'Disable forced credential reset.'|xlt }}
+                <input type="checkbox" id="forced_reset_disable" name="forced_reset_disable" onchange='top.restoreSession(); persistCriteria(this, event) ;' value="1" {%if forced_reset_disable == 1 %} checked {% endif %} />
+            </label>
         </div>
         {% endif %}
         <hr />
