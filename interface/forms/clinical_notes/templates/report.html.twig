@@ -14,15 +14,15 @@ The Report template of the clinical note form.
             <header class="d-flex justify-content-between bg-light border border-dark p-1 sticky-top">
                 <div class="form-group mb-0">
                     <div class="font-weight-bold">{{ "Date"|xlt }}</div>
-                    <time datetime="{{ n.date|date()|text }}">{{ n.date|date()|text }}</time>
+                    <time datetime="{{ n.date|date()|attr }}">{{ n.date|date()|text }}</time>
                 </div>
                 <div class="form-group mb-0">
                     <div class="font-weight-bold">{{ "Type"|xlt }}</div>
-                    <div>{{ n.codetext|default("Unspecified"|xl)|xlt }}</div>
+                    <div>{{ n.codetext is defined ? n.codetext|xlListLabel|text : "Unspecified"|xlt }}</div>
                 </div>
                 <div class="form-group mb-0">
                     <div class="font-weight-bold">{{ "Category"|xlt }}</div>
-                    <div>{{ n.category_title|default("Unspecified"|xl)|text }}</div>
+                    <div>{{ n.category_title is defined ? n.category_title|xlListLabel|text : "Unspecified"|xlt }}</div>
                 </div>
                 <div class="form-group mb-0">
                     <div class="font-weight-bold">{{ "Author"|xlt }}</div>
