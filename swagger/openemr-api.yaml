@@ -2643,6 +2643,255 @@ paths:
       security:
         -
           openemr_auth: []
+  /api/user:
+    get:
+      tags:
+        - standard
+      description: 'Retrieves a list of users'
+      parameters:
+        -
+          name: id
+          in: query
+          description: 'The id for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: title
+          in: query
+          description: 'The title for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: fname
+          in: query
+          description: 'The first name for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: lname
+          in: query
+          description: 'The last name for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: mname
+          in: query
+          description: 'The middle name for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: federaltaxid
+          in: query
+          description: 'The federal tax id for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: federaldrugid
+          in: query
+          description: 'The federal drug id for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: upin
+          in: query
+          description: 'The upin for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: facility_id
+          in: query
+          description: 'The facility id for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: facility
+          in: query
+          description: 'The facility for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: npi
+          in: query
+          description: 'The npi for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: email
+          in: query
+          description: 'The email for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: specialty
+          in: query
+          description: 'The specialty for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: billname
+          in: query
+          description: 'The billname for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: url
+          in: query
+          description: 'The url for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: assistant
+          in: query
+          description: 'The assistant for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: organization
+          in: query
+          description: 'The organization for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: valedictory
+          in: query
+          description: 'The valedictory for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: street
+          in: query
+          description: 'The street for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: streetb
+          in: query
+          description: 'The street (line 2) for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: city
+          in: query
+          description: 'The city for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: state
+          in: query
+          description: 'The state for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: zip
+          in: query
+          description: 'The zip for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: phone
+          in: query
+          description: 'The phone for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: fax
+          in: query
+          description: 'The fax for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: phonew1
+          in: query
+          description: 'The phonew1 for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: phonecell
+          in: query
+          description: 'The phonecell for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: notes
+          in: query
+          description: 'The notes for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: state_license_number2
+          in: query
+          description: 'The state license number for the user.'
+          required: false
+          schema:
+            type: string
+        -
+          name: username
+          in: query
+          description: 'The username for the user.'
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  '/api/user/{uuid}':
+    get:
+      tags:
+        - standard
+      description: 'Retrieves a single user by their uuid'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the user.'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
   /api/version:
     get:
       tags:
@@ -7557,6 +7806,7 @@ components:
             user/surgery.write: 'Write surgeries the user has access to (api:oemr)'
             user/transaction.read: 'Read transactions the user has access to (api:oemr)'
             user/transaction.write: 'Write transactions the user has access to (api:oemr)'
+            user/user.read: 'Read users the current user has access to (api:oemr)'
             user/vital.read: 'Read vitals the user has access to (api:oemr)'
             user/vital.write: 'Write vitals the user has access to (api:oemr)'
             'api:port': 'Standard Patient Portal OpenEMR API'

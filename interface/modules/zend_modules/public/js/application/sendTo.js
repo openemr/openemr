@@ -29,10 +29,14 @@ var check_count = 0;
             if (typeof styles === "string") return styles;
             var clone = "";
             for (var prop in styles) {
-                if (styles.hasOwnProperty(prop)) {
+                if (Object.prototype.hasOwnProperty.call(styles, prop)) {
                     var val = styles[prop];
                     prop = prop.replace(/([A-Z])/g, "-$1").toLowerCase(); // convert to dash-case
-                    clone += prop + ":" + (prop === "content" ? '"' + val + '"' : val) + "; ";
+                    clone +=
+                        prop +
+                        ":" +
+                        (prop === "content" ? '"' + val + '"' : val) +
+                        "; ";
                 }
             }
             return clone;

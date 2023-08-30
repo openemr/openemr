@@ -48,7 +48,7 @@ var clickmap = function(args) {
 				const marker = fn_buildMarker(x, y, label, detail);
 				container.append(marker);
 				if (fn_isnumber(label)) {
-				    counter = parseInt(label);
+                    counter = parseInt(label);
 				}
 			}
 		}
@@ -91,7 +91,7 @@ var clickmap = function(args) {
             if (hasOptions) {
                 optionsTitle = typeof(optionsLabel) != "undefined" ? optionsLabel : "Select one";
                 for (let attr in options) {
-                    if (options.hasOwnProperty(attr)) {
+                    if (Object.prototype.hasOwnProperty.call(options, attr)) {
                         optionsSelect+= "<option value='" + attr + "'>" + options[attr] + "</option>";
                     }
                 }
@@ -157,5 +157,5 @@ var clickmap = function(args) {
 
     if (hideNav) {
         $(".nav").hide();
-    };
+    }
 };

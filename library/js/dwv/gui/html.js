@@ -497,7 +497,7 @@ dwvOemr.html.createHtmlSelect = function (name, list, i18nPrefix, i18nSafe) {
     if ( list instanceof Array )
     {
         for ( var i in list ) {
-            if ( list.hasOwnProperty(i) ) {
+            if (Object.prototype.hasOwnProperty.call(list, i)) {
                 option = document.createElement("option");
                 option.value = list[i];
                 option.appendChild(document.createTextNode(getText(list[i])));

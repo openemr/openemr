@@ -147,6 +147,7 @@
  *              "user/surgery.write": "Write surgeries the user has access to (api:oemr)",
  *              "user/transaction.read": "Read transactions the user has access to (api:oemr)",
  *              "user/transaction.write": "Write transactions the user has access to (api:oemr)",
+ *              "user/user.read": "Read users the current user has access to (api:oemr)",
  *              "user/vital.read": "Read vitals the user has access to (api:oemr)",
  *              "user/vital.write": "Write vitals the user has access to (api:oemr)",
  *              "api:port": "Standard Patient Portal OpenEMR API",
@@ -302,6 +303,7 @@ use OpenEMR\RestControllers\MessageRestController;
 use OpenEMR\RestControllers\PrescriptionRestController;
 use OpenEMR\RestControllers\ProcedureRestController;
 use OpenEMR\RestControllers\TransactionRestController;
+use OpenEMR\RestControllers\UserRestController;
 
 // Note some Http clients may not send auth as json so a function
 // is implemented to determine and parse encoding on auth route's.
@@ -3651,7 +3653,7 @@ RestConfig::$ROUTE_MAP = array(
      */
     "GET /api/patient/:puuid/medical_problem" => function ($puuid) {
         RestConfig::authorization_check("encounters", "notes");
-        $return = (new ConditionRestController())->getAll(['puuid' => $puuid], "medical_problem");
+        $return = (new ConditionRestController())->getAll(['puuid' => $puuid, 'condition_uuid' => $muuid], "medical_problem");
         RestConfig::apiLog($return);
         return $return;
     },
@@ -5348,6 +5350,339 @@ RestConfig::$ROUTE_MAP = array(
     "GET /api/list/:list_name" => function ($list_name) {
         RestConfig::authorization_check("lists", "default");
         $return = (new ListRestController())->getOptions($list_name);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/api/user",
+     *      description="Retrieves a list of users",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="query",
+     *          description="The id for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="title",
+     *          in="query",
+     *          description="The title for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="fname",
+     *          in="query",
+     *          description="The first name for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="lname",
+     *          in="query",
+     *          description="The last name for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="mname",
+     *          in="query",
+     *          description="The middle name for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="federaltaxid",
+     *          in="query",
+     *          description="The federal tax id for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="federaldrugid",
+     *          in="query",
+     *          description="The federal drug id for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="upin",
+     *          in="query",
+     *          description="The upin for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="facility_id",
+     *          in="query",
+     *          description="The facility id for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="facility",
+     *          in="query",
+     *          description="The facility for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="npi",
+     *          in="query",
+     *          description="The npi for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="email",
+     *          in="query",
+     *          description="The email for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="specialty",
+     *          in="query",
+     *          description="The specialty for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="billname",
+     *          in="query",
+     *          description="The billname for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="url",
+     *          in="query",
+     *          description="The url for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="assistant",
+     *          in="query",
+     *          description="The assistant for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="organization",
+     *          in="query",
+     *          description="The organization for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="valedictory",
+     *          in="query",
+     *          description="The valedictory for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="street",
+     *          in="query",
+     *          description="The street for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="streetb",
+     *          in="query",
+     *          description="The street (line 2) for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="city",
+     *          in="query",
+     *          description="The city for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="state",
+     *          in="query",
+     *          description="The state for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="zip",
+     *          in="query",
+     *          description="The zip for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="phone",
+     *          in="query",
+     *          description="The phone for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="fax",
+     *          in="query",
+     *          description="The fax for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="phonew1",
+     *          in="query",
+     *          description="The phonew1 for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *         name="phonecell",
+     *          in="query",
+     *          description="The phonecell for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="notes",
+     *          in="query",
+     *          description="The notes for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="state_license_number2",
+     *          in="query",
+     *          description="The state license number for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="username",
+     *          in="query",
+     *          description="The username for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /api/user" => function () {
+        RestConfig::authorization_check("admin", "users");
+        $return = (new UserRestController())->getAll($_GET);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/api/user/{uuid}",
+     *      description="Retrieves a single user by their uuid",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the user.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /api/user/:uuid" => function ($uuid) {
+        RestConfig::authorization_check("admin", "users");
+        $return = (new UserRestController())->getOne($uuid);
         RestConfig::apiLog($return);
         return $return;
     },

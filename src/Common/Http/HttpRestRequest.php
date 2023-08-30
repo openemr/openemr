@@ -192,7 +192,7 @@ class HttpRestRequest implements ServerRequestInterface
 
     public function setQueryParams($queryParams)
     {
-        return $this->innerServerRequest->withQueryParams($queryParams);
+        $this->innerServerRequest = $this->innerServerRequest->withQueryParams($queryParams);
     }
 
     public function getQueryParams()

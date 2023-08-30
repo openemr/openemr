@@ -685,7 +685,9 @@ class PatientService extends BaseService
     {
         // we should never be null here but for legacy reasons we are going to default to this
         $createdBy = $_SESSION['authUserID'] ?? null; // we don't let anyone else but the current user be the createdBy
-
+        if ($pid <= 0) {
+            return false;
+        }
         $insertData = [
             'pid' => $pid,
             'history_type_key' => 'name_history',

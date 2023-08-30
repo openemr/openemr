@@ -511,6 +511,40 @@ $GLOBALS_METADATA = array(
             xl('Changes the layout of the login page.')
         ),
 
+        'primary_logo_width' => [
+            xl('Width of primary logo compared to the container'),
+            [
+                'w-25' => '25%',
+                'w-50' => '50%',
+                'w-75' => '75%',
+                'w-100' => '100%'
+            ],
+            'w-50',
+            xl('Determine the width of the primary logo compared to the container'),
+        ],
+
+        'secondary_logo_width' => [
+            xl('Width of secondary logo compared to the container'),
+            [
+                'w-25' => '25%',
+                'w-50' => '50%',
+                'w-75' => '75%',
+                'w-100' => '100%'
+            ],
+            'w-50',
+            xl('Determine the width of the secondary logo compared to the container'),
+        ],
+
+        'logo_position' => [
+            xl('Logo Positioning'),
+            [
+                'flex-column' => 'Stacked',
+                'flex-row' => 'Side by Side',
+            ],
+            'flex-column',
+            xl('How the logos will be rendered relative to each other'),
+        ],
+
         'display_acknowledgements_on_login' => [
             xl('Display links to the acknowledgements page'),
             'bool',
@@ -3082,6 +3116,13 @@ $GLOBALS_METADATA = array(
             xl('Google reCAPTCHA V2 secret key')
         ),
 
+        'portal_primary_menu_logo_height' => [
+            xl('Primary Menu Logo Height'),
+            'text',
+            '30',
+            xl('The height of the portal logo located on the primary navbar in pixels without a suffix'),
+        ],
+
         'portal_onsite_two_register' => array(
             xl('Allow New Patient Registration Widget') . ' ' . xl('This requires reCAPTCHA to be setup'),
             'bool',                           // data type
@@ -3191,6 +3232,12 @@ $GLOBALS_METADATA = array(
             ),
             '0',
             xl('Approval settings for 3rd party app/api access')
+        ),
+        'oauth_ehr_launch_authorization_flow_skip' => array(
+            xl('OAuth2 EHR-Launch Authorization Flow Skip Enable App Setting'),
+            'bool',
+            '0',
+            xl('Enable an OAuth2 Client application to be configured to skip the login screen and the scope authorization screen if the user is already logged into the EHR.')
         ),
 
         'cc_front_payments' => array(
