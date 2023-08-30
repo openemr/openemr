@@ -22,6 +22,7 @@ use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ListValidator;
 use OpenEMR\Validators\ProcessingResult;
+use Particle\Validator\Validator;
 
 // TODO rewrite this using there new way!
 // TODO: @adunsulag should we rename this to be ListOptions service since that is the table it corresponds to?  The lists table is a patient issues table so this could confuse new developers
@@ -50,6 +51,21 @@ class ListService extends BaseService
         UuidRegistry::createMissingUuidsForTables([self::LISTS_TABLE, self::PATIENT_TABLE]);
         $this->listValidator = new ListValidator();
     }
+
+    public function validate($list)
+    {
+        $validator = new Validator();
+
+        $validator->required('title')->lengthBetween(2, 255);
+        $validator->required('type')->lengthBetween(2, 255);
+        $validator->required('pid')->numeric();
+        $validator->optional('diagnosis')->lengthBetween(2, 255);
+        $validator->optional('begdate')->datetime('Y-m-d H:i:s');
+        $validator->optional('enddate')->datetime('Y-m-d H:i:s');
+
+        return $validator->validate($list);
+    }
+
 
     public function getAll($pid, $list_type, $isAndCondition = true)
     {
