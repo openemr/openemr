@@ -26,11 +26,13 @@ class EncounterFormsListRenderEvent
     const EVENT_SECTION_RENDER_POST = "forms.encounter.list.render.post";
 
     public function __construct(
-        /** @var int|null The encounter id that the encounter is for (matches the forms.encounter db id)  */
+        /** @var int|null The encounter id that the encounter is for (matches the forms.encounter db id) */
         private ?int $encounter = null,
+        /** @var string $attendantType 'gid' or 'pid' The type of encounter that is being rendered, a group encounter (gid), or an individual patient encounter (pid) */
         private string $attendantType = 'pid',
         /** @var int|null The patient pid that the encounter is for (matches the patient_data.pid column) */
         private ?int $pid = null,
+        /** @var int|null $groupId The group id that the encounter is for */
         private ?int $groupId = null
     ) {
     }
