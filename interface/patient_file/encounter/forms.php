@@ -867,7 +867,7 @@ if (
         }
 
         // $form_info = getFormInfoById($iter['id']);
-        $form_class_list = (strtolower(substr($ite['form_name'], 0, 5)) == 'camos') ? "" : "text onerow";
+        $form_class_list = (strtolower(substr($iter['form_name'], 0, 5)) == 'camos') ? "" : "text onerow";
         echo '<div id="' . attr($formdir) . '~' . attr($iter['form_id']) . '" title="' . xla("Edit Form") . '" class="form-holder ' . $form_class_list . '">';
 
         $acl_groups = AclMain::aclCheckCore("groups", "glog", false, 'write') ? true : false;
