@@ -140,6 +140,10 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             sqlStatement("update users set lname=? where id= ? ", array($_POST["lname"], $_POST["id"]));
         }
 
+        if ($_POST["valedictory"]) {
+            sqlStatement("update users set valedictory=? where id= ? ", array($_POST["valedictory"], $_POST["id"]));
+        }
+
         if ($_POST["job"]) {
             sqlStatement("update users set specialty=? where id= ? ", array($_POST["job"], $_POST["id"]));
         }
