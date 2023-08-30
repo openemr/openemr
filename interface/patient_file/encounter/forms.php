@@ -881,7 +881,7 @@ if (
         // Figure out the correct author (encounter authors are the '$providerNameRes', while other
         // form authors are the '$user['fname'] . "  " . $user['lname']').
         $form_author = ($formdir == 'newpatient') ? $providerNameRes : ($user['fname'] ?? '') . "  " .
-            ($user['lname'] ?? '') . ", " . ($user['valedictory'] ?? '');
+            ($user['lname'] ?? '') . ", " . ($user['suffix'] ?? '') . ", " . ($user['valedictory'] ?? '');
         $div_nums_attr = attr($divnos);
         $title = xla("Expand/Collapse this form");
         $display = text($form_name) . " " . xlt("by") . " " . text($form_author);

@@ -34,7 +34,7 @@ function newpatient_report($pid, $encounter, $cols, $id)
         $calendar_category = (new AppointmentService())->getOneCalendarCategory($result['pc_catid']);
         $reason = (!$hasAccess) ? false : $result['reason'];
         $provider = (!$hasAccess) ? false : $rawProvider['fname'] . " " . $rawProvider['lname']
-            . ", " . $rawProvider['valedictory'];
+            . ", " . $rawProvider['suffix'] . ", " . $rawProvider['valedictory'];
         $referringProvider = (!$hasAccess || !$rawRefProvider) ? false : $rawRefProvider['fname'] . " " . $rawRefProvider['lname'];
         $posCode = (!$hasAccess) ? false : sprintf('%02d', trim($result['pos_code'] ?? false));
         $posCode = ($posCode && $posCode != '00') ? $posCode : false;
