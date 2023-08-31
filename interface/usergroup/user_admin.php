@@ -350,6 +350,10 @@ if ($iter["portal_user"]) {
 
 <TR>
 <td><span class=text><?php echo xlt('Last Name'); ?>: </span></td><td><input type="text" name=lname id=lname style="width:150px;"  class="form-control" value="<?php echo attr($iter["lname"]); ?>"><span class="mandatory"></span></td>
+<td><span class=text><?php echo xlt('Suffix'); ?>: </span></td><td><input type="text" name=suffix id=suffix style="width:150px;"  class="form-control" value="<?php echo attr($iter["suffix"]); ?>"></td>
+</tr>
+<tr>
+<td><span class=text><?php echo xlt('Valedictory'); ?>: </span></td><td><input type="text" name=valedictory id=valedictory style="width:150px;"  class="form-control" value="<?php echo attr($iter["valedictory"]); ?>"></td>
 <td><span class=text><?php echo xlt('Default Facility'); ?>: </span></td><td><select name=facility_id style="width:150px;" class="form-control">
 <?php
 $fres = $facilityService->getAllServiceLocations();
@@ -368,6 +372,7 @@ if ($fres) {
 }
 ?>
 </select></td>
+
 </tr>
 
 <?php if ($GLOBALS['restrict_user_facility']) { ?>
