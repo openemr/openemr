@@ -73,7 +73,6 @@ if (empty($isNN) && empty($rowContext)) {
     }
 </style>
 <?php Header::setupHeader(['common', 'opener', 'select2', 'ckeditor', 'ajax-functions-writer']); ?>
-
 <script>
     let allowTemplateWarning = <?php echo $allowTemplateWarning; ?>;
     <?php if (!$isNN) { ?>
@@ -317,14 +316,14 @@ if (empty($isNN) && empty($rowContext)) {
 </div>
 <template id="componentRow">
     <div class="droppable">
-        <li class="">
-            <div class="d-flex py-1">
+        <li class="draggable">
+            <span class="d-flex py-1">
                 <a href="#" id="btnEdit" class="p-2 btn btn-sm btn-text d-none"><i class="fa fa-pencil"></i><span class="sr-only"><?php echo xlt("Edit Component"); ?></span></a>
                 <div class="flex-fill">
                     <a href="#" class="p-2 d-block"></a>
                 </div>
                 <a href="#" id="btnDelete" class="p-2 btn btn-sm btn-text d-none"><i class="fa fa-trash"></i><span class="sr-only"><?php echo xlt("Delete Component"); ?></span></a>
-            </div>
+            </span>
         </li>
     </div>
 </template>
@@ -354,12 +353,13 @@ if (empty($isNN) && empty($rowContext)) {
 </template>
 <script>
 let componentEditorState = 0; // Default to insert, 1 for edit
-
+let componentEditorID = null;
+const componentMap = new Map();
 const componentEditorDialog = document.getElementById("componentEditorDialog");
 
 componentEditorDialog.querySelector("button[type='submit']").addEventListener('click', function (e) {
     event.preventDefault();
-    save_item();
+    saveComponent();
     componentEditorDialog.close();
 });
 
@@ -371,14 +371,33 @@ componentEditorDialog.querySelector("a[data-close]").addEventListener("click", f
 function resetDialog()
 {
     componentEditorState = 0;
+    componentEditorID = null;
     componentEditorDialog.querySelector(".title").innerText = `<?php echo xlt("Add New Component"); ?>`;
     componentEditorDialog.querySelector("input").value = "";
     componentEditorDialog.querySelector("textarea").value = "";
 }
 
+async function saveComponent()
+{
+    const result = (componentEditorState == 0) ? await save_item() : await update_item(componentEditorID);
+    if (result) {
+        const r = await TemplateSentence(document.getElementById("template").value);
+        processComponents(r);
+        resetDialog();
+    }
+}
+
+async function deleteComponent(id)
+{
+    const r = await delete_item(id);
+    if (r) {
+        componentMap.delete(id);
+        processComponents(componentMap);
+    }
+}
+
 function processComponents(components)
 {
-    const componentMap = new Map();
     document.getElementById("template_sentence").innerHTML = "";
     document.getElementById("template_sentence").append(document.getElementById("addComponent").content.cloneNode(true));
     document.querySelector("button[data-target='newComponent']").addEventListener("click", function (e) {
@@ -386,45 +405,47 @@ function processComponents(components)
         componentEditorDialog.showModal();
     });
 
-    console.log(components);
-    components.map(function (c) {
-        let row = document.getElementById("componentRow").content.cloneNode(true);
-        row.querySelector(".flex-fill a").innerText = c.short_text;
-        row.querySelector(".flex-fill a").setAttribute("data-component_id", c.id);
-        row.querySelector(".flex-fill a").addEventListener("click", function (e) {
-            e.preventDefault();
-            insertComponentToEditor(c.id);
+    if (components.length > 0) {
+        components.map(function (c) {
+            let row = document.getElementById("componentRow").content.cloneNode(true);
+            row.querySelector(".flex-fill a").innerText = c.short_text;
+            row.querySelector(".flex-fill a").setAttribute("data-component_id", c.id);
+            row.querySelector(".flex-fill a").addEventListener("click", function (e) {
+                e.preventDefault();
+                insertComponentToEditor(c.id);
+            });
+
+            if (c.can_configure) {
+                // Hook up the edit button
+                let btnEdit = row.getElementById("btnEdit");
+                btnEdit.id = `edit_${c.id_attr}`;
+                btnEdit.classList.remove("d-none");
+                btnEdit.addEventListener("click", function (e) {
+                    let elm = (e.target.tagName == "I") ? e.target.parentElement : e.target;
+                    let cid = elm.id.split("_")[1];
+                    componentEditorState = 1; // This is an edit
+                    componentEditorID = cid;
+                    componentEditorDialog.querySelector(".title").innerText = `<?php echo xlt("Edit"); ?> ${c.short_text}`;
+                    componentEditorDialog.querySelector("input").value = c.short_text;
+                    componentEditorDialog.querySelector("textarea").value = c.text;
+                    componentEditorDialog.showModal();
+                });
+
+                // Hook up the delete button
+                let btnDelete = row.getElementById("btnDelete");
+                btnDelete.id = `delete_${c.id_attr}`;
+                btnDelete.classList.remove("d-none");
+                btnDelete.addEventListener("click", function (e) {
+                    let elm = (e.target.tagName == "I") ? e.target.parentElement : e.target;
+                    let cid = elm.id.split("_")[1];
+                    deleteComponent(cid);
+                });
+            }
+            document.getElementById("template_sentence").appendChild(row);
+            componentMap.set(c.id, c);
         });
-
-        if (c.can_configure) {
-            // Hook up the edit button
-            let btnEdit = row.getElementById("btnEdit");
-            btnEdit.id = `edit_${c.id_attr}`;
-            btnEdit.classList.remove("d-none");
-            btnEdit.addEventListener("click", function (e) {
-                let elm = (e.target.tagName == "I") ? e.target.parentElement : e.target;
-                let cid = elm.id.split("_")[1];
-                componentEditorState = 1; // This is an edit
-                componentEditorDialog.querySelector(".title").innerText = `<?php echo xlt("Edit"); ?> ${c.short_text}`;
-                componentEditorDialog.querySelector("input").value = c.short_text;
-                componentEditorDialog.querySelector("textarea").value = c.text;
-                componentEditorDialog.showModal();
-            });
-
-            // Hook up the delete button
-            let btnDelete = row.getElementById("btnDelete");
-            btnDelete.id = `delete_${c.id_attr}`;
-            btnDelete.classList.remove("d-none");
-            btnDelete.addEventListener("click", function (e) {
-                let elm = (e.target.tagName == "I") ? e.target.parentElement : e.target;
-                let cid = elm.id.split("_")[1];
-                delete_item(cid);
-            });
-        }
-        document.getElementById("template_sentence").appendChild(row);
-        componentMap.set(c.id, c);
-    });
-    oeSortable(sortableCallback);
+        oeSortable(sortableCallback);
+    }
 }
 
 function insertComponentToEditor(component_id)
@@ -455,10 +476,19 @@ btnInsert.forEach(function (btn) {
     });
 });
 
-window.addEventListener('DOMContentLoaded', function() {
+async function processCategoryChange(e)
+{
+    const r = await TemplateSentence(e.target.value);
+    processComponents(r);
+}
 
+window.addEventListener('DOMContentLoaded', function() {
     document.getElementById("componentEditorDialog").addEventListener("close", function(e) {
         resetDialog();
+    });
+
+    document.getElementById("template").addEventListener("change", function (e) {
+        processCategoryChange(e);
     });
 });
 </script>

@@ -32,12 +32,12 @@ require_once("../../interface/globals.php");
 use OpenEMR\Common\Acl\AclMain;
 use Symfony\Component\HttpFoundation\Response;
 
-$templateid = $_REQUEST['templateid'];
-$Source = $_REQUEST['source'];
-$list_id = $_REQUEST['list_id'];
-$item = $_REQUEST['item'];
-$multi = $_REQUEST['multi'];
-$content = $_REQUEST['content'];
+$templateid = $_REQUEST['templateid'] ?? "";
+$Source = $_REQUEST['source'] ?? "";
+$list_id = $_REQUEST['list_id'] ?? "";
+$item = $_REQUEST['item'] ?? "";
+$multi = $_REQUEST['multi'] ?? "";
+$content = $_REQUEST['content'] ?? "";
 $short = $_REQUEST['short'] ?? "";
 
 if ($Source == "add_template") {
@@ -73,14 +73,23 @@ if ($Source == "add_template") {
     $row = sqlQuery("SELECT max(cl_order)+1 as order1 FROM customlists WHERE cl_list_id=?", array($templateid));
     $order = $row['order1'];
     $newid = sqlInsert("INSERT INTO customlists (cl_list_id,cl_list_type,cl_list_item_short,cl_list_item_long,cl_order,cl_creator) VALUES (?,?,?,?,?,?)", array($templateid, 4, $short, $item, $order, $_SESSION['authUserID']));
-    sqlStatement("INSERT INTO template_users (tu_user_id,tu_template_id,tu_template_order) VALUES (?,?,?)", array($_SESSION['authUserID'], $newid, $order));
+    $result = sqlStatement("INSERT INTO template_users (tu_user_id,tu_template_id,tu_template_order) VALUES (?,?,?)", array($_SESSION['authUserID'], $newid, $order));
+    $r = new Response($newid, Response::HTTP_CREATED, ['Content-Type' => 'text/plain']);
+    $r->send();
 } elseif ($Source == "delete_item") {
-    sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($item, $_SESSION['authUserID']));
+    $sql = "DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?";
+    $result = sqlStatement($sql, [$item, $_SESSION['authUserID']]);
+    $status = ($result) ? Response::HTTP_NO_CONTENT : Response::HTTP_INTERNAL_SERVER_ERROR;
+    $r = new Response(null, $status, ['Content-Type' => 'application/json']);
+    $r->send();
 } elseif ($Source == "update_item") {
     $row = sqlQuery("SELECT max(cl_order)+1 as order1 FROM customlists WHERE cl_list_id=?", array($templateid));
     $order = $row['order1'];
-    $newid = sqlInsert("INSERT INTO customlists (cl_list_id,cl_list_type,cl_list_item_long,cl_order,cl_creator) VALUES (?,?,?,?,?)", array($templateid, 4, $content, $order, $_SESSION['authUserID']));
+    $newid = sqlInsert("INSERT INTO customlists (cl_list_id,cl_list_type,cl_list_item_short,cl_list_item_long,cl_order,cl_creator) VALUES (?,?,?,?,?,?)", array($templateid, 4, $short, $content, $order, $_SESSION['authUserID']));
     sqlStatement("UPDATE template_users SET tu_template_id=? WHERE tu_template_id=? AND tu_user_id=?", array($newid, $item, $_SESSION['authUserID']));
+    $status = ($newid) ? Response::HTTP_NO_CONTENT : Response::HTTP_INTERNAL_SERVER_ERROR;
+    $r = new Response(null, $status, ['Content-Type' => 'application/json']);
+    $r->send();
 } elseif ($Source == 'item_show') {
     $sql = "SELECT * FROM customlists WHERE cl_list_id=? AND cl_list_type=4 AND cl_deleted=0";
     $res = sqlStatement($sql, array($list_id));
@@ -150,7 +159,7 @@ if ($Source == "add_template") {
         echo "0";
     }
     $Source = "add_template";
-} elseif ($source != "add_template" && ($_REQUEST['json'] ?? '') == "true") {
+} elseif ($Source != "add_template" && ($_REQUEST['json'] ?? '') == "true") {
     $sql = "SELECT *
         FROM customlists AS cl
         LEFT OUTER JOIN template_users AS tu ON cl.cl_list_slno=tu.tu_template_id
@@ -174,7 +183,7 @@ if ($Source == "add_template") {
     $r = new Response(json_encode($return), Response::HTTP_OK, ['Content-Type' => 'text/json']);
     $r->send();
 }
-if ($Source != "add_template" && ($_REQUEST['json'] ?? '') != "true") {
+if ($Source != "add_template" && ($_REQUEST['json'] ?? '') != "true" && false == true) {
     $res = sqlStatement(
         "SELECT * FROM customlists AS cl LEFT  OUTER JOIN template_users AS tu ON cl.cl_list_slno=tu.tu_template_id
                         WHERE cl_list_type=4 AND cl_list_id=? AND cl_deleted=0 AND tu.tu_user_id=? ORDER BY tu.tu_template_order",

@@ -42,7 +42,7 @@ WHERE cl2.cl_list_type = 2
 GROUP BY
     cl2.cl_list_item_long";
 
-$search = $_GET['search'];
+$search = $_GET['search'] ?? "";
 $eSearch = "%" . $search . "%";
 $results = [];
 $r = sqlStatementNoLog($cq, array($eSearch, (int)$_SESSION['authUserID']));
