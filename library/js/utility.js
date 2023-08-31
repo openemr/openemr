@@ -322,6 +322,7 @@ function oeSortable(callBackFn) {
                 }
             },
             ondropdeactivate: function (event) {
+                console.log(event);
                 if (event.target.firstChild.classList.contains('is-dragging')) {
                     let items = event.target.parentNode.children;
                     event.relatedTarget.classList.remove('is-dragging');

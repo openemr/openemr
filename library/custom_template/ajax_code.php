@@ -38,6 +38,7 @@ $list_id = $_REQUEST['list_id'];
 $item = $_REQUEST['item'];
 $multi = $_REQUEST['multi'];
 $content = $_REQUEST['content'];
+$short = $_REQUEST['short'] ?? "";
 
 if ($Source == "add_template") {
     $arr = explode("|", $multi);
@@ -71,7 +72,7 @@ if ($Source == "add_template") {
 } elseif ($Source == "add_item") {
     $row = sqlQuery("SELECT max(cl_order)+1 as order1 FROM customlists WHERE cl_list_id=?", array($templateid));
     $order = $row['order1'];
-    $newid = sqlInsert("INSERT INTO customlists (cl_list_id,cl_list_type,cl_list_item_long,cl_order,cl_creator) VALUES (?,?,?,?,?)", array($templateid, 4, $item, $order, $_SESSION['authUserID']));
+    $newid = sqlInsert("INSERT INTO customlists (cl_list_id,cl_list_type,cl_list_item_short,cl_list_item_long,cl_order,cl_creator) VALUES (?,?,?,?,?,?)", array($templateid, 4, $short, $item, $order, $_SESSION['authUserID']));
     sqlStatement("INSERT INTO template_users (tu_user_id,tu_template_id,tu_template_order) VALUES (?,?,?)", array($_SESSION['authUserID'], $newid, $order));
 } elseif ($Source == "delete_item") {
     sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($item, $_SESSION['authUserID']));

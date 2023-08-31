@@ -162,17 +162,17 @@ if (empty($isNN) && empty($rowContext)) {
     });
 </script>
 <script>
-    $(function () {
-        function sortableCallback(elem){
-            let clorder  = [];
-            for (let i=0; i< elem.length; i++) {
-                let ele = elem[i];
-                if(ele.tagName == "DIV"){
-                    clorder.push("clorder[]="+ele.firstElementChild.id.split("_")[1]);
-                }
+    function sortableCallback(elem){
+        let clorder  = [];
+        for (let i=0; i< elem.length; i++) {
+            let ele = elem[i];
+            if(ele.tagName == "DIV"){
+                clorder.push("clorder[]="+ele.firstElementChild.id.split("_")[1]);
             }
-            $.post("updateDB.php", clorder.join('&')+"&action=updateRecordsListings");
         }
+        $.post("updateDB.php", clorder.join('&')+"&action=updateRecordsListings");
+    }
+    $(function () {
         oeSortable(sortableCallback);
     });
     <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
@@ -215,32 +215,24 @@ if (empty($isNN) && empty($rowContext)) {
               </div>
               <div class="col-md-8 text mb-1">
                 <div id="share" style="display:none"></div>
-                <!-- Enter Key !-->
-                <a href="#" id="enter" onclick="top.restoreSession();ascii_write('13','textarea1');" title="<?php echo htmlspecialchars(xl('Enter Key'), ENT_QUOTES); ?>"><i class="fas fa-sign-in-alt"></i></a>&nbsp;
-                <!-- Question Mark !-->
-                <a href="#" id="quest" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('? ');" title="<?php echo htmlspecialchars(xl('Question Mark'), ENT_QUOTES); ?>"><i class="fas fa-question-circle"></i></a>&nbsp;
-                <!-- Paragraph !-->
-                <a href="#" id="para" onclick="top.restoreSession();ascii_write('para','textarea1');" title="<?php echo htmlspecialchars(xl('New Paragraph'), ENT_QUOTES); ?>"><i class="fas fa-paragraph"></i></a>&nbsp;
-                <!-- Space !-->
-                <a href="#" id="space" onclick="top.restoreSession();ascii_write('32','textarea1');" class="btn btn-primary btn-sm" title="<?php echo htmlspecialchars(xl('Space'), ENT_QUOTES); ?>"><?php echo htmlspecialchars(xl('Space'), ENT_QUOTES); ?></a>
-                <?php
-                $res = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS cl ON cl.cl_list_slno = tu.tu_template_id WHERE tu.tu_user_id = ? AND cl.cl_list_type = 6 AND cl.cl_deleted = 0 ORDER BY cl.cl_order", array($_SESSION['authUserID']));
-                while ($row = sqlFetchArray($res)) { ?>
-                    <a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('<?php echo $row['cl_list_item_short']; ?>');" class="btn btn-primary" title="<?php echo htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES); ?>"><?php echo ucfirst(htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES)); ?></a>
-                <?php } ?>
-                  <a class="btn btn-primary btn-sm btn-transmit float-right" href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)"><?php echo xlt('Insert in Form'); ?></a>
-              </div>
+                    <a href="#" id="enter" onclick="top.restoreSession();ascii_write('13','textarea1');" title="<?php echo htmlspecialchars(xl('Enter Key'), ENT_QUOTES); ?>"><i class="fas fa-sign-in-alt"></i></a>&nbsp;
+                    <a href="#" id="quest" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('? ');" title="<?php echo htmlspecialchars(xl('Question Mark'), ENT_QUOTES); ?>"><i class="fas fa-question-circle"></i></a>&nbsp;
+                    <a href="#" id="para" onclick="top.restoreSession();ascii_write('para','textarea1');" title="<?php echo htmlspecialchars(xl('New Paragraph'), ENT_QUOTES); ?>"><i class="fas fa-paragraph"></i></a>&nbsp;
+                    <a href="#" id="space" onclick="top.restoreSession();ascii_write('32','textarea1');" class="btn btn-primary btn-sm" title="<?php echo htmlspecialchars(xl('Space'), ENT_QUOTES); ?>"><?php echo htmlspecialchars(xl('Space'), ENT_QUOTES); ?></a>
+                    <?php
+                    $res = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS cl ON cl.cl_list_slno = tu.tu_template_id WHERE tu.tu_user_id = ? AND cl.cl_list_type = 6 AND cl.cl_deleted = 0 ORDER BY cl.cl_order", array($_SESSION['authUserID']));
+                    while ($row = sqlFetchArray($res)) { ?>
+                        <a href="#" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('<?php echo $row['cl_list_item_short']; ?>');" class="btn btn-primary" title="<?php echo htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES); ?>"><?php echo ucfirst(htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES)); ?></a>
+                    <?php } ?>
+                    <a class="btn btn-primary btn-sm btn-transmit float-right" href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)"><?php echo xlt('Insert in Form'); ?></a>
+                </div>
               <div class="col-md-4">
                 <div class="bg-light">
                     <div style="overflow-y: scroll; overflow-x: hidden; height: 400px">
                         <ul id="menu5" class="example_menu w-100">
                             <li>
                                 <a class="expanded"><?php echo htmlspecialchars(xl('Components'), ENT_QUOTES); ?></a>
-                                <ul id="template_sentence">
-                                    <li>
-                                        <a href="#" class="btn btn-block btn-text"><?php echo xlt("Add New Component"); ?></a>
-                                    </li>
-                                </ul>
+                                <ul id="template_sentence"></ul>
                             </li>
                             <?php
                             if ($pid != '') :
@@ -292,7 +284,7 @@ if (empty($isNN) && empty($rowContext)) {
                 <a href="add_custombutton.php" id="custombutton" class="iframe_medium btn btn-secondary btn-sm" title="<?php echo htmlspecialchars(xl('Add Buttons for Special Chars,Texts to be Displayed on Top of the Editor for inclusion to the text on a Click'), ENT_QUOTES); ?>"><?php echo htmlspecialchars(xl('Add Buttons'), ENT_QUOTES); ?></a>
               </div>
               <div class="col-md-8">
-                <textarea class="ckeditor" cols="100" rows="180" id="textarea1" name="textarea1"></textarea>
+                <textarea class="ckeditor" cols="130" rows="180" id="textarea1" name="textarea1"></textarea>
                 <span class="float-right my-1"><a href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)" class="btn btn-primary btn-sm btn-save float-right"><?php echo xlt('Insert in Form'); ?></a></span>
               </div>
             </div>
@@ -324,29 +316,79 @@ if (empty($isNN) && empty($rowContext)) {
   </table>
 </div>
 <template id="componentRow">
-    <li>
-        <div class="d-flex py-1">
-            <a href="#" id="btnEdit" class="btn btn-sm btn-text d-none"><i class="fa fa-pencil"></i><span class="sr-only"><?php echo xlt("Edit Component"); ?></span></a>
-            <div class="flex-fill">
-                <a href="#" class="d-block"></a>
+    <div class="droppable">
+        <li class="">
+            <div class="d-flex py-1">
+                <a href="#" id="btnEdit" class="p-2 btn btn-sm btn-text d-none"><i class="fa fa-pencil"></i><span class="sr-only"><?php echo xlt("Edit Component"); ?></span></a>
+                <div class="flex-fill">
+                    <a href="#" class="p-2 d-block"></a>
+                </div>
+                <a href="#" id="btnDelete" class="p-2 btn btn-sm btn-text d-none"><i class="fa fa-trash"></i><span class="sr-only"><?php echo xlt("Delete Component"); ?></span></a>
             </div>
-            <a href="#" id="btnDelete" class="btn btn-sm btn-text d-none"><i class="fa fa-trash"></i><span class="sr-only"><?php echo xlt("Delete Component"); ?></span></a>
+        </li>
+    </div>
+</template>
+<dialog id="componentEditorDialog" style="resize: both;" class="w-75">
+    <div class="w-100 d-flex justify-content-between align-items-center">
+        <h2 class="flex-fill p-1 m-0 title">
+            <?php echo xlt("Add New Component"); ?>
+        </h2>
+        <a href="#" class="btn btn-secondary p-1 m-0" data-close><i class="fa fa-times"></i></a>
+    </div>
+    <div class="w-100">
+        <div class="form-group">
+            <label for="shortName" class="sr-only"><?php echo xlt("Short Name"); ?></label>
+            <input type="text" autofocus class="form-control" placeholder="<?php echo xlt("Short Name"); ?>" name="shortName" id="shortName">
         </div>
-        <div class="w-100 d-none" data-type="detail_holder">
-            <textarea name="update_item_txt_" class="w-100" id="update_item_txt_"></textarea>
-            <button type="submit" onclick="save_item()" class="btn btn-primary btn-sm"><?php echo xlt("Save"); ?></button>
-            <button type="button" class="btn btn-secondary btn-sm"><?php echo xlt("Cancel"); ?></button>
+        <div class="form-group">
+            <label for="componentText" class="sr-only"><?php echo xlt("Component Text"); ?></label>
+            <textarea name="componentText" class="form-control" id="componentText" placeholder="<?php echo xlt("Component Text"); ?>" cols="30" rows="10"></textarea>
         </div>
-    </li>
+    </div>
+    <div class="w-100 text-right">
+        <button type="submit" class="btn btn-primary"><?php echo xlt("Save"); ?></button>
+    </div>
+</dialog>
+<template id="addComponent">
+    <li><button data-target='newComponent' class='btn btn-block btn-text'><?php echo xlt("Add New Component"); ?></button></li>
 </template>
 <script>
-const componentMap = new Map();
+let componentEditorState = 0; // Default to insert, 1 for edit
+
+const componentEditorDialog = document.getElementById("componentEditorDialog");
+
+componentEditorDialog.querySelector("button[type='submit']").addEventListener('click', function (e) {
+    event.preventDefault();
+    save_item();
+    componentEditorDialog.close();
+});
+
+componentEditorDialog.querySelector("a[data-close]").addEventListener("click", function (e) {
+    e.preventDefault();
+    componentEditorDialog.close();
+});
+
+function resetDialog()
+{
+    componentEditorState = 0;
+    componentEditorDialog.querySelector(".title").innerText = `<?php echo xlt("Add New Component"); ?>`;
+    componentEditorDialog.querySelector("input").value = "";
+    componentEditorDialog.querySelector("textarea").value = "";
+}
 
 function processComponents(components)
 {
+    const componentMap = new Map();
+    document.getElementById("template_sentence").innerHTML = "";
+    document.getElementById("template_sentence").append(document.getElementById("addComponent").content.cloneNode(true));
+    document.querySelector("button[data-target='newComponent']").addEventListener("click", function (e) {
+        e.preventDefault();
+        componentEditorDialog.showModal();
+    });
+
+    console.log(components);
     components.map(function (c) {
         let row = document.getElementById("componentRow").content.cloneNode(true);
-        row.querySelector("textarea").value = c.text;
         row.querySelector(".flex-fill a").innerText = c.short_text;
         row.querySelector(".flex-fill a").setAttribute("data-component_id", c.id);
         row.querySelector(".flex-fill a").addEventListener("click", function (e) {
@@ -355,9 +397,6 @@ function processComponents(components)
         });
 
         if (c.can_configure) {
-            // Hook up the cancel edit button
-            row.querySelector("button[type='button']").setAttribute("onclick", `cancel_item('${c.id_attr}')`);
-
             // Hook up the edit button
             let btnEdit = row.getElementById("btnEdit");
             btnEdit.id = `edit_${c.id_attr}`;
@@ -365,7 +404,11 @@ function processComponents(components)
             btnEdit.addEventListener("click", function (e) {
                 let elm = (e.target.tagName == "I") ? e.target.parentElement : e.target;
                 let cid = elm.id.split("_")[1];
-                document.getElementById(`update_item${cid}`).classList.remove("d-none");
+                componentEditorState = 1; // This is an edit
+                componentEditorDialog.querySelector(".title").innerText = `<?php echo xlt("Edit"); ?> ${c.short_text}`;
+                componentEditorDialog.querySelector("input").value = c.short_text;
+                componentEditorDialog.querySelector("textarea").value = c.text;
+                componentEditorDialog.showModal();
             });
 
             // Hook up the delete button
@@ -377,13 +420,11 @@ function processComponents(components)
                 let cid = elm.id.split("_")[1];
                 delete_item(cid);
             });
-
-            row.querySelector("[data-type='detail_holder']").id = `update_item${c.id_attr}`;
         }
         document.getElementById("template_sentence").appendChild(row);
         componentMap.set(c.id, c);
     });
-    console.log(componentMap);
+    oeSortable(sortableCallback);
 }
 
 function insertComponentToEditor(component_id)
@@ -411,6 +452,13 @@ btnInsert.forEach(function (btn) {
     btn.addEventListener("click", function (e) {
         const text = btn.getAttribute("data-text");
         CKEDITOR.instances.textarea1.insertText(text);
+    });
+});
+
+window.addEventListener('DOMContentLoaded', function() {
+
+    document.getElementById("componentEditorDialog").addEventListener("close", function(e) {
+        resetDialog();
     });
 });
 </script>

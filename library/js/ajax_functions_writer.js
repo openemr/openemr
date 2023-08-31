@@ -12,7 +12,6 @@ function moveOptions_11(theSelFrom, theSelTo) {
     document.getElementById(theSelFrom).classList.add('text-info');
     document.getElementById(theSelFrom).style.fontStyle = "italic";
     // var str = document.getElementById(theSelFrom).innerHTML;
-    console.log(componentMap);
     let str = componentMap.get(theSelFrom);
     if (window.frames[0].document.body.innerHTML == '<br />')
         window.frames[0].document.body.innerHTML = "";
@@ -185,15 +184,11 @@ async function TemplateSentence(val) {
     if (response.status === 200) {
         const r = await response.json();
         processComponents(r);
-        // document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
-    } else {
-        console.log(response);
     }
     return;
 }
 
 function delete_item(id) {
-    //alert(id);
     if (confirm("Do you really wants to delete this?")) {
         $.ajax({
             type: "POST",
@@ -205,12 +200,8 @@ function delete_item(id) {
                 source: "delete_item"
             },
             success: function (thedata) {
-                //alert(thedata)
                 document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
             },
-            error: function () {
-                //alert("fail");
-            }
         });
         return;
     }
@@ -235,10 +226,10 @@ function save_item() {
         url: "ajax_code.php",
         dataType: "html",
         data: {
-            item: document.getElementById('item').value,
             templateid: document.getElementById('template').value,
+            short: document.getElementById("shortName").value,
+            item: document.getElementById("componentText").value,
             source: "add_item"
-
         },
         success: function (thedata) {
             //alert(thedata)
@@ -270,13 +261,9 @@ function update_item(id) {
 
         },
         success: function (thedata) {
-            //alert(thedata)
             document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
             cancel_item(id);
         },
-        error: function () {
-            //alert("fail");
-        }
     });
     return;
 }
