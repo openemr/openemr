@@ -155,7 +155,7 @@ class QueryPagination implements \JsonSerializable
         return $links;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize() : mixed
     {
         return $this->getLinks();
     }
