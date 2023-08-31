@@ -214,10 +214,12 @@ if (empty($isNN) && empty($rowContext)) {
               </div>
               <div class="col-md-8 text mb-1">
                 <div id="share" style="display:none"></div>
-                    <a href="#" id="enter" onclick="top.restoreSession();ascii_write('13','textarea1');" title="<?php echo htmlspecialchars(xl('Enter Key'), ENT_QUOTES); ?>"><i class="fas fa-sign-in-alt"></i></a>&nbsp;
-                    <a href="#" id="quest" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('? ');" title="<?php echo htmlspecialchars(xl('Question Mark'), ENT_QUOTES); ?>"><i class="fas fa-question-circle"></i></a>&nbsp;
-                    <a href="#" id="para" onclick="top.restoreSession();ascii_write('para','textarea1');" title="<?php echo htmlspecialchars(xl('New Paragraph'), ENT_QUOTES); ?>"><i class="fas fa-paragraph"></i></a>&nbsp;
-                    <a href="#" id="space" onclick="top.restoreSession();ascii_write('32','textarea1');" class="btn btn-primary btn-sm" title="<?php echo htmlspecialchars(xl('Space'), ENT_QUOTES); ?>"><?php echo htmlspecialchars(xl('Space'), ENT_QUOTES); ?></a>
+                    <div class="btn-group" role="group">
+                        <a href="#" class="btn btn-secondary btn-sm" id="enter" onclick="top.restoreSession();ascii_write('13','textarea1');" title="<?php echo xla("Enter Key"); ?>"><i class="fas fa-sign-in-alt">&nbsp;</i></a>
+                        <a href="#" class="btn btn-secondary btn-sm" id="quest" onclick="top.restoreSession();CKEDITOR.instances.textarea1.insertText('? ');" title="<?php echo xla("Question Mark"); ?>"><i class="fas fa-question-circle"></i></a>
+                        <a href="#" class="btn btn-secondary btn-sm" id="para" onclick="top.restoreSession();ascii_write('para','textarea1');" title="<?php echo xla("New Paragraph"); ?>"><i class="fas fa-paragraph"></i></a>
+                        <a href="#" class="btn btn-secondary btn-sm" id="space" onclick="top.restoreSession();ascii_write('32','textarea1');" title="<?php echo xla("Space"); ?>"><?php echo xlt("Space"); ?></a>
+                    </div>
                     <?php
                     $res = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS cl ON cl.cl_list_slno = tu.tu_template_id WHERE tu.tu_user_id = ? AND cl.cl_list_type = 6 AND cl.cl_deleted = 0 ORDER BY cl.cl_order", array($_SESSION['authUserID']));
                     while ($row = sqlFetchArray($res)) { ?>
@@ -227,7 +229,7 @@ if (empty($isNN) && empty($rowContext)) {
                 </div>
               <div class="col-md-4">
                 <div class="bg-light">
-                    <div style="overflow-y: scroll; overflow-x: hidden; height: 400px">
+                    <div style="overflow-y: scroll; overflow-x: hidden; height: 500px">
                         <ul id="menu5" class="example_menu w-100">
                             <li>
                                 <a class="expanded"><?php echo htmlspecialchars(xl('Components'), ENT_QUOTES); ?></a>
@@ -279,11 +281,11 @@ if (empty($isNN) && empty($rowContext)) {
                         </ul>
                     </div>
                 </div>
-                <a href="personalize.php?list_id=<?php echo $rowContext['cl_list_id'] ?? ''; ?>" id="personalize_link" class="iframe_medium btn btn-secondary btn-sm"><?php echo htmlspecialchars(xl('Personalize'), ENT_QUOTES); ?></a>
+                <a href="personalize.php?list_id=<?php echo $rowContext['cl_list_id'] ?? ''; ?>" id="personalize_link" class="iframe_medium btn btn-secondary btn-sm"><?php echo xlt("Personalize"); ?></a>
                 <a href="add_custombutton.php" id="custombutton" class="iframe_medium btn btn-secondary btn-sm" title="<?php echo htmlspecialchars(xl('Add Buttons for Special Chars,Texts to be Displayed on Top of the Editor for inclusion to the text on a Click'), ENT_QUOTES); ?>"><?php echo htmlspecialchars(xl('Add Buttons'), ENT_QUOTES); ?></a>
               </div>
               <div class="col-md-8">
-                <textarea class="ckeditor" cols="130" rows="180" id="textarea1" name="textarea1"></textarea>
+                <textarea class="ckeditor" cols="130" rows="360" id="textarea1" name="textarea1"></textarea>
                 <span class="float-right my-1"><a href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)" class="btn btn-primary btn-sm btn-save float-right"><?php echo xlt('Insert in Form'); ?></a></span>
               </div>
             </div>
