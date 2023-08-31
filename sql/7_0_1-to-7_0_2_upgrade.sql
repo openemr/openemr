@@ -245,6 +245,7 @@ CREATE TABLE recent_patients (
     patients TEXT,
     PRIMARY KEY (user_id)
 ) ENGINE=InnoDB;
+#EndIf
 
 #IfMissingColumn oauth_clients skip_ehr_launch_authorization_flow
 ALTER TABLE `oauth_clients` ADD COLUMN `skip_ehr_launch_authorization_flow` tinyint(1) NOT NULL DEFAULT '0';
@@ -262,4 +263,18 @@ UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_
 SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='suffix' AND form_id='DEM');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('DEM','preferred_name',@group_id,'Preferred Name',@seq_add_to+5,2,1,32,64,'',1,3,'','[\"J\",\"DAP\"]','Patient preferred name or name patient is commonly known.',0);
 ALTER TABLE `patient_data` ADD `preferred_name` TINYTEXT;
-#Endif
+#EndIf
+
+#IfMissingColumn email_queue template_name
+ALTER TABLE `email_queue` ADD `template_name` VARCHAR(255) DEFAULT NULL COMMENT 'The folder prefix and base filename (w/o extension) of the twig template file to use for this email';
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2023-10-01 load_filename Code Descriptions.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2023-10-01', 'Code Descriptions.zip', '15404ef88e0ffa15474e6d6076aa0a8a');
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2023-10-01 load_filename Zip File 3 2024 ICD-10-PCS Codes File.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2023-10-01', 'Zip File 3 2024 ICD-10-PCS Codes File.zip', '30e096ed9971755c4dfc134b938f3c1f');
+#EndIf

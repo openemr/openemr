@@ -18,8 +18,7 @@
     "rules": {
         "no-undef": "warn",
         "no-unused-vars": "warn",
-        "no-redeclare": "warn",
-        "no-useless-escape": "warn"
+        "no-redeclare": "warn"
     },
     "overrides": [
         {
