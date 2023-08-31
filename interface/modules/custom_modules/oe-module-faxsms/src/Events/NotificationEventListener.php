@@ -83,7 +83,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $to = $email;
         $to_name = $email;
         $mail->AddAddress($to, $to_name);
-        $subject = xlt("Your clinic ask for your attention.");
+        $subject = xlt("Your clinic asks for your attention.");
         $mail->Subject = $subject;
         $mail->Body = $body;
         if (!empty($file)) {
