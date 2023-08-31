@@ -902,7 +902,7 @@ if (
         if ($formdir == 'newpatient') {
             $form_author = $providerNameRes;
         } else {
-            $form_author = ($user['fname'] ?? '') . "  " . ($user['lname'] ?? '');
+            $form_author = ($user['fname'] ?? '') . "  " . ($user['lname'] ?? '') . ", " . ($user['suffix'] ?? '') . ", " . ($user['valedictory'] ?? '');
         }
         $div_nums_attr = attr($divnos);
         $title = xla("Expand/Collapse this form");
