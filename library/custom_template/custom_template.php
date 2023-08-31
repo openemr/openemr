@@ -408,6 +408,7 @@ function processComponents(components)
     if (components.length > 0) {
         components.map(function (c) {
             let row = document.getElementById("componentRow").content.cloneNode(true);
+            row.querySelector("li").id = `clorder_${c.id_attr}`;
             row.querySelector(".flex-fill a").innerText = c.short_text;
             row.querySelector(".flex-fill a").setAttribute("data-component_id", c.id);
             row.querySelector(".flex-fill a").addEventListener("click", function (e) {
@@ -482,6 +483,15 @@ async function processCategoryChange(e)
     processComponents(r);
 }
 
+function quickCategory()
+{
+    const template = document.getElementById("template");
+    if (template.options.length == 2) {
+        template.selectedIndex = 1;
+        template.dispatchEvent(new Event("change"));
+    }
+}
+
 window.addEventListener('DOMContentLoaded', function() {
     document.getElementById("componentEditorDialog").addEventListener("close", function(e) {
         resetDialog();
@@ -490,6 +500,8 @@ window.addEventListener('DOMContentLoaded', function() {
     document.getElementById("template").addEventListener("change", function (e) {
         processCategoryChange(e);
     });
+
+    quickCategory();
 });
 </script>
 </body>

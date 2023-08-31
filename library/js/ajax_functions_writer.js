@@ -183,27 +183,27 @@ async function TemplateSentence(val) {
 
     if (response.status === 200) {
         const r = await response.json();
-        processComponents(r);
+        return r;
+    } else {
+        console.debug("Unable to complete request")
     }
-    return;
 }
 
-function delete_item(id) {
+async function delete_item(id) {
     if (confirm("Do you really wants to delete this?")) {
-        $.ajax({
-            type: "POST",
-            url: "ajax_code.php",
-            dataType: "html",
-            data: {
+        const response = await fetch("ajax_code.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
                 templateid: document.getElementById('template').value,
                 item: id,
                 source: "delete_item"
-            },
-            success: function (thedata) {
-                document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
-            },
+            })
         });
-        return;
+
+        return (response.status === 204) ? true : false;
     }
     return false;
 }
@@ -220,27 +220,34 @@ function cancel_item(id) {
         document.getElementById('update_item' + id).classList.toggle('d-none');
 }
 
-function save_item() {
-    $.ajax({
-        type: "POST",
-        url: "ajax_code.php",
-        dataType: "html",
-        data: {
+/**
+ * Saves a new component to the database
+ *
+ * @todo RD - This function references the DOM when it should only reference parameters.
+ * @returns {Promise<string>} The ID of the new item, false if there was a failure
+ */
+async function save_item() {
+    const response = await fetch('ajax_code.php', {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "Accepts": "text/plain"
+        },
+        body: new URLSearchParams({
             templateid: document.getElementById('template').value,
             short: document.getElementById("shortName").value,
             item: document.getElementById("componentText").value,
             source: "add_item"
-        },
-        success: function (thedata) {
-            //alert(thedata)
-            document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
-            cancel_item('');
-        },
-        error: function () {
-            //alert("fail");
-        }
+        })
     });
-    return;
+
+    if (response.status === 201) {
+        const r = await response.text();
+        return r;
+    } else {
+        console.debug("Unable to complete request");
+    }
+    return false;
 }
 
 function update_item_div(id) {
@@ -248,22 +255,27 @@ function update_item_div(id) {
     document.getElementById('update_item_txt' + id).focus();
 }
 
-function update_item(id) {
-    $.ajax({
-        type: "POST",
-        url: "ajax_code.php",
-        dataType: "html",
-        data: {
+/**
+ * Update an item in the database based on given id
+ *
+ * @todo This function references the DOM when it should only reference parameters.
+ * @param {*} id
+ * @returns boolean
+ */
+async function update_item(id) {
+    const response = await fetch("ajax_code.php", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
             item: id,
             templateid: document.getElementById('template').value,
-            content: document.getElementById('update_item_txt' + id).value,
+            short: document.getElementById("shortName").value,
+            content: document.getElementById("componentText").value,
             source: "update_item"
-
-        },
-        success: function (thedata) {
-            document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
-            cancel_item(id);
-        },
+        })
     });
-    return;
+
+    return (response.status == 204) ? true : false;
 }

@@ -281,3 +281,5 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 
 #IfTable customlists
 ALTER TABLE customlists MODIFY COLUMN cl_list_item_short varchar(100);
+ALTER TABLE customlists MODIFY COLUMN cl_list_item_long LONGTEXT;;
+#EndIf
