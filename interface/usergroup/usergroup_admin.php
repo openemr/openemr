@@ -140,6 +140,14 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             sqlStatement("update users set lname=? where id= ? ", array($_POST["lname"], $_POST["id"]));
         }
 
+        if ($_POST["suffix"]) {
+            sqlStatement("update users set suffix=? where id= ? ", array($_POST["suffix"], $_POST["id"]));
+        }
+
+        if ($_POST["valedictory"]) {
+            sqlStatement("update users set valedictory=? where id= ? ", array($_POST["valedictory"], $_POST["id"]));
+        }
+
         if ($_POST["job"]) {
             sqlStatement("update users set specialty=? where id= ? ", array($_POST["job"], $_POST["id"]));
         }
@@ -348,6 +356,8 @@ if (isset($_POST["mode"])) {
             "', fname = '"         . add_escape_custom(trim((isset($_POST['fname']) ? $_POST['fname'] : ''))) .
             "', mname = '"         . add_escape_custom(trim((isset($_POST['mname']) ? $_POST['mname'] : ''))) .
             "', lname = '"         . add_escape_custom(trim((isset($_POST['lname']) ? $_POST['lname'] : ''))) .
+            "', suffix = '"         . add_escape_custom(trim((isset($_POST['suffix']) ? $_POST['suffix'] : ''))) .
+            "', valedictory = '"         . add_escape_custom(trim((isset($_POST['valedictory']) ? $_POST['valedictory'] : ''))) .
             "', federaltaxid = '"  . add_escape_custom(trim((isset($_POST['federaltaxid']) ? $_POST['federaltaxid'] : ''))) .
             "', state_license_number = '"  . add_escape_custom(trim((isset($_POST['state_license_number']) ? $_POST['state_license_number'] : ''))) .
             "', newcrop_user_role = '"  . add_escape_custom(trim((isset($_POST['erxrole']) ? $_POST['erxrole'] : ''))) .
