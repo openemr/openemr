@@ -228,7 +228,7 @@ if (empty($isNN) && empty($rowContext)) {
                     <a class="btn btn-primary btn-sm btn-transmit float-right" href="#" onclick="return SelectToSave(<?php echo attr_js($type); ?>, <?php echo attr_js($cc_flag); ?>)"><?php echo xlt('Insert in Form'); ?></a>
                 </div>
               <div class="col-md-4">
-                <div class="bg-light">
+                <div class=shadow-lgt">
                     <div style="overflow-y: scroll; overflow-x: hidden; height: 500px">
                         <ul id="menu5" class="example_menu w-100">
                             <li>
@@ -329,7 +329,7 @@ if (empty($isNN) && empty($rowContext)) {
         </li>
     </div>
 </template>
-<dialog id="componentEditorDialog" style="resize: both;" class="w-75">
+<dialog id="componentEditorDialog" style="resize: both;" class="w-75 border-0 shadow-lg">
     <div class="w-100 d-flex justify-content-between align-items-center">
         <h2 class="flex-fill p-1 m-0 title">
             <?php echo xlt("Add New Component"); ?>
