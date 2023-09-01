@@ -356,7 +356,7 @@ var page = {
                         let documentContents = document.getElementById('templatecontent').innerHTML;
                         $("#content").val(documentContents);
                         $("#template").submit();
-                        signerAlertMsg(xl('Downloading Document!'), 1000, 'success', 'lg');
+                        signerAlertMsg('Downloading Document!', 1000, 'success', 'lg');
                         page.renderModelView(false);
                     }
                 });
@@ -1085,7 +1085,7 @@ var page = {
             paramName: 'file',
             clickable: true,
             acceptedFiles: 'application/pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.csv,.tsv,.ppt,.pptx,.odt,.rtf',
-            dictDefaultMessage: xl("Drop file or Click here."),
+            dictDefaultMessage: "Drop file or Click here.",
             maxFiles: 2,
             enqueueForUpload: true,
             maxFilesize: 100,

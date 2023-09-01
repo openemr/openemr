@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Services;
 
+use Exception;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 
@@ -23,7 +24,7 @@ class PatientPortalService
 
     public function __construct()
     {
-        self::setIsEnabledServices($GLOBALS['oefax_enable_fax'], $GLOBALS['oefax_enable_sms'], $GLOBALS['oe_enable_email']);
+        self::setIsEnabledServices($GLOBALS['oefax_enable_fax'] ?? false, $GLOBALS['oefax_enable_sms'] ?? false, $GLOBALS['oe_enable_email'] ?? false);
     }
 
     /**
@@ -31,25 +32,9 @@ class PatientPortalService
      */
     public static function setIsEnabledServices(bool $fax, $sms, $email): void
     {
-        self::$isFaxEnabled = $fax ?? false;
-        self::$isSmsEnabled = $sms ?? false;
-        self::$isEmailEnabled = $email ?? false;
-    }
-
-    /**
-     * @param bool $isEmailEnabled
-     */
-    public static function setIsEmailEnabled(bool $isEmailEnabled): void
-    {
-        self::$isEmailEnabled = $isEmailEnabled;
-    }
-
-    /**
-     * @param bool $isFaxEnabled
-     */
-    public static function setIsFaxEnabled(bool $isFaxEnabled): void
-    {
-        self::$isFaxEnabled = $isFaxEnabled;
+        self::$isFaxEnabled = $fax;
+        self::$isSmsEnabled = $sms;
+        self::$isEmailEnabled = $email;
     }
 
     /**
@@ -58,6 +43,10 @@ class PatientPortalService
      */
     public static function isValidPortalPatient($pid): array
     {
+        $patient['valid'] = false;
+        if (empty($pid)) {
+            return $patient;
+        }
         // ensure both portal and patient data match using portal account id.
         $patient = sqlQuery(
             "Select `pid`, `email`, `email_direct` From `patient_data` Where `pid` = ?",
@@ -78,6 +67,7 @@ class PatientPortalService
      * @param        $details
      * @param string $content
      * @return bool|string
+     * @throws Exception
      */
     public function dispatchPortalOneTimeDocumentRequest($pid, $details, string $content = ''): bool|string
     {
@@ -97,7 +87,7 @@ class PatientPortalService
         }
         $message = $message . xl("Please click the below link (only valid for 48 hours) to edit document") . ': "' . $name . "\".\n";
 
-        $statusMsg = xl("Notification requests in process!") . "<br />";
+        $statusMsg = xl("Notification requests are being sent!");
         $event_data = [
             'notification_method' => $method,
             'text_message' => $message,
@@ -109,7 +99,7 @@ class PatientPortalService
         ];
         $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
         $eventDispatcher->dispatch(new SendNotificationEvent($pid, $event_data), SendNotificationEvent::SEND_NOTIFICATION_SERVICE_ONETIME);
-        return $statusMsg;
+        return text($statusMsg);
     }
 
     /**
@@ -124,14 +114,21 @@ class PatientPortalService
     }
 
     /**
-     * @param $sect
-     * @param $v
-     * @param $u
+     * @param string $sect
+     * @param string $v
+     * @param string $u
      * @return bool
      */
-    public static function verifyAcl($sect = 'admin', $v = 'docs', $u = ''): bool
+    public static function verifyAcl(string $sect = 'admin', string $v = 'docs', string $u = ''): bool
     {
         return AclMain::aclCheckCore($sect, $v, $u);
+    }
+
+    public static function isPortalUser($u = null)
+    {
+        $user = $u ?: $_SESSION['authUserID'];
+        // test for either id or username
+        return sqlQuery("SELECT `portal_user` FROM `users` WHERE `id` = ? OR username = ? LIMIT 1", array($user, $user))['portal_user'];
     }
 
     /**
@@ -189,5 +186,50 @@ class PatientPortalService
         }
 
         return $_GET;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function isSmsEnabled(): bool
+    {
+        return self::$isSmsEnabled;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function isEmailEnabled(): bool
+    {
+        return self::$isEmailEnabled;
+    }
+
+    /**
+     * @return bool
+     */
+    public static function isFaxEnabled(): bool
+    {
+        return self::$isFaxEnabled;
+    }
+
+    /**
+     * Currently only used in portal theme setting
+     * however the patient_settings table is useful anywhere.
+     *
+     * @param $setting_patient
+     * @param $setting_label
+     * @param $setting_value
+     * @return int
+     */
+    public static function persistPatientSetting($setting_patient, $setting_label, $setting_value): int
+    {
+        $sql = "INSERT INTO `patient_settings` (`setting_patient`, `setting_label`, `setting_value`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `setting_patient` = ?,  `setting_label` = ?, `setting_value` = ?";
+
+        return sqlInsert(
+            $sql,
+            array(
+                $setting_patient ?? 0, $setting_label, $setting_value ?? '',
+                $setting_patient ?? 0, $setting_label, $setting_value ?? '')
+        );
     }
 }

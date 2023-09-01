@@ -888,6 +888,7 @@ $audit_status_blank = array(
                                 }
                                 $last_date = $audit_status['create_date'] ?? '' ?: $file['modified_date'] ?? '';
                                 $next_due = $templateService->showTemplateFromEvent($file, true);
+                                $action_status = '';
                                 if ($next_due > 1) {
                                     if ($audit_status['denial_reason'] === 'In Review') {
                                         $action_status = xl('Scheduled but Needs Review');
@@ -923,13 +924,17 @@ $audit_status_blank = array(
                                     echo '<button type="button" id="patientDelete' . attr($template_id) .
                                         '" class="btn btn-sm btn-outline-danger" onclick="templateDelete(' . attr_js($template_id) . ')">' . xlt('Delete') . "</button>\n";
                                 }
+                                // onetime button for template.
                                 $file['onetime_period'] = "P2D";
                                 $file['is_onetime'] = 1;
                                 $file['audit_id'] = 0;
                                 if ($audit_status['denial_reason'] == 'In Review' || $audit_status['denial_reason'] == 'Editing') {
                                     $file['audit_id'] = $audit_status['audit_id'] ?? 0;
                                 }
-                                $eventDispatcher->dispatch(new SendNotificationEvent($fetch_pid, $file), SendNotificationEvent::ACTIONS_RENDER_NOTIFICATION_POST);
+                                $e_pid = $fetch_pid ?: $file['pid'];
+                                if (!empty($e_pid)) {
+                                    $eventDispatcher->dispatch(new SendNotificationEvent($e_pid, $file), SendNotificationEvent::ACTIONS_RENDER_NOTIFICATION_POST);
+                                }
 
                                 echo '</td><td>' . text($action_status) . '</td>';
                                 echo '<td>' . text(date('m/d/Y H:i:s', strtotime($last_date))) . '</td>';

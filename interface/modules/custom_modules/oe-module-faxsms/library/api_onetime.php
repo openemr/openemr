@@ -21,7 +21,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'contact-form')) {
 
 if (isset($_REQUEST['sendOneTime'])) {
     try {
-        $rtn = doOnetimeRequest();
+        $rtn = doOnetimeDocumentRequest();
     } catch (Exception $e) {
         die($e->getMessage());
     }
@@ -30,11 +30,15 @@ if (isset($_REQUEST['sendOneTime'])) {
 /**
  * @throws Exception
  */
-function doOnetimeRequest()
+function doOnetimeDocumentRequest()
 {
     $service = new PatientPortalService();
-    if (!$service::verifyAcl()) {
-        throw new Exception(xlt("Error! Not authorised."));
+    // auto allow if a portal user else must be an admin
+    if (!$service::isPortalUser()) {
+        // default is admin documents
+        if (!$service::verifyAcl()) {
+            throw new Exception(xlt("Error! Not authorised. You must be an authorised portal user or admin."));
+        }
     }
     $details = json_decode($service->getRequest('details'), true);
     $content = $service->getRequest('comments');
