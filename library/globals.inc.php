@@ -1052,7 +1052,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'enable_help' => array(
-           xl('Enable Help Modal'),
+            xl('Enable Help Modal'),
             array(
                 '0' => xl('Hide Help Modal'),
                 '1' => xl('Show Help Modal'),
@@ -2000,13 +2000,11 @@ $GLOBALS_METADATA = array(
         ),
 
         'disable_rcb' => array(
-          xl('Recall Board: Disable'),
-          'bool',                           // data type
-          '0',                              // default
-          xl('Do not display the Recall Board.')
+            xl('Recall Board: Disable'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Do not display the Recall Board.')
         ),
-
-
 
 
     ),
@@ -3088,6 +3086,18 @@ $GLOBALS_METADATA = array(
             xl('Pick a default portal theme.')
         ),
 
+        'portal_force_credential_reset' => array(
+            xl('Portal Login Forced Credential Reset'),
+            array(
+                '0' => xl('Allow (Recommended)'),
+                '1' => xl('Disable'),
+                '2' => xl('User optional from credential dialog.')
+            ),
+            'enabled',
+            xl('Select for when the credentials are created or reset behavior for forcing patient to change password on portal login.') .
+            xl('User optional persists the option selected in create dialog to allow deciding on a patient basis.')
+        ),
+
         'portal_onsite_two_basepath' => array(
             xl('Portal Uses Server Base Path (internal)'),
             'bool',
@@ -3227,7 +3237,7 @@ $GLOBALS_METADATA = array(
             xl('OAuth2 App Manual Approval Settings'),
             array(
                 0 => xl('Patient standalone apps Auto Approved, EHR-Launch,Provider&System Apps require manual approval')
-                ,1 => xl('Manually Approve All Apps (USA jurisdictions must approve all patient standalone apps within 48 hours)')
+            , 1 => xl('Manually Approve All Apps (USA jurisdictions must approve all patient standalone apps within 48 hours)')
 //                ,2 => xl('All apps Auto Approved') we could add this setting at a latter date
             ),
             '0',
@@ -3363,10 +3373,10 @@ $GLOBALS_METADATA = array(
         ),
 
         'medex_enable' => array(
-          xl('Enable MedEx Communication Service'),
-          'bool',                           // data type
-          '0',
-          xl('Enable MedEx Communication Service')
+            xl('Enable MedEx Communication Service'),
+            'bool',                           // data type
+            '0',
+            xl('Enable MedEx Communication Service')
         ),
 
         'erx_enable' => array(
@@ -4428,7 +4438,7 @@ if (!empty($GLOBALS['ippf_specific'])) {
         'gbl_rapid_workflow' => array(
             xl('Rapid Workflow Option'),
             array(
-                '0'        => xl('None'),
+                '0' => xl('None'),
                 'LBFmsivd' => xl('MSI (requires LBFmsivd form)'),
                 'fee_sheet' => xl('Fee Sheet and Checkout'),
             ),
@@ -4503,9 +4513,9 @@ if (!empty($GLOBALS['ippf_specific'])) {
         'gbl_custom_receipt' => array(
             xl('Custom Checkout Receipt'),
             array(
-                '0'                                => xl('None'),
+                '0' => xl('None'),
                 'checkout_receipt_general.inc.php' => xl('POS Printer'),
-                'checkout_receipt_panama.inc.php'  => xl('Panama'),
+                'checkout_receipt_panama.inc.php' => xl('Panama'),
             ),
             '0',                              // default
             xl('Present an additional PDF custom receipt after checkout.')
