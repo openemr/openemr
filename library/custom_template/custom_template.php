@@ -339,15 +339,15 @@ if (empty($isNN) && empty($rowContext)) {
     <div class="w-100">
         <div class="form-group">
             <label for="shortName" class="sr-only"><?php echo xlt("Short Name"); ?></label>
-            <input type="text" autofocus class="form-control" placeholder="<?php echo xlt("Short Name"); ?>" name="shortName" id="shortName">
+            <input type="text" autofocus class="form-control" required placeholder="<?php echo xlt("Short Name"); ?>" name="shortName" id="shortName">
         </div>
         <div class="form-group">
             <label for="componentText" class="sr-only"><?php echo xlt("Component Text"); ?></label>
-            <textarea name="componentText" class="form-control" id="componentText" placeholder="<?php echo xlt("Component Text"); ?>" cols="30" rows="10"></textarea>
+            <textarea name="componentText" class="form-control" required id="componentText" placeholder="<?php echo xlt("Component Text"); ?>" cols="30" rows="10"></textarea>
         </div>
     </div>
     <div class="w-100 text-right">
-        <button type="submit" class="btn btn-primary"><?php echo xlt("Save"); ?></button>
+        <button type="submit" formmethod="dialog" class="btn btn-primary"><?php echo xlt("Save"); ?></button>
     </div>
 </dialog>
 <template id="addComponent">
@@ -361,9 +361,31 @@ const componentEditorDialog = document.getElementById("componentEditorDialog");
 
 componentEditorDialog.querySelector("button[type='submit']").addEventListener('click', function (e) {
     event.preventDefault();
+    const title = componentEditorDialog.querySelector("input");
+    const text = componentEditorDialog.querySelector("textarea");
+
+    if (title.value == "" || text.value == "") {
+        title.classList.add("is-invalid");
+        text.classList.add("is-invalid");
+        return;
+    }
+
     saveComponent();
     componentEditorDialog.close();
 });
+componentEditorDialog.querySelector("input").addEventListener("input", validateComponentInputs);
+componentEditorDialog.querySelector("textarea").addEventListener("input", validateComponentInputs);
+componentEditorDialog.querySelector("input").addEventListener("blur", validateComponentInputs);
+componentEditorDialog.querySelector("textarea").addEventListener("blur", validateComponentInputs);
+
+function validateComponentInputs(e)
+{
+    if (e.target.value == "") {
+        e.target.classList.add("is-invalid");
+    } else {
+        e.target.classList.remove("is-invalid");
+    }
+}
 
 componentEditorDialog.querySelector("a[data-close]").addEventListener("click", function (e) {
     e.preventDefault();
