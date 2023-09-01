@@ -46,16 +46,28 @@ function displayLogin($patient_id, $message, $emailFlag)
 
 $patientAccessOnSiteService = new PatientAccessOnsiteService();
 $credentials = $patientAccessOnSiteService->getOnsiteCredentialsForPid($pid);
-$forced_reset_disable = PatientAccessOnsiteService::fetchUserSetting('portal_login.credential_reset_disable');
+
+$option = $GLOBALS['portal_force_credential_reset'] ?? '0';
+if ($option == '2') {
+    $forced_reset_disable = PatientAccessOnsiteService::fetchUserSetting('portal_login.credential_reset_disable');
+} elseif ($option == '0') {
+    $forced_reset_disable = 0; // sets database to force reset on login
+} else {
+    $forced_reset_disable = 1; // sets database to ignore force reset on login
+}
 
 $credMessage = '';
 if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-
+    if ($option == '2') {
+        $forced_reset_disable = $_POST['forced_reset_disable'] ?? 0;
+    } else {
+        $forced_reset_disable = $option;
+    }
     // TODO: @adunsulag do we clear the pwd variables here?? Hard to break it out into separate functions when we do that...
-    $result = $patientAccessOnSiteService->saveCredentials($pid, $_POST['pwd'], $_POST['uname'], $_POST['login_uname'], $_POST['forced_reset_disable']);
+    $result = $patientAccessOnSiteService->saveCredentials($pid, $_POST['pwd'], $_POST['uname'], $_POST['login_uname'], $forced_reset_disable);
     if (!empty($result)) {
         $emailResult = $patientAccessOnSiteService->sendCredentialsEmail($pid, $result['pwd'], $result['uname'], $result['login_uname'], $result['email_direct']);
         if ($emailResult['success']) {
@@ -69,21 +81,22 @@ $trustedUserName = $patientAccessOnSiteService->getUniqueTrustedUsernameForPid($
 $trustedEmail = $patientAccessOnSiteService->getTrustedEmailForPid($pid);
 
 echo $patientAccessOnSiteService->filterTwigTemplateData($pid, 'patient/portal_login/print.html.twig', [
-        'credMessage' => $credMessage
-        , 'csrfToken' => CsrfUtils::collectCsrfToken()
-        , 'fname' => $credentials['fname']
-        , 'portal_username' => $credentials['portal_username']
-        , 'id' => $credentials['id']
-        , 'uname' => $credentials['portal_username'] ?: $credentials['fname'] . $credentials['id']
-        , 'login_uname' => $credentials['portal_login_username'] ?? $trustedUserName
-        , 'pwd' => $patientAccessOnSiteService->getRandomPortalPassword()
-        , 'enforce_signin_email' => $GLOBALS['enforce_signin_email']
-        , 'email_direct' => trim($trustedEmail['email_direct'])
-        , 'forced_reset_disable' =>  $forced_reset_disable
-        // if someone wants to add additional data fields they can add this in as a
-        // key => [...] property where the key is the template filename
-        // which must exist inside a twig directory path of 'patient/partials/' and end with the '.html.twig' extension
-        // the mapped value is the data array that will be passed to the twig template.
-        , 'extensionsFormFields' => []
-        , 'extensionsJavascript' => []
+    'credMessage' => $credMessage
+    , 'csrfToken' => CsrfUtils::collectCsrfToken()
+    , 'fname' => $credentials['fname']
+    , 'portal_username' => $credentials['portal_username']
+    , 'id' => $credentials['id']
+    , 'uname' => $credentials['portal_username'] ?: $credentials['fname'] . $credentials['id']
+    , 'login_uname' => $credentials['portal_login_username'] ?? $trustedUserName
+    , 'pwd' => $patientAccessOnSiteService->getRandomPortalPassword()
+    , 'enforce_signin_email' => $GLOBALS['enforce_signin_email']
+    , 'email_direct' => trim($trustedEmail['email_direct'])
+    , 'forced_reset_disable' => $forced_reset_disable
+    , 'forced_reset_option' => $option
+    // if someone wants to add additional data fields they can add this in as a
+    // key => [...] property where the key is the template filename
+    // which must exist inside a twig directory path of 'patient/partials/' and end with the '.html.twig' extension
+    // the mapped value is the data array that will be passed to the twig template.
+    , 'extensionsFormFields' => []
+    , 'extensionsJavascript' => []
 ]);

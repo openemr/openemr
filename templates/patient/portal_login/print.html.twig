@@ -98,11 +98,13 @@
                 {{ "Is Required. Please Add in Contacts."|xlt}}
             {% endif %}
         </div>
-        <div class="form-check-inline">
-            <label class="form-check-label">{{ 'Disable forced credential reset.'|xlt }}
-                <input type="checkbox" id="forced_reset_disable" name="forced_reset_disable" onchange='top.restoreSession(); persistCriteria(this, event) ;' value="1" {%if forced_reset_disable == 1 %} checked {% endif %} />
-            </label>
-        </div>
+        {% endif %}
+        {% if (forced_reset_option == '2') %}
+            <div class="form-check-inline my-1">
+                <label class="form-check-label font-weight-bold">{{ 'Disable forced credential reset.'|xlt }}
+                    <input type="checkbox" id="forced_reset_disable" name="forced_reset_disable" onchange='top.restoreSession(); persistCriteria(this, event) ;' value="1" {%if forced_reset_disable == 1 %} checked {% endif %} />
+                </label>
+            </div>
         {% endif %}
         <hr />
         {% if extensionsFormFields is not empty %}
