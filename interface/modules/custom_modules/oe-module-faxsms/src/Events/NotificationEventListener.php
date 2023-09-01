@@ -194,7 +194,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $to = $email;
         $to_name = $email;
         $mail->AddAddress($to, $to_name);
-        $subject = xl("Your clinic ask for your attention.");
+        $subject = xl("Your clinic asks for your attention.");
         $mail->Subject = $subject;
         $mail->MsgHTML($html);
         $mail->IsHTML(true);
@@ -213,6 +213,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $p_data = $notificationEvent->fetchPatientDetails($notificationEvent->getPid());
         $template = $notificationEvent->getEventData()['id'] ?? '';
         $name = $notificationEvent->getEventData()['template_name'] ?? '';
+        $p_data = $p_data ?: [];
         $details = array_merge($p_data, $notificationEvent->getEventData());
         ?>
         <button type="button" class="sendsms float-right btn btn-success btn-sm btn-send-msg"

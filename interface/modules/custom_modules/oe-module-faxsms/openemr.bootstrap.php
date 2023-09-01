@@ -199,6 +199,6 @@ if ($allowSMSButtons) {
     $eventDispatcher->addListener(SendSmsEvent::JAVASCRIPT_READY_SMS_POST, 'oe_module_faxsms_sms_render_javascript_post_load');
 }
 
-if (!empty($_SESSION['session_database_uuid'] ?? null) && ($allowSMS || $allowEmail)) {
+if (!(empty($_SESSION['authUserID'] ?? null) && ($_SESSION['pid'] ?? null)) && $allowSMS) {
     (new NotificationEventListener())->subscribeToEvents($eventDispatcher);
 }
