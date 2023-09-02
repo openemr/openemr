@@ -3067,6 +3067,18 @@ $GLOBALS_METADATA = array(
             xl('Pick a default portal theme.')
         ),
 
+        'portal_force_credential_reset' => array(
+            xl('Portal Login Forced Credential Reset'),
+            array(
+                '0' => xl('Allow (Recommended)'),
+                '1' => xl('Disable'),
+                '2' => xl('User optional from credential dialog.')
+            ),
+            '0',
+            xl('Select the credentials create or reset behavior for forcing patient to change password on portal login.') .
+            xl('User optional persists the options checkbox state in the credential dialog to allow deciding on a patient by patient basis.')
+        ),
+
         'portal_onsite_two_basepath' => array(
             xl('Portal Uses Server Base Path (internal)'),
             'bool',
