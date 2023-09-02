@@ -3093,9 +3093,9 @@ $GLOBALS_METADATA = array(
                 '1' => xl('Disable'),
                 '2' => xl('User optional from credential dialog.')
             ),
-            'enabled',
-            xl('Select for when the credentials are created or reset behavior for forcing patient to change password on portal login.') .
-            xl('User optional persists the option selected in create dialog to allow deciding on a patient basis.')
+            '0',
+            xl('Select the credentials create or reset behavior for forcing patient to change password on portal login.') .
+            xl('User optional persists the options checkbox state in the credential dialog to allow deciding on a patient by patient basis.')
         ),
 
         'portal_onsite_two_basepath' => array(
