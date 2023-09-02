@@ -124,11 +124,36 @@ class PatientPortalService
         return AclMain::aclCheckCore($sect, $v, $u);
     }
 
+    /**
+     * @param $u
+     * @return mixed
+     */
     public static function isPortalUser($u = null)
     {
         $user = $u ?: $_SESSION['authUserID'];
         // test for either id or username
         return sqlQuery("SELECT `portal_user` FROM `users` WHERE `id` = ? OR username = ? LIMIT 1", array($user, $user))['portal_user'];
+    }
+
+    /**
+     * TODO Move this to AclMain class and refactor portal ACLs
+     * It's important to rely on portal user and not ACL.
+     * @param string $sect
+     * @param string $v
+     * @param        $u
+     * @return bool
+     */
+    public static function authPortalUser(string $sect = 'admin', string $v = 'docs', $u = null): bool
+    {
+        if (empty(self::isPortalUser())) {
+            // default is admin forms
+            if (!self::verifyAcl($sect, $v)) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+        return true;
     }
 
     /**

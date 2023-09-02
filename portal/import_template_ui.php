@@ -19,6 +19,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
+use OpenEMR\Services\PatientPortalService;
 use OpenEMR\Services\QuestionnaireService;
 
 if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_two_enable'])) {
@@ -26,9 +27,12 @@ if (!(isset($GLOBALS['portal_onsite_two_enable'])) || !($GLOBALS['portal_onsite_
     exit;
 }
 
-$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
-$authUploadTemplates = AclMain::aclCheckCore('admin', 'forms');
 // Service
+$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+$portalService = new PatientPortalService();
+// auto allow if a portal user else must be an admin
+$authUploadTemplates = $portalService::authPortalUser('admin', 'forms');
+
 $templateService = new DocumentTemplateService();
 $from_demo_pid = $_GET['from_demo_pid'] ?? '0';
 $patient = $_REQUEST['selected_patients'] ?? null;
