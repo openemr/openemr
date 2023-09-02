@@ -36,6 +36,7 @@ var page = {
     signaturesRequired: false,
     isFlattened: false,
     version: '',
+    currentName: '',
     init: function () {
         // ensure initialization only occurs once
         if (page.isInitialized || page.isInitializing) {
@@ -218,7 +219,7 @@ var page = {
                         let formFrame = document.getElementById('encounterForm');
                         $(window).one("message onmessage", (e) => {
                             if (event.origin !== window.location.origin) {
-                                signerAlertMsg("Remote is not same origin!)", 15000);
+                                signerAlertMsg("Remote is not same origin!", 15000);
                                 return false;
                             }
                             if (isModule || page.isFrameForm) {
@@ -355,7 +356,7 @@ var page = {
                         let documentContents = document.getElementById('templatecontent').innerHTML;
                         $("#content").val(documentContents);
                         $("#template").submit();
-                        signerAlertMsg(xl('Downloading Document!'), 1000, 'success', 'lg');
+                        signerAlertMsg('Downloading Document!', 1000, 'success', 'lg');
                         page.renderModelView(false);
                     }
                 });
@@ -363,12 +364,14 @@ var page = {
                 $("#downloadTemplate").hide();
                 $("#chartTemplate").hide();
                 $("#chartHistory").hide();
-                if (page.version === 'Legacy') {
+                if (page.version === 'Legacy' || autoRender + auditRender > 0) {
                     $("#saveTemplate").hide();
                 } else {
-                    page.isLocked ? $("#saveTemplate").hide() : $("#saveTemplate").show();
-                    page.isLocked ? $("#sendTemplate").hide() : $("#sendTemplate").show();
-                    page.isLocked ? $("#submitTemplate").show() : $("#submitTemplate").hide();
+                    if (page.currentName !== 'Help') {
+                        page.isLocked ? $("#saveTemplate").hide() : $("#saveTemplate").show();
+                        page.isLocked ? $("#sendTemplate").hide() : $("#sendTemplate").show();
+                        page.isLocked ? $("#submitTemplate").show() : $("#submitTemplate").hide();
+                    }
                 }
             }
             $("#saveTemplate").unbind().on('click', function (e) {
@@ -425,6 +428,11 @@ var page = {
                         page.onsiteDocument.set('denialReason', 'In Review');
                         // save lbf iframe template
                         page.updateModel(true);
+                        if (autoRender + auditRender > 0) {
+                            auditRender = 0;
+                            autoRender = 0;
+                            location.assign("https://opensourcedemr.us/portal/patient/onsitedocuments?pid=" + encodeURIComponent(cpid))
+                        }
                     });
                     // post to submit and save content remote form.
                     formFrame.contentWindow.postMessage({submitForm: true}, window.location.origin);
@@ -436,6 +444,12 @@ var page = {
                     pageAudit.onsitePortalActivity.set('status', 'waiting');
                     page.onsiteDocument.set('denialReason', 'In Review');
                     page.updateModel(true);
+                    if (autoRender + auditRender > 0) {
+                        auditRender = 0;
+                        autoRender = 0;
+                        location.assign("https://opensourcedemr.us/portal/patient/onsitedocuments?pid=" + encodeURIComponent(cpid));
+                    }
+
                 }
             });
             // download from portal
@@ -476,9 +490,9 @@ var page = {
             $('.navCollapse li.nav-item>a').on('click', function () {
                 $('.navbar-collapse').collapse('hide');
             });
-            if (page.version === 'Legacy' && isPortal) {
+            if (page.version === 'Legacy' && isPortal && !page.isLocked) {
                 alert(page.onsiteDocument.get('docType') + " is available for one last edit." + "\n" +
-                    "Then must be deleted and redone or submitted for review. This is due to our new document workflow.\n" +
+                    "Then document must be deleted and a new document submitted or submit this document for review. This is due to our new document workflow.\n" +
                     "We appreciate your patience."
                 )
             }
@@ -491,13 +505,13 @@ var page = {
         // These are set on init for save alerts
         page.isFlattened = false;
         page.isSaved = true;
-        $(window).bind('beforeunload', function () {
-            if (page.isSaved === false) {
-                // You have unsaved changes auto browser popup
-                event.preventDefault();
-                event.returnValue = '';
-            }
-        });
+         $(window).bind('beforeunload', function () {
+             if (!page.isSaved) {
+                 // You have unsaved changes auto browser popup
+                 event.preventDefault();
+                 event.returnValue = '';
+             }
+         });
         page.formOrigin = isPortal ? 0 : isModule ? 2 : 1;
     },
 // page scoped functions
@@ -529,7 +543,6 @@ var page = {
      * @param id the document id in edit mode from history
      */
     editHistoryDocument: function (id) {
-        event.preventDefault();
         let m = page.onsiteDocuments.get(id);
         page.showDetailDialog(m);
     },
@@ -629,7 +642,7 @@ var page = {
         $('#status').val('New');
         page.isSaved = true;
         if (docid !== 'Help') {
-            page.isSaved = false;
+            //page.isSaved = false;
         }
         page.showDetailDialog(m); // saved in rendered event
     },
@@ -638,15 +651,18 @@ var page = {
         $(".helpHide").removeClass("d-none");
         $('.modelContainer').removeClass("d-none");
         $("#editorContainer").removeClass('w-auto').addClass('w-100');
-        let currentName = page.onsiteDocument.get('docType');
+        page.currentName = page.onsiteDocument.get('docType');
         if (page.onsiteDocument.get('fileName') === '') {
-            page.onsiteDocument.set('fileName', currentName);
+            page.onsiteDocument.set('fileName', page.currentName);
         }
-        let currentNameStyled = currentName.substr(0, currentName.lastIndexOf('.')) || currentName;
+        let currentNameStyled = page.currentName.substr(0, page.currentName.lastIndexOf('.')) || page.currentName;
         currentNameStyled = currentNameStyled.replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, ' ');
-        page.isSaved = false;
-        if (currentName === 'Help') {
+
+        if (page.currentName === 'Help') {
             page.isSaved = true;
+            $("#saveTemplate").hide();
+            $("#sendTemplate").hide();
+            $("#submitTemplate").hide();
             $('#idShow').removeClass('d-none');
             $(".dismissOnsiteDocumentButton").addClass("d-none");
         } else {
@@ -656,12 +672,12 @@ var page = {
         page.isFrameForm = 0;
         page.encounterFormId = 0;
         page.encounterFormName = '';
-        if (currentName !== 'Help') {
+        if (page.currentName !== 'Help') {
             $("#topnav").hide();
         }
-        if (currentName === templateName && currentName && !page.isNewDoc) {
+        if (page.currentName === templateName && page.currentName && !page.isNewDoc) {
             // update form for any submits.(downloads and prints)
-            $("#docid").val(currentName);
+            $("#docid").val(page.currentName);
             // get document template
             let templateContents = page.onsiteDocument.get('fullDocument');
             page.encounterFormId = page.onsiteDocument.get("encounter") ?? 0;
@@ -679,6 +695,9 @@ var page = {
                 }
                 templateContents = templateContents.replace(/(isPortal=)\d/, "isPortal=" + isPortal);
                 templateContents = templateContents.replace(/(formOrigin=)\d/, "formOrigin=" + page.formOrigin);
+                if (templateContents.includes('id=0')) {
+                    templateContents = templateContents.replace(/(id=)\d/, "id=" + page.encounterFormId);
+                }
             }
             // init editor. if a frame, will use iframe src href.
             $('#templatecontent').html(templateContents);
@@ -694,6 +713,10 @@ var page = {
                     $(this).attr('data-user', cuser);
                 }
             });
+            if (page.onsiteDocument.get('denialReason') === 'Locked') {
+                $("#sendTemplate").hide();
+                signerAlertMsg("History Document. Edits unavailable", 2000, 'warning');
+            }
             initSignerApi();
         } else { // this makes it a new template
             const libUrl = webRoot + '/portal/lib/download_template.php';
@@ -708,6 +731,12 @@ var page = {
                     $("#docid").val(templateName);
                     page.onsiteDocument.set('fileName', templateName);
                     $('#templatecontent').html(templateHtml);
+                    if (templateHtml.includes('Error') && (autoRender + auditRender) > 0) {
+                        autoRender = auditRender = 0;
+                        $("#Help").click();
+                        signerAlertMsg("Onetime document is no longer available!" + "<br />" +templateHtml, 5000, 'warning');
+                        return false;
+                    }
                     page.version = $("#portal_version").val() ? $("#portal_version").val() : 'Legacy';
                     if (page.isNewDoc) {
                         page.isNewDoc = false;
@@ -759,6 +788,12 @@ var page = {
                                     document.getElementById('encounterForm').src = url;
                                 }
                             }
+                            if ((autoRender + auditRender) > 0) {
+                                $(".helpHide").removeClass("d-none");
+                                $("#saveTemplate").show();
+                                $("#sendTemplate").show();
+                                $("#submitTemplate").hide();
+                            }
                         });
                     }
                 }
@@ -770,8 +805,14 @@ var page = {
         if (cnt !== -1) {
             cdate = cdate.toString().substring(0, cnt);
         }
-        $('#docPanelHeader').append('<span class="bg-light text-dark px-1">' + jsText(currentNameStyled) + '</span>' +
-            jsText(' ' + page.version + ' Version:' + ' Dated:' + cdate + ' Status:' + status));
+        $(document).one('change','body *',function(){
+            page.isSaved = false;
+            $(document).off('change','body *');
+        });
+        if (page.currentName !== 'Help') {
+            $('#docPanelHeader').append('<span class="bg-light text-dark px-1">' + jsText(currentNameStyled) + '</span>' +
+                jsText(' ' + page.version + ' Version:' + ' Dated:' + cdate + ' Status:' + status));
+        }
     },
     /**
      * show the doc for editing
@@ -892,7 +933,7 @@ var page = {
             'facility': page.formOrigin, /* 0 portal, 1 dashboard, 2 patient documents */
             'provider': page.onsiteDocument.get('provider'),
             'encounter': page.onsiteDocument.get('encounter'),
-            'createDate': new Date(),
+            'createDate': page.onsiteDocument.get('createDate') ? page.onsiteDocument.get('createDate') : new Date(),
             'docType': page.onsiteDocument.get('docType'),
             'patientSignedStatus': ptsignature ? '1' : '0',
             'patientSignedTime': ptsignature ? new Date() : '0000-00-00',
@@ -928,7 +969,7 @@ var page = {
                 pageAudit.onsitePortalActivity.set('narrative', page.onsiteDocument.get('docType'));
                 pageAudit.onsitePortalActivity.set('actionTakenTime', new Date());
                 pageAudit.updateModel();
-                if (isNew) {
+                if (isNew || autoRender > 0) {
                     $('#confirmDeleteOnsiteDocumentContainer').hide('fast');
                     $('#deleteOnsiteDocumentButtonContainer').show();
                     if (isPortal) {
@@ -1025,15 +1066,26 @@ var page = {
                 });
             }
         });
+        let frameSrc = $('#encounterForm').attr('src');
+        if (frameSrc) {
+            objectArray.push({
+                'name': 'encounterForm',
+                'value': frameSrc || ''
+            });
+        }
+        objectArray.push({
+            'name': 'encounterFormId',
+            'value': page.encounterFormId || 0
+        });
         // will send to controller.
         return JSON.stringify(objectArray);
     },
     initFileDrop: function (event) {
-        new Dropzone("#patientFileDrop", {
+        return new Dropzone("#patientFileDrop", {
             paramName: 'file',
             clickable: true,
             acceptedFiles: 'application/pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.csv,.tsv,.ppt,.pptx,.odt,.rtf',
-            dictDefaultMessage: xl("Drop file or Click here."),
+            dictDefaultMessage: "Drop file or Click here.",
             maxFiles: 2,
             enqueueForUpload: true,
             maxFilesize: 100,
@@ -1048,9 +1100,9 @@ var page = {
                     e.preventDefault();
                     thisDropzone.processQueue();
                 });
-                this.on('sending', function(file, xhr, formData) {
+                this.on('sending', function (file, xhr, formData) {
                     let data = $('#frmTarget').serializeArray();
-                    $.each(data, function(key, el) {
+                    $.each(data, function (key, el) {
                         formData.append(el.name, el.value);
                     });
                 });
@@ -1059,7 +1111,7 @@ var page = {
                 });
                 this.on("complete", function (file) {
                     this.removeFile(file);
-                    if (dropzoneCount() < 1){
+                    if (dropzoneCount() < 1) {
                         $("#idShow").click();
                     }
                 });
@@ -1067,22 +1119,25 @@ var page = {
                     $('.meter').delay(999).slideUp(999);
                 });
                 this.on("removedfile", function (file) {
-                    if (dropzoneCount() < 1){
+                    if (dropzoneCount() < 1) {
                         $("#idSubmit").addClass('d-none');
                     }
                 });
-                this.on("addedfile", function(file) {
+                this.on("addedfile", function (file) {
                     $("#idSubmit").removeClass('d-none');
                     file.previewElement.classList.add('type-' + fileType(file.name));
                     fileCnt = dropzoneCount();
                 });
+
                 function fileType(fileName) {
                     let fileType = /[.]/.exec(fileName) ? /[^.]+$/.exec(fileName) : undefined;
                     return fileType[0];
                 }
+
                 function dropzoneCount() {
                     return $('#patientFileDrop > .dz-preview').length;
                 }
+
                 if (fileCnt > 0) {
                     $("#idSubmit").removeClass('d-none');
                 }
