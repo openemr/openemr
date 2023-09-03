@@ -431,7 +431,7 @@ var page = {
                         if (autoRender + auditRender > 0) {
                             auditRender = 0;
                             autoRender = 0;
-                            location.assign("https://opensourcedemr.us/portal/patient/onsitedocuments?pid=" + encodeURIComponent(cpid))
+                            location.assign(webroot_url + "/portal/patient/onsitedocuments?pid=" + encodeURIComponent(cpid))
                         }
                     });
                     // post to submit and save content remote form.
@@ -447,7 +447,7 @@ var page = {
                     if (autoRender + auditRender > 0) {
                         auditRender = 0;
                         autoRender = 0;
-                        location.assign("https://opensourcedemr.us/portal/patient/onsitedocuments?pid=" + encodeURIComponent(cpid));
+                        location.assign(webroot_url + "/portal/patient/onsitedocuments?pid=" + encodeURIComponent(cpid));
                     }
 
                 }
