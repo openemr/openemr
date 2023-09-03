@@ -208,7 +208,7 @@ $clinical_notes_category = $clinicalNotesService->getClinicalNoteCategories();
                                                             $context = $value['title'];
                                                         }
                                                         ?>
-                                                        <option value="<?php echo attr($value['value']); ?>" <?php echo $selected; ?>><?php echo text($value['title']); ?></option>
+                                                        <option value="<?php echo attr($value['value']); ?>" <?php echo $selected; ?>><?php echo text($value['xlTitle']); ?></option>
                                                     <?php endforeach; ?>
                                                 </select>
                                             </div>
@@ -222,7 +222,7 @@ $clinical_notes_category = $clinicalNotesService->getClinicalNoteCategories();
                                                             $context = $value['title'];
                                                         }
                                                         ?>
-                                                        <option value="<?php echo attr($value['value']); ?>" <?php echo $selected; ?>><?php echo text($value['title']); ?></option>
+                                                        <option value="<?php echo attr($value['value']); ?>" <?php echo $selected; ?>><?php echo text($value['xlTitle']); ?></option>
                                                     <?php endforeach; ?>
                                                 </select>
                                             </div>
