@@ -614,3 +614,20 @@ CREATE TABLE `fee_schedule` (
     UNIQUE KEY `ins_plan_code_mod_type_date` (`insurance_company_id`, `plan`, `code`, `modifier`, `type`, `effective_date`)
 ) ENGINE=InnoDb AUTO_INCREMENT=1;
 #EndIf
+
+#IfNotRow list_options list_id `organization-type`
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('lists', 'organization-type', 'Organization type');
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'prov', 'Healthcare Provider', 0);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'dept', 'Hospital Department', 1);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'team', 'Organizational team', 2);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'govt', 'Government', 3);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'ins', 'Insurance Company', 4);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'pay', 'Payer', 5);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'edu', 'Educational Institute', 6);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'reli', 'Religious Institution', 7);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'crs', 'Clinical Research Sponsor', 8);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'cg', 'Community Group', 9);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'bus', 'Non-Healthcare Business or Corporation', 10);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'other', 'Other', 11);
+ALTER TABLE `facility` ADD `organization_type` VARCHAR(50) NOT NULL DEFAULT 'prov' COMMENT 'Organization type as defined by HL7 Value Set: OrganizationType';
+#EndIf
