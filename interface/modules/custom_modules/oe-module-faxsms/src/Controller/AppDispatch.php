@@ -12,10 +12,10 @@
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
-use Document;
 use MyMailer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Events\Messaging\SendNotificationEvent;
 
 /**
  * Class AppDispatch
@@ -168,7 +168,7 @@ abstract class AppDispatch
      * This is where we decide which Api to use.
      *
      * @param string $type
-     * @return EtherFaxActions|RCFaxClient|TwilioSMSClient|void|null
+     * @return EtherFaxActions|TwilioSMSClient|void|null
      */
     static function getApiService(string $type)
     {
@@ -215,11 +215,7 @@ abstract class AppDispatch
         self::$_apiModule = $type;
     }
 
-    /**
-     * @param $type
-     * @return EtherFaxActions|RCFaxClient|TwilioSMSClient|void
-     */
-    private static function getServiceInstance($type)
+    static function getServiceInstance($type)
     {
         $s = self::getServiceType();
         if ($type == 'sms') {
@@ -241,6 +237,13 @@ abstract class AppDispatch
                     break;
                 case 3:
                     return new EtherFaxActions();
+            }
+        } elseif ($type == 'email') {
+            switch ($s) {
+                case 0:
+                    break;
+                case 1:
+                    return new EmailClient();
             }
         }
 
@@ -265,6 +268,9 @@ abstract class AppDispatch
         if (self::$_apiModule == 'fax') {
             return $GLOBALS['oefax_enable_fax'] ?? null;
         }
+        if (self::$_apiModule == 'email') {
+            return $GLOBALS['oe_enable_email'] ?? null;
+        }
 
         http_response_code(404);
         die(xlt("Requested") . ' ' . text(self::$_apiModule) . ' ' . xlt("service is not found.") . '<br />' . xlt("Install or turn service on!") . '<br />');
@@ -287,6 +293,11 @@ abstract class AppDispatch
      * @return mixed
      */
     abstract function sendSMS(): mixed;
+
+    /**
+     * @return mixed
+     */
+    abstract function sendEmail(): mixed;
 
     /**
      * @return string|bool
@@ -407,7 +418,7 @@ abstract class AppDispatch
     {
         switch ((string)self::getServiceType()) {
             case '1':
-                break;
+                return '_default_email';
             case '2':
                 return '_twilio';
             case '3':
@@ -474,39 +485,66 @@ abstract class AppDispatch
     public function getPatientDetails(): bool|string
     {
         $id = $this->getRequest('pid');
-        $query = "SELECT fname, lname, phone_cell FROM Patient_data WHERE pid = ?";
+        $query = "SELECT fname, lname, phone_cell, email FROM Patient_data WHERE pid = ?";
         $result = sqlQuery($query, array($id));
 
         return json_encode($result);
     }
 
     /**
-     * @param       $email
-     * @param       $body
-     * @param       $file
-     * @param array $user
+     *
+     * @param $email
+     * @return bool
+     */
+    protected function validEmail($email): bool
+    {
+        if (preg_match("/^[_a-z0-9-]+(\.[_a-z0-9-\+]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$/i", $email)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @param        $email
+     * @param        $from_name
+     * @param        $body
+     * @param string $subject
+     * @param string $htmlContent
      * @return string
      */
-    public function emailDocument($email, $body, $file, $user = []): string
+    public function mailEmail($email, $from_name, $body, string $subject = '', string $htmlContent = ''): string
     {
-        $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
-        $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached fax document.");
-        $mail = new MyMailer();
-        $from_name = text($from_name);
-        $from =  $GLOBALS["practice_return_email_path"];
-        $mail->AddReplyTo($from, $from_name);
-        $mail->SetFrom($from, $from);
-        $to = $email ;
-        $to_name = $email;
-        $mail->AddAddress($to, $to_name);
-        $subject = xlt("Forwarded Fax Document");
-        $mail->Subject = $subject;
-        $mail->Body = $desc;
-        $mail->AddAttachment($file);
-        if ($mail->Send()) {
-            $status = xlt("Email successfully sent.");
-        } else {
-            $status =  xlt("Error: Email failed") . text($mail->ErrorInfo);
+        try {
+            $mail = new MyMailer();
+            $smtpEnabled = $mail::isConfigured();
+            if (!$smtpEnabled) {
+                $statusMsg = 'Error: ' . xlt("Mail was not sent. A SMTP client is not set up in Config Notifications!.");
+                return js_escape($statusMsg);
+            }
+            $content = text($body) . "\n";
+            $from_name = text($from_name);
+            $from = $GLOBALS["practice_return_email_path"];
+            $mail->AddReplyTo($from, $from_name);
+            $mail->SetFrom($from, $from);
+            $to = $email;
+            $to_name = $email;
+            $mail->AddAddress($to, $to_name);
+            $subject = text($subject);
+            $mail->Subject = $subject;
+            $mail->Body = $content;
+            if (!empty($htmlContent)) {
+                $mail->MsgHTML(text($htmlContent));
+                $mail->IsHTML(true);
+            }
+            if ($mail->Send()) {
+                $status = xlt("Email successfully sent.");
+            } else {
+                $status = xlt("Error: Email failed") . text($mail->ErrorInfo);
+            }
+        } catch (\Exception $e) {
+            $message = $e->getMessage();
+            $status = 'Error: ' . $message;
         }
         return $status;
     }

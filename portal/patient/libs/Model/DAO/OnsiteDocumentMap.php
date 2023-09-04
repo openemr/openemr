@@ -77,6 +77,7 @@ class OnsiteDocumentMap implements IDaoMap, IDaoMap2
             self::$FM["FullDocument"] = new FieldMap("FullDocument", "onsite_documents", "full_document", false, FM_TYPE_BLOB, null, null, false);
             self::$FM["FileName"] = new FieldMap("FileName", "onsite_documents", "file_name", false, FM_TYPE_VARCHAR, 255, null, false);
             self::$FM["FilePath"] = new FieldMap("FilePath", "onsite_documents", "file_path", false, FM_TYPE_VARCHAR, 255, null, false);
+            self::$FM["TemplateData"] = new FieldMap("TemplateData", "onsite_documents", "template_data", false, FM_TYPE_LONGTEXT, null, null, false);
         }
 
         return self::$FM;

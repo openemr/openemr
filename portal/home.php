@@ -69,7 +69,7 @@ foreach ($msgs as $i) {
 if ($newcnt > 0 && $_SESSION['portal_init']) {
     $whereto = $_SESSION['whereto'] = '#secure-msgs-card';
 }
-$messagesURL = $GLOBALS['web_root'] . '' . '/portal/messaging/messages.php';
+$messagesURL = $GLOBALS['web_root'] . '/portal/messaging/messages.php';
 
 $isEasyPro = $GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name']);
 
@@ -150,6 +150,7 @@ function buildNav($newcnt, $pid, $result)
                     'dataToggle' => 'collapse',
                     'messageCount' => $newcnt ?? 0,
                 ],
+                /* Reserve item */
                 /*[
                     'url' => '#documentscard',
                     'label' => xl('My Documents'),
@@ -310,7 +311,8 @@ echo $twig->render('portal/home.html.twig', [
     'images_static_relative' => $GLOBALS['images_static_relative'],
     'youHave' => xl('You have'),
     'navMenu' => $navMenu,
-    'pagetitle' => xl('Home') . ' | ' . xl('OpenEMR Portal'),
+    'primaryMenuLogoHeight' => $GLOBALS['portal_primary_menu_logo_height'] ?? '30',
+    'pagetitle' => xl('Home') . ' | ' . $GLOBALS['openemr_name'] . ' ' . xl('Portal'),
     'messagesURL' => $messagesURL,
     'patientID' => $pid,
     'patientName' => $_SESSION['ptName'] ?? null,

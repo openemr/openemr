@@ -26,6 +26,8 @@ use OpenEMR\Events\Messaging\SendSmsEvent;
 use OpenEMR\Events\PatientDocuments\PatientDocumentEvent;
 use OpenEMR\Events\PatientReport\PatientReportEvent;
 use OpenEMR\Menu\MenuEvent;
+use OpenEMR\Modules\FaxSMS\Events\NotificationEventListener;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -33,6 +35,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 $allowFax = ($GLOBALS['oefax_enable_fax'] ?? null);
 $allowSMS = ($GLOBALS['oefax_enable_sms'] ?? null);
 $allowSMSButtons = ($GLOBALS['oesms_send'] ?? null);
+$allowEmail = ($GLOBALS['oe_enable_email'] ?? null);
 
 /**
  * @global OpenEMR\Core\ModulesClassLoader $classLoader
@@ -45,6 +48,11 @@ $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\FaxSMS\\', __DIR__
  * @global                       $eventDispatcher @see ModulesApplication::loadCustomModule
  * @global                       $module          @see ModulesApplication::loadCustomModule
  */
+
+/**
+ * @global EventDispatcher $dispatcher Injected by the OpenEMR module loader;
+ */
+$dispatcher = $GLOBALS['kernel']->getEventDispatcher();
 
 // Add menu items
 function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
@@ -89,6 +97,7 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
 
     return $event;
 }
+
 $eventDispatcher->addListener(MenuEvent::MENU_UPDATE, 'oe_module_faxsms_add_menu_item');
 
 /* Moved globals Module setup section to module config panel. That's why it's there. */
@@ -97,98 +106,85 @@ $eventDispatcher->addListener(MenuEvent::MENU_UPDATE, 'oe_module_faxsms_add_menu
 function oe_module_faxsms_patient_report_render_action_buttons(Event $event): void
 {
     ?>
-    <button type="button" class="genfax btn btn-success btn-sm btn-send-msg" value="<?php echo xla('Send Fax'); ?>"><?php echo xlt('Send Fax'); ?></button><span id="waitplace"></span>
-    <input type='hidden' name='fax' value='0'>
-    <?php
-}
+<button type="button" class="genfax btn btn-success btn-sm btn-send-msg" value="<?php echo xla('Send Fax'); ?>"><?php echo xlt('Send Fax'); ?></button><span id="waitplace"></span>
+<input type='hidden' name='fax' value='0'>
+<?php }
 
 function oe_module_faxsms_patient_report_render_javascript_post_load(Event $event): void
 {
     ?>
-    function getFaxContent() {
-        top.restoreSession();
-        document.report_form.fax.value = 1;
-        let url = 'custom_report.php';
-        let wait = '<span id="wait"><?php echo '  ' . xlt("Building Document") . ' ... '; ?><i class="fa fa-cog fa-spin fa-2x"></i></span>';
-        $("#waitplace").append(wait);
-        $.ajax({
-        type: "POST",
-        url: url,
-        data: $("#report_form").serialize(),
-        success: function (content) {
-        document.report_form.fax.value = 0;
-        let btnClose = <?php echo xlj("Cancel"); ?>;
-        let title = <?php echo xlj("Send To Contact"); ?>;
-        let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/contact.php?isContent=0&type=fax&file=' + encodeURIComponent(content);
-        dlgopen(url, '', 'modal-sm', 700, '', title, {buttons: [{text: btnClose, close: true, style: 'secondary'}]});
-        return false;
+function getFaxContent() {
+    top.restoreSession();
+    document.report_form.fax.value = 1;
+    let url = 'custom_report.php';
+    let wait = '<span id="wait"><?php echo '  ' . xlt("Building Document") . ' ... '; ?><i class="fa fa-cog fa-spin fa-2x"></i></span>';
+    $("#waitplace").append(wait);
+    $.ajax({
+    type: "POST",
+    url: url,
+    data: $("#report_form").serialize(),
+    success: function (content) {
+    document.report_form.fax.value = 0;
+    let btnClose = <?php echo xlj("Cancel"); ?>;
+    let title = <?php echo xlj("Send To Contact"); ?>;
+    let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/contact.php?isContent=0&type=fax&file=' + encodeURIComponent(content);
+    dlgopen(url, '', 'modal-sm', 700, '', title, {buttons: [{text: btnClose, close: true, style: 'secondary'}]});
+    return false;
     }
     }).always(function () {
-        $("#wait").remove();
+    $("#wait").remove();
     });
-        return false;
-    }
-    $(".genfax").click(function() {getFaxContent();});
-    <?php
+    return false;
 }
-// patient documents fax anchor
-function oe_module_faxsms_document_render_action_anchors(Event $event)
-{
-    ?>
-    <a class="btn btn-success btn-sm btn-send-msg" href="" onclick="return doFax(event,file,mime)">
-        <span><?php echo xlt('Send Fax'); ?></span>
-    </a>
-    <?php
-}
-
-function oe_module_faxsms_document_render_javascript_fax_dialog(Event $event)
-{
-    ?>
-    function doFax(e, filePath, mime='') {
-        e.preventDefault();
-        let btnClose = <?php echo xlj("Cancel"); ?>;
-        let title = <?php echo xlj("Send To Contact"); ?>;
-        let url = top.webroot_url +
-            '/interface/modules/custom_modules/oe-module-faxsms/contact.php?isDocuments=1&type=fax&file=' +
-            encodeURIComponent(filePath) + '&mime=' + encodeURIComponent(mime) + '&docid=' + encodeURIComponent(docid);
-        dlgopen(url, 'faxto', 'modal-md', 700, '', title, {buttons: [{text: btnClose, close: true, style: 'primary'}]});
-        return false;
-    }
+$(".genfax").click(function() {getFaxContent();});
 <?php }
-// send sms button
+
+// patient documents fax anchor
+function oe_module_faxsms_document_render_action_anchors(Event $event): void
+{
+    ?>
+<a class="btn btn-success btn-sm btn-send-msg" href="" onclick="return doFax(event,file,mime)">
+    <span><?php echo xlt('Send Fax'); ?></span>
+</a>
+<?php }
+
+function oe_module_faxsms_document_render_javascript_fax_dialog(Event $event): void
+{
+    ?>
+function doFax(e, filePath, mime='') {
+    e.preventDefault();
+    let btnClose = <?php echo xlj("Cancel"); ?>;
+    let title = <?php echo xlj("Send To Contact"); ?>;
+    let url = top.webroot_url +
+    '/interface/modules/custom_modules/oe-module-faxsms/contact.php?isDocuments=1&type=fax&file=' +
+    encodeURIComponent(filePath) + '&mime=' + encodeURIComponent(mime) + '&docid=' + encodeURIComponent(docid);
+    dlgopen(url, 'faxto', 'modal-md', 700, '', title, {buttons: [{text: btnClose, close: true, style: 'primary'}]});
+    return false;
+}
+<?php }
+
 function oe_module_faxsms_sms_render_action_buttons(Event $event): void
 {
-    if (!$event->smsAuthorised) {
-        return;
-    } ?>
-    <button type="button" class="sendsms btn btn-success btn-sm btn-send-msg"
-        onclick="sendSMS(
-        <?php echo attr_js($event->pid) ?>,
-        <?php echo attr_js($event->title) ?>,
-        <?php echo attr_js($event->getPatientDetails(null, true)) ?>
-            );"
-        value="true"><?php echo xlt('Notify'); ?></button>
-    <?php
-}
+    ?>
+<button type="button" class="sendsms btn btn-success btn-send-msg" onclick="sendSMS(<?php echo attr_js($event->getPid()); ?>, <?php echo attr_js($event->getRecipientPhone()); ?>);" value="true"><?php echo xlt('Send SMS'); ?></button>
+<?php }
 
 function oe_module_faxsms_sms_render_javascript_post_load(Event $event): void
 {
     ?>
-    function sendSMS(pid, docName, details) {
-        let btnClose = <?php echo xlj("Cancel"); ?>;
-        let title = <?php echo xlj("Send SMS Message"); ?>;
-        let url = top.webroot_url +
-            '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=sms&isSMS=1&pid=' +
-            encodeURIComponent(pid) +
-            '&title=' + encodeURIComponent(docName) +
-            '&details=' + encodeURIComponent(details);
-        dlgopen(url, '', 'modal-sm', 700, '', title, {
-        buttons: [{text: btnClose, close: true, style: 'secondary'}]
-        });
-    }
+function sendSMS(pid, phone) {
+    let btnClose = <?php echo xlj("Cancel"); ?>;
+    let title = <?php echo xlj("Send SMS Message"); ?>;
+    let url = top.webroot_url +
+    '/interface/modules/custom_modules/oe-module-faxsms/contact.php?type=sms&isSMS=1&pid=' + encodeURIComponent(pid) +
+    '&recipient=' + encodeURIComponent(phone);
+    dlgopen(url, '', 'modal-sm', 700, '', title, {
+    buttons: [{text: btnClose, close: true, style: 'secondary'}]
+    });
+}
 <?php }
-// If any more events in future will probably refactor these to BootstrapService class.
-// We also have a drop box in the user interface. Could be an event for elsewhere.
+
+// Add our listeners.
 if ($allowFax) {
     // patient report
     $eventDispatcher->addListener(PatientReportEvent::ACTIONS_RENDER_POST, 'oe_module_faxsms_patient_report_render_action_buttons');
@@ -197,8 +193,12 @@ if ($allowFax) {
     $eventDispatcher->addListener(PatientDocumentEvent::ACTIONS_RENDER_FAX_ANCHOR, 'oe_module_faxsms_document_render_action_anchors');
     $eventDispatcher->addListener(PatientDocumentEvent::JAVASCRIPT_READY_FAX_DIALOG, 'oe_module_faxsms_document_render_javascript_fax_dialog');
 }
-// This seems lonely.Where else to put one? Maybe chat or pnotes.
+
 if ($allowSMSButtons) {
     $eventDispatcher->addListener(SendSmsEvent::ACTIONS_RENDER_SMS_POST, 'oe_module_faxsms_sms_render_action_buttons');
     $eventDispatcher->addListener(SendSmsEvent::JAVASCRIPT_READY_SMS_POST, 'oe_module_faxsms_sms_render_javascript_post_load');
+}
+
+if (!(empty($_SESSION['authUserID'] ?? null) && ($_SESSION['pid'] ?? null)) && $allowSMS) {
+    (new NotificationEventListener())->subscribeToEvents($eventDispatcher);
 }
