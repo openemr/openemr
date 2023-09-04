@@ -22,6 +22,7 @@ const { safeTrim } = require('./utils/safe-trim/safe-trim');
 const { headReplace } = require('./utils/head-replace/head-replace');
 const { fDate, templateDate } = require('./utils/date/date');
 const { countEntities } = require('./utils/count-entities/count-entities');
+const { populateTimezones } = require('./utils/timezones/timezones');
 
 var conn = ''; // make our connection scope global to script
 var oidFacility = "";
@@ -31,28 +32,6 @@ var npiFacility = "";
 var webRoot = "";
 var authorDateTime = '';
 var documentLocation = '';
-
-// do a recursive descent transformation of the node object populating the timezone offset value if we have
-// a precision property (inside a date) with the value of timezone.
-function populateTimezones(node, tzOffset, depthCheck) {
-    if (!node || typeof node !== 'object') {
-        return node;
-    }
-    // we should NEVER go farther than 25 recursive loops down in our heirarchy, if we do it means we have an infinite loop
-    if (depthCheck > 25) {
-        console.error("Max depth traversal reached.  Potential infinite loop.  Breaking out of loop")
-        return node;
-    }
-
-    if (Object.prototype.hasOwnProperty.call(node, 'precision') && node.precision == 'tz' && !Object.prototype.hasOwnProperty.call(node, 'timezoneOffset')) {
-        node.timezoneOffset = tzOffset;
-    } else {
-        for (const [key, value] of Object.entries(node)) {
-            node[key] = populateTimezones(value, tzOffset, depthCheck + 1);
-        }
-    }
-    return node;
-}
 
 function fetchPreviousAddresses(pd) {
     let addressArray = [];
