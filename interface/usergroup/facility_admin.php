@@ -17,8 +17,10 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\ListService;
 
 $facilityService = new FacilityService();
+$listService = new ListService();
 
 $alertmsg = '';
 $use_validate_js = 1;
@@ -41,6 +43,7 @@ $args = [
     'pos_code' => $pc->get_pos_ref(),
     'mode' => 'edit',
     'my_fid' => $my_fid,
+    'organization_types' => $listService->getOptionsByListName('organization-type', ['activity' => '1']),
     'facility' => $facilityService->getById($my_fid),
 ];
 

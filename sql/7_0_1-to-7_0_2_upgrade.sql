@@ -278,3 +278,20 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2023-10-01', 'Zip File 3 2024 ICD-10-PCS Codes File.zip', '30e096ed9971755c4dfc134b938f3c1f');
 #EndIf
+
+#IfNotRow list_options list_id `organization-type`
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('lists', 'organization-type', 'Organization type');
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'prov', 'Healthcare Provider', 0);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'dept', 'Hospital Department', 1);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'team', 'Organizational team', 2);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'govt', 'Government', 3);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'ins', 'Insurance Company', 4);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'pay', 'Payer', 5);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'edu', 'Educational Institute', 6);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'reli', 'Religious Institution', 7);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'crs', 'Clinical Research Sponsor', 8);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'cg', 'Community Group', 9);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'bus', 'Non-Healthcare Business or Corporation', 10);
+INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'other', 'Other', 11);
+ALTER TABLE `facility` ADD `organization_type` VARCHAR(50) NOT NULL DEFAULT 'prov' COMMENT 'Organization type as defined by HL7 Value Set: OrganizationType';
+#EndIf
