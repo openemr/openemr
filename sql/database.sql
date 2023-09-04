@@ -1765,7 +1765,7 @@ CREATE TABLE `facility` (
   `info` TEXT,
   `weno_id` VARCHAR(10) DEFAULT NULL,
   `inactive` tinyint(1) NOT NULL DEFAULT '0',
-  `organization_type` VARCHAR(50) NOT NULL DEFAULT 'prov' COMMENT 'Organization type as defined by HL7 Value Set: OrganizationType'
+  `organization_type` VARCHAR(50) NOT NULL DEFAULT 'prov' COMMENT 'Organization type as defined by HL7 Value Set: OrganizationType',
   UNIQUE KEY `uuid` (`uuid`),
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4;
