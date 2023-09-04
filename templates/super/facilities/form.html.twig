@@ -281,12 +281,7 @@ function displayAlert() {
                     <div class="pr-1">
                         <div class="form-group">
                             <label for="organization_type">{{ "Organization Type"|xlt }}</label>
-                            <select name="organization_type" id="organization_type" class="form-control form-control-sm">
-                                <option value="">-- {{ "Select Organization Type"|xlt }} --</option>
-                                {% for t in organization_types %}
-                                    <option value="{{ t.option_id }}" {{ (facility.organization_type == t.option_id) ? 'selected' : '' }}>{{ t.title|text }}</option>
-                                {% endfor %}
-                            </select>
+                            {{ selectList('organization_type', 'organization-type', facility.organization_type, '', {class: 'form-control-sm', empty_name: '-- Select Organization Type--'}) }}
                         </div>
                         <div class="form-group">
                             <label for='ncolor'>{{ 'Color'|xlt }}</label>

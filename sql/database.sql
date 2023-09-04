@@ -1877,6 +1877,7 @@ CREATE TABLE `facility` (
   `inactive` tinyint(1) NOT NULL DEFAULT '0',
   `date_created` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `last_updated` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `organization_type` VARCHAR(50) NOT NULL DEFAULT 'prov' COMMENT 'Organization type as defined by HL7 Value Set: OrganizationType',
   UNIQUE KEY `uuid` (`uuid`),
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4;
@@ -15395,4 +15396,3 @@ INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-
 INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'cg', 'Community Group', 9);
 INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'bus', 'Non-Healthcare Business or Corporation', 10);
 INSERT INTO list_options (list_id, option_id, title, seq) VALUES ('organization-type', 'other', 'Other', 11);
-ALTER TABLE `facility` ADD `organization_type` VARCHAR(50) NOT NULL DEFAULT 'prov' COMMENT 'Organization type as defined by HL7 Value Set: OrganizationType';

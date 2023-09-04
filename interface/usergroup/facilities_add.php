@@ -41,8 +41,6 @@ $pc = new POSRef();
 $resPBE = $facilityService->getPrimaryBusinessEntity(["excludedId" => ($my_fid ?? null)]);
 $disabled = (!empty($resPBE) && count($resPBE) > 0) ? 'disabled' : '';
 
-$orgTypes = $listService->getOptionsByListName('organization-type', ['activity' => '1']);
-
 $args = [
     'collectThis' => (empty($rules)) ? "undefined" : json_sanitize($rules["facility-add"]["rules"]),
     'forceClose' => (isset($_POST["mode"]) && $_POST["mode"] == "facility") ? true : false,
@@ -50,7 +48,7 @@ $args = [
     'alertMsg' => trim($alertmsg) ? true : false,
     'disablePBE' => $disabled,
     'pos_code' => $pc->get_pos_ref(),
-    'organization_types' => $orgTypes,
+    'organization_types' => $listService->getOptionsByListName('organization-type', ['activity' => '1']),
     'mode' => 'add',
 ];
 
