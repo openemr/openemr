@@ -69,7 +69,7 @@ foreach ($msgs as $i) {
 if ($newcnt > 0 && $_SESSION['portal_init']) {
     $whereto = $_SESSION['whereto'] = '#secure-msgs-card';
 }
-$messagesURL = $GLOBALS['web_root'] . '' . '/portal/messaging/messages.php';
+$messagesURL = $GLOBALS['web_root'] . '/portal/messaging/messages.php';
 
 $isEasyPro = $GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name']);
 
@@ -150,6 +150,7 @@ function buildNav($newcnt, $pid, $result)
                     'dataToggle' => 'collapse',
                     'messageCount' => $newcnt ?? 0,
                 ],
+                /* Reserve item */
                 /*[
                     'url' => '#documentscard',
                     'label' => xl('My Documents'),

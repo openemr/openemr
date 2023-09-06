@@ -169,6 +169,26 @@
  *      name="standard-patient",
  *      description="Standard Patient Portal OpenEMR API"
  *  )
+ *  @OA\Parameter(
+ *          name="_sort",
+ *          in="query",
+ *          parameter="_sort",
+ *          description="The sort criteria specified in comma separated order with Descending order being specified by a dash before the search parameter name. (Example: name,-category)",
+ *          required=false,
+ *          @OA\Schema(
+ *              type="string"
+ *          )
+ *  )
+ *  @OA\Parameter(
+ *          name="_lastUpdated",
+ *          in="query",
+ *          parameter="_lastUpdated",
+ *          description="The date the resource was last updated.",
+ *          required=false,
+ *          @OA\Schema(
+ *              type="string"
+ *          )
+ *  )
  *  @OA\Response(
  *      response="standard",
  *      description="Standard Response",
@@ -304,6 +324,7 @@ use OpenEMR\RestControllers\PrescriptionRestController;
 use OpenEMR\RestControllers\ProcedureRestController;
 use OpenEMR\RestControllers\TransactionRestController;
 use OpenEMR\RestControllers\UserRestController;
+use OpenEMR\Services\Search\SearchQueryConfig;
 
 // Note some Http clients may not send auth as json so a function
 // is implemented to determine and parse encoding on auth route's.
@@ -865,6 +886,9 @@ RestConfig::$ROUTE_MAP = array(
      *      description="Retrieves a list of patients",
      *      tags={"standard"},
      *      @OA\Parameter(
+     *        ref="#/components/parameters/_sort"
+     *      ),
+     *      @OA\Parameter(
      *          name="fname",
      *          in="query",
      *          description="The first name for the patient.",
@@ -999,6 +1023,35 @@ RestConfig::$ROUTE_MAP = array(
      *              type="string"
      *          )
      *      ),
+     *      @OA\Parameter(
+     *          name="date",
+     *          in="query",
+     *          description="The date this patient resource was last modified.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_offset",
+     *          in="query",
+     *          description="The number of records to offset from this index in the search result.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_limit",
+     *          in="query",
+     *          description="The maximum number of resources to return in the result set. 0 means unlimited.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="integer"
+     *              ,minimum=0
+     *              ,maximum=200
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
@@ -1016,7 +1069,8 @@ RestConfig::$ROUTE_MAP = array(
      */
     "GET /api/patient" => function () {
         RestConfig::authorization_check("patients", "demo");
-        $return = (new PatientRestController())->getAll($_GET);
+        $config = SearchQueryConfig::createConfigFromQueryParams($_GET);
+        $return = (new PatientRestController())->getAll($_GET, $config);
         RestConfig::apiLog($return);
         return $return;
     },
@@ -11425,6 +11479,9 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *          @OA\Schema(
      *              type="string"
      *          )
+     *      ),
+     *      @OA\Parameter(
+     *        ref="#/components/parameters/_lastUpdated"
      *      ),
      *      @OA\Response(
      *          response="200",

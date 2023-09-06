@@ -119,12 +119,13 @@ class RestControllerHelper
      * @param        $isMultipleResultResponse - Indicates if the response contains multiple results.
      * @return array[]
      */
-    public static function handleProcessingResult($processingResult, $successStatusCode, $isMultipleResultResponse = false): array
+    public static function handleProcessingResult(ProcessingResult $processingResult, $successStatusCode, $isMultipleResultResponse = false): array
     {
         $httpResponseBody = [
             "validationErrors" => [],
             "internalErrors" => [],
-            "data" => []
+            "data" => [],
+            "links" => []
         ];
         if (!$processingResult->isValid()) {
             http_response_code(400);
@@ -142,6 +143,18 @@ class RestControllerHelper
 
             if (!$isMultipleResultResponse) {
                 $dataResult = ($recordsCount === 0) ? [] : $dataResult[0];
+            } else {
+                $pagination = $processingResult->getPagination();
+                // if site_addr_oauth is not set then we set it to be empty so we can handle relative urls
+                $bundleUrl = ($GLOBALS['site_addr_oath'] ?? '') . ($_SERVER['REDIRECT_URL'] ?? '');
+                $getParams = $_GET;
+                // cleanup _limit and _offset
+                unset($getParams['_limit']);
+                unset($getParams['_offset']);
+                $queryParams = http_build_query($getParams);
+
+                $pagination->setSearchUri($bundleUrl . '?' . $queryParams);
+                $httpResponseBody['links'] = $processingResult->getPagination()->getLinks();
             }
 
             $httpResponseBody["data"] = $dataResult;

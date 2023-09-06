@@ -28,6 +28,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
@@ -141,7 +142,8 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             'family' => new FhirSearchParameterDefinition('family', SearchFieldType::STRING, ['lname']),
             'given' => new FhirSearchParameterDefinition('given', SearchFieldType::STRING, ['fname', 'mname']),
             'phone' => new FhirSearchParameterDefinition('phone', SearchFieldType::TOKEN, ['phone_home', 'phone_biz', 'phone_cell']),
-            'telecom' => new FhirSearchParameterDefinition('telecom', SearchFieldType::TOKEN, ['email', 'phone_home', 'phone_biz', 'phone_cell'])
+            'telecom' => new FhirSearchParameterDefinition('telecom', SearchFieldType::TOKEN, ['email', 'phone_home', 'phone_biz', 'phone_cell']),
+            '_lastUpdated' => new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date'])
         ];
     }
 
@@ -158,7 +160,11 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        if (!empty($dataRecord['date'])) {
+            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+        } else {
+            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
         $patientResource->setMeta($meta);
 
         $patientResource->setActive(true);
@@ -602,14 +608,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         return $processingResult;
     }
 
-    /**
-     * Searches for OpenEMR records using OpenEMR search parameters
-     *
-     * @param ISearchField[] openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return ProcessingResult
-     */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
+    protected function searchForOpenEMRRecordsWithConfig($openEMRSearchParameters, SearchQueryConfig $config): ProcessingResult
     {
         // do any conversions on the data that we need here
 
@@ -629,7 +628,19 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             $field->setValues(array_map($upperCaseCode, $field->getValues()));
         }
 
-        return $this->patientService->search($openEMRSearchParameters);
+        return $this->patientService->search($openEMRSearchParameters, true, $config);
+    }
+
+    /**
+     * Searches for OpenEMR records using OpenEMR search parameters
+     *
+     * @param ISearchField[] openEMRSearchParameters OpenEMR search fields
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @return ProcessingResult
+     */
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
+    {
+        return $this->searchForOpenEMRRecordsWithConfig($openEMRSearchParameters, new SearchQueryConfig());
     }
 
     public function createProvenanceResource($dataRecord, $encode = false)

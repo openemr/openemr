@@ -13,7 +13,8 @@
 require_once(__DIR__ . "/../../../src/Common/Session/SessionUtil.php");
 OpenEMR\Common\Session\SessionUtil::portalSessionStart();
 
-$is_portal = isset($_SESSION['portal_init']) ? 1 : $_GET['isPortal'];
+$is_portal = (isset($_SESSION['patient_portal_onsite_two']) && $_SESSION['authUser'] == 'portal-user') ? 1 : $_GET['isPortal'];
+
 if (empty($is_portal)) {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
 } else {
