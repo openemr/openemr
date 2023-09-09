@@ -27,4 +27,3 @@ ccdaservice/node_modules
 # testing
 .phpunit.result.cache
 coverage/js-unit
-/.interface/modules/custom_modules/oe-module-claimrev-connect/helpdocs/help.txt
