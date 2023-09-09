@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Tests\RestControllers;
 
+use OpenEMR\Services\Search\SearchQueryConfig;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\RestControllers\PatientRestController;
 use OpenEMR\Tests\Fixtures\FixtureManager;
@@ -152,7 +153,7 @@ class PatientRestControllerTest extends TestCase
     public function testGetAll()
     {
         $this->fixtureManager->installPatientFixtures();
-        $searchResult = $this->patientController->getAll(array("postal_code" => "90210"));
+        $searchResult = $this->patientController->getAll(array("postal_code" => "90210"), new SearchQueryConfig());
 
         $this->assertEquals(200, http_response_code());
         $this->assertEquals(0, count($searchResult["validationErrors"]));

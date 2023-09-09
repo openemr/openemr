@@ -14,7 +14,7 @@
 /*
  * Example
 $event_data = [
-    'template_name' => 'Before Appointment', // Create in Portal Dashboard templates
+    'notification_template_name' => 'Before Appointment', // Create in Portal Dashboard templates
     'event_task' => 'before_appointment',
     'include_email' => true, // To also send an email with SMS
     'alt_content' => '', // use if want to pass in message instead of a template.
@@ -33,6 +33,7 @@ class SendNotificationEvent extends Event
     const ACTIONS_RENDER_NOTIFICATION_POST = 'sendNotification.actions.render.post';
     const JAVASCRIPT_READY_NOTIFICATION_POST = 'sendNotification.javascript.load.post';
     const SEND_NOTIFICATION_BY_SERVICE = 'sendNotification.send';
+    const SEND_NOTIFICATION_SERVICE_ONETIME = 'sendNotification.service.onetime';
 
     private mixed $pid;
     private array|bool $patientDetails;
@@ -40,7 +41,7 @@ class SendNotificationEvent extends Event
 
     public function __construct($pid, $data = [])
     {
-        $this->pid = $pid;
+        $this->pid = $pid ?? 0;
         $this->eventData = $data;
         $this->patientDetails = $this->fetchPatientDetails($pid);
     }
@@ -64,7 +65,7 @@ class SendNotificationEvent extends Event
     /**
      * @return bool|string
      */
-    public function getPatientDetails(): bool|string
+    public function getEncodedPatientDetails(): bool|string
     {
         return json_encode($this->patientDetails);
     }
@@ -75,14 +76,6 @@ class SendNotificationEvent extends Event
     public function getPid(): string
     {
         return $this->pid;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDocumentName(): string
-    {
-        return $this->documentName ?? '';
     }
 
     /**
