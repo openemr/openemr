@@ -99,7 +99,7 @@ class DocumentTemplateRender
             // of format [{"name":"","value":"","type":""}] for PHP rendering.
             $jsData = json_decode($json_data, true);
             foreach ($jsData as $e) {
-                $formData[$e['name']] = $e['value'];
+                $formData[$e['name']] = $e['value'] ?? '';
             }
         }
         // test for new style directive replace for legacy.
@@ -165,8 +165,9 @@ class DocumentTemplateRender
             } elseif (preg_match('/^{(Questionnaire):(.*)}/', substr($s, $this->keyLocation), $matches)) {
                 $q_id = $matches[2];
                 $this->keyLength = strlen($matches[0]);
+                $src = $formData['encounterForm'] ?? '';
                 $sigfld = "<script>page.isFrameForm=1;page.isQuestionnaire=1;page.encounterFormName=" . js_escape($q_id) . "</script>";
-                $sigfld .= "<iframe id='encounterForm' class='questionnaires' style='height:100vh;width:100%;border:0;' src=''></iframe>";
+                $sigfld .= "<iframe id='encounterForm' class='questionnaires' style='height:100vh;width:100%;border:0;' src='" . attr($src) . "'></iframe>";
                 $s = $this->keyReplace($s, $sigfld);
             } elseif (preg_match('/^{(QuestionnaireURLLoinc)\|(.*)\|(.*)\|(.*)}/', substr($s, $this->keyLocation), $matches)) {
                 // deprecated 09/23/2022 Unsure this directive is useful!
@@ -211,8 +212,9 @@ class DocumentTemplateRender
             } elseif (preg_match('/^\{(EncounterForm):(\w+)\}/', substr($s, $this->keyLocation), $matches)) {
                 $formname = $matches[2];
                 $this->keyLength = strlen($matches[0]);
+                $src = $formData['encounterForm'] ?? '';
                 $sigfld = "<script>page.isFrameForm=1;page.encounterFormName=" . js_escape($formname) . "</script>";
-                $sigfld .= "<iframe id='encounterForm' class='lbfFrame' style='height:100vh;width:100%;border:0;'></iframe>";
+                $sigfld .= "<iframe id='encounterForm' class='lbfFrame' style='height:100vh;width:100%;border:0;' src='" . attr($src) . "'></iframe>";
                 $s = $this->keyReplace($s, $sigfld);
             } elseif (preg_match('/^\{(TextBox):([0-9][0-9])x([0-9][0-9][0-9])\}/', substr($s, $this->keyLocation), $matches)) {
                 $rows = $matches[2];

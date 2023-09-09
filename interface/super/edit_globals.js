@@ -8,6 +8,65 @@
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+(function(window, oeUI) {
+    class ApiHandler {
+        #apiUrl = null;
+        #csrfToken = null;
+
+        constructor() {
+            this.#apiUrl = "";
+            this.#csrfToken = null;
+        }
+
+        setApiUrl(apiUrl) {
+            this.#apiUrl = apiUrl;
+        }
+        getApiUrl() {
+            return this.#apiUrl;
+        }
+        setCsrfToken(csrfToken) {
+            this.#csrfToken = csrfToken;
+        }
+        getCsrfToken() {
+            return this.#csrfToken;
+        }
+        setApiUrlAndCsrfToken(apiUrl, csrfToken) {
+            this.setApiUrl(apiUrl);
+            this.setCsrfToken(csrfToken);
+        }
+
+        getStandardApiUrl(path) {
+            return this.#apiUrl + "/api/" + path;
+        }
+
+        getFhirApiUrl(path) {
+            return this.#apiUrl + "/fhir/" + path;
+        }
+
+        fetchStandardApiJSON(path) {
+            let url = this.getStandardApiUrl(path);
+            let headers = {
+                'apicsrftoken': this.getCsrfToken()
+            };
+            return window.fetch(url,
+                {
+                    method: 'GET'
+                    ,redirect: 'manual'
+                    ,headers: headers
+                })
+                .then(result => {
+                    if (!(result.ok && result.status === 200))
+                    {
+                        throw new Error("Failed to retrieve valid response");
+                    } else {
+                        return result.json();
+                    }
+            });
+        }
+    }
+    oeUI.api = new ApiHandler();
+    window.oeUI = oeUI;
+})(window, window.oeUI || (window.oeUI = {}));
 
 /**
  * The following Immediately Invoked Function (IFF) is for the multiSortedListWidget
@@ -19,15 +78,15 @@
 (function(window, oeUI) {
 
     const WIDGET_NAME = "multiSortedListWidget";
-    var widgets = [];
+    let widgets = [];
 
     function Widget(widgetContainer) {
-        var _widget = this;
+        let _widget = this;
         _widget.picker = null;
         _widget.widgetContainer = widgetContainer || null;
         widgetContainer = null; // remove the reference
 
-        var widgetItems = [];
+        let widgetItems = [];
 
         _widget.updateSortOrderInput = function() {
             let container = _widget.widgetContainer.querySelector('.gbl-field-multi-sorted-list-container');
@@ -160,7 +219,7 @@
     }
 
     function WidgetItem(node, actionCallback) {
-        var _widgetItem = this;
+        let _widgetItem = this;
         _widgetItem.node = node;
         _widgetItem.btnRemove = null;
         _widgetItem.btnMoveUp = null;
@@ -291,3 +350,80 @@
 
 // launch our multi sorted list widget initialization
 window.document.addEventListener("DOMContentLoaded", window.oeUI.multiSortedListWidget.init);
+
+
+/**
+ * The following Immediately Invoked Function (IFF) is for the addressBookWidget
+ * It is a widget that allows you to pop open the address book and populate a hidden text box with the address book user id
+ * and the text label with the first and last name of the address book entry.
+ */
+(function(window, oeUI) {
+    class AddressBookWidget {
+        #api = oeUI.api; // store a reference so no one can replace it later on
+        updateUserDetails(userId, label) {
+            this.#api.fetchStandardApiJSON('user?id=' + encodeURIComponent(userId))
+                .then(userData => {
+                    if (userData && userData.data) {
+                        userData = userData.data[0];
+                    } else {
+                        throw new Error("Failed to get user details");
+                    }
+                    if (label) {
+                        label.value = userData.fname + " " + userData.lname;
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert(window.top.xl("Failed to get user details"));
+                });
+        }
+        init() {
+            let btnCloseLabel = window.top.xl ? window.top.xl("Cancel") : "Cancel";
+            let containers = document.querySelectorAll(".gbl-field-address-book-widget");
+            containers.forEach((container) => {
+                let button = container.querySelector(".address-book-widget-btn");
+                let input = container.querySelector(".address-book-widget-input");
+                let label = container.querySelector(".address-book-widget-label");
+                let btnDelete = container.querySelector(".address-book-widget-delete");
+                if (input && btnDelete) {
+                    btnDelete.addEventListener("click", function (evt) {
+                        evt.preventDefault();
+                        evt.stopPropagation();
+                        input.value = "";
+                        label.value = "";
+                    });
+                }
+                if (input && button && label) {
+                    let popupClickHandler = () => {
+
+                        let url = top.webroot_url + '/interface/usergroup/addrbook_list.php?popup=2';
+                        dlgopen('', '', 'modal-lg', 500, '', '', {
+                            buttons: [
+                                {text: btnCloseLabel, close: true, style: 'primary  btn-sm'}
+                            ],
+                            url: url,
+                            dialogId: 'globals-edit'
+                        });
+                        window['contactCallBack'] = (userid) => {
+                            if (userid) {
+                                input.value = userid;
+                                this.updateUserDetails(userid, label);
+                            } else {
+                                input.value = "";
+                                label.value = "";
+                            }
+                        };
+                    };
+                    button.addEventListener("click", popupClickHandler);
+                    label.addEventListener("click", popupClickHandler);
+                }
+            });
+        }
+    }
+    oeUI.addressBookWidget = new AddressBookWidget();
+    window.oeUI = oeUI;
+})(window, window.oeUI || {});
+// launch our address book widget initialization
+window.document.addEventListener("DOMContentLoaded", function() {
+    window.oeUI.addressBookWidget.init();
+});

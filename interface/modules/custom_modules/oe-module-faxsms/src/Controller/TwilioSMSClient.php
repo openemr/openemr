@@ -15,6 +15,7 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 use DateTime;
 use Exception;
 use OpenEMR\Common\Crypto\CryptoGen;
+use RuntimeException;
 use Twilio\Rest\Client;
 
 class TwilioSMSClient extends AppDispatch
@@ -31,7 +32,7 @@ class TwilioSMSClient extends AppDispatch
     public function __construct()
     {
         if (empty($GLOBALS['oefax_enable_sms'] ?? null)) {
-            throw new \RuntimeException(xlt("Access denied! Module not enabled"));
+            throw new RuntimeException(xlt("Access denied! Module not enabled"));
         }
         $this->crypto = new CryptoGen();
         $this->baseDir = $GLOBALS['temporary_files_dir'];
@@ -64,7 +65,8 @@ class TwilioSMSClient extends AppDispatch
     public function getCredentials()
     {
         $credentials = appDispatch::getSetup();
-
+        $this->accountSID = $credentials['username'] ?? '';
+        $this->authToken = $credentials['password'] ?? '';
         $this->sid = $credentials['username'] ?? '';
         $this->appKey = $credentials['appKey'] ?? '';
         $this->appSecret = $credentials['appSecret'] ?? '';
@@ -136,7 +138,7 @@ class TwilioSMSClient extends AppDispatch
         if (empty($this->credentials)) {
             $this->credentials = $this->getCredentials();
         }
-        if (!$this->sid || !$this->appKey || !$this->appSecret) {
+        if (!$this->sid || !$this->authToken) {
             return 0;
         }
         list($s, $v) = $acl;
@@ -309,5 +311,13 @@ class TwilioSMSClient extends AppDispatch
     function fetchReminderCount(): string|bool
     {
         return 0;
+    }
+
+    /**
+     * @return mixed
+     */
+    function sendEmail(): mixed
+    {
+        // TODO: Implement sendEmail() method.
     }
 }
