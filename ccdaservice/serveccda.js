@@ -23,6 +23,9 @@ const { headReplace } = require('./utils/head-replace/head-replace');
 const { fDate, templateDate } = require('./utils/date/date');
 const { countEntities } = require('./utils/count-entities/count-entities');
 const { populateTimezones } = require('./utils/timezones/timezones');
+const {
+    fetchPreviousAddresses,
+} = require('./utils/demographics/previous-addresses');
 
 var conn = ''; // make our connection scope global to script
 var oidFacility = "";
@@ -32,82 +35,6 @@ var npiFacility = "";
 var webRoot = "";
 var authorDateTime = '';
 var documentLocation = '';
-
-function fetchPreviousAddresses(pd) {
-    let addressArray = [];
-    let pa = pd.previous_addresses.address;
-    let streetLine = [pd.street[0]];
-    if (pd.street[1].length > 0) {
-        streetLine = [pd.street[0], pd.street[1]];
-    }
-    addressArray.push({
-        "use": "HP",
-        "street_lines": streetLine,
-        "city": pd.city,
-        "state": pd.state,
-        "zip": pd.postalCode,
-        "country": pd.country || "US",
-        "date_time": {
-            // use current date for current residence
-            "low": {
-                "date": fDate(""),
-                "precision": "day"
-            }
-        }
-    });
-    let count = countEntities(pa);
-    // how do we ever get here where we just have one object?
-    if (count === 1) {
-        streetLine = [pa.street[0]];
-        if (pa.street[1].length > 0) {
-            streetLine = [pa.street[0], pa.street[1]];
-        }
-        addressArray.push({
-            "use": pa.use,
-            "street_lines": streetLine,
-            "city": pa.city,
-            "state": pa.state,
-            "zip": pa.postalCode,
-            "country": pa.country || "US",
-            "date_time": {
-                "low": {
-                    "date": fDate(pa.period_start),
-                    "precision": "day"
-                },
-                "high": {
-                    "date": fDate(pa.period_end) || fDate(""),
-                    "precision": "day"
-                }
-            }
-        });
-    } else if (count > 1) {
-        for (let i in pa) {
-            streetLine = [pa[i].street[0]];
-            if (pa[i].street[1].length > 0) {
-                streetLine = [pa[i].street[0], pa[i].street[1]];
-            }
-            addressArray.push({
-                "use": pa[i].use,
-                "street_lines": streetLine,
-                "city": pa[i].city,
-                "state": pa[i].state,
-                "zip": pa[i].postalCode,
-                "country": pa[i].country || "US",
-                "date_time": {
-                    "low": {
-                        "date": fDate(pa[i].period_start),
-                        "precision": "day"
-                    },
-                    "high": {
-                        "date": fDate(pa[i].period_end) || fDate(""),
-                        "precision": "day"
-                    }
-                }
-            });
-        }
-    }
-    return addressArray;
-}
 
 function populateDemographic(pd, g) {
     let first = 'NI';
