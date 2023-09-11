@@ -1067,7 +1067,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         }
                         $allergyTouchListSQL = "SELECT COUNT(*) as touched FROM lists_touch WHERE pid = ? AND type = 'allergy'";
                         $allergyTouchListResult = sqlQuery($allergyTouchListSQL, [$pid]);
-                        $id = 'allergies_ps_expand';
+                        $id = 'allergy_ps_expand';
                         $viewArgs = [
                             'title' => xl('Allergies'),
                             'card_container_class_list' => ['flex-fill', 'mx-1'],
@@ -1112,7 +1112,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     // MEDICATION CARD
                     if (AclMain::aclCheckIssue('medication')) {
                         $_rawMedList = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medication'])->getData();
-                        $id = 'medications_ps_expand';
+                        $id = 'medication_ps_expand';
                         $viewArgs = [
                             'title' => xl('Medications'),
                             'card_container_class_list' => ['flex-fill', 'mx-1'],
