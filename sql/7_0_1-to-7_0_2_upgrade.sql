@@ -279,6 +279,10 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 ('ICD10', 'CMS', '2023-10-01', 'Zip File 3 2024 ICD-10-PCS Codes File.zip', '30e096ed9971755c4dfc134b938f3c1f');
 #EndIf
 
+#IfMissingColumn onsite_documents template_data
+ALTER TABLE `onsite_documents` ADD `template_data` LONGTEXT;
+#EndIf
+
 #IfTable customlists
 ALTER TABLE customlists MODIFY COLUMN cl_list_item_short varchar(100);
 ALTER TABLE customlists MODIFY COLUMN cl_list_item_long LONGTEXT;
@@ -286,8 +290,5 @@ ALTER TABLE customlists MODIFY COLUMN cl_list_item_long LONGTEXT;
 UPDATE customlists
 SET cl_list_item_short = CONCAT(RTRIM(LEFT(cl_list_item_long, 35)), "...")
 WHERE cl_list_type = 4
-	AND (
-		cl_list_item_short IS NULL
-		OR cl_list_item_short = ""
-	)
+    AND (cl_list_item_short IS NULL OR cl_list_item_short = "")
 #EndIf

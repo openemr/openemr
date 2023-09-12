@@ -29,9 +29,12 @@ $new_filename = $this->new_filename;
 $webroot = $GLOBALS['web_root'];
 $encounter = '';
 $include_auth = true;
+$auto_render = $this->auto_render ?? 0;
+$audit_render = $this->audit_render ?? 0;
+$auto_render_name = $this->auto_render_name ?? '';
 // for location assign
 $referer = $GLOBALS['web_root'] . "/controller.php?document&upload&patient_id=" . attr_url($pid) . "&parent_id=" . attr_url($category) . "&";
-$referer_portal = $GLOBALS['web_root'] . "/portal/quickstart_page.php";
+$referer_portal = "../home.php?site=" . (urlencode($_SESSION['site_id']) ?? null) ?: 'default';
 
 if (empty($is_module)) {
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Documents"));
@@ -76,6 +79,7 @@ $templateService = new DocumentTemplateService();
     $urlAjax = $GLOBALS['web_root'] . '/library/ajax/upload.php?parent_id=Patient&patient_id=' . attr_url($pid);
     // some necessary js globals
     echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($cuser) . ";var ptName=" . js_escape($ptName) .
+        ";var autoRender=" . js_escape($auto_render) . ";var auditRender=" . js_escape($audit_render) . ";var renderDocumentName=" . js_escape($auto_render_name) .
         ";var catid=" . js_escape($category) . ";var catname=" . js_escape($catname) . ";</script>";
     echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) . ";var help_id=" . js_escape($help_id) . ";</script>";
     echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";var webroot_url = webRoot;</script>";
@@ -108,27 +112,27 @@ $templateService = new DocumentTemplateService();
             "<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait().script(
             "<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/view.js?v=<?php echo $GLOBALS['v_js_includes']; ?>").wait()
     </script>
-<style>
-  @media print {
-    #templatecontent {
-      width: 1220px;
-    }
-  }
+    <style>
+      @media print {
+        #templatecontent {
+          width: 1220px;
+        }
+      }
 
-  .nav-pills-ovr > li > a {
-    border: 1px solid !important;
-    border-radius: .25rem !important;
-  }
+      .nav-pills-ovr > li > a {
+        border: 1px solid !important;
+        border-radius: .25rem !important;
+      }
 
-  .dz-remove {
-    font-size: 16px;
-    color: var(--danger);
-  }
+      .dz-remove {
+        font-size: 16px;
+        color: var(--danger);
+      }
 
-  .dz-progress {
-    opacity: 0.2 !important;
-  }
-</style>
+      .dz-progress {
+        opacity: 0.2 !important;
+      }
+    </style>
 </head>
 
 <body class="p-0 m-0">
@@ -144,14 +148,12 @@ $templateService = new DocumentTemplateService();
                     e.preventDefault();
                     $(".helpHide").addClass("d-none");
                 });
-                $("#Help").click();
                 $(".helpHide").addClass("d-none");
                 $(parent.document.getElementById('topNav')).addClass("d-none");
-                // init file upload
-                page.initFileDrop();
+                if (autoRender < 1 && auditRender < 1) {
+                    $("#Help").click();
+                }
             }
-            console.log('init done template');
-
             setTimeout(function () {
                 if (!page.isInitialized) {
                     page.init();
@@ -160,7 +162,36 @@ $templateService = new DocumentTemplateService();
                         console.log('secondary init done!');
                     }
                 }
-            }, 2000);
+                if (isPortal) {
+                    /* Render may start as a new document onetime request however for the sake
+                    *  of allowing patient to stay in portal after doc edit or patient uses
+                    *  same onetime that started as a new doc to come back and
+                    *  continue an edit of a saved/submitted doc.
+                    *  auditRender is a history doc.
+                    *
+                    *  CONFUSED! Welcome.
+                    * */
+                    if (autoRender > 0 && auditRender <= 0) {
+                        // is it in menu?
+                        if ($("#" + autoRender).data('history_id') > 0) {
+                            // has it been submitted?
+                            let historyId = $("#" + autoRender).data('history_id');
+                            page.editHistoryDocument(historyId);
+                            console.log('Onetime history template id ' + historyId);
+                        } else {
+                            page.newDocument(cpid, "-patient-", renderDocumentName, autoRender);
+                            console.log('Onetime new template init');
+                        }
+                    } else if (auditRender > 0) {
+                        page.editHistoryDocument(auditRender);
+                        console.log('Onetime history template init');
+                    }
+                    // init upload drop box
+                    page.initFileDrop();
+                }
+            }, 1000);
+        }).wait(function () {
+            console.log('init 2 done template');
         });
 
         function printaDocHtml(divName) {
@@ -476,9 +507,15 @@ $templateService = new DocumentTemplateService();
                             <a class="nav-link text-danger btn btn-outline-secondary" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
                         </li>
                     <?php } ?>
-                    <?php if (!empty($is_portal)) { ?>
+                    <?php if (!empty($is_portal) && empty($auto_render)) { ?>
                         <li class="nav-item mb-1">
-                            <a class="nav-link text-danger btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer_portal ?>")'><?php echo xlt('Exit'); ?></a>
+                            <a class="nav-link text-danger btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit'); ?></a>
+                        </li>
+                    <?php } else {
+                        $referer_portal = "../home.php?site=" . (urlencode($_SESSION['site_id']) ?? null) ?: 'default';
+                        ?>
+                        <li class="nav-item mb-1">
+                            <a class="nav-link text-danger btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit'); ?></a>
                         </li>
                     <?php } ?>
                     <li class='nav-item mb-1'>
@@ -584,7 +621,7 @@ $templateService = new DocumentTemplateService();
                     <tr id="<%= _.escape(item.get('id')) %>">
                         <th scope="row"><%= _.escape(item.get('id') || '') %></th>
                         <td>
-                            <button class='btn btn-sm btn-outline-success history-btn'><%= _.escape(item.get('docType') || '') %></button>
+                            <button type="button" class='btn btn-sm btn-outline-success history-btn'><%= _.escape(item.get('docType') || '') %></button>
                         </td>
                         <td><%if (item.get('createDate')) { %><%= item.get('createDate') %><% } else { %>NULL<% } %></td>
                         <td><%if (item.get('reviewDate') > '1969-12-31 24') { %><%= item.get('reviewDate') %><% } else { %>Pending<% } %></td>

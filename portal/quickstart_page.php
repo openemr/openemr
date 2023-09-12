@@ -49,7 +49,6 @@ use OpenEMR\Core\Header;
                 $(parent.document.getElementById('homeRefresh')).click();
             });
         });
-
         function persistPatientSetting(pid, label, setting) {
             fetch('lib/persist.php', {
                 method: 'POST',
@@ -102,7 +101,7 @@ use OpenEMR\Core\Header;
                 <div class="card d-flex mr-1 mb-1">
                     <div class="card-body">
                         <h4 class="card-title"><i class="fa fa-file-text mr-1"></i><?php echo xlt('My Documents') ?></h4>
-                        <a class="btn btn-success" href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr_url($pid); ?>"><?php echo xlt('Manage Documents') ?></a>
+                        <a id="documents-go" class="btn btn-success" href="<?php echo $GLOBALS['web_root']; ?>/portal/patient/onsitedocuments?pid=<?php echo attr_url($pid); ?>"><?php echo xlt('Manage Documents') ?></a>
                     </div>
                 </div>
                 <!-- Signature -->
