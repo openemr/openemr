@@ -185,7 +185,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $this->parseOpenEMRSocialSecurityRecord($patientResource, $dataRecord['ss']);
         $this->parseOpenEMRPublicPatientIdentifier($patientResource, $dataRecord['pubpid']);
         $this->parseOpenEMRCommunicationRecord($patientResource, $dataRecord['language']);
-        $this->parseOpenEMRGeneralPractitioner($patientResource, $dataRecord['provider_uuid']);
+        $this->parseOpenEMRGeneralPractitioner($patientResource, $dataRecord);
 
 
         if ($encode) {
@@ -460,10 +460,10 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
     }
 
-    private function parseOpenEMRGeneralPractitioner(FHIRPatient $patientResource, ?string $provider_uuid)
+    private function parseOpenEMRGeneralPractitioner(FHIRPatient $patientResource, array $dataRecord)
     {
-        if (!empty($provider_uuid)) {
-            $patientResource->addGeneralPractitioner(UtilsService::createRelativeReference('Practitioner', $provider_uuid));
+        if (!empty($dataRecord['provider_uuid'])) {
+            $patientResource->addGeneralPractitioner(UtilsService::createRelativeReference('Practitioner', $dataRecord['provider_uuid']));
         }
     }
 
@@ -586,6 +586,13 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                 if (isset($validCodes[$codingCode])) {
                     $data[$validCodes[$codingCode]] = $identifier->getValue() ?? null;
                 }
+            }
+        }
+
+        if (!empty($fhirResource->getGeneralPractitioner())) {
+            $providerReference = UtilsService::parseReference($fhirResource->getGeneralPractitioner()[0]);
+            if (!empty($providerReference) && $providerReference['resourceType'] === 'Practitioner' && $providerReference['localResource']) {
+                $data['provider_uuid'] = $providerReference['uuid'];
             }
         }
 
