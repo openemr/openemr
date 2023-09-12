@@ -325,6 +325,10 @@ class PatientService extends BaseService
             $record['patient_history_uuid'] = UuidRegistry::uuidToString($record['patient_history_uuid']);
         }
 
+        if (!empty($record['provider_uuid'])) {
+            $record['provider_uuid'] = UuidRegistry::uuidToString($record['provider_uuid']);
+        }
+
         return $record;
     }
 
@@ -388,6 +392,7 @@ class PatientService extends BaseService
                     ,previous_name_suffix
                     ,previous_name_enddate
                     ,patient_additional_addresses.*
+                    ,provider_uuid
         ";
         $sql = "
                 FROM patient_data
@@ -406,6 +411,12 @@ class PatientService extends BaseService
                     ,uuid AS patient_history_uuid
                     FROM patient_history
                 ) patient_history ON patient_data.pid = patient_history.patient_history_pid
+                LEFT JOIN (
+                    select
+                        id AS provider_id
+                        ,uuid AS provider_uuid
+                    FROM users
+                ) provider ON patient_data.providerID = provider.provider_id
                 LEFT JOIN (
                     SELECT
                         contact.id AS contact_address_contact_id
