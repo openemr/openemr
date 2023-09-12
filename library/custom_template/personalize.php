@@ -411,8 +411,8 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
       </select>
     </div>
     <div class="col-sm-2 text-center">
-      <button name="remove" class="btn btn-secondary" onclick="jsub_selected(document.myform,'personalized','topersonalized')">&raquo;</button><br />
-      <button name="remove" class="btn btn-secondary" onclick="check_user_category(document.myform,'topersonalized','personalized')">&laquo;</button>
+      <button name="add" type="button" class="btn btn-secondary" onclick="jsub_selected(document.myform,'personalized','topersonalized')">&raquo;</button><br />
+      <button name="remove" type="button" class="btn btn-secondary" onclick="check_user_category(document.myform,'topersonalized','personalized')">&laquo;</button>
     </div>
     <div class="col-sm-5">
       <select multiple class="form-control" name="personalized[]" id="personalized" size="6">
