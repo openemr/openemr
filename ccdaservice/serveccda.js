@@ -23,7 +23,10 @@ const { headReplace } = require('./utils/head-replace/head-replace');
 const { fDate, templateDate } = require('./utils/date/date');
 const { countEntities } = require('./utils/count-entities/count-entities');
 const { populateTimezones } = require('./utils/timezones/timezones');
-const { populateDemographics } = require('./utils/demographics/populate-demographics');
+const {
+    getNpiFacility,
+    populateDemographics,
+} = require('./utils/demographics/populate-demographics');
 
 var conn = ''; // make our connection scope global to script
 var oidFacility = "";
@@ -2521,7 +2524,7 @@ function generateCcda(pd) {
     let primary_care_provider = all.primary_care_provider || {};
     npiProvider = primary_care_provider.provider ? primary_care_provider.provider.npi : "NI";
     oidFacility = all.encounter_provider.facility_oid ? all.encounter_provider.facility_oid : "2.16.840.1.113883.19.5.99999.1";
-    npiFacility = all.encounter_provider.facility_npi;
+    npiFacility = getNpiFacility(pd, false);
     webRoot = all.serverRoot;
     documentLocation = all.document_location;
 
@@ -2537,8 +2540,13 @@ function generateCcda(pd) {
     }
 
     authorDateTime = fDate(authorDateTime);
-// Demographics
-    let demographic = populateDemographics(pd.patient, pd.guardian, pd);
+    // Demographics
+    let demographic = populateDemographics({
+        patient: pd.patient,
+        guardian: pd.guardian,
+        documentData: pd,
+        npiFacility,
+    });
 // This populates documentationOf. We are using providerOrganization also.
     if (pd.primary_care_provider) {
         Object.assign(demographic, populateProviders(pd));
@@ -2995,7 +3003,7 @@ function generateUnstructured(pd) {
     let primary_care_provider = all.primary_care_provider || {};
     npiProvider = primary_care_provider.provider ? primary_care_provider.provider.npi : "NI";
     oidFacility = all.encounter_provider.facility_oid ? all.encounter_provider.facility_oid : "2.16.840.1.113883.19.5.99999.1";
-    npiFacility = all.encounter_provider.facility_npi || "NI";
+    npiFacility = getNpiFacility(pd, true);
     webRoot = all.serverRoot;
     documentLocation = all.document_location;
     authorDateTime = pd.created_time_timezone;
@@ -3010,7 +3018,12 @@ function generateUnstructured(pd) {
     }
     authorDateTime = fDate(authorDateTime);
 // Demographics is needed in unstructured
-    let demographic = populateDemographics(pd.patient, pd.guardian, pd);
+    let demographic = populateDemographics({
+        patient: pd.patient,
+        guardian: pd.guardian,
+        documentData: pd,
+        npiFacility,
+    });
     data.demographics = Object.assign(demographic);
 
     if (pd.primary_care_provider) {

@@ -56,12 +56,21 @@ function getLanguageCode(patient) {
             : 'en-US';
 }
 
-function populateDemographics(patient, guardian, documentData) {
+function getNpiFacility(documentData, useFallback) {
+    return useFallback
+    ? documentData.encounter_provider.facility_npi || NOT_INFORMED
+    : documentData.encounter_provider.facility_npi;
+}
+
+function populateDemographics({
+    patient,
+    guardian,
+    documentData,
+    npiFacility,
+}) {
     const oidFacility =
         documentData.encounter_provider.facility_oid ||
         '2.16.840.1.113883.19.5.99999.1';
-    const npiFacility =
-        documentData.encounter_provider.facility_npi || NOT_INFORMED;
 
     setNullFlavorIfUnspecifiedOrEmpty(patient, 'race');
     setNullFlavorIfUnspecifiedOrEmpty(patient, 'race_group');
@@ -132,7 +141,7 @@ function populateDemographics(patient, guardian, documentData) {
             identity: [
                 {
                     root: '2.16.840.1.113883.4.6',
-                    extension: npiFacility,
+                    extension: npiFacility || '',
                 },
             ],
             phone: [
@@ -167,3 +176,4 @@ function populateDemographics(patient, guardian, documentData) {
 }
 
 exports.populateDemographics = populateDemographics;
+exports.getNpiFacility = getNpiFacility;
