@@ -166,7 +166,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
             $viewArgs = [
                 'title' => xl('Current Medications'),
                 'id' => $id,
-                'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+                'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
                 'auth' => false,
                 'rxList' => $rxArr,
             ];
@@ -201,7 +201,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
         $viewArgs = [
             'title' => xl($arr[0]),
             'id' => $id,
-            'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
             'linkMethod' => "javascript",
             'list' => $listData,
             'auth' => AclMain::aclCheckIssue($key, '', ['write', 'addonly'])
@@ -255,7 +255,7 @@ foreach (['treatment_protocols', 'injury_log'] as $formname) {
             echo $t->render('patient/card/tp_il.html.twig', [
                 'title' => xl("Injury Log"),
                 'id' => $id,
-                'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+                'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
                 'formName' => $formname,
                 'formRows' => $formRows,
             ]);
@@ -298,7 +298,7 @@ if (!$GLOBALS['disable_immunizations'] && !$GLOBALS['weight_loss_clinic']) :
     echo $t->render('patient/card/immunizations.html.twig', [
         'title' => xl('Immunizations'),
         'id' => $id,
-        'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+        'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
         'btnLabel' => 'Edit',
         'btnLink' => 'immunizations.php',
         'linkMethod' => 'html',
@@ -325,7 +325,7 @@ if ($erx_upload_complete == 1) {
     $viewArgs = [
         'title' => xl('Old Medication'),
         'label' => $id,
-        'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+        'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
         'btnLabel' => 'Edit',
         'btnLink' => "return load_location(\"{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication\")",
         'linkMethod' => 'javascript',
