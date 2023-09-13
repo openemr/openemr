@@ -490,6 +490,7 @@ class Installer
 
     /**
      * Generates the initial user's 2FA QR Code
+     * @deprecated Recommended to use get_initial_user_mfa_totp() instead
      * @return bool|string|void
      */
     public function get_initial_user_2fa_qr()
@@ -498,6 +499,19 @@ class Installer
             $adminTotp = new Totp($this->i2faSecret, $this->iuser);
             $qr = $adminTotp->generateQrCode();
             return $qr;
+        }
+        return false;
+    }
+
+    /**
+     * Generates the initial user's 2FA QR Code
+     * @return bool|string|void
+     */
+    public function get_initial_user_mfa_totp()
+    {
+        if (($this->i2faEnable) && (!empty($this->i2faSecret)) && (class_exists('Totp'))) {
+            $adminTotp = new Totp($this->i2faSecret, $this->iuser);
+            return $adminTotp;
         }
         return false;
     }
