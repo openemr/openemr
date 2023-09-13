@@ -37,16 +37,11 @@ describe('populateDemographics', () => {
 
     test.each(TEST_CASES)(
         'should map the input data to a demographics info object',
-        (patient, guardian, documentData, result) => {
+        (documentData, result) => {
             const npiFacility = getNpiFacility(documentData, true);
-            expect(
-                populateDemographics({
-                    patient,
-                    guardian,
-                    documentData,
-                    npiFacility,
-                })
-            ).toEqual(result);
+            expect(populateDemographics(documentData, npiFacility)).toEqual(
+                result
+            );
         }
     );
 

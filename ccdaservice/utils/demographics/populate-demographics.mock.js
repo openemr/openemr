@@ -60,9 +60,7 @@ const encounter_provider = {
 const TEST_CASES = [
     [
         // INPUT
-        mockPatient,
-        mockGuardian,
-        { encounter_provider },
+        { patient: mockPatient, guardian: mockGuardian, encounter_provider },
         // RESULT
         {
             addresses: [
@@ -222,15 +220,15 @@ const TEST_CASES = [
     [
         // INPUT
         {
-            ...mockPatient,
-            mname: '',
-            language: 'English',
-            race: DECLINED_TO_SPECIFY,
-            race_group: DECLINED_TO_SPECIFY,
-            ethnicity: DECLINED_TO_SPECIFY,
-        },
-        { display_name: twoPartsName },
-        {
+            patient: {
+                ...mockPatient,
+                mname: '',
+                language: 'English',
+                race: DECLINED_TO_SPECIFY,
+                race_group: DECLINED_TO_SPECIFY,
+                ethnicity: DECLINED_TO_SPECIFY,
+            },
+            guardian: { display_name: twoPartsName },
             encounter_provider: {
                 ...encounter_provider,
                 facility_oid: '',
@@ -394,18 +392,20 @@ const TEST_CASES = [
     [
         // INPUT
         {
-            ...mockPatient,
-            language: 'Spanish',
-            race: undefined,
-            race_group: undefined,
-            ethnicity: undefined,
-            gender: '',
-            birth_fname: undefined,
-            birth_lname: undefined,
-            birth_mname: undefined,
+            patient: {
+                ...mockPatient,
+                language: 'Spanish',
+                race: undefined,
+                race_group: undefined,
+                ethnicity: undefined,
+                gender: '',
+                birth_fname: undefined,
+                birth_lname: undefined,
+                birth_mname: undefined,
+            },
+            guardian: { display_name: '' },
+            encounter_provider,
         },
-        { display_name: '' },
-        { encounter_provider },
         // RESULT
         {
             addresses: [

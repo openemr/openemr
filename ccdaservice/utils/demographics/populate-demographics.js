@@ -62,12 +62,9 @@ function getNpiFacility(documentData, useFallback) {
     : documentData.encounter_provider.facility_npi;
 }
 
-function populateDemographics({
-    patient,
-    guardian,
-    documentData,
-    npiFacility,
-}) {
+function populateDemographics(documentData, npiFacility) {
+    const patient = documentData.patient;
+    const guardian = documentData.guardian;
     const oidFacility =
         documentData.encounter_provider.facility_oid ||
         '2.16.840.1.113883.19.5.99999.1';

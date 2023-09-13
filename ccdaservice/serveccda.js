@@ -2541,12 +2541,7 @@ function generateCcda(pd) {
 
     authorDateTime = fDate(authorDateTime);
     // Demographics
-    let demographic = populateDemographics({
-        patient: pd.patient,
-        guardian: pd.guardian,
-        documentData: pd,
-        npiFacility,
-    });
+    let demographic = populateDemographics(pd, npiFacility);
 // This populates documentationOf. We are using providerOrganization also.
     if (pd.primary_care_provider) {
         Object.assign(demographic, populateProviders(pd));
@@ -3018,12 +3013,7 @@ function generateUnstructured(pd) {
     }
     authorDateTime = fDate(authorDateTime);
 // Demographics is needed in unstructured
-    let demographic = populateDemographics({
-        patient: pd.patient,
-        guardian: pd.guardian,
-        documentData: pd,
-        npiFacility,
-    });
+    let demographic = populateDemographics(pd, npiFacility);
     data.demographics = Object.assign(demographic);
 
     if (pd.primary_care_provider) {
