@@ -44,6 +44,7 @@ class QueryPagination implements \JsonSerializable
         }
         $limit = min($limit, self::MAX_LIMIT);
         $this->firstOffsetId = 0;
+        $this->totalCount = 0;
         $this->nextOffsetId = $offsetId + $limit;
         $this->previousOffsetId = max(0, $offsetId - $limit);
         $this->setCurrentOffsetId($offsetId);
