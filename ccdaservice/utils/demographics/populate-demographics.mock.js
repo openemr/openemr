@@ -27,7 +27,7 @@ const mockPatient = {
     phone_mobile: '222-2222',
     phone_work: '333-3333',
     phone_emergency: '444-4444',
-    email: 'cathy@zeta.jones',
+    email: 'cathy@example.com',
     language: '',
     ...MOCK_ADDRESS,
 };
