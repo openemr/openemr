@@ -1234,7 +1234,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'btnLink' => 'test',
                         ];
 
-                        echo $t->render($card->getTemplateFile(), array_merge($card->getTemplateVariables(), $viewArgs));
+                        echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));
                     }
 
                     if (!$GLOBALS['hide_billing_widget']) :
@@ -1646,7 +1646,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'btnLink' => "javascript:$('#patient_portal').collapse('toggle')",
                         ];
 
-                        echo $t->render($card->getTemplateFile(), array_merge($card->getTemplateVariables(), $viewArgs));
+                        echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));
                     }
 
                     if ($GLOBALS['erx_enable']) :
