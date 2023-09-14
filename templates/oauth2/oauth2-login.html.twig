@@ -14,11 +14,7 @@
 <div class="row h-100 w-100 justify-content-center align-items-center">
     <div class="col-sm-6 bg-light text-dark">
         <div class="text-md-center">
-        {% if mfaRequired %}
-            <h4 class="mb-4 mt-1">{{'MFA Verification'|xlt }}</h4>
-        {% else %}
-            <h4 class="mb-4 mt-1">{{ "Sign In"|xlt  }}</h4>
-        {% endif %}
+            <h4 class="mb-4 mt-1">{% if mfaRequired %}{{'MFA Verification'|xlt }}{% else %}{{ "Sign In"|xlt  }}{% endif %}</h4>
         </div>
         <hr />
         <form method="post" name="userLogin" id="userLogin" action="{{ redirect|attr }}">
@@ -109,14 +105,22 @@
 <script>
     function doAuth() {
         let xl = window.top.xl || function(id) { return id; };
-        var f = document.getElementById("userLogin");
-        var requests = JSON.parse(f.form_requests.value);
-        // The server's getAuthenticateData() repeats the same challenge in all requests.
-        var challenge = requests[0].challenge;
-        var registeredKeys = new Array();
-        for (var i = 0; i < requests.length; ++i) {
-            registeredKeys[i] = {"version": requests[i].version, "keyHandle": requests[i].keyHandle};
+        let f = document.getElementById("userLogin");
+        let requests = [];
+        try {
+            requests = JSON.parse(f.form_requests.value);
+            if (!(Array.isArray(requests) && requests.length > 0 && requests[0].challenge)) {
+                throw "Invalid U2F request data";
+            }
         }
+        catch (error) {
+            console.error("Internal error: invalid U2f request data.  This should never happen", error);
+            alert(xl("Internal error: invalid U2F request data"));
+            return;
+        }
+        // The server's getAuthenticateData() repeats the same challenge in all requests.
+        let challenge = requests[0].challenge;
+        const registeredKeys = (requests || []).map(req => ({"version": req.version, "keyHandle": req.keyHandle}));
         u2f.sign({{ appId|json_encode }}, challenge, registeredKeys,
             function (data) {
                 if (data.errorCode && data.errorCode != 0) {
@@ -124,11 +128,12 @@
                     return;
                 }
                 //hide totp input if both on used
-                if (document.getElementById('totp_token')) {
-                    document.getElementById('totp_token').style.display = 'none';
+                const totpTokenElement = document.getElementById('totp_token');
+                if (totpTokenElement) {
+                    totpTokenElement.style.display = 'none';
                 }
                 //create new mfa_token input
-                var elInput = document.createElement('input');
+                let elInput = document.createElement('input');
                 elInput.setAttribute('type', 'hidden');
                 elInput.setAttribute('name', 'mfa_token');
                 elInput.setAttribute('value', JSON.stringify(data));
