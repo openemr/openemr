@@ -24,8 +24,9 @@ const { fDate, templateDate } = require('./utils/date/date');
 const { countEntities } = require('./utils/count-entities/count-entities');
 const { populateTimezones } = require('./utils/timezones/timezones');
 const {
-    fetchPreviousAddresses,
-} = require('./utils/demographics/previous-addresses');
+    getNpiFacility,
+    populateDemographics,
+} = require('./utils/demographics/populate-demographics');
 
 var conn = ''; // make our connection scope global to script
 var oidFacility = "";
@@ -35,140 +36,6 @@ var npiFacility = "";
 var webRoot = "";
 var authorDateTime = '';
 var documentLocation = '';
-
-function populateDemographic(pd, g) {
-    let first = 'NI';
-    let middle = 'NI';
-    let last = 'NI';
-    const names = g.display_name.split(' ');
-    if (names.length === 2) {
-        first = names[0];
-        last = names[1];
-    }
-    if (names.length === 3) {
-        first = names[0];
-        last = names[2];
-    }
-    let guardian = [{
-        "relation": g.relation,
-        "addresses": [{
-            "street_lines": [g.address],
-            "city": g.city,
-            "state": g.state,
-            "zip": g.postalCode,
-            "country": g.country || "US",
-            "use": "primary home"
-        }],
-        "names": [{
-            "last": last,
-            "first": first
-        }],
-        "phone": [{
-            "number": g.telecom,
-            "type": "primary home"
-        }]
-    }];
-    if (pd.race === 'Declined To Specify' || pd.race === '') {
-        pd.race = "null_flavor";
-    }
-    if (pd.race_group === 'Declined To Specify' || pd.race_group === '') {
-        pd.race_group = "null_flavor";
-    }
-    if (pd.ethnicity === 'Declined To Specify' || pd.ethnicity === '') {
-        pd.ethnicity = "null_flavor";
-    }
-    let addressArray = fetchPreviousAddresses(pd);
-    return {
-        "name": {
-            "prefix": pd.prefix,
-            "suffix": pd.suffix,
-            "middle": [pd.mname] || "",
-            "last": pd.lname,
-            "first": pd.fname
-        },
-        "birth_name": {
-            "middle": pd.birth_mname || "",
-            "last": pd.birth_lname || "",
-            "first": pd.birth_fname || ""
-        },
-        "dob": {
-            "point": {
-                "date": fDate(pd.dob),
-                "precision": "day"
-            }
-        },
-        "gender": pd.gender.toUpperCase() || "null_flavor",
-        "identifiers": [{
-            "identifier": oidFacility || npiFacility,
-            "extension": pd.uuid
-        }],
-        "marital_status": pd.status.toUpperCase(),
-        "addresses": addressArray,
-        "phone": [
-            {
-                "number": pd.phone_home,
-                "type": "primary home"
-            }, {
-                "number": pd.phone_mobile,
-                "type": "primary mobile"
-            }, {
-                "number": pd.phone_work,
-                "type": "work place"
-            }, {
-                "number": pd.phone_emergency,
-                "type": "emergency contact"
-            },{
-                "email": pd.email,
-                "type": "contact_email"
-            }
-        ],
-        "ethnicity": pd.ethnicity || "",
-        "race": pd.race || "null_flavor",
-        "race_additional": pd.race_group || "null_flavor",
-        "languages": [{
-            "language": pd.language === 'English' ? "en-US" : pd.language === 'Spanish' ? "sp-US" : 'en-US',
-            "preferred": true,
-            "mode": "Expressed spoken",
-            "proficiency": "Good"
-        }],
-        //"religion": pd.religion.toUpperCase() || "",
-        /*"birthplace":'', {
-            "city": "",
-            "state": "",
-            "zip": "",
-            "country": ""
-        },*/
-        "attributed_provider": {
-            "identity": [
-                {
-                    "root": "2.16.840.1.113883.4.6",
-                    "extension": npiFacility || ""
-                }
-            ],
-            "phone": [{
-                "number": all.encounter_provider.facility_phone || "",
-            }],
-            "name": [
-                {
-                    "full": all.encounter_provider.facility_name || ""
-                }
-            ],
-            "address": [
-                {
-                    "street_lines": [
-                        all.encounter_provider.facility_street
-                    ],
-                    "city": all.encounter_provider.facility_city,
-                    "state": all.encounter_provider.facility_state,
-                    "zip": all.encounter_provider.facility_postal_code,
-                    "country": all.encounter_provider.facility_country_code || "US",
-                    "use": "work place"
-                }
-            ],
-        },
-        "guardians": g.display_name ? guardian : '' //not required
-    }
-}
 
 function populateProvider(provider) {
     // The provider role is a maybe and will only be provided for physicians as a
@@ -2657,7 +2524,7 @@ function generateCcda(pd) {
     let primary_care_provider = all.primary_care_provider || {};
     npiProvider = primary_care_provider.provider ? primary_care_provider.provider.npi : "NI";
     oidFacility = all.encounter_provider.facility_oid ? all.encounter_provider.facility_oid : "2.16.840.1.113883.19.5.99999.1";
-    npiFacility = all.encounter_provider.facility_npi;
+    npiFacility = getNpiFacility(pd, false);
     webRoot = all.serverRoot;
     documentLocation = all.document_location;
 
@@ -2673,8 +2540,8 @@ function generateCcda(pd) {
     }
 
     authorDateTime = fDate(authorDateTime);
-// Demographics
-    let demographic = populateDemographic(pd.patient, pd.guardian, pd);
+    // Demographics
+    let demographic = populateDemographics(pd, npiFacility);
 // This populates documentationOf. We are using providerOrganization also.
     if (pd.primary_care_provider) {
         Object.assign(demographic, populateProviders(pd));
@@ -3131,7 +2998,7 @@ function generateUnstructured(pd) {
     let primary_care_provider = all.primary_care_provider || {};
     npiProvider = primary_care_provider.provider ? primary_care_provider.provider.npi : "NI";
     oidFacility = all.encounter_provider.facility_oid ? all.encounter_provider.facility_oid : "2.16.840.1.113883.19.5.99999.1";
-    npiFacility = all.encounter_provider.facility_npi || "NI";
+    npiFacility = getNpiFacility(pd, true);
     webRoot = all.serverRoot;
     documentLocation = all.document_location;
     authorDateTime = pd.created_time_timezone;
@@ -3146,7 +3013,7 @@ function generateUnstructured(pd) {
     }
     authorDateTime = fDate(authorDateTime);
 // Demographics is needed in unstructured
-    let demographic = populateDemographic(pd.patient, pd.guardian, pd);
+    let demographic = populateDemographics(pd, npiFacility);
     data.demographics = Object.assign(demographic);
 
     if (pd.primary_care_provider) {
