@@ -7,7 +7,7 @@ describe('populateProvider', () => {
     });
 
     test.each(PROVIDER_TEST_DATA)(
-        'should map the input data to a provider info',
+        'should map the input data to provider data object',
         (provider, documentData, result) => {
             expect(populateProvider(provider, documentData)).toEqual(result);
         }
