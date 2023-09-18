@@ -117,8 +117,8 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
     /**
      * Parses a FHIR Resource, returning the equivalent OpenEMR record.
      *
-     * @param $fhirResource The source FHIR resource
-     * @return a mapped OpenEMR data record (array)
+     * @param $fhirResource FHIRDomainResource The source FHIR resource
+     * @return array a mapped OpenEMR data record (array)
      */
     abstract public function parseFhirResource(FHIRDomainResource $fhirResource);
 

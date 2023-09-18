@@ -96,14 +96,12 @@ services:
       LDAP_TLS_CRT_FILENAME: server-cert.pem
       LDAP_TLS_KEY_FILENAME: server-key.pem
 volumes:
-  databasevolume: {}
-  assetvolume: {}
-  themevolume: {}
-  sitesvolume: {}
-  nodemodules: {}
-  vendordir: {}
-  ccdanodemodules: {}
-  logvolume: {}
-  couchdbvolume: {}
-networks:
-    openemrDev:
+    databasevolume: {}
+    assetvolume: {}
+    themevolume: {}
+    sitesvolume: {}
+    nodemodules: {}
+    vendordir: {}
+    ccdanodemodules: {}
+    logvolume: {}
+    couchdbvolume: {}

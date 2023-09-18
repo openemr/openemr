@@ -16,14 +16,28 @@ use OpenEMR\Services\FHIR\FhirMedicationRequestService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
+use OpenEMR\Services\FHIR\FhirValidationService;
+use OpenEMR\Services\FHIR\Serialization\FhirMedicationRequestSerializer;
+use OpenEMR\Services\FHIR\Serialization\FhirOrganizationSerializer;
 
 class FhirMedicationRequestRestController
 {
+    /**
+     * @var FhirResourcesService
+     */
     private $fhirService;
+    /**
+     * @var FhirMedicationRequestService
+     */
     private $fhirMedicationRequestService;
+    /**
+     * @var FhirValidationService
+     */
+    private $fhirValidationService;
 
     public function __construct()
     {
+        $this->fhirValidationService = new FhirValidationService();
         $this->fhirService = new FhirResourcesService();
         $this->fhirMedicationRequestService = new FhirMedicationRequestService();
     }
@@ -53,7 +67,7 @@ class FhirMedicationRequestRestController
         $bundleEntries = array();
         foreach ($processingResult->getData() as $index => $searchResult) {
             $bundleEntry = [
-                'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
+                'fullUrl' => $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
                 'resource' => $searchResult
             ];
             $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);
@@ -62,5 +76,28 @@ class FhirMedicationRequestRestController
         $bundleSearchResult = $this->fhirService->createBundle('Medication', $bundleEntries, false);
         $searchResponseBody = RestControllerHelper::responseHandler($bundleSearchResult, null, 200);
         return $searchResponseBody;
+    }
+
+    /**
+     * Creates a new FHIR organization resource
+     * @param $fhirJson The FHIR organization resource
+     * @returns 201 if the resource is created, 400 if the resource is invalid
+     */
+    public function post($fhirJson)
+    {
+        $fhirValidationService = $this->fhirValidationService->validate($fhirJson);
+        if (!empty($fhirValidationService)) {
+            return RestControllerHelper::responseHandler($fhirValidationService, null, 400);
+        }
+
+        $medicationRequest = $this->createMedicationRequestFromJSON($fhirJson);
+        $processingResult = $this->fhirMedicationRequestService->insert($medicationRequest);
+        return RestControllerHelper::handleFhirProcessingResult($processingResult, 201);
+    }
+
+
+    private function createMedicationRequestFromJSON($fhirJson)
+    {
+        return FhirMedicationRequestSerializer::deserialize($fhirJson);
     }
 }

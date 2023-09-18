@@ -14,6 +14,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUnitsOfTime;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDosage;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming\FHIRTimingRepeat;
@@ -377,5 +378,11 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
     function getProfileURIs(): array
     {
         return [self::PROFILE_URI];
+    }
+
+    public function parseFhirResource(FHIRMedicationRequest|FHIRDomainResource $fhirResource)
+    {
+        $fhirResource->authoredOn;
+        // TODO: Implement parseFhirResource() method.
     }
 }

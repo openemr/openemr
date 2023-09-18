@@ -121,9 +121,9 @@ abstract class BaseValidator
     /**
      * Validates that a Code from Valueset exists in the database.
      *
-     * @param $code The code which needs to be verified
-     * @param $table The table in database
-     * @param $valueset Name of the particular Valueset
+     * @param mixed $code The code which needs to be verified
+     * @param mixed $table The table in database
+     * @param mixed $valueset Name of the particular Valueset
      * @return boolean
      */
     public function validateCode($code, $table, $valueset)
@@ -131,7 +131,10 @@ abstract class BaseValidator
         $sql = "SELECT option_id FROM $table WHERE list_id = ? AND option_id = ?";
         $result = sqlQuery(
             $sql,
-            array($valueset, $code)
+            [
+                $valueset,
+                $code
+            ]
         );
         return $result['option_id'] ? true : false;
     }
