@@ -3794,6 +3794,79 @@ paths:
       security:
         -
           openemr_auth: []
+  '/api/patient/{puuid}/prescription':
+    get:
+      tags:
+        - standard
+      description: 'Retrieves a list of all prescriptions'
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - standard
+      description: 'Submits a new prescription'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_prescription_request'
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{puuid}/prescription/{peuuid}':
+    get:
+      tags:
+        - standard
+      description: 'Retrieves a prescription for a patient'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: peuuid
+          in: path
+          description: 'The uuid for the prescription.'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
   /fhir/AllergyIntolerance:
     get:
       tags:
@@ -7631,6 +7704,75 @@ components:
         validFrom: '2022-01-02'
         validThrough: '2022-01-03'
         body: 'Reason 1'
+    api_prescription_request:
+      description: 'Schema for the prescription request'
+      required:
+        - start_date
+        - route
+      properties:
+        start_date:
+          description: 'The date when the drug therapy for the patient is initiated.'
+          type: string
+        route:
+          description: 'The method by which the drug is administered or taken by the patient.'
+          type: string
+        encounter_uuid:
+          description: 'The encounter UUID.'
+          type: integer
+        drug:
+          description: 'The drug name'
+          type: string
+        drug_id:
+          description: 'The drug Id from drug inventory'
+          type: integer
+        quantity:
+          description: 'The amount or dosage of the drug.'
+          type: string
+        form_id:
+          description: "Enum values:\n     *                      1: suspension,\n     *                      10: cream,\n     *                      11: ointment,\n     *                      12: puff,\n     *                      2: tablet,\n     *                      3: capsule,\n     *                      4: solution,\n     *                      5: tsp,\n     *                      6: ml,\n     *                      7: units,\n     *                      8: inhalations,\n     *                      9: gtts(drops)"
+          type: integer
+          enum:
+            - 0
+            - 1
+            - 10
+            - 11
+            - 12
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+          example: '1'
+        route_id:
+          description: "Enum values:\n     *                      1: Per Oris,\n     *                      10: IM,\n     *                      11: IV,\n     *                      12: Per Nostril,\n     *                      13: Both Ears,\n     *                      14: Left Ear,\n     *                      15: Right Ear,\n     *                      2: Per Rectum,\n     *                      3: To Skin,\n     *                      4: To Affected Area,\n     *                      5: Sublingual,\n     *                      5: Sublingual,\n     *                      6: OS,\n     *                      7: OD,\n     *                      8: OU,\n     *                      9: SQ,\n     *                      bymouth: By Mouth,\n     *                      inhale: Inhale,\n     *                      intradermal: Intradermal,\n     *                      intramuscular: Intramuscular,\n     *                      other: Other/Miscellaneous,\n     *                      transdermal: Transdermal"
+          type: string
+          enum:
+            - 1
+            - 10
+            - 11
+            - 12
+            - 13
+            - 14
+            - 15
+            - 2
+            - 3
+            - 4
+            - 5
+            - 6
+            - 7
+            - 8
+            - 9
+            - bymouth
+            - inhale
+            - intradermal
+            - intramuscular
+            - other
+            - transdermal
+          example: '1'
+      type: object
   responses:
     standard:
       description: 'Standard Response'

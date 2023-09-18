@@ -301,6 +301,7 @@
 
 // Lets keep our controller classes with the routes.
 //
+use OpenApi\Annotations as OA;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\RestControllers\AllergyIntoleranceRestController;
@@ -7792,6 +7793,7 @@ use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDefinitionRestControlle
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded
 //   to only see the data of the one patient)
+// TODO prescription apis for FHIR :( not fun
 RestConfig::$FHIR_ROUTE_MAP = array(
     /**
      *  @OA\Get(
