@@ -14,6 +14,7 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchModifier;
@@ -46,8 +47,8 @@ class AllergyIntoleranceService extends BaseService
         // we inner join on lists itself so we can grab our uuids, we do this so we can search on each of the uuids
         // such as allergy_uuid, practitioner_uuid,organization_uuid, etc.  You can't use an 'AS' clause in a select
         // so we have to have actual column names in our WHERE clause.  To make that work in a searchable way we extend
-        // out our queries into sub queries which through the power of index's & keys it is pretty highly optimized by the
-        // database query engine.
+        // out our queries into sub queries which through the power of index's & keys it is pretty highly optimized by
+        // the database query engine.
 
         $sql = "SELECT lists.*,
         lists.pid AS patient_id,
@@ -68,7 +69,8 @@ class AllergyIntoleranceService extends BaseService
             SELECT lists.uuid AS allergy_uuid FROM lists
         ) allergy_ids ON lists.uuid = allergy_ids.allergy_uuid
         LEFT JOIN list_options as reaction ON (reaction.option_id = lists.reaction and reaction.list_id = 'reaction')
-        LEFT JOIN list_options as verification ON verification.option_id = lists.verification and verification.list_id = 'allergyintolerance-verification'
+        LEFT JOIN list_options as verification ON verification.option_id = lists.verification
+            and verification.list_id = 'allergyintolerance-verification'
         RIGHT JOIN (
             SELECT
                 patient_data.uuid AS puuid
@@ -140,9 +142,11 @@ class AllergyIntoleranceService extends BaseService
      */
     public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
     {
-        // backwards compatible we let sub tables be referenced before, we want those to go away as it's a leaky abstraction
+        // backwards compatible we let sub tables be referenced before,
+        // we want those to go away as it's a leaky abstraction
         if (isset($search['lists.pid'])) {
-            $search['puuid'] = $search['lists.pid'];
+            $patient = (new PatientService())->findByPid($search['lists.pid']);
+            $search['puuid'] = UuidRegistry::uuidToString($patient['uuid']);
             unset($search['lists.pid']);
         }
         if (isset($search['lists.id'])) {
