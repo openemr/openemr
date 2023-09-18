@@ -1,0 +1,25 @@
+{#
+# Base OAuth2 template file.
+#
+# @package   OpenEMR
+# @link      http://www.open-emr.org
+# @author    Jerry Padgett <sjpadgett@gmail.com>
+# @author    Stephen Nielson <snielson@discoverandchange.com>
+# @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+# @copyright Copyright (c) 2023 Discover and Change, Inc. <snielson@discoverandchange.com>
+# @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<html>
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    {{ setupHeader(['u2f_api']) }}
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+    {% block scripts %}
+    {% endblock %}
+</head>
+<body class="container-fluid bg-dark mt-0 mt-sm-5 mt-lg-3">
+{% block preContent %}{% endblock %}
+{% block content %}{% endblock %}
+{% block postContent %}{% endblock %}
+</body>
+</html>
