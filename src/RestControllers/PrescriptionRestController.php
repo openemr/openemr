@@ -40,6 +40,10 @@ class PrescriptionRestController
         "rxnorm_drugcode",
         "drug_dosage_instructions",
         "enddate",
+        "usage_category",
+        "usage_category_title",
+        "request_intent",
+        "request_intent_title",
     ];
 
     private $prescriptionService;
@@ -82,10 +86,10 @@ class PrescriptionRestController
         return RestControllerHelper::handleProcessingResult($processingResult, 201);
     }
 
-    public function put($puuid, $peuuid, array $data)
+    public function put($puuid, $presuuid, array $data)
     {
         $filterDate = $this->prescriptionService->filterData($data, self::WHITELISTED_FIELDS);
-        $processingResult = $this->prescriptionService->update($puuid, $peuuid, $filterDate);
+        $processingResult = $this->prescriptionService->update($puuid, $presuuid, $filterDate);
         return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 

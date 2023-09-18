@@ -2,10 +2,16 @@
 
 namespace OpenEMR\Validators;
 
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\BaseService;
 use Particle\Validator\Validator;
 
 class PrescriptionValidator extends BaseValidator
 {
+    private const PATIENT_TABLE = "patient_data";
+    private const PRESCRIPTION_TABLE = "prescriptions";
+
+
     protected function configureValidator()
     {
         parent::configureValidator();
@@ -27,12 +33,10 @@ class PrescriptionValidator extends BaseValidator
                 });
                 // TODO check if the type is string? database implied looks like its string
                 $context->optional("quantity", "Drug Quantity")->string();
-
                 // TODO check with openemr team for the form route and interval ids
                 $context->optional("form_id", "Drug Form")->string()->callback(function ($value) {
                     return $this->validateCode($value, "list_options", 'drug_form');
                 });
-
                 $context->optional("route_id", "Drug Route")->string()->callback(function ($value) {
                     return $this->validateCode($value, "list_options", 'drug_route');
                 });
@@ -40,7 +44,18 @@ class PrescriptionValidator extends BaseValidator
                 $context->optional("interval_id", "Drug Interval")->string()->callback(function ($value) {
                     return $this->validateCode($value, "list_options", 'drug_interval');
                 });
-
+                $context->optional("usage_category", "Medication Usage Category")->string()->callback(function ($value) {
+                    return $this->validateCode($value, "list_options", 'medication-usage-category');
+                });
+                $context->optional("usage_category_title", "Medication Usage Category")->string()->callback(function ($value) {
+                    return $this->validateCode($value, "list_options", 'medication-usage-category');
+                });
+                $context->optional("request_intent", "Medication Request Intent")->string()->callback(function ($value) {
+                    return $this->validateCode($value, "list_options", 'medication-request-intent');
+                });
+                $context->optional("request_intent_title", "Medication Request Intent")->string()->callback(function ($value) {
+                    return $this->validateCode($value, "list_options", 'medication-request-intent');
+                });
                 $context->optional("dosage", "Dosage")->string();
                 $context->optional("size", "Size")->string();
                 $context->optional("refills", "Refills")->string();
@@ -67,10 +82,39 @@ class PrescriptionValidator extends BaseValidator
                 );
                 // additional uuid validation
                 $context->required("uuid", "Prescription UUID")->callback(function ($value) {
-                    return $this->validateId("uuid", "prescriptions", $value, true);
+                    return $this->validateId("uuid", static::PRESCRIPTION_TABLE, $value, true);
                 })->uuid();
             }
         );
+    }
+
+    /**
+     * Validates if a prescription belongs to a specific patient.
+     *
+     * @param string $puuid The UUID of the patient.
+     * @param string $uuid The UUID of the prescription.
+     *
+     * @return bool Returns true if the prescription belongs to the specified patient, false otherwise.
+     */
+    public function validatePrescriptionBelongPatient($puuid, $uuid)
+    {
+        try {
+            $puuid = UuidRegistry::uuidToBytes($puuid);
+            $uuid = UuidRegistry::uuidToBytes($uuid);
+        } catch (\Exception $exception) {
+            return false;
+        }
+
+        $pid = BaseService::getIdByUuid($puuid, static::PATIENT_TABLE, 'id');
+        $result = sqlQuery(
+            "SELECT * FROM prescriptions WHERE patient_id = ? AND uuid = ?",
+            [
+                $pid,
+                $uuid
+            ]
+        );
+
+        return !empty($result['patient_id']);
     }
 }
 /** CREATE TABLE `prescriptions` (

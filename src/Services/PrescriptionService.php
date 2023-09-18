@@ -15,9 +15,9 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
+use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\PrescriptionValidator;
 use OpenEMR\Validators\ProcessingResult;
-use OpenEMR\Validators\PatientValidator;
 
 class PrescriptionService extends BaseService
 {
@@ -49,6 +49,102 @@ class PrescriptionService extends BaseService
         $this->prescriptionValidator = new PrescriptionValidator();
     }
 
+    public function getUuidFields(): array
+    {
+        return ['uuid', 'euuid', 'pruuid', 'drug_uuid', 'puuid'];
+    }
+
+    public function insert($data)
+    {
+        $processingResult = $this->prescriptionValidator->validate(
+            $data,
+            PrescriptionValidator::DATABASE_INSERT_CONTEXT
+        );
+
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        $puuidBytes = UuidRegistry::uuidToBytes($data['puuid']);
+        $data['patient_id'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
+        $data['uuid'] = (new UuidRegistry(['table_name' => self::PRESCRIPTION_TABLE]))->createUuid();
+
+        $query = $this->buildInsertColumns($data);
+        $sql = " INSERT INTO prescriptions SET";
+        $sql .= "     date_added=NOW(),";
+        $sql .= "     created_by=NOW(),";
+        $sql .= $query['set'];
+        $results = sqlInsert(
+            $sql,
+            $query['bind']
+        );
+
+        if ($results) {
+            $processingResult->addData(array(
+                'id' => $results,
+                'uuid' => UuidRegistry::uuidToString($data['uuid'])
+            ));
+        } else {
+            $processingResult->addInternalError("error processing SQL Insert");
+        }
+
+        return $processingResult;
+    }
+
+    public function update($puuid, $presuuid, $data)
+    {
+        if (empty($data)) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages("Invalid Data");
+            return $processingResult;
+        }
+        $data["uuid"] = $presuuid;
+        $data["puuid"] = $puuid;
+        $processingResult = $this->prescriptionValidator->validate(
+            $data,
+            PrescriptionValidator::DATABASE_UPDATE_CONTEXT
+        );
+
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        $validatePrescriptionOwner = $this->prescriptionValidator->validatePrescriptionBelongPatient($data['puuid'], $data['uuid']);
+        if (!$validatePrescriptionOwner) {
+            $processingResult->setValidationMessages([
+                "presuuid" => "Prescription doesn't belong to Patient"
+            ]);
+
+            return $processingResult;
+        }
+
+        $query = $this->buildUpdateColumns($data);
+        $uuidBinary = UuidRegistry::uuidToBytes($data['uuid']);
+        $query['bind'][] = $uuidBinary;
+        $sql = "UPDATE prescriptions SET {$query['set']} WHERE `uuid` = ?";
+        $sqlResult = sqlStatement($sql, array_merge($query['bind']));
+
+        if (!$sqlResult) {
+            $processingResult->addInternalError("error processing SQL Update");
+        } else {
+            $processingResult = $this->getOne($presuuid);
+        }
+
+        return $processingResult;
+    }
+
+    /**
+     * Returns a single prescription record by id.
+     * @param $uuid - The prescription uuid identifier in string format.
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     * payload.
+     */
+    public function getOne($uuid, $puuidBind = null)
+    {
+        return $this->getAll(['prescriptions.uuid' => $uuid], $puuidBind);
+    }
+
     /**
      * Returns a list of prescription matching optional search criteria.
      * Search criteria is conveyed by array where key = field/column name, value = field value.
@@ -71,7 +167,7 @@ class PrescriptionService extends BaseService
                 $search['patient.uuid'],
                 true
             );
-            if ($isValidPatient != true) {
+            if ($isValidPatient !== true && !$isValidPatient->isValid()) {
                 return $isValidPatient;
             }
             $search['patient.puuid'] = UuidRegistry::uuidToBytes($search['patient.uuid']);
@@ -280,7 +376,7 @@ class PrescriptionService extends BaseService
 
         $sql .= $whereClause->getFragment();
         $sqlBindArray = $whereClause->getBoundValues();
-        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+        $statementResults = QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();
         while ($row = sqlFetchArray($statementResults)) {
@@ -288,11 +384,6 @@ class PrescriptionService extends BaseService
             $processingResult->addData($record);
         }
         return $processingResult;
-    }
-
-    public function getUuidFields(): array
-    {
-        return ['uuid', 'euuid', 'pruuid', 'drug_uuid', 'puuid'];
     }
 
     protected function createResultRecordFromDatabaseResult($row)
@@ -315,97 +406,6 @@ class PrescriptionService extends BaseService
         return $record;
     }
 
-    /**
-     * Returns a single prescription record by id.
-     * @param $uuid - The prescription uuid identifier in string format.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return ProcessingResult which contains validation messages, internal error messages, and the data
-     * payload.
-     */
-    public function getOne($uuid, $puuidBind = null)
-    {
-        return $this->getAll(['prescriptions.uuid' => $uuid], $puuidBind);
-    }
-
-    public function insert($data)
-    {
-        $processingResult = $this->prescriptionValidator->validate(
-            $data,
-            PrescriptionValidator::DATABASE_INSERT_CONTEXT
-        );
-
-        if (!$processingResult->isValid()) {
-            return $processingResult;
-        }
-
-        $puuidBytes = UuidRegistry::uuidToBytes($data['puuid']);
-        $data['pid'] = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
-        $data['uuid'] = (new UuidRegistry(['table_name' => self::PRESCRIPTION_TABLE]))->createUuid();
-
-        $query = $this->buildInsertColumns($data);
-        $sql  = " INSERT INTO prescriptions SET";
-        $sql .= "     date_added=NOW(),";
-        $sql .= "     created_by=NOW(),";
-        $sql .= $query['set'];
-        $results = sqlInsert(
-            $sql,
-            $query['bind']
-        );
-
-        if ($results) {
-            $processingResult->addData(array(
-                'id' => $results,
-                'uuid' => UuidRegistry::uuidToString($data['uuid'])
-            ));
-        } else {
-            $processingResult->addInternalError("error processing SQL Insert");
-        }
-
-        return $processingResult;
-    }
-
-    public function update($uuid, $presuuid,$data)
-    {
-        if (empty($data)) {
-            $processingResult = new ProcessingResult();
-            $processingResult->setValidationMessages("Invalid Data");
-            return $processingResult;
-        }
-        $data["uuid"] = $uuid;
-        $processingResult = $this->prescriptionValidator->validate(
-            $data,
-            PrescriptionValidator::DATABASE_UPDATE_CONTEXT
-        );
-
-        $patient = $this->prescriptionValidator->validateId('uuid', self::PRESCRIPTION_TABLE, $presuuid, true);
-
-        if ($patient !== true) {
-            return $patient;
-        }
-
-
-        if (!$processingResult->isValid()) {
-            return $processingResult;
-        }
-
-        $query = $this->buildUpdateColumns($data);
-        $sql = "UPDATE prescriptions SET ";
-        $sql .= $query['set'];
-        $sql .= " WHERE `uuid` = ?";
-
-        $uuidBinary = UuidRegistry::uuidToBytes($uuid);
-        $query['bind'][] = $uuidBinary;
-        $sqlResult = sqlStatement($sql, $query['bind']);
-
-        if (!$sqlResult) {
-            $processingResult->addInternalError("error processing SQL Update");
-        } else {
-            $processingResult = $this->getOne($uuid);
-        }
-
-        return $processingResult;
-    }
-
     public function delete($puuid, $uuid)
     {
         $processingResult = new ProcessingResult();
@@ -424,7 +424,7 @@ class PrescriptionService extends BaseService
         $puuidBytes = UuidRegistry::uuidToBytes($puuid);
         $auuid = UuidRegistry::uuidToBytes($uuid);
         $pid = $this->getIdByUuid($puuidBytes, self::PATIENT_TABLE, "pid");
-        $sql  = "DELETE FROM prescriptions WHERE patient_id=? AND uuid=?";
+        $sql = "DELETE FROM prescriptions WHERE patient_id=? AND uuid=?";
 
         $results = sqlStatement($sql, array($pid, $auuid));
 
