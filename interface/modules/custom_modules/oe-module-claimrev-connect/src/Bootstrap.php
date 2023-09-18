@@ -171,7 +171,7 @@ class Bootstrap
 
         $pid = $event->getPid();
         ?>
-        <section>
+        <section class="card mb-2">
         <?php
         // Billing expand collapse widget
         $widgetTitle = xl("ClaimRev Eligibility");

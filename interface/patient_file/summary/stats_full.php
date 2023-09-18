@@ -208,14 +208,14 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         }
                     }
 
-                    $condition = ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $focustype == 'medication') ? "AND erx_uploaded != '1'" :  '';
+                    $condition = ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $t == 'medication') ? "AND erx_uploaded != '1'" :  '';
                     $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? $condition ORDER BY begdate", [$pid, $t]);
                     $noIssues = false;
                     $nothingRecorded = false;
 
                     // if no issues (will place a 'None' text vs. toggle algorithm here)
                     if (sqlNumRows($pres) < 1) {
-                        if (getListTouch($pid, $focustype)) {
+                        if (getListTouch($pid, $t)) {
                             // Data entry has happened to this type, so can display an explicit None.
                             $noIssues = true;
                         } else {
@@ -247,7 +247,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     </div>
                     <div class="list-group list-group-flush" id="<?php echo attr($t); ?>">
                         <?php if ($noIssues && !$nothingRecorded) : ?>
-                            <div class="list-group-item text-center"><?php echo xlt("None{{Issue}}"); ?></div>
+                            <div class="list-group-item"><?php echo xlt("None{{Issue}}"); ?></div>
                         <?php elseif (!$noIssues && $nothingRecorded) : ?>
                             <div class="list-group-item">
                                 <div class="form-check">
@@ -303,9 +303,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
 
                             $click_class = 'statrow';
-                            if ($row['erx_source'] == 1 && $focustype == 'allergy') {
+                            if ($row['erx_source'] == 1 && $t == 'allergy') {
                                 $click_class = '';
-                            } elseif ($row['erx_uploaded'] == 1 && $focustype == 'medication') {
+                            } elseif ($row['erx_uploaded'] == 1 && $t == 'medication') {
                                 $click_class = '';
                             }
 
