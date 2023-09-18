@@ -496,7 +496,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         // etc are NOT being done here and so the creation/updating of resources is currently NOT correct, this will
         // need to be addressed by future development work.
         if (!$fhirResource instanceof FHIRPatient) {
-            throw new \BadMethodCallException("fhir resource must be of type " . FHIRPractitioner::class);
+            throw new \BadMethodCallException("fhir resource must be of type " . FHIRPatient::class);
         }
 
         $data = array();
