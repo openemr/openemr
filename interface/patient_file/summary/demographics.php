@@ -1037,8 +1037,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $cards = $allergy + $pl + $meds + $rx;
                     $col = "p-1 ";
 
-                    $colInt = 12 / $cards;
-                    $col = "col-" . $colInt;
+                    if ($cards > 0) {
+                        $colInt = 12 / $cards;
+                        $col = "col-" . $colInt;
+                    }
 
                     /**
                      * Helper function to return only issues with an outcome not equal to resolved
