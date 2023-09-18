@@ -22,6 +22,7 @@
  */
 
 require_once("../../globals.php");
+require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("../history/history.inc.php");
@@ -1053,7 +1054,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
 
                     // ALLERGY CARD
-                    if (AclMain::aclCheckIssue('allergy')) {
+                    if ($allergy === 1) {
                         $allergyService = new AllergyIntoleranceService();
                         $_rawAllergies = filterActiveIssues($allergyService->getAll(['lists.pid' => $pid])->getData());
                         $_priority = [];
@@ -1065,8 +1066,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $_standard[] = $_;
                             }
                         }
-                        $allergyTouchListSQL = "SELECT COUNT(*) as touched FROM lists_touch WHERE pid = ? AND type = 'allergy'";
-                        $allergyTouchListResult = sqlQuery($allergyTouchListSQL, [$pid]);
                         $id = 'allergy_ps_expand';
                         $viewArgs = [
                             'title' => xl('Allergies'),
@@ -1076,7 +1075,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
                             'linkMethod' => "javascript",
                             'list' => ['priority' => $_priority, 'standard' => $_standard],
-                            'listTouched' => ($allergyTouchListResult['touched'] > 0) ? true : false,
+                            'listTouched' => (!empty(getListTouch($pid, 'allergy'))) ? true : false,
                             'auth' => true,
                             'btnLabel' => 'Edit',
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=allergy')"
@@ -1089,7 +1088,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $patIssueService = new PatientIssuesService();
 
                     // MEDICAL PROBLEMS CARD
-                    if (AclMain::aclCheckIssue('medical_problem')) {
+                    if ($pl === 1) {
                         $_rawPL = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medical_problem'])->getData();
                         $id = 'medical_problem_ps_expand';
                         $viewArgs = [
@@ -1100,6 +1099,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
                             'linkMethod' => "javascript",
                             'list' => filterActiveIssues($_rawPL),
+                            'listTouched' => (!empty(getListTouch($pid, 'medical_problem'))) ? true : false,
                             'auth' => true,
                             'btnLabel' => 'Edit',
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medical_problem')"
@@ -1110,7 +1110,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
 
                     // MEDICATION CARD
-                    if (AclMain::aclCheckIssue('medication')) {
+                    if ($meds === 1) {
                         $_rawMedList = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medication'])->getData();
                         $id = 'medication_ps_expand';
                         $viewArgs = [
@@ -1121,6 +1121,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
                             'linkMethod' => "javascript",
                             'list' => filterActiveIssues($_rawMedList),
+                            'listTouched' => (!empty(getListTouch($pid, 'medication'))) ? true : false,
                             'auth' => true,
                             'btnLabel' => 'Edit',
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication')"
@@ -1131,7 +1132,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
 
                     // Render the Prescriptions card if turned on
-                    if (!$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx')) :
+                    if ($rx === 1) :
                         if ($GLOBALS['erx_enable'] && $display_current_medications_below == 1) {
                             $sql = "SELECT * FROM prescriptions WHERE patient_id = ? AND active = '1'";
                             $res = sqlStatement($sql, [$pid]);
