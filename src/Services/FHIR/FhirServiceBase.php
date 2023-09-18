@@ -51,18 +51,23 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
 
     public function __construct($fhirApiURL = null)
     {
-        $this->fhirApiURL = $fhirApiURL;
         $params = $this->loadSearchParameters();
         $this->resourceSearchParameters = is_array($params) ? $params : [];
         $searchFieldFactory = new FHIRSearchFieldFactory($this->resourceSearchParameters);
+        $this->setSearchFieldFactory($searchFieldFactory);
+        $this->setFhirApiUrl($fhirApiURL);
+    }
 
+    public function setFhirApiUrl($fhirApiURL)
+    {
         // anything using a 'reference' search field MUST have a URL resolver to handle the reference translation
         // so if we have the api url we are going to create our resolver.
         if (!empty($fhirApiURL)) {
+            $searchFieldFactory = $this->getSearchFieldFactory();
             $urlResolver = new FhirUrlResolver($fhirApiURL);
             $searchFieldFactory->setFhirUrlResolver($urlResolver);
         }
-        $this->setSearchFieldFactory($searchFieldFactory);
+        $this->fhirApiURL = $fhirApiURL;
     }
 
     /**
@@ -120,7 +125,7 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
     /**
      * Inserts a FHIR resource into the system.
      * @param $fhirResource The FHIR resource
-     * @return The OpenEMR Service Result
+     * @return ProcessingResult The OpenEMR Service Result
      */
     public function insert(FHIRDomainResource $fhirResource): ProcessingResult
     {
@@ -130,7 +135,7 @@ abstract class FhirServiceBase implements IResourceSearchableService, IResourceR
 
     /**
      * Inserts an OpenEMR record into the sytem.
-     * @return The OpenEMR processing result.
+     * @return ProcessingResult The OpenEMR processing result.
      */
     abstract protected function insertOpenEMRRecord($openEmrRecord);
 
