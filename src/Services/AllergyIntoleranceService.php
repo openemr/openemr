@@ -64,7 +64,9 @@ class AllergyIntoleranceService extends BaseService
         reaction.title as reaction_title,
         reaction.codes AS reaction_codes,
         verification.title as verification_title
-    FROM lists
+    FROM (
+            SELECT lists.*, lists.pid AS patient_id FROM lists
+        ) lists
         INNER JOIN (
             SELECT lists.uuid AS allergy_uuid FROM lists
         ) allergy_ids ON lists.uuid = allergy_ids.allergy_uuid
@@ -145,8 +147,7 @@ class AllergyIntoleranceService extends BaseService
         // backwards compatible we let sub tables be referenced before,
         // we want those to go away as it's a leaky abstraction
         if (isset($search['lists.pid'])) {
-            $patient = (new PatientService())->findByPid($search['lists.pid']);
-            $search['puuid'] = UuidRegistry::uuidToString($patient['uuid']);
+            $search['patient_id'] = $search['lists.pid'];
             unset($search['lists.pid']);
         }
         if (isset($search['lists.id'])) {
