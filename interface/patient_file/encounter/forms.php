@@ -881,7 +881,7 @@ if (
         // Figure out the correct author (encounter authors are the '$providerNameRes', while other
         // form authors are the '$user['fname'] . "  " . $user['lname']').
         $form_author = ($formdir == 'newpatient') ? $providerNameRes :
-            ($user['fname'] ?? '') .
+            ($user['fname'] ?? '') . " " .
             (($user['mname'] ?? '') ? $user['mname'] . " " : " ") .
             ($user['lname'] ?? '') .
             (($user['suffix'] ?? '') ? ", " . $user['suffix'] : '') .
