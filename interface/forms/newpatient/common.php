@@ -122,7 +122,7 @@ function getFacilityList()
     $facilities = $facilityService->getAllServiceLocations();
     $results = [];
     foreach ($facilities as $iter) {
-        $posCode = (($def_facility === $iter['id']) && !$viewmode) ? $iter['pos_code'] : $posCode;
+        $posCode = (($def_facility === intval($iter['id'])) && !$viewmode) ? $iter['pos_code'] : $posCode;
 
         $results[] = [
             'id' => $iter['id'],
@@ -373,7 +373,10 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                 <input type='hidden' name='id' value='<?php echo (isset($_GET["id"])) ? attr($_GET["id"]) : '' ?>' />
             <?php } else { ?>
                 <input type='hidden' name='mode' value='new' />
-            <?php } ?>
+                <?php if (empty($GLOBALS['set_pos_code_encounter'])) : ?>
+                    <input type='hidden' name='pos_code' value='<?php echo attr($posCode); ?>' />
+                <?php endif;
+            } ?>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
             <?php if ($mode === "followup") { ?>
@@ -507,56 +510,6 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             </div>
                         <?php endif; ?>
                     </div>
-                    <div class="form-row align-items-center">
-                        <div class="col-sm <?php displayOption('enc_service_date');?>">
-                            <div class="form-group">
-                                <label for='form_date' class="text-right"><?php echo xlt('Date of Service:'); ?></label>
-                                <input type='text' class='form-control datepicker' name='form_date' id='form_date' <?php echo ($disabled ?? '') ?> value='<?php echo $viewmode ? attr(oeFormatDateTime($result['date'])) : attr(oeFormatDateTime(date('Y-m-d H:i:00'))); ?>' title='<?php echo xla('Date of service'); ?>' />
-                            </div>
-                        </div>
-                        <div class="col-sm <?php echo ($GLOBALS['gbl_visit_onset_date'] == 1) ?: 'd-none'; ?>">
-                            <div class="form-group">
-                                <label for='form_onset_date' class="text-right"><?php echo xlt('Onset/hosp. date:'); ?> &nbsp;<i id='onset-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
-                                <input type='text' class='form-control datepicker' name='form_onset_date' id='form_onset_date' value='<?php echo $viewmode && $result['onset_date'] !== '0000-00-00 00:00:00' ? attr(oeFormatDateTime($result['onset_date'])) : ''; ?>' title='<?php echo xla('Date of onset or hospitalization'); ?>' />
-                            </div>
-                        </div>
-                        <div class="col-sm <?php echo ($GLOBALS['gbl_visit_referral_source'] == 1) ?: 'd-none';?>">
-                            <div class="form-group">
-                                <label for="form_referral_source" class="text-right"><?php echo xlt('Referral Source'); ?>:</label>
-                                <?php echo generate_select_list('form_referral_source', 'refsource', $viewmode ? $result['referral_source'] : '', ''); ?>
-                            </div>
-                        </div>
-                        <div class="col-sm <?php echo ($GLOBALS['set_pos_code_encounter'] == 1) ?: 'd-none';?>">
-                            <div class="form-group">
-                                <label for='pos_code' class="text-right"><?php echo xlt('POS Code'); ?>:</label>
-                                <select name="pos_code" id="pos_code" class='form-control'>
-                                    <?php
-                                    $pc = new POSRef();
-                                    foreach ($pc->get_pos_ref() as $pos) {
-                                        echo "<option value=\"" . attr($pos["code"]) . "\"";
-                                        if (
-                                            ($pos["code"] == ($result['pos_code'] ?? '') && $viewmode)
-                                            || ($pos["code"] == ($posCode ?? '') && !$viewmode)
-                                        ) {
-                                            echo " selected";
-                                        }
-                                        echo ">" . text($pos['code']) . ": " . xlt($pos['title']);
-                                        echo "</option>\n";
-                                    }
-                                    ?>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-sm <?php echo ($GLOBALS['hide_billing_widget'] != 1) ?: 'd-none';?>">
-                            <div class="form-group">
-                                <label for='in_collection' class="text-right"><?php echo xlt('In Collection'); ?>:</label>
-                                <select class='form-control' name='in_collection' id='in_collection'>
-                                    <option value="1" <?php echo (($result["in_collection"] ?? null) == 1) ? "selected" : ""; ?>><?php echo xlt('Yes'); ?></option>
-                                    <option value="0" <?php echo (($result["in_collection"] ?? null) == 0) ? "selected" : ""; ?>><?php echo xlt('No'); ?></option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
 
                     <div class="form-row align-items-center">
                         <div class="col-sm">
@@ -643,6 +596,58 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                             </div>
                         </div>
                     </div>
+
+                    <div class="form-row align-items-center">
+                        <div class="col-sm <?php displayOption('enc_service_date');?>">
+                            <div class="form-group">
+                                <label for='form_date' class="text-right"><?php echo xlt('Date of Service:'); ?></label>
+                                <input type='text' class='form-control datepicker' name='form_date' id='form_date' <?php echo ($disabled ?? '') ?> value='<?php echo $viewmode ? attr(oeFormatDateTime($result['date'])) : attr(oeFormatDateTime(date('Y-m-d H:i:00'))); ?>' title='<?php echo xla('Date of service'); ?>' />
+                            </div>
+                        </div>
+                        <div class="col-sm <?php echo ($GLOBALS['gbl_visit_onset_date'] == 1) ?: 'd-none'; ?>">
+                            <div class="form-group">
+                                <label for='form_onset_date' class="text-right"><?php echo xlt('Onset/hosp. date:'); ?> &nbsp;<i id='onset-tooltip' class="fa fa-info-circle text-primary" aria-hidden="true"></i></label>
+                                <input type='text' class='form-control datepicker' name='form_onset_date' id='form_onset_date' value='<?php echo $viewmode && $result['onset_date'] !== '0000-00-00 00:00:00' ? attr(oeFormatDateTime($result['onset_date'])) : ''; ?>' title='<?php echo xla('Date of onset or hospitalization'); ?>' />
+                            </div>
+                        </div>
+                        <div class="col-sm <?php echo ($GLOBALS['gbl_visit_referral_source'] == 1) ?: 'd-none';?>">
+                            <div class="form-group">
+                                <label for="form_referral_source" class="text-right"><?php echo xlt('Referral Source'); ?>:</label>
+                                <?php echo generate_select_list('form_referral_source', 'refsource', $viewmode ? $result['referral_source'] : '', ''); ?>
+                            </div>
+                        </div>
+                        <div class="col-sm <?php echo ($GLOBALS['set_pos_code_encounter'] == 1) ?: 'd-none';?>">
+                            <div class="form-group">
+                                <label for='pos_code' class="text-right"><?php echo xlt('POS Code'); ?>:</label>
+                                <select name="pos_code" id="pos_code" class='form-control'>
+                                    <?php
+                                    $pc = new POSRef();
+                                    foreach ($pc->get_pos_ref() as $pos) {
+                                        echo "<option value=\"" . attr($pos["code"]) . "\"";
+                                        if (
+                                            ($pos["code"] == ($result['pos_code'] ?? '') && $viewmode)
+                                            || ($pos["code"] == ($posCode ?? '') && !$viewmode)
+                                        ) {
+                                            echo " selected";
+                                        }
+                                        echo ">" . text($pos['code']) . ": " . xlt($pos['title']);
+                                        echo "</option>\n";
+                                    }
+                                    ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm <?php echo ($GLOBALS['hide_billing_widget'] != 1) ?: 'd-none';?>">
+                            <div class="form-group">
+                                <label for='in_collection' class="text-right"><?php echo xlt('In Collection'); ?>:</label>
+                                <select class='form-control' name='in_collection' id='in_collection'>
+                                    <option value="1" <?php echo (($result["in_collection"] ?? null) == 1) ? "selected" : ""; ?>><?php echo xlt('Yes'); ?></option>
+                                    <option value="0" <?php echo (($result["in_collection"] ?? null) == 0) ? "selected" : ""; ?>><?php echo xlt('No'); ?></option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="form-row align-items-center">
                         <!-- Discharge Disposition -->
                         <div class="col-sm <?php displayOption('enc_enable_discharge_disposition'); ?>">
