@@ -585,9 +585,12 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                         if ((int)$provider_id === $p_id) {
                                             echo "selected";
                                         }
-                                        echo ">" . text($activeUser['lname']) . ', ' . text($activeUser['suffix']) . ', ' .
-                                            text($activeUser['valedictory']) . ', ' . text($activeUser['fname']) . ', ' .
-                                            text($activeUser['mname']) . $flag_it . "</option>\n";
+                                        echo ">" . text($activeUser['lname']) . ', ' .
+                                            ($activeUser['suffix'] ? text($activeUser['suffix']) . ', ' : '') .
+                                            ($activeUser['valedictory'] ? text($activeUser['valedictory']) . ', ' : '') .
+                                            text($activeUser['fname']) .
+                                            ($activeUser['mname'] ? ', ' . text($activeUser['mname']) : ' ') .
+                                            $flag_it . "</option>\n";
                                     }
                                     ?>
                                 </select>
