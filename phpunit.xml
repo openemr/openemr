@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd" backupGlobals="false" bootstrap="tests/bootstrap.php" backupStaticAttributes="false" colors="false" processIsolation="false" stopOnError="false" stopOnFailure="false" stopOnIncomplete="false" stopOnSkipped="false" stopOnRisky="false" verbose="false">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.3/phpunit.xsd" backupGlobals="false" bootstrap="tests/bootstrap.php" colors="false" processIsolation="false" stopOnError="false" stopOnFailure="false" stopOnIncomplete="false" stopOnSkipped="false" stopOnRisky="false" cacheDirectory=".phpunit.cache" backupStaticProperties="false">
   <coverage/>
   <php>
     <ini name="error_reporting" value="-1"/>
@@ -19,9 +19,9 @@
       <directory>tests/Tests/RestControllers</directory>
       <directory>tests/Tests/Common</directory>
     </testsuite>
-      <testsuite name="ECQM">
-          <directory>tests/Tests/ECQM</directory>
-      </testsuite>
+    <testsuite name="ECQM">
+      <directory>tests/Tests/ECQM</directory>
+    </testsuite>
     <testsuite name="unit">
       <directory>tests/Tests/Unit</directory>
     </testsuite>
@@ -47,4 +47,5 @@
       <directory>tests/Tests/Common</directory>
     </testsuite>
   </testsuites>
+  <source/>
 </phpunit>

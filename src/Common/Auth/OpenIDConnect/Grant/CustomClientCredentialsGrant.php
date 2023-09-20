@@ -15,6 +15,7 @@ use DateInterval;
 use Lcobucci\Clock\SystemClock;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Encoding\CannotDecodeContent;
+use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha384;
 use Lcobucci\JWT\Token;
@@ -24,7 +25,7 @@ use Lcobucci\JWT\Token\Plain;
 use Lcobucci\JWT\Validation\Constraint\IssuedBy;
 use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
-use Lcobucci\JWT\Validation\Constraint\ValidAt;
+use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
@@ -236,8 +237,11 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
             try {
                 // we skip validation so that we can grab our client id, from there we can hit the database to find our
                 // JWK to validate against.
-                $configuration = Configuration::forUnsecuredSigner(
-                // You may also override the JOSE encoder/decoder if needed by providing extra arguments here
+                // ( lcobucci/jwt 5.x library no longer supports none, so need to do workaround with a symmetric key)
+                $configuration = Configuration::forSymmetricSigner(
+                    new Signer\Blake2b(),
+                    InMemory::base64Encoded('MpQd6dDPiqnzFSWmpUfLy4+Rdls90Ca4C8e0QD0IxqY=')
+                    // You may also override the JOSE encoder/decoder if needed by providing extra arguments here
                 );
 
                 $token = $configuration->parser()->parse($jwtToken);
@@ -321,12 +325,16 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
             // http client required for fetching jwks from the jwks uri and makes unit testing easier
             $jsonWebKeySet = new JsonWebKeySet($this->getHttpClient(), $client->getJwksUri(), $client->getJwks());
 
+            // ( lcobucci/jwt 5.x library no longer supports none (ie. forUnsecuredSigner), so need to do workaround with a symmetric key)
+            $configuration = Configuration::forSymmetricSigner(
+                new Signer\Blake2b(),
+                InMemory::base64Encoded('MpQd6dDPiqnzFSWmpUfLy4+Rdls90Ca4C8e0QD0IxqY=')
+            );
 
-            $configuration = Configuration::forUnsecuredSigner();
             $configuration->setValidationConstraints(
                 // we only allow 1 minute drift (note the 'T' specifier here, super important as we want to do time
                 // we had a bug here where P1M was a 1 month drift which is BAD.
-                new ValidAt(new SystemClock(new \DateTimeZone(\date_default_timezone_get())), new \DateInterval('PT1M')),
+                new LooseValidAt(new SystemClock(new \DateTimeZone(\date_default_timezone_get())), new \DateInterval('PT1M')),
                 new SignedWith(new RsaSha384Signer(), $jsonWebKeySet),
                 new IssuedBy($client->getIdentifier()),
                 new PermittedFor($this->authTokenUrl), // allowed audience

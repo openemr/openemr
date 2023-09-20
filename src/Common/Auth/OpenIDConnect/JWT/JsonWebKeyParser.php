@@ -64,7 +64,11 @@ class JsonWebKeyParser
         // Create the jwtConfiguration object
         //  Just using object for parsing, so keys not needed
         //   (ie. not using forAsymmetricSigner and just using forUnsecuredSigner)
-        $configuration = Configuration::forUnsecuredSigner();
+        // ( lcobucci/jwt 5.x library no longer supports none (ie. forUnsecuredSigner), so need to do workaround with a symmetric key)
+        $configuration = Configuration::forSymmetricSigner(
+            new Signer\Blake2b(),
+            InMemory::base64Encoded('MpQd6dDPiqnzFSWmpUfLy4+Rdls90Ca4C8e0QD0IxqY=')
+        );
 
         // Attempt to parse the JWT
         $token = $configuration->parser()->parse($rawToken);
