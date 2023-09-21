@@ -56,6 +56,7 @@ require_once(dirname(dirname(__FILE__)) . "/custom/code_types.inc.php");
 
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
@@ -4789,13 +4790,7 @@ function billing_facility($name, $select)
 //
 function getListItemTitle($list, $option)
 {
-    $row = sqlQuery("SELECT title FROM list_options WHERE " .
-    "list_id = ? AND option_id = ? AND activity = 1", array($list, $option));
-    if (empty($row['title'])) {
-        return $option;
-    }
-
-    return xl_list_label($row['title']);
+    return LayoutsUtils::getListItemTitle($list, $option);
 }
 
 //function to get the translated title value in Patient Transactions
