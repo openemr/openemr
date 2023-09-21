@@ -1051,7 +1051,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     function filterActiveIssues(array $i): array
                     {
                         return array_filter($i, function ($_i) {
-                            return $_i['outcome'] != 1;
+                            return ($_i['outcome'] != 1) && (empty($_i['enddate']) || (strtotime($_i['enddate']) > strtotime('now')));
                         });
                     }
 
@@ -1059,15 +1059,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     if ($allergy === 1) {
                         $allergyService = new AllergyIntoleranceService();
                         $_rawAllergies = filterActiveIssues($allergyService->getAll(['lists.pid' => $pid])->getData());
-                        $_priority = [];
-                        $_standard = [];
-                        foreach ($_rawAllergies as $_) {
-                            if (in_array($_['severity_al'], ['severe', 'life_threatening_severity', 'fatal'])) {
-                                $_priority[] = $_;
-                            } else {
-                                $_standard[] = $_;
-                            }
-                        }
                         $id = 'allergy_ps_expand';
                         $viewArgs = [
                             'title' => xl('Allergies'),
@@ -1076,7 +1067,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'forceAlwaysOpen' => false,
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
                             'linkMethod' => "javascript",
-                            'list' => ['priority' => $_priority, 'standard' => $_standard],
+                            'list' => $_rawAllergies,
                             'listTouched' => (!empty(getListTouch($pid, 'allergy'))) ? true : false,
                             'auth' => true,
                             'btnLabel' => 'Edit',
