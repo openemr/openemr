@@ -63,6 +63,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\HttpUtils;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
@@ -77,6 +78,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use RestConfig;
 use RuntimeException;
+use Twig\Environment;
 
 class AuthorizationController
 {
@@ -122,6 +124,11 @@ class AuthorizationController
      */
     private $restConfig;
 
+    /**
+     * @var Environment
+     */
+    private $twig;
+
     public function __construct($providerForm = true)
     {
         if (is_callable([RestConfig::class, 'GetInstance'])) {
@@ -153,18 +160,24 @@ class AuthorizationController
     private function getSmartAuthController(): SMARTAuthorizationController
     {
         if (!isset($this->smartAuthController)) {
-            $twigContainer = new TwigContainer(__DIR__ . "/../../oauth2/", $GLOBALS['kernel']);
-            $twig = $twigContainer->getTwig();
-
             $this->smartAuthController = new SMARTAuthorizationController(
                 $this->logger,
                 $this->authBaseFullUrl,
                 $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM,
                 __DIR__ . "/../../oauth2/",
-                $twig
+                $this->getTwig()
             );
         }
         return $this->smartAuthController;
+    }
+
+    private function getTwig(): Environment
+    {
+        if (!isset($this->twig)) {
+            $twigContainer = new TwigContainer(__DIR__ . "/../../oauth2/", $GLOBALS['kernel']);
+            $this->twig = $twigContainer->getTwig();
+        }
+        return $this->twig;
     }
 
     private function configKeyPairs(): void
@@ -671,13 +684,40 @@ class AuthorizationController
     {
         $response = $this->createServerResponse();
 
-        $patientRoleSupport = (!empty($GLOBALS['rest_portal_api']) || !empty($GLOBALS['rest_fhir_api']));
+        $clientId = $_SESSION['client_id'] ?? null;
 
+        $twig = $this->getTwig();
+        if (empty($clientId)) {
+            // why are we logging in... we need to terminate
+            $this->logger->errorLogCaller("application client_id was missing when it shouldn't have been");
+            echo $twig->render("error/general_http_error.html.twig", ['statusCode' => 500]);
+            die();
+        }
+        $clientService = new ClientRepository();
+        $client = $clientService->getClientEntity($clientId);
+
+        $patientRoleSupport = (!empty($GLOBALS['rest_portal_api']) || !empty($GLOBALS['rest_fhir_api']));
+        $loginTwigVars = [
+            'authorize' => null
+            ,'mfaRequired' => false
+            ,'redirect' => $this->authBaseUrl . "/login"
+            ,'isTOTP' => false
+            ,'isU2F' => false
+            ,'u2fRequests' => ''
+            ,'appId' => ''
+            ,'enforce_signin_email' => $GLOBALS['enforce_signin_email'] === '1' ?? false
+            ,'user' => [
+                'email' => $_POST['email'] ?? ''
+                ,'username' => $_POST['username'] ?? ''
+                ,'password' => $_POST['password'] ?? ''
+            ]
+            ,'patientRoleSupport' => $patientRoleSupport
+            ,'invalid' => ''
+            ,'client' => $client
+        ];
         if (empty($_POST['username']) && empty($_POST['password'])) {
             $this->logger->debug("AuthorizationController->userLogin() presenting blank login form");
-            $oauthLogin = true;
-            $redirect = $this->authBaseUrl . "/login";
-            require_once(__DIR__ . "/../../oauth2/provider/login.php");
+            $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
             exit();
         }
         $continueLogin = false;
@@ -687,9 +727,8 @@ class AuthorizationController
                 CsrfUtils::csrfNotVerified(false, true, false);
                 unset($_POST['username'], $_POST['password']);
                 $invalid = "Sorry. Invalid CSRF!"; // todo: display error
-                $oauthLogin = true;
-                $redirect = $this->authBaseUrl . "/login";
-                require_once(__DIR__ . "/../../oauth2/provider/login.php");
+                $loginTwigVars['invalid'] = $invalid;
+                $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
                 exit();
             } else {
                 $this->logger->debug("AuthorizationController->userLogin() verifying login information");
@@ -700,10 +739,9 @@ class AuthorizationController
 
         if (!$continueLogin) {
             $this->logger->debug("AuthorizationController->userLogin() login invalid, presenting login form");
-            $invalid = "Sorry, Invalid!"; // todo: display error
-            $oauthLogin = true;
-            $redirect = $this->authBaseUrl . "/login";
-            require_once(__DIR__ . "/../../oauth2/provider/login.php");
+            $invalid = xl("Sorry, verify the information you have entered is correct"); // todo: display error
+            $loginTwigVars['invalid'] = $invalid;
+            $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
             exit();
         } else {
             $this->logger->debug("AuthorizationController->userLogin() login valid, continuing oauth process");
@@ -714,27 +752,23 @@ class AuthorizationController
         $mfaToken = $mfa->tokenFromRequest($_POST['mfa_type'] ?? null);
         $mfaType = $mfa->getType();
         $TOTP = MfaUtils::TOTP;
-        $U2F = MfaUtils::U2F;
+        $loginTwigVars['isTOTP'] = in_array($TOTP, $mfaType);
         if ($_POST['user_role'] === 'api' && $mfa->isMfaRequired() && is_null($mfaToken)) {
-            $oauthLogin = true;
-            $mfaRequired = true;
-            $redirect = $this->authBaseUrl . "/login";
+            $loginTwigVars['mfaRequired'] = true;
             if (in_array(MfaUtils::U2F, $mfaType)) {
-                $appId = $mfa->getAppId();
-                $requests = $mfa->getU2fRequests();
+                $loginTwigVars['appId'] = $mfa->getAppId() ?? '';
+                $loginTwigVars['u2fRequests'] = $mfa->getU2fRequests() ?? '';
             }
-            require_once(__DIR__ . "/../../oauth2/provider/login.php");
+            $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
             exit();
         }
         //Check the validity of the authentication token
         if ($_POST['user_role'] === 'api'  && $mfa->isMfaRequired() && !is_null($mfaToken)) {
             if (!$mfaToken || !$mfa->check($mfaToken, $_POST['mfa_type'])) {
                 $invalid = "Sorry, Invalid code!";
-                $oauthLogin = true;
-                $mfaRequired = true;
-                $mfaType = $mfa->getType();
-                $redirect = $this->authBaseUrl . "/login";
-                require_once(__DIR__ . "/../../oauth2/provider/login.php");
+                $loginTwigVars['mfaRequired'] = true;
+                $loginTwigVars['invalid'] = $invalid;
+                $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
                 exit();
             }
         }
@@ -744,9 +778,7 @@ class AuthorizationController
         $user = new UserEntity();
         $user->setIdentifier($_SESSION['user_id']);
         $_SESSION['claims'] = $user->getClaims();
-        $oauthLogin = true;
         // need to redirect to patient select if we have a launch context && this isn't a patient login
-        $authorize = 'authorize';
 
         // if we need to authorize any smart context as part of our OAUTH handler we do that here
         // otherwise we send on to our scope authorization confirm.
@@ -760,6 +792,24 @@ class AuthorizationController
 
         header("Location: $redirect");
         exit;
+    }
+
+    private function renderTwigPage($pageName, $template, $templateVars)
+    {
+        $twig = $this->getTwig();
+        $templatePageEvent = new TemplatePageEvent($pageName, [], $template, $templateVars);
+        $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $updatedTemplatePageEvent = $dispatcher->dispatch($templatePageEvent);
+        $template = $updatedTemplatePageEvent->getTwigTemplate();
+        $vars = $updatedTemplatePageEvent->getTwigVariables();
+        // TODO: @adunsulag do we want to catch exceptions here?
+        try {
+            echo $twig->render($template, $vars);
+        } catch (\Exception $e) {
+            $this->logger->errorLogCaller("caught exception rendering template", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            echo $twig->render("error/general_http_error.html.twig", ['statusCode' => 500]);
+            die();
+        }
     }
 
     public function scopeAuthorizeConfirm()
@@ -799,7 +849,83 @@ class AuthorizationController
         $uuidToUser = new UuidUserAccount($_SESSION['user_id']);
         $userRole = $uuidToUser->getUserRole();
         $userAccount = $uuidToUser->getUserAccount();
-        require_once(__DIR__ . "/../../oauth2/provider/scope-authorize.php");
+
+
+        $oauthLogin = $oauthLogin ?? null;
+        $offline_requested = $offline_requested ?? false;
+        $scopes = $scopes ?? [];
+        $scopeString = $scopeString ?? "";
+        $offline_access_date = $offline_access_date ?? "";
+        $userRole = $userRole ?? UuidUserAccount::USER_ROLE_PATIENT;
+        $clientName = $clientName ?? "";
+
+        if ($oauthLogin !== true) {
+            $message = xlt("Error. Not authorized");
+            SessionUtil::oauthSessionCookieDestroy();
+            echo $message;
+            exit();
+        }
+
+        $scopesByResource = [];
+        $otherScopes = [];
+        $scopeDescriptions = [];
+        $hiddenScopes = [];
+        $scopeRepository = new ScopeRepository();
+        foreach ($scopes as $scope) {
+            // if there are any other scopes we want hidden we can put it here.
+            if (in_array($scope, ['openid'])) {
+                $hiddenScopes[] = $scope;
+            } else if (in_array($scope, $scopeRepository->fhirRequiredSmartScopes())) {
+                $otherScopes[$scope] = $scopeRepository->lookupDescriptionForScope($scope, $userRole == UuidUserAccount::USER_ROLE_PATIENT);
+                continue;
+            }
+
+            $parts = explode("/", $scope);
+            $context = reset($parts);
+            $resourcePerm = $parts[1] ?? "";
+            $resourcePermParts = explode(".", $resourcePerm);
+            $resource = $resourcePermParts[0] ?? "";
+            $permission = $resourcePermParts[1] ?? "";
+
+            if (!empty($resource)) {
+                $scopesByResource[$resource] = $scopesByResource[$resource] ?? ['permissions' => []];
+
+                $scopesByResource[$resource]['permissions'][$scope] = $scopeRepository->lookupDescriptionForScope($scope, $userRole == UuidUserAccount::USER_ROLE_PATIENT);
+            }
+        }
+// sort by the resource
+        ksort($scopesByResource);
+
+        $updatedClaims = [];
+        foreach ($claims as $key => $value) {
+            $key_n = explode('_', $key);
+            if (stripos($scopeString, $key_n[0]) === false) {
+                continue;
+            }
+            if ((int)$value === 1) {
+                $value = 'True';
+            }
+            $updatedKey = $key;
+            $updatedClaims[$key] = $value;
+            if ($key != 'fhirUser') {
+                $updatedKey = ucwords(str_replace("_", " ", $key));
+            }
+            $scopeDescriptions[$updatedKey] = $value;
+        }
+
+        $twigVars = [
+            'redirect' => $redirect
+            ,'client' => $client
+            ,'otherScopes' => $otherScopes
+            ,'scopesByResource' => $scopesByResource
+            ,'hiddenScopes' => $hiddenScopes
+            ,'claims' => $updatedClaims
+            ,'userAccount' => $userAccount
+            ,'offlineRequested' => true == $offline_requested
+            ,'offline_access_date' => $offline_access_date ?? ""
+        ];
+        $this->renderTwigPage('oauth2/authorize/scopes-authorize', "oauth2/scope-authorize.html.twig", $twigVars);
+        die();
     }
 
     /**
