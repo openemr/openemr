@@ -7660,7 +7660,6 @@ RestConfig::$ROUTE_MAP = array(
     },
 
     /**
-     * TODO add swagger
      *  @OA\Put(
      *      path="/api/patient/{puuid}/prescription/{presuuid}",
      *      description="Edit a allergy",
