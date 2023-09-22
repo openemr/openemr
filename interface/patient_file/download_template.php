@@ -65,7 +65,7 @@ function dataFixup($data, $title = '')
         $data = str_replace('&', '[and]', $data);
         $data = str_replace('<', '[less]', $data);
         $data = str_replace('>', '[greater]', $data);
-        $data = str_replace('\r\n','<text:line-break />', $data);
+        $data = str_replace('\r\n', '<text:line-break />', $data);
         // If in a group, include labels and separators.
         if ($groupLevel) {
             if ($title !== '') {
