@@ -1,24 +1,23 @@
 <?php
 
-/**
- * Weno Zipped file download
- *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @author    Kofi Appiah <kkappiah@medsov.com>
- * @copyright Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- */
-
 require_once("../../../interface/globals.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Rx\Weno\LogDataInsert;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Services\WenoLogService;
+use OpenEMR\Services\PharmacyService;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
+
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pharmacy Selector")]);
+    exit;
+}
 
 $cryptogen = new CryptoGen();
-$weno_username = $GLOBALS['weno_admin_username'];
-$weno_password = $GLOBALS['weno_encryption_key'];
+$weno_username = $GLOBALS['weno_provider_username'];
+$weno_password = $cryptoGen->decryptStandard($GLOBALS['weno_provider_password']);
 $encryption_key = $cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);
 $baseurl = "https://online.wenoexchange.com/en/EPCS/DownloadPharmacyDirectory";
 
@@ -29,9 +28,17 @@ $data = array(
     "Daily"                 => "Y"
 );
 
-if (date("l") == "Sunday") { //if today is Sunday download the weekly file
+if (date("l") == "Monday") { //if today is Monday download the weekly file
     $data["Daily"] = "N";
 }
+
+//check if there is history of download, if not do a weekly file
+$pharmacyService = new PharmacyService();
+$db_exist = $pharmacyService->checkWenoPharmacyLog();
+if ($db_exist != "empty") {
+    $data["Daily"] = "Y";
+}
+
 
 $json_object = json_encode($data);
 $method = 'aes-256-cbc';
@@ -43,9 +50,10 @@ $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0)
 $encrypted = base64_encode(openssl_encrypt($json_object, $method, $key, OPENSSL_RAW_DATA, $iv));
 
 $fileUrl = $baseurl . "?useremail=" . $weno_username . "&data=" . urlencode($encrypted);
-$storelocation = $GLOBALS['fileroot'] . "/contrib/weno/weno_pharmacy.zip";
-$path_to_extract = $GLOBALS['fileroot'] . "/contrib/weno/";
+$storelocation = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno_pharmacy.zip";
+$path_to_extract = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/";
 
+// takes URL of image and Path for the image as parameter
 function download_zipfile($fileUrl, $zipped_file)
 {
     $fp = fopen($zipped_file, 'w+');
@@ -65,20 +73,22 @@ download_zipfile($fileUrl, $storelocation);
 
 $zip = new ZipArchive();
 
+$wenolog = new WenoLogService();
+
 if ($zip->open($storelocation) === true) {
+    $zip->extractTo($path_to_extract);
+
     $files = glob($path_to_extract . "/*.csv");
     if ($files) {
         $csvFile = $files[1];
         $filename = basename($csvFile);
         $csvFilename = $filename;
-    }
 
-    if ($csvFilename !== '') {
-        $zip->extractTo($path_to_extract);
-        $zip->close();
         EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "File extracted successfully.");
         echo 'File extracted successfully.';
         echo 'CSV filename: ' . $csvFilename;
+        $zip->close();
+        unlink($storelocation);
     } else {
         EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "No CSV file found in the zip archive.");
         echo 'No CSV file found in the zip archive.';
@@ -109,7 +119,6 @@ if (file_exists($csvFile)) {
             continue;
         }
         if (!empty($line)) {
-            //kofi
             if ($data['Daily'] == 'N') {
                 $ncpdp = str_replace(['[', ']'], '', $line[3]);
                 $npi = str_replace(['[', ']'], '', $line[5]);
@@ -173,7 +182,10 @@ if (file_exists($csvFile)) {
             ++$l;
         }
     }
+    $wenolog->insertWenoLog("pharmacy", "Success");
     fclose($records);
+    error_log("Pharmacy Imported");
 } else {
+    $wenolog->insertWenoLog("pharmacy", "Failed");
     error_log("file missing");
 }

@@ -11,9 +11,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Services\PharmacyService;
+use OpenEMR\Common\Twig\TwigContainer; 
 
+if(!AclMain::aclCheckCore('patients', 'med')){
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pharmacy Selector")]);
+    exit;
+}
+ 
 $pharmacyService = new PharmacyService;
 $prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? [];
 $alt_pharmacy = $pharmacyService->getWenoAlternateParm($_SESSION['pid']) ?? [];

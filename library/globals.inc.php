@@ -3523,11 +3523,18 @@ $GLOBALS_METADATA = array(
             xl('Each provider needs to set this under user settings. This should be blank')
         ),
 
+        'weno_provider_username' => array(
+            xl('Weno Admin Username'),
+            'text',                      // data type
+            '',
+            xl('This is required for Weno Pharmacy Directory Download in Background Services. Same as email for logging in into Weno')
+        ),
+
         'weno_setup_instructions_link' => array(
             xl('Weno Setup instructions for OpenEMR'),
             'text',                      // data type
             '',
-            xl('Check yoour Weno Developer page for instructions')
+            xl('Check your Weno Developer page for instructions')
         ),
 
         'ccda_alt_service_enable' => array(

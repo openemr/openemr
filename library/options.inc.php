@@ -853,10 +853,12 @@ function generate_form_field($frow, $currvalue)
         } else {
             echo "</select>";
         }
-
+        
         //include here weno pharmacy selector once weno is enabled
         if ($GLOBALS['weno_rx_enable']) {
+            echo "<br />";
             include "templates/pharmacy_list_form.php";
+            echo "<br />";
         }
     } elseif ($data_type == 13) { // squads
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";

@@ -18,6 +18,14 @@
 require_once $GLOBALS['srcdir'] . '/options.inc.php';
 
 use OpenEMR\Services\PharmacyService;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
+
+if(!AclMain::aclCheckCore('patients', 'med')){
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pharmacy Selector")]);
+    exit;
+}
 
 $widgetConstants = [
     'listWithAddButton' => 26
@@ -51,16 +59,10 @@ $res = sqlStatement($sql);
     }
 </style>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <form class="col-12" action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
+<template>
+    <form class="col-12" action="pharmacy_list_form.php" method="POST">
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+
         <input type="text" name="primary_pharmacy" id="primary_pharmacy" hidden>
         <input type="text" name="alternate_pharmacy" id="alternate_pharmacy" hidden>
 
@@ -70,12 +72,12 @@ $res = sqlStatement($sql);
             </div><br/>
         </div>
         <div class="small">
-            <?php echo text("Fields marked with * are required"); ?>
+            <?php echo xlt("Fields marked with * are required"); ?>
         </div>
         <div class="row col-12">
             <div class="col pl-0">
                 <input type="checkbox" name="weno_only" id="weno_only" onclick='onWenoChanged(this);'>
-                <span><?php echo text("ON WENO ONLY"); ?></span>
+                <span><?php echo xlt("ON WENO ONLY"); ?></span>
             </div>
             <div class="col pl-0 mb-3">
                 <select name="weno_coverage" class="form-control form-control-sm" id="weno_coverage" onchange="coverageChanged()">
@@ -89,20 +91,20 @@ $res = sqlStatement($sql);
             <div class="col pl-0 mb-3">
                 <span>
                     <input class="" type="checkbox" name="24hr" id="24hr" onclick='fullDayChanged(this);'>
-                    <span for="24hr"><?php echo text("OPEN 24HRS"); ?></span>
+                    <span for="24hr"><?php echo xlt("OPEN 24HRS"); ?></span>
                 </span>
             </div>
             <div class="col pl-0">
                 <input type="checkbox" name="weno_test_pharmacies" id="weno_test_pharmacies" onchange="testPharmaciesChanged(this);">
-                <span><?php echo text("TEST PHARMACIES"); ?></span>
+                <span><?php echo xlt("TEST PHARMACIES"); ?></span>
             </div>
         </div>
         <div class="row col-12 px-0 mx-0">
             <div class="mr-3 col px-0 mx-0">
                 <select class="form-control form-control-sm" name="weno_state" id="weno_state" onchange="stateChanged()">
-                    <option value=""><?php echo text("State *"); ?></option>
+                    <option value=""><?php echo xlt("State *"); ?></option>
                     <?php while($row = sqlFetchArray($res)){ ?>
-                        <option value="<?php echo $row['option_id']; ?>"><?php echo xlt($row['title']); ?></option>
+                        <option value="<?php echo text($row['option_id']); ?>"><?php echo xlt($row['title']); ?></option>
                     <?php   
                     }
                     ?>
@@ -110,7 +112,7 @@ $res = sqlStatement($sql);
             </div>
 
             <div class="col px-0 mx-0">
-                <select class="form-control" name="weno_city" id="weno_city" onchange="cityChanged()"><?php echo text("Enter City *"); ?></select>
+                <select class="form-control" name="weno_city" id="weno_city" onchange="cityChanged()"><?php echo xlt("Enter City *"); ?></select>
                 <div class="warn"></div>
             </div>
             <span class="ml-1">OR</span>
@@ -124,7 +126,7 @@ $res = sqlStatement($sql);
 
         <div class="row col mt-2">
             <div>
-                <select class="form-control form-control-sm" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()">
+                <select class="form-control form-control-sm" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()" >
                     <option value=""></option>
                 </select>
             </div>
@@ -132,8 +134,8 @@ $res = sqlStatement($sql);
         
     </form>
     <div class="row mt-2 mb-1 contianer col-12">
-        <button type="button" class="btn btn-primary btn-sm mr-3" onclick="assignPrimaryPharmacy()"><?php echo text("Assign Primary Pharmacy"); ?></button>
-        <button type="button" class="btn btn-primary btn-sm" onclick="assignAlternatePharmacy()"><?php echo text("Assign Alternate Pharmacy"); ?></button>
+        <button type="button" class="btn btn-primary btn-sm mr-3" onclick="assignPrimaryPharmacy()"><?php echo xlt("Assign Primary Pharmacy"); ?></button>
+        <button type="button" class="btn btn-primary btn-sm" onclick="assignAlternatePharmacy()"><?php echo xlt("Assign Alternate Pharmacy"); ?></button>
         <button type="button" class="btn btn-light btn-sm ml-3" onclick="resetForm()"><?php echo xlt("Reset"); ?></button>
     </div>
 
@@ -148,10 +150,12 @@ $res = sqlStatement($sql);
         <span class="font-weight-bold"><?php echo xlt("Weno Selected Alternate Pharmacy: "); ?></span>
         <span id="weno_alt"></span>
     </div>
-</body>
-</html>
+</template>
 
 <script type="text/javascript">
+    //crsf
+    let csrf = document.querySelector('input[name="csrf_token_form"]').value;
+
     var wenoState = null;
     var wenoCity = null;
     var wenoZipcode = null;
@@ -165,7 +169,6 @@ $res = sqlStatement($sql);
     var requirdField = "Field is required";
 
     window.onload = (event) => {
-        
         let pid = <?php echo json_encode($pid); ?>;
         let prevPrimPharmacy = <?php echo $prev_prim_pharmacy; ?>;
         let prevAltPharmacy = <?php echo $prev_alt_pharmacy; ?>;
@@ -176,15 +179,23 @@ $res = sqlStatement($sql);
     };
 
     function init(prevPrimPharmacy, prevAltPharmacy){
-        var html= ('<option value="' + prevPrimPharmacy.ncpdp + '">' + prevPrimPharmacy.business_name +' - '+ prevPrimPharmacy.address_line_1 + '</option>');
-        $("#weno_pharmacy").html(html);
-
-        //setting the form value for Weno Primary Pharmacy and Disply Text respectivley
-        $('#weno_primary').text(" " + prevPrimPharmacy.business_name);
-        $('#primary_pharmacy').val(prevPrimPharmacy.ncpdp);
-
-        $('#weno_alt').text(" " + prevAltPharmacy.business_name);
-        $('#alternate_pharmacy').val(prevAltPharmacy.ncpdp);
+        let jsPrim  = JSON.parse(prevPrimPharmacy);
+        let jsAlt = JSON.parse(prevAltPharmacy);
+        if(jsPrim  != false){
+            var html= ('<option value="' + jsPrim.primary_ncpdp + '">' + 
+            jsPrim.business_name +' - '+ 
+            jsPrim.address_line_1 + '</option>');
+            $("#weno_pharmacy").html(html);
+    
+            //setting the form value for Weno Primary Pharmacy and Disply Text respectivley
+            $('#weno_primary').text(" " + jsPrim.business_name);
+            $('#primary_pharmacy').val(jsPrim.primary_ncpdp);
+        }
+        
+        if(jsAlt != false){
+            $('#weno_alt').text(" " + jsAlt.business_name);
+            $('#alternate_pharmacy').val(jsAlt.alternate_ncpdp);
+        }
     }
 
     function pharmSelChanged(){
@@ -254,6 +265,7 @@ $res = sqlStatement($sql);
                     weno_city: wenoCity,
                     weno_only: wenoOnly,
                     full_day: fullDay,
+                    csrf_token_form: csrf
                 };
             },
             processResults: function(data) {
@@ -283,7 +295,8 @@ $res = sqlStatement($sql);
             data: function(params){
                 return {
                     term: params.term,
-                    searchFor: 'weno_city'
+                    searchFor: 'weno_city',
+                    csrf_token_form: csrf
                 };
             },
             processResults: function(data) {
@@ -319,7 +332,6 @@ $res = sqlStatement($sql);
                 $('.warn').text(requirdField);
             }
             if(this.wenoState == ''){
-                console.log("gets here");
                 $('#weno_state').addClass("is-invalid");
             }
             if(coverage != ''){
@@ -339,7 +351,7 @@ $res = sqlStatement($sql);
             weno_zipcode: wenoZipcode,
             full_day: fullDay,
             test_pharmacy: testPharmacies,
-
+            csrf_token_form: csrf
         };
         $.ajax({
             url: '<?php echo $GLOBALS['webroot']; ?>' + '/library/ajax/weno_pharmacy_search.php',
@@ -405,11 +417,5 @@ $res = sqlStatement($sql);
     }
     
 </script>
-
-<?php 
-    
-
-?>
-
 
 

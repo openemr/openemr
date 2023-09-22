@@ -41,9 +41,9 @@ class TransmitProperties
         $this->provider_email = $this->getProviderEmail();
          $this->provider_pass = $this->getProviderPassword();
                  $this->locid = $this->getFacilityInfo();
+              $this->pharmacy = $this->getPharmacy();
                $this->payload = $this->createJsonObject();
             $this->subscriber = $this->getSubscriber();
-            $this->pharmacy   = $this->getPharmacy();
     }
 
     /**
@@ -90,6 +90,8 @@ class TransmitProperties
 
         $wenObj['PrimaryPharmacyNCPCP'] = $this->pharmacy['primary'];
         $wenObj['AlternativePharmacyNCPCP'] = $this->pharmacy['alternate'];
+
+        //add insurance
         return json_encode($wenObj);
     }
 

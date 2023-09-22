@@ -312,6 +312,7 @@ function image_widget($doc_id, $doc_catg)
 // Determine if the Vitals form is in use for this site.
 $tmp = sqlQuery("SELECT count(*) AS count FROM registry WHERE directory = 'vitals' AND state = 1");
 $vitals_is_registered = $tmp['count'];
+$weno_is_enabled = $GLOBALS['weno_rx_enable'];
 
 // Get patient/employer/insurance information.
 //
@@ -624,6 +625,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 placeHtml("vitals_fragment.php", "vitals_ps_expand");
             <?php } ?>
 
+            <?php if ($GLOBALS['weno_rx_enable'] && AclMain::aclCheckCore('patients', 'med')) { ?>
+                // Initialize the weno fragment when weno has been enabled
+                placeHtml("weno_fragment.php", "weno_ps_expand");
+            <?php } ?>
+
             <?php if ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw']) { ?>
                 placeHtml("clinical_reminders_fragment.php", "clinical_reminders_ps_expand", true, true).then(() => {
                     // (note need to place javascript code here also to get the dynamic link to work)
@@ -908,6 +914,27 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         document.addEventListener("DOMContentLoaded", () => {
             cardTitleButtonClickListener();
         });
+
+        function sync_weno(){
+            $('#ro').addClass("fa-spin");
+            $.ajax({
+                url: '<?php echo $GLOBALS['webroot'] ?>' + '/interface/weno/synch.php',
+                type: "GET",
+                data:{key: "sync"},
+                success: function (data) {
+                    $('#ro').removeClass("fa-spin");
+                    alert("Successfully updated");
+                },
+                // Error handling
+                error: function (error) {
+                    $('#ro').removeClass("fa-spin");
+                    console.log(error)
+                    //error_log(error);
+                }
+            });
+            $('#ro').addClass("fa-spin");
+            window.location.reload();
+        }
     </script>
 
     <style>
@@ -1552,6 +1579,29 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         ];
                         echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
                     endif; // end vitals
+
+                    if ($weno_is_enabled && AclMain::aclCheckCore('patients', 'med')) :
+                        $dispatchResult = $ed->dispatch(new CardRenderEvent('weno'), CardRenderEvent::EVENT_HANDLE);
+                        // weno expand collapse widget
+                        // check to see if any weno exists
+                        $weno_exist = sqlQuery("SELECT * FROM prescriptions WHERE patient_id=? AND indication OR external_id IS NOT NULL ", array($pid));
+                        $widgetAuth = ($weno_exist) ? true : false;
+
+                        $id = "weno_ps_expand";
+                        $viewArgs = [
+                            'title' => xl('Weno'),
+                            'id' => $id,
+                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
+                            'btnLabel' => 'Trend',
+                            'btnLink' => "../encounter/trend_form.php?formname=vitals",
+                            'linkMethod' => 'html',
+                            'bodyClass' => 'collapse show',
+                            'auth' => $widgetAuth,
+                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
+                        ];
+                        echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
+                    endif; // end weno
 
                     // if anyone wants to render anything after the patient demographic list
                     $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_AFTER, 10);

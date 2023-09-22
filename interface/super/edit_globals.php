@@ -143,7 +143,8 @@ function checkBackgroundServices()
      * this is to sync the prescription logs
      */
     $wenoservices = $GLOBALS['weno_rx_enable'] == 1 ? '1' : '0';
-    updateBackgroundService('WenoExchange', $wenoservices, 1);
+    updateBackgroundService('WenoExchange', $wenoservices, 60);
+    updateBackgroundService('WenoExchangePharmacies', $wenoservices, 1440);
 }
 ?>
 <!DOCTYPE html>

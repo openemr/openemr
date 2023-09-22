@@ -17,6 +17,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Rx\Weno\FacilityProperties;
+use OpenEMR\Services\WenoLogService;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -25,6 +26,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 $data = new FacilityProperties();
+$logService = new WenoLogService();
 
 if ($_POST) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token"])) {
@@ -35,6 +37,8 @@ if ($_POST) {
 }
 
 $facilities = $data->getFacilities();
+$pres_log = $logService->getLastPrescriptionLogStatus();
+$pharm_log = $logService->getLastPharmacyDownloadStatus();
 
 
 ?>
@@ -71,11 +75,12 @@ $facilities = $data->getFacilities();
             $('#notch-pharm').removeClass("hide");
             $('#pharm-btn').attr("disabled", true);
             $.ajax({
-                url: "<? echo $GLOBALS['webroot']; ?>" + "/src/Rx/Weno/file_download.php",
+                url: "<?php echo $GLOBALS['webroot']; ?>" + "/src/Rx/Weno/file_download.php",
                 type: "GET",
                 success: function (data) {
                     $('#notch-pharm').addClass("hide");
                     $('#pharm-btn').attr("disabled", false);
+                    alert('Update Complete');
                 },
                 // Error handling
                 error: function (error) {
@@ -87,19 +92,21 @@ $facilities = $data->getFacilities();
         }
 
         function downloadPresLog(){
-            $('#notch-pharm').removeClass("hide");
-            $('#pharm-btn').attr("disabled", true);
+            $('#notch-presc').removeClass("hide");
+            $('#presc-btn').attr("disabled", true);
             $.ajax({
-                url: "<? echo $GLOBALS['webroot']; ?>" + "/src/Rx/Weno/file_download.php",
+                url: "<?php echo $GLOBALS['webroot']; ?>" + "/interface/weno/synch.php",
                 type: "GET",
+                data: {key:'downloadLog'},
                 success: function (data) {
-                    $('#notch-pharm').addClass("hide");
-                    $('#pharm-btn').attr("disabled", false);
+                    $('#notch-presc').addClass("hide");
+                    $('#presc-btn').attr("disabled", false);
+                    alert('Update Complete');
                 },
                 // Error handling
                 error: function (error) {
-                    $('#notch-pharm').addClass("hide");
-                    $('#pharm-btn').attr("disabled", false);
+                    $('#notch-presc').addClass("hide");
+                    $('#presc-btn').attr("disabled", false);
                     console.log(`Error ${error}`);
                 }
             });
@@ -108,8 +115,8 @@ $facilities = $data->getFacilities();
 </head>
 <body class="body_top">
 <div class="container">
-    <button class="btn btn-primary btn-small" id="fac-btn" onclick="activateFacility()">Facility</button>
-    <button class="btn btn-primary btn-small" id="pharm-btn" onclick="activateManagement()">Management</button>
+    <button class="btn btn-primary btn-small" id="fac-btn" onclick="activateFacility()"><?php echo xlt("Facility"); ?></button>
+    <button class="btn btn-primary btn-small" id="mgt-btn" onclick="activateManagement()"><?php echo xlt("Management"); ?></button>
 </div>
 <div>
     <div class="container" id="facility"><br><br>
@@ -153,35 +160,38 @@ $facilities = $data->getFacilities();
                 <th scope="col">#</th>
                 <th scope="col"><?php echo xlt("Description"); ?></th>
                 <th scope="col"><?php echo xlt("Last Update"); ?></th>
+                <th scope="col"><?php echo xlt("Status"); ?></th>
                 <th scope="col"><?php echo xlt("Action"); ?></th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                <th scope="row">1</th>
-                <td><?php echo xlt("Weno Pharmacy Directory"); ?></td>
-                <td>2023-02-31</td>
-                <td>
-                    <button type="button" id="btn-pharm" onclick="downloadPharmacies();" class="btn btn-primary btn-sm">
-                        <?php echo xlt("Download")?>
-                        <span class="hide" id="notch-pharm">
-                            <i class="fa-solid fa-circle-notch fa-spin"></i>
-                        </span>
-                    </button>
-                </td>
+                    <th scope="row">1</th>
+                    <td><?php echo xlt("Weno Pharmacy Directory"); ?></td>
+                    <td><?php echo $pharm_log['created_at']; ?></td>
+                    <td><?php echo xlt($pharm_log['status']); ?></td>
+                    <td>
+                        <button type="button" id="btn-pharm" onclick="downloadPharmacies();" class="btn btn-primary btn-sm">
+                            <?php echo xlt("Download")?>
+                            <span class="hide" id="notch-pharm">
+                                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                            </span>
+                        </button>
+                    </td>
                 </tr>
                 <tr>
-                <th scope="row">2</th>
-                <td><?php echo xlt("Prescription log"); ?></td>
-                <td>2023-02-31</td>
-                <td>
-                    <button type="button" id="presc-btn" onclick="downloadPresLog();" class="btn btn-primary btn-sm">
-                        <?php echo xlt("Download")?>
-                        <span class="hide" id="notch-presc">
-                            <i class="fa-solid fa-circle-notch fa-spin"></i>
-                        </span>
-                    </button>
-                </td>
+                    <th scope="row">2</th>
+                    <td><?php echo xlt("Prescription log"); ?></td>
+                    <td><?php echo $pres_log['created_at']; ?></td>
+                    <td><?php echo xlt($pres_log['status']); ?></td>
+                    <td>
+                        <button type="button" id="presc-btn" onclick="downloadPresLog();" class="btn btn-primary btn-sm">
+                            <?php echo xlt("Download")?>
+                            <span class="hide" id="notch-presc">
+                                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                            </span>
+                        </button>
+                    </td>
                 </tr>
             </tbody>
         </table>

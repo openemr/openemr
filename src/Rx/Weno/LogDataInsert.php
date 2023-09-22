@@ -25,7 +25,7 @@ class LogDataInsert
         // hence we truncate the database first before inserting
         $db_exist = sqlQuery("SELECT 1 FROM weno_pharmacy LIMIT 1");
 
-        if(!empty($db_exist)) {
+        if (!empty($db_exist)) {
             $this->removeWenoPharmacies();
         }
 
@@ -153,5 +153,15 @@ class LogDataInsert
     {
         $sql = "TRUNCATE TABLE weno_pharmacy";
         sqlStatement($sql);
+    }
+
+    public function checkWenoDb()
+    {
+        $has_data = sqlQuery("SELECT 1 FROM weno_pharmacy LIMIT 1");
+        if (!empty($has_data)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
