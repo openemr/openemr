@@ -30,7 +30,7 @@ use OpenEMR\Core\Header;
         function testAjaxApi() {
             $.ajax({
                 type: 'GET',
-                url: '../../apis/api/facility',
+                url: '../../apis/fhir/Patient',
                 dataType: 'json',
                 headers: {
                     'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken('api')); ?>
@@ -45,7 +45,7 @@ use OpenEMR\Core\Header;
         }
 
         function testFetchApi() {
-            fetch('../../apis/api/facility', {
+            fetch('../../apis/fhir/Patient', {
                 credentials: 'same-origin',
                 method: 'GET',
                 headers: new Headers({
@@ -96,16 +96,19 @@ $gbl = RestConfig::GetInstance();
 $gbl::setNotRestCall();
 $restRequest = new HttpRestRequest($gbl, $_SERVER);
 $restRequest->setRequestMethod("GET");
-$restRequest->setRequestURI("/fhir/encounter");
+$restRequest->setApiType("fhir");
+$restRequest->setRequestPath("/fhir/Patient");
+$restRequest->setIsLocalApi(true);
 $getParams = $restRequest->getQueryParams();
+
 // below will return as json
 echo "<b>api via route handler call returning json:</b><br />";
-echo HttpRestRouteHandler::dispatch($gbl::$ROUTE_MAP, $restRequest, 'direct-json');
+echo HttpRestRouteHandler::dispatch($gbl::$FHIR_ROUTE_MAP, $restRequest, 'direct-json');
 echo "<br /><br />";
 
 // below will return as php array
 echo "<b>api via route handler call returning php array:</b><br />";
-echo print_r(HttpRestRouteHandler::dispatch($gbl::$ROUTE_MAP, $restRequest, 'direct'));
+echo print_r(HttpRestRouteHandler::dispatch($gbl::$FHIR_ROUTE_MAP, $restRequest, 'direct'));
 echo "<br /><br />";
 
 

@@ -61,6 +61,9 @@ namespace OpenEMR\Common\Session;
 
 class SessionUtil
 {
+    private const CORE_SESSION_ID = "OpenEMR";
+    private const OAUTH_SESSION_ID = 'authserverOpenEMR';
+
     private static $gc_maxlifetime = 14400;
     private static $sid_bits_per_character = 6;
     private static $sid_length = 48;
@@ -71,6 +74,13 @@ class SessionUtil
     private static $use_cookie_httponly = true;
     private static $use_cookie_secure = false;
 
+    public static function switchToCoreSession($web_root, $read_only = true): void
+    {
+        session_write_close();
+        session_id($_COOKIE[self::CORE_SESSION_ID] ?? '');
+        self::coreSessionStart($web_root, $read_only);
+    }
+
     public static function coreSessionStart($web_root, $read_only = true): void
     {
         // Note there is no system logger here since that class does not
@@ -79,7 +89,7 @@ class SessionUtil
             'read_and_close' => $read_only,
             'cookie_samesite' => self::$use_cookie_samesite,
             'cookie_secure' => self::$use_cookie_secure,
-            'name' => 'OpenEMR',
+            'name' => self::CORE_SESSION_ID,
             'cookie_httponly' => false,
             'cookie_path' => ((!empty($web_root)) ? $web_root . '/' : '/'),
             'gc_maxlifetime' => self::$gc_maxlifetime,
@@ -187,12 +197,19 @@ class SessionUtil
         self::standardSessionCookieDestroy();
     }
 
+    public static function switchToOAuthSession($web_root): void
+    {
+        session_write_close();
+        session_id($_COOKIE[self::OAUTH_SESSION_ID] ?? '');
+        self::oauthSessionStart($web_root);
+    }
+
     public static function oauthSessionStart($web_root): void
     {
         session_start([
             'cookie_samesite' => "None",
             'cookie_secure' => true,
-            'name' => 'authserverOpenEMR',
+            'name' => self::OAUTH_SESSION_ID,
             'cookie_httponly' => self::$use_cookie_httponly,
             'cookie_path' => ((!empty($web_root)) ? $web_root . '/oauth2/' : '/oauth2/'),
             'gc_maxlifetime' => self::$gc_maxlifetime,

@@ -17,11 +17,13 @@ namespace OpenEMR\Common\Twig;
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\Kernel;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\GlobalsService;
+use OpenEMR\Services\LogoService;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
@@ -93,6 +95,32 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             ),
 
             new TwigFunction(
+                'generateDisplayField',
+                function ($row, $currentValue) {
+                    ob_start();
+                    generate_display_field($row, $currentValue);
+                    return ob_get_clean();
+                }
+            ),
+
+            new TwigFunction(
+                'selectList',
+                function ($name, $list, $value, $title, $opts = []) {
+                    $empty_name = array_key_exists('empty_name', $opts) ? $opts['empty_name'] : '';
+                    $class = array_key_exists('class', $opts) ? $opts['class'] : '';
+                    $onchange = array_key_exists('onchange', $opts) ? $opts['onchange'] : '';
+                    $tag_id = array_key_exists('tag_id', $opts) ? $opts['tag_id'] : '';
+                    $custom_attributes = array_key_exists('custom_attributes', $opts) ? $opts['custom_attributes'] : '';
+                    $multiple = array_key_exists('multiple', $opts) ? $opts['multiple'] : '';
+                    $backup_list = array_key_exists('backup_list', $opts) ? $opts['backup_list'] : '';
+                    $ignore_default = array_key_exists('ignore_default', $opts) ? $opts['ignore_default'] : '';
+                    $include_inactive = array_key_exists('include_inactive', $opts) ? $opts['include_inactive'] : '';
+                    $tabIndex = array_key_exists('tabIndex', $opts) ? $opts['tabIndex'] : false;
+                    return generate_select_list($name, $list, $value, $title, $empty_name, $class, $onchange, $tag_id, $custom_attributes, $multiple, $backup_list, $ignore_default, $include_inactive, $tabIndex);
+                }
+            ),
+
+            new TwigFunction(
                 'tabRow',
                 function ($formType, $result1, $result2) {
                     ob_start();
@@ -145,8 +173,9 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 'jqueryDateTimePicker',
                 function ($domSelector, $datetimepicker_timepicker = true, $datetimepicker_showseconds = true, $datetimepicker_formatInput = true) {
                     ob_start();
-                    echo "$('" . $domSelector . "').datetimepicker({";
-
+                    // In the event we need to pass the this objecto to the datetimepicker, we cannot use quotations because `this` would not be a string
+                    $selector = ($domSelector == "this") ? $domSelector : "\"$domSelector\"";
+                    echo "$($selector).datetimepicker({";
                     require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
                     echo "})";
                     return ob_get_clean();
@@ -181,6 +210,19 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 'aclCore',
                 function ($section, $value, $user = '', $return_value = '') {
                     return AclMain::aclCheckCore($section, $value, $user, $return_value);
+                }
+            ),
+            new TwigFunction(
+                'getLogo',
+                function (string $type, string $filename = "logo.*") {
+                    $ls = new LogoService();
+                    return $ls->getLogo($type, $filename);
+                }
+            ),
+            new TwigFunction(
+                'getListItemTitle',
+                function (string $list, $option) {
+                    return LayoutsUtils::getListItemTitle($list, $option);
                 }
             )
         ];
@@ -271,6 +313,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 'shortDate',
                 function ($string) {
                     return oeFormatShortDate($string);
+                }
+            ),
+            new TwigFilter(
+                'xlListLabel',
+                function ($string) {
+                    return xl_list_label($string);
                 }
             ),
             new TwigFilter(

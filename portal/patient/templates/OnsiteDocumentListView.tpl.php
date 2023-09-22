@@ -29,9 +29,12 @@ $new_filename = $this->new_filename;
 $webroot = $GLOBALS['web_root'];
 $encounter = '';
 $include_auth = true;
+$auto_render = $this->auto_render ?? 0;
+$audit_render = $this->audit_render ?? 0;
+$auto_render_name = $this->auto_render_name ?? '';
 // for location assign
 $referer = $GLOBALS['web_root'] . "/controller.php?document&upload&patient_id=" . attr_url($pid) . "&parent_id=" . attr_url($category) . "&";
-$referer_portal = $GLOBALS['web_root'] . "/portal/quickstart_page.php";
+$referer_portal = "../home.php?site=" . (urlencode($_SESSION['site_id']) ?? null) ?: 'default';
 
 if (empty($is_module)) {
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Documents"));
@@ -72,12 +75,15 @@ $templateService = new DocumentTemplateService();
     </title>
     <meta name="description" content="Developed By sjpadgett@gmail.com">
     <?php
+    $csrf_php = js_escape(CsrfUtils::collectCsrfToken('doc-lib'));
+    $urlAjax = $GLOBALS['web_root'] . '/library/ajax/upload.php?parent_id=Patient&patient_id=' . attr_url($pid);
     // some necessary js globals
     echo "<script>var cpid=" . js_escape($pid) . ";var cuser=" . js_escape($cuser) . ";var ptName=" . js_escape($ptName) .
+        ";var autoRender=" . js_escape($auto_render) . ";var auditRender=" . js_escape($audit_render) . ";var renderDocumentName=" . js_escape($auto_render_name) .
         ";var catid=" . js_escape($category) . ";var catname=" . js_escape($catname) . ";</script>";
     echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) . ";var help_id=" . js_escape($help_id) . ";</script>";
     echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";var webroot_url = webRoot;</script>";
-    echo "<script>var csrfTokenDoclib=" . js_escape(CsrfUtils::collectCsrfToken('doc-lib')) . ";</script>";
+    echo "<script>var csrfTokenDoclib=" . $csrf_php . ";</script>";
     // translations
     echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": " . attr($catname) . "';</script>";
     echo "<script>var msgSuccess='" . xlt("Updates Successful") . "';</script>";
@@ -91,7 +97,9 @@ $templateService = new DocumentTemplateService();
         Header::setupHeader(['datetime-picker']);
     }
     ?>
-    <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>">
+    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.css?v=<?php echo $GLOBALS['v_js_includes']; ?>">
+    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
     <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
     <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
     <script src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
@@ -110,9 +118,19 @@ $templateService = new DocumentTemplateService();
           width: 1220px;
         }
       }
+
       .nav-pills-ovr > li > a {
         border: 1px solid !important;
         border-radius: .25rem !important;
+      }
+
+      .dz-remove {
+        font-size: 16px;
+        color: var(--danger);
+      }
+
+      .dz-progress {
+        opacity: 0.2 !important;
       }
     </style>
 </head>
@@ -130,23 +148,12 @@ $templateService = new DocumentTemplateService();
                     e.preventDefault();
                     $(".helpHide").addClass("d-none");
                 });
-                $("#Help").click();
                 $(".helpHide").addClass("d-none");
-
                 $(parent.document.getElementById('topNav')).addClass("d-none");
-                /*$('#showNav').on('click', () => {
-                    let menuMsg;
-                    if($(parent.document.getElementById('topNav')).is('.collapse:not(.show)')) {
-                        menuMsg = xl("Hide Top");
-                    } else {
-                        menuMsg = xl("Show Top");
-                    }
-                    document.getElementById("showNav").innerHTML = menuMsg;
-                    parent.document.getElementById('topNav').classList.toggle('collapse');
-                });*/
+                if (autoRender < 1 && auditRender < 1) {
+                    $("#Help").click();
+                }
             }
-            console.log('init done template');
-
             setTimeout(function () {
                 if (!page.isInitialized) {
                     page.init();
@@ -155,21 +162,41 @@ $templateService = new DocumentTemplateService();
                         console.log('secondary init done!');
                     }
                 }
-            }, 2000);
-
-            $(function () {
-                $(window).bind('beforeunload', function () {
-                    if (page.inFormEdit) {
-                        // You have unsaved changes auto browser popup
-                        event.preventDefault();
+                if (isPortal) {
+                    /* Render may start as a new document onetime request however for the sake
+                    *  of allowing patient to stay in portal after doc edit or patient uses
+                    *  same onetime that started as a new doc to come back and
+                    *  continue an edit of a saved/submitted doc.
+                    *  auditRender is a history doc.
+                    *
+                    *  CONFUSED! Welcome.
+                    * */
+                    if (autoRender > 0 && auditRender <= 0) {
+                        // is it in menu?
+                        if ($("#" + autoRender).data('history_id') > 0) {
+                            // has it been submitted?
+                            let historyId = $("#" + autoRender).data('history_id');
+                            page.editHistoryDocument(historyId);
+                            console.log('Onetime history template id ' + historyId);
+                        } else {
+                            page.newDocument(cpid, "-patient-", renderDocumentName, autoRender);
+                            console.log('Onetime new template init');
+                        }
+                    } else if (auditRender > 0) {
+                        page.editHistoryDocument(auditRender);
+                        console.log('Onetime history template init');
                     }
-                });
-            });
+                    // init upload drop box
+                    page.initFileDrop();
+                }
+            }, 1000);
+        }).wait(function () {
+            console.log('init 2 done template');
         });
 
         function printaDocHtml(divName) {
             page.updateModel();
-            setTimeout("flattenDocument();", 4000);
+            setTimeout("flattenDocument();", 3000);
             divName = 'templatediv';
             let printContents = document.getElementById(divName).innerHTML;
             let originalContents = document.body.innerHTML;
@@ -247,18 +274,19 @@ $templateService = new DocumentTemplateService();
                 iframe.height = '0';
                 iframe.id = 'tempFrame';
                 document.body.appendChild(iframe);
-                iframe.onload = function() {
+                iframe.onload = function () {
                     iframe.contentWindow.focus();
                     iframe.contentWindow.print();
                 }
                 // write the content
                 iframe.src = url;
-            }).catch(function(error) {
+            }).catch(function (error) {
                 console.log('PHP PDF Background Service Request failed: ', error);
                 return false;
             });
         }
 
+        // Many of these functions are now deprecated and will stay for legacy.
         function templateText(el) {
             $(el).data('textvalue', $(el).val());
             $(el).attr("data-textvalue", $(el).val())
@@ -277,7 +305,7 @@ $templateService = new DocumentTemplateService();
         }
 
         function templateRadio(el) {
-            var rid = $(el).data('id')
+            let rid = $(el).data('id')
             $('#rgrp' + rid).data('value', $(el).val());
             $('#rgrp' + rid).attr('data-value', $(el).val());
             $(el).prop('checked', true)
@@ -285,7 +313,7 @@ $templateService = new DocumentTemplateService();
         }
 
         function tfTemplateRadio(el) {
-            var rid = $(el).data('id')
+            let rid = $(el).data('id')
             $('#tfrgrp' + rid).data('value', $(el).val());
             $('#tfrgrp' + rid).attr('data-value', $(el).val());
             $(el).prop('checked', true);
@@ -294,31 +322,31 @@ $templateService = new DocumentTemplateService();
 
         function replaceTextInputs() {
             $('.templateInput').each(function () {
-                var rv = $(this).data('textvalue');
+                let rv = $(this).data('textvalue');
                 $(this).replaceWith(jsText(rv));
             });
         }
 
         function replaceRadioValues() {
             $('.ynuGroup').each(function () {
-                var gid = $(this).data('id');
-                var grpid = $(this).prop('id');
-                var rv = $('input:radio[name="ynradio' + jsAttr(gid) + '"]:checked').val();
+                let gid = $(this).data('id');
+                let grpid = $(this).prop('id');
+                let rv = $('input:radio[name="ynradio' + jsAttr(gid) + '"]:checked').val();
                 $(this).replaceWith(rv);
             });
 
             $('.tfuGroup').each(function () {
-                var gid = $(this).data('id');
-                var grpid = $(this).prop('id');
-                var rv = $('input:radio[name="tfradio' + jsAttr(gid) + '"]:checked').val();
+                let gid = $(this).data('id');
+                let grpid = $(this).prop('id');
+                let rv = $('input:radio[name="tfradio' + jsAttr(gid) + '"]:checked').val();
                 $(this).replaceWith(rv);
             });
         }
 
         function replaceCheckMarks() {
             $('.checkMark').each(function () {
-                var ckid = $(this).data('id');
-                var v = $('#' + ckid).data('value');
+                let ckid = $(this).data('id');
+                let v = $('#' + ckid).data('value');
                 if (v === 'Yes')
                     $(this).replaceWith('[\u2713]')
                 else {
@@ -329,40 +357,40 @@ $templateService = new DocumentTemplateService();
 
         function restoreTextInputs() {
             $('.templateInput').each(function () {
-                var rv = $(this).data('textvalue');
+                let rv = $(this).data('textvalue');
                 $(this).val(rv)
             });
         }
 
         function restoreRadioValues() {
             $('.ynuGroup').each(function () {
-                var gid = $(this).data('id');
-                var grpid = $(this).prop('id');
-                var value = $(this).data('value');
+                let gid = $(this).data('id');
+                let grpid = $(this).prop('id');
+                let value = $(this).data('value');
                 $("input[name=ynradio" + gid + "][value='" + value + "']").prop('checked', true);
             });
 
             $('.tfuGroup').each(function () {
-                var gid = $(this).data('id');
-                var grpid = $(this).prop('id');
-                var value = $(this).data('value');
+                let gid = $(this).data('id');
+                let grpid = $(this).prop('id');
+                let value = $(this).data('value');
                 $("input[name=tfradio" + gid + "][value='" + value + "']").prop('checked', true);
             });
         }
 
         function restoreCheckMarks() {
             $('.checkMark').each(function () {
-                var ckid = $(this).data('id');
+                let ckid = $(this).data('id');
                 if ($('#' + ckid).data('value') === 'Yes')
                     $('#' + ckid).prop('checked', true);
-                else
+                else {
                     $('#' + ckid).prop('checked', false);
+                }
             });
         }
 
         function replaceSignatures() {
             $('.signature').each(function () {
-                let type = $(this).data('type');
                 if ($(this).attr('src') !== signhere && $(this).attr('src')) {
                     $(this).removeAttr('data-action');
                 }
@@ -372,17 +400,65 @@ $templateService = new DocumentTemplateService();
             });
         }
 
-        function flattenDocument() {
-            replaceCheckMarks();
-            replaceRadioValues();
-            replaceTextInputs();
-            replaceSignatures();
+        function formReplaceCheckMarks() {
+            $('.checkMark').each(function () {
+                let v = $(this).is(':checked');
+                if (v)
+                    $(this).replaceWith(' [\u2713] ')
+                else {
+                    $(this).replaceWith(" [ ] ")
+                }
+            });
+        }
+
+        function formReplaceRadioValues() {
+            $('.ynuGroup').each(function () {
+                let name = $(this).prop('id');
+                let rv = $('input:radio[name="' + jsAttr(name) + '"]:checked').val();
+                $(this).replaceWith(rv);
+            });
+
+            $('.tfuGroup').each(function () {
+                let name = $(this).prop('id');
+                let rv = $('input:radio[name="' + jsAttr(name) + '"]:checked').val();
+                $(this).replaceWith(rv);
+            });
+        }
+
+        function formReplaceTextInputs() {
+            $('.templateInput').each(function () {
+                let rv = $(this).val();
+                $(this).replaceWith(jsText(rv));
+            });
+        }
+
+        // A simple (being facetious!) await!.
+        const flattenDocumentAsync = async () => {
+            if (page.version === 'Legacy') {
+                replaceCheckMarks();
+                replaceRadioValues();
+                replaceTextInputs();
+                replaceSignatures();
+            } else {
+                formReplaceTextInputs();
+                formReplaceCheckMarks();
+                formReplaceRadioValues();
+                replaceSignatures()
+            }
+            page.isFlattened = true;
+        }
+
+        const flattenDocument = async () => {
+            await flattenDocumentAsync();
+            page.isFlattened = true;
         }
 
         function restoreDocumentEdits() {
             restoreCheckMarks();
             restoreRadioValues();
             restoreTextInputs();
+            page.isFlatten = false;
+            page.isSaved = false;
         }
     </script>
     <div class="container-xl px-1">
@@ -431,18 +507,22 @@ $templateService = new DocumentTemplateService();
                             <a class="nav-link text-danger btn btn-outline-secondary" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer ?>")'><?php echo xlt('Return'); ?></a>
                         </li>
                     <?php } ?>
-                    <?php if (!empty($is_portal)) { ?>
+                    <?php if (!empty($is_portal) && empty($auto_render)) { ?>
                         <li class="nav-item mb-1">
-                            <a class="nav-link text-danger btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace("<?php echo $referer_portal ?>")'><?php echo xlt('Exit'); ?></a>
+                            <a class="nav-link text-danger btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit'); ?></a>
+                        </li>
+                    <?php } else {
+                        $referer_portal = "../home.php?site=" . (urlencode($_SESSION['site_id']) ?? null) ?: 'default';
+                        ?>
+                        <li class="nav-item mb-1">
+                            <a class="nav-link text-danger btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit'); ?></a>
                         </li>
                     <?php } ?>
                     <li class='nav-item mb-1'>
                         <a class='nav-link btn btn-outline-secondary' data-toggle='tooltip' title='Refresh' id='refreshPage' href='javascript:' onclick='window.location.reload()'> <span class='fa fa-sync fa-lg'></span></a>
                     </li>
-                    <!--<li class='nav-item mb-1'>
-                        <a id='showNav' class='nav-link btn btn-outline-secondary'><?php /*echo xlt('Top Menu'); */?></a>
-                    </li>-->
                 </ul>
+                <a id="idShow" class="btn btn-outline-primary float-right m-1" href='javascript:' onclick="$('#hideUpload').toggle();"><i class='fa fa-upload mr-1' aria-hidden='true'></i><?php echo xlt('Upload') ?></a>
             </div>
         </nav>
         <div class="d-flex flex-row justify-content-center">
@@ -456,9 +536,25 @@ $templateService = new DocumentTemplateService();
                 <script type="text/template" id="onsiteDocumentModelTemplate">
                     <div class="card m-0 p-0" id="docpanel">
                         <!-- Document edit container -->
-                        <header class="card-header bg-dark text-light helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?>
+                        <header class="card-header font-weight-bold bg-dark text-light p-1 helpHide" id='docPanelHeader'><?php echo xlt('Editing'); ?>
                             <button id="dismissOnsiteDocumentButtonTop" class="dismissOnsiteDocumentButton btn btn-outline-danger btn-sm float-right" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
                         </header>
+                        <!-- File upload -->
+                        <div class="card col-12 col-lg-5 col-md-3">
+                            <div id="hideUpload" class="card-body" style="display: none;">
+                                <h4 class="card-title"><i class="fa fa-file-text mr-1" role="button" onclick="$('#hideUpload').toggle();"></i><?php echo xlt('My Uploads') ?></h4>
+                                <div class="row">
+                                    <div class="container-fluid h-25" id="file-queue-container">
+                                        <div id="file-queue">
+                                            <form id="patientFileDrop" method="post" enctype="multipart/form-data" class="dropzone bg-dark" action='<?php echo $urlAjax; ?>'>
+                                                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                            </form>
+                                            <button name="file_submit" id="idSubmit" class="btn btn-success mt-2 d-none" type="submit" value="upload"><?php echo xlt('Upload to Clinic') ?></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <!-- editor form -->
                         <form class="container-xl p-0" id='template' name='template' role="form" action="./../lib/doc_lib.php" method="POST">
                             <div id="templatediv" class="card-body border overflow-auto">
@@ -478,6 +574,8 @@ $templateService = new DocumentTemplateService();
                             <span>
                                 <button id="dismissOnsiteDocumentButton" class="dismissOnsiteDocumentButton btn btn-sm btn-outline-danger float-right m-1" onclick="window.location.reload()"><?php echo xlt('Dismiss Form'); ?></button>
                             </span>
+                            <span>
+                            </span>
                             <!-- delete button is a separate form to prevent enter key from triggering a delete-->
                             <form id="deleteOnsiteDocumentButtonContainer" class="form-inline" onsubmit="return false;">
                                 <fieldset>
@@ -494,6 +592,7 @@ $templateService = new DocumentTemplateService();
                                 </fieldset>
                             </form>
                         </div>
+                    </div>
                 </script>
                 <div id="onsiteDocumentModelContainer" class="modelContainer">
                     <!-- rendered edit document and action toolbar template -->
@@ -518,11 +617,11 @@ $templateService = new DocumentTemplateService();
                     </tr>
                     </thead>
                     <tbody>
-                    <% items.each(function(item) {  %>
+                    <% items.each(function(item) { %>
                     <tr id="<%= _.escape(item.get('id')) %>">
                         <th scope="row"><%= _.escape(item.get('id') || '') %></th>
                         <td>
-                            <button class='btn btn-sm btn-outline-success history-btn'><%= _.escape(item.get('docType') || '') %></button>
+                            <button type="button" class='btn btn-sm btn-outline-success history-btn'><%= _.escape(item.get('docType') || '') %></button>
                         </td>
                         <td><%if (item.get('createDate')) { %><%= item.get('createDate') %><% } else { %>NULL<% } %></td>
                         <td><%if (item.get('reviewDate') > '1969-12-31 24') { %><%= item.get('reviewDate') %><% } else { %>Pending<% } %></td>

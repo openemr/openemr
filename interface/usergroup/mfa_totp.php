@@ -185,6 +185,8 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                             <br />
                                             <img src="<?php echo attr($qr); ?>" class="img-responsive center-block" style="height:200px !Important"/>
                                             <br />
+                                            <p><?php echo xlt("Or paste in the following code into your authenticator app"); ?></p>
+                                            <p><?php echo $mfaAuth->getSecret(); ?></p>
                                             <p><?php echo xlt('Example authenticator apps include'); ?></p>:
                                             <div class="col-sm-4 offset-sm-4">
                                                 <ul>

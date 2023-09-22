@@ -254,4 +254,21 @@ class QueryUtils
         $result = self::sqlStatementThrowException($sql, $params);
         return \sqlFetchArray($result);
     }
+
+    /**
+     * Escape a sql limit variable to prepare for a sql query.
+     *
+     * This will escape integers within the LIMIT ?, ? part of a sql query.
+     * Note that there is a maximum value to these numbers, which is why
+     * should only use for the LIMIT ? , ? part of the sql query and why
+     * this is centralized to a function (in case need to upgrade this
+     * function to support larger numbers in the future).
+     *
+     * @param   string|int $s  Limit variable to be escaped.
+     * @return  int     Escaped limit variable.
+     */
+    public static function escapeLimit(string|int $limit)
+    {
+        return \escape_limit($limit);
+    }
 }

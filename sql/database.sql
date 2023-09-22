@@ -1529,6 +1529,7 @@ CREATE TABLE `email_queue` (
   `error` tinyint DEFAULT 0,
   `error_message` text,
   `datetime_error` datetime default NULL,
+  `template_name` VARCHAR(255) DEFAULT NULL COMMENT 'The folder prefix and base filename (w/o extension) of the twig template file to use for this email',
 PRIMARY KEY (`id`),
 KEY `sent` (`sent`)
 ) ENGINE=InnoDb AUTO_INCREMENT=1;
@@ -3514,6 +3515,7 @@ INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`,
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','mname','1','',30,2,1,5,63,'',0,0,'','[\"C\",\"DAP\"]','Middle Name',0,'','F','','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','lname','1','',40,2,2,20,63,'',0,0,'','[\"C\",\"D\",\"DAP\"]','Last Name',0,'','F','','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','suffix','1','',50,2,1,5,63,'',0,0,'','[\"EP\",\"DAP\"]','Name Suffix',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','preferred_name','1','Preferred Name',55,2,1,32,64,'',1,3,'','[\"J\",\"DAP\"]','Patient preferred name or name patient is commonly known.',0,'','F','','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','birth_fname','1','Birth Name',60,2,1,15,63,'',1,3,'','[\"C\",\"DAP\"]','Birth First Name',0,'','F','','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','birth_mname','1','',70,2,1,5,63,'',0,0,'','[\"C\",\"DAP\"]','Middle Name',0,'','F','','','');
 INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','birth_lname','1','',80,2,1,20,63,'',0,0,'','[\"C\",\"DAP\"]','Birth Last Name',0,'','F','','','');
@@ -7068,6 +7070,7 @@ CREATE TABLE `onsite_documents` (
   `full_document` mediumblob,
   `file_name` varchar(255) NOT NULL,
   `file_path` varchar(255) NOT NULL,
+  `template_data` longtext,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1;
 
@@ -7520,6 +7523,7 @@ CREATE TABLE `patient_data` (
   `provider_since_date` TINYTEXT,
   `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record',
   `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record',
+  `preferred_name` TINYTEXT,
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `id` (`id`)
@@ -8794,6 +8798,10 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 ('ICD10', 'CMS', '2022-10-01', '2023 Code Descriptions in Tabular Order.zip', 'a2bd2e87d6fac3f861b03dba9ca87cbc');
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('ICD10', 'CMS', '2022-10-01', 'Zip File 3 2023 ICD-10-PCS Codes File.zip', 'a4c0e6026557d770dc3d994718acaa21');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2023-10-01', 'Code Descriptions.zip', '15404ef88e0ffa15474e6d6076aa0a8a');
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2023-10-01', 'Zip File 3 2024 ICD-10-PCS Codes File.zip', '30e096ed9971755c4dfc134b938f3c1f');
 -- --------------------------------------------------------
 
 --
@@ -13075,6 +13083,7 @@ CREATE TABLE `oauth_clients` (
 `policy_uri` text,
 `tos_uri` text,
 `is_enabled` tinyint(1) NOT NULL DEFAULT '0',
+`skip_ehr_launch_authorization_flow` tinyint(1) NOT NULL DEFAULT '0',
 PRIMARY KEY (`client_id`)
 ) ENGINE=InnoDB;
 
@@ -13189,6 +13198,8 @@ CREATE TABLE `document_template_profiles` (
   `recurring` tinyint(1) NOT NULL DEFAULT 1,
   `event_trigger` varchar(31) NOT NULL,
   `period` int(4) NOT NULL,
+  `notify_trigger` varchar(31) NOT NULL,
+  `notify_period` int(4) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `location` (`profile`,`template_id`,`member_of`)
 ) ENGINE=InnoDB;

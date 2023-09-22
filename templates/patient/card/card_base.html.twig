@@ -13,7 +13,7 @@
                 </span>
             {% endif %}
         </h6>
-        <div id="{{ id|attr }}" class="card-text collapse{{ initiallyCollapsed|default(1) == 1 ? " show" : ""}}">
+        <div id="{{ id|attr }}" class="card-text collapse{{ initiallyCollapsed ? "" : " show"}}">
             <div class="clearfix pt-2">
                 {% block content %}{% endblock %}
             </div>

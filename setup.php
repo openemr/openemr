@@ -1375,9 +1375,11 @@ STP2TBLBOT;
                     }
 
                     // If user has selected to set MFA App Based 2FA, display QR code to scan
-                    $qr = $installer->get_initial_user_2fa_qr();
-                    $qr_esc = attr($qr);
-                    if ($qr) {
+                    $mfa = $installer->get_initial_user_mfa_totp();
+                    if ($mfa !== false) {
+                        $qr = $mfa->generateQrCode();
+                        $qr_esc = attr($qr);
+                        $sharedSecret = text($mfa->getSecret());
                         $qrDisplay = <<<TOTP
                                     <br />
                                     <table>
@@ -1386,6 +1388,8 @@ STP2TBLBOT;
                                                 <strong class='text-danger'>IMPORTANT!!</strong>
                                                 <p><strong>You must scan the following QR code with your preferred authenticator app.</strong></p>
                                                 <img src='$qr_esc' width="150" />
+                                                <p>Or paste in the following code into your authenticator app</p>
+                                                <p>$sharedSecret</p>
                                             </td>
                                         </tr>
                                         <tr>

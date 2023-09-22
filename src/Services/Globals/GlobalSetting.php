@@ -84,6 +84,8 @@ class GlobalSetting
 
     const DATA_TYPE_OPTION_RENDER_CALLBACK = 'render_callback';
 
+    const DATA_TYPE_ADDRESS_BOOK = 'address_book';
+
     protected $label = null;
     /**
      * @var string The field type that this value can be.  Valid options include 'bool', 'color_code',

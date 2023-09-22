@@ -301,7 +301,7 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
     }
 
 // removing active from query since is checked above with $providers_only argument
-    $query = "select distinct id, username, lname, fname, authorized, info, facility, suffix " .
+    $query = "select distinct id, username, lname, fname, mname, authorized, info, facility, suffix, valedictory " .
         "from users where username != '' and id $command '" .
         add_escape_custom($providerID) . "' " . $param1 . $param2;
     // sort by last name -- JRM June 2008
@@ -328,8 +328,16 @@ function getProviderName($providerID, $provider_only = 'any')
 {
     $pi = getProviderInfo($providerID, $provider_only);
     if (!empty($pi[0]["lname"]) && (strlen($pi[0]["lname"]) > 0)) {
+        if (!empty($pi[0]["mname"]) && (strlen($pi[0]["mname"]) > 0)) {
+            $pi[0]["fname"] .= " " . $pi[0]["mname"];
+        }
+
         if (!empty($pi[0]["suffix"]) && (strlen($pi[0]["suffix"]) > 0)) {
             $pi[0]["lname"] .= ", " . $pi[0]["suffix"];
+        }
+
+        if (!empty($pi[0]["valedictory"]) && (strlen($pi[0]["valedictory"]) > 0)) {
+            $pi[0]["lname"] .= ", " . $pi[0]["valedictory"];
         }
 
         return $pi[0]['fname'] . " " . $pi[0]['lname'];
@@ -1846,7 +1854,7 @@ function get_unallocated_payment_id($pid)
 {
     $query = "SELECT session_id " .
         "FROM ar_session " .
-        "WHERE apatient_id = ? AND " .
+        "WHERE patient_id = ? AND " .
         "adjustment_code = 'pre_payment' AND closed = 0 ORDER BY check_date ASC LIMIT 1";
     $res = sqlQuery($query, array($pid));
     if ($res['session_id']) {

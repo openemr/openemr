@@ -1,0 +1,30 @@
+{
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es6": true,
+        "jquery": true,
+        "jest/globals": true
+    },
+    "extends": ["eslint:recommended"],
+    "globals": {
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly"
+    },
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "module"
+    },
+    "rules": {
+        "no-undef": "warn",
+        "no-unused-vars": "warn",
+        "no-redeclare": "warn"
+    },
+    "overrides": [
+        {
+            "files": "**/*.spec.js",
+            "plugins": ["jest"],
+            "extends": ["plugin:jest/recommended"]
+        }
+    ]
+}

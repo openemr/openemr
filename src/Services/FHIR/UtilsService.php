@@ -160,6 +160,17 @@ class UtilsService
         return $outerExtension;
     }
 
+    public static function getExtensionsByUrl($url, $object)
+    {
+        if (method_exists($object, 'getExtension')) {
+            $extensions = $object->getExtension();
+            return array_filter($extensions, function ($extension) use ($url) {
+                return $extension->getUrl() == $url;
+            });
+        }
+        return [];
+    }
+
     public static function createContactPoint($value, $system, $use): FHIRContactPoint
     {
         $fhirContactPoint = new FHIRContactPoint();

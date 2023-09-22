@@ -15,14 +15,14 @@
 
 function register(status,title,name,method,type){
 	$.post("./Installer/register", { st: status, mod_title: title, mod_name: name, mod_method:method,mtype:type},
-	   function(data) {
+		function(data) {
 			if(data == "Success") {
 				window.location.reload();
-      } else {
-        var resultTranslated = js_xl(data);
+			} else {
+				var resultTranslated = js_xl(data);
 				$('#err').html(resultTranslated.msg).fadeIn().delay(2000).fadeOut();
-      }
-	  }
+			}
+		}
 	);
 }
 

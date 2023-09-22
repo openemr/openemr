@@ -76,7 +76,7 @@ if (isset($_GET['woops'])) {
  * */
 if (!empty($_REQUEST['service_auth'] ?? null)) {
     if (!empty($_GET['service_auth'] ?? null)) {
-        // we have to setup the csrf key to preven CSRF Login attacks
+        // we have to setup the csrf key to prevent CSRF Login attacks
         // we also implement this mechanism in order to handle Same-Site cookie blocking when being referred by
         // an external site domain.  We used to auto process via GET but now we submit via the POST in order to make it
         // a same site cookie origin request. This is a workaround for the Same-Site cookie blocking.

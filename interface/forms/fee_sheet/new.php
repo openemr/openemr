@@ -1108,30 +1108,31 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <legend><?php echo xlt("Search for Additional Codes")?></legend>
                                 <div class="text-center">
                                     <div class="form-group">
-                                    <?php
+                                        <?php
                                         $nofs_code_types = array();
-                                    foreach ($code_types as $key => $value) {
-                                        if (!empty($value['nofs'])) {
-                                            continue;
+                                        foreach ($code_types as $key => $value) {
+                                            if (!empty($value['nofs'])) {
+                                                continue;
+                                            }
+                                            $nofs_code_types[$key] = $value;
                                         }
-                                        $nofs_code_types[$key] = $value;
-                                    }
                                         $size_select = (count($nofs_code_types) < 5) ? count($nofs_code_types) : 5;
-                                    ?>
+                                        ?>
 
-                                    <?php
-                                    foreach ($nofs_code_types as $key => $value) {
-                                        echo"<label class='radio-inline'>";
-                                        echo "   <input type='radio' name='search_type' value='" . attr($key) . "'";
-                                        if ($key == $search_type) {
-                                            echo " checked";
-                                        }
-                                        echo " />" . xlt($value['label']) . "&nbsp;\n";
-                                        echo " </label>";
-                                    }
-                                    ?>
+                                        <div class="btn-group" data-toggle="buttons">
+                                            <?php
+                                            foreach ($nofs_code_types as $key => $value) {
+                                                echo"<label class='radio-inline btn btn-secondary'>";
+                                                echo "   <input type='radio' name='search_type' value='" . attr($key) . "'";
+                                                if ($key == $search_type) {
+                                                    echo " checked";
+                                                }
+                                                echo " />&nbsp;" . xlt($value['label']) . "\n";
+                                                echo " </label>";
+                                            }
+                                            ?>
+                                        </div>
                                     </div>
-                                </div>
 
                                 <div class="mx-5 mb-3 text-center">
                                     <div class="input-group">

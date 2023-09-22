@@ -65,15 +65,33 @@ class PatientAccessOnsiteService
         $this->logger = new SystemLogger();
     }
 
+    /**
+     * User settings is used extensively throughout
+     * OpenEMR to persist user specific values.
+     *
+     * @param $label
+     * @param $user
+     * @return mixed|string
+     */
+    public static function fetchUserSetting($label, $user = null): mixed
+    {
+        $sql = "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = ? ORDER BY setting_user LIMIT 1";
+        $user = (is_null($user) ? $_SESSION['authUserID'] ?? null : $user);
+        $rtn = sqlQueryNoLog($sql, array($user, $label));
+
+        return $rtn['setting_value'] ?? 0;
+    }
+
     public function setTwigEnvironment(Environment $twig)
     {
         $this->twig = $twig;
     }
 
-    public function saveCredentials($pid, $pwd, $userName, $loginUsername)
+    public function saveCredentials($pid, $pwd, $userName, $loginUsername, $forced_reset_disable)
     {
         $trustedEmail = $this->getTrustedEmailForPid($pid);
         $clear_pass = $pwd;
+        $forced_reset_disable = !empty($forced_reset_disable) ? 1 : 0;
 
         $res = sqlStatement("SELECT * FROM patient_access_onsite WHERE pid=?", array($pid));
         // we let module writers know we are about to update the patient portal credentials in case any additional stuff needs to happen
@@ -90,9 +108,10 @@ class PatientAccessOnsiteService
             error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
             die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
         }
-
-        array_push($query_parameters, $hash);
-        array_push($query_parameters, $pid);
+        // direct array set for performance. array_push is needy.
+        $query_parameters[] = $hash;
+        $query_parameters[] = $forced_reset_disable;
+        $query_parameters[] = $pid;
 
         EventAuditLogger::instance()->newEvent(
             "patient-access",
@@ -105,9 +124,9 @@ class PatientAccessOnsiteService
             'dashboard'
         );
         if (sqlNumRows($res)) {
-            sqlStatementNoLog("UPDATE patient_access_onsite SET portal_username=?, portal_login_username=?, portal_pwd=?, portal_pwd_status=0 WHERE pid=?", $query_parameters);
+            sqlStatementNoLog("UPDATE patient_access_onsite SET portal_username=?, portal_login_username=?, portal_pwd=?, portal_pwd_status=? WHERE pid=?", $query_parameters);
         } else {
-            sqlStatementNoLog("INSERT INTO patient_access_onsite SET portal_username=?,portal_login_username=?,portal_pwd=?,portal_pwd_status=0,pid=?", $query_parameters);
+            sqlStatementNoLog("INSERT INTO patient_access_onsite SET portal_username=?,portal_login_username=?,portal_pwd=?,portal_pwd_status=?,pid=?", $query_parameters);
         }
         $postUpdateEvent = new PortalCredentialsUpdatedEvent($pid);
         $postUpdateEvent->setUsername($updatedEvent->getUsername())

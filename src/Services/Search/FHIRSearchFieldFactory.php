@@ -69,6 +69,11 @@ class FHIRSearchFieldFactory
         return isset($this->resourceSearchParameters[$fieldName]);
     }
 
+    public function getSearchFieldDefinition($fhirSearchField): FhirSearchParameterDefinition
+    {
+        return $this->resourceSearchParameters[$fhirSearchField];
+    }
+
     /**
      * Factory method to build a search field using the factory's search field definitions.
      * @param $fhirSearchField The passed in parameter name for the search field the user agent sent.  Can contain search modifiers

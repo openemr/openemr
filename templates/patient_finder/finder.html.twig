@@ -1,10 +1,7 @@
 <body>
+    {{ pageHeading }}
     <div id="container_div" class="{{ oeContainer|attr }} mt-3">
          <div class="w-100">
-            {{ pageHeading }}
-            {% if aclCore('patients', 'demo', '', ['write', 'addonly']) %}
-                <button id="create_patient_btn1" class="btn btn-primary btn-add" onclick="top.restoreSession();top.RTop.location = '{{ webroot|attr }}/interface/new/new.php'">{{ "Add New Patient"|xlt }}</button>
-            {% endif %}
             <div>
                 <ul class="nav nav-tabs mt-3" id="finderTabs" role="tablist">
                     <li class="nav-item" role="presentation"><button class="nav-link active" id="listTab" data-toggle="tab" data-target="#list" type="button" role="tab" aria-controls="list" aria-selected="true">{{ "Patient List"|xlt }}</button></li>
@@ -16,7 +13,7 @@
                             <!-- Class "display" is defined in demo_table.css -->
                             <div class="table-responsive">
                                 <table class="table" class="border-0 display" id="pt_table">
-                                    <thead class="thead-dark">
+                                    <thead class="thead-light">
                                         <tr id="advanced_search" class="hideaway d-none">
                                             {{ header0 }}
                                         </tr>
@@ -38,7 +35,7 @@
                         {% if rp|length > 0 %}
                         <div class="table mt-2">
                             <table class="w-100">
-                                <thead class="thead-dark">
+                                <thead class="thead-light">
                                     <tr>
                                         {% for h in headers %}
                                             <th scope="col">{{ h.title|text }}</th>
