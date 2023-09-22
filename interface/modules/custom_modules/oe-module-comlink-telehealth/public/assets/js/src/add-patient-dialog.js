@@ -231,7 +231,7 @@ export class AddPatientDialog
                 }
             })
             .then(result => {
-                if (result && result.hasOwnProperty('total') && result.total <= 0) {
+                if (result && Object.prototype.hasOwnProperty.call(result, 'total') && result.total <= 0) {
                     this.showActionAlert('info', this.__translations.SEARCH_RESULTS_NOT_FOUND);
                     return [];
                 } else {

@@ -1,0 +1,52 @@
+{#
+The Allergy card for the MRD
+
+This template renders a card for the Medical Record Dashboard displaying active
+allergies a patient has. The card provides a direct link to the Issues page,
+showing just the allergies. Some allergies may not be visible without scrolling.
+Any allergy with a severity of severe, life threatening, or fatal is always
+rendered at the top of the card, regardless of the overflow of the list.
+
+To modify how a critical allergy is displayed, provide an array of strings to
+critical_allergy_item_class_list from the rendering page. To modify the classes
+used to render each non-priority allergy, override
+list_group_container_class_list with an array of strings representing class names.
+
+@package OpenEMR
+@subpackage Patient
+@author Robert Down <robertdown@live.com
+@copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2023 Providence Healthtech
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% extends "patient/card/card_base.html.twig" %}
+
+{% block content %}
+
+<div class="{{ list_group_container_class_list|default(['list-group', 'list-group-flush', 'pami-list'])|join(' ') }}">
+{% if list|length == 0 %}
+    {% if listTouched == true %}
+        <div class="list-group-item p-0 pl-1">
+            {{ "No Known Allergies"|xlt }}
+        </div>
+    {% else %}
+        <div class="list-group-item p-0 pl-1">
+            {{ "Nothing Recorded"|xlt }}
+        </div>
+    {% endif %}
+{% else %}
+    {% set severityAlarms = ["severe", "life_threatening_severity", "fatal"] %}
+    {% for l in list %}
+        {% set classes = (l.severity_al in severityAlarms) ? 'bg-warning font-weight-bold px-1' : '' %}
+        <div class="list-group-item p-1">
+            <div class="d-flex w-100 justify-content-between">
+                {% set _severity = getListItemTitle('severity_ccda', l.severity_al) %}
+                <div class="flex-fill" title="{{ l.title|attr }} {{ 'Reaction'|xla }}: {{ l.reaction_title|xlListLabel|attr }} - {{ _severity|attr }}">
+                    {{ l.title|text }} (<span class="{{ classes|attr }}">{{ _severity|text }}</span>)
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endif %}
+</div>
+{% endblock %}

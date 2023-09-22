@@ -278,6 +278,10 @@ foreach ($result2 as $iter) {
 </tr>
 <tr>
 <td><span class="text"><?php echo xlt('Last Name'); ?>: </span></td><td><input type="text" name='lname' id='lname' style="width:120px;" class="form-control"><span class="mandatory"></span></td>
+<td><span class=text><?php echo xlt('Suffix'); ?>: </span></td><td><input type="text" name=suffix id=suffix style="width:150px;"  class="form-control"></td>
+</tr>
+<tr>
+<td><span class=text><?php echo xlt('Valedictory'); ?>: </span></td><td><input type="text" name=valedictory id=valedictory style="width:150px;"  class="form-control"></td>
 <td><span class="text"><?php echo xlt('Default Facility'); ?>: </span></td>
 <td>
 <select style="width:120px;" name=facility_id class="form-control">

@@ -13,8 +13,8 @@
 namespace OpenEMR\Services\DocumentTemplates;
 
 use Exception;
-use RuntimeException;
 use OpenEMR\Services\QuestionnaireService;
+use RuntimeException;
 
 /**
  *
@@ -175,24 +175,13 @@ class DocumentTemplateService extends QuestionnaireService
     }
 
     /**
-     * @return array
+     * @param     $profile
+     * @param int $tid
+     * @return bool|array|null
      */
-    public function fetchAllProfileEvents(): array
+    public function fetchTemplateEvent($profile, $tid = 0): bool|array|null
     {
-        $result = [];
-        $events = sqlStatement("SELECT `profile`, `recurring`, `event_trigger`, `period` FROM `document_template_profiles` WHERE `template_id` > '0' GROUP BY `profile`");
-        foreach ($events as $event) {
-            $result[$event['profile']] = $event;
-        }
-        return $result;
-    }
-
-    /**
-     * @return array
-     */
-    public function fetchProfileEvents($profile): array
-    {
-        return sqlQuery("SELECT `profile`, `recurring`, `event_trigger`, `period` FROM `document_template_profiles` WHERE `template_id` > '0' AND `profile` = ? GROUP BY `profile` LIMIT 1", array($profile));
+        return sqlQuery("SELECT * FROM `document_template_profiles` WHERE `template_id` = ? AND `profile` = ?", array($tid ?? 0, $profile ?? ''));
     }
 
 
@@ -200,7 +189,7 @@ class DocumentTemplateService extends QuestionnaireService
      * @param $template
      * @return mixed int|date
      */
-    public function showTemplateFromEvent($template, $show_due_date = false)
+    public function showTemplateFromEvent($template, $show_due_date = false): mixed
     {
         $in_review = false;
         $result = sqlQuery("SELECT * FROM `onsite_documents` WHERE `pid` = ? AND `file_path` = ? ORDER BY `create_date` DESC LIMIT 1", array($template['pid'], $template['id']));
@@ -213,17 +202,21 @@ class DocumentTemplateService extends QuestionnaireService
         if (!$in_review) {
             return false;
         }
-        if (!isset($template['trigger_event'])) {
+        if (!isset($template['event_trigger'])) {
             // these are sent templates. Not in group.
             if (!empty($template['profile'])) {
-                $event = $this->fetchProfileEvents($template['profile']);
+                $event = $this->fetchTemplateEvent($template['profile'], $template['id'] ?? 0);
                 $template['event_trigger'] = '';
-                $template['recurring'] = 1;
                 $template['period'] = 0;
+                $template['recurring'] = 1;
+                $template['notify_trigger'] = '';
+                $template['notify_period'] = 0;
                 if (is_array($event)) {
                     $template['event_trigger'] = $event['event_trigger'];
-                    $template['recurring'] = $event['recurring'];
                     $template['period'] = $event['period'];
+                    $template['recurring'] = $event['recurring'];
+                    $template['notify_trigger'] = $event['notify_trigger'];
+                    $template['notify_period'] = $event['notify_period'];
                 }
             } else {
                 return true; // in review or locked so show default template. @todo possibly delete sent template.
@@ -303,18 +296,18 @@ class DocumentTemplateService extends QuestionnaireService
     }
 
     /**
-     * @param      $id
-     * @param null $template_name
+     * @param mixed $id numeric id or template name
      * @return array|false|null
      */
-    public function fetchTemplate($id, $template_name = null)
+    public function fetchTemplate(mixed $id): bool|array|null
     {
-        $return = null;
-        if (!empty($id)) {
+        $isFetchById = is_numeric($id);
+        if (!empty($id && $isFetchById)) {
             $return = sqlQuery('SELECT * FROM `document_templates` WHERE `id` = ?', array($id));
-        } elseif (!empty($template_name)) {
-            $return = sqlQuery('SELECT * FROM `document_templates` WHERE `template_name` = ?', array($template_name));
+        } else {
+            $return = sqlQuery('SELECT * FROM `document_templates` WHERE `template_name` = ?', array($id));
         }
+
         return $return;
     }
 
@@ -441,7 +434,7 @@ class DocumentTemplateService extends QuestionnaireService
     }
 
     /**
-     * @param null $category
+     * @param null  $category
      * @param mixed $pid
      * @return
      */
@@ -491,38 +484,6 @@ class DocumentTemplateService extends QuestionnaireService
                     $row['content'] = ''; // not needed in views.
                 }
                 $results[$row['location']][] = $row;
-            }
-        }
-        return $results;
-    }
-
-// can delete
-
-    /**
-     * @param null $pid
-     * @param null $category
-     * @return array
-     */
-    public function getTemplateCategoriesByPatient($pid = null, $category = null): array
-    {
-        $results = array();
-        $bind = array();
-        if (empty($pid)) {
-            $where = 'WHERE pid > ?';
-            $bind = array($pid ?? 0);
-        } else {
-            $where = 'WHERE pid = ?';
-            $bind = array($pid);
-        }
-        if (!empty($category)) {
-            $where .= ' AND category = ?';
-            $bind[] = $category;
-        }
-        $sql = "SELECT * FROM `document_templates` $where ORDER BY pid, category";
-        $query_result = sqlStatement($sql, $bind);
-        while ($row = sqlFetchArray($query_result)) {
-            if (is_array($row)) {
-                $results[$row['category']][] = $row;
             }
         }
         return $results;
@@ -770,10 +731,10 @@ class DocumentTemplateService extends QuestionnaireService
                 }
                 $rtn = sqlInsert(
                     "INSERT INTO `document_template_profiles`
-            (`template_id`, `profile`, `template_name`, `category`, `provider`, `recurring`, `event_trigger`, `period`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (`template_id`, `profile`, `template_name`, `category`, `provider`, `recurring`, `event_trigger`, `period`, `notify_trigger`, `notify_period`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                     array($profile_array['id'], $profile_array['profile'],
                         $profile_array['name'], $profile_array['category'], ($_SESSION['authUserID'] ?? null),
-                        $form_data['recurring'] ? 1 : 0, $form_data['when'], $form_data['days'])
+                        $form_data['recurring'] ? 1 : 0, $form_data['when'] ?? '', $form_data['days'] ?? '', $form_data['notify_when'] ?? '', $form_data['notify_days'] ?? '')
                 );
             }
         } catch (Exception $e) {
@@ -844,21 +805,32 @@ class DocumentTemplateService extends QuestionnaireService
 
 
     /**
-     * @param $pid
-     * @param $id
+     * Return patient current document status for document stages.
+     *
+     * @param      $pid
+     * @param      $name
+     * @param bool $return_content
      * @return array|false|null
      */
-    public function fetchTemplateStatus($pid, $name)
+    public function fetchPatientDocumentStatus($pid, $name, bool $return_content = false): bool|array|null
     {
-        $sql = "SELECT `pid`, `create_date`, `doc_type`, `patient_signed_time`, `authorize_signed_time`, `patient_signed_status`, `review_date`, `denial_reason`, `file_name`, `file_path`, `encounter` FROM `onsite_documents` WHERE `pid` = ? AND `file_path` = ? ORDER BY `create_date` DESC LIMIT 1";
-        return sqlQuery($sql, array($pid, $name));
+        $sql = "SELECT od.id AS audit_id, od.pid, od.create_date, od.doc_type, od.*, oa.* FROM onsite_documents as od" .
+            " LEFT JOIN `onsite_portal_activity` AS oa ON od.id = oa.id AND od.doc_type = oa.narrative" .
+            " WHERE od.pid = ? AND od.file_path = ? ORDER BY od.create_date DESC LIMIT 1";
+
+        $q = sqlQuery($sql, array($pid, $name));
+        if ($q && !$return_content) {
+            $q['full_document'] = null;
+            $q["template_data"] = null;
+        }
+        return $q;
     }
 
     /**
      * @param $profile
      * @return mixed
      */
-    public function fetchProfileStatus($profile)
+    public function fetchProfileStatus($profile): mixed
     {
         return sqlQuery('SELECT active FROM `document_template_profiles` WHERE `template_id` = "0" AND `profile` = ?', array($profile))['active'];
     }
@@ -905,7 +877,7 @@ class DocumentTemplateService extends QuestionnaireService
                         $template['pid'] = $current_patient;
                     }
                     $in_edit = sqlQuery("Select `id`, `doc_type`, `denial_reason` From `onsite_documents` Where (`denial_reason` = '"
-                    . self::DENIAL_STATUS_EDITING . "' Or `denial_reason` = '" . self::DENIAL_STATUS_IN_REVIEW . "') And `pid` = ? And `file_path` = ? Limit 1", array($template['pid'], $template['id'])) ?? 0;
+                        . self::DENIAL_STATUS_EDITING . "' Or `denial_reason` = '" . self::DENIAL_STATUS_IN_REVIEW . "') And `pid` = ? And `file_path` = ? Limit 1", array($template['pid'], $template['id'])) ?? 0;
                     if (empty($in_edit)) {
                         $test = $this->showTemplateFromEvent($template);
                         if (!$test) {
@@ -925,7 +897,8 @@ class DocumentTemplateService extends QuestionnaireService
                     $id = $template['id'];
                     $btnname = $template['template_name'];
                     if (!empty($in_edit)) {
-                        $menu .= '<a class="dropdown-item template-item text-primary btn btn-link font-weight-bold" id="' . attr($id) . '"' . ' href="#" onclick="page.editHistoryDocument(' . attr_js($in_edit['id']) . ')">' . text($btnname) . "</a>\n";
+                        $menu .= '<a class="dropdown-item template-item text-primary btn btn-link font-weight-bold" id="' . attr($id) . '"' .
+                            ' data-history_id="' . attr($in_edit['id']) . '"' . ' href="#" onclick="page.editHistoryDocument(' . attr_js($in_edit['id']) . ')">' . text($btnname) . "</a>\n";
                     } else {
                         $menu .= '<a class="dropdown-item template-item text-success btn btn-link" id="' . attr($id) . '"' . ' href="#" onclick="page.newDocument(' . attr_js($current_patient) . ', ' . attr_js($current_user) . ', ' . attr_js($btnname) . ', ' . attr_js($id) . ')">' . text($btnname) . "</a>\n";
                     }

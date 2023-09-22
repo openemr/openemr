@@ -49,7 +49,22 @@ class ServerConfig
      */
     public function getFhirUrl()
     {
-        return $this->oauthAddress . $this->webRoot . '/apis/' . $this->siteId . "/fhir";
+        return $this->getBaseApiUrl() . "/fhir";
+    }
+
+    public function getStandardApiUrl()
+    {
+        return $this->getBaseApiUrl() . "/api";
+    }
+
+    public function getInternalBaseApiUrl()
+    {
+        return $this->webRoot . '/apis/' . $this->siteId;
+    }
+
+    public function getBaseApiUrl()
+    {
+        return $this->oauthAddress . $this->getInternalBaseApiUrl();
     }
 
     public function getFhir3rdPartyAppRequirementsDocument()

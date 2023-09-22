@@ -352,6 +352,7 @@ function oeSortable(callBackFn) {
 *
 */
 if (typeof asyncAlertMsg !== "function") {
+    /* eslint-disable-next-line no-inner-declarations */
     function asyncAlertMsg(message, timer = 5000, type = 'danger', size = '') {
         let alertMsg = xl("Alert Notice");
         $('#alert_box').remove();
@@ -473,4 +474,32 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
         return false;
     };
 }
+
+(function(window, oeSMART) {
+    oeSMART.initLaunch = function(webroot, csrfToken) {
+        // allows this to be lazy defined
+        let xl = window.top.xl || function(text) { return text; };
+        let smartLaunchers = document.querySelectorAll('.smart-launch-btn');
+        for (let launch of smartLaunchers) {
+                launch.addEventListener('click', function (evt) {
+                    let node = evt.target;
+                    let intent = node.dataset.intent;
+                    let clientId = node.dataset.clientId;
+                    if (!intent || !clientId) {
+                        console.error("mising intent parameter or client-id parameter");
+                        return;
+                    }
+
+                    let url = webroot + '/interface/smart/ehr-launch-client.php?intent='
+                        + encodeURIComponent(intent) + '&client_id=' + encodeURIComponent(clientId)
+                        + "&csrf_token=" + encodeURIComponent(csrfToken);
+                    let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
+                    // we allow external dialog's  here because that is what a SMART app is
+                    let height = window.top.innerHeight; // do our full height here
+                    dlgopen(url, '_blank', 'modal-full', height, '', title, {allowExternal: true});
+                });
+        }
+    };
+    window.oeSMART = oeSMART;
+})(window, window.top.oeSMART || {});
 

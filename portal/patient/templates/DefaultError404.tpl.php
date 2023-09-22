@@ -21,7 +21,7 @@
     <!-- ERROR The page you requested was not found /ERROR -->
 
     <p><?php echo xlt('The page you requested was not found. Please check that you typed the URL correctly.'); ?></p>
-
+    <p><?php echo xlt("Since this is a 404 status then ensure that the PHP Redirect module is installed and enabled!"); ?></p>
 </div> <!-- /container -->
 
 <?php

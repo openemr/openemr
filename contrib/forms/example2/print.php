@@ -68,9 +68,9 @@ Printed on <?php echo date("F d, Y", time()); ?>
 <span class="title"><?php echo xlt($form_name); ?></span><br />
 
 <!-- container for the main body of the form -->
-<div id="print_form_container">
+<div id="print-form-container">
 
-<div id="print_general">
+<div id="print-general">
 <table>
 <tr><td>
 Date:
@@ -96,7 +96,7 @@ Address: <input name="address" id="address" type="text" size="80" maxlength="250
 </table>
 </div>
 
-<div id="print_bottom">
+<div id="print-bottom">
 Use this space to express notes <br />
 <textarea name="notes" id="notes" cols="80" rows="4"><?php echo attr($record['notes']);?></textarea>
 <br /><br />

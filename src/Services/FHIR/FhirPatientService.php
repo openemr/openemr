@@ -28,6 +28,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
+use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
@@ -107,7 +108,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             // core FHIR required fields for now
             '_id' => $this->getPatientContextSearchField(),
             'identifier' => new FhirSearchParameterDefinition('identifier', SearchFieldType::TOKEN, ['ss', 'pubpid']),
-            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['title', 'fname', 'mname', 'lname']),
+            'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ['fname', 'mname', 'lname', 'title']),
             'birthdate' => new FhirSearchParameterDefinition('birthdate', SearchFieldType::DATE, ['DOB']),
             'gender' => new FhirSearchParameterDefinition('gender', SearchFieldType::TOKEN, [self::FIELD_NAME_GENDER]),
             'address' => new FhirSearchParameterDefinition(
@@ -141,7 +142,9 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             'family' => new FhirSearchParameterDefinition('family', SearchFieldType::STRING, ['lname']),
             'given' => new FhirSearchParameterDefinition('given', SearchFieldType::STRING, ['fname', 'mname']),
             'phone' => new FhirSearchParameterDefinition('phone', SearchFieldType::TOKEN, ['phone_home', 'phone_biz', 'phone_cell']),
-            'telecom' => new FhirSearchParameterDefinition('telecom', SearchFieldType::TOKEN, ['email', 'phone_home', 'phone_biz', 'phone_cell'])
+            'telecom' => new FhirSearchParameterDefinition('telecom', SearchFieldType::TOKEN, ['email', 'phone_home', 'phone_biz', 'phone_cell']),
+            '_lastUpdated' => new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']),
+            'generalPractitioner' => new FhirSearchParameterDefinition('generalPractitioner', SearchFieldType::REFERENCE, ['provider_uuid'])
         ];
     }
 
@@ -158,7 +161,11 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        if (!empty($dataRecord['date'])) {
+            $meta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['date']));
+        } else {
+            $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        }
         $patientResource->setMeta($meta);
 
         $patientResource->setActive(true);
@@ -178,6 +185,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $this->parseOpenEMRSocialSecurityRecord($patientResource, $dataRecord['ss']);
         $this->parseOpenEMRPublicPatientIdentifier($patientResource, $dataRecord['pubpid']);
         $this->parseOpenEMRCommunicationRecord($patientResource, $dataRecord['language']);
+        $this->parseOpenEMRGeneralPractitioner($patientResource, $dataRecord);
 
 
         if ($encode) {
@@ -452,6 +460,13 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
     }
 
+    private function parseOpenEMRGeneralPractitioner(FHIRPatient $patientResource, array $dataRecord)
+    {
+        if (!empty($dataRecord['provider_uuid'])) {
+            $patientResource->addGeneralPractitioner(UtilsService::createRelativeReference('Practitioner', $dataRecord['provider_uuid']));
+        }
+    }
+
     private function createIdentifier($use, $system, $code, $systemUri, $value): FHIRIdentifier
     {
         $identifier = new FHIRIdentifier();
@@ -574,6 +589,13 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             }
         }
 
+        if (!empty($fhirResource->getGeneralPractitioner())) {
+            $providerReference = UtilsService::parseReference($fhirResource->getGeneralPractitioner()[0]);
+            if (!empty($providerReference) && $providerReference['resourceType'] === 'Practitioner' && $providerReference['localResource']) {
+                $data['provider_uuid'] = $providerReference['uuid'];
+            }
+        }
+
         return $data;
     }
 
@@ -602,14 +624,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         return $processingResult;
     }
 
-    /**
-     * Searches for OpenEMR records using OpenEMR search parameters
-     *
-     * @param ISearchField[] openEMRSearchParameters OpenEMR search fields
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
-     * @return ProcessingResult
-     */
-    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
+    protected function searchForOpenEMRRecordsWithConfig($openEMRSearchParameters, SearchQueryConfig $config): ProcessingResult
     {
         // do any conversions on the data that we need here
 
@@ -629,7 +644,19 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             $field->setValues(array_map($upperCaseCode, $field->getValues()));
         }
 
-        return $this->patientService->search($openEMRSearchParameters);
+        return $this->patientService->search($openEMRSearchParameters, true, $config);
+    }
+
+    /**
+     * Searches for OpenEMR records using OpenEMR search parameters
+     *
+     * @param ISearchField[] openEMRSearchParameters OpenEMR search fields
+     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @return ProcessingResult
+     */
+    protected function searchForOpenEMRRecords($openEMRSearchParameters): ProcessingResult
+    {
+        return $this->searchForOpenEMRRecordsWithConfig($openEMRSearchParameters, new SearchQueryConfig());
     }
 
     public function createProvenanceResource($dataRecord, $encode = false)

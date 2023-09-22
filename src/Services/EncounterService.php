@@ -42,7 +42,7 @@ class EncounterService extends BaseService
      */
     private $encounterValidator;
 
-    private const ENCOUNTER_TABLE = "form_encounter";
+    public const ENCOUNTER_TABLE = "form_encounter";
     private const PATIENT_TABLE = "patient_data";
     private const PROVIDER_TABLE = "users";
     private const FACILITY_TABLE = "facility";

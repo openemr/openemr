@@ -128,6 +128,10 @@ class QuestionnaireService extends BaseService
             $q_id = UuidRegistry::uuidToString($q_uuid);
             $serverConfig = new ServerConfig();
             $fhirUrl = $serverConfig->getFhirUrl();
+            // make sure we always have a slash at the end for our url
+            if (!empty($fhirUrl) && $fhirUrl[strlen($fhirUrl) - 1] != '/') {
+                $fhirUrl .= '/';
+            }
             $q_url = $fhirUrl . 'Questionnaire/' . $q_id;
             $fhir_ob->setId(new FHIRId($q_id));
             $fhir_ob->setUrl(new FHIRUri($q_url));

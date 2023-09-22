@@ -48,6 +48,7 @@ function update_display_table(data)
     }
 
     // need refresh the diagnosis list
+    /* eslint-disable-next-line no-control-regex */
     var diag_regex=new RegExp("diags.push(.*);\n","g");
     var diags_matches=data.match(diag_regex);
     if(diags_matches!=null)
@@ -173,7 +174,6 @@ function tag_justify_rows(display) {
             var html = jqElem.html().substr(label.length);
             jqElem.html(html);
             $("<a class='justify_label'>" + label + "</a>").appendTo(jqElem).on({click: justify_start}).attr("title", justify_click_title);
-            ;
         }
     });
     var id_fields = justify_rows.find("input[type='hidden'][name$='[id]']");

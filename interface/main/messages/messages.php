@@ -343,7 +343,6 @@ if (!empty($_REQUEST['go'])) { ?>
                             $task = "edit";
                             $note = $_POST['note'];
                             $title = $_POST['form_note_type'];
-                            $reply_to = $_POST['reply_to'];
                             break;
                         case "edit":
                             $noteid = (int) $_GET['noteid'];
@@ -352,18 +351,18 @@ if (!empty($_REQUEST['go'])) { ?>
                             }
                             // Check to make sure the noteid is assigned to the user
                             if (!checkPnotesNoteId($noteid, $_SESSION['authUser'])) {
-                                die("There was an error processing your request.");
+                                die("Message is not assigned to you. Viewing is disallowed.");
                             }
                             // Update the message if it already exists; it's appended to an existing note in Patient Notes.
                             $result = getPnoteById($noteid);
                             if ($result) {
-                                if ($title == "") {
+                                if (empty($title)) {
                                     $title = $result['title'];
                                 }
                                 $body = $result['body'];
                                 // if our reply-to is 0 it breaks multi patient select and other functionality
                                 // this most likely didn't break before due to php implicit type conversion of 0 to ""
-                                if ($reply_to == "" && $result['pid'] != 0) {
+                                if (empty($reply_to) && $result['pid'] != 0) {
                                     $reply_to = $result['pid'];
                                 }
                                 $form_message_status = $result['message_status'];

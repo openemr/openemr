@@ -86,4 +86,7 @@ class OnsiteDocumentDAO extends Phreezable
 
     /** @var string */
     public $FilePath;
+
+    /** @var string */
+    public $TemplateData;
 }

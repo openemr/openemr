@@ -1,0 +1,41 @@
+{#
+The Report template of the clinical note form.
+
+@package OpenEMR
+@subpackage Forms
+@author Robert Down <robertdown@live.com
+@copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2023 Providence Healthtech
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<section class="w-100">
+    {% for n in notes %}
+        <article role="document">
+            <header class="d-flex justify-content-between bg-light border border-dark p-1 sticky-top">
+                <div class="form-group mb-0">
+                    <div class="font-weight-bold">{{ "Date"|xlt }}</div>
+                    <time datetime="{{ n.date|date()|attr }}">{{ n.date|date()|text }}</time>
+                </div>
+                <div class="form-group mb-0">
+                    <div class="font-weight-bold">{{ "Type"|xlt }}</div>
+                    <div>{{ n.codetext is not empty ? n.codetext|xlListLabel|text : "Unspecified"|xlt }}</div>
+                </div>
+                <div class="form-group mb-0">
+                    <div class="font-weight-bold">{{ "Category"|xlt }}</div>
+                    <div>{{ n.category_title is not empty ? n.category_title|xlListLabel|text : "Unspecified"|xlt }}</div>
+                </div>
+                <div class="form-group mb-0">
+                    <div class="font-weight-bold">{{ "Author"|xlt }}</div>
+                    <div>{{ n.user|text }}</div>
+                </div>
+                {% if n.code %}
+                <div class="form-group mb-0">
+                    <div class="font-weight-bold">{{ "Code"|xlt }}</div>
+                    <div>{{ n.code|text }}</div>
+                </div>
+                {% endif %}
+            </header>
+            <section class="mb-3">{{ n.description|text|nl2br }}</section>
+        </article>
+    {% endfor %}
+</section>
