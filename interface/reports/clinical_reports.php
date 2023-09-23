@@ -261,7 +261,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                         </tr>
                         </table></td>
                         <td class='col-form-label'><?php echo xlt('Problem DX'); ?>:</td>
-                        <td><input type='text' name='form_diagnosis form-control' class= 'form-control' size='10' maxlength='250' value='<?php echo attr($form_diagnosis); ?>' onclick='sel_diagnosis(this)' title='<?php echo xla('Click to select or change diagnoses'); ?>' readonly /></td>
+                        <td><input type='text' name='form_diagnosis' class= 'form-control' size='10' maxlength='250' value='<?php echo attr($form_diagnosis); ?>' onclick='sel_diagnosis(this)' title='<?php echo xla('Click to select or change diagnoses'); ?>' readonly /></td>
                                                 <td>&nbsp;</td>
 <!-- Visolve -->
                     </tr>
@@ -449,7 +449,7 @@ if (!empty($_POST['form_refresh'])) {
                 pd.race AS patient_race,pd.ethnicity AS patient_ethinic,
                 concat(u.fname, ' ', u.lname)  AS users_provider,
                 REPLACE(REPLACE(concat_ws(',',IF(pd.hipaa_allowemail = 'YES', 'Allow Email','NO'),IF(pd.hipaa_allowsms = 'YES', 'Allow SMS','NO') , IF(pd.hipaa_mail = 'YES', 'Allow Mail Message','NO') , IF(pd.hipaa_voice = 'YES', 'Allow Voice Message','NO') ), ',NO',''), 'NO,','') as communications";
-    if (strlen($form_diagnosis) > 0 || !empty($_POST['form_diagnosis_allergy']) || !empty($_POST['form_diagnosis_medprb'])) {
+    if (!empty($_POST['form_diagnosis'])) {
         $sqlstmt = $sqlstmt . ",li.date AS lists_date,
                    li.diagnosis AS lists_diagnosis,
                         li.title AS lists_title";
@@ -506,11 +506,7 @@ if (!empty($_POST['form_refresh'])) {
     $sqlstmt = $sqlstmt . " from patient_data as pd left outer join users as u on u.id = pd.providerid
             left outer join facility as f on f.id = u.facility_id";
 
-    if (strlen($form_diagnosis) > 0 || (!empty($_POST['form_diagnosis_allergy']) && !empty($_POST['form_diagnosis_medprb']))) {
-        $sqlstmt = $sqlstmt . " left outer join lists as li on (li.pid  = pd.pid AND (li.type='medical_problem' OR li.type='allergy')) ";
-    } elseif (!empty($_POST['form_diagnosis_allergy'])) {
-        $sqlstmt = $sqlstmt . " left outer join lists as li on (li.pid  = pd.pid AND (li.type='allergy')) ";
-    } elseif (!empty($_POST['form_diagnosis_medprb'])) {
+    if (!empty($_POST['form_diagnosis'])) {
         $sqlstmt = $sqlstmt . " left outer join lists as li on (li.pid  = pd.pid AND (li.type='medical_problem')) ";
     }
 
@@ -551,7 +547,7 @@ if (!empty($_POST['form_refresh'])) {
 
 //where
       $whr_stmt = "where 1=1";
-    if (strlen($form_diagnosis) > 0 || !empty($_POST['form_diagnosis_allergy']) || !empty($_POST['form_diagnosis_medprb'])) {
+    if (!empty($_POST['form_diagnosis'])) {
         $whr_stmt = $whr_stmt . " AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(li.date) <= ?";
         array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d"));
     }
@@ -645,9 +641,9 @@ if (!empty($_POST['form_refresh'])) {
         array_push($sqlBindArray, $facility);
     }
 
-    if (strlen($form_diagnosis) > 0) {
-        $whr_stmt = $whr_stmt . " AND (li.diagnosis LIKE ? or li.diagnosis LIKE ? or li.diagnosis LIKE ? or li.diagnosis = ?) ";
-        array_push($sqlBindArray, $form_diagnosis . "%", '%' . $form_diagnosis . '%', '%' . $form_diagnosis, $form_diagnosis);
+    if (!empty($_POST['form_diagnosis'])) {
+        $whr_stmt = $whr_stmt . " AND (li.diagnosis LIKE ?) ";
+        array_push($sqlBindArray, '%' . $_POST['form_diagnosis'] . '%');
     }
 
   //communication preferences added in clinical report
@@ -778,7 +774,7 @@ if (!empty($_POST['form_refresh'])) {
                 </tr>
 <!-- Diagnosis Report Start-->
                 <?php
-                if (strlen($form_diagnosis) > 0 || !empty($_POST['form_diagnosis_allergy']) || !empty($_POST['form_diagnosis_medprb'])) {
+                if (strlen($form_diagnosis) > 0) {
                     ?>
                 <tr bgcolor="#C3FDB8" align="left">
                     <td colspan='12'><strong><?php echo "#";
