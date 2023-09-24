@@ -27,7 +27,7 @@ const {
     getNpiFacility,
     populateDemographics,
 } = require('./utils/demographics/populate-demographics');
-const { populateProvider } = require('./utils/providers/providers');
+const { populateProviders } = require('./utils/providers/providers');
 
 var conn = ''; // make our connection scope global to script
 var oidFacility = "";
@@ -37,45 +37,6 @@ var npiFacility = "";
 var webRoot = "";
 var authorDateTime = '';
 var documentLocation = '';
-
-function populateProviders(all) {
-    let providerArray = [];
-    // primary provider
-    let provider = populateProvider(all.primary_care_provider.provider, all);
-    providerArray.push(provider);
-    let count = countEntities(all.care_team.provider);
-    if (count === 1) {
-        provider = populateProvider(all.care_team.provider, all);
-        providerArray.push(provider);
-    } else if (count > 1) {
-        for (let i in all.care_team.provider) {
-            provider = populateProvider(all.care_team.provider[i], all);
-            providerArray.push(provider);
-        }
-    }
-    return {
-        "providers":
-            {
-                "date_time": {
-                    "low": {
-                        "date": fDate(all.time_start) || fDate(""),
-                        "precision": "tz"
-                    },
-                    "high": {
-                        "date": fDate(all.time_end) || fDate(""),
-                        "precision": "tz"
-                    }
-                },
-                "code": {
-                    "name": all.primary_diagnosis.text || "",
-                    "code": cleanCode(all.primary_diagnosis.code || ""),
-                    "code_system_name": all.primary_diagnosis.code_type || ""
-                },
-                "provider": providerArray,
-            }
-    }
-}
-
 
 function populateCareTeamMember(provider) {
     return {
