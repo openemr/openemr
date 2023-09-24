@@ -1034,14 +1034,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $pl = (AclMain::aclCheckIssue('medical_problem')) ? 1 : 0;
                     $meds = (AclMain::aclCheckIssue('medication')) ? 1 : 0;
                     $rx = (!$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx')) ? 1 : 0;
-                    $cards = $allergy + $pl + $meds + $rx;
-                    $col = "p-1 ";
-
-                    if ($cards > 0) {
-                        $colInt = 12 / $cards;
-                        $col = "col-" . $colInt;
-                    }
-
                     /**
                      * Helper function to return only issues with an outcome not equal to resolved
                      *
@@ -1073,7 +1065,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'btnLabel' => 'Edit',
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=allergy')"
                         ];
-                        echo "<div class=\"$col\">";
+                        echo "<div class=\"col-md-3\">";
                         echo $t->render('patient/card/allergies.html.twig', $viewArgs);
                         echo "</div>";
                     }
@@ -1097,7 +1089,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'btnLabel' => 'Edit',
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medical_problem')"
                         ];
-                        echo "<div class=\"$col\">";
+                        echo "<div class=\"col-md-3\">";
                         echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
                         echo "</div>";
                     }
@@ -1119,7 +1111,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'btnLabel' => 'Edit',
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication')"
                         ];
-                        echo "<div class=\"$col\">";
+                        echo "<div class=\"col-md-6\">";
                         echo $t->render('patient/card/medication.html.twig', $viewArgs);
                         echo "</div>";
                     }
@@ -1192,7 +1184,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $viewArgs['content'] = ob_get_contents();
                         ob_end_clean();
 
-                        echo "<div class=\"$col\">";
+                        echo "<div class=\"col\">";
                         echo $t->render('patient/card/rx.html.twig', $viewArgs);
                         echo "</div>";
                     endif;
