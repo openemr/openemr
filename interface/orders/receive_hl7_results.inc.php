@@ -28,7 +28,7 @@ require_once($GLOBALS['srcdir'] . "/pnotes.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use phpseclib\Net\SFTP;
+use phpseclib3\Net\SFTP;
 
 $rhl7_return = array();
 
