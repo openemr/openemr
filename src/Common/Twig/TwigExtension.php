@@ -17,6 +17,7 @@ namespace OpenEMR\Common\Twig;
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\Kernel;
@@ -216,6 +217,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 function (string $type, string $filename = "logo.*") {
                     $ls = new LogoService();
                     return $ls->getLogo($type, $filename);
+                }
+            ),
+            new TwigFunction(
+                'getListItemTitle',
+                function (string $list, $option) {
+                    return LayoutsUtils::getListItemTitle($list, $option);
                 }
             )
         ];

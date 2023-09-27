@@ -161,11 +161,13 @@ $fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
 }
 
 .address_names:hover {
-  color: #f0f !important;
+  background: $darker !important;
+  color: $paler !important;
 }
 
 .highlight {
-  color: #f0f !important;
+  background: $darkest !important;
+  color: $paler !important;
 }
 
 #reports_list td,

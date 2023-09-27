@@ -23,14 +23,8 @@ list_group_container_class_list with an array of strings representing class name
 
 {% block content %}
 
-{% for a in list.priority %}
-    {% set _critAllergyClasses = ['bg-warning', 'd-inline-block', 'text-dark', 'font-weight-bold', 'rounded', 'px-1', 'm-1'] %}
-    {% set _tooltip = a.reaction_title|attr ~ " " ~ a.severity_al|attr %}
-    <small class="{{ critical_allergy_item_class_list|default(_critAllergyClasses)|join(' ') }}" title="{{ _tooltip }}">{{ a.title|text}}</small>
-{% endfor %}
-
 <div class="{{ list_group_container_class_list|default(['list-group', 'list-group-flush', 'pami-list'])|join(' ') }}">
-{% if list.priority|length == 0 and list.standard|length == 0 %}
+{% if list|length == 0 %}
     {% if listTouched == true %}
         <div class="list-group-item p-0 pl-1">
             {{ "No Known Allergies"|xlt }}
@@ -41,13 +35,15 @@ list_group_container_class_list with an array of strings representing class name
         </div>
     {% endif %}
 {% else %}
-    {% for l in list.standard %}
+    {% set severityAlarms = ["severe", "life_threatening_severity", "fatal"] %}
+    {% for l in list %}
+        {% set classes = (l.severity_al in severityAlarms) ? 'bg-warning font-weight-bold px-1' : '' %}
         <div class="list-group-item p-1">
             <div class="d-flex w-100 justify-content-between">
-                <div class="flex-fill">
-                    {{ l.title|text }}&nbsp;({{ l.reaction_title|text }})
+                {% set _severity = getListItemTitle('severity_ccda', l.severity_al) %}
+                <div class="flex-fill" title="{{ l.title|attr }} {{ 'Reaction'|xla }}: {{ l.reaction_title|xlListLabel|attr }} - {{ _severity|attr }}">
+                    {{ l.title|text }} (<span class="{{ classes|attr }}">{{ _severity|text }}</span>)
                 </div>
-                <div class="text-right">{{ l.severity_al|text }}</div>
             </div>
         </div>
     {% endfor %}

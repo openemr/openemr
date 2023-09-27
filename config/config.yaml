@@ -241,3 +241,6 @@ assets:
     checkpwd_validation:
         basePath: '%webroot%/interface/usergroup/'
         script: checkpwd_validation.js
+    u2f_api:
+        basePath: '%webroot%/library/js/'
+        script: u2f-api.js
