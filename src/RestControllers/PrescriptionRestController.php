@@ -43,6 +43,7 @@ class PrescriptionRestController
         "usage_category_title",
         "request_intent",
         "request_intent_title",
+        "active",
     ];
 
     private $prescriptionService;

@@ -67,6 +67,7 @@ class PrescriptionValidator extends BaseValidator
                 $context->optional("substitute", "Substitute")->bool();
                 $context->optional("rxnorm_drugcode", "rxnorm_drugcode")->bool();
                 $context->optional("drug_dosage_instructions", "drug_dosage_instructions")->string();
+                $context->optional("active", "active")->bool();
             }
         );
 
