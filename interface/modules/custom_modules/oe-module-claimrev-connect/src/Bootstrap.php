@@ -16,7 +16,6 @@
 
 namespace OpenEMR\Modules\ClaimRevConnector;
 
-require_once $GLOBALS["srcdir"] . "/options.inc.php";
 /**
  * Note the below use statements are importing classes from the OpenEMR core codebase
  */
