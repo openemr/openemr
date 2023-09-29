@@ -24,7 +24,6 @@ use OpenEMR\Validators\ListValidator;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Validator;
 
-// TODO rewrite this using there new way!
 // TODO: @adunsulag should we rename this to be ListOptions service since that is the table it corresponds to?  The lists table is a patient issues table so this could confuse new developers
 class ListService extends BaseService
 {

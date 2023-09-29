@@ -171,9 +171,6 @@ class PrescriptionService extends BaseService
                 return $isValidPatient;
             }
             $search['patient.puuid'] = UuidRegistry::uuidToBytes($search['patient.uuid']);
-            // we have to add puuid because that how it's selected in the sql statement
-            // TODO change this splice because unset does not change the array index
-            // but i don't know if we have to do it for associative array
             unset($search['patient.uuid']);
         }
 
