@@ -449,7 +449,7 @@ if (!empty($_POST['form_refresh'])) {
                 pd.race AS patient_race,pd.ethnicity AS patient_ethinic,
                 concat(u.fname, ' ', u.lname)  AS users_provider,
                 REPLACE(REPLACE(concat_ws(',',IF(pd.hipaa_allowemail = 'YES', 'Allow Email','NO'),IF(pd.hipaa_allowsms = 'YES', 'Allow SMS','NO') , IF(pd.hipaa_mail = 'YES', 'Allow Mail Message','NO') , IF(pd.hipaa_voice = 'YES', 'Allow Voice Message','NO') ), ',NO',''), 'NO,','') as communications";
-    if (!empty($_POST['form_diagnosis'])) {
+    if (!empty($form_diagnosis)) {
         $sqlstmt = $sqlstmt . ",li.date AS lists_date,
                    li.diagnosis AS lists_diagnosis,
                         li.title AS lists_title";
@@ -506,8 +506,8 @@ if (!empty($_POST['form_refresh'])) {
     $sqlstmt = $sqlstmt . " from patient_data as pd left outer join users as u on u.id = pd.providerid
             left outer join facility as f on f.id = u.facility_id";
 
-    if (!empty($_POST['form_diagnosis'])) {
-        $sqlstmt = $sqlstmt . " left outer join lists as li on (li.pid  = pd.pid AND (li.type='medical_problem')) ";
+    if (!empty($form_diagnosis)) {
+        $sqlstmt = $sqlstmt . " left outer join lists as li on (li.pid  = pd.pid AND (li.type='medical_problem' OR li.type='allergy')) ";
     }
 
     if ($type == 'Procedure' || ( strlen($form_lab_results) != 0) || !empty($_POST['lab_results'])) {
@@ -547,14 +547,14 @@ if (!empty($_POST['form_refresh'])) {
 
 //where
       $whr_stmt = "where 1=1";
-    if (!empty($_POST['form_diagnosis'])) {
+    if (!empty($form_diagnosis)) {
         $whr_stmt = $whr_stmt . " AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(li.date) <= ?";
         array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d"));
     }
 
     if (strlen($form_lab_results) != 0 || !empty($_POST['lab_results'])) {
-              $whr_stmt = $whr_stmt . " AND pr.date >= ? AND pr.date < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(pr.date) <= ?";
-              array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d"));
+        $whr_stmt = $whr_stmt . " AND pr.date >= ? AND pr.date < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(pr.date) <= ?";
+        array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d"));
     }
 
     if (strlen($form_drug_name) != 0 || !empty($_POST['form_drug'])) {
@@ -641,9 +641,9 @@ if (!empty($_POST['form_refresh'])) {
         array_push($sqlBindArray, $facility);
     }
 
-    if (!empty($_POST['form_diagnosis'])) {
+    if (!empty($form_diagnosis)) {
         $whr_stmt = $whr_stmt . " AND (li.diagnosis LIKE ?) ";
-        array_push($sqlBindArray, '%' . $_POST['form_diagnosis'] . '%');
+        array_push($sqlBindArray, '%' . $form_diagnosis . '%');
     }
 
   //communication preferences added in clinical report
@@ -679,7 +679,7 @@ if (!empty($_POST['form_refresh'])) {
         $odrstmt = $odrstmt . ",patient_age";
     }
 
-    if ((strlen($form_diagnosis) > 0)) {
+    if (!empty($form_diagnosis)) {
         $odrstmt = $odrstmt . ",lists_diagnosis";
     } elseif ((!empty($_POST['form_diagnosis_allergy'])) || (!empty($_POST['form_diagnosis_medprb']))) {
         $odrstmt = $odrstmt . ",lists_title";
@@ -774,7 +774,7 @@ if (!empty($_POST['form_refresh'])) {
                 </tr>
 <!-- Diagnosis Report Start-->
                 <?php
-                if (strlen($form_diagnosis) > 0) {
+                if (!empty($form_diagnosis)) {
                     ?>
                 <tr bgcolor="#C3FDB8" align="left">
                     <td colspan='12'><strong><?php echo "#";
