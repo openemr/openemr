@@ -2,27 +2,18 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedication;
+use BadMethodCallException;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationRequest;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRUnitsOfTime;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDosage;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming\FHIRTimingRepeat;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
-use OpenEMR\Services\ListService;
 use OpenEMR\Services\PrescriptionService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -134,11 +125,14 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         $medRequestResource->setId($id);
 
         // status required
-        $validStatii = [self::MEDICATION_REQUEST_STATUS_STOPPED,
-            self::MEDICATION_REQUEST_STATUS_ACTIVE, self::MEDICATION_REQUEST_STATUS_COMPLETED];
+        $validStatus = [
+            self::MEDICATION_REQUEST_STATUS_STOPPED,
+            self::MEDICATION_REQUEST_STATUS_ACTIVE,
+            self::MEDICATION_REQUEST_STATUS_COMPLETED
+        ];
         if (
             !empty($dataRecord['status'])
-            && array_search($dataRecord['status'], $validStatii) !== false
+            && array_search($dataRecord['status'], $validStatus) !== false
         ) {
             $medRequestResource->setStatus($dataRecord['status']);
         } else {
@@ -158,9 +152,11 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         if (isset($dataRecord['category'])) {
             $medRequestResource->addCategory(UtilsService::createCodeableConcept(
                 [
-                    $dataRecord['category'] =>
-                        ['code' => $dataRecord['category'], 'description' => xlt($dataRecord['category_title'])
-                        ,'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY]
+                    $dataRecord['category'] => [
+                        'code' => $dataRecord['category'],
+                        'description' => xlt($dataRecord['category_title']),
+                        'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY
+                    ]
                 ]
             ));
         } else {
@@ -291,7 +287,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
         if (!($dataRecord instanceof FHIRMedicationRequest)) {
-            throw new \BadMethodCallException("Data record should be correct instance class");
+            throw new BadMethodCallException("Data record should be correct instance class");
         }
         $fhirProvenanceService = new FhirProvenanceService();
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $dataRecord->getRequester());
@@ -380,9 +376,94 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         return [self::PROFILE_URI];
     }
 
-    public function parseFhirResource(FHIRMedicationRequest|FHIRDomainResource $fhirResource)
+    public function parseFhirResource($fhirResource)
     {
-        $fhirResource->authoredOn;
-        // TODO: Implement parseFhirResource() method.
+        if (!($fhirResource instanceof FHIRMedicationRequest)) {
+            throw new BadMethodCallException("fhir resource must be of type " . FHIRMedicationRequest::class);
+        }
+
+        // would like class instead
+        // setup default values
+        $data = [
+            'active' => '0',
+            'request_intent' => static::MEDICATION_REQUEST_INTENT_PLAN,
+            'start_date' => date('Y-m-d', strtotime($fhirResource->authoredOn->getValue())),
+            'puuid' => '',
+            'pruuid' => ''
+        ];
+        // todo refactor the method
+        $validStatus = [
+            self::MEDICATION_REQUEST_STATUS_STOPPED,
+            self::MEDICATION_REQUEST_STATUS_ACTIVE,
+            self::MEDICATION_REQUEST_STATUS_COMPLETED
+        ];
+        if (in_array($fhirResource->getStatus(), $validStatus)) {
+            $data['active'] = 0;
+        }
+
+        if (!empty($fhirResource->intent)) {
+            $data['request_intent'] = $fhirResource->intent->getValue();
+        }
+
+        // todo check it open emr Openemr team why FHIR MedicationRequest category could have multiple values
+        // will get the first value
+        if (!empty($fhirResource->category)) {
+            // same for coding
+            if (!empty($coding = $fhirResource->category[0]->getCoding())) {
+                $data['usage_category'] = $coding[0]->getCode();
+            }
+        }
+
+        if (!empty($fhirResource->medicationCodeableConcept)) {
+            foreach ($fhirResource->medicationCodeableConcept->coding as $coding) {
+                // this is rxnorm_drugcode Column size varchar(25), I would love to know why?, TODO make it constant
+                if ((strlen($data['drugcode'] . $coding->getCode())) > 25) {
+                    break;
+                }
+
+                $data['drugcode'] .= $coding->getCode() . ";";
+            }
+
+            $data['drugcode'] = rtrim($data['drugcode'], ";");
+        }
+
+
+        if (!empty($fhirResource->subject->getReference()->getValue())) {
+            $data['puuid'] = str_replace('Patient/', '', $fhirResource->subject->getReference()->getValue());
+        }
+
+        if (!empty($dosageInstruction = $fhirResource->dosageInstruction[0])) {
+            $data['drug_dosage_instructions'] = $dosageInstruction['text'];
+            if (!empty($dosageInstruction['route'])) {
+                $data['route'] = $dosageInstruction['route']['text'];
+            }
+
+            if (!empty($dosageAndRate = $dosageInstruction['doseAndRate'][0])) {
+                if (!empty($dosageAndRate['doseQuantity'])) {
+                    $data['dosage'] = "{$dosageAndRate['doseQuantity']['value']}";
+                    $data['form'] = $dosageAndRate['doseQuantity']['unit'];
+                }
+            }
+
+            if ($timing = $dosageInstruction['timing']) {
+                $data['duration'] = $timing['repeat']['duration'] ?? '';
+                $data['interval'] = $timing['repeat']['interval'] ?? '';
+            }
+        }
+
+        if (!empty($dispenseRequest = $fhirResource->dispenseRequest)) {
+            $data['refiles'] = $dispenseRequest['numberOfRepeatsAllowed'];
+        }
+
+        if (!empty($note = $fhirResource->note[0])) {
+            $data['note'] = $note['text'];
+        }
+
+        return $data;
+    }
+
+    public function insertOpenEMRRecord($openEmrRecord)
+    {
+        return $this->prescriptionService->insert($openEmrRecord);
     }
 }

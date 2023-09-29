@@ -87,7 +87,6 @@ class ListService extends BaseService
         $processingResult = new ProcessingResult();
 
         while ($row = sqlFetchArray($statementResults)) {
-
             $resultRecord = $this->createResultRecordFromDatabaseResult($row);
 
             $processingResult->addData($resultRecord);
@@ -238,8 +237,8 @@ class ListService extends BaseService
         } else {
             $processingResult = $this->getOne($pid, $list_type, $list_id);
         }
-        return $processingResult;
 
+        return $processingResult;
     }
 
     public function delete($pid, $list_id, $list_type)

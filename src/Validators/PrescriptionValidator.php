@@ -47,9 +47,11 @@ class PrescriptionValidator extends BaseValidator
                 $context->optional("usage_category", "Medication Usage Category")->string()->callback(function ($value) {
                     return $this->validateCode($value, "list_options", 'medication-usage-category');
                 });
+                // TODO check with openemr what is the difference between usage_category and usage_category_title
                 $context->optional("usage_category_title", "Medication Usage Category")->string()->callback(function ($value) {
                     return $this->validateCode($value, "list_options", 'medication-usage-category');
                 });
+                // TODO same here
                 $context->optional("request_intent", "Medication Request Intent")->string()->callback(function ($value) {
                     return $this->validateCode($value, "list_options", 'medication-request-intent');
                 });

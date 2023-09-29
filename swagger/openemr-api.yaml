@@ -3799,6 +3799,14 @@ paths:
       tags:
         - standard
       description: 'Retrieves a list of all prescriptions'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           $ref: '#/components/responses/standard'
@@ -3837,7 +3845,7 @@ paths:
       security:
         -
           openemr_auth: []
-  '/api/patient/{puuid}/prescription/{peuuid}':
+  '/api/patient/{puuid}/prescription/{presuuid}':
     get:
       tags:
         - standard
@@ -3851,7 +3859,71 @@ paths:
           schema:
             type: string
         -
-          name: peuuid
+          name: presuuid
+          in: path
+          description: 'The uuid for the prescription.'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+    put:
+      tags:
+        - standard
+      description: 'Edit a allergy'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: presuuid
+          in: path
+          description: 'The uuid for the prescription.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_prescription_request'
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+    delete:
+      tags:
+        - standard
+      description: 'Delete a presuuid'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: presuuid
           in: path
           description: 'The uuid for the prescription.'
           required: true
@@ -5268,6 +5340,64 @@ paths:
           $ref: '#/components/responses/badrequest'
         '401':
           $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+    post:
+      tags:
+        - fhir
+      description: 'Create a single MedicationRequest resource.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              description: 'The json object for the Organization resource.'
+              type: object
+            example:
+              resourceType: MedicationRequest
+              identifier:
+                -
+                  use: official
+                  type: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/v2-0203', code: MR, display: 'Medical Record Number' }], text: 'Medical Record Number' }
+                  system: 'http://example.com/medication-request-ids'
+                  value: MR12345
+                  assigner: { reference: Organization/example }
+              status: active
+              intent: order
+              medicationCodeableConcept:
+                coding:
+                  - { system: 'http://www.nlm.nih.gov/research/umls/rxnorm', code: '198440', display: 'Aspirin 81 MG Oral Tablet' }
+                  - { system: 'http://www.nlm.nih.gov/research/umls/rxnorm', code: '198470', display: 'Aspirin 81 Oral Tablet' }
+                  - { system: 'http://www.nlm.nih.gov/research/umls/rxnorm', code: '19847912333', display: 'Aspirin 81 Oral Tablet' }
+                text: 'Aspirin 81 MG Oral Tablet'
+              subject:
+                reference: Patient/9a122b26-6606-4395-a215-ad425dbe09d0
+              encounter:
+                reference: Encounter/example
+              authoredOn: '2023-09-23T12:10:41Z'
+              requester:
+                reference: Practitioner/example
+              dosageInstruction:
+                -
+                  '1': 1
+                  text: 'Take one tablet daily'
+                  timing: { repeat: { frequency: 1, period: 1, periodUnit: d } }
+                  asNeededBoolean: false
+                  route: { coding: [{ system: 'http://snomed.info/sct', code: '26643006', display: 'Oral route' }], text: 'Oral route' }
+                  doseAndRate: [{ type: { coding: [{ system: 'http://terminology.hl7.org/CodeSystem/dose-rate-type', code: ordered, display: Ordered }] }, doseQuantity: { value: 1, unit: tablet, system: 'http://unitsofmeasure.org', code: tablet } }]
+              category:
+                -
+                  coding: [{ system: 'http://terminology.hl7.org/CodeSystem/medicationrequest-category', code: outpatient, display: Outpatient }, { system: 'http://terminology.hl7.org/CodeSystem/medicationrequest-category', code: outpatient, display: Outpatient }]
+              dispenseRequest:
+                numberOfRepeatsAllowed: 5
+      responses:
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
       security:
         -
           openemr_auth: []
@@ -7729,7 +7859,7 @@ components:
           description: 'The amount or dosage of the drug.'
           type: string
         form_id:
-          description: "Enum values:\n     *                      1: suspension,\n     *                      10: cream,\n     *                      11: ointment,\n     *                      12: puff,\n     *                      2: tablet,\n     *                      3: capsule,\n     *                      4: solution,\n     *                      5: tsp,\n     *                      6: ml,\n     *                      7: units,\n     *                      8: inhalations,\n     *                      9: gtts(drops)"
+          description: "Enum values:\r\n     *                      1: suspension,\r\n     *                      10: cream,\r\n     *                      11: ointment,\r\n     *                      12: puff,\r\n     *                      2: tablet,\r\n     *                      3: capsule,\r\n     *                      4: solution,\r\n     *                      5: tsp,\r\n     *                      6: ml,\r\n     *                      7: units,\r\n     *                      8: inhalations,\r\n     *                      9: gtts(drops)"
           type: integer
           enum:
             - 0
@@ -7747,7 +7877,7 @@ components:
             - 9
           example: '1'
         route_id:
-          description: "Enum values:\n     *                      1: Per Oris,\n     *                      10: IM,\n     *                      11: IV,\n     *                      12: Per Nostril,\n     *                      13: Both Ears,\n     *                      14: Left Ear,\n     *                      15: Right Ear,\n     *                      2: Per Rectum,\n     *                      3: To Skin,\n     *                      4: To Affected Area,\n     *                      5: Sublingual,\n     *                      5: Sublingual,\n     *                      6: OS,\n     *                      7: OD,\n     *                      8: OU,\n     *                      9: SQ,\n     *                      bymouth: By Mouth,\n     *                      inhale: Inhale,\n     *                      intradermal: Intradermal,\n     *                      intramuscular: Intramuscular,\n     *                      other: Other/Miscellaneous,\n     *                      transdermal: Transdermal"
+          description: "Enum values:\r\n     *                      1: Per Oris,\r\n     *                      10: IM,\r\n     *                      11: IV,\r\n     *                      12: Per Nostril,\r\n     *                      13: Both Ears,\r\n     *                      14: Left Ear,\r\n     *                      15: Right Ear,\r\n     *                      2: Per Rectum,\r\n     *                      3: To Skin,\r\n     *                      4: To Affected Area,\r\n     *                      5: Sublingual,\r\n     *                      5: Sublingual,\r\n     *                      6: OS,\r\n     *                      7: OD,\r\n     *                      8: OU,\r\n     *                      9: SQ,\r\n     *                      bymouth: By Mouth,\r\n     *                      inhale: Inhale,\r\n     *                      intradermal: Intradermal,\r\n     *                      intramuscular: Intramuscular,\r\n     *                      other: Other/Miscellaneous,\r\n     *                      transdermal: Transdermal"
           type: string
           enum:
             - 1
@@ -7772,6 +7902,48 @@ components:
             - other
             - transdermal
           example: '1'
+        interval_id:
+          description: 'The interval_id form the list_option drug_interval.'
+          type: string
+        usage_category:
+          description: 'The usage category from the list_optopn medication-usage-category.'
+          type: string
+        usage_category_title:
+          description: 'The usage category title.'
+          type: string
+        request_intent:
+          description: 'check list_options table list = medication-request-intent.'
+          type: string
+        request_intent_title:
+          description: 'check list_options table list = medication-request-intent.'
+          type: string
+        dosage:
+          description: 'The dosage/direction of the drug.'
+          type: string
+        size:
+          description: 'The size of the drug.'
+          type: string
+        refills:
+          description: 'The refills of the drug.'
+          type: string
+        per_refill:
+          description: 'The per_refill of the drug.'
+          type: string
+        note:
+          description: 'The note of the drug.'
+          type: string
+        medication:
+          description: 'The medication of the drug.'
+          type: string
+        substitute:
+          description: 'The substitute of the drug.'
+          type: string
+        rxnorm_drugcode:
+          description: 'The rxnorm_drugcode of the drug.'
+          type: string
+        drug_dosage_instructions:
+          description: 'The drug_dosage_instructions of the drug.'
+          type: string
       type: object
   responses:
     standard:
