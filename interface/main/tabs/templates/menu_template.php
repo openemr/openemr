@@ -16,12 +16,12 @@
 
 <script type="text/html" id="menu-action">
     <i data-bind="css: icon,text:helperText" class="fa closeButton"></i>
-    <div class='menuLabel px-1' data-bind="text:label,click: menuActionClick,css: {menuDisabled: ! enabled()}"></div>
+    <div class='menuLabel pr-5' data-bind="text:label,click: menuActionClick,css: {menuDisabled: ! enabled()}"></div>
 </script>
 <script type="text/html" id="menu-header">
     <i data-bind="css: icon" class="fa closeButton"></i>
     <div class="menuSection dropdown">
-        <div class='menuLabel px-1 dropdown-toggle oe-dropdown-toggle' data-bind="text:label" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></div>
+        <div class='menuLabel pr-5 dropdown-toggle oe-dropdown-toggle' data-bind="text:label" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></div>
         <ul class="menuEntries dropdown-menu rounded-0 border-0" name="menuEntries" data-bind="foreach: children">
             <li data-bind="template: {name:header ? 'menu-header' : 'menu-action', data: $data }"></li>
         </ul>

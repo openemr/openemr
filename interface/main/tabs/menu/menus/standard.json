@@ -10,6 +10,7 @@
       "patients",
       "appt"
     ],
+    "icon": "fa-solid fa-calendar-days fa-2xl",
     "global_req_strict": [
       "!disable_calendar",
       "!ippf_specific"
@@ -24,8 +25,8 @@
     "requirement": 0,
     "acl_req": [
       "patients",
-      "demo"
-    ]
+    ],
+      "icon": "fa-solid fa-magnifying-glass"
   },
   {
     "label": "Flow",
@@ -38,6 +39,7 @@
       "patients",
       "appt"
     ],
+    "icon": "fa-solid fa-share",
     "global_req_strict": [
       "!disable_pat_trkr",
       "!disable_calendar"
@@ -54,6 +56,7 @@
           "patients",
           "appt"
         ],
+      "icon": "fa-solid fa-phone",
     "global_req_strict": [
       "!disable_rcb"
     ]
@@ -70,7 +73,8 @@
     "acl_req": [
       "patients",
       "notes"
-    ]
+    ],
+    "icon": "fa-solid fa-envelope"
   },
   {
     "label": "Patient",
@@ -89,6 +93,7 @@
           "write",
           "addonly"
         ],
+          "icon": "fa-regular fa-bed-pulse",
         "global_req": "full_new_patient_form"
       },
       {
@@ -199,7 +204,8 @@
         "requirement": 0
       }
     ],
-    "requirement": 0
+    "requirement": 0,
+      "icon": "fa-solid fa-bed"
   },
   {
     "label": "Groups",
@@ -358,7 +364,8 @@
             "coding_a",
             "write"
           ]
-        ]
+        ],
+          "icon": "fa-solid fa-dollar-sign"
       },
       {
         "label": "Charges",
@@ -492,6 +499,7 @@
       }
     ],
     "requirement": 0,
+      "icon": "fa-solid fa-dollar-sign",
     "global_req": "enable_fees_in_left_menu"
   },
   {
@@ -512,6 +520,7 @@
       }
     ],
     "requirement": 0,
+      "icon": "fa-solid fa-cogs",
     "acl_req": [
     "menus",
     "modle"
@@ -669,7 +678,8 @@
         ]
       }
     ],
-    "requirement": 0
+    "requirement": 0,
+      "icon": "fa-solid fa-vial"
   },
   {
     "label": "New Crop",
@@ -1293,7 +1303,8 @@
         "admin",
         "superbill"
       ]
-    ]
+    ],
+      "icon": "fa-solid fa-screwdriver-wrench"
   },
   {
     "label": "Reports",
@@ -2003,7 +2014,8 @@
         ]
       }
     ],
-    "requirement": 0
+    "requirement": 0,
+      "icon": "fa-solid fa-chart-column"
   },
   {
     "label": "Miscellaneous",
@@ -2171,7 +2183,8 @@
         "requirement": 0
       }
     ],
-    "requirement": 0
+    "requirement": 0,
+        "icon": "fa-brands fa-stack-overflow"
   },
   {
     "label": "Popups",
@@ -2321,6 +2334,7 @@
         "global_req": "addr_label_type"
       }
     ],
-    "requirement": 0
+    "requirement": 0,
+      "icon": "fa-thin fa-window-maximize"
   }
 ]
