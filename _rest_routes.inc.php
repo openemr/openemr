@@ -7454,11 +7454,19 @@ RestConfig::$ROUTE_MAP = array(
     },
 
     /**
-     * TODO add swagger
      *  @OA\Get(
      *      path="/api/patient/{puuid}/prescription",
      *      description="Retrieves a list of all prescriptions",
      *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="puuid",
+     *          in="path",
+     *          description="The uuid for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
@@ -7482,9 +7490,8 @@ RestConfig::$ROUTE_MAP = array(
     },
 
     /**
-     * TODO add swagger
      *  @OA\Get(
-     *      path="/api/patient/{puuid}/prescription/{peuuid}",
+     *      path="/api/patient/{puuid}/prescription/{presuuid}",
      *      description="Retrieves a prescription for a patient",
      *      tags={"standard"},
      *      @OA\Parameter(
@@ -7497,7 +7504,7 @@ RestConfig::$ROUTE_MAP = array(
      *          )
      *      ),
      *      @OA\Parameter(
-     *          name="peuuid",
+     *          name="presuuid",
      *          in="path",
      *          description="The uuid for the prescription.",
      *          required=true,
@@ -7528,10 +7535,9 @@ RestConfig::$ROUTE_MAP = array(
     },
 
     /**
-     * TODO add swagger
      * Schema for the prescription request
      *
-     *  @OA\Schema(
+     * @OA\Schema(
      *      schema="api_prescription_request",
      *      @OA\Property(
      *          property="start_date",
@@ -7583,7 +7589,7 @@ RestConfig::$ROUTE_MAP = array(
      *                      8: inhalations,
      *                      9: gtts(drops)"
      *     ),
-     *     @OA\Property(
+     * @OA\Property(
      *         property="route_id",
      *         type="string",
      *         enum={1, 10, 11, 12, 13, 14, 15, 2, 3, 4, 5, 6, 7, 8, 9, "bymouth", "inhale", "intradermal", "intramuscular", "other", "transdermal"},
@@ -7612,6 +7618,77 @@ RestConfig::$ROUTE_MAP = array(
      *                      other: Other/Miscellaneous,
      *                      transdermal: Transdermal"
      *     ),
+     * @OA\Property(
+     *         property="interval_id",
+     *         description="The interval_id form the list_option drug_interval.",
+     *         type="string"
+     *     ),
+     * @OA\Property(
+     *         property="usage_category",
+     *         description="The usage category from the list_optopn medication-usage-category.",
+     *         type="string"
+     *     ),
+     * @OA\Property(
+     *           property="usage_category_title",
+     *           description="The usage category title.",
+     *           type="string"
+     *       ),
+     * @OA\Property(
+     *           property="request_intent",
+     *           description="check list_options table list = medication-request-intent.",
+     *           type="string"
+     *       ),
+     * @OA\Property(
+     *           property="request_intent_title",
+     *           description="check list_options table list = medication-request-intent.",
+     *           type="string"
+     *       ),
+     * @OA\Property(
+     *           property="dosage",
+     *           description="The dosage/direction of the drug.",
+     *           type="string"
+     *       ),
+     * @OA\Property(
+     *           property="size",
+     *           description="The size of the drug.",
+     *           type="string"
+     *       ),
+     * @OA\Property(
+     *           property="refills",
+     *           description="The refills of the drug.",
+     *           type="string"
+     *       ),
+     * @OA\Property(
+     *           property="per_refill",
+     *           description="The per_refill of the drug.",
+     *           type="string"
+     *       ),
+     * @OA\Property(
+     *           property="note",
+     *           description="The note of the drug.",
+     *           type="string"
+     *       ),
+     * @OA\Property(
+     *           property="medication",
+     *           description="The medication of the drug.",
+     *           type="string"
+     *       ),
+     * @OA\Property(
+     *           property="substitute",
+     *           description="The substitute of the drug.",
+     *           type="string"
+     *       ),
+     * @OA\Property(
+     *           property="rxnorm_drugcode",
+     *           description="The rxnorm_drugcode of the drug.",
+     *           type="string"
+     *       ),
+     * @OA\Property(
+     *           property="drug_dosage_instructions",
+     *           description="The drug_dosage_instructions of the drug.",
+     *           type="string"
+     *       ),
+     *
      *     required={"start_date", "route"},
      *  ),
      */
@@ -10621,17 +10698,163 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
 
-    "PUT /fhir/MedicationRequest/:uuid" => function ($uuid, HttpRestRequest $request) {
-        if ($request->isPatientRequest()) {
-            // only allow access to data of binded patient
-            $return = (new FhirMedicationRequestRestController())->getOne($uuid, $request->getPatientUUIDString());
-        } else {
-            RestConfig::authorization_check("patients", "med");
-            $return = (new FhirMedicationRequestRestController())->getOne($uuid);
-        }
-        RestConfig::apiLog($return);
+    // TODO I'm not sure if the puuid should be placed here or in the subject field.
+    /**
+     * @OA\POST(
+     *      path="/fhir/MedicationRequest",
+     *      description="Create a single MedicationRequest resource.",
+     *      tags={"fhir"},
+     *      @OA\RequestBody(
+     *           required=true,
+     *           @OA\MediaType(
+     *               mediaType="application/json",
+     *               @OA\Schema(
+     *                   description="The json object for the Organization resource.",
+     *                   type="object"
+     *               ),
+     *               example={
+     *                           "resourceType": "MedicationRequest",
+     *                           "identifier": {
+     *                               {
+     *                                   "use": "official",
+     *                                   "type": {
+     *                                       "coding": {
+     *                                           {
+     *                                               "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+     *                                               "code": "MR",
+     *                                               "display": "Medical Record Number"
+     *                                           }
+     *                                       },
+     *                                       "text": "Medical Record Number"
+     *                                   },
+     *                                   "system": "http://example.com/medication-request-ids",
+     *                                   "value": "MR12345",
+     *                                   "assigner": {
+     *                                       "reference": "Organization/example"
+     *                                   }
+     *                               }
+     *                           },
+     *                           "status": "active",
+     *                           "intent": "order",
+     *                           "medicationCodeableConcept": {
+     *                               "coding": {
+     *                                   {
+     *                                       "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+     *                                       "code": "198440",
+     *                                       "display": "Aspirin 81 MG Oral Tablet"
+     *                                   },
+     *                                   {
+     *                                       "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+     *                                       "code": "198470",
+     *                                       "display": "Aspirin 81 Oral Tablet"
+     *                                   },
+     *                                   {
+     *                                       "system": "http://www.nlm.nih.gov/research/umls/rxnorm",
+     *                                       "code": "19847912333",
+     *                                       "display": "Aspirin 81 Oral Tablet"
+     *                                   }
+     *                               },
+     *                               "text": "Aspirin 81 MG Oral Tablet"
+     *                           },
+     *                           "subject": {
+     *                               "reference": "Patient/9a122b26-6606-4395-a215-ad425dbe09d0"
+     *                           },
+     *                           "encounter": {
+     *                               "reference": "Encounter/example"
+     *                           },
+     *                           "authoredOn": "2023-09-23T12:10:41Z",
+     *                           "requester": {
+     *                               "reference": "Practitioner/example"
+     *                           },
+     *                           "dosageInstruction": {
+     *                               {
+     *                                   "1": 1,
+     *                                   "text": "Take one tablet daily",
+     *                                   "timing": {
+     *                                       "repeat": {
+     *                                           "frequency": 1,
+     *                                           "period": 1,
+     *                                           "periodUnit": "d"
+     *                                       }
+     *                                   },
+     *                                   "asNeededBoolean": false,
+     *                                   "route": {
+     *                                       "coding": {
+     *                                           {
+     *                                               "system": "http://snomed.info/sct",
+     *                                               "code": "26643006",
+     *                                               "display": "Oral route"
+     *                                           }
+     *                                       },
+     *                                       "text": "Oral route"
+     *                                   },
+     *                                   "doseAndRate": {
+     *                                       {
+     *                                           "type": {
+     *                                               "coding": {
+     *                                                   {
+     *                                                       "system": "http://terminology.hl7.org/CodeSystem/dose-rate-type",
+     *                                                       "code": "ordered",
+     *                                                       "display": "Ordered"
+     *                                                   }
+     *                                               }
+     *                                           },
+     *                                           "doseQuantity": {
+     *                                               "value": 1,
+     *                                               "unit": "tablet",
+     *                                               "system": "http://unitsofmeasure.org",
+     *                                               "code": "tablet"
+     *                                           }
+     *                                       }
+     *                                   }
+     *                               }
+     *                           },
+     *                           "category": {
+     *                               {
+     *                                   "coding": {
+     *                                       {
+     *                                           "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
+     *                                           "code": "outpatient",
+     *                                           "display": "Outpatient"
+     *                                       },
+     *                                       {
+     *                                           "system": "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
+     *                                           "code": "outpatient",
+     *                                           "display": "Outpatient"
+     *                                       }
+     *                                   }
+     *                               }
+     *                           },
+     *                           "dispenseRequest": {
+     *                               "numberOfRepeatsAllowed": 5
+     *                           }
+     *                     }
+     *          ),
+     *     ),
+     *     @OA\Response(
+     *              response="400",
+     *              ref="#/components/responses/badrequest"
+     *     ),
+     *     @OA\Response(
+     *              response="401",
+     *              ref="#/components/responses/unauthorized"
+     *     ),
+     *     @OA\Response(
+     *              response="404",
+     *              ref="#/components/responses/uuidnotfound"
+     *          ),
+     *          security={{"openemr_auth":{}}}
+     *     ),
+     * )
+     */
+    "POST /fhir/MedicationRequest" => function (HttpRestRequest $request) {
+        RestConfig::authorization_check("patients", "demo");
+        $data = (array) (json_decode(file_get_contents("php://input"), true));
+        $return = (new FhirMedicationRequestRestController())->post($data);
+        RestConfig::apiLog($return, $data);
         return $return;
     },
+
     /**
      *  @OA\Get(
      *      path="/fhir/Observation",
@@ -13594,12 +13817,5 @@ RestConfig::$PORTAL_ROUTE_MAP = array(
         $return = (new AppointmentRestController())->getOneForPatient($auuid, $request->getPatientUUIDString());
         RestConfig::apiLog($return);
         return $return;
-    },
-    "POST /fhir/test" => function (HttpRestRequest $request) {
-        RestConfig::authorization_check("patients", "demo");
-        $data = (array) (json_decode(file_get_contents("php://input"), true));
-        $return = (new FhirPatientRestController())->post($data);
-        RestConfig::apiLog($return, $data);
-        return $return;
-    },
+    }
 );

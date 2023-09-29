@@ -2,27 +2,17 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedication;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationRequest;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRDecimal;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRUnitsOfTime;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDosage;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming\FHIRTimingRepeat;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
-use OpenEMR\Services\ListService;
 use OpenEMR\Services\PrescriptionService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -134,11 +124,14 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         $medRequestResource->setId($id);
 
         // status required
-        $validStatii = [self::MEDICATION_REQUEST_STATUS_STOPPED,
-            self::MEDICATION_REQUEST_STATUS_ACTIVE, self::MEDICATION_REQUEST_STATUS_COMPLETED];
+        $validStatus = [
+            self::MEDICATION_REQUEST_STATUS_STOPPED,
+            self::MEDICATION_REQUEST_STATUS_ACTIVE,
+            self::MEDICATION_REQUEST_STATUS_COMPLETED
+        ];
         if (
             !empty($dataRecord['status'])
-            && array_search($dataRecord['status'], $validStatii) !== false
+            && array_search($dataRecord['status'], $validStatus) !== false
         ) {
             $medRequestResource->setStatus($dataRecord['status']);
         } else {
@@ -158,9 +151,11 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         if (isset($dataRecord['category'])) {
             $medRequestResource->addCategory(UtilsService::createCodeableConcept(
                 [
-                    $dataRecord['category'] =>
-                        ['code' => $dataRecord['category'], 'description' => xlt($dataRecord['category_title'])
-                        ,'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY]
+                    $dataRecord['category'] => [
+                        'code' => $dataRecord['category'],
+                        'description' => xlt($dataRecord['category_title']),
+                        'system' => FhirCodeSystemConstants::HL7_MEDICATION_REQUEST_CATEGORY
+                    ]
                 ]
             ));
         } else {
@@ -380,9 +375,148 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         return [self::PROFILE_URI];
     }
 
-    public function parseFhirResource(FHIRMedicationRequest|FHIRDomainResource $fhirResource)
+    public function parseFhirResource($fhirResource)
     {
-        $fhirResource->authoredOn;
-        // TODO: Implement parseFhirResource() method.
+        if (!($fhirResource instanceof FHIRMedicationRequest)) {
+            throw new \BadMethodCallException("fhir resource must be of type " . FHIRMedicationRequest::class);
+        }
+
+        // would like class instead
+        // setup default values
+        $data = [
+            'active' => '0',
+            'request_intent' => static::MEDICATION_REQUEST_INTENT_PLAN,
+            'start_date' => date('Y-m-d', strtotime($fhirResource->authoredOn->getValue())),
+            'puuid' => '',
+            'pruuid' => ''
+        ];
+        // todo refactor the method
+        $validStatus = [
+            self::MEDICATION_REQUEST_STATUS_STOPPED,
+            self::MEDICATION_REQUEST_STATUS_ACTIVE,
+            self::MEDICATION_REQUEST_STATUS_COMPLETED
+        ];
+        if (in_array($fhirResource->getStatus(), $validStatus)) {
+            $data['active'] = 0;
+        }
+
+        if (!empty($fhirResource->intent)) {
+            $data['request_intent'] = $fhirResource->intent->getValue();
+        }
+
+        // todo check it open emr Openemr team why FHIR MedicationRequest category could have multiple values
+        // will get the first value
+        if (!empty($fhirResource->category)) {
+            // same for coding
+            if (!empty($coding = $fhirResource->category[0]->getCoding())) {
+                $data['usage_category'] = $coding[0]->getCode();
+            }
+        }
+
+        if (!empty($fhirResource->medicationCodeableConcept)) {
+            foreach ($fhirResource->medicationCodeableConcept->coding as $coding) {
+                // this is rxnorm_drugcode Column size varchar(25), I would love to know why?, TODO make it constant
+                if ((strlen($data['drugcode'] . $coding->getCode())) > 25) {
+                    break;
+                }
+
+                $data['drugcode'] .= $coding->getCode() . ";";
+            }
+
+            $data['drugcode'] = rtrim($data['drugcode'], ";");
+        }
+
+
+        if (!empty($fhirResource->subject->getReference()->getValue())) {
+            $data['puuid'] = str_replace('Patient/', '', $fhirResource->subject->getReference()->getValue());
+        }
+
+        if (!empty($dosageInstruction = $fhirResource->dosageInstruction[0])) {
+            $data['drug_dosage_instructions'] = $dosageInstruction['text'];
+            if (!empty($dosageInstruction['route'])) {
+                $data['route'] =  $dosageInstruction['route']['text'];
+            }
+
+            if (!empty($dosageAndRate = $dosageInstruction['doseAndRate'][0])) {
+                if (!empty($dosageAndRate['doseQuantity'])) {
+                    $data['dosage'] = "{$dosageAndRate['doseQuantity']['value']}";
+                    $data['form'] = $dosageAndRate['doseQuantity']['unit'];
+                }
+            }
+
+            if ($timing = $dosageInstruction['timing']) {
+                $data['duration'] = $timing['repeat']['duration'] ?? '';
+                $data['interval'] = $timing['repeat']['interval'] ?? '';
+            }
+        }
+
+        if (!empty($dispenseRequest = $fhirResource->dispenseRequest)) {
+            $data['refiles'] = $dispenseRequest['numberOfRepeatsAllowed'];
+        }
+
+        if (!empty($note = $fhirResource->note[0])){
+            $data['note'] = $note['text'];
+        }
+
+        return $data;
+    }
+
+    public function insertOpenEMRRecord($openEmrRecord)
+    {
+        return $this->prescriptionService->insert($openEmrRecord);
     }
 }
+/** CREATE TABLE `prescriptions` (
+ * `id` int(11) NOT NULL AUTO_INCREMENT,
+ * `uuid` binary(16) DEFAULT NULL,
+ * `patient_id` bigint(20) DEFAULT NULL,
+ * `filled_by_id` int(11) DEFAULT NULL,
+ * `pharmacy_id` int(11) DEFAULT NULL,
+ * `date_added` datetime DEFAULT NULL COMMENT 'Datetime the prescriptions was initially created',
+ * `date_modified` datetime DEFAULT NULL COMMENT 'Datetime the prescriptions was last modified',
+ * `provider_id` int(11) DEFAULT NULL,
+ * `encounter` int(11) DEFAULT NULL,
+ * `start_date` date DEFAULT NULL,
+ * `drug` varchar(150) DEFAULT NULL,
+ * `drug_id` int(11) NOT NULL DEFAULT 0,
+ * `rxnorm_drugcode` varchar(25) DEFAULT NULL,
+ * `form` int(3) DEFAULT NULL,
+ * `dosage` varchar(100) DEFAULT NULL,
+ * `quantity` varchar(31) DEFAULT NULL,
+ * `size` varchar(25) DEFAULT NULL,
+ * `unit` int(11) DEFAULT NULL,
+ * `route` varchar(100) DEFAULT NULL COMMENT 'Max size 100 characters is same max as immunizations',
+ * `interval` int(11) DEFAULT NULL,
+ * `substitute` int(11) DEFAULT NULL,
+ * `refills` int(11) DEFAULT NULL,
+ * `per_refill` int(11) DEFAULT NULL,
+ * `filled_date` date DEFAULT NULL,
+ * `medication` int(11) DEFAULT NULL,
+ * `note` text DEFAULT NULL,
+ * `active` int(11) NOT NULL DEFAULT 1,
+ * `datetime` datetime DEFAULT NULL,
+ * `user` varchar(50) DEFAULT NULL,
+ * `site` varchar(50) DEFAULT NULL,
+ * `prescriptionguid` varchar(50) DEFAULT NULL,
+ * `erx_source` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0-OpenEMR 1-External',
+ * `erx_uploaded` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0-Pending NewCrop upload 1-Uploaded to NewCrop',
+ * `drug_info_erx` text DEFAULT NULL,
+ * `external_id` varchar(20) DEFAULT NULL,
+ * `end_date` date DEFAULT NULL,
+ * `indication` text DEFAULT NULL,
+ * `prn` varchar(30) DEFAULT NULL,
+ * `ntx` int(2) DEFAULT NULL,
+ * `rtx` int(2) DEFAULT NULL,
+ * `txDate` date NOT NULL,
+ * `usage_category` varchar(100) DEFAULT NULL COMMENT 'option_id in list_options.list_id=medication-usage-category',
+ * `usage_category_title` varchar(255) NOT NULL COMMENT 'title in list_options.list_id=medication-usage-category',
+ * `request_intent` varchar(100) DEFAULT NULL COMMENT 'option_id in list_options.list_id=medication-request-intent',
+ * `request_intent_title` varchar(255) NOT NULL COMMENT 'title in list_options.list_id=medication-request-intent',
+ * `drug_dosage_instructions` longtext DEFAULT NULL COMMENT 'Medication dosage instructions',
+ * `created_by` bigint(20) DEFAULT NULL COMMENT 'users.id the user that first created this record',
+ * `updated_by` bigint(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record',
+ * PRIMARY KEY (`id`),
+ * UNIQUE KEY `uuid` (`uuid`),
+ * KEY `patient_id` (`patient_id`)
+ * ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+ */
