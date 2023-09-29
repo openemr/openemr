@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use BadMethodCallException;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationRequest;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -286,7 +287,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
         if (!($dataRecord instanceof FHIRMedicationRequest)) {
-            throw new \BadMethodCallException("Data record should be correct instance class");
+            throw new BadMethodCallException("Data record should be correct instance class");
         }
         $fhirProvenanceService = new FhirProvenanceService();
         $fhirProvenance = $fhirProvenanceService->createProvenanceForDomainResource($dataRecord, $dataRecord->getRequester());
@@ -378,7 +379,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
     public function parseFhirResource($fhirResource)
     {
         if (!($fhirResource instanceof FHIRMedicationRequest)) {
-            throw new \BadMethodCallException("fhir resource must be of type " . FHIRMedicationRequest::class);
+            throw new BadMethodCallException("fhir resource must be of type " . FHIRMedicationRequest::class);
         }
 
         // would like class instead
@@ -434,7 +435,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         if (!empty($dosageInstruction = $fhirResource->dosageInstruction[0])) {
             $data['drug_dosage_instructions'] = $dosageInstruction['text'];
             if (!empty($dosageInstruction['route'])) {
-                $data['route'] =  $dosageInstruction['route']['text'];
+                $data['route'] = $dosageInstruction['route']['text'];
             }
 
             if (!empty($dosageAndRate = $dosageInstruction['doseAndRate'][0])) {
@@ -454,7 +455,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             $data['refiles'] = $dispenseRequest['numberOfRepeatsAllowed'];
         }
 
-        if (!empty($note = $fhirResource->note[0])){
+        if (!empty($note = $fhirResource->note[0])) {
             $data['note'] = $note['text'];
         }
 
@@ -466,57 +467,3 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         return $this->prescriptionService->insert($openEmrRecord);
     }
 }
-/** CREATE TABLE `prescriptions` (
- * `id` int(11) NOT NULL AUTO_INCREMENT,
- * `uuid` binary(16) DEFAULT NULL,
- * `patient_id` bigint(20) DEFAULT NULL,
- * `filled_by_id` int(11) DEFAULT NULL,
- * `pharmacy_id` int(11) DEFAULT NULL,
- * `date_added` datetime DEFAULT NULL COMMENT 'Datetime the prescriptions was initially created',
- * `date_modified` datetime DEFAULT NULL COMMENT 'Datetime the prescriptions was last modified',
- * `provider_id` int(11) DEFAULT NULL,
- * `encounter` int(11) DEFAULT NULL,
- * `start_date` date DEFAULT NULL,
- * `drug` varchar(150) DEFAULT NULL,
- * `drug_id` int(11) NOT NULL DEFAULT 0,
- * `rxnorm_drugcode` varchar(25) DEFAULT NULL,
- * `form` int(3) DEFAULT NULL,
- * `dosage` varchar(100) DEFAULT NULL,
- * `quantity` varchar(31) DEFAULT NULL,
- * `size` varchar(25) DEFAULT NULL,
- * `unit` int(11) DEFAULT NULL,
- * `route` varchar(100) DEFAULT NULL COMMENT 'Max size 100 characters is same max as immunizations',
- * `interval` int(11) DEFAULT NULL,
- * `substitute` int(11) DEFAULT NULL,
- * `refills` int(11) DEFAULT NULL,
- * `per_refill` int(11) DEFAULT NULL,
- * `filled_date` date DEFAULT NULL,
- * `medication` int(11) DEFAULT NULL,
- * `note` text DEFAULT NULL,
- * `active` int(11) NOT NULL DEFAULT 1,
- * `datetime` datetime DEFAULT NULL,
- * `user` varchar(50) DEFAULT NULL,
- * `site` varchar(50) DEFAULT NULL,
- * `prescriptionguid` varchar(50) DEFAULT NULL,
- * `erx_source` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0-OpenEMR 1-External',
- * `erx_uploaded` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0-Pending NewCrop upload 1-Uploaded to NewCrop',
- * `drug_info_erx` text DEFAULT NULL,
- * `external_id` varchar(20) DEFAULT NULL,
- * `end_date` date DEFAULT NULL,
- * `indication` text DEFAULT NULL,
- * `prn` varchar(30) DEFAULT NULL,
- * `ntx` int(2) DEFAULT NULL,
- * `rtx` int(2) DEFAULT NULL,
- * `txDate` date NOT NULL,
- * `usage_category` varchar(100) DEFAULT NULL COMMENT 'option_id in list_options.list_id=medication-usage-category',
- * `usage_category_title` varchar(255) NOT NULL COMMENT 'title in list_options.list_id=medication-usage-category',
- * `request_intent` varchar(100) DEFAULT NULL COMMENT 'option_id in list_options.list_id=medication-request-intent',
- * `request_intent_title` varchar(255) NOT NULL COMMENT 'title in list_options.list_id=medication-request-intent',
- * `drug_dosage_instructions` longtext DEFAULT NULL COMMENT 'Medication dosage instructions',
- * `created_by` bigint(20) DEFAULT NULL COMMENT 'users.id the user that first created this record',
- * `updated_by` bigint(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record',
- * PRIMARY KEY (`id`),
- * UNIQUE KEY `uuid` (`uuid`),
- * KEY `patient_id` (`patient_id`)
- * ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
- */

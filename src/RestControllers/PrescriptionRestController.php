@@ -16,7 +16,6 @@ use OpenEMR\Services\PrescriptionService;
 
 class PrescriptionRestController
 {
-
     /**
      * White list of search/insert fields
      */
