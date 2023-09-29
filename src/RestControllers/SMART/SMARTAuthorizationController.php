@@ -18,6 +18,7 @@ use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Services\PatientService;
 use Psr\Log\LoggerInterface;
@@ -140,7 +141,7 @@ class SMARTAuthorizationController
         $data = [
             'endpoint' => $endpoint
         ];
-        echo $this->twig->render("smart/ehr-launch-autosubmit.html.twig", $data);
+        $this->renderTwigPage('oauth2/authorize/ehr-launch-auto-submit', "oauth2/ehr-launch-autosubmit.html.twig", $data);
     }
 
     /**
@@ -249,7 +250,20 @@ class SMARTAuthorizationController
             $hasMore = count($patients) > self::PATIENT_SEARCH_MAX_RESULTS;
             $patients = $hasMore ? array_slice($patients, 0, self::PATIENT_SEARCH_MAX_RESULTS) : $patients;
 
-            require_once($this->oauthTemplateDir . "smart/patient-select.php");
+            $this->renderTwigPage(
+                'oauth2/authorize/patient-select',
+                "oauth2/patient-select.html.twig",
+                [
+                    'patients' => $patients
+                    , 'hasMore' => $hasMore
+                    , 'errorMessage' => $errorMessage
+                    , 'searchAction' => $searchAction
+                    , 'fname' => $searchParams['fname'] ?? ''
+                    , 'lname' => $searchParams['lname'] ?? ''
+                    , 'mname' => $searchParams['mname'] ?? ''
+                    , 'redirect' => $redirect
+                ]
+            );
         } catch (AccessDeniedException $error) {
             // make sure to grab the redirect uri before the session is destroyed
             $redirectUri = $this->getClientRedirectURI();
@@ -262,7 +276,42 @@ class SMARTAuthorizationController
             // error occurred, no patients found just display the screen with an error message
             $error_message = "There was a server error in loading patients.  Contact your system administrator for assistance";
             $this->logger->error("AuthorizationController->patientSelect() Exception thrown", ['exception' => $error->getMessage()]);
-            require_once($this->oauthTemplateDir . "smart/patient-select.php");
+            echo $this->twig->render(
+                "smart/patient-select.html.twig",
+                [
+                    'patients' => $patients
+                    , 'hasMore' => $hasMore
+                    , 'errorMessage' => $errorMessage
+                    , 'searchAction' => $searchAction
+                    , 'fname' => $searchParams['fname'] ?? ''
+                    , 'lname' => $searchParams['lname'] ?? ''
+                    , 'mname' => $searchParams['mname'] ?? ''
+                    , 'redirect' => $redirect
+                ]
+            );
+        }
+    }
+
+    private function getTwig()
+    {
+        return $this->twig;
+    }
+
+    private function renderTwigPage($pageName, $template, $templateVars)
+    {
+        $twig = $this->getTwig();
+        $templatePageEvent = new TemplatePageEvent($pageName, [], $template, $templateVars);
+        $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $updatedTemplatePageEvent = $dispatcher->dispatch($templatePageEvent);
+        $template = $updatedTemplatePageEvent->getTwigTemplate();
+        $vars = $updatedTemplatePageEvent->getTwigVariables();
+        // TODO: @adunsulag do we want to catch exceptions here?
+        try {
+            echo $twig->render($template, $vars);
+        } catch (\Exception $e) {
+            $this->logger->errorLogCaller("caught exception rendering template", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            echo $twig->render("error/general_http_error.html.twig", ['statusCode' => 500]);
+            die();
         }
     }
 

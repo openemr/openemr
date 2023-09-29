@@ -16,7 +16,7 @@ namespace OpenEMR\Billing\BillingProcessor;
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Services\BaseService;
-use phpseclib\Net\SFTP;
+use phpseclib3\Net\SFTP;
 
 class X12RemoteTracker extends BaseService
 {
