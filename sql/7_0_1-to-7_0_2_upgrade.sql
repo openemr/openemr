@@ -290,7 +290,7 @@ SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='race' AND
 SET @seq_start := 0;
 UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_id = @group_id AND form_id='DEM' ORDER BY `seq`;
 SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='race' AND form_id='DEM');
-INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','nationality_country','5','Nationality and Country',30,43,1,0,0,'Nationality_and_Country',1,1,'','','Patient Nationality. Type to search.',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','nationality_country',@group_id,'Nationality and Country',@seq_add_to+5,43,1,0,0,'Nationality_and_Country',1,1,'','','Patient Nationality. Type to search.',0,'','F','','','');
 ALTER TABLE `patient_data` ADD `nationality_country` TINYTEXT;
 #EndIf
 
