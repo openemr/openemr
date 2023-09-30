@@ -15,6 +15,7 @@ namespace OpenEMR\Services\FHIR\Traits;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
 use OpenEMR\Services\Search\SearchFieldException;
+use OpenEMR\Services\Search\SearchFieldOrder;
 
 trait ResourceServiceSearchTrait
 {
@@ -42,8 +43,19 @@ trait ResourceServiceSearchTrait
     {
         $oeSearchParameters = array();
 
+        $specialColumns = ['_sort' => '', '_count' => '', '_offset' => ''];
+        $hasSort = false;
+
         foreach ($fhirSearchParameters as $fhirSearchField => $searchValue) {
             try {
+                if (isset($specialColumns[$fhirSearchField])) {
+                    $config = $oeSearchParameters['_config'] ?? [];
+                    if ($fhirSearchField == '_sort') {
+                        $hasSort = true;
+                    }
+                    $config[$fhirSearchField] = $searchValue;
+                    $oeSearchParameters['config'] = $config;
+                }
                 // format: <field>{:modifier1|:modifier2}={comparator1|comparator2}[value1{,value2}]
                 // field is the FHIR search field
                 // modifier is the search modifier ie :exact, :contains, etc
@@ -61,6 +73,11 @@ trait ResourceServiceSearchTrait
             }
         }
 
+        // now that we've created all of our fields, let's go through and create our sort
+        if ($hasSort) {
+            $oeSearchParameters['config']['_sort'] = $this->createSortParameter($fhirSearchParameters['_sort']);
+        }
+
         // we make sure if we are a resource that deals with patient data and we are in a patient bound context that
         // we restrict the data to JUST that patient.
         if (!empty($puuidBind) && $this instanceof IPatientCompartmentResourceService) {
@@ -72,6 +89,29 @@ trait ResourceServiceSearchTrait
         }
 
         return $oeSearchParameters;
+    }
+
+    private function createSortParameter($sort)
+    {
+        $newSortOrder = [];
+        $sortFields = explode(',', $sort);
+        $searchFactory = $this->getSearchFieldFactory();
+        foreach ($sortFields as $key => $sortField) {
+            $isDescending = $sortField[0] ?? '' === '-';
+            if ($isDescending) {
+                $sortField = substr($sortField, 1);
+            }
+
+            // TODO: @adunsulag would it be more efficient to just build the
+            if ($searchFactory->hasSearchField($sortField)) {
+                $definition = $searchFactory->getSearchFieldDefinition($sortField);
+                $mappedFields = $definition->getMappedFields();
+                foreach ($mappedFields as $field) {
+                    $newSortOrder[] = new SearchFieldOrder($field, !$isDescending);
+                }
+            }
+        }
+        return $newSortOrder;
     }
 
     protected function createSearchParameterForField($fhirSearchField, $searchValue)

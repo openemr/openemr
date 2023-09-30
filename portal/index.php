@@ -36,16 +36,16 @@ require_once '../interface/globals.php';
 require_once __DIR__ . "/lib/appsql.class.php";
 $logit = new ApplicationTable();
 
+use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
+use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
 use OpenEMR\Common\Auth\OneTimeAuth;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\LogoService;
-use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
-use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
-use OpenEMR\Common\Twig\TwigContainer;
 
 //For redirect if the site on session does not match
 $landingpage = "index.php?site=" . urlencode($_SESSION['site_id']);
@@ -76,7 +76,7 @@ if (isset($_GET['woops'])) {
  * */
 if (!empty($_REQUEST['service_auth'] ?? null)) {
     if (!empty($_GET['service_auth'] ?? null)) {
-        // we have to setup the csrf key to preven CSRF Login attacks
+        // we have to setup the csrf key to prevent CSRF Login attacks
         // we also implement this mechanism in order to handle Same-Site cookie blocking when being referred by
         // an external site domain.  We used to auto process via GET but now we submit via the POST in order to make it
         // a same site cookie origin request. This is a workaround for the Same-Site cookie blocking.
@@ -91,7 +91,7 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
             'images_static_relative' => $GLOBALS['images_static_relative'] ?? ''
         ]);
         exit;
-    } else if (!empty($_POST['service_auth'] ?? null)) {
+    } elseif (!empty($_POST['service_auth'] ?? null)) {
         $token = $_POST['service_auth'];
         $redirect_token = $_POST['target'] ?? null;
         $csrfToken = $_POST['csrf_token'] ?? null;
@@ -314,7 +314,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
 <head>
     <title><?php echo xlt('Patient Portal Login'); ?></title>
     <?php
-    Header::setupHeader(['no_main-theme', 'datetime-picker', 'patientportal-style', 'patientportal-base', 'patientportal-register']);
+    Header::setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker']);
     ?>
     <script>
         function checkUserName() {
@@ -404,7 +404,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
     <?php if (!empty($GLOBALS['portal_two_pass_reset']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key']) && isset($_GET['requestNew'])) { ?>
         <script src="https://www.google.com/recaptcha/api.js" async defer></script>
         <script>
-            function enableVerifyBtn(){
+            function enableVerifyBtn() {
                 document.getElementById("submitRequest").disabled = false;
             }
         </script>
@@ -415,7 +415,7 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
 
 </head>
 <body class="login">
-    <div id="wrapper" class="container text-center mx-auto">
+    <div id="wrapper" class="row mx-auto">
         <?php if (isset($_SESSION['password_update']) || isset($_GET['password_update'])) {
             $_SESSION['password_update'] = 1;
             ?>
@@ -526,69 +526,61 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
             </form>
         <?php } else {
             ?> <!-- Main logon -->
-        <img class="img-fluid login-logo" src='<?php echo $logoSrc; ?>'>
-        <form class="text-center" action="get_patient_info.php" method="POST" onsubmit="return process()">
-            <?php if (isset($redirectUrl)) { ?>
-                <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
-            <?php } ?>
-            <fieldset>
-                <legend class="bg-primary text-white pt-2 py-1"><h3><?php echo xlt('Patient Portal Login'); ?></h3></legend>
-                <div class="jumbotron jumbotron-fluid px-5 py-3">
-                    <div class="form-row my-3">
-                        <label class="col-md-2 col-form-label" for="uname"><?php echo xlt('Username') ?></label>
-                        <div class="col-md">
-                            <input type="text" class="form-control" name="uname" id="uname" autocomplete="none" required />
-                        </div>
+        <div class="row">
+            <img class="img-fluid login-logo" src='<?php echo $logoSrc; ?>'>
+        </div>
+        <div class="container-xl p-1">
+            <form class="text-center mx-1" action="get_patient_info.php" method="POST" onsubmit="return process()">
+                <?php if (isset($redirectUrl)) { ?>
+                    <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
+                <?php } ?>
+                <fieldset>
+                    <legend class="bg-primary text-white pt-2 py-1"><h3><?php echo xlt('Patient Portal Login'); ?></h3></legend>
+                    <div class="form-group my-1">
+                        <label class="col-form-label" for="uname"><?php echo xlt('Username') ?></label>
+                        <input type="text" class="form-control" name="uname" id="uname" autocomplete="none" required />
                     </div>
-                    <div class="form-row mt-3">
-                        <label class="col-md-2 col-form-label" for="pass"><?php echo xlt('Password') ?></label>
-                        <div class="col-md">
-                            <input class="form-control" name="pass" id="pass" type="password" required autocomplete="none" />
-                        </div>
+                    <div class="form-group mt-1">
+                        <label class="col-form-label" for="pass"><?php echo xlt('Password') ?></label>
+                        <input class="form-control" name="pass" id="pass" type="password" required autocomplete="none" />
                     </div>
                     <?php if ($GLOBALS['enforce_signin_email']) { ?>
-                        <div class="form-row mt-3">
-                            <label class="col-md-2 col-form-label" for="passaddon"><?php echo xlt('E-Mail Address') ?></label>
-                            <div class="col-md">
-                                <input class="form-control" name="passaddon" id="passaddon" type="email" autocomplete="none" />
-                            </div>
+                        <div class="form-group mt-1">
+                            <label class="col-form-label" for="passaddon"><?php echo xlt('E-Mail Address') ?></label>
+                            <input class="form-control" name="passaddon" id="passaddon" type="email" autocomplete="none" />
                         </div>
                     <?php } ?>
                     <?php if ($GLOBALS['language_menu_login']) { ?>
                         <?php if (count($result3) != 1) { ?>
-                            <div class="form-row mt-3">
-                                <label class="col-form-label col-md-2" for="selLanguage"><?php echo xlt('Language'); ?></label>
-                                <div class="col-md">
-                                    <select class="form-control" id="selLanguage" name="languageChoice">
-                                        <?php
-                                        echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
-                                            text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
-                                        foreach ($result3 as $iter) {
-                                            if ($GLOBALS['language_menu_showall']) {
-                                                if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
-                                                    continue; // skip the dummy language
-                                                }
-                                                echo "<option value='" . attr($iter['lang_id']) . "'>" .
-                                                    text($iter['trans_lang_description']) . "</option>\n";
-                                            } else {
-                                                if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
-                                                    if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
-                                                        continue; // skip the dummy language
-                                                    }
-                                                    echo "<option value='" . attr($iter['lang_id']) . "'>" .
-                                                        text($iter['trans_lang_description']) . "</option>\n";
-                                                }
-                                            }
+                    <div class="form-group mt-1">
+                        <label class="col-form-label" for="selLanguage"><?php echo xlt('Language'); ?></label>
+                        <select class="form-control" id="selLanguage" name="languageChoice">
+                            <?php
+                            echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
+                                text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
+                            foreach ($result3 as $iter) {
+                                if ($GLOBALS['language_menu_showall']) {
+                                    if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
+                                        continue; // skip the dummy language
+                                    }
+                                    echo "<option value='" . attr($iter['lang_id']) . "'>" .
+                                        text($iter['trans_lang_description']) . "</option>\n";
+                                } else {
+                                    if (in_array($iter['lang_description'], $GLOBALS['language_menu_show'])) {
+                                        if (!$GLOBALS['allow_debug_language'] && $iter['lang_description'] == 'dummy') {
+                                            continue; // skip the dummy language
                                         }
-                                        ?>
-                                    </select>
-                                </div>
-                            </div>
+                                        echo "<option value='" . attr($iter['lang_id']) . "'>" .
+                                            text($iter['trans_lang_description']) . "</option>\n";
+                                    }
+                                }
+                            }
+                            ?>
+                        </select>
                         <?php }
                     } ?>
-                </div>
-                <div class="row">
-                    <div class="col-12">
+                    </div>
+                    <div class="col">
                         <?php if (!empty($GLOBALS['portal_onsite_two_register']) && !empty($GLOBALS['google_recaptcha_site_key']) && !empty($GLOBALS['google_recaptcha_secret_key'])) { ?>
                             <button class="btn btn-secondary float-left" onclick="location.replace('./account/verify.php?site=<?php echo attr_url($_SESSION['site_id']); ?>')"><?php echo xlt('Register'); ?></button>
                         <?php } ?>
@@ -598,12 +590,12 @@ if (!(isset($_SESSION['password_update']) || (!empty($GLOBALS['portal_two_pass_r
                         <?php } ?>
                         <button class="btn btn-success float-right" type="submit"><?php echo xlt('Log In'); ?></button>
                     </div>
-                </div>
-            </fieldset>
-            <?php if (!(empty($hiddenLanguageField))) {
-                echo $hiddenLanguageField;
-            } ?>
-        </form>
+                </fieldset>
+                <?php if (!(empty($hiddenLanguageField))) {
+                    echo $hiddenLanguageField;
+                } ?>
+            </form>
+        </div>
     </div><!-- div wrapper -->
     <?php } ?> <!--  logon wrapper -->
 

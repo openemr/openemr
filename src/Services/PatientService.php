@@ -16,6 +16,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryPagination;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\ORDataObject\Address;
 use OpenEMR\Common\ORDataObject\ContactAddress;
@@ -26,6 +27,8 @@ use OpenEMR\Events\Patient\PatientCreatedEvent;
 use OpenEMR\Events\Patient\PatientUpdatedEvent;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\SearchConfigClauseBuilder;
+use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
@@ -296,7 +299,18 @@ class PatientService extends BaseService
             // Tell subscribers that a new patient has been updated
             // We have to do this here and in the databaseUpdate() because this lookup is
             // by uuid where the databseUpdate updates by pid.
-            $patientUpdatedEvent = new PatientUpdatedEvent($dataBeforeUpdate, $processingResult->getData());
+
+
+            $originalData = [];
+            if ($dataBeforeUpdate->hasData()) {
+                $originalData = $dataBeforeUpdate->getData()[0]; // so wierd the findOne returns an array
+            }
+            // in order to be consistent and backwards compatible with the other PatientUpdatedEvent event
+            // we need the uuid to be the same binary fomrat as the other event firing.
+            if (!empty($originalData['uuid'])) {
+                $originalData['uuid'] = UuidRegistry::uuidToBytes($originalData['uuid']);
+            }
+            $patientUpdatedEvent = new PatientUpdatedEvent($originalData, $processingResult->getData());
             $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE, 10);
         }
         return $processingResult;
@@ -311,6 +325,10 @@ class PatientService extends BaseService
             $record['patient_history_uuid'] = UuidRegistry::uuidToString($record['patient_history_uuid']);
         }
 
+        if (!empty($record['provider_uuid'])) {
+            $record['provider_uuid'] = UuidRegistry::uuidToString($record['provider_uuid']);
+        }
+
         return $record;
     }
 
@@ -323,10 +341,11 @@ class PatientService extends BaseService
      * @param  $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * @param $config - Search Query Config has sorting, pagination and other query configuration options for the request.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
+    public function getAll($search = array(), $isAndCondition = true, $puuidBind = null, SearchQueryConfig $config = null)
     {
         $querySearch = [];
         if (!empty($search)) {
@@ -349,16 +368,17 @@ class PatientService extends BaseService
                 }
             }
         }
-        return $this->search($querySearch, $isAndCondition);
+        return $this->search($querySearch, $isAndCondition, $config);
     }
 
-    public function search($search, $isAndCondition = true)
+    public function search($search, $isAndCondition = true, SearchQueryConfig $config = null)
     {
         // we run two queries in this search.  The first query is to grab all of the uuids of the patients that match
         // the search.  Because we are joining several tables with a 1:m relationship on several tables (previous name,
         // patient history, address) we have to grab all of our patients uuids and then run our query AGAIN without any
         // search filters so that we can make sure to grab the ENTIRE patient record (all of their names, addresses, etc).
         $sqlSelectIds = "SELECT DISTINCT patient_data.uuid ";
+        $sqlSelectIdsCount = "SELECT COUNT(DISTINCT patient_data.uuid) AS cnt ";
         $sqlSelectData = "SELECT
                     patient_data.*
                     ,patient_history_uuid
@@ -372,6 +392,7 @@ class PatientService extends BaseService
                     ,previous_name_suffix
                     ,previous_name_enddate
                     ,patient_additional_addresses.*
+                    ,provider_uuid
         ";
         $sql = "
                 FROM patient_data
@@ -391,7 +412,13 @@ class PatientService extends BaseService
                     FROM patient_history
                 ) patient_history ON patient_data.pid = patient_history.patient_history_pid
                 LEFT JOIN (
-                    SELECT  
+                    select
+                        id AS provider_id
+                        ,uuid AS provider_uuid
+                    FROM users
+                ) provider ON patient_data.providerID = provider.provider_id
+                LEFT JOIN (
+                    SELECT
                         contact.id AS contact_address_contact_id
                         ,contact.foreign_id AS contact_address_patient_id
                         ,contact_address.`id` AS contact_address_id
@@ -417,7 +444,22 @@ class PatientService extends BaseService
                 ) patient_additional_addresses ON patient_data.pid = patient_additional_addresses.contact_address_patient_id";
         $whereUuidClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
-        $sqlUuids = $sqlSelectIds . $sql . $whereUuidClause->getFragment();
+        if (!empty($config)) {
+            $pagination = $config->getPagination();
+            $orderBy = SearchConfigClauseBuilder::buildSortOrderClauseFromConfig($config);
+            $offset = SearchConfigClauseBuilder::buildQueryPaginationClause($pagination);
+        } else {
+            $orderBy = "";
+            $offset = "";
+            $pagination = new QueryPagination();
+        }
+
+        $sqlUUidsCount = $sqlSelectIdsCount . $sql . $whereUuidClause->getFragment() . " " . $orderBy;
+        $uuidCount = QueryUtils::fetchSingleValue($sqlUUidsCount, 'cnt', $whereUuidClause->getBoundValues());
+        if (empty($uuidCount) || intval($uuidCount) <= 0) {
+            return new ProcessingResult();
+        }
+        $sqlUuids = $sqlSelectIds . $sql . $whereUuidClause->getFragment() . " " . $orderBy . " " . $offset;
         $uuidResults = QueryUtils::fetchTableColumn($sqlUuids, 'uuid', $whereUuidClause->getBoundValues());
 
         if (!empty($uuidResults)) {
@@ -425,18 +467,22 @@ class PatientService extends BaseService
             // this makes sure we grab the entire patient record and associated data
             $whereClause = " WHERE patient_data.uuid IN (" . implode(",", array_map(function ($uuid) {
                 return "?";
-            }, $uuidResults)) . ")";
+            }, $uuidResults)) . ") " . $orderBy; // make sure we keep our sort order
             $statementResults = QueryUtils::sqlStatementThrowException($sqlSelectData . $sql . $whereClause, $uuidResults);
-            $processingResult = $this->hydrateSearchResultsFromQueryResource($statementResults);
+            $processingResult = $this->hydrateSearchResultsFromQueryResource($statementResults, $pagination);
+            $processingResult->getPagination()->setTotalCount($uuidCount);
             return $processingResult;
         } else {
             return new ProcessingResult();
         }
     }
 
-    private function hydrateSearchResultsFromQueryResource($queryResource)
+    private function hydrateSearchResultsFromQueryResource($queryResource, QueryPagination $pagination = null)
     {
         $processingResult = new ProcessingResult();
+        if (!empty($pagination)) {
+            $processingResult->setPagination($pagination);
+        }
         $patientsByUuid = [];
         $alreadySeenPatientHistoryUuids = [];
         $alreadySeenContactAddressIds = [];
@@ -674,7 +720,9 @@ class PatientService extends BaseService
     {
         // we should never be null here but for legacy reasons we are going to default to this
         $createdBy = $_SESSION['authUserID'] ?? null; // we don't let anyone else but the current user be the createdBy
-
+        if ($pid <= 0) {
+            return false;
+        }
         $insertData = [
             'pid' => $pid,
             'history_type_key' => 'name_history',
@@ -885,6 +933,47 @@ class PatientService extends BaseService
         return compact('age', 'age_in_months', 'ageinYMD');
     }
 
+    public function getProviderIDsForPatientPids(array $patientPids)
+    {
+        // get integer only filtered pids for sql safety
+        $pids = array_map('intval', $patientPids);
+        $pids = array_filter($pids, function ($pid) {
+            return $pid > 0;
+        });
+
+        $sql = "SELECT pid,providerID FROM patient_data WHERE pid IN (" . implode(",", $pids) . ") "
+        . " AND providerID IS NOT NULL AND providerID != 0 ORDER BY pid";
+        $providerIds = QueryUtils::fetchRecords($sql, []);
+        $mappedPids = [];
+        if (!empty($providerIds)) {
+            foreach ($providerIds as $record) {
+                $mappedPids[$record['pid']] = $record['providerID'];
+            }
+        }
+        return $mappedPids;
+    }
+
+    public function getProviderIDsForPatientUuids(array $patientUuids)
+    {
+        // get integer only filtered pids for sql safety
+        $bindString = rtrim(str_repeat("?,", count($patientUuids) - 1)) . "?";
+        $patientUuids = array_map(function ($uuid) {
+            return UuidRegistry::uuidToBytes($uuid);
+        }, $patientUuids);
+
+        $sql = "SELECT uuid,providerID FROM patient_data WHERE uuid IN (" . $bindString . ") "
+            . " AND providerID IS NOT NULL AND providerID != 0 ORDER BY uuid";
+        $providerIds = QueryUtils::fetchRecords($sql, $patientUuids);
+        $mappedUuids = [];
+        if (!empty($providerIds)) {
+            foreach ($providerIds as $record) {
+                $uuid = UuidRegistry::uuidToString($record['uuid']);
+                $mappedUuids[$uuid] = $record['providerID'];
+            }
+        }
+        return $mappedUuids;
+    }
+
     private function parseSuffixForPatientRecord($patientRecord)
     {
         // if we have a suffix populated (that wasn't entered into last name) let's use that.
@@ -910,5 +999,76 @@ class PatientService extends BaseService
             $this->patientSuffixKeys = array(xl('Jr.'), ' ' . xl('Jr'), xl('Sr.'), ' ' . xl('Sr'), xl('II{{patient suffix}}'), xl('III{{patient suffix}}'), xl('IV{{patient suffix}}'));
         }
         return $this->patientSuffixKeys;
+    }
+
+    /**
+     * Add the provided patient to the list of recent patients.
+     *
+     * If the patient already exists in the list, the old row gets dropped and
+     * the patient is added to the front of the array to provide a first in,
+     * first out list.
+     *
+     * @param Array $patient
+     * @return void
+     */
+    public function touchRecentPatientList(array $patient): void
+    {
+        $user = new UserService();
+        $curUser = $user->getCurrentlyLoggedInUser();
+
+        $query = "SELECT patients FROM recent_patients WHERE user_id = ?";
+        $row = sqlQuery($query, $curUser['id']);
+        $rp = ($row) ? unserialize($row['patients']) : [];
+
+        // In case we are returning to an already recently viewed patient, drop them from the current position
+        foreach ($rp as $k => $p) {
+            if ($p['pid'] == $patient['pid']) {
+                unset($rp[$k]);
+            }
+        }
+
+        // Get the columns we are storing
+        $query = "SELECT option_id FROM list_options WHERE list_id = 'recent_patient_columns' and activity = '1'";
+        $res = sqlStatement($query);
+        $cols = ['pid'];
+        while ($row = sqlFetchArray($res)) {
+            $cols[] = $row['option_id'];
+        }
+
+        // Trim down the incoming patient array to just the whitelisted columns
+        foreach ($patient as $k => $v) {
+            if (!in_array($k, $cols)) {
+                unset($patient[$k]);
+            }
+        }
+
+        // Push the new patient to the front of the FIFO list
+        array_unshift($rp, $patient);
+        // Cap out at max count as set in globals
+        $rp = array_slice($rp, 0, $GLOBALS['recent_patient_count']);
+        $_rp = serialize($rp);
+
+        $sql = "INSERT INTO recent_patients (user_id, patients) VALUES (?, ?) ON DUPLICATE KEY UPDATE patients=?";
+        $res = sqlStatement($sql, [$curUser['id'], $_rp, $_rp]);
+    }
+
+    /**
+     * Get an array of recent patients based for a given user
+     *
+     * Control the columns returned by modifying the
+     * Recent Patient Column List. Set the maximum number of patients to be
+     * store by setting the global variable recent_patient_count in
+     * Admin > Config > Appearance.
+     *
+     * @param int $user_id The id of a given user, defaults to the currently logged in user
+     * @return array
+     */
+    public function getRecentPatientList(int $user_id = 0): array
+    {
+        $user = new UserService();
+        $currUser = ($user_id > 0) ? ['id' => $user_id] : $user->getCurrentlyLoggedInUser();
+        $sql = "SELECT patients FROM recent_patients WHERE user_id = ?";
+        $res = sqlQuery($sql, [$currUser['id']]);
+        return ($res) ? unserialize($res['patients']) : [];
     }
 }

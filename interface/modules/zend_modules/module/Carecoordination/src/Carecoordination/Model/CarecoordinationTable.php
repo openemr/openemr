@@ -272,6 +272,10 @@ class CarecoordinationTable extends AbstractTableGateway
         }
         $this->documentData['field_name_value_array']['patient_data'][1]['referrerID'] = $xml['recordTarget']['patientRole']['id']['extension'] ?? '';
         //$this->documentData['field_name_value_array']['patient_data'][1]['ss'] = $xml['recordTarget']['patientRole']['id'][1]['extension'] ?? null;
+        if (is_array($xml['recordTarget']['patientRole']['addr'] ?? null) && !empty($xml['recordTarget']['patientRole']['addr'][0]['streetAddressLine'][0] ?? null)) {
+            // Since we don't have easy way to do additional addresses we'll grab the first.
+            $xml['recordTarget']['patientRole']['addr'] = $xml['recordTarget']['patientRole']['addr'][0];
+        }
         if (is_array($xml['recordTarget']['patientRole']['addr']['streetAddressLine'] ?? null)) {
             $this->documentData['field_name_value_array']['patient_data'][1]['street'] = $xml['recordTarget']['patientRole']['addr']['streetAddressLine'][0] ?? null;
             $this->documentData['field_name_value_array']['patient_data'][1]['street_line_2'] = $xml['recordTarget']['patientRole']['addr']['streetAddressLine'][1] ?? null;

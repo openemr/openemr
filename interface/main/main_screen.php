@@ -25,6 +25,7 @@ use OpenEMR\Common\Session\SessionTracker;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
+use OpenEMR\Services\ListService;
 use u2flib_server\U2F;
 
 ///////////////////////////////////////////////////////////////////////
@@ -426,89 +427,42 @@ if ((!AuthUtils::useActiveDirectory()) && ($GLOBALS['password_expiration_days'] 
     }
 }
 
+$listSvc = new ListService();
+$_tabs = $listSvc->getOptionsByListName('default_open_tabs', ['activity' => 1]);
+
 if ($is_expired) {
     //display the php file containing the password expiration message.
-    $frame1url = "pwd_expires_alert.php?csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken());
-    $frame1target = "adm";
-    $frame1label = "";
+    array_unshift($_tabs, [
+        'notes' => "pwd_expires_alert.php?csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()),
+        'id' => "adm",
+        "label" => xl("Password Reset"),
+    ]);
 } elseif (!empty($_POST['patientID'])) {
+    // Patient is open, so add this to the list of tabs, at the end
     $patientID = (int) $_POST['patientID'];
-    if (empty($_POST['encounterID'])) {
-        // Open patient summary screen (without a specific encounter)
-        $frame1url = "../patient_file/summary/demographics.php?set_pid=" . attr_url($patientID);
-        $frame1target = "pat";
-        $frame1label = xl('Patient Search/Add Screen');
-    } else {
-        // Open patient summary screen with a specific encounter
+    $_notes = "../patient_file/summary/demographics.php?set_pid=" . attr_url($patientID);
+    if (!empty($_POST['encounterID'])) {
         $encounterID = (int) $_POST['encounterID'];
-        $frame1url = "../patient_file/summary/demographics.php?set_pid=" . attr_url($patientID) . "&set_encounterid=" . attr_url($encounterID);
-        $frame1target = "pat";
-        $frame1label = xl('Patient Search/Add Screen');
+        $_notes = $_notes . "&set_encounterid=" . attr_url($encounterID);
     }
+    $_tabs[] = [
+        'notes' => $_notes,
+        'id' => "pat",
+        'label' => xl("Dashboard"),
+    ];
 } elseif (isset($_GET['mode']) && $_GET['mode'] == "loadcalendar") {
-    $frame1url = "calendar/index.php?pid=" . attr_url($_GET['pid']);
-    if (isset($_GET['date'])) {
-        $frame1url .= "&date=" . attr_url($_GET['date']);
-    }
-
-    $frame1target = "cal";
-    $frame1label = xl('Calendar Screen');
-} else {
-    // standard layout
-    $map_paths_to_targets = array(
-        'main_info.php' => array(
-            'target' => 'cal' , "label" => xl('Calendar Screen')
-        ),
-        '../new/new.php' => array(
-            'target' => 'pat' , "label" => xl('Patient Search/Add Screen')
-        ),
-        '../../interface/main/finder/dynamic_finder.php' => array(
-            'target' => 'fin' , "label" => xl('Patient Finder Screen')
-        ),
-        '../../interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1' => array(
-            'target' => 'flb' , "label" => xl('Patient Flow Board')
-        ),
-        '../../interface/main/messages/messages.php?form_active=1' => array(
-            'target' => 'msg' , "label" => xl('Messages Screen')
-        )
-    );
-    if ($GLOBALS['default_top_pane']) {
-        $frame1url = attr($GLOBALS['default_top_pane']);
-        $frame1target = $map_paths_to_targets[$GLOBALS['default_top_pane']]['target'];
-        $frame1label = $map_paths_to_targets[$GLOBALS['default_top_pane']]['label'];
-        if (empty($frame1target)) {
-            $frame1target = "msc";
-        }
-    } else {
-        $frame1url = "main_info.php";
-        $frame1target = "cal";
-    }
-    if ($GLOBALS['default_second_tab']) {
-        $frame2url = attr($GLOBALS['default_second_tab']);
-        $frame2target = $map_paths_to_targets[$GLOBALS['default_second_tab']]['target'];
-        $frame2label = $map_paths_to_targets[$GLOBALS['default_second_tab']]['label'];
-        if (empty($frame2target)) {
-            $frame2target = "msc";
-        }
-    } else {
-        // In the case where no second default tab is specified, set these session variables to null
-        $frame2url = null;
-        $frame2target = null;
-    }
-}
-
-$nav_area_width = '130';
-if (!empty($GLOBALS['gbl_nav_area_width'])) {
-    $nav_area_width = $GLOBALS['gbl_nav_area_width'];
+    // Load the calendar, at the end
+    $_notes = "calendar/index.php?pid=" . attr_url($_GET['pid']);
+    $_notes = (isset($_GET['date'])) ? $_notes . "&date=" . attr_url($_GET['date']) : $_notes;
+    $_tabs[] = [
+        'notes' => $_notes,
+        'id' => "cal",
+        "label" => xl("Calendar"),
+    ];
 }
 
 // Will set Session variables to communicate settings to tab layout
-$_SESSION['frame1url'] = $frame1url;
-$_SESSION['frame1target'] = $frame1target;
-$_SESSION['frame1label'] = $frame1label;
-$_SESSION['frame2url'] = $frame2url;
-$_SESSION['frame2target'] = $frame2target;
-$_SESSION['frame2label'] = $frame2label;
+$_SESSION['default_open_tabs'] = $_tabs;
 // mdsupport - Apps processing invoked for valid app selections from list
 if ((isset($_POST['appChoice'])) && ($_POST['appChoice'] !== '*OpenEMR')) {
     $_SESSION['app1'] = $_POST['appChoice'];

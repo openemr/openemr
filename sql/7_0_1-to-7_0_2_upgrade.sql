@@ -176,3 +176,109 @@ UNIQUE KEY `ip_string` (`ip_string`)
 ) ENGINE=InnoDb AUTO_INCREMENT=1;
 #EndIf
 
+#IfNotTable email_queue
+CREATE TABLE `email_queue` (
+`id` bigint NOT NULL auto_increment,
+`sender` varchar(255) DEFAULT '',
+`recipient` varchar(255) DEFAULT '',
+`subject` varchar(255) DEFAULT '',
+`body` text,
+`datetime_queued` datetime default NULL,
+`sent` tinyint DEFAULT 0,
+`datetime_sent` datetime default NULL,
+`error` tinyint DEFAULT 0,
+`error_message` text,
+`datetime_error` datetime default NULL,
+PRIMARY KEY (`id`),
+KEY `sent` (`sent`)
+) ENGINE=InnoDb AUTO_INCREMENT=1;
+#EndIf
+
+#IfNotRow background_services name Email_Service
+INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
+('Email_Service', 'Email Service', 1, 0, '2021-01-18 11:25:10', 2, 'emailServiceRun', '/library/email_service_run.php', 100);
+#EndIf
+
+#IfNotTable patient_settings
+CREATE TABLE `patient_settings` (
+`setting_patient`  bigint(20)   NOT NULL DEFAULT 0,
+`setting_label` varchar(100)  NOT NULL,
+`setting_value` varchar(255) NOT NULL DEFAULT '',
+PRIMARY KEY (`setting_patient`, `setting_label`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfMissingColumn facility inactive
+ALTER TABLE `facility` ADD COLUMN `inactive` tinyint(1) NOT NULL DEFAULT '0';
+#EndIf
+
+#IfNotRow2D list_options list_id Document_Template_Categories option_id notification_template
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','notification_template','Notification Template',105,0,0,'','','',0,0,1);
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id default_open_tabs
+-- Create new list Default Open Tabs
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'default_open_tabs', 'Default Open Tabs');
+-- Populate list with sensible defaults based on previous optiosn in globals, assume no tabs are actually active
+INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', 'interface/main/main_info.php', 'Calendar', 10, 'cal', '0');
+INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', 'interface/new/new.php', 'Patient Search / Add', 20, 'pat', '0');
+INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', 'interface/main/finder/dynamic_finder.php', 'Patient Finder', 30, 'fin', '0');
+INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', 'interface/patient_tracker/patient_tracker.php?skip_timeout_reset=1', 'Flow Board', 40, 'flb', '0');
+INSERT INTO `list_options` (`list_id`, `notes`, `title`, `seq`, `option_id`, `activity`) VALUES ('default_open_tabs', 'interface/main/messages/messages.php?form_active=1', 'Message Inbox', 50, 'msg', '0');
+-- Activate the 2 list options that were the previous default and second pane settings
+-- note need the second line for when upgrading in a version before the default_second_tab was added, which for example will impact the official demos
+UPDATE `list_options` lo INNER JOIN globals g ON lo.notes LIKE CONCAT('%', g.gl_value) AND lo.list_id = 'default_open_tabs' SET lo.activity = 1 WHERE g.gl_name = 'default_top_pane' OR g.gl_name = 'default_second_tab';
+UPDATE `list_options` SET `activity` = 1 WHERE `list_id` = 'default_open_tabs' AND `option_id` = 'msg' AND NOT EXISTS (SELECT `gl_value` FROM `globals` WHERE `gl_name` = 'default_second_tab');
+#EndIf
+
+#IfNotRow2D list_options list_id lists option_id recent_patient_columns
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'recent_patient_columns', 'Recent Patient Columns');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'fname', 'First Name', '10');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'mname', 'Middle Name', '20');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'lname', 'Last Name', '30');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'dob', 'Date of Birth', '40');
+#EndIf
+
+#IfNotTable recent_patients
+CREATE TABLE recent_patients (
+    user_id varchar(40) NOT NULL,
+    patients TEXT,
+    PRIMARY KEY (user_id)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfMissingColumn oauth_clients skip_ehr_launch_authorization_flow
+ALTER TABLE `oauth_clients` ADD COLUMN `skip_ehr_launch_authorization_flow` tinyint(1) NOT NULL DEFAULT '0';
+#EndIf
+
+#IfMissingColumn document_template_profiles notify_trigger
+ALTER TABLE `document_template_profiles` ADD `notify_trigger` VARCHAR(31) NOT NULL;
+ALTER TABLE `document_template_profiles` ADD `notify_period` INT(4) NOT NULL;
+#EndIf
+
+#IfNotRow2D layout_options form_id DEM field_id preferred_name
+SET @group_id = (SELECT `group_id` FROM layout_options WHERE field_id='suffix' AND form_id='DEM');
+SET @seq_start := 0;
+UPDATE `layout_options` SET `seq` = (@seq_start := @seq_start+1)*10 WHERE group_id = @group_id AND form_id='DEM' ORDER BY `seq`;
+SET @seq_add_to = (SELECT seq FROM layout_options WHERE group_id = @group_id AND field_id='suffix' AND form_id='DEM');
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`) VALUES ('DEM','preferred_name',@group_id,'Preferred Name',@seq_add_to+5,2,1,32,64,'',1,3,'','[\"J\",\"DAP\"]','Patient preferred name or name patient is commonly known.',0);
+ALTER TABLE `patient_data` ADD `preferred_name` TINYTEXT;
+#EndIf
+
+#IfMissingColumn email_queue template_name
+ALTER TABLE `email_queue` ADD `template_name` VARCHAR(255) DEFAULT NULL COMMENT 'The folder prefix and base filename (w/o extension) of the twig template file to use for this email';
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2023-10-01 load_filename Code Descriptions.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2023-10-01', 'Code Descriptions.zip', '15404ef88e0ffa15474e6d6076aa0a8a');
+#EndIf
+
+#IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2023-10-01 load_filename Zip File 3 2024 ICD-10-PCS Codes File.zip
+INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
+('ICD10', 'CMS', '2023-10-01', 'Zip File 3 2024 ICD-10-PCS Codes File.zip', '30e096ed9971755c4dfc134b938f3c1f');
+#EndIf
+
+#IfMissingColumn onsite_documents template_data
+ALTER TABLE `onsite_documents` ADD `template_data` LONGTEXT;
+#EndIf

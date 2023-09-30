@@ -69,7 +69,7 @@ foreach ($msgs as $i) {
 if ($newcnt > 0 && $_SESSION['portal_init']) {
     $whereto = $_SESSION['whereto'] = '#secure-msgs-card';
 }
-$messagesURL = $GLOBALS['web_root'] . '' . '/portal/messaging/messages.php';
+$messagesURL = $GLOBALS['web_root'] . '/portal/messaging/messages.php';
 
 $isEasyPro = $GLOBALS['easipro_enable'] && !empty($GLOBALS['easipro_server']) && !empty($GLOBALS['easipro_name']);
 
@@ -129,6 +129,14 @@ function buildNav($newcnt, $pid, $result)
             'messageCount' => $newcnt ?? 0,
             'children' => [
                 [
+                    'url' => '#quickstart-card',
+                    'id' => 'quickstart_id',
+                    'label' => xl('My Quick Start'),
+                    'icon' => 'fa-tasks',
+                    'dataToggle' => 'collapse',
+                ],
+
+                [
                     'url' => '#profilecard',
                     'label' => xl('My Profile'),
                     'icon' => 'fa-user',
@@ -142,12 +150,13 @@ function buildNav($newcnt, $pid, $result)
                     'dataToggle' => 'collapse',
                     'messageCount' => $newcnt ?? 0,
                 ],
-                [
+                /* Reserve item */
+                /*[
                     'url' => '#documentscard',
                     'label' => xl('My Documents'),
                     'icon' => 'fa-file-medical',
                     'dataToggle' => 'collapse'
-                ],
+                ],*/
                 [
                     'url' => '#lists',
                     'label' => xl('My Dashboard'),
@@ -285,7 +294,7 @@ $navMenu = buildNav($newcnt, $pid, $result);
 $twig = (new TwigContainer('', $GLOBALS['kernel']))->getTwig();
 echo $twig->render('portal/home.html.twig', [
     'user' => $user,
-    'whereto' => $_SESSION['whereto'] ?? null ?: ($whereto ?? '#documentscard'),
+    'whereto' => $_SESSION['whereto'] ?? null ?: ($whereto ?? '#quickstart-card'),
     'result' => $result,
     'msgs' => $msgs,
     'msgcnt' => $msgcnt,
@@ -302,7 +311,8 @@ echo $twig->render('portal/home.html.twig', [
     'images_static_relative' => $GLOBALS['images_static_relative'],
     'youHave' => xl('You have'),
     'navMenu' => $navMenu,
-    'pagetitle' => xl('Home') . ' | ' . xl('OpenEMR Portal'),
+    'primaryMenuLogoHeight' => $GLOBALS['portal_primary_menu_logo_height'] ?? '30',
+    'pagetitle' => xl('Home') . ' | ' . $GLOBALS['openemr_name'] . ' ' . xl('Portal'),
     'messagesURL' => $messagesURL,
     'patientID' => $pid,
     'patientName' => $_SESSION['ptName'] ?? null,

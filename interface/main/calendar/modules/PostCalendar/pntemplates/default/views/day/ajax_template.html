@@ -491,8 +491,8 @@ foreach ($providers as $provider) {
                 }
 
                 // create a numeric start and end for comparison
-                $starth = substr($e1['startTime'], 0, 2);
-                $startm = substr($e1['startTime'], 3, 2);
+                $starth = (int) substr($e1['startTime'], 0, 2);
+                $startm = (int) substr($e1['startTime'], 3, 2);
                 $e1Start = ($starth * 60) + $startm;
                 $e1End = $e1Start + $e1['duration']/60;
 
@@ -564,8 +564,8 @@ foreach ($providers as $provider) {
             }
 
             // figure the start time and minutes (from midnight)
-            $starth = substr($event['startTime'], 0, 2);
-            $startm = substr($event['startTime'], 3, 2);
+            $starth = (int) substr($event['startTime'], 0, 2);
+            $startm = (int) substr($event['startTime'], 3, 2);
             $eStartMin = $starth * 60 + $startm;
             $dispstarth = ($starth > 12) ? ($starth - $timeformat) : $starth; // used to display the hour
 
@@ -738,7 +738,7 @@ foreach ($providers as $provider) {
                 else
                     $divTitle .= "\r\n[" . $catname . ' ' . $comment . "]" . $fname . " " . $lname;
                 $content .= "<span class='appointment'>";
-                $content .= create_event_time_anchor($dispstarth.":".$startm);
+                $content .= create_event_time_anchor($dispstarth . ":" . sprintf("%02s", $startm));
                 if ($event['recurrtype'] > 0) $content .= "<img src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/repeating8.png' border='0' style='margin:0px 2px 0px 2px;' title='" . xla("Repeating event") . "' alt='" . xla("Repeating event") . "'>";
                 $content .= '&nbsp;' . text($event['apptstatus']);
                 if ($patientid) {
@@ -811,7 +811,7 @@ foreach ($providers as $provider) {
                   "' title='" . attr($divTitle) . "'".
                   " id='" . attr($eventdate) . "-" . attr($eventid) . "-" . attr($pccattype) . "'".
                   ">";
-              $content = text($dispstarth) . ':' . text($startm) . " " . $content;
+              $content = text($dispstarth) . ':' . text(sprintf("%02s", $startm)) . " " . $content;
               echo $content;
               echo "</div>\n";
           }

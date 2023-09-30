@@ -80,4 +80,12 @@ class FhirCodeSystemConstants
      * available here: https://vsac.nlm.nih.gov/valueset/2.16.840.1.113762.1.4.1099.27/expansion/Latest
      */
     const CARE_TEAM_MEMBER_FUNCTION_SNOMEDCT = "2.16.840.1.113762.1.4.1099.27";
+
+    /**
+     * Required for Structured Data Collection (SDC) Task implementations
+     * @see https://build.fhir.org/ig/HL7/sdc/ValueSet-task-code.html
+     */
+    const HL7_SDC_TASK_TEMP = "https://build.fhir.org/ig/HL7/sdc/CodeSystem-temp.html";
+
+    const HL7_SDC_TASK_SERVICE_REQUEST = "http://hl7.org/fhir/CodeSystem/task-code";
 }

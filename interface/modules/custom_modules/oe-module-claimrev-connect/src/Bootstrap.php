@@ -16,7 +16,6 @@
 
 namespace OpenEMR\Modules\ClaimRevConnector;
 
-require_once $GLOBALS["srcdir"] . "/options.inc.php";
 /**
  * Note the below use statements are importing classes from the OpenEMR core codebase
  */
@@ -171,7 +170,7 @@ class Bootstrap
 
         $pid = $event->getPid();
         ?>
-        <section>
+        <section class="card mb-2">
         <?php
         // Billing expand collapse widget
         $widgetTitle = xl("ClaimRev Eligibility");

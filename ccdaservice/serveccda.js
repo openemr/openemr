@@ -16,6 +16,18 @@ const server = net.createServer();
 const to_json = require('xmljson').to_json;
 const bbg = require(__dirname + '/oe-blue-button-generate');
 const fs = require('fs');
+const { DataStack } = require('./data-stack/data-stack');
+const { cleanCode } = require('./utils/clean-code/clean-code');
+const { safeTrim } = require('./utils/safe-trim/safe-trim');
+const { headReplace } = require('./utils/head-replace/head-replace');
+const { fDate, templateDate } = require('./utils/date/date');
+const { countEntities } = require('./utils/count-entities/count-entities');
+const { populateTimezones } = require('./utils/timezones/timezones');
+const {
+    getNpiFacility,
+    populateDemographics,
+} = require('./utils/demographics/populate-demographics');
+const { populateProvider } = require('./utils/providers/providers');
 
 var conn = ''; // make our connection scope global to script
 var oidFacility = "";
@@ -26,453 +38,18 @@ var webRoot = "";
 var authorDateTime = '';
 var documentLocation = '';
 
-class DataStack {
-    constructor(delimiter) {
-        this.delimiter = delimiter;
-        this.buffer = "";
-    }
-
-    endOfCcda() {
-        return this.buffer.length === 0 || this.buffer.indexOf(this.delimiter) === -1;
-    }
-
-    pushToStack(data) {
-        this.buffer += data;
-    }
-
-    fetchBuffer() {
-        const delimiterIndex = this.buffer.indexOf(this.delimiter);
-        if (delimiterIndex !== -1) {
-            const bufferMsg = this.buffer.slice(0, delimiterIndex);
-            this.buffer = this.buffer.replace(bufferMsg + this.delimiter, "");
-            return bufferMsg;
-        }
-        return null
-    }
-
-    returnData() {
-        return this.fetchBuffer();
-    }
-
-    clearStack() {
-        this.buffer = "";
-    }
-
-    readStackByDelimiter(delimiter) {
-        let backup = this.delimiter;
-        let part = '';
-        this.delimiter = delimiter;
-        part = this.fetchBuffer();
-        this.delimiter = backup;
-        return part;
-    }
-}
-
-function trim(s) {
-    if (typeof s === 'string') return s.trim();
-    return s;
-}
-
-function cleanText(s) {
-    if (typeof s === 'string') {
-        //s = s.replace(new RegExp('\r?\n','g'), '<br />');
-        return s.trim();
-    }
-    return s;
-}
-
-// do a recursive descent transformation of the node object populating the timezone offset value if we have
-// a precision property (inside a date) with the value of timezone.
-function populateTimezones(node, tzOffset, depthCheck) {
-    if (!node || typeof node !== 'object') {
-        return node;
-    }
-    // we should NEVER go farther than 25 recursive loops down in our heirarchy, if we do it means we have an infinite loop
-    if (depthCheck > 25) {
-        console.error("Max depth traversal reached.  Potential infinite loop.  Breaking out of loop")
-        return node;
-    }
-
-    if (node.hasOwnProperty('precision') && node.precision == 'tz' && !node.hasOwnProperty('timezoneOffset')) {
-        node.timezoneOffset = tzOffset;
-    } else {
-        for (const [key, value] of Object.entries(node)) {
-            node[key] = populateTimezones(value, tzOffset, depthCheck + 1);
-        }
-    }
-    return node;
-}
-
-function fDate(str, lim8 = false) {
-    str = String(str);
-    if (lim8) {
-        let rtn = str.substring(0, 8);
-        return rtn;
-    }
-    if (Number(str) === 0) {
-        return (new Date()).toISOString();
-    }
-    if (str.length === 1 || str === "0000-00-00") return (new Date()).toISOString();
-    if (str.length === 8 || (str.length === 14 && (1 * str.substring(12, 14)) === 0)) {
-        return [str.slice(0, 4), str.slice(4, 6), str.slice(6, 8)].join('-');
-    } else if (str.length === 10 && (1 * str.substring(0, 2)) <= 12) {
-        // case mm/dd/yyyy or mm-dd-yyyy
-        return [str.slice(6, 10), str.slice(0, 2), str.slice(3, 5)].join('-');
-    } else if (str.length === 17) {
-        str = str.split(' ');
-        str = [str[0].slice(0, 4), str[0].slice(4, 6), str[0].slice(6, 8)].join('-') + ' ' + str[1];
-        return str;
-    } else if (str.length === 19 && (str.substring(14, 15)) == '-') {
-        let strZone = str.split('-');
-        let strDate = [strZone[0].substring(0, 4), strZone[0].substring(4, 6), strZone[0].substring(6, 8)].join('-');
-        let strTime = [str.substring(8, 10), str.substring(10, 12), str.substring(12, 14)].join(':');
-
-        let str1 = strDate + ' ' + strTime + '-' + strZone[1];
-        return str1;
-    } else {
-        return str;
-    }
-
-    return str;
-}
-
-function getPrecision(str) {
-    str = String(str);
-    let pflg = "day";
-
-    if (Number(str) === 0) {
-        return "day";
-    }
-    if (str.length > 8) {
-        pflg = "day";
-    }
-    if (str.length > 12) {
-        pflg = "second";
-    }
-    if (str.length > 23) {
-        pflg = "tz";
-    }
-
-    return pflg;
-}
-
-function templateDate(date, precision) {
-    return {'date': fDate(date), 'precision': precision}
-}
-
-function cleanCode(code) {
-    if (typeof code === 'undefined') {
-        return "null_flavor";
-    }
-    if (code.length < 1) {
-        code = "null_flavor";
-        return code;
-    }
-    return code.replace(/[.#]/, "");
-}
-
-function isOne(who) {
-    try {
-        if (who !== null && typeof who === 'object') {
-            return (who.hasOwnProperty('npi')
-                || who.hasOwnProperty('code')
-                || who.hasOwnProperty('extension')
-                || who.hasOwnProperty('id')
-                || who.hasOwnProperty('date')
-                || who.hasOwnProperty('use')
-                || who.hasOwnProperty('type')
-            ) ? 1 : Object.keys(who).length;
-        }
-    } catch (e) {
-        return false;
-    }
-    return 0;
-}
-
-function headReplace(content, xslUrl = "") {
-
-    let xsl = "CDA.xsl";
-    if (typeof xslUrl == "string" && xslUrl.trim() != "") {
-        xsl = xslUrl;
-    }
-
-    let r = '<?xml version="1.0" encoding="UTF-8"?>' + "\n" +
-        '<?xml-stylesheet type="text/xsl" href="' + xsl + '"?>';
-    r += "\n" + content.substring(content.search(/<ClinicalDocument/i));
-    return r;
-}
-
-function fetchPreviousAddresses(pd) {
-    let addressArray = [];
-    let pa = pd.previous_addresses.address;
-    let streetLine = [pd.street[0]];
-    if (pd.street[1].length > 0) {
-        streetLine = [pd.street[0], pd.street[1]];
-    }
-    addressArray.push({
-        "use": "HP",
-        "street_lines": streetLine,
-        "city": pd.city,
-        "state": pd.state,
-        "zip": pd.postalCode,
-        "country": pd.country || "US",
-        "date_time": {
-            // use current date for current residence
-            "low": {
-                "date": fDate(""),
-                "precision": "day"
-            }
-        }
-    });
-    let count = isOne(pa);
-    // how do we ever get here where we just have one object?
-    if (count === 1) {
-        streetLine = [pa.street[0]];
-        if (pa.street[1].length > 0) {
-            streetLine = [pa.street[0], pa.street[1]];
-        }
-        addressArray.push({
-            "use": pa.use,
-            "street_lines": streetLine,
-            "city": pa.city,
-            "state": pa.state,
-            "zip": pa.postalCode,
-            "country": pa.country || "US",
-            "date_time": {
-                "low": {
-                    "date": fDate(pa.period_start),
-                    "precision": "day"
-                },
-                "high": {
-                    "date": fDate(pa.period_end) || fDate(""),
-                    "precision": "day"
-                }
-            }
-        });
-    } else if (count > 1) {
-        for (let i in pa) {
-            streetLine = [pa[i].street[0]];
-            if (pa[i].street[1].length > 0) {
-                streetLine = [pa[i].street[0], pa[i].street[1]];
-            }
-            addressArray.push({
-                "use": pa[i].use,
-                "street_lines": streetLine,
-                "city": pa[i].city,
-                "state": pa[i].state,
-                "zip": pa[i].postalCode,
-                "country": pa[i].country || "US",
-                "date_time": {
-                    "low": {
-                        "date": fDate(pa[i].period_start),
-                        "precision": "day"
-                    },
-                    "high": {
-                        "date": fDate(pa[i].period_end) || fDate(""),
-                        "precision": "day"
-                    }
-                }
-            });
-        }
-    }
-    return addressArray;
-}
-
-function populateDemographic(pd, g) {
-    let first = 'NI';
-    let middle = 'NI';
-    let last = 'NI';
-    const names = g.display_name.split(' ');
-    if (names.length === 2) {
-        first = names[0];
-        last = names[1];
-    }
-    if (names.length === 3) {
-        first = names[0];
-        last = names[2];
-    }
-    let guardian = [{
-        "relation": g.relation,
-        "addresses": [{
-            "street_lines": [g.address],
-            "city": g.city,
-            "state": g.state,
-            "zip": g.postalCode,
-            "country": g.country || "US",
-            "use": "primary home"
-        }],
-        "names": [{
-            "last": last,
-            "first": first
-        }],
-        "phone": [{
-            "number": g.telecom,
-            "type": "primary home"
-        }]
-    }];
-    if (pd.race === 'Declined To Specify' || pd.race === '') {
-        pd.race = "null_flavor";
-    }
-    if (pd.race_group === 'Declined To Specify' || pd.race_group === '') {
-        pd.race_group = "null_flavor";
-    }
-    if (pd.ethnicity === 'Declined To Specify' || pd.ethnicity === '') {
-        pd.ethnicity = "null_flavor";
-    }
-    let addressArray = fetchPreviousAddresses(pd);
-    return {
-        "name": {
-            "prefix": pd.prefix,
-            "suffix": pd.suffix,
-            "middle": [pd.mname] || "",
-            "last": pd.lname,
-            "first": pd.fname
-        },
-        "birth_name": {
-            "middle": pd.birth_mname || "",
-            "last": pd.birth_lname || "",
-            "first": pd.birth_fname || ""
-        },
-        "dob": {
-            "point": {
-                "date": fDate(pd.dob),
-                "precision": "day"
-            }
-        },
-        "gender": pd.gender.toUpperCase() || "null_flavor",
-        "identifiers": [{
-            "identifier": oidFacility || npiFacility,
-            "extension": pd.uuid
-        }],
-        "marital_status": pd.status.toUpperCase(),
-        "addresses": addressArray,
-        "phone": [
-            {
-                "number": pd.phone_home,
-                "type": "primary home"
-            }, {
-                "number": pd.phone_mobile,
-                "type": "primary mobile"
-            }, {
-                "number": pd.phone_work,
-                "type": "work place"
-            }, {
-                "number": pd.phone_emergency,
-                "type": "emergency contact"
-            },{
-                "email": pd.email,
-                "type": "contact_email"
-            }
-        ],
-        "ethnicity": pd.ethnicity || "",
-        "race": pd.race || "null_flavor",
-        "race_additional": pd.race_group || "null_flavor",
-        "languages": [{
-            "language": pd.language === 'English' ? "en-US" : pd.language === 'Spanish' ? "sp-US" : 'en-US',
-            "preferred": true,
-            "mode": "Expressed spoken",
-            "proficiency": "Good"
-        }],
-        //"religion": pd.religion.toUpperCase() || "",
-        /*"birthplace":'', {
-            "city": "",
-            "state": "",
-            "zip": "",
-            "country": ""
-        },*/
-        "attributed_provider": {
-            "identity": [
-                {
-                    "root": "2.16.840.1.113883.4.6",
-                    "extension": npiFacility || ""
-                }
-            ],
-            "phone": [{
-                "number": all.encounter_provider.facility_phone || "",
-            }],
-            "name": [
-                {
-                    "full": all.encounter_provider.facility_name || ""
-                }
-            ],
-            "address": [
-                {
-                    "street_lines": [
-                        all.encounter_provider.facility_street
-                    ],
-                    "city": all.encounter_provider.facility_city,
-                    "state": all.encounter_provider.facility_state,
-                    "zip": all.encounter_provider.facility_postal_code,
-                    "country": all.encounter_provider.facility_country_code || "US",
-                    "use": "work place"
-                }
-            ],
-        },
-        "guardians": g.display_name ? guardian : '' //not required
-    }
-}
-
-function populateProvider(provider) {
-    // The provider role is a maybe and will only be provided for physicians as a
-    // primary care role. All other team members will id via taxonomy only and if not physicians.
-    return {
-        "function_code": provider.physician_type ? "PP" : "",
-        "date_time": {
-            "low": {
-                "date": provider.provider_since ? fDate(provider.provider_since) : fDate(""),
-                "precision": "tz"
-            }
-        },
-        "identity": [
-            {
-                "root": provider.npi ? "2.16.840.1.113883.4.6" : oidFacility,
-                "extension": provider.npi || provider.table_id || "NI"
-            }
-        ],
-        "type": [
-            {
-                "name": provider.taxonomy_description || "",
-                "code": cleanCode(provider.taxonomy) || "",
-                "code_system": "2.16.840.1.113883.6.101",
-                "code_system_name": "NUCC Health Care Provider Taxonomy"
-            }
-        ],
-        "name": [
-            {
-                "last": provider.lname || "",
-                "first": provider.fname || ""
-            }
-        ],
-        "address": [
-            {
-                "street_lines": [
-                    all.encounter_provider.facility_street
-                ],
-                "city": all.encounter_provider.facility_city,
-                "state": all.encounter_provider.facility_state,
-                "zip": all.encounter_provider.facility_postal_code,
-                "country": all.encounter_provider.facility_country_code || "US"
-            }
-        ],
-
-        "phone": [{
-            "number": all.encounter_provider.facility_phone || ""
-        }]
-    }
-}
-
 function populateProviders(all) {
     let providerArray = [];
     // primary provider
-    let provider = populateProvider(all.primary_care_provider.provider);
+    let provider = populateProvider(all.primary_care_provider.provider, all);
     providerArray.push(provider);
-    let count = isOne(all.care_team.provider);
+    let count = countEntities(all.care_team.provider);
     if (count === 1) {
-        provider = populateProvider(all.care_team.provider);
+        provider = populateProvider(all.care_team.provider, all);
         providerArray.push(provider);
     } else if (count > 1) {
         for (let i in all.care_team.provider) {
-            provider = populateProvider(all.care_team.provider[i]);
+            provider = populateProvider(all.care_team.provider[i], all);
             providerArray.push(provider);
         }
     }
@@ -597,7 +174,7 @@ function populateCareTeamMembers(pd) {
     if (pd.primary_care_provider) {
         let provider = populateCareTeamMember(pd.primary_care_provider.provider);
         providerArray.push(provider);
-        let count = isOne(pd.care_team.provider);
+        let count = countEntities(pd.care_team.provider);
         if (count === 1) {
             provider = populateCareTeamMember(pd.care_team.provider);
             providerSince = providerSince || fDate(provider.provider_since);
@@ -977,7 +554,7 @@ function populateEncounter(pd) {
     let theone = {};
     let count = 0;
     try {
-        count = isOne(pd.encounter_problems.problem);
+        count = countEntities(pd.encounter_problems.problem);
     } catch (e) {
         count = 0;
     }
@@ -1204,9 +781,9 @@ function populateProblem(pd) {
         }],
         "problem": {
             "code": {
-                "name": trim(pd.title),
+                "name": safeTrim(pd.title),
                 "code": cleanCode(pd.code),
-                "code_system_name": trim(pd.code_type)
+                "code_system_name": safeTrim(pd.code_type)
             },
             "date_time": {
                 "low": {
@@ -1526,7 +1103,7 @@ function getResultSet(results) {
     let count = 0;
     many.results = [];
     try {
-        count = isOne(results.result);
+        count = countEntities(results.result);
     } catch (e) {
         count = 0;
     }
@@ -1587,7 +1164,7 @@ function getPlanOfCare(pd) {
 
     for (let key in all.encounter_list.encounter) {
         // skip loop if the property is from prototype
-        if (!all.encounter_list.encounter.hasOwnProperty(key)) {
+        if (!Object.prototype.hasOwnProperty.call(all.encounter_list.encounter, key)) {
             continue;
         }
         encounter = all.encounter_list.encounter[key];
@@ -1625,7 +1202,7 @@ function getPlanOfCare(pd) {
         }],
         "goal": {
             "code": cleanCode(pd.code) || "",
-            "name": cleanText(pd.description) || ""
+            "name": safeTrim(pd.description) || ""
         },
         "date_time": {
             "point": {
@@ -1701,7 +1278,7 @@ function getPlanOfCare(pd) {
             "status": status,
             "reason": encounter.encounter_reason
         }],
-        "name": cleanText(pd.description),
+        "name": safeTrim(pd.description),
         "mood_code": pd.moodCode
     };
 }
@@ -1782,7 +1359,7 @@ function getFunctionalStatus(pd) {
 
         "observation": {
             "value": {
-                "name": pd.code_text !== "NULL" ? cleanText(pd.code_text) : "",
+                "name": pd.code_text !== "NULL" ? safeTrim(pd.code_text) : "",
                 "code": cleanCode(pd.code) || "",
                 "code_system_name": pd.code_type || "SNOMED-CT"
             },
@@ -1813,7 +1390,7 @@ function getMentalStatus(pd) {
             "identifier": "9a6d1bac-17d3-4195-89a4-1121bc809ccc",
             "extension": pd.extension,
         }],
-        "note": cleanText(pd.description),
+        "note": safeTrim(pd.description),
         "date_time": {
             "low": templateDate(pd.date, "day")
             //"high": templateDate(pd.date, "day")
@@ -1861,7 +1438,7 @@ function getMentalStatus(pd) {
 
 function getAssessments(pd) {
     return {
-        "description": cleanText(pd.description),
+        "description": safeTrim(pd.description),
         "author": populateAuthorFromAuthorContainer(pd)
     };
 }
@@ -1870,7 +1447,7 @@ function getHealthConcerns(pd) {
     let one = true;
     let issue_uuid;
     let problems = [], problem = {};
-    if (isOne(pd.issues.issue_uuid) !== 0) {
+    if (countEntities(pd.issues.issue_uuid) !== 0) {
         for (let key in pd.issues.issue_uuid) {
             issue_uuid = pd.issues.issue_uuid[key];
             if (issue_uuid) {
@@ -1897,7 +1474,7 @@ function getHealthConcerns(pd) {
     return {
         // todo need to make array of health concerns
         "type": "act",
-        "text": cleanText(pd.text),
+        "text": safeTrim(pd.text),
         "value": {
             "name": pd.code_text || "",
             "code": cleanCode(pd.code) || "",
@@ -1914,7 +1491,7 @@ function getHealthConcerns(pd) {
 
 function getReferralReason(pd) {
     return {
-        "reason": cleanText(pd.text),
+        "reason": safeTrim(pd.text),
         "author": populateAuthorFromAuthorContainer(pd)
     };
 }
@@ -2578,7 +2155,7 @@ function populateNote(pd) {
             name: pd.code_text || ""
         },
         "author": populateAuthorFromAuthorContainer(pd),
-        "note": cleanText(pd.description),
+        "note": safeTrim(pd.description),
     };
 }
 
@@ -2789,7 +2366,7 @@ function populateHeader(pd) {
     let docParticipants = pd.document_participants || {participant: []};
     let count = 0;
     try {
-        count = isOne(docParticipants.participant);
+        count = countEntities(docParticipants.participant);
     } catch (e) {
         count = 0
     }
@@ -2803,7 +2380,7 @@ function populateHeader(pd) {
         head.participants = participants;
     }
 
-    if (isOne(all.encounter_list.encounter) === 1) {
+    if (countEntities(all.encounter_list.encounter) === 1) {
         let primary_care_provider = pd.primary_care_provider || {provider: {}};
         head.component_of = {
             "identifiers": [
@@ -2899,7 +2476,7 @@ function generateCcda(pd) {
     let primary_care_provider = all.primary_care_provider || {};
     npiProvider = primary_care_provider.provider ? primary_care_provider.provider.npi : "NI";
     oidFacility = all.encounter_provider.facility_oid ? all.encounter_provider.facility_oid : "2.16.840.1.113883.19.5.99999.1";
-    npiFacility = all.encounter_provider.facility_npi;
+    npiFacility = getNpiFacility(pd, false);
     webRoot = all.serverRoot;
     documentLocation = all.document_location;
 
@@ -2907,7 +2484,7 @@ function generateCcda(pd) {
     if (pd.author.time.length > 7) {
         authorDateTime = pd.author.time;
     } else if (all.encounter_list && all.encounter_list.encounter) {
-        if (isOne(all.encounter_list.encounter) === 1) {
+        if (countEntities(all.encounter_list.encounter) === 1) {
             authorDateTime = all.encounter_list.encounter.date;
         } else {
             authorDateTime = all.encounter_list.encounter[0].date;
@@ -2915,8 +2492,8 @@ function generateCcda(pd) {
     }
 
     authorDateTime = fDate(authorDateTime);
-// Demographics
-    let demographic = populateDemographic(pd.patient, pd.guardian, pd);
+    // Demographics
+    let demographic = populateDemographics(pd, npiFacility);
 // This populates documentationOf. We are using providerOrganization also.
     if (pd.primary_care_provider) {
         Object.assign(demographic, populateProviders(pd));
@@ -2927,7 +2504,7 @@ function generateCcda(pd) {
     let enc = {};
     encs.encounters = [];
     try {
-        count = isOne(pd.encounter_list.encounter);
+        count = countEntities(pd.encounter_list.encounter);
     } catch (e) {
         count = 0
     }
@@ -2948,7 +2525,7 @@ function generateCcda(pd) {
     let vital = {};
     vitals.vitals = [];
     try {
-        count = isOne(pd.history_physical.vitals_list.vitals);
+        count = countEntities(pd.history_physical.vitals_list.vitals);
     } catch (e) {
         count = 0
     }
@@ -2969,7 +2546,7 @@ function generateCcda(pd) {
     let m = {};
     meds.medications = [];
     try {
-        count = isOne(pd.medications.medication);
+        count = countEntities(pd.medications.medication);
     } catch (e) {
         count = 0
     }
@@ -2990,7 +2567,7 @@ function generateCcda(pd) {
     let allergy = {};
     allergies.allergies = [];
     try {
-        count = isOne(pd.allergies.allergy);
+        count = countEntities(pd.allergies.allergy);
     } catch (e) {
         count = 0
     }
@@ -3012,7 +2589,7 @@ function generateCcda(pd) {
     let problem = {};
     problems.problems = [];
     try {
-        count = isOne(pd.problem_lists.problem);
+        count = countEntities(pd.problem_lists.problem);
     } catch (e) {
         count = 0
     }
@@ -3033,7 +2610,7 @@ function generateCcda(pd) {
     theone = {};
     many.procedures = [];
     try {
-        count = isOne(pd.procedures.procedure);
+        count = countEntities(pd.procedures.procedure);
     } catch (e) {
         count = 0
     }
@@ -3054,7 +2631,7 @@ function generateCcda(pd) {
     theone = {};
     many.medical_devices = [];
     try {
-        count = isOne(pd.medical_devices.device);
+        count = countEntities(pd.medical_devices.device);
     } catch (e) {
         count = 0
     }
@@ -3090,7 +2667,7 @@ function generateCcda(pd) {
     theone = {};
     many.health_concerns = [];
     try {
-        count = isOne(pd.health_concerns.concern);
+        count = countEntities(pd.health_concerns.concern);
     } catch (e) {
         count = 0
     }
@@ -3114,7 +2691,7 @@ function generateCcda(pd) {
     theone = {};
     many.immunizations = [];
     try {
-        count = isOne(pd.immunizations.immunization);
+        count = countEntities(pd.immunizations.immunization);
     } catch (e) {
         count = 0;
     }
@@ -3135,7 +2712,7 @@ function generateCcda(pd) {
     theone = {};
     many.plan_of_care = [];
     try {
-        count = isOne(pd.planofcare.item);
+        count = countEntities(pd.planofcare.item);
     } catch (e) {
         count = 0
     }
@@ -3164,7 +2741,7 @@ function generateCcda(pd) {
     theone = {};
     many.goals = [];
     try {
-        count = isOne(pd.goals.item);
+        count = countEntities(pd.goals.item);
     } catch (e) {
         count = 0
     }
@@ -3185,7 +2762,7 @@ function generateCcda(pd) {
     theone = {};
     many.clinicalNoteAssessments = [];
     try {
-        count = isOne(pd.clinical_notes.evaluation_note);
+        count = countEntities(pd.clinical_notes.evaluation_note);
     } catch (e) {
         count = 0
     }
@@ -3208,7 +2785,7 @@ function generateCcda(pd) {
     theone = {};
     many.functional_status = [];
     try {
-        count = isOne(pd.functional_status.item);
+        count = countEntities(pd.functional_status.item);
     } catch (e) {
         count = 0
     }
@@ -3230,7 +2807,7 @@ function generateCcda(pd) {
     theone = {};
     many.mental_status = [];
     try {
-        count = isOne(pd.mental_status.item);
+        count = countEntities(pd.mental_status.item);
     } catch (e) {
         count = 0
     }
@@ -3252,7 +2829,7 @@ function generateCcda(pd) {
     theone = {};
     many.social_history = [];
     try {
-        count = isOne(pd.history_physical.social_history.history_element);
+        count = countEntities(pd.history_physical.social_history.history_element);
     } catch (e) {
         count = 0
     }
@@ -3276,9 +2853,7 @@ function generateCcda(pd) {
         switch (pd.clinical_notes[currentNote].clinical_notes_type) {
             case 'evaluation_note':
                 continue;
-                break;
             case 'progress_note':
-
                 break;
             case 'history_physical':
                 pd.clinical_notes[currentNote].code_text = "History and Physical";
@@ -3303,7 +2878,7 @@ function generateCcda(pd) {
                 continue;
         }
         try {
-            count = isOne(pd.clinical_notes[currentNote]);
+            count = countEntities(pd.clinical_notes[currentNote]);
         } catch (e) {
             count = 0
         }
@@ -3375,14 +2950,14 @@ function generateUnstructured(pd) {
     let primary_care_provider = all.primary_care_provider || {};
     npiProvider = primary_care_provider.provider ? primary_care_provider.provider.npi : "NI";
     oidFacility = all.encounter_provider.facility_oid ? all.encounter_provider.facility_oid : "2.16.840.1.113883.19.5.99999.1";
-    npiFacility = all.encounter_provider.facility_npi || "NI";
+    npiFacility = getNpiFacility(pd, true);
     webRoot = all.serverRoot;
     documentLocation = all.document_location;
     authorDateTime = pd.created_time_timezone;
     if (pd.author.time.length > 7) {
         authorDateTime = pd.author.time;
     } else if (all.encounter_list && all.encounter_list.encounter) {
-        if (isOne(all.encounter_list.encounter) === 1) {
+        if (countEntities(all.encounter_list.encounter) === 1) {
             authorDateTime = all.encounter_list.encounter.date;
         } else {
             authorDateTime = all.encounter_list.encounter[0].date;
@@ -3390,7 +2965,7 @@ function generateUnstructured(pd) {
     }
     authorDateTime = fDate(authorDateTime);
 // Demographics is needed in unstructured
-    let demographic = populateDemographic(pd.patient, pd.guardian, pd);
+    let demographic = populateDemographics(pd, npiFacility);
     data.demographics = Object.assign(demographic);
 
     if (pd.primary_care_provider) {
@@ -3442,22 +3017,28 @@ function processConnection(connection) {
         if (xml_complete.match(/^<CCDA/g) && xml_complete.match(/<\/CCDA>$/g)) {
             let doc = "";
             let xslUrl = "";
+            /* eslint-disable-next-line no-control-regex */
             xml_complete = xml_complete.replace(/(\u000b\u001c)/gm, "").trim();
-            xml_complete = xml_complete.replace(/\t\s+/g, ' ').trim();
+            xml_complete = xml_complete.replace(/\t\s+/g, " ").trim();
             // convert xml data set for document to json array
             to_json(xml_complete, function (error, data) {
                 if (error) {
-                    console.log('toJson error: ' + error + 'Len: ' + xml_complete.length);
-                    return 'ERROR: Failed json build';
+                    console.log(
+                        "toJson error: " + error + "Len: " + xml_complete.length
+                    );
+                    return "ERROR: Failed json build";
                 }
                 let unstructured = "";
                 let isUnstruturedData = !!data.CCDA.patient_files;
                 // extract unstructured documents file component templates. One per file.
                 if (isUnstruturedData) {
-                    unstructuredTemplate = xml_complete.substring(xml_complete.lastIndexOf('<patient_files>') + 15, xml_complete.lastIndexOf('</patient_files>'));
+                    unstructuredTemplate = xml_complete.substring(
+                        xml_complete.lastIndexOf("<patient_files>") + 15,
+                        xml_complete.lastIndexOf("</patient_files>")
+                    );
                 }
                 // create doc_type document i.e. CCD Referral etc.
-                if (data.CCDA.doc_type !== 'unstructured') {
+                if (data.CCDA.doc_type !== "unstructured") {
                     doc = generateCcda(data.CCDA);
                     if (data.CCDA.xslUrl) {
                         xslUrl = data.CCDA.xslUrl || "";
@@ -3473,7 +3054,10 @@ function processConnection(connection) {
                     doc += unstructured;
                 }
                 // auto build an Unstructured document of supplied embedded files.
-                if (data.CCDA.doc_type !== 'unstructured' && isUnstruturedData) {
+                if (
+                    data.CCDA.doc_type !== "unstructured" &&
+                    isUnstruturedData
+                ) {
                     unstructured = generateUnstructured(data.CCDA);
                     unstructured = headReplace(unstructured, xslUrl);
                     // combine the two documents to send back all at once.
@@ -3481,14 +3065,18 @@ function processConnection(connection) {
                 }
             });
             // send results back to eagerly awaiting CCM for disposal.
-            doc = doc.toString().replace(/(\u000b\u001c|\r)/gm, "").trim();
+            doc = doc
+                .toString()
+                /* eslint-disable-next-line no-control-regex */
+                .replace(/(\u000b\u001c|\r)/gm, "")
+                .trim();
             let chunk = "";
             let numChunks = Math.ceil(doc.length / 1024);
             for (let i = 0, o = 0; i < numChunks; ++i, o += 1024) {
                 chunk = doc.substring(o, o + 1024);
                 conn.write(chunk);
             }
-            conn.write(String.fromCharCode(28) + "\r\r" + '');
+            conn.write(String.fromCharCode(28) + "\r\r" + "");
             conn.end();
         }
     }
@@ -3507,7 +3095,7 @@ function processConnection(connection) {
     // CCM will send one File Separator characters to mark end of array.
     let received = new DataStack(String.fromCharCode(28));
     conn.on("data", data => {
-        received.pushToStack(data);
+        received.push(data);
         while (!received.endOfCcda() && data.length > 0) {
             data = "";
             eventData(received.returnData());

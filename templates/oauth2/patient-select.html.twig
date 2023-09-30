@@ -1,0 +1,123 @@
+{#
+ # patient-select.html.twig
+ # @package openemr
+ # @link      http://www.open-emr.org
+ # @author    Stephen Nielson <stephen@nielson.org>
+ # @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% extends "oauth2/oauth2-base.html.twig" %}
+{% block title %}{{ "OpenEMR Authorization"|xlt }}{% endblock %}
+{% block content %}
+<div class="row w-100 justify-content-center align-items-center">
+        <div class="col-12 col-sm-10 col-lg-7 ml-auto mr-auto bg-light text-dark">
+            <div class="text-md-center">
+                <h4 class="mb-4 mt-1">{{ "Patient Selection"|xlt }}</h4>
+            </div>
+            {% if patients|length < 1 %}
+            <div class="row w-100">
+                <div class="col">
+                    {% if errorMessage is not empty %}<p class="alert alert-warning">{{ errorMessage|text }}</p>{% endif %}
+                    <p class="alert alert-info">{{ "No patients to select"|xlt }}</p>
+                </div>
+            </div>
+            {% else %}
+            <div class="row w-100">
+                <div class="col">
+                    <form action="{{ searchAction|attr }}" method="GET">
+                        <input class="w-25" name="search[fname]" type="text" class="form-control form-input" placeholder="{{ "First Name"|xla }}"
+                        value="{{ fname|attr }}" />
+                        <input class="w-25" name="search[mname]" type="text" class="form-control form-input" placeholder="{{ "Middle Name"|xla }}"
+                        value="{{ mname|attr }}" />
+                        <input class="w-25" name="search[lname]" type="text" class="form-control form-input" placeholder="{{ "Last Name"|xla }}"
+                        value="{{ lname|attr }}" />
+                        <input type="submit" value="{{ "Search"|xla }}" />
+                    </form>
+                    {% if hasMore %}
+                    <p class="alert alert-info">{{ "Too many search results found. Displaying a limited set of patients. Narrow your search results through the filters above."|xlt }}</p>
+                    {%  endif %}
+                </div>
+            </div>
+            <div class="row w-100">
+                <p class="col">
+
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>{{ "Name"|xlt  }}</th>
+                        <th>{{ "DOB"|xlt  }}</th>
+                        <th>{{ "Sex"|xlt  }}</th>
+                        <th>{{ "Email"|xlt  }}</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for patient in patients %}
+                    <tr>
+                        <td>
+                            {{ patient.fname|text }}{% if patient.mname %} {{ patient.mname|text }}{% endif%} {{ patient.lname|text }}
+                        </td>
+                        <td>
+                            {{ patient.DOB|text }}
+                        </td>
+                        <td>
+                            {{ patient.sex|text }}
+                        </td>
+                        <td>
+                            {{ patient.email|text }}
+                        </td>
+                        <td>
+                            <button data-patient-id="{{ patient.uuid|attr }}" class="btn btn-primary patient-btn">{{ "Select patient"|xlt  }}</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+        <form method="post" name="patientForm" id="patientForm" action="{{ redirect|attr }}">
+            <input type="hidden" name="csrf_token" value="{{ csrfTokenRaw('oauth2')|attr }}" />
+            <input id="patient_id" type="hidden" name="patient_id" value="" />
+        </form>
+    </div>
+</div>
+<script>
+    (function(window) {
+
+        function choosePatient(evt) {
+            let xlj = window.top.xl;
+            let target = evt.target;
+            let patientId = target.dataset.patientId || undefined;
+            if (!patientId) {
+                console.error(xl("Developer error. Patient id is missing from dataset"));
+                return;
+            }
+            let patientInput = document.getElementById('patient_id');
+            if (!patientInput) {
+                console.error(xl("Developer error missing hidden form element 'selectedPatient'"));
+                return;
+            }
+            patientInput.value = patientId;
+
+            // now submit our form.
+            let form = document.getElementById('patientForm');
+            if (!form) {
+                console.error(xl("Developer error missing form 'patientForm'"));
+                return;
+            }
+            form.submit();
+        }
+
+        function setup() {
+            let i;
+            let btns = document.querySelectorAll(".patient-btn");
+            // eventually browsers will support the foreach.. otherwise let's loop
+            for (i = 0; i < btns.length; i++) {
+                btns[i].addEventListener('click', choosePatient);
+            }
+        }
+        window.addEventListener('load', setup);
+    })(window)
+</script>
+{% endblock %}

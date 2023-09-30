@@ -126,7 +126,7 @@ class Claim
                 $row['provider'] = sqlQuery($sql, array($row['provider_id']));
                 // Get insurance numbers for this row's provider.
                 $sql = "SELECT * FROM insurance_numbers " .
-                "WHERE (insurance_company_id = ? OR insurance_company_id is NULL) AND provider_id = ?" .
+                "WHERE (insurance_company_id = ? OR insurance_company_id is NULL) AND provider_id = ? " .
                 "ORDER BY insurance_company_id DESC LIMIT 1";
                 $row['insurance_numbers'] = sqlQuery($sql, array($row['payer_id'], $row['provider_id']));
             }
@@ -206,7 +206,7 @@ class Claim
     // Handles date time stamp formats as well
     public function cleanDate($date_field)
     {
-        $cleandate = str_replace('-', '', substr($date_field, 0, 10));
+        $cleandate = str_replace('-', '', substr(($date_field ?? ''), 0, 10));
 
         if (substr_count($cleandate, '0') == 8) {
             $cleandate = '';
@@ -227,8 +227,8 @@ class Claim
         $this->payers = array();
         $this->payers[0] = array();
         $query = "SELECT * FROM insurance_data WHERE pid = ? AND 
-            (date <= ? OR date IS NULL) ORDER BY type ASC, date DESC";
-        $dres = sqlStatement($query, array($this->pid, $encounter_date));
+            (date <= ? OR date IS NULL) AND (date_end >= ? OR date_end IS NULL) ORDER BY type ASC, date DESC";
+        $dres = sqlStatement($query, array($this->pid, $encounter_date, $encounter_date));
         $prevtype = '';
         while ($drow = sqlFetchArray($dres)) {
             if (strcmp($prevtype, $drow['type']) == 0) {

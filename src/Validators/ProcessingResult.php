@@ -2,6 +2,8 @@
 
 namespace OpenEMR\Validators;
 
+use OpenEMR\Common\Database\QueryPagination;
+
 /**
  * OpenEMR Service Processing Result
  *
@@ -23,6 +25,7 @@ class ProcessingResult
     private $validationMessages;
     private $internalErrors;
     private $data;
+    private QueryPagination $pagination;
 
     /**
      * Initializes internal data structures to an internal array.
@@ -32,6 +35,23 @@ class ProcessingResult
         $this->validationMessages = [];
         $this->internalErrors = [];
         $this->data = [];
+        $this->pagination = new QueryPagination();
+    }
+
+    /**
+     * @param QueryPagination $pagination
+     */
+    public function setPagination(QueryPagination $pagination): void
+    {
+        $this->pagination = $pagination;
+    }
+
+    /**
+     * @return QueryPagination
+     */
+    public function getPagination(): QueryPagination
+    {
+        return $this->pagination;
     }
 
     /**
@@ -83,7 +103,20 @@ class ProcessingResult
 
     public function setData($data)
     {
+        // we trim the data to be within the confines of the pagination limit and set our has more data flag if we have it
         $this->data = $data;
+        $limit = $this->getPagination()->getLimit();
+        $isEmpty = empty($this->data);
+        if ($limit > 0 && !$isEmpty) {
+            $count = count($this->data);
+            if ($count > $limit) {
+                $this->getPagination()->setHasMoreData(true);
+                $this->data = array_slice($this->data, 0, $limit);
+            }
+        }
+        if ($isEmpty) {
+            $this->getPagination()->setTotalCount(0);
+        }
     }
 
     /**
@@ -92,7 +125,16 @@ class ProcessingResult
      */
     public function addData($newData)
     {
-        array_push($this->data, $newData);
+        $count = count($this->data);
+        $limit = min(0, $this->getPagination()->getLimit());
+        if ($limit === 0 || $count < $this->getPagination()->getLimit()) {
+            array_push($this->data, $newData);
+        } else {
+            // we exceeded our limit so we are going to just say we have more data and skip the element
+            // any time a query actually runs we always grab the limit + 1 data element so we can determine if we have more data
+            // this facilitates our pagination logic in the service layer
+            $this->getPagination()->setHasMoreData(true);
+        }
     }
 
     /**
@@ -100,7 +142,7 @@ class ProcessingResult
      */
     public function clearData()
     {
-        $this->data = [];
+        $this->setData([]);
     }
 
     /**
@@ -111,7 +153,11 @@ class ProcessingResult
     {
         $this->internalErrors = array_merge($this->internalErrors, $other->internalErrors);
         $this->validationMessages = array_merge($this->validationMessages, $other->validationMessages);
-        $this->data = array_merge($this->data, $other->data);
+        if (!empty($other->getPagination())) {
+            $this->pagination->copy($other->getPagination());
+        }
+        // make sure to handle our pagination properly by using the setData method
+        $this->setData(array_merge($this->data, $other->data));
     }
 
     /**

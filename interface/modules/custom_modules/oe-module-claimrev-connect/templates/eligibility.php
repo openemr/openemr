@@ -112,133 +112,139 @@ foreach ($insurance as $row) {
         if ($check["eligibility_json"] == null) {
                         echo xlt("No Results");
         } else {
-                    $result = $check["eligibility_json"];
-                    $eligibilityData = json_decode($result);
-                    $benefits = null;
-                    $subscriberPatient = null;
-                    $data = null;
-            if (property_exists($eligibilityData, 'mapped271')) {
-                $data = $eligibilityData->mapped271;
-            }
+                    $individualJson = $check["individual_json"];
+                    $individual = json_decode($individualJson);
+                    $results = $individual->eligibility;
+                    $index = 0;
+            foreach ($results as $result) {
+                $index++;
+                $eligibilityData = $result;
+                $benefits = null;
+                $subscriberPatient = null;
+                $data = null;
+                if (property_exists($eligibilityData, 'mapped271')) {
+                    $data = $eligibilityData->mapped271;
+                }
 
-            if (property_exists($data, 'dependent')) {
-                $dependent = $data->dependent;
-                if ($dependent != null) {
-                    if (property_exists($dependent, 'benefits')) {
-                        $benefits = $dependent->benefits;
-                        $subscriberPatient = $dependent;
+                if (property_exists($data, 'dependent')) {
+                    $dependent = $data->dependent;
+                    if ($dependent != null) {
+                        if (property_exists($dependent, 'benefits')) {
+                            $benefits = $dependent->benefits;
+                            $subscriberPatient = $dependent;
+                        }
                     }
                 }
-            }
 
-            if (property_exists($data, 'subscriber')) {
-                $subscriber = $data->subscriber;
-                if ($subscriber != null) {
-                    if (property_exists($subscriber, 'benefits')) {
-                        $benefits = $subscriber->benefits;
-                        $subscriberPatient = $subscriber;
+                if (property_exists($data, 'subscriber')) {
+                    $subscriber = $data->subscriber;
+                    if ($subscriber != null) {
+                        if (property_exists($subscriber, 'benefits')) {
+                            $benefits = $subscriber->benefits;
+                            $subscriberPatient = $subscriber;
+                        }
                     }
                 }
-            }
 
-            ?>                            
+                ?>                      
                                 <ul class="nav nav-tabs mb-2">
-            <?php
+                <?php
                     $classActive = "active";
                     $first = "true";
-            ?>
+                ?>
                                 <li class="nav-item" role="presentation">
-                                        <a id="claimrev-ins-quick-tab" aria-selected="<?php echo($first); ?>" class="nav-link active"  data-toggle="tab" role="tab" href="#eligibility-quick"> <?php echo xlt("Quick Info "); ?></a>
+                                        <a id="claimrev-ins-quick-tab" aria-selected="<?php echo($first); ?>" class="nav-link active"  data-toggle="tab" role="tab" href="#eligibility-quick-<?php echo(attr($index)); ?>"> <?php echo xlt("Quick Info "); ?></a>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <a id="claimrev-ins-deductibles-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-deductibles"> <?php echo xlt("Deductibles"); ?></a>
+                                        <a id="claimrev-ins-deductibles-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-deductibles-<?php echo(attr($index)); ?>"> <?php echo xlt("Deductibles"); ?></a>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <a id="claimrev-ins-benefits-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-benefits"><?php echo xlt("Benefits"); ?></a>
+                                        <a id="claimrev-ins-benefits-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-benefits-<?php echo(attr($index)); ?>"><?php echo xlt("Benefits"); ?></a>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <a id="claimrev-ins-medicare-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-medicare"><?php echo xlt("Medicare"); ?></a>
+                                        <a id="claimrev-ins-medicare-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-medicare-<?php echo(attr($index)); ?>"><?php echo xlt("Medicare"); ?></a>
                                     </li>
                                     <li class="nav-item" role="presentation">
-                                        <a id="claimrev-ins-validations-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-validations"> <?php echo xlt("Validations"); ?></a>
+                                        <a id="claimrev-ins-validations-tab" aria-selected="<?php echo($first); ?>" class="nav-link"  data-toggle="tab" role="tab" href="#eligibility-validations-<?php echo(attr($index)); ?>"> <?php echo xlt("Validations"); ?></a>
                                     </li>                                 
-            <?php
+                <?php
                         $first = "false";
                         $classActive = "";
-            ?>                                
+                ?>
                                 </ul>
                             <div class="tab-content">
-                                <div id="eligibility-quick" class="tab-pane active">
+                                <div id="eligibility-quick-<?php echo(attr($index)); ?>" class="tab-pane active">
                                     <div class="row">
                                         <div class="col">
-            <?php
+                <?php
                                 include $path . '/quick_info.php';
-            ?>
+                ?>
                                         </div>
                                     </div>
                                 </div>
-                                <div id="eligibility-deductibles" class="tab-pane">
+                                <div id="eligibility-deductibles-<?php echo(attr($index)); ?>" class="tab-pane">
                                     <div class="row">
                                         <div class="col">
-            <?php
+                <?php
                                 include $path . '/deductibles.php';
-            ?>
+                ?>
                                         </div>
                                     </div>
                                 </div>
-                                <div id="eligibility-medicare" class="tab-pane">
+                                <div id="eligibility-medicare-<?php echo(attr($index)); ?>" class="tab-pane">
                                     <div class="row">
                                         <div class="col">
-            <?php
+                <?php
                                 include $path . '/medicare_info.php';
-            ?>
+                ?>
                                         </div>
                                     </div>
                                 </div>
-                                <div id="eligibility-benefits" class="tab-pane">
+                                <div id="eligibility-benefits-<?php echo(attr($index)); ?>" class="tab-pane">
                                  
                                     <div class="row">
                                         <div class="col">
-            <?php
+                <?php
                                 $source = $data->informationSourceName;
                                 include $path . '/source.php';
-            ?>
+                ?>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col">
-            <?php
+                <?php
                                 $receiver = $data->receiver;
                                 include $path . '/receiver.php';
-            ?>
+                ?>
                                         </div>
                                     </div>
 
                                     <div class="row">
                                         <div class="col">
-            <?php
-            if ($benefits != null) {
-                        include $path . '/subscriber_patient.php';
-                        include $path . '/benefit.php';
-            }
-            ?>
+                    <?php
+                    if ($benefits != null) {
+                                include $path . '/subscriber_patient.php';
+                                include $path . '/benefit.php';
+                    }
+                    ?>
                                         </div>
                                     </div>
                                 </div>
-                                <div id="eligibility-validations" class="tab-pane">
+                                <div id="eligibility-validations-<?php echo(attr($index)); ?>" class="tab-pane">
                                     <div class="row">
                                         <div class="col">
-            <?php
+                    <?php
                                 include $path . '/validation.php';
-            ?>
+                    ?>
                                         </div>
                                     </div>
                                 </div>     
                             </div>
   
-            <?php
+                <?php
+            }//end foreach eligibility
         }//else results
-    }
+    }//end main foreach
     ?>   
                     </div>
                 </div>

@@ -30,6 +30,7 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 }
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Services\PatientPortalService;
 
 $data = (array)(json_decode(file_get_contents('php://input'), true, 512, JSON_THROW_ON_ERROR));
 
@@ -39,4 +40,11 @@ if (!CsrfUtils::verifyCsrfToken($data['csrf_token_form'])) {
 
 if (!empty($data['where'] ?? null)) {
     $_SESSION['whereto'] = $data['where'];
+}
+
+// Set a patient setting to persist
+if (!empty($data['setting_patient'] ?? null)) {
+    if (!empty($data['setting_label'] ?? null)) {
+        PatientPortalService::persistPatientSetting($data['setting_patient'] ?? 0, $data['setting_label'], $data['setting_value'] ?? '');
+    }
 }

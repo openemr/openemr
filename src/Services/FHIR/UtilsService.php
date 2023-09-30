@@ -13,9 +13,12 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\ORDataObject\ContactAddress;
+use OpenEMR\FHIR\Config\ServerConfig;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationOutcome;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddressType;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddressUse;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
@@ -23,11 +26,14 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueType;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRNarrative;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
 class UtilsService
@@ -44,6 +50,55 @@ class UtilsService
             $reference->setDisplay($displayName);
         }
         return $reference;
+    }
+
+    public static function createCanonicalUrlForResource($resourceType, $uuid): FHIRCanonical
+    {
+
+        $siteConfig = new ServerConfig();
+        $fhirUrl = $siteConfig->getFhirUrl() ?? "";
+        if (strrpos("/", $fhirUrl) != strlen($fhirUrl)) {
+            $fhirUrl .= "/";
+        }
+        $url = $fhirUrl . $resourceType . '/' . $uuid;
+        $cannonical = new FHIRCanonical();
+        $cannonical->setValue($url);
+        return $cannonical;
+    }
+
+    public static function parseCanonicalUrl(?string $url)
+    {
+        $parsed_url = [
+            'localResource' => false
+            ,'validUrl' => false
+            ,'resource' => null
+            ,'uuid' => null
+        ];
+        if (empty($url)) {
+            return $parsed_url;
+        }
+
+        $parsed_url['validUrl'] = true;
+        $oauthAddress = (new ServerConfig())->getOauthAddress();
+        $oauthHost = parse_url($oauthAddress, PHP_URL_HOST);
+        $parts = parse_url($url);
+        $parsed_url['localResource'] = $parts['host'] == $oauthHost;
+        $splitParts = explode("/", $parts['path']);
+        if (count($splitParts) >= 2) {
+            $uuid = array_pop($splitParts);
+            $resource = array_pop($splitParts);
+            $resourceClassCheck = 'OpenEMR\\FHIR\\R4\\FHIRDomainResource\\FHIR' . $resource;
+            // we should always be getting canonical urls to a specific resource id, but just in case we are going
+            // to
+            $idClassCheck = 'OpenEMR\\FHIR\\R4\\FHIRElement\\' . $uuid;
+            if (class_exists($resourceClassCheck)) {
+                $parsed_url['resource'] = $resource;
+                $parsed_url['uuid'] = $uuid;
+            } else if (class_exists($idClassCheck)) {
+                $parsed_url['resource'] = $uuid; // root level resource at the end
+            }
+        }
+        return $parsed_url;
     }
 
     public static function getUuidFromReference(FHIRReference $reference)
@@ -103,6 +158,17 @@ class UtilsService
         $outerExtension = new FHIRExtension();
         $outerExtension->addExtension($extension);
         return $outerExtension;
+    }
+
+    public static function getExtensionsByUrl($url, $object)
+    {
+        if (method_exists($object, 'getExtension')) {
+            $extensions = $object->getExtension();
+            return array_filter($extensions, function ($extension) use ($url) {
+                return $extension->getUrl() == $url;
+            });
+        }
+        return [];
     }
 
     public static function createContactPoint($value, $system, $use): FHIRContactPoint
@@ -307,5 +373,63 @@ class UtilsService
         $date = new \DateTime($date, new \DateTimeZone(date('P')));
         $utcDate = $date->format(DATE_ATOM);
         return $utcDate;
+    }
+
+    public static function createOperationOutcomeSuccess(string $resourceType, int|string $id)
+    {
+        $operation = self::createOperationOutcomeResource('success', 'success');
+        // TODO: if we wanted to put the resource path we would do that here
+        return $operation;
+    }
+
+    public static function createOperationOutcomeResource(
+        $severity_value,
+        $code_value,
+        $details_value = ''
+    ) {
+        $resource = new FHIROperationOutcome();
+        $issue = new FHIROperationOutcomeIssue();
+        $severity = new FHIRIssueSeverity();
+        $severity->setValue($severity_value);
+        $issue->setSeverity($severity);
+        $code = new FHIRIssueType();
+        $code->setValue($code_value);
+        $issue->setCode($code);
+        if ($details_value) {
+            $details = new FHIRCodeableConcept();
+            $details->setText($details_value);
+            $issue->setDetails($details);
+        }
+        $resource->addIssue($issue);
+        return $resource;
+    }
+
+    public static function parseReference(?FHIRReference $reference)
+    {
+        $parsed_reference = [
+            'localResource' => false
+            ,'uuid' => null
+            ,'type' => null
+        ];
+        if (empty($parsed_reference) || empty($reference->getReference())) {
+            return $parsed_reference;
+        }
+
+        $oauthAddress = (new ServerConfig())->getOauthAddress();
+        $oauthHost = parse_url($oauthAddress, PHP_URL_HOST);
+        $parts = parse_url($reference->getReference());
+
+        // if all we have is a path then we skip the host check
+        if (isset($parts['host'])) {
+            $parsed_reference['localResource'] = $parts['host'] == $oauthHost;
+        } else {
+            $parsed_reference['localResource'] = true;
+        }
+        $splitParts = explode("/", $parts['path']);
+        if (count($splitParts) >= 2) {
+            $parsed_reference['uuid'] = array_pop($splitParts);
+            $parsed_reference['type'] = array_pop($splitParts);
+        }
+        return $parsed_reference;
     }
 }

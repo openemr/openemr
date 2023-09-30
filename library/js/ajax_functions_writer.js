@@ -38,7 +38,7 @@ function nl2br(str) {
 }
 
 function br2nl(str) {
-    return str.replace(/<\s*\/?br\s*[\/]?>/gi, "\r\n");
+    return str.replace(/<\s*\/?br\s*[/]?>/gi, "\r\n");
 }
 
 function edit(id, ccFlag = '') {
@@ -240,7 +240,6 @@ function save_item() {
         success: function (thedata) {
             //alert(thedata)
             document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
-            ;
             cancel_item('');
         },
         error: function () {
@@ -270,7 +269,6 @@ function update_item(id) {
         success: function (thedata) {
             //alert(thedata)
             document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
-            ;
             cancel_item(id);
         },
         error: function () {

@@ -66,7 +66,8 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
     protected function updateBatchFile(BillingClaim $claim)
     {
         // Generate the file
-        $log = '';
+        $log = 'X12 ' . $claim->action . ' ';
+        $hlCount = 1;
         $segs = explode(
             "~\n",
             X125010837P::genX12837P(
@@ -74,7 +75,9 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
                 $claim->getEncounter(),
                 $claim->getPartner(),
                 $log,
-                $this->encounter_claim
+                $this->encounter_claim,
+                false,
+                $hlCount
             )
         );
         $this->appendToLog($log);

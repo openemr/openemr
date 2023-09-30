@@ -59,14 +59,13 @@ function signerAlertMsg(message, timer = 5000, type = 'danger', size = '') {
 function getSignature(othis, isInit = false, returnSignature = false) {
     return new Promise(resolve => {
             let signer, signerType = "";
-            let isSigned = isDataURL($(othis).attr('src'));
             let libUrl = "./";
 
             if ($(othis).attr('src') != signhere && !isInit) {
                 $(othis).attr('src', signhere);
                 return;
             }
-            if (typeof webRoot !== 'undefined' && typeof webRoot !== null) {
+            if (typeof webRoot !== 'undefined' && webRoot !== null) {
                 libUrl = webRoot + '/portal/';
             } else {
                 libUrl = top.webroot_url ? (top.webroot_url + '/portal/') : "./";
@@ -78,7 +77,7 @@ function getSignature(othis, isInit = false, returnSignature = false) {
             }
             let otype = $(othis).attr('data-type');
             type = otype;
-            if (typeof otype === 'undefined' || typeof otype === null) {
+            if (typeof otype === 'undefined' || otype === null) {
                 otype = $(othis).data('type');
             }
             if (otype == 'admin-signature') {
@@ -160,7 +159,12 @@ function placeSignature(responseData, el) {
             $(el).attr('src', i.src)
             resolve('done'); // display image
         };
-        i.src = isDataURL(responseData) ? responseData : 'data:image/png;base64,' + responseData; // load image
+        if (!isDataURL(responseData)) {
+            alert("Invalid Signature.");
+            resolve('Error');
+            return false;
+        }
+        i.src = responseData; // load image
     })
 }
 
@@ -169,7 +173,7 @@ function archiveSignature(signImage = '', edata = '') {
     let pid = 0;
     let data = {};
 
-    if (typeof webRoot !== 'undefined' && typeof webRoot !== null) {
+    if (typeof webRoot !== 'undefined' && webRoot !== null) {
         libUrl = webRoot + '/portal/';
     } else {
         libUrl = "./";
@@ -220,11 +224,11 @@ function archiveSignature(signImage = '', edata = '') {
     return true;
 }
 
-function isDataURL(dataUrl) {
+function isDataURL(dataUrl = '') {
     return !!dataUrl.match(isDataURL.regex);
 }
 
-isDataURL.regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
+isDataURL.regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z-]+=[a-z-]+)?)?(;base64)?,[a-z0-9!$&',()*+;=\-._~:@/?%\s]*\s*$/i;
 
 // call if need to bind pen clicks after a dynamic template load. ie templates.
 var bindFetch = '';
@@ -371,14 +375,14 @@ function initSignerApi() {
 
         // this offsets signature image to center on element somewhat
         // on any form (css) box height:70px length:auto center at 20px.
-        $(function (e) {
+        /*$(function (e) {
             let els = this.querySelectorAll("img[data-action=fetch_signature]");
-            let i; // caution using let in for
+            let i;
             for (i = 0; i < els.length; i++) {
                 els[i].style.top = (els[i].offsetTop - 20) + 'px';
                 els[i].setAttribute("data-offset", true);
             }
-        });
+        });*/
 
         $("#openSignModal .close").on("click", function (e) {
             signaturePad.clear();
@@ -507,7 +511,9 @@ function initSignerApi() {
             let thisElement = $(this);
             getSignature(thisElement, true).then(r => {
                 let imgurl = thisElement.attr('src');
-                signaturePad.fromDataURL(imgurl);
+                signaturePad.fromDataURL(imgurl).then(r => {
+
+                });
             });
         });
 

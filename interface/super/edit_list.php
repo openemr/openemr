@@ -1367,6 +1367,8 @@ function writeITLine($it_array)
                 echo xlt('Attributes');
             } elseif ($list_id == "external_patient_education") {
                 echo xlt('External URL');
+            } elseif ($list_id == "default_open_tabs") {
+                echo xlt("URL");
             } else {
                 echo xlt('Notes');
             } ?></th>

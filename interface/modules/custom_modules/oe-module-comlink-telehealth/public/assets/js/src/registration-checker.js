@@ -36,7 +36,7 @@ export function RegistrationChecker(scriptLocation)
                 return result.json();
             })
             .then(registrationSettings => {
-                if (registrationSettings && registrationSettings.hasOwnProperty('errorCode')) {
+                if (registrationSettings && Object.prototype.hasOwnProperty.call(registrationSettings, 'errorCode')) {
                     if (registrationSettings.errorCode == 402) {
                         // user is not enrolled and so we will skip trying to register the user
                         checker.settings = {};

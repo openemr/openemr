@@ -26,12 +26,18 @@ require_once("$srcdir/payment.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\Billing\Payments\DeletePayment;
 use OpenEMR\OeUI\OemrUI;
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Search Payment")]);
     exit;
 }
+
+/**
+ * @var EventDispatcherInterface $eventDispatcher
+ */
+$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
 
 //===============================================================================
 //Deletion of payment and its corresponding distributions.
@@ -51,7 +57,8 @@ if (isset($_POST["mode"])) {
                 sqlStatement("update form_encounter set last_level_closed=last_level_closed - 1 where pid =? and encounter=?", [$PId, $Encounter]);
             }
         }
-
+        //dispatch this payment is being deleted trigger refund process
+        $eventDispatcher->dispatch(new DeletePayment($DeletePaymentId), DeletePayment::ACTION_DELETE_PAYMENT, 10);
     //delete and log that action
         row_delete("ar_session", "session_id ='" . add_escape_custom($DeletePaymentId) . "'");
         row_modify("ar_activity", "deleted = NOW()", "deleted IS NULL AND session_id = '" . add_escape_custom($DeletePaymentId) . "'");
