@@ -1,4 +1,4 @@
-<?php
+<?php global $srcdir, $pid, $encounter, $cryptoGen;
 
 /**
  * Front payment gui.
@@ -29,6 +29,11 @@ use OpenEMR\Events\Billing\Payments\PostFrontPayment;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\FacilityService;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+/**
+ * @var EventDispatcher
+ */
+$ed = $GLOBALS['kernel']->getEventDispatcher();
 
 if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
     if (!AclMain::aclCheckCore('acct', 'bill') && !AclMain::aclCheckCore('acct', 'rep_a') && !AclMain::aclCheckCore('patients', 'rx')) {
@@ -1170,7 +1175,7 @@ function make_insurance() {
                             <label class="control-label" for="form_method"><?php echo xlt('Payment Method'); ?>:</label>
                             <select class="form-control" id="form_method" name="form_method" onchange='CheckVisible("yes")'>
                                 <?php
-                                $query1112 = "SELECT * FROM list_options where activity=1 AND list_id=?  ORDER BY seq, title ";
+                                $query1112 = "SELECT * FROM `list_options` where activity=1 AND list_id=?  ORDER BY seq, title ";
                                 $bres1112 = sqlStatement($query1112, array('payment_method'));
                                 while ($brow1112 = sqlFetchArray($bres1112)) {
                                     if ($brow1112['option_id'] == 'electronic' || $brow1112['option_id'] == 'bank_draft') {
@@ -1276,9 +1281,9 @@ function make_insurance() {
                                         $encs[$key]['charges'] += $brow['fee'];
                                         // Add taxes.
                                         $sql_array = array();
-                                        $query = "SELECT taxrates FROM codes WHERE " .
+                                        $query = "SELECT taxrates FROM `codes` WHERE " .
                                         "code_type = ? AND " .
-                                        "code = ? AND ";
+                                        "code = ? AND " .
                                         array_push($sql_array, ($code_types[$brow['code_type']]['id'] ?? null), $brow['code']);
                                         if ($brow['modifier']) {
                                             $query .= "modifier = ?";
@@ -1318,7 +1323,7 @@ function make_insurance() {
 
                                     $encs[$key]['charges'] += $drow['fee'];
                                     // Add taxes.
-                                    $trow = sqlQuery("SELECT taxrates FROM drug_templates WHERE drug_id = ? " .
+                                    $trow = sqlQuery("SELECT taxrates FROM `drug_templates` WHERE drug_id = ? " .
                                     "ORDER BY selector LIMIT 1", array($drow['drug_id']));
                                     $encs[$key]['charges'] += calcTaxes($trow, $drow['fee']);
                                 }
@@ -1376,16 +1381,16 @@ function make_insurance() {
 
                                     //------------------------------------------------------------------------------------
                                     //NumberOfInsurance
-                                    $ResultNumberOfInsurance = sqlStatement("SELECT COUNT( DISTINCT TYPE ) NumberOfInsurance FROM insurance_data
+                                    $ResultNumberOfInsurance = sqlStatement("SELECT COUNT( DISTINCT TYPE ) NumberOfInsurance FROM `insurance_data`
                                     where pid = ? and provider>0 ", array($pid));
                                     $RowNumberOfInsurance = sqlFetchArray($ResultNumberOfInsurance);
                                     $NumberOfInsurance = $RowNumberOfInsurance['NumberOfInsurance'] * 1;
                                     //------------------------------------------------------------------------------------
                                     $duept = 0;
                                     if ((($NumberOfInsurance == 0 || $value['last_level_closed'] == 4 || $NumberOfInsurance == $value['last_level_closed']))) {//Patient balance
-                                        $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
+                                        $brow = sqlQuery("SELECT SUM(fee) AS amount FROM `billing` WHERE " .
                                             "pid = ? and encounter = ? AND activity = 1", array($pid, $enc));
-                                        $srow = sqlQuery("SELECT SUM(fee) AS amount FROM drug_sales WHERE " .
+                                        $srow = sqlQuery("SELECT SUM(fee) AS amount FROM `drug_sales` WHERE " .
                                             "pid = ? and encounter = ? ", array($pid, $enc));
                                         $drow = sqlQuery("SELECT SUM(pay_amount) AS payments, " .
                                             "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
