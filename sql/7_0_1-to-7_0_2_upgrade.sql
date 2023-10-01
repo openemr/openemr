@@ -547,3 +547,9 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`) VALUES ('Nationality_and_Country','YE','Yemeni : Yemen',2480,0,0,'','Yemen','887:YEM',0,0,1,'',1,'2023-09-24 21:07:27');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`) VALUES ('Nationality_and_Country','ZM','Zambian : Zambia',2490,0,0,'','Zambia','894:ZMB',0,0,1,'',1,'2023-09-24 21:07:27');
 #EndIf
+
+#IfNotTable edi_sequences
+CREATE TABLE `edi_sequences` (
+    `id` int(9) unsigned NOT NULL default '0'
+) ENGINE=InnoDB;
+#EndIf
