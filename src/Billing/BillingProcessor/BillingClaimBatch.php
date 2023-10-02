@@ -47,7 +47,8 @@ class BillingClaimBatch
     protected $claims = [];
 
     public function __construct(
-        protected string $ext = '.txt'
+        protected string $ext = '.txt',
+        private array $context = []
     ) {
         $this->bat_type = ''; // will be edi or hcfa
         $this->bat_sendid = '';
@@ -59,10 +60,12 @@ class BillingClaimBatch
         $this->bat_hhmm = date('Hi', $this->bat_time);
         $this->bat_yymmdd = date('ymd', $this->bat_time);
         $this->bat_yyyymmdd = date('Ymd', $this->bat_time);
-        $this->bat_icn = BillingClaimBatchControlNumber::getIsa13();
+        $this->bat_icn = (strpos($this->context['claims'][0]->action, 'validate') !== false) ?
+            '000000001' : BillingClaimBatchControlNumber::getIsa13();
         $this->bat_filename = date("Y-m-d-His", $this->bat_time) . "-batch" . $this->ext;
         $this->bat_filedir = $GLOBALS['OE_SITE_DIR'] . DIRECTORY_SEPARATOR . "documents" . DIRECTORY_SEPARATOR . "edi";
-        $this->bat_gs06 = BillingClaimBatchControlNumber::getGs06();
+        $this->bat_gs06 = (strpos($this->context['claims'][0]->action, 'validate') !== false) ?
+            '2' : BillingClaimBatchControlNumber::getGs06();
     }
 
     /**
