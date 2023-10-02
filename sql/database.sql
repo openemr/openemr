@@ -1502,6 +1502,7 @@ CREATE TABLE `edi_sequences` (
   `id` int(9) unsigned NOT NULL default '0'
 ) ENGINE=InnoDB;
 
+INSERT INTO `edi_sequences` VALUES (0);
 -- --------------------------------------------------------
 
 --

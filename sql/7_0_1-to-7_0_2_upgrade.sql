@@ -552,4 +552,5 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 CREATE TABLE `edi_sequences` (
     `id` int(9) unsigned NOT NULL default '0'
 ) ENGINE=InnoDB;
+INSERT INTO `edi_sequences` VALUES (0);
 #EndIf
