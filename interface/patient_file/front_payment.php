@@ -1,4 +1,4 @@
-<?php global $srcdir, $pid, $encounter, $cryptoGen;
+<?php
 
 /**
  * Front payment gui.
@@ -1283,7 +1283,7 @@ function make_insurance() {
                                         $sql_array = array();
                                         $query = "SELECT taxrates FROM `codes` WHERE " .
                                         "code_type = ? AND " .
-                                        "code = ? AND " .
+                                        "code = ? AND ";
                                         array_push($sql_array, ($code_types[$brow['code_type']]['id'] ?? null), $brow['code']);
                                         if ($brow['modifier']) {
                                             $query .= "modifier = ?";
