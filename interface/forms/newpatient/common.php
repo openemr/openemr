@@ -117,7 +117,7 @@ function getFacilityList()
     $facilities = $facilityService->getAllServiceLocations();
     $results = [];
     foreach ($facilities as $iter) {
-        $posCode = ((int) ($def_facility) === (int) ($iter['id']) && !$viewmode) ? $iter['pos_code'] : $posCode;
+        $posCode = ((int) $def_facility === (int) $iter['id'] && !$viewmode) ? $iter['pos_code'] : $posCode;
 
         $results[] = [
             'id' => $iter['id'],
