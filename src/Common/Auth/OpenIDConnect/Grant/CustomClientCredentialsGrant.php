@@ -325,17 +325,17 @@ class CustomClientCredentialsGrant extends ClientCredentialsGrant
             // http client required for fetching jwks from the jwks uri and makes unit testing easier
             $jsonWebKeySet = new JsonWebKeySet($this->getHttpClient(), $client->getJwksUri(), $client->getJwks());
 
-            // ( lcobucci/jwt 5.x library no longer supports none (ie. forUnsecuredSigner), so need to do workaround with a symmetric key)
-            $configuration = Configuration::forSymmetricSigner(
-                new Signer\Blake2b(),
-                InMemory::base64Encoded('MpQd6dDPiqnzFSWmpUfLy4+Rdls90Ca4C8e0QD0IxqY=')
+            // ( lcobucci/jwt 5.x library no longer supports none (ie. forUnsecuredSigner), so need to use asymmetric key)
+            $configuration = Configuration::forAsymmetricSigner(
+                new RsaSha384Signer(),
+                $jsonWebKeySet
             );
 
             $configuration->setValidationConstraints(
                 // we only allow 1 minute drift (note the 'T' specifier here, super important as we want to do time
                 // we had a bug here where P1M was a 1 month drift which is BAD.
                 new LooseValidAt(new SystemClock(new \DateTimeZone(\date_default_timezone_get())), new \DateInterval('PT1M')),
-                new SignedWith(new RsaSha384Signer(), $jsonWebKeySet),
+                new SignedWith($configuration->signer(), $configuration->signingKey()),
                 new IssuedBy($client->getIdentifier()),
                 new PermittedFor($this->authTokenUrl), // allowed audience
                 new UniqueID($jwtRepository)
