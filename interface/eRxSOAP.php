@@ -31,6 +31,18 @@ class eRxSOAP
     private $soapSettings = array();
     private $siteId;
 
+    protected static function fixHtmlEntities($array, $xmltoarray) {
+        if (!is_array($array)) return;
+
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                self::fixHtmlEntities($value, $xmltoarray);
+            } else {
+                $array[$key] = $xmltoarray->fix_html_entities($value);      //returns proper html values
+            }
+        }
+    }
+
     /**
      * Repair HTML/XML and return array
      * @param  string        $xml XML for processing
@@ -47,9 +59,7 @@ class eRxSOAP
 
         $array = $xmltoarray->createArray();                            //creates an array with fixed html values
 
-        foreach ($array as $key => $value) {
-            $array[$key] = $xmltoarray->fix_html_entities($value);      //returns proper html values
-        }
+        self::fixHtmlEntities($array, $xmltoarray);
 
         if (array_key_exists('NewDataSet', $array) && array_key_exists('Table', $array['NewDataSet'])) {
             $array = $array['NewDataSet']['Table'];
