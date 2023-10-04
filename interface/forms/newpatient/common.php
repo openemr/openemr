@@ -33,11 +33,6 @@ if ($GLOBALS['enable_group_therapy']) {
     require_once("$srcdir/group.inc.php");
 }
 
-$months = array("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12");
-$days = array("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31");
-$thisyear = date("Y");
-$years = array($thisyear - 1, $thisyear, $thisyear + 1, $thisyear + 2);
-
 $mode = (!empty($_GET['mode'])) ? $_GET['mode'] : null;
 
 $viewmode = false;
@@ -122,7 +117,7 @@ function getFacilityList()
     $facilities = $facilityService->getAllServiceLocations();
     $results = [];
     foreach ($facilities as $iter) {
-        $posCode = (($def_facility === intval($iter['id'])) && !$viewmode) ? $iter['pos_code'] : $posCode;
+        $posCode = ((int) $def_facility === (int) $iter['id'] && !$viewmode) ? $iter['pos_code'] : $posCode;
 
         $results[] = [
             'id' => $iter['id'],
