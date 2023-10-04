@@ -31,8 +31,11 @@ class eRxSOAP
     private $soapSettings = array();
     private $siteId;
 
-    protected static function fixHtmlEntities($array, $xmltoarray) {
-        if (!is_array($array)) return;
+    protected static function fixHtmlEntities($array, $xmltoarray)
+    {
+        if (!is_array($array)) {
+            return;
+        }
 
         foreach ($array as $key => $value) {
             if (is_array($value)) {

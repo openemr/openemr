@@ -732,7 +732,7 @@ class eRxXMLBuilder
                     ) {
                         $element = $this->getDocument()->createElement('PatientDiagnosis');
                         $element->appendChild($this->createElementText('diagnosisID', $diagnosisId));
-                        $element->appendChild($this->createElementText('diagnosisType',$codeType));
+                        $element->appendChild($this->createElementText('diagnosisType', $codeType));
 
                         if ($diagnosis['begdate']) {
                             $element->appendChild($this->createElementText('onsetDate', str_replace("-", "", $diagnosis['begdate'])));
