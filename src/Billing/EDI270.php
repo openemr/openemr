@@ -25,6 +25,7 @@ namespace OpenEMR\Billing;
 require_once(dirname(__FILE__) . "/../../library/edihistory/codes/edih_271_code_class.php");
 
 use edih_271_codes;
+use OpenEMR\Billing\BillingProcessor\BillingClaimBatchControlNumber;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
@@ -61,7 +62,7 @@ class EDI270
         $ISA[10] = str_pad(date('Hi'), 4, " ");       // Interchange Time (HHMM)
         $ISA[11] = "^";                                 // Interchange Control Standards Identifier
         $ISA[12] = str_pad("00501", 5, " ");          // Interchange Control Version Number
-        $ISA[13] = str_pad("000000001", 9, " ");      // INTERCHANGE CONTROL NUMBER
+        $ISA[13] = BillingClaimBatchControlNumber::getIsa13();      // INTERCHANGE CONTROL NUMBER
         $ISA[14] = str_pad($X12info['x12_isa14'], 1, " ");              // Acknowledgment Request [0= not requested, 1= requested]
         $ISA[15] = str_pad($X12info['x12_isa15'], 1, " ");                 // Usage Indicator [ P = Production Data, T = Test Data ]
         $ISA['Created'] = implode('*', $ISA);       // Data Element Separator
@@ -81,7 +82,7 @@ class EDI270
         $GS[3] = $X12info['x12_receiver_id'];              // Application Receiver's ID
         $GS[4] = date('Ymd');               // Date [CCYYMMDD]
         $GS[5] = date('His');               // Time [HHMM] Group Creation Time
-        $GS[6] = "2";                       // Group Control Number No zeros for 5010
+        $GS[6] = BillingClaimBatchControlNumber::getGs06(); // Group Control Number No zeros for 5010
         $GS[7] = "X";                   // Responsible Agency Code Accredited Standards Committee X12 ]
         $GS[8] = "005010X279A1";            // Version Release / Industry[ Identifier Code Query 005010X279A1
         $GS['Created'] = implode('*', $GS);         // Data Element Separator

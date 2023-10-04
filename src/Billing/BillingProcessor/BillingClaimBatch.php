@@ -20,6 +20,8 @@
 
 namespace OpenEMR\Billing\BillingProcessor;
 
+use OpenEMR\Billing\BillingProcessor\BillingClaimBatchControlNumber;
+
 class BillingClaimBatch
 {
     protected $bat_type = ''; // will be edi or hcfa
@@ -44,8 +46,10 @@ class BillingClaimBatch
      */
     protected $claims = [];
 
-    public function __construct($ext = '.txt')
-    {
+    public function __construct(
+        protected string $ext = '.txt',
+        private array $context = []
+    ) {
         $this->bat_type = ''; // will be edi or hcfa
         $this->bat_sendid = '';
         $this->bat_recvid = '';
@@ -56,10 +60,12 @@ class BillingClaimBatch
         $this->bat_hhmm = date('Hi', $this->bat_time);
         $this->bat_yymmdd = date('ymd', $this->bat_time);
         $this->bat_yyyymmdd = date('Ymd', $this->bat_time);
-        // 5010 spec needs a 9 digit control number for ISA 13
-        $this->bat_icn = str_pad(rand(1, 999999), 9, '0', STR_PAD_LEFT);
-        $this->bat_filename = date("Y-m-d-His", $this->bat_time) . "-batch" . $ext;
+        $this->bat_icn = (strpos($this->context['claims'][0]->action, 'validate') !== false) ?
+            '000000001' : BillingClaimBatchControlNumber::getIsa13();
+        $this->bat_filename = date("Y-m-d-His", $this->bat_time) . "-batch" . $this->ext;
         $this->bat_filedir = $GLOBALS['OE_SITE_DIR'] . DIRECTORY_SEPARATOR . "documents" . DIRECTORY_SEPARATOR . "edi";
+        $this->bat_gs06 = (strpos($this->context['claims'][0]->action, 'validate') !== false) ?
+            '2' : BillingClaimBatchControlNumber::getGs06();
     }
 
     /**
@@ -209,22 +215,27 @@ class BillingClaimBatch
             $elems = explode('*', $seg);
             if ($elems[0] == 'ISA') {
                 if (!$this->bat_content) {
-                    $bat_sendid = trim($elems[6]);
-                    $bat_recvid = trim($elems[8]);
-                    $bat_sender = (!empty($GS02)) ? $GS02 : $bat_sendid;
-                    $this->bat_content = substr($seg, 0, 70) . "$this->bat_yymmdd*$this->bat_hhmm*" . $elems[11] . "*" . $elems[12] . "*$this->bat_icn*" . $elems[14] . "*" . $elems[15] . "*:~";
+                    $this->bat_content = substr($seg, 0, 70) . "$this->bat_yymmdd*$this->bat_hhmm*" . $elems[11] .
+                        "*" . $elems[12] . "*" . $this->bat_icn . "*" . $elems[14] . "*" . $elems[15] . "*:~";
+                    // remove the tilde from the isa count check
+                    $isa_length = strlen($this->bat_content) - 1;
+                    if ($isa_length != 105) {
+                        die("Error:<br />\n ISA must be 105 characters in length; " . "found $isa_length instead");
+                    }
                 }
                 continue;
             } elseif (!$this->bat_content) {
                 die("Error:<br />\nInput must begin with 'ISA'; " . "found '" . text($elems[0]) . "' instead");
             }
+
             if ($elems[0] == 'GS') {
                 if ($this->bat_gscount == 0) {
                     ++$this->bat_gscount;
                     // We increment the ICN to use as the batch counter.
                     // We lose the zero padding to 9 digits but that's okay.
-                    $this->bat_gs06 = $this->bat_icn + 1;
-                    $this->bat_content .= "GS*HC*" . $elems[2] . "*" . $elems[3] . "*$this->bat_yyyymmdd*$this->bat_hhmm*$this->bat_gs06*X*" . $elems[8] . "~";
+                    $this->bat_content .= "GS*HC*" . $elems[2] . "*" . $elems[3] . "*" .
+                        $this->bat_yyyymmdd . "*" . $this->bat_hhmm . "*" . $this->bat_gs06 . "*" .
+                        "X" . "*" . $elems[8] . "~";
                 }
                 continue;
             }
@@ -263,9 +274,9 @@ class BillingClaimBatch
     public function append_claim_close()
     {
         if ($this->bat_gscount) {
-            $this->bat_content .= "GE*$this->bat_stcount*$this->bat_gs06~";
+            $this->bat_content .= "GE" . "*" . $this->bat_stcount . "*" . $this->bat_gs06 . "~";
         }
 
-        $this->bat_content .= "IEA*$this->bat_gscount*$this->bat_icn~";
+        $this->bat_content .= "IEA" . "*" . $this->bat_gscount . "*" . $this->bat_icn . "~";
     }
 }
