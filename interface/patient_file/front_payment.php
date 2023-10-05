@@ -30,10 +30,7 @@ use OpenEMR\OeUI\OemrUI;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\FacilityService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-/**
- * @var EventDispatcher
- */
-$ed = $GLOBALS['kernel']->getEventDispatcher();
+
 
 if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
     if (!AclMain::aclCheckCore('acct', 'bill') && !AclMain::aclCheckCore('acct', 'rep_a') && !AclMain::aclCheckCore('patients', 'rx')) {
@@ -1892,5 +1889,5 @@ function make_insurance() {
 } // forms else close
 ?>
 </body>
-<?php $ed->dispatch(new PostFrontPayment(), PostFrontPayment::ACTION_POST_FRONT_PAYMENT, 10); ?>
+<?php $GLOBALS['kernel']->getEventDispatcher()->dispatch(new PostFrontPayment(), PostFrontPayment::ACTION_POST_FRONT_PAYMENT, 10); ?>
 </html>
