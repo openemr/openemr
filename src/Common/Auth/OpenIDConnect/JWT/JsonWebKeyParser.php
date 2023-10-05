@@ -64,12 +64,7 @@ class JsonWebKeyParser
         // Create the jwtConfiguration object
         //  Just using object for parsing, so keys not needed
         //   (ie. not using forAsymmetricSigner and just using forUnsecuredSigner)
-        // ( lcobucci/jwt 5.x library no longer supports none (ie. forUnsecuredSigner), so need use asymmetric key)
-        $configuration = Configuration::forAsymmetricSigner(
-            new Sha256(),
-            null,
-            InMemory::file($this->publicKeyLocation)
-        );
+        $configuration = Configuration::forUnsecuredSigner();
 
         // Attempt to parse the JWT
         $token = $configuration->parser()->parse($rawToken);
@@ -87,7 +82,7 @@ class JsonWebKeyParser
         // Attempt to validate the JWT
         $validator = $configuration->validator();
         try {
-            if ($validator->validate($token, (new SignedWith($configuration->signer(), $configuration->verificationKey()))) === false) {
+            if ($validator->validate($token, (new SignedWith(new Sha256(), InMemory::file($this->publicKeyLocation)))) === false) {
                 $result['active'] = false;
                 $result['status'] = 'failed_verification';
             }

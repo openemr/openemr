@@ -14,7 +14,7 @@
 namespace OpenEMR\Common\Command;
 
 use Lcobucci\JWT\Configuration;
-use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Signer\Key\LocalFileReference;
 use Lcobucci\JWT\Signer\Rsa\Sha384;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomClientCredentialsGrant;
 use OpenEMR\Common\Command\Runner\CommandContext;
@@ -78,8 +78,8 @@ class CreateClientCredentialsAssertionCommand implements IOpenEMRCommand
         $configuration = Configuration::forAsymmetricSigner(
         // You may use RSA or ECDSA and all their variations (256, 384, and 512)
             new Sha384(),
-            InMemory::file($keyLocation . "openemr-rsa384-private.key"),
-            InMemory::file($keyLocation . "openemr-rsa384-public.pem")
+            LocalFileReference::file($keyLocation . "openemr-rsa384-private.key"),
+            LocalFileReference::file($keyLocation . "openemr-rsa384-public.pem")
             // You may also override the JOSE encoder/decoder if needed by providing extra arguments here
         );
 

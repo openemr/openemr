@@ -16,7 +16,7 @@ use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
 use Lcobucci\JWT\Configuration;
-use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Signer\Key\LocalFileReference;
 use Lcobucci\JWT\Signer\Rsa\Sha384;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Exception\OAuthServerException;
@@ -173,8 +173,8 @@ class CustomClientCredentialsGrantTest extends TestCase
         $configuration = Configuration::forAsymmetricSigner(
         // You may use RSA or ECDSA and all their variations (256, 384, and 512)
             new Sha384(),
-            InMemory::file(__DIR__ . "/../../../../../data/Unit/Common/Auth/Grant/openemr-rsa384-private.key"),
-            InMemory::file(__DIR__ . "/../../../../../data/Unit/Common/Auth/Grant/openemr-rsa384-public.pem")
+            LocalFileReference::file(__DIR__ . "/../../../../../data/Unit/Common/Auth/Grant/openemr-rsa384-private.key"),
+            LocalFileReference::file(__DIR__ . "/../../../../../data/Unit/Common/Auth/Grant/openemr-rsa384-public.pem")
             // You may also override the JOSE encoder/decoder if needed by providing extra arguments here
         );
 
@@ -278,8 +278,8 @@ class CustomClientCredentialsGrantTest extends TestCase
         $configuration = Configuration::forAsymmetricSigner(
         // You may use RSA or ECDSA and all their variations (256, 384, and 512)
             new Sha384(),
-            InMemory::file(__DIR__ . "/../../../../../data/Unit/Common/Auth/Grant/openemr-rsa384-private.key"),
-            InMemory::file(__DIR__ . "/../../../../../data/Unit/Common/Auth/Grant/openemr-rsa384-public.pem")
+            LocalFileReference::file(__DIR__ . "/../../../../../data/Unit/Common/Auth/Grant/openemr-rsa384-private.key"),
+            LocalFileReference::file(__DIR__ . "/../../../../../data/Unit/Common/Auth/Grant/openemr-rsa384-public.pem")
             // You may also override the JOSE encoder/decoder if needed by providing extra arguments here
         );
 

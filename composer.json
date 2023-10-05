@@ -40,7 +40,7 @@
         "laminas/laminas-soap": "2.12.0",
         "laminas/laminas-stdlib": "3.18.0",
         "laminas/laminas-xmlrpc": "2.17.0",
-        "lcobucci/jwt": "5.0.0",
+        "lcobucci/jwt": "4.2.1",
         "league/omnipay": "3.2.1",
         "mobiledetect/mobiledetectlib": "3.74.0",
         "monolog/monolog": "3.4.0",
