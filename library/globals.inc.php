@@ -1255,6 +1255,13 @@ $GLOBALS_METADATA = array(
             xl('Default selection for rendering provider in fee sheet.')
         ),
 
+        'clearinghouse_eligibility_provider' => array(
+            xl('Clearinghouse Eligibility Provider Site Address'),
+            'text', // data type
+            '', // default
+            xl('This is the address where eligibility requests will be sent to.')
+        ),
+
         'posting_adj_disable' => array(
             xl('Disable Auto Adjustment Calculations in EOB Posting'),
             'bool',                           // data type
