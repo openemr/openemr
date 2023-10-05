@@ -735,7 +735,8 @@ class eRxXMLBuilder
                         $element->appendChild($this->createElementText('diagnosisType', $codeType));
 
                         if ($diagnosis['begdate']) {
-                            $element->appendChild($this->createElementText('onsetDate', str_replace("-", "", $diagnosis['begdate'])));
+                            $onsetDate = new DateTime($diagnosis['begdate']);
+                            $element->appendChild($this->createElementText('onsetDate', date_format($onsetDate, 'Ymd')));
                         }
 
                         if ($diagnosis['title']) {
