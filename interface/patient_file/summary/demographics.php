@@ -587,7 +587,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             if (!thedata.includes("Nothing")) {
                                 reloadRequired = true;
                             }
-                            msg_updation += thedata;
+                            msg_updation += "\n" + thedata;
                         },
                         error: function() {
                             alert('ajax error');
