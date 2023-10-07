@@ -16,7 +16,7 @@
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019-2023 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -159,7 +159,7 @@ class EDI270
             $NM1[6] = "";                       // Data Element not required.
             $NM1[7] = "";                       // Data Element not required.
             $NM1[8] = "PI";                     // 5010 no longer uses "46"
-            if ($GLOBALS['enable_oa']) {
+            if ($GLOBALS['enable_eligibility_requests']) {
                 $payerId = $row['eligibility_id'];
             } else {
                 $payerId = $row['cms_id'];
@@ -849,7 +849,7 @@ MIMEBODY;
         $response = oeHttp::bodyFormat('body')
             //->setDebug('5000')/* @todo uncomment and set proxy port to debug eg Fiddler */
             ->usingHeaders($headers)
-            ->post('https://wsd.officeally.com/TransactionSite/rtx.aspx', $mime_body); // @TODO put request urls in x12 partner's for versatility.
+            ->post($X12info['x12_eligibility_endpoint'], $mime_body);
 
         $formBody = $response->body();
         $contentType = $response->header('Content-Type')[0];

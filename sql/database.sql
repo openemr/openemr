@@ -9105,6 +9105,12 @@ CREATE TABLE `x12_partners` (
   `x12_sftp_port` varchar(255) DEFAULT NULL,
   `x12_sftp_local_dir` varchar(255) DEFAULT NULL,
   `x12_sftp_remote_dir` varchar(255) DEFAULT NULL,
+  `x12_token_endpoint` tinytext,
+  `x12_eligibility_endpoint` tinytext,
+  `x12_claim_status_endpoint` tinytext,
+  `x12_attachment_endpoint` tinytext,
+  `x12_client_id` tinytext,
+  `x12_client_secret` tinytext,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB;
 

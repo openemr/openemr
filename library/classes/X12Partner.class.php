@@ -47,6 +47,12 @@ class X12Partner extends ORDataObject
     var $x12_sftp_port;
     var $x12_sftp_local_dir;
     var $x12_sftp_remote_dir;
+    var $x12_client_id;
+    var $x12_client_secret;
+    var $x12_token_endpoint;
+    var $x12_eligibility_endpoint;
+    var $x12_claim_status_endpoint;
+    var $x12_attachment_endpoint;
 
     /**
      * Constructor sets all Insurance attributes to their default value
@@ -428,5 +434,65 @@ class X12Partner extends ORDataObject
             'A' => 'Appointment Date',
             'E' => 'Subscriber Effective Date',
         );
+    }
+
+    function set_x12_client_id($string)
+    {
+        $this->x12_client_id = $string;
+    }
+
+    function get_x12_client_id()
+    {
+        return $this->x12_client_id;
+    }
+
+    function set_x12_client_secret($string)
+    {
+        $this->x12_client_secret = $string;
+    }
+
+    function get_x12_client_secret()
+    {
+        return $this->x12_client_secret;
+    }
+
+    function set_x12_token_endpoint($string)
+    {
+        $this->x12_token_endpoint = $string;
+    }
+
+    function get_x12_token_endpoint()
+    {
+        return $this->x12_token_endpoint;
+    }
+
+    function set_x12_eligibility_endpoint($string)
+    {
+        $this->x12_eligibility_endpoint = $string;
+    }
+
+    function get_x12_eligibility_endpoint()
+    {
+        return $this->x12_eligibility_endpoint;
+    }
+
+    function set_x12_claim_status_endpoint($string)
+    {
+        $this->x12_claim_status_endpoint = $string;
+    }
+
+    function get_x12_claim_status_endpoint()
+    {
+        return $this->x12_claim_status_endpoint;
+    }
+
+    function set_x12_attachment_endpoint($string)
+    {
+        $this->x12_attachment_endpoint = $string;
+    }
+
+    function get_x12_attachment_endpoint()
+    {
+        return $this->x12_attachment_endpoint;
     }
 }

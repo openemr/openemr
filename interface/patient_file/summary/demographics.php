@@ -1377,7 +1377,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
                         }
 
-                        if ($GLOBALS["enable_oa"]) {
+                        if ($GLOBALS["enable_eligibility_requests"]) {
                             if (($_POST['status_update'] ?? '') === 'true') {
                                 unset($_POST['status_update']);
                                 $showEligibility = true;
@@ -1414,7 +1414,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
                             'ins' => $insArr,
                             'eligibility' => $output,
-                            'enable_oa' => $GLOBALS['enable_oa'],
+                            'enable_eligibility_requests' => $GLOBALS['enable_eligibility_requests'],
                             'auth' => AclMain::aclCheckCore('patients', 'demo', '', 'write'),
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),

@@ -554,3 +554,27 @@ CREATE TABLE `edi_sequences` (
 ) ENGINE=InnoDB;
 INSERT INTO `edi_sequences` VALUES (0);
 #EndIf
+
+#IfMissingColumn x12_partners x12_client_id;
+ALTER TABLE `x12_partners` ADD COLUMN `x12_client_id` tinytext;
+#EndIf
+
+#IfMissingColumn x12_partners x12_client_secret;
+ALTER TABLE `x12_partners` ADD COLUMN `x12_client_secret` tinytext;
+#EndIf
+
+#IfMissingColumn x12_partners x12_token_endpoint
+ALTER TABLE `x12_partners` ADD COLUMN `x12_token_endpoint` tinytext;
+#EndIf
+
+#IfMissingColumn x12_partners x12_eligibility_endpoint
+ALTER TABLE `x12_partners` ADD COLUMN `x12_eligibility_endpoint` tinytext;
+#EndIf
+
+#IfMissingColumn x12_partners x12_claim_status_endpoint
+ALTER TABLE `x12_partners` ADD COLUMN `x12_claim_status_endpoint` tinytext;
+#EndIf
+
+#IfMissingColumn x12_partners x12_attachment_endpoint
+ALTER TABLE `x12_partners` ADD COLUMN `x12_attachment_endpoint` tinytext;
+#EndIf
