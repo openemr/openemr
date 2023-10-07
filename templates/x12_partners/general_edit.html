@@ -176,6 +176,48 @@
         </div>
     </div>
 
+    <div class="form-row my-sm-2">
+        <label for="x12_client_id" class="col-form-label col-sm-2">{xlt t='Client ID'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="400" id="x12_client_id" name="x12_client_id" class="form-control" value="{$partner->get_x12_client_id()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+
+    <div class="form-row my-sm-2">
+        <label for="x12_client_secret" class="col-form-label col-sm-2">{xlt t='Client Secret'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="400" id="x12_client_secret" name="x12_client_secret" class="form-control" value="{$partner->get_x12_client_secret()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+
+    <div class="form-row my-sm-2">
+        <label for="x12_token_endpoint" class="col-form-label col-sm-2">{xlt t='Token Endpoint'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="400" id="x12_token_endpoint" name="x12_token_endpoint" class="form-control" value="{$partner->get_x12_token_endpoint()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+
+    <div class="form-row my-sm-2">
+        <label for="x12_eligibility_endpoint" class="col-form-label col-sm-2">{xlt t='Eligibility Endpoint'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="400" id="x12_eligibility_endpoint" name="x12_eligibility_endpoint" class="form-control" value="{$partner->get_x12_eligibility_endpoint()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+
+    <div class="form-row my-sm-2">
+        <label for="x12_claim_status_endpoint" class="col-form-label col-sm-2">{xlt t='Claim Status Endpoint'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="400" id="x12_claim_status_endpoint" name="x12_claim_status_endpoint" class="form-control" value="{$partner->get_x12_claim_status_endpoint()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+
+    <div class="form-row my-sm-2">
+        <label for="x12_attachment_endpoint" class="col-form-label col-sm-2">{xlt t='Attachment Endpoint'}</label>
+        <div class="col-sm-8">
+            <input type="text" maxlength="400" id="x12_attachment_endpoint" name="x12_attachment_endpoint" class="form-control" value="{$partner->get_x12_attachment_endpoint()|attr}" onKeyDown="PreventIt(event)">
+        </div>
+    </div>
+
     <div class="btn-group offset-sm-2">
         <a href="javascript:add_x12();" class="btn btn-secondary btn-save" onclick="top.restoreSession()">
             {xlt t='Save'}

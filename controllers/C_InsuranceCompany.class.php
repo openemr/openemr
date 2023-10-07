@@ -16,7 +16,7 @@ class C_InsuranceCompany extends Controller
         $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&insurance_company&");
         $this->assign("STYLE", $GLOBALS['style']);
         $this->assign("SUPPORT_ENCOUNTER_CLAIMS", $GLOBALS['support_encounter_claims']);
-        $this->assign("SUPPORT_ELIGIBILITY_REQUESTS", $GLOBALS['enable_oa']);
+        $this->assign("SUPPORT_ELIGIBILITY_REQUESTS", $GLOBALS['enable_eligibility_requests']);
         $this->InsuranceCompany = new InsuranceCompany();
     }
 
