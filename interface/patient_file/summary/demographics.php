@@ -554,6 +554,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $soap_status = sqlStatement("select soap_import_status,pid from patient_data where pid=? and soap_import_status in ('1','3')", array($pid));
                 while ($row_soapstatus = sqlFetchArray($soap_status)) { ?>
                     top.restoreSession();
+                    let reloadRequired = false;
                     $.ajax({
                         type: "POST",
                         url: "../../soap_functions/soap_patientfullmedication.php",
@@ -563,7 +564,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         },
                         async: false,
                         success: function(thedata) {
-                            //alert(thedata);
+                            if (!thedata.includes("Nothing")) {
+                                reloadRequired = true;
+                            }
                             msg_updation += thedata;
                         },
                         error: function() {
@@ -581,13 +584,20 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         },
                         async: false,
                         success: function(thedata) {
-                            //alert(thedata);
-                            msg_updation += thedata;
+                            if (!thedata.includes("Nothing")) {
+                                reloadRequired = true;
+                            }
+                            msg_updation += "\n" + thedata;
                         },
                         error: function() {
                             alert('ajax error');
                         }
                     });
+
+                    if (reloadRequired) {
+                        document.location.reload();
+                    }
+
                     <?php
                     if ($GLOBALS['erx_import_status_message']) { ?>
                         if (msg_updation)
