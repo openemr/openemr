@@ -126,7 +126,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                 </fieldset>
                                 <div class="form-group clearfix">
                                 <div class="col-sm-12 text-left position-override">
-                                        <button class="btn btn-secondary btn-save" value="<?php echo xla('Submit'); ?>"><?php echo xlt('Submit'); ?></button>
+                                        <button type="submit" class="btn btn-secondary btn-save" value="<?php echo xla('Submit'); ?>"><?php echo xlt('Submit'); ?></button>
                                         <button type="button" class="btn btn-link btn-cancel" value="<?php echo xla('Cancel'); ?>" onclick="docancel()" ><?php echo xlt('Cancel'); ?></button>
                                     </div>
                                 </div>
