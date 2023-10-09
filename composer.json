@@ -89,7 +89,7 @@
     "require-dev": {
         "phpunit/phpunit": "10.*",
         "symfony/panther": "2.*",
-        "zircote/swagger-php": "4.*"
+        "zircote/swagger-php": "3.*"
     },
     "repositories": [
         {
