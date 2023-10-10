@@ -165,7 +165,8 @@ class AuthorizationController
                 $this->authBaseFullUrl,
                 $this->authBaseFullUrl . self::ENDPOINT_SCOPE_AUTHORIZE_CONFIRM,
                 __DIR__ . "/../../oauth2/",
-                $this->getTwig()
+                $this->getTwig(),
+                $GLOBALS['kernel']->getEventDispatcher()
             );
         }
         return $this->smartAuthController;
@@ -568,7 +569,7 @@ class AuthorizationController
 
         // OpenID Connect Response Type
         $this->logger->debug("AuthorizationController->getAuthorizationServer() creating server");
-        $responseType = new IdTokenSMARTResponse(new IdentityRepository(), new ClaimExtractor($customClaim));
+        $responseType = new IdTokenSMARTResponse(new IdentityRepository(), new ClaimExtractor($customClaim), $this->getTwig());
 
         if (empty($this->grantType)) {
             $this->grantType = 'authorization_code';

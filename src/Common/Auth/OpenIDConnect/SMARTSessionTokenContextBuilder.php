@@ -19,6 +19,8 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
+use OpenEMR\RestControllers\AuthorizationController;
+use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
 use OpenEMR\Services\FHIR\UtilsService;
 
 class SMARTSessionTokenContextBuilder
@@ -132,7 +134,9 @@ class SMARTSessionTokenContextBuilder
      */
     private function getSmartStyleURL()
     {
-        return $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . "/public/smart-styles/smart-light.json";
+        // "/public/smart-styles/smart-light.json";
+        // need to make sure we grab the site id for this.
+        return $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . "/oauth2/" . $_SESSION['site_id'] . SMARTAuthorizationController::SMART_STYLE_URL;
     }
 
     /**
