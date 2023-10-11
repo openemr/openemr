@@ -632,7 +632,8 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                 </select>
                             </div>
                         </div>
-                        <div class="col-sm <?php echo ($GLOBALS['hide_billing_widget'] != 1) ?: 'd-none';?>">
+                        <?php $collectionDisplay = ($GLOBALS['hide_billing_widget'] == 1) ? 'd-none' : displayOption('enc_in_collection'); ?>
+                        <div class="col-sm <?php echo $collectionDisplay; ?>">
                             <div class="form-group">
                                 <label for='in_collection' class="text-right"><?php echo xlt('In Collection'); ?>:</label>
                                 <select class='form-control' name='in_collection' id='in_collection'>
