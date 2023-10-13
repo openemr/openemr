@@ -555,11 +555,11 @@ CREATE TABLE `edi_sequences` (
 INSERT INTO `edi_sequences` VALUES (0);
 #EndIf
 
-#IfMissingColumn x12_partners x12_client_id;
+#IfMissingColumn x12_partners x12_client_id
 ALTER TABLE `x12_partners` ADD COLUMN `x12_client_id` tinytext;
 #EndIf
 
-#IfMissingColumn x12_partners x12_client_secret;
+#IfMissingColumn x12_partners x12_client_secret
 ALTER TABLE `x12_partners` ADD COLUMN `x12_client_secret` tinytext;
 #EndIf
 
