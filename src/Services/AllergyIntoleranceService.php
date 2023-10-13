@@ -100,6 +100,7 @@ class AllergyIntoleranceService extends BaseService
 
         // make sure we only search for allergy fields
         $search['type'] = new StringSearchField('type', ['allergy'], SearchModifier::EXACT);
+        // ensure a user is stored in the lists table for this allergy
         $search['user'] = new StringSearchField('user', '', SearchModifier::NOT_EQUALS_EXACT);
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
