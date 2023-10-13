@@ -88,7 +88,7 @@ class AllergyIntoleranceService extends BaseService
             FROM users
             -- US CORE only allows physicians or patients to be our allergy recorder
             -- so we will filter out anyone who is not actually a practitioner (May 14th 2021)
-            WHERE users.npi IS NOT NULL -- we only want actual physicians here rather than all users
+            WHERE users.npi IS NOT NULL AND users.npi != '' -- we only want actual physicians here rather than all users
         ) practitioners ON practitioners.username = lists.user
         LEFT JOIN (
             select
@@ -100,6 +100,7 @@ class AllergyIntoleranceService extends BaseService
 
         // make sure we only search for allergy fields
         $search['type'] = new StringSearchField('type', ['allergy'], SearchModifier::EXACT);
+        $search['user'] = new StringSearchField('user', '', SearchModifier::NOT_EQUALS_EXACT);
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
         $sql .= $whereClause->getFragment();
