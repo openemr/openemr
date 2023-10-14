@@ -47,6 +47,7 @@ require_once("$srcdir/encounter_events.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 
 $cryptoGen = new CryptoGen();

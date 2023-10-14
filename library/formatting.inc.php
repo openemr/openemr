@@ -12,8 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Services\Utils\DateFormatterUtils;
-use OpenEMR\Services\Utils\FormatMoney;
+ use OpenEMR\Common\Utils\FormatMoney;
+ use OpenEMR\Services\Utils\DateFormatterUtils;
 
 // TODO: look at moving all of the date functions into the DateFormatterUtils class.
 
