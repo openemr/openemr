@@ -14,7 +14,7 @@ namespace OpenEMR\Common\Utils;
 
 class FormatMoney
 {
-    public static function getFormattedMoney($amount, bool $symbol = false, bool $return_zero = false) : string
+    public static function getFormattedMoney($amount, bool $symbol = false, bool $return_zero = false): string
     {
         if (!empty($amount)) {
             $s = number_format(
@@ -32,6 +32,6 @@ class FormatMoney
             return sprintf("%.2f", $amount);
         }
 
-    return '';
+        return '';
     }
 }
