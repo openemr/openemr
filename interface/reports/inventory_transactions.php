@@ -74,8 +74,8 @@ function thisLineItem($row, $xfer = false)
         echo csvEscape($row['lot_number'])                   . ',';
         echo csvEscape($row['warehouse'])                    . ',';
         echo csvEscape($dpname)                              . ',';
-        echo csvEscape(0 - $row['quantity'])            . ',';
-        echo csvEscape(FormatMoney::getBucks($row['fee']))                   . ',';
+        echo csvEscape(0 - $row['quantity'])                 . ',';
+        echo csvEscape(FormatMoney::getBucks($row['fee']))   . ',';
         echo csvEscape($row['billed'])                       . ',';
         echo csvEscape($row['notes'])                        . "\n";
     } else {
