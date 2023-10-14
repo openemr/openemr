@@ -12,7 +12,6 @@
 
 require_once($GLOBALS["srcdir"] . "/options.inc.php");
 
-use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Utils\FormatMoney;
 
@@ -281,12 +280,6 @@ function printPatientBilling($pid)
         echo "<span class='text'>(" . text($result["code_type"]) . ") ";
         echo $result['code_type'] == 'COPAY' ? text(FormatMoney::getFormattedMoney($result['code'])) : (text($result['code']) . ":" . text($result['modifier']));
         echo " - " . wordwrap(text($result['code_text']), 70, "\n", true) . "</span>";
-        if ($result['code_type'] == 'CPT4') {
-            echo "<span class='text' display='inline-block'>";
-            $codes = InvoiceSummary::arGetInvoiceSummary($result['pid'], $result['encounter'], true);
-            InvoiceSummary::arGetInvoiceSummaryText($codes);
-            echo "</span>";
-        }
         echo "<br />\n";
     }
 }
