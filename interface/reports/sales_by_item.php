@@ -46,13 +46,6 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
     $form_details = false;
 }
 
-function bucks($amount)
-{
-    if ($amount) {
-        return oeFormatMoney($amount);
-    }
-}
-
 function display_desc($desc)
 {
     if (preg_match('/^\S*?:(.+)$/', $desc, $matches)) {
@@ -97,7 +90,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
                     echo csvEscape(display_desc($category)) . ',';
                     echo csvEscape(display_desc($product))  . ',';
                     echo csvEscape($productqty)             . ',';
-                    echo csvEscape(bucks($producttotal));
+                    echo csvEscape(FormatMoney::getFormattedMoney($producttotal));
                     echo "\n";
                 }
             } else {
@@ -127,7 +120,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
                 <?php echo text($productqty); ?>
   </td>
   <td align="right">
-                <?php echo text(bucks($producttotal)); ?>
+                <?php echo text(FormatMoney::getFormattedMoney($producttotal)); ?>
   </td>
  </tr>
                 <?php
@@ -166,7 +159,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
                 <?php echo text($catqty); ?>
   </td>
   <td align="right">
-                <?php echo text(bucks($cattotal)); ?>
+                <?php echo text(FormatMoney::getFormattedMoney($cattotal)); ?>
   </td>
  </tr>
                 <?php
@@ -198,7 +191,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
 
            // echo '"' . display_desc($invnumber) . '",';
             echo csvEscape(display_desc($qty)) . ',';
-            echo csvEscape(bucks($rowamount));
+            echo csvEscape(FormatMoney::getFormattedMoney($rowamount));
             echo "\n";
         } else {
             ?>
@@ -245,7 +238,7 @@ function thisLineItem($patient_id, $encounter_id, $rowcat, $description, $transd
             <?php echo text($qty); ?>
       </td>
       <td align="right">
-            <?php echo text(bucks($rowamount)); ?>
+            <?php echo text(FormatMoney::getFormattedMoney($rowamount)); ?>
       </td>
      </tr>
             <?php
@@ -627,7 +620,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         if (! $_POST['form_details']) {
             echo csvEscape(display_desc($product)) . ',';
             echo csvEscape($productqty)            . ',';
-            echo csvEscape(bucks($producttotal));
+            echo csvEscape(FormatMoney::getFormattedMoney($producttotal));
             echo "\n";
         }
     } else {
@@ -658,7 +651,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         <?php echo text($productqty); ?>
   </td>
   <td align="right">
-        <?php echo text(bucks($producttotal)); ?>
+        <?php echo text(FormatMoney::getFormattedMoney($producttotal)); ?>
   </td>
  </tr>
 
@@ -682,7 +675,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         <?php echo text($catqty); ?>
   </strong></td>
   <td align="right"><strong>
-        <?php echo text(bucks($cattotal)); ?>
+        <?php echo text(FormatMoney::getFormattedMoney($cattotal)); ?>
   </strong></td>
  </tr>
 
@@ -702,7 +695,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         <?php echo text($grandqty); ?>
   </strong></td>
   <td align="right"><strong>
-        <?php echo text(bucks($grandtotal)); ?>
+        <?php echo text(FormatMoney::getFormattedMoney($grandtotal)); ?>
   </strong></td>
  </tr>
         <?php $report_from_date = oeFormatShortDate($form_from_date)  ;

@@ -13,23 +13,13 @@
  */
 
 use OpenEMR\Services\Utils\DateFormatterUtils;
+use OpenEMR\Services\Utils\FormatMoney;
 
 // TODO: look at moving all of the date functions into the DateFormatterUtils class.
 
 function oeFormatMoney($amount, $symbol = false)
 {
-    $s = number_format(
-        floatval($amount),
-        $GLOBALS['currency_decimals'],
-        $GLOBALS['currency_dec_point'],
-        $GLOBALS['currency_thousands_sep']
-    );
-  // If the currency symbol exists and is requested, prepend it.
-    if ($symbol && !empty($GLOBALS['gbl_currency_symbol'])) {
-        $s = $GLOBALS['gbl_currency_symbol'] . " $s";
-    }
-
-    return $s;
+    return FormatMoney::getFormattedMoney($amount, $symbol);
 }
 
 function oeFormatShortDate($date = 'today', $showYear = true)

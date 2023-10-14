@@ -26,15 +26,6 @@ if (!empty($_POST)) {
     }
 }
 
-function bucks($amount)
-{
-    if ($amount != 0) {
-        return oeFormatMoney($amount);
-    }
-
-    return '';
-}
-
 function thisLineItem($row, $xfer = false)
 {
     global $grandtotal, $grandqty, $encount, $form_action;
@@ -83,7 +74,7 @@ function thisLineItem($row, $xfer = false)
         echo csvEscape($row['warehouse'])                    . ',';
         echo csvEscape($dpname)                              . ',';
         echo csvEscape(0 - $row['quantity'])            . ',';
-        echo csvEscape(bucks($row['fee']))                   . ',';
+        echo csvEscape(FormatMoney::getFormattedMoney($row['fee']))                   . ',';
         echo csvEscape($row['billed'])                       . ',';
         echo csvEscape($row['notes'])                        . "\n";
     } else {
@@ -113,7 +104,7 @@ function thisLineItem($row, $xfer = false)
         <?php echo text(0 - $row['quantity']); ?>
   </td>
   <td class="detail" align="right">
-        <?php echo text(bucks($row['fee'])); ?>
+        <?php echo text(FormatMoney::getFormattedMoney($row['fee'])); ?>
   </td>
   <td class="detail" align="center">
         <?php echo empty($row['billed']) ? '&nbsp;' : '*'; ?>
@@ -425,7 +416,7 @@ if ($form_action) { // if submit or export
         <?php echo text($grandqty); ?>
   </td>
   <td class="dehead" align="right">
-        <?php echo text(bucks($grandtotal)); ?>
+        <?php echo text(FormatMoney::getFormattedMoney($grandtotal)); ?>
   </td>
   <td class="dehead" colspan="2">
 

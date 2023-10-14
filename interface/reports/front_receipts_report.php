@@ -35,10 +35,6 @@ if (!empty($_POST)) {
 $from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
 $to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
 
-function bucks($amt)
-{
-    return ($amt != 0.00) ? oeFormatMoney($amt) : '';
-}
 ?>
 <html>
 <head>
@@ -279,13 +275,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
             <?php echo text($row['source']); ?>
   </td>
   <td align='right'>
-            <?php echo text(bucks($row['amount1'])); ?>
+            <?php echo text(FormatMoney::getFormattedMoney($row['amount1'])); ?>
   </td>
   <td align='right'>
-            <?php echo text(bucks($row['amount2'])); ?>
+            <?php echo text(FormatMoney::getFormattedMoney($row['amount2'])); ?>
   </td>
   <td align='right'>
-            <?php echo text(bucks($row['amount1'] + $row['amount2'])); ?>
+            <?php echo text(FormatMoney::getFormattedMoney($row['amount1'] + $row['amount2'])); ?>
   </td>
  </tr>
             <?php
@@ -305,13 +301,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         <?php echo xlt('Totals'); ?>
  </td>
  <td align='right'>
-        <?php echo text(bucks($total1)); ?>
+        <?php echo text(FormatMoney::getFormattedMoney($total1)); ?>
  </td>
  <td align='right'>
-        <?php echo text(bucks($total2)); ?>
+        <?php echo text(FormatMoney::getFormattedMoney($total2)); ?>
  </td>
  <td align='right'>
-        <?php echo text(bucks($total1 + $total2)); ?>
+        <?php echo text(FormatMoney::getFormattedMoney($total1 + $total2)); ?>
  </td>
 </tr>
 

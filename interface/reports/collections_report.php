@@ -172,14 +172,6 @@ for ($c = 0; $c < $form_age_cols; ++$c) {
     $grand_total_agedbal[$c] = 0;
 }
 
-
-function bucks($amount)
-{
-    if ($amount) {
-        return oeFormatMoney($amount); // was printf("%.2f", $amount);
-    }
-}
-
 function endPatient($ptrow)
 {
     global $export_patient_count, $export_dollars, $bgcolor;
@@ -1228,27 +1220,27 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
   </td>
 <?php } // end $form_cb_adate ?>
   <td class="detail" align="left">
-            <?php echo text(bucks($row['charges'])) ?>&nbsp;
+            <?php echo text(FormatMoney::getFormattedMoney($row['charges'])) ?>&nbsp;
   </td>
   <td class="detail" align="left">
-            <?php echo text(bucks($row['adjustments'])) ?>&nbsp;
+            <?php echo text(FormatMoney::getFormattedMoney($row['adjustments'])) ?>&nbsp;
   </td>
   <td class="detail" align="left">
-            <?php echo text(bucks($row['paid'])) ?>&nbsp;
+            <?php echo text(FormatMoney::getFormattedMoney($row['paid'])) ?>&nbsp;
   </td>
             <?php
             if ($form_age_cols) {
                 for ($c = 0; $c < $form_age_cols; ++$c) {
                     echo "  <td class='detail' align='left'>";
                     if ($c == $agecolno) {
-                        echo text(bucks($balance));
+                        echo text(FormatMoney::getFormattedMoney($balance));
                     }
 
                     echo "&nbsp;</td>\n";
                 }
             } else { // end $form_age_cols
                 ?>
-<td class="detail" align="left"><?php echo text(bucks($balance)); ?>&nbsp;</td>
+<td class="detail" align="left"><?php echo text(FormatMoney::getFormattedMoney($balance)); ?>&nbsp;</td>
                 <?php
             } // end else
             ?>

@@ -49,13 +49,6 @@ $showing_ppd = true;
 
 $insarray = array();
 
-function bucks($amount)
-{
-    if ($amount) {
-        return oeFormatMoney($amount);
-    }
-}
-
 function thisLineItem(
     $patient_id,
     $encounter_id,
@@ -141,10 +134,10 @@ function showLineItem(
                     <?php echo xlt('Total for ') . text($paymethod); ?>
                 </td>
                 <td class="text-right">
-                    <?php echo text(bucks($methodadjtotal)); ?>
+                    <?php echo text(FormatMoney::getFormattedMoney($methodadjtotal)); ?>
                 </td>
                 <td class="text-right">
-                    <?php echo text(bucks($methodpaytotal)); ?>
+                    <?php echo text(FormatMoney::getFormattedMoney($methodpaytotal)); ?>
                 </td>
             </tr>
             <?php
@@ -216,10 +209,10 @@ function showLineItem(
         <?php echo text($memo); ?>
   </td>
   <td align="right">
-        <?php echo text(bucks($rowadjamount)); ?>
+        <?php echo text(FormatMoney::getFormattedMoney($rowadjamount)); ?>
   </td>
   <td align="right">
-        <?php echo text(bucks($rowpayamount)); ?>
+        <?php echo text(FormatMoney::getFormattedMoney($rowpayamount)); ?>
   </td>
  </tr>
         <?php
@@ -733,10 +726,10 @@ if (!empty($_POST['form_refresh'])) {
                     <?php echo xlt('Total for ') . text($paymethod); ?>
                 </td>
                 <td class="text-right">
-                    <?php echo text(bucks($methodadjtotal)); ?>
+                    <?php echo text(FormatMoney::getFormattedMoney($methodadjtotal)); ?>
                 </td>
                 <td class="text-right">
-                    <?php echo text(bucks($methodpaytotal)); ?>
+                    <?php echo text(FormatMoney::getFormattedMoney($methodpaytotal)); ?>
                 </td>
             </tr>
             <?php
@@ -752,10 +745,10 @@ if (!empty($_POST['form_refresh'])) {
                         <?php echo text($key); ?>
                     </td>
                     <td class="text-right">
-                        <?php echo text(bucks($value[1])); ?>
+                        <?php echo text(FormatMoney::getFormattedMoney($value[1])); ?>
                     </td>
                     <td class="text-right">
-                        <?php echo text(bucks($value[0])); ?>
+                        <?php echo text(FormatMoney::getFormattedMoney($value[0])); ?>
                     </td>
                 </tr>
                 <?php
@@ -767,10 +760,10 @@ if (!empty($_POST['form_refresh'])) {
                 <?php echo xlt('Grand Total') ?>
             </td>
             <td class="text-right">
-                <?php echo text(bucks($grandadjtotal)); ?>
+                <?php echo text(FormatMoney::getFormattedMoney($grandadjtotal)); ?>
             </td>
             <td class="text-right">
-                <?php echo text(bucks($grandpaytotal)); ?>
+                <?php echo text(FormatMoney::getFormattedMoney($grandpaytotal)); ?>
             </td>
         </tr>
 
