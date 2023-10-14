@@ -14,19 +14,24 @@ namespace OpenEMR\Common\Utils;
 
 class FormatMoney
 {
-    public static function getFormattedMoney($amount, $symbol = false)
+    public static function getFormattedMoney($amount, bool $symbol = false, bool $return_zero = false) : string
     {
-        $s = number_format(
-            floatval($amount),
-            $GLOBALS['currency_decimals'],
-            $GLOBALS['currency_dec_point'],
-            $GLOBALS['currency_thousands_sep']
-        );
-      // If the currency symbol exists and is requested, prepend it.
-        if ($symbol && !empty($GLOBALS['gbl_currency_symbol'])) {
-            $s = $GLOBALS['gbl_currency_symbol'] . " $s";
+        if (!empty($amount)) {
+            $s = number_format(
+                floatval($amount),
+                $GLOBALS['currency_decimals'],
+                $GLOBALS['currency_dec_point'],
+                $GLOBALS['currency_thousands_sep']
+            );
+            // If the currency symbol exists and is requested, prepend it.
+            if ($symbol && !empty($GLOBALS['gbl_currency_symbol'])) {
+                $s = $GLOBALS['gbl_currency_symbol'] . " $s";
+            }
+            return $s;
+        } elseif (!$return_zero) {
+            return sprintf("%.2f", $amount);
         }
 
-        return $s;
+    return '';
     }
 }

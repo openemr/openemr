@@ -655,7 +655,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                                 ?>
                                 <tr>
                                     <td class="detail" style="background:<?php echo $dispcode ? 'lightyellow' : ''; ?>"><?php echo text($dispcode); $dispcode = "" ?></td>
-                                    <td class="detail"><?php echo text(FormatMoney::getFormattedMoney($tmpchg)); ?></td>
+                                    <td class="detail"><?php echo text(FormatMoney::getFormattedMoney($tmpchg, false, true)); ?></td>
                                     <td class="detail">&nbsp;</td>
                                     <td class="detail">
                                         <?php
@@ -670,8 +670,8 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                                         ?>
                                     </td>
                                     <td class="detail"><?php echo text($ddate); ?></td>
-                                    <td class="detail"><?php echo text(FormatMoney::getFormattedMoney($ddata['pmt'] ?? '')); ?></td>
-                                    <td class="detail"><?php echo text(FormatMoney::getFormattedMoney($tmpadj)); ?></td>
+                                    <td class="detail"><?php echo text(FormatMoney::getFormattedMoney($ddata['pmt'] ?? '', false, true)); ?></td>
+                                    <td class="detail"><?php echo text(FormatMoney::getFormattedMoney($tmpadj ?? '', false, true)); ?></td>
                                     <td class="detail">&nbsp;</td>
                                     <td class="detail"><?php echo text($ddata['rsn'] ?? ''); ?></td>
                                     <?php
@@ -697,7 +697,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                                 <td class="last_detail">&nbsp;</td>
                                 <td class="last_detail">
                                     <input name="form_line[<?php echo attr($code); ?>][bal]" type="hidden"
-                                           value="<?php echo attr(FormatMoney::getFormattedMoney($cdata['bal'])); ?>" />
+                                           value="<?php echo attr(FormatMoney::getFormattedMoney($cdata['bal'] ?? '', false, true)); ?>" />
                                     <input name="form_line[<?php echo attr($code); ?>][ins]" type="hidden"
                                            value="<?php echo attr($cdata['ins'] ?? ''); ?>" />
                                     <input name="form_line[<?php echo attr($code); ?>][code_type]" type="hidden"
