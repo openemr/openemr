@@ -772,7 +772,7 @@ if ($fend > ($count ?? null)) {
                 "p.pr_id = ? AND p.pr_selector = '' AND p.pr_level = lo.option_id " .
                 "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq", array($iter['id']));
             while ($prow = sqlFetchArray($pres)) {
-                echo "<td class='text text-right'>" . text(FormatMoney::getFormattedMoney($prow['pr_price'])) . "</td>\n";
+                echo "<td class='text text-right'>" . text(FormatMoney::getBucks($prow['pr_price'])) . "</td>\n";
             }
 
             if ($thisauthwrite) {

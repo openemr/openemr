@@ -1148,15 +1148,15 @@ if (
                                     <td class="detail">&nbsp;<?php echo text(oeFormatShortDate($svcdate)); ?></td>
                                     <td class="detail">
                                         &nbsp;<?php echo text(oeFormatShortDate($last_stmt_date)); ?></td>
-                                    <td class="detail text-right"><?php echo text(FormatMoney::getFormattedMoney($row['charges'])); ?>&nbsp;
+                                    <td class="detail text-right"><?php echo text(FormatMoney::getBucks($row['charges'])); ?>&nbsp;
                                     </td>
-                                    <td class="detail text-right"><?php echo text(FormatMoney::getFormattedMoney($row['adjustments'])); ?>
+                                    <td class="detail text-right"><?php echo text(FormatMoney::getBucks($row['adjustments'])); ?>
                                         &nbsp;
                                     </td>
-                                    <td class="detail text-right"><?php echo text(FormatMoney::getFormattedMoney($row['payments'] - $row['copays'])); ?>
+                                    <td class="detail text-right"><?php echo text(FormatMoney::getBucks($row['payments'] - $row['copays'])); ?>
                                         &nbsp;
                                     </td>
-                                    <td class="detail text-right"><?php echo text(FormatMoney::getFormattedMoney($balance)); ?>&nbsp;</td>
+                                    <td class="detail text-right"><?php echo text(FormatMoney::getBucks($balance)); ?>&nbsp;</td>
                                     <td class="detail text-center"><?php echo $duncount ? text($duncount) : "&nbsp;" ?></td>
                                     <?php if (!$eracount) { ?>
                                         <td class="detail text-left">

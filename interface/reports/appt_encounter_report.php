@@ -85,12 +85,12 @@ function endDoctor(&$docrow)
     echo "  </td>\n";
     echo "  <td align='right'>\n";
     echo "   &nbsp;";
-    echo text(FormatMoney::getFormattedMoney($docrow['charges']));
+    echo text(FormatMoney::getBucks($docrow['charges']));
     echo "&nbsp;\n";
     echo "  </td>\n";
     echo "  <td align='right'>\n";
     echo "   &nbsp;";
-    echo text(FormatMoney::getFormattedMoney($docrow['copays']));
+    echo text(FormatMoney::getBucks($docrow['copays']));
     echo "&nbsp;\n";
     echo "  </td>\n";
     echo "  <td colspan='2'>\n";
@@ -524,10 +524,10 @@ if (!empty($_POST['form_refresh'])) {
                 <?php echo text($encounter); ?>&nbsp;
          </td>
          <td align='right'>
-                <?php echo text(FormatMoney::getFormattedMoney($charges)); ?>&nbsp;
+                <?php echo text(FormatMoney::getBucks($charges)); ?>&nbsp;
          </td>
          <td align='right'>
-                <?php echo text(FormatMoney::getFormattedMoney($copays)); ?>&nbsp;
+                <?php echo text(FormatMoney::getBucks($copays)); ?>&nbsp;
          </td>
          <td>
                 <?php echo text($billed); ?>
@@ -553,12 +553,12 @@ if (!empty($_POST['form_refresh'])) {
         echo "  </td>\n";
         echo "  <td align='right'>\n";
         echo "   &nbsp;";
-        echo text(FormatMoney::getFormattedMoney($grand_total_charges));
+        echo text(FormatMoney::getBucks($grand_total_charges));
         echo "&nbsp;\n";
         echo "  </td>\n";
         echo "  <td align='right'>\n";
         echo "   &nbsp;";
-        echo text(FormatMoney::getFormattedMoney($grand_total_copays));
+        echo text(FormatMoney::getBucks($grand_total_copays));
         echo "&nbsp;\n";
         echo "  </td>\n";
         echo "  <td colspan='2'>\n";

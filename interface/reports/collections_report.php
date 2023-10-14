@@ -1221,27 +1221,27 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
   </td>
 <?php } // end $form_cb_adate ?>
   <td class="detail" align="left">
-            <?php echo text(FormatMoney::getFormattedMoney($row['charges'])) ?>&nbsp;
+            <?php echo text(FormatMoney::getBucks($row['charges'])) ?>&nbsp;
   </td>
   <td class="detail" align="left">
-            <?php echo text(FormatMoney::getFormattedMoney($row['adjustments'])) ?>&nbsp;
+            <?php echo text(FormatMoney::getBucks($row['adjustments'])) ?>&nbsp;
   </td>
   <td class="detail" align="left">
-            <?php echo text(FormatMoney::getFormattedMoney($row['paid'])) ?>&nbsp;
+            <?php echo text(FormatMoney::getBucks($row['paid'])) ?>&nbsp;
   </td>
             <?php
             if ($form_age_cols) {
                 for ($c = 0; $c < $form_age_cols; ++$c) {
                     echo "  <td class='detail' align='left'>";
                     if ($c == $agecolno) {
-                        echo text(FormatMoney::getFormattedMoney($balance));
+                        echo text(FormatMoney::getBucks($balance));
                     }
 
                     echo "&nbsp;</td>\n";
                 }
             } else { // end $form_age_cols
                 ?>
-<td class="detail" align="left"><?php echo text(FormatMoney::getFormattedMoney($balance)); ?>&nbsp;</td>
+<td class="detail" align="left"><?php echo text(FormatMoney::getBucks($balance)); ?>&nbsp;</td>
                 <?php
             } // end else
             ?>

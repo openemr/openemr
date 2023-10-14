@@ -627,11 +627,11 @@ $form_facility   = $_POST['form_facility'] ?? null;
                                     <?php echo xlt('Totals for ') . text($docname) ?>
                 </td>
                 <td align="right">
-                                    <?php echo text(FormatMoney::getFormattedMoney($doctotal1)) ?>
+                                    <?php echo text(FormatMoney::getBucks($doctotal1)) ?>
                 </td>
                                     <?php if ($form_procedures) { ?>
                 <td align="right">
-                                        <?php echo text(FormatMoney::getFormattedMoney($doctotal2)) ?>
+                                        <?php echo text(FormatMoney::getBucks($doctotal2)) ?>
                 </td>
                     <?php } ?>
                 </tr>
@@ -670,7 +670,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                                         $tmp = sqlQuery("SELECT SUM(fee) AS sum FROM billing WHERE " .
                                             "pid = ? AND encounter = ? AND " .
                                             "code_type = ? AND code = ? AND activity = 1", array($patient_id,$encounter_id,$form_proc_codetype,$form_proc_code));
-                                        echo text(FormatMoney::getFormattedMoney($tmp['sum']));
+                                        echo text(FormatMoney::getBucks($tmp['sum']));
                                         echo "  </td>\n";
                                 }
                                 ?>
@@ -686,11 +686,11 @@ $form_facility   = $_POST['form_facility'] ?? null;
                 </td>
                             <?php } ?>
                 <td class="detail" align="right">
-                                <?php echo text(FormatMoney::getFormattedMoney($amount1)) ?>
+                                <?php echo text(FormatMoney::getBucks($amount1)) ?>
                 </td>
                                 <?php if ($form_procedures) { ?>
                 <td class="detail" align="right">
-                                    <?php echo text(FormatMoney::getFormattedMoney($amount2)) ?>
+                                    <?php echo text(FormatMoney::getBucks($amount2)) ?>
                 </td>
                             <?php } ?>
                 </tr>
@@ -712,11 +712,11 @@ $form_facility   = $_POST['form_facility'] ?? null;
                         <?php echo xlt('Totals for ') . text($docname ?? '') ?>
                 </td>
                 <td align="right">
-                        <?php echo text(FormatMoney::getFormattedMoney($doctotal1 ?? '')) ?>
+                        <?php echo text(FormatMoney::getBucks($doctotal1 ?? '')) ?>
                 </td>
                         <?php if ($form_procedures) { ?>
                 <td align="right">
-                            <?php echo text(FormatMoney::getFormattedMoney($doctotal2)) ?>
+                            <?php echo text(FormatMoney::getBucks($doctotal2)) ?>
                 </td>
                 <?php } ?>
                 </tr>
@@ -727,11 +727,11 @@ $form_facility   = $_POST['form_facility'] ?? null;
                         <?php echo xlt('Grand Totals') ?>
                 </td>
                 <td align="right">
-                        <?php echo text(FormatMoney::getFormattedMoney($grandtotal1 ?? '')) ?>
+                        <?php echo text(FormatMoney::getBucks($grandtotal1 ?? '')) ?>
                 </td>
                         <?php if ($form_procedures) { ?>
                 <td align="right">
-                            <?php echo text(FormatMoney::getFormattedMoney($grandtotal2)) ?>
+                            <?php echo text(FormatMoney::getBucks($grandtotal2)) ?>
                 </td>
                 <?php } ?>
                 </tr>

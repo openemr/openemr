@@ -276,13 +276,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
             <?php echo text($row['source']); ?>
   </td>
   <td align='right'>
-            <?php echo text(FormatMoney::getFormattedMoney($row['amount1'])); ?>
+            <?php echo text(FormatMoney::getBucks($row['amount1'])); ?>
   </td>
   <td align='right'>
-            <?php echo text(FormatMoney::getFormattedMoney($row['amount2'])); ?>
+            <?php echo text(FormatMoney::getBucks($row['amount2'])); ?>
   </td>
   <td align='right'>
-            <?php echo text(FormatMoney::getFormattedMoney($row['amount1'] + $row['amount2'])); ?>
+            <?php echo text(FormatMoney::getBucks($row['amount1'] + $row['amount2'])); ?>
   </td>
  </tr>
             <?php
@@ -302,13 +302,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         <?php echo xlt('Totals'); ?>
  </td>
  <td align='right'>
-        <?php echo text(FormatMoney::getFormattedMoney($total1)); ?>
+        <?php echo text(FormatMoney::getBucks($total1)); ?>
  </td>
  <td align='right'>
-        <?php echo text(FormatMoney::getFormattedMoney($total2)); ?>
+        <?php echo text(FormatMoney::getBucks($total2)); ?>
  </td>
  <td align='right'>
-        <?php echo text(FormatMoney::getFormattedMoney($total1 + $total2)); ?>
+        <?php echo text(FormatMoney::getBucks($total1 + $total2)); ?>
  </td>
 </tr>
 

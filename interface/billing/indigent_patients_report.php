@@ -251,13 +251,13 @@ if (!empty($_POST['form_refresh'])) {
  &nbsp;<?php echo text(oeFormatShortDate($inv_duedate)); ?>
 </td>
 <td class="detail" align="right">
-        <?php echo FormatMoney::getFormattedMoney($inv_amount); ?>&nbsp;
+        <?php echo FormatMoney::getBucks($inv_amount); ?>&nbsp;
 </td>
 <td class="detail" align="right">
-        <?php echo FormatMoney::getFormattedMoney($inv_paid); ?>&nbsp;
+        <?php echo FormatMoney::getBucks($inv_paid); ?>&nbsp;
 </td>
 <td class="detail" align="right">
-        <?php echo FormatMoney::getFormattedMoney($inv_amount - $inv_paid); ?>&nbsp;
+        <?php echo FormatMoney::getBucks($inv_amount - $inv_paid); ?>&nbsp;
 </td>
 </tr>
         <?php
@@ -280,13 +280,13 @@ if (!empty($_POST['form_refresh'])) {
  &nbsp;
 </td>
 <td class="detail" align="right">
-    <?php echo FormatMoney::getFormattedMoney($total_amount); ?>&nbsp;
+    <?php echo FormatMoney::getBucks($total_amount); ?>&nbsp;
 </td>
 <td class="detail" align="right">
-    <?php echo FormatMoney::getFormattedMoney($total_paid); ?>&nbsp;
+    <?php echo FormatMoney::getBucks($total_paid); ?>&nbsp;
 </td>
 <td class="detail" align="right">
-    <?php echo FormatMoney::getFormattedMoney($total_amount - $total_paid); ?>&nbsp;
+    <?php echo FormatMoney::getBucks($total_amount - $total_paid); ?>&nbsp;
 </td>
 </tr>
     <?php

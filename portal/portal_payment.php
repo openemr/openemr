@@ -91,19 +91,19 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
     global $sum_charges, $sum_ptpaid, $sum_inspaid, $sum_duept, $sum_copay, $sum_patcopay, $sum_balance;
     global $var_index;
     $var_index++;
-    $balance = FormatMoney::getFormattedMoney($charges - $ptpaid - $inspaid);
+    $balance = FormatMoney::getBucks($charges - $ptpaid - $inspaid);
     $balance = (round($duept, 2) != 0) ? 0 : $balance; // if balance is due from patient, then insurance balance is displayed as zero
     $encounter = $encounter ? $encounter : '';
     echo " <tr id='tr_" . attr($var_index) . "' >\n";
     echo "  <td class='detail'>" . text(oeFormatShortDate($date)) . "</td>\n";
     echo "  <td class='detail' id='" . attr($date) . "' align='left'>" . text($encounter) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_charges_$var_index' >" . text(FormatMoney::getFormattedMoney($charges)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_inspaid_$var_index' >" . text(FormatMoney::getFormattedMoney($inspaid * -1)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_ptpaid_$var_index' >" . text(FormatMoney::getFormattedMoney($ptpaid * -1)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_patient_copay_$var_index' >" . text(FormatMoney::getFormattedMoney($patcopay)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_copay_$var_index' >" . text(FormatMoney::getFormattedMoney($copay)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='balance_$var_index'>" . text(FormatMoney::getFormattedMoney($balance)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='duept_$var_index'>" . text(FormatMoney::getFormattedMoney(round($duept, 2) * 1)) . "</td>\n";
+    echo "  <td class='detail' align='center' id='td_charges_$var_index' >" . text(FormatMoney::getBucks($charges)) . "</td>\n";
+    echo "  <td class='detail' align='center' id='td_inspaid_$var_index' >" . text(FormatMoney::getBucks($inspaid * -1)) . "</td>\n";
+    echo "  <td class='detail' align='center' id='td_ptpaid_$var_index' >" . text(FormatMoney::getBucks($ptpaid * -1)) . "</td>\n";
+    echo "  <td class='detail' align='center' id='td_patient_copay_$var_index' >" . text(FormatMoney::getBucks($patcopay)) . "</td>\n";
+    echo "  <td class='detail' align='center' id='td_copay_$var_index' >" . text(FormatMoney::getBucks($copay)) . "</td>\n";
+    echo "  <td class='detail' align='center' id='balance_$var_index'>" . text(FormatMoney::getBucks($balance)) . "</td>\n";
+    echo "  <td class='detail' align='center' id='duept_$var_index'>" . text(FormatMoney::getBucks(round($duept, 2) * 1)) . "</td>\n";
     echo "  <td class='detail' align='center'><input class='form-control' name='" . attr($iname) . "'  id='paying_" . attr($var_index) .
         "' " . " value='" . '' . "' onchange='coloring();calctotal()'  autocomplete='off' " . "onkeyup='calctotal()'/></td>\n";
     echo " </tr>\n";
@@ -1210,13 +1210,13 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
             <tr>
                 <td class="dehead" align="center"><?php echo xlt('Total'); ?></td>
                 <td class="dehead" id='td_total_1' align="center"></td>
-                <td class="dehead" id='td_total_2' align="center"><?php echo text(FormatMoney::getFormattedMoney($sum_charges)) ?></td>
-                <td class="dehead" id='td_total_3' align="center"><?php echo text(FormatMoney::getFormattedMoney($sum_inspaid)) ?></td>
-                <td class="dehead" id='td_total_4' align="center"><?php echo text(FormatMoney::getFormattedMoney($sum_ptpaid)) ?></td>
-                <td class="dehead" id='td_total_5' align="center"><?php echo text(FormatMoney::getFormattedMoney($sum_patcopay)) ?></td>
-                <td class="dehead" id='td_total_6' align="center"><?php echo text(FormatMoney::getFormattedMoney($sum_copay)) ?></td>
-                <td class="dehead" id='td_total_7' align="center"><?php echo text(FormatMoney::getFormattedMoney($sum_balance)) ?></td>
-                <td class="dehead" id='td_total_8' align="center"><?php echo text(FormatMoney::getFormattedMoney($sum_duept)) ?></td>
+                <td class="dehead" id='td_total_2' align="center"><?php echo text(FormatMoney::getBucks($sum_charges)) ?></td>
+                <td class="dehead" id='td_total_3' align="center"><?php echo text(FormatMoney::getBucks($sum_inspaid)) ?></td>
+                <td class="dehead" id='td_total_4' align="center"><?php echo text(FormatMoney::getBucks($sum_ptpaid)) ?></td>
+                <td class="dehead" id='td_total_5' align="center"><?php echo text(FormatMoney::getBucks($sum_patcopay)) ?></td>
+                <td class="dehead" id='td_total_6' align="center"><?php echo text(FormatMoney::getBucks($sum_copay)) ?></td>
+                <td class="dehead" id='td_total_7' align="center"><?php echo text(FormatMoney::getBucks($sum_balance)) ?></td>
+                <td class="dehead" id='td_total_8' align="center"><?php echo text(FormatMoney::getBucks($sum_duept)) ?></td>
                 <td class="dehead" align="center">
                     <input class="form-control" name='form_paytotal' id='form_paytotal' value='' style='color: #3b9204;' readonly />
                 </td>

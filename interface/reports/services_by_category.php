@@ -240,7 +240,7 @@ if (!empty($_POST['form_refresh'])) {
         "AND p.pr_level = lo.option_id " .
         "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq", array($row['id']));
         while ($prow = sqlFetchArray($pres)) {
-            echo "   <td class='text' align='right'>" . text(FormatMoney::getFormattedMoney($prow['pr_price'])) . "</td>\n";
+            echo "   <td class='text' align='right'>" . text(FormatMoney::getBucks($prow['pr_price'])) . "</td>\n";
         }
 
         echo "  </tr>\n";
