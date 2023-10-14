@@ -14,7 +14,8 @@ namespace OpenEMR\Common\Utils;
 
 class FormatMoney
 {
-    public static function getFormattedMoney($amount, $symbol = false) {
+    public static function getFormattedMoney($amount, $symbol = false)
+    {
         $s = number_format(
             floatval($amount),
             $GLOBALS['currency_decimals'],
@@ -25,8 +26,7 @@ class FormatMoney
         if ($symbol && !empty($GLOBALS['gbl_currency_symbol'])) {
             $s = $GLOBALS['gbl_currency_symbol'] . " $s";
         }
-    
-        return $s;
 
+        return $s;
     }
 }
