@@ -21,6 +21,7 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 
 // gacl control
@@ -39,18 +40,6 @@ function ffescape($field)
 {
     $field = add_escape_custom($field);
     return trim($field);
-}
-
-// Format dollars for display.
-//
-function bucks($amount)
-{
-    if ($amount) {
-        $amount = oeFormatMoney($amount);
-        return $amount;
-    }
-
-    return '';
 }
 
 $alertmsg = '';
@@ -783,7 +772,7 @@ if ($fend > ($count ?? null)) {
                 "p.pr_id = ? AND p.pr_selector = '' AND p.pr_level = lo.option_id " .
                 "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq", array($iter['id']));
             while ($prow = sqlFetchArray($pres)) {
-                echo "<td class='text text-right'>" . text(bucks($prow['pr_price'])) . "</td>\n";
+                echo "<td class='text text-right'>" . text(FormatMoney::getBucks($prow['pr_price'])) . "</td>\n";
             }
 
             if ($thisauthwrite) {
