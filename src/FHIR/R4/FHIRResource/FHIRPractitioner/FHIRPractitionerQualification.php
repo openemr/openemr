@@ -227,7 +227,7 @@ class FHIRPractitionerQualification extends FHIRBackboneElement implements \Json
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         if (0 < count($this->identifier)) {

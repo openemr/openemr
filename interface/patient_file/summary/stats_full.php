@@ -259,6 +259,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         <?php
                         // display issues
+                        $encount = 0;
                         while ($row = sqlFetchArray($pres)) :
                             $rowid = $row['id'];
 
@@ -309,12 +310,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $click_class = '';
                             }
 
-                            $shortBegDate = trim(oeFormatShortDate($row['begdate']));
-                            $shortEndDate = trim(oeFormatShortDate($row['enddate']));
-                            $fullBegDate = trim(oeFormatDateTime($row['begdate']));
-                            $fullEndDate = trim(oeFormatDateTime($row['enddate']));
-                            $shortModDate = trim(oeFormatShortDate($row['modifydate']));
-                            $fullModDate = trim(oeFormatDateTime($row['modifydate']));
+                            $shortBegDate = trim(oeFormatShortDate($row['begdate']) ?? '');
+                            $shortEndDate = trim(oeFormatShortDate($row['enddate']) ?? '');
+                            $fullBegDate = trim(oeFormatDateTime($row['begdate']) ?? '');
+                            $fullEndDate = trim(oeFormatDateTime($row['enddate']) ?? '');
+                            $shortModDate = trim(oeFormatShortDate($row['modifydate']) ?? '');
+                            $fullModDate = trim(oeFormatDateTime($row['modifydate']) ?? '');
 
                             $outcome = ($row['outcome']) ?  generate_display_field(['data_type' => 1, 'list_id' => 'outcome'], $row['outcome']) : false;
                             ?>

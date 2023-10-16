@@ -132,7 +132,7 @@ class FHIRBiologicallyDerivedProductStatus extends FHIRElement implements \JsonS
     /**
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->value;
     }

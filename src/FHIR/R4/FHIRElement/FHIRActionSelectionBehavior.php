@@ -132,7 +132,7 @@ class FHIRActionSelectionBehavior extends FHIRElement implements \JsonSerializab
     /**
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->value;
     }

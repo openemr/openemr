@@ -132,7 +132,7 @@ class FHIRMessageheaderResponseRequest extends FHIRElement implements \JsonSeria
     /**
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->value;
     }

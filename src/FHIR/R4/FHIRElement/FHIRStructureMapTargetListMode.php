@@ -132,7 +132,7 @@ class FHIRStructureMapTargetListMode extends FHIRElement implements \JsonSeriali
     /**
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->value;
     }
