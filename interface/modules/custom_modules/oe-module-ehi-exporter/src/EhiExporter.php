@@ -1,0 +1,99 @@
+<?php
+
+/**
+ * Main class for EhiExporter for exporting data from the db
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ *
+ * @author    Stephen Nielson <snielson@discoverandchange.com
+ * @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+namespace OpenEMR\Modules\EhiExporter;
+
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
+
+class EhiExporter
+{
+    public function __construct(private $modulePublicDir, private $modulePublicUrl)
+    {
+        // TODO: @adunsulag look at getting the write directory to go to the right location.
+    }
+
+    public function exportAll() : ExportResult {
+        // grab the xml file from schemaspy in public/ehi-docs/openemr.openemr.xml file for this module
+        // create an xml document from the file
+        // use xpath on xml document to grab table[@name="patient_data"] element node
+        // use xpath on table element node to grab column[@name="pid"] element nodes
+        // use xpath on column element nodes to grab child[foreignKey] element nodes
+        // loop through foreignKey element nodes and grab attribute[@name="table"] value
+        // construct sql query to grab all data from each table where the pid column for that table is in the pid column of the patient_data table
+        // create a csv output file for each table
+        // loop through each row of the sql query result and write each row to the csv output file
+        // zip all csv output files into a single zip file
+        // create a link to the zip file
+        // return the link
+
+        $contents = file_get_contents( $this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . 'openemr.openemr.xml');
+        if ($contents === false) {
+            throw new \RuntimeException("Failed to find openemr.openemr.xml file");
+        }
+        $xml = simplexml_load_string($contents);
+        $tableNode = $xml->xpath("//table[@name='patient_data']");
+        $columnNode = $xml->xpath("//table[@name='patient_data']/column[@name='pid']");
+        $foreignKeyTables = $xml->xpath("//table[@name='patient_data']/column[@name='pid']/child[@foreignKey]");
+        $tables = [];
+        foreach ($foreignKeyTables as $foreignKeyTable) {
+            $tableName = (string)($foreignKeyTable->attributes()['table']);
+            $joinColumn = (string)($foreignKeyTable->attributes()['column']);
+//            $parentNode = current($foreignKeyTable->xpath('parent::*'));
+            $tables[$tableName] = $joinColumn ?? null; // should always have column
+        }
+        $tables['patient_data'] = 'pid';
+        $exportedResult = new ExportResult();
+        $sql = "SELECT UNIQUE pid FROM patient_data"; // We do everything here
+        $patientPids = QueryUtils::fetchTableColumn($sql, 'pid', []);
+        $patientPids = array_map('intval', $patientPids);
+        $inClause = "IN (" . str_repeat('?,', count($patientPids) - 1) . "?)";
+        foreach ($tables as $table => $columnName) {
+            $convertUuid = false;
+            $safeTableName = QueryUtils::escapeTableName($table);
+            $escapeColumnName = QueryUtils::escapeColumnName($columnName);
+            $columns = QueryUtils::listTableFields($table);
+            $uuidDefinition = UuidRegistry::getUuidTableDefinitionForTable($table);
+            if (!empty($uuidDefinition)) {
+                $convertUuid = true;
+            }
+            $tableQuery = "SELECT * FROM $safeTableName WHERE $escapeColumnName $inClause";
+            $records = QueryUtils::fetchRecords($tableQuery, $patientPids, false);
+            if (!empty($records)) {
+                $csvFile = fopen($this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . $table . '.csv', 'w');
+                fputcsv($csvFile, $columns);
+                $recordCount = 0;
+                foreach ($records as $record) {
+                    if ($convertUuid) {
+                        $record['uuid'] = UuidRegistry::uuidToString($record['uuid']);
+                    }
+                    fputcsv($csvFile, $record);
+                    $recordCount++;
+                }
+                fclose($csvFile);
+                $exportedTable = new ExportTableResult();
+                $exportedTable->count = $recordCount;
+                $exportedTable->tableName = $table;
+                $exportedResult->exportedTables[] = $exportedTable;
+            }
+        }
+        $zip = new \ZipArchive();
+        $openStatus = $zip->open($this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . 'ehi-export.zip', \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        foreach ($exportedResult->exportedTables as $result) {
+            $zip->addFile($this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . $table . '.csv', $result->tableName . '.csv');
+        }
+        $saved = $zip->close();
+        $exportedResult->downloadLink = $this->modulePublicUrl . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . 'ehi-export.zip';
+        return $exportedResult;
+    }
+}

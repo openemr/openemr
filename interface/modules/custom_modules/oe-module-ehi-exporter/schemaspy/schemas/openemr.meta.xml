@@ -1,0 +1,425 @@
+<schemaMeta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://schemaspy.org/xsd/6/schemameta.xsd" >
+    <tables>
+
+        <!-- Allergies Data -->
+        <!--        - Medical Problems-->
+        <!--        - Medications-->
+        <!--        - Medical Devices-->
+        <!--        - Surgeries-->
+        <!--        - Dental Issues-->
+        <table name="lists">
+            <column name="pid">
+		        <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Prescriptions-->
+        <table name="prescriptions">
+            <column name="patient_id">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Immunizations-->
+        <table name="immunizations">
+            <column name="patient_id">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+<!--        - Patient Insurance-->
+        <table name="insurance_data">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Patient Messages (pnotes)-->
+        <table name="pnotes">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+<!--        - Patient Reminders-->
+<!--        - Patient Disclosures-->
+<!--        - Patient Amendments-->
+        <table name="amendments">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <!-- TODO: add in amendments_history -->
+<!--        - Patient Labs-->
+<!--        - Patient Vitals-->
+        <table name="form_vitals">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+<!-- TODO: include form_vital_details FK -->
+
+<!--        - Patient recalls-->
+<!--        - Clinical Reminders-->
+<!--        - Recall Appts-->
+<!--        - Patient Appointments-->
+        <table name="openemr_postcalendar_events">
+            <column name="pc_pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Patient Documents-->
+        <table name="documents">
+            <column name="foreign_id">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+<!--        - Patient Transactions (Billing  Legal  Patient Request  Physician Request  Referral/Counter Referral)-->
+        <table name="transactions">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+<!--        - Patient Ledger [what is involved here?]-->
+<!--        - External Data (Encounters  Procedures) [is this included in the designated record set?]-->
+<!--        - Patient Encounters-->
+        <table name="forms">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+<!--        - Encounter Summary-->
+        <table name="form_encounter">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Fee Sheet-->
+<!--        - Misc Billing Options-->
+        <table name="form_misc_billing_options">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Care Plan-->
+        <table name="form_care_plan">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Clinical Instructions-->
+        <table name="form_clinical_instructions">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Clinical Notes-->
+        <table name="form_clinical_notes">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Eye Exam-->
+        <table name="form_eye_acuity">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_antseg">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_base">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_biometrics">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_external">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_hpi">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_locking">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_mag_dispense">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_mag_impplan">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_mag_orders">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <!-- Don't think this table is used -->
+<!--        <table name="form_eye_mag_prefs">-->
+<!--            <column name="pid">-->
+<!--                <foreignKey table="patient_data" column="pid" />-->
+<!--            </column>-->
+<!--        </table>-->
+        <table name="form_eye_mag_wearing">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_neuro">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_postseg">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_refraction">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_ros">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_vitals">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_taskman">
+            <column name="PATIENT_ID">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Functional and Cognitive Status-->
+        <table name="form_functional_cognitive_status">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+<!--        - Observation-->
+        <table name="form_observation">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+<!--        - Review of Systems-->
+        <table name="form_reviewofs">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Review of Systems Checks-->
+        <table name="form_ros">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - SOAP-->
+        <table name="form_soap">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Speech Dictation-->
+        <table name="form_dictation">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - CAMOS-->
+        <table name="form_CAMOS">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_CAMOS_category">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_CAMOS_item">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_CAMOS_subcategory">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Procedure Order-->
+
+<!--        - Questionnaire Responses-->
+        <table name="form_questionnaire_assessments">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+        <!--        - Aftercare Plan-->
+        <table name="form_aftercare_plan">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+        <!--        - Ankle Evaluation Form-->
+        <table name="form_ankleinjury">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+        <!--        - Bronchitis Form-->
+        <table name="form_bronchitis">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Lab Requisition-->
+        <!-- NOTE: the pid here does not match our pid column type definition -->
+        <table name="requisition">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Track Anything-->
+        <!-- TODO: handle FK following on other tables here -->
+        <table name="form_track_anything">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+<!--            <column name="procedure_type_id">-->
+<!--                <foreignKey table="form_track_anything_type" column="track_anything_type_id" />-->
+<!--            </column>-->
+        </table>
+<!--        <table name="form_track_anything_results">-->
+<!--            <column name="track_anything_id">-->
+<!--                <foreignKey table="form_track_anything" column="id" />-->
+<!--            </column>-->
+<!--        </table>-->
+
+
+<!--        - Social Screening Tool-->
+        <table name="form_sdoh">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Graphic Pain Map-->
+        <table name="form_painmap">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Treatment Plan-->
+        <table name="form_treatment_plan">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Physical Exam-->
+        <!-- TODO: @adunsulag need to handle FK following on other tables here -->
+<!--        <table name="form_physical_exam">-->
+<!--            <column name="forms_id">-->
+<!--                <foreignKey table="forms" column="id" />-->
+<!--            </column>-->
+<!--        </table>-->
+
+
+<!--        - Prior Authorization-->
+        <table name="form_prior_auth">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - GAD-7-->
+        <table name="form_gad7">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - PHQ-9-->
+        <table name="form_phq9">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Work/School Note-->
+        <table name="form_note">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Transfer Summary-->
+        <table name="form_transfer_summary">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Clinic Note-->
+        <!-- TODO: @adunsulag need to handle FK following on other tables here -->
+<!--        <table name="form_clinic_note">-->
+<!--            <column name="id">-->
+<!--                <foreignKey table="forms" column="form_id" />-->
+<!--            </column>-->
+<!--        </table>-->
+
+<!--        patient notes-->
+<!--        patient documents-->
+<!--        claims-->
+
+
+        <table name="amendments">
+            <column name="pid">
+		 <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="billing">
+            <column name="pid">
+		 <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+    </tables>
+</schemaMeta>
