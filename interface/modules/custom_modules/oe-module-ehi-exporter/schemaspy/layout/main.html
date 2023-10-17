@@ -1,0 +1,189 @@
+<!-- Content Header (Page header) -->
+                <section class="content-header">
+                    <h1>Tables</h1><br />
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="callout callout-info">
+                                <h4>EHI Export Format For {{databaseName}}{{#schemaName}}.{{schemaName}}{{/schemaName}}</h4>
+                                <!-- <p>Generated on {{database.connectTime}}</p> -->
+                            </div>
+                        </div>
+                    </div>
+                    {{#description}}
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="box box-solid">
+                                <div class="box-body">
+                                    <p>{{{description}}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{/description}}
+                    <a href="{{xmlName}}.xml" title="XML Representation">XML Representation</a><br />
+                    <a href="insertionOrder.txt" title="Useful for loading data into a database">Insertion Order</a>
+                    <a href="deletionOrder.txt" title="Useful for purging data from a database">Deletion Order</a>
+                </section>
+                <!-- Main content -->
+                <section class="content">
+                    <div class="row">
+                        <div class="col-md-2 col-sm-4 col-xs-12">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-aqua"><i class="fa fa-table"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">TABLES</span>
+                                    <span class="info-box-number">{{tablesAmount}}</span>
+                                </div>
+                                <!-- /.info-box-content -->
+                            </div>
+                            <!-- /.info-box -->
+                        </div>
+                        <!-- /.col -->
+                        <!-- <div class="col-md-2 col-sm-4 col-xs-12">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-teal"><i class="fa fa-table"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">VIEWS</span>
+                                    <span class="info-box-number">{{viewsAmount}}</span>
+                                </div> -->
+                                <!-- /.info-box-content -->
+                            <!-- </div> -->
+                            <!-- /.info-box -->
+                        <!-- </div> -->
+                        <!-- /.col -->
+                        <div class="col-md-2 col-sm-4 col-xs-12">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-green"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">COLUMNS</span>
+                                    <span class="info-box-number">{{columnsAmount}}</span>
+                                </div>
+                                <!-- /.info-box-content -->
+                            </div>
+                            <!-- /.info-box -->
+                        </div>
+                        <!-- /.col -->
+                        <!-- <div class="col-md-2 col-sm-4 col-xs-12">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-yellow"><i class="ion ion-key"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Constraints</span>
+                                    <span class="info-box-number">{{constraintsAmount}}</span>
+                                </div> -->
+                                <!-- /.info-box-content -->
+                            <!-- </div> -->
+                            <!-- /.info-box -->
+                        <!-- </div> -->
+                        <!-- /.col -->
+                        <!-- <div class="col-md-2 col-sm-4 col-xs-12">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-red-active"><i class="fa fa-question" aria-hidden="true"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Anomalies</span>
+                                    <span class="info-box-number">{{anomaliesAmount}}</span>
+                                </div> -->
+                                <!-- /.info-box-content -->
+                            <!-- </div> -->
+                            <!-- /.info-box -->
+                        <!-- </div> -->
+                        <!-- /.col -->
+                        <!-- <div class="col-md-2 col-sm-4 col-xs-12">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-navy"><i class="fa fa-file-code-o" aria-hidden="true"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Routines</span>
+                                    <span class="info-box-number">{{routinesAmount}}</span>
+                                </div> -->
+                                <!-- /.info-box-content -->
+                            <!-- </div> -->
+                            <!-- /.info-box -->
+                        <!-- </div> -->
+                        <!-- /.col -->
+                    </div>
+                    <!-- <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Database Properties</h3>
+                            <span class="label label-primary pull-right"><i class="fa fa-cog fa-2x"></i></span>
+                        </div> -->
+                        <!-- /.box-header -->
+                        <!-- <div class="box-body">
+                            <p>Database Type: {{database.databaseProduct}}</p>
+                        </div> -->
+                        <!-- /.box-body -->
+                    <!-- </div> -->
+                    {{#catalog}}
+                    {{#catalog.comment}}
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Catalog {{catalog.name}}</h3>
+                            <span class="label label-primary pull-right"><i class="fa fa-cog fa-2x"></i></span>
+                        </div><!-- /.box-header -->
+                        <div class="box-body">
+                            <p> {{{catalog.comment}}} </p>
+                        </div><!-- /.box-body -->
+                    </div>
+                    {{/catalog.comment}}
+                    {{/catalog}}
+                    {{#schema}}
+                    {{#schema.comment}}
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Schema {{schema.name}}</h3>
+                            <span class="label label-primary pull-right"><i class="fa fa-cog fa-2x"></i></span>
+                        </div><!-- /.box-header -->
+                        <div class="box-body">
+                            <p> {{{schema.comment}}} </p>
+                        </div><!-- /.box-body -->
+                    </div>
+                    {{/schema.comment}}
+                    {{/schema}}
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Tables</h3>
+                            <span class="label label-primary pull-right"><i class="fa fa-database fa-2x"></i></span>
+                        </div><!-- /.box-header -->
+                        <div class="box-body">
+                            <table
+                                    id="database_objects"
+                                    class="table table-bordered table-striped dataTable"
+                                    role="grid"
+                                    data-paging="{{dataTableConfig.databaseObjects.paging}}"
+                                    data-page-length="{{dataTableConfig.databaseObjects.pageLength}}"
+                                    data-length-change="{{dataTableConfig.databaseObjects.lengthChange}}">
+                                <thead>
+                                    <tr>
+                                        <th valign="bottom">Table / View</th>
+                                        <th align="right" valign="bottom">Children</th>
+                                        <th align="right" valign="bottom">Parents</th>
+                                        <th align="right" valign="bottom">Columns</th>
+                                        {{#displayNumRows}}
+                                        <th align="right" valign="bottom">Rows</th>
+                                        {{/displayNumRows}}
+                                        <!-- <th align="right" valign="bottom">Type</th> -->
+                                        <th class="toggle">Comments</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{#tables}}
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/{{#toFileName}}{{{table.name}}}{{/toFileName}}.html">{{table.name}}</a></td>
+                                        <td class="detail" align="right">{{table.maxChildren}}</td>
+                                        <td class="detail" align="right">{{table.maxParents}}</td>
+                                        <td class="detail" align="right">{{table.columns.size}}</td>
+                                        {{#displayNumRows}}
+                                        <td class="detail" align="right">{{table.numRows}}</td>
+                                        {{/displayNumRows}}
+                                        <!-- <td class="detail" align="right">{{table.type}}</td> -->
+                                        <td class="comment detail" style="display: table-cell;">{{{comments}}}</td>
+                                    </tr>
+                                    {{/tables}}
+                            </table>
+                        </div>
+                    </div><!-- /.box-body -->
+                </section>
+                <!-- /.content -->
+                <script>
+                    var config = {
+                        pagination: {{paginationEnabled}}
+                    }
+                </script>

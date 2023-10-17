@@ -1,0 +1,162 @@
+/* background must be specified for it to propagate into diagrams */
+.diagram {
+  margin: 0;
+  background: #ffffff;
+  border: none;
+  padding:.4em;
+}
+/* background-color must be specified for th to propagate into diagrams */
+th.diagram  {
+  background-color: #f5f5f5;
+  text-align: left;
+  padding: 0 4px;
+}
+
+/* background-color must be specified for td to propagate into diagrams */
+td.diagram  {
+  background-color: #ffffff;
+}
+/* background must be specified for .primaryKey to propagate into diagrams */
+.diagram .primaryKey {
+  background: #dcdf8d;
+  padding: 0 4px;
+}
+
+/* background must be specified for .indexedColumn to propagate into diagrams */
+.diagram .indexedColumn {
+  background: #FFFFFF;
+}
+
+.iconkey {
+  font-size: 20px;
+  display: inline-block;
+  transform: rotate(180deg);
+}
+
+.primaryKey {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.foreignKey {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.uniqueKey {
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.indexedColumn {
+  font-style: italic;
+}
+
+.primaryKey .iconkey {
+  color: #D7DF01;
+}
+
+.foreignKey .iconkey {
+  color: #BDBDBD;
+}
+
+.uniqueKey .iconkey {
+  color: #35A9FE;
+}
+
+/* background must be specified for .excludedColumn to propagate into diagrams */
+.excludedColumn {
+  background: #C0C0C0;
+}
+
+/* background must be specified for .selectedTable to propagate into diagrams */
+.selectedTable {
+  background: #A9AB96;
+}
+
+.detail {
+  padding: 0 4px;
+}
+
+.impliedRelationship {
+  display: none;
+  font-style: italic;
+  color: #183118
+}
+
+.dataTable>tbody>tr>td, .dataTable>tfoot>tr>td, .dataTable>thead>tr>td {
+  padding: 6px;
+}
+
+.description {
+  display: block;
+  padding: 8px 0;
+}
+
+.signature {
+  font-size: 105%;
+  font-weight: bold;
+  font-style: italic;
+}
+
+.relatedTable {
+  padding: 0 4px;
+}
+
+.relatedKey {
+  display: none;
+  padding: 0 -4px 0 4px;
+}
+
+.constraint {
+  display: none;
+  text-align: right;
+  padding: 0 0 0 15px;
+}
+
+.comment {
+  display: none;
+  text-align: left;
+  padding: 0 4px;
+}
+
+.impliedNotOrphan {
+}
+
+.excludedRelationship {
+  font-size: 85%;
+}
+
+.degrees {
+}
+
+.viewDefinition {
+  font-size: 90%;
+  background-color: #ffffff;
+  border-style: solid;
+  border-width: 1px;
+  float: left;
+  padding: 4px;
+  font-family: "Courier New", Courier, monospace
+}
+
+.viewReferences {
+  font-size: 90%;
+  padding: 4px;
+}
+
+.CodeMirror {
+  height: auto;    
+}
+
+.logo-text {
+  font-family: "Indie Flower", "Helvetica Neue", Helvetica, Arial, cursive;
+}
+
+.dataTables_filter {
+  padding-top: 4px;
+}
+
+.dataTables_filter .input-sm {
+  padding-left: 13px;
+}

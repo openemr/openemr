@@ -33,6 +33,18 @@ class QueryUtils
         return $field_list;
     }
 
+    public static function escapeTableName($table) {
+        return \escape_table_name($table);
+    }
+
+    public static function escapeColumnName($columnName) {
+
+        // TODO: @adunsulag figure out how to fix this and make it less expensive...
+        //return \escape_sql_column_name($columnName);
+        return $columnName;
+
+    }
+
     public static function fetchRecordsNoLog($sqlStatement, $binds)
     {
         // Below line is to avoid a nasty bug in windows.

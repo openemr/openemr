@@ -1,0 +1,63 @@
+<!-- Content Header (Page header) -->
+                <section class="content-header">
+                    <h1>All Relationships</h1>
+                </section>
+                <!-- Main content -->
+                <section class="content">
+                    {{^diagrams.isEmpty}}
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-code-fork"></i>
+                            <h3 class="box-title">Diagrams</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="nav-tabs-custom">
+                                <!-- Tabs within a box -->
+                                <h5>By default only columns that are primary keys, foreign keys or indexes are shown.</h5>
+                                <ul class="nav nav-tabs pull-left ui-sortable-handle">
+                                    {{#diagrams}}
+                                    <li class="{{active}}"><a href="#{{id}}-chart" data-toggle="tab" aria-expanded="true">{{name}}</a></li>
+                                    {{/diagrams}}
+                                </ul>
+                                <div class="tab-content no-padding">
+                                    {{#diagrams}}
+                                    <div class="chart tab-pane {{active}}" id="{{id}}-chart" style="position: relative; overflow-x:auto;">
+                                        {{#isImplied}}{{#hasOnlyImpliedRelationships}}
+                                        <div class="alert alert-warning alert-dismissible">
+                                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                                            <h4><i class="icon fa fa-info-circle"></i> Implied Relationships</h4>
+                                            <p>No 'real' Foreign Key relationships were detected in the schema.<br />
+                                                Displayed relationships are implied by a column's name/type/size matching another table's primary key.</p>
+                                        </div>
+                                        {{/hasOnlyImpliedRelationships}}{{/isImplied}}
+                                        {{{map}}}
+                                        {{#isEmbed}}
+                                        <a name='diagram'><object type="image/svg+xml" id="{{id}}" data="diagrams/summary/{{fileName}}" class="diagram" border="0" align="left"></object></a>
+                                        {{/isEmbed}}
+                                        {{^isEmbed}}
+                                        <a name='diagram'><img id="{{id}}" src="diagrams/summary/{{fileName}}" usemap="#{{mapName}}" class="diagram" border="0" align="left"></a>
+                                        {{/isEmbed}}
+                                    </div>
+                                    {{/diagrams}}
+                                </div>
+                            </div>
+                        </div><!-- /.box-body -->
+                    </div>
+                    {{/diagrams.isEmpty}}
+                    {{#diagrams.isEmpty}}{{#anyRelationships}}
+                    <div class="alert alert-danger alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        <h4><i class="icon fa fa-ban"></i> Missed Relationships!</h4>
+                        <p>No relationships were detected in the schema.</p>
+                    </div>
+                    {{/anyRelationships}}{{/diagrams.isEmpty}}
+                    {{^diagramErrors.isEmpty}}
+                    <div class="alert alert-warning alert-dismissible">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                        <h4><i class="icon fa fa-warning"></i>There were {{diagramErrors.size}} error(s)</h4>
+                        <p>SchemaSpy was unable to generate diagram(s) of table relationships.<br />
+                            Check application output for details.
+                        </p>
+                    </div>
+                    {{/diagramErrors.isEmpty}}
+                </section>
