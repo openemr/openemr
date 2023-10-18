@@ -107,7 +107,7 @@ if ($action === 'print_labels') {
             $pdf->SetFont('', 'B', 8);
             $pdf->writeCell(0, 3, $patient, 0, 1, 'C');
             $pdf->SetFont('', '', 7);
-            $pdf->writeCell(0, 3, 'CLIENT#: ' . $client .'-WDL', 0, 1, 'C');
+            $pdf->writeCell(0, 3, 'CLIENT#: ' . $client . '-WDL', 0, 1, 'C');
             $pdf->writeCell(0, 3, 'DOS: ' . $order_date['date_ordered'], 0, 1, 'C');
             $pdf->writeCell(0, 3, 'DOB: ' . $dob, 0, 1, 'C');
             $code_info = $client . '-' . $ord;

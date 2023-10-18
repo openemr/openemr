@@ -485,7 +485,6 @@ function gen_hl7_order($orderid, &$out)
                 $d1 . hl7Text($answer) .                    // Clinical question answer
                 $d0;
         }
-
     }
         //recreate OBX here to add to end of hl7
         $out .= "OBX" .
