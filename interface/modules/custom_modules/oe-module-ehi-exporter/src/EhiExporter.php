@@ -60,16 +60,20 @@ class EhiExporter
         $inClause = "IN (" . str_repeat('?,', count($patientPids) - 1) . "?)";
         foreach ($tables as $table => $columnName) {
             $convertUuid = false;
-            $safeTableName = QueryUtils::escapeTableName($table);
-            $escapeColumnName = QueryUtils::escapeColumnName($columnName);
             $columns = QueryUtils::listTableFields($table);
+            $records = $this->getRecordsForTable($table, $columnName, $inClause, $patientPids);
             $uuidDefinition = UuidRegistry::getUuidTableDefinitionForTable($table);
             if (!empty($uuidDefinition)) {
                 $convertUuid = true;
             }
-            $tableQuery = "SELECT * FROM $safeTableName WHERE $escapeColumnName $inClause";
-            $records = QueryUtils::fetchRecords($tableQuery, $patientPids, false);
             if (!empty($records)) {
+
+                // need to check the xml table definition and see if the table has foreign keys pointing to the current table
+                // if so, then we need to grab the foreign key column name(s) to add to our table exporter process
+                // if not, we just export the table as is
+                // as we loop through each record, we need to save off the foreign key column values with the table name so we can avoid cyclical loops
+                // we also need to save off the primary key value of this table to make sure we avoid fetching the currently exported record again
+
                 $csvFile = fopen($this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . $table . '.csv', 'w');
                 fputcsv($csvFile, $columns);
                 $recordCount = 0;
@@ -90,10 +94,40 @@ class EhiExporter
         $zip = new \ZipArchive();
         $openStatus = $zip->open($this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . 'ehi-export.zip', \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
         foreach ($exportedResult->exportedTables as $result) {
-            $zip->addFile($this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . $table . '.csv', $result->tableName . '.csv');
+            $zip->addFile($this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . $result->tableName . '.csv', $result->tableName . '.csv');
         }
         $saved = $zip->close();
         $exportedResult->downloadLink = $this->modulePublicUrl . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . 'ehi-export.zip';
         return $exportedResult;
+    }
+    private function getPrimaryKeyForTable(&$xml, $tableName) {
+        // for now we are only going to work with the first primary key
+        $primaryKeys = $xml->xpath("//table[@name='" . $tableName . "']/primaryKey");
+        if (!empty($primaryKeys)) {
+            return (string)(current($primaryKeys)->attributes()['column']);
+        }
+    }
+    private function getForeignKeyTableDefinitionsForTable(&$xml, $tableName, $primaryKey) {
+        $foreignKeyTables = $xml->xpath("//table[@name='" . $tableName . "']/column[@name='"  . $primaryKey. "']/child[@foreignKey]");
+        $tables = [];
+        foreach ($foreignKeyTables as $foreignKeyTable) {
+            $tableName = (string)($foreignKeyTable->attributes()['table']);
+            $joinColumn = (string)($foreignKeyTable->attributes()['column']);
+//            $parentNode = current($foreignKeyTable->xpath('parent::*'));
+            $tables[$tableName] = $joinColumn ?? null; // should always have column
+        }
+        return $tables;
+    }
+
+    private function getRecordsForTable($table, $columnName, &$inClause, &$patientPids) {
+
+        $safeTableName = QueryUtils::escapeTableName($table);
+        $escapeColumnName = QueryUtils::escapeColumnName($columnName);
+        $tableQuery = "SELECT * FROM $safeTableName WHERE $escapeColumnName $inClause";
+
+        if ($table == 'extended_log') {
+            $tableQuery .= " AND event IN (SELECT option_id FROM list_options WHERE list_id = 'disclosure_type' AND activity = 1) ";
+        }
+        return QueryUtils::fetchRecords($tableQuery, $patientPids, false);
     }
 }
