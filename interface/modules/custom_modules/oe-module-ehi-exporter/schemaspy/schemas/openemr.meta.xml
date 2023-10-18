@@ -7,43 +7,115 @@
         <!--        - Medical Devices-->
         <!--        - Surgeries-->
         <!--        - Dental Issues-->
-        <table name="lists">
-            <column name="pid">
+        <table name="lists" comment="Patient issues list including allergies, medical problems, medications, medical devices, surgeries, and dental issues. Type of issue is in the type column.">
+            <column name="id" comments="Primary identifier of the record"/>
+            <column name="uuid" comments="UUID of the record"/>
+            <column name="date" comments="Date the issue was created"/>
+            <column name="type" comments="The type of the issue (allergy, medication, etc) where the issue_types.category='default'">
+                <foreignKey table="issue_types" column="type" />
+            </column>
+            <column name="subtype" comments="The sub type of the issue where the list_options.list_id='issue_subtypes'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="title" comments="The human readable description of the issue" />
+            <column name="udi" comments="The unique device identifier.  Populated if the issue is of type medical_device" />
+            <column name="udi_data" comments="The JSON serialized medical device as returned from the https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json api.  Populated if the issue is of type medical_device" />
+            <column name="begdate" comments="The beginning date for when this issue occurred as reported by the patient or the provider" />
+            <column name="enddate" comments="The end date for when this issue occurred as reported by the patient or the provider" />
+            <column name="returndate" comments="UNUSED - will be removed in the future" />
+            <column name="occurrence" comments="Comes from the list_options.list_id='occurrence' and is the frequency that this issue occurs for the patient">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="classification" comments="UNUSED - will be removed in the future">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="referredby" comments="The human readable name of Referring physician and practice" />
+            <column name="extrainfo" comments="UNUSED - will be removed in the future" />
+            <column name="diagnosis" comments="The diagnosis of the issue.  Format is a text string in the format of 'system:code[;system:code2;system:coden]'" />
+            <column name="activity" comments="Value of 0 means the record has been deleted, 1 means the record is active in the system" />
+            <column name="comments" comments="Human readable additional notes/comments of the issue" />
+            <column name="pid" comments="The internal patient identifier">
 		        <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="user" comments="The user that created or last updated this issue">
+                <foreignKey table="users" column="username" />
+            </column>
+            <column name="groupname" comments="The user group that created or last updated this issue">
+                <foreignKey table="groups" column="groups" />
+            </column>
+            <column name="outcome" comments="Comes from the list_options.list_id='outcome' and represents the outcome of the issue">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="destination" comments="Human readable name of GP, Secondary care specialist, etc." />
+            <column name="reinjury_id" comments="UNUSED - will be removed in the future" />
+            <column name="injury_part" comments="UNUSED - will be removed in the future" />
+            <column name="injury_type" comments="UNUSED - will be removed in the future" />
+            <column name="injury_grade" comments="UNUSED - will be removed in the future" />
+            <column name="reaction" comments="Comes from the list_options.list_id='reaction' and represents the reaction of the patient to the allergy">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="verification" comments="Comes from the list_options.list_id='allergyintolerance-verification' and represents the confirmation status of the allergy">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="external_allergyid" comments="An identifier for an allergy from an external eRx system" />
+            <column name="erx_source" comments="O if the allergy issue originated in OpenEMR, 1 if the allergy issue originated in an external system" />
+            <column name="erx_uploaded" comments="O if allergy is still waiting to be uploaded to an external system (such as eRX), 1 if the allergy issue has been successfully received by the eRX system" />
+            <column name="modifydate" comments="The date the issue record was last modified" />
+            <column name="severity_al" comments="Comes from the list_options.list_id='severity_ccda' and represents the severity of the allergic reaction of the patient to the allergy">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="external_id" comments="UNUSED - will be removed in the future" />
+            <column name="list_option_id" comments="Comes from the list_options.list_id=CONCAT(lists.type,'_issue_list') and represents the prefilled list option id that was chosen as a template to create this issue">
+                <foreignKey table="list_options" column="option_id" />
             </column>
         </table>
 
 <!--        - Prescriptions-->
-        <table name="prescriptions">
-            <column name="patient_id">
+        <table name="prescriptions" comments="Internal and External prescription information">
+            <column name="patient_id"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - Immunizations-->
-        <table name="immunizations">
-            <column name="patient_id">
+        <table name="immunizations" comments="Patient Immunizations">
+            <column name="patient_id"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
+
 <!--        - Patient Insurance-->
-        <table name="insurance_data">
-            <column name="pid">
+        <table name="insurance_data" comments="Patient Insurance information">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - Patient Messages (pnotes)-->
-        <table name="pnotes">
-            <column name="pid">
+        <table name="pnotes" comments="Patient Messages about the healthcare treatment of the patient">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 <!--        - Patient Reminders-->
+
 <!--        - Patient Disclosures-->
+        <!-- see disc_fragement.php::getDisclosureByDate() -->
+        <table name="extended_log" comment="Holds the disclosures of EHI made to third parties for a given patient">
+            <column name="id" />
+            <column name="date" />
+            <column name="event" />
+            <column name="user" />
+            <column name="recipient" />
+            <column name="description" />
+            <column name="patient_id"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
 <!--        - Patient Amendments-->
         <table name="amendments">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
@@ -51,7 +123,7 @@
 <!--        - Patient Labs-->
 <!--        - Patient Vitals-->
         <table name="form_vitals">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
@@ -62,20 +134,20 @@
 <!--        - Recall Appts-->
 <!--        - Patient Appointments-->
         <table name="openemr_postcalendar_events">
-            <column name="pc_pid">
+            <column name="pc_pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - Patient Documents-->
         <table name="documents">
-            <column name="foreign_id">
+            <column name="foreign_id"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 <!--        - Patient Transactions (Billing  Legal  Patient Request  Physician Request  Referral/Counter Referral)-->
         <table name="transactions">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
@@ -83,13 +155,13 @@
 <!--        - External Data (Encounters  Procedures) [is this included in the designated record set?]-->
 <!--        - Patient Encounters-->
         <table name="forms">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 <!--        - Encounter Summary-->
         <table name="form_encounter">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
@@ -97,35 +169,35 @@
 <!--        - Fee Sheet-->
 <!--        - Misc Billing Options-->
         <table name="form_misc_billing_options">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - Care Plan-->
         <table name="form_care_plan">
-            <column name="pid">
+            <column name="pid" comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - Clinical Instructions-->
         <table name="form_clinical_instructions">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - Clinical Notes-->
         <table name="form_clinical_notes">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - Eye Exam-->
         <table name="form_eye_acuity">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
@@ -135,42 +207,42 @@
             </column>
         </table>
         <table name="form_eye_base">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
         <table name="form_eye_biometrics">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
         <table name="form_eye_external">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
         <table name="form_eye_hpi">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
         <table name="form_eye_locking">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
         <table name="form_eye_mag_dispense">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
         <table name="form_eye_mag_impplan">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
         <table name="form_eye_mag_orders">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
@@ -181,99 +253,99 @@
 <!--            </column>-->
 <!--        </table>-->
         <table name="form_eye_mag_wearing">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
         <table name="form_eye_neuro">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
         <table name="form_eye_postseg">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
         <table name="form_eye_refraction">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
         <table name="form_eye_ros">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
         <table name="form_eye_vitals">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
         <table name="form_taskman">
-            <column name="PATIENT_ID">
+            <column name="PATIENT_ID"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - Functional and Cognitive Status-->
         <table name="form_functional_cognitive_status">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 <!--        - Observation-->
         <table name="form_observation">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 <!--        - Review of Systems-->
         <table name="form_reviewofs">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - Review of Systems Checks-->
         <table name="form_ros">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - SOAP-->
         <table name="form_soap">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - Speech Dictation-->
         <table name="form_dictation">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - CAMOS-->
         <table name="form_CAMOS">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
         <table name="form_CAMOS_category">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
         <table name="form_CAMOS_item">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
         <table name="form_CAMOS_subcategory">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
@@ -282,28 +354,28 @@
 
 <!--        - Questionnaire Responses-->
         <table name="form_questionnaire_assessments">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
         <!--        - Aftercare Plan-->
         <table name="form_aftercare_plan">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
         <!--        - Ankle Evaluation Form-->
         <table name="form_ankleinjury">
-            <column name="pid">
+            <column name="pid" comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
         <!--        - Bronchitis Form-->
         <table name="form_bronchitis">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
@@ -311,7 +383,7 @@
 <!--        - Lab Requisition-->
         <!-- NOTE: the pid here does not match our pid column type definition -->
         <table name="requisition">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
@@ -319,7 +391,7 @@
 <!--        - Track Anything-->
         <!-- TODO: handle FK following on other tables here -->
         <table name="form_track_anything">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
 <!--            <column name="procedure_type_id">-->
@@ -335,21 +407,21 @@
 
 <!--        - Social Screening Tool-->
         <table name="form_sdoh">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - Graphic Pain Map-->
         <table name="form_painmap">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - Treatment Plan-->
         <table name="form_treatment_plan">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
@@ -365,35 +437,35 @@
 
 <!--        - Prior Authorization-->
         <table name="form_prior_auth">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - GAD-7-->
         <table name="form_gad7">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - PHQ-9-->
         <table name="form_phq9">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - Work/School Note-->
         <table name="form_note">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - Transfer Summary-->
         <table name="form_transfer_summary">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
@@ -412,12 +484,12 @@
 
 
         <table name="amendments">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
 		 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
         <table name="billing">
-            <column name="pid">
+            <column name="pid"  comments="The internal patient identifier">
 		 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
