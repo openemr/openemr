@@ -102,9 +102,9 @@ class AllergyIntoleranceService extends BaseService
         $search['type'] = new StringSearchField('type', ['allergy'], SearchModifier::EXACT);
         // ensure an authorized user is stored in the lists table for this allergy
         $search['practitioners.practitioner_uuid'] = new StringSearchField(
-            'practitioners.practitioner_uuid'
-            , ''
-            , SearchModifier::NOT_EQUALS_EXACT
+            'practitioners.practitioner_uuid',
+            '',
+            SearchModifier::NOT_EQUALS_EXACT
         );
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
