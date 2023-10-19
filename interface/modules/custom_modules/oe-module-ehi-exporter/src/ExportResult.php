@@ -20,4 +20,6 @@ class ExportResult
      * @var ExportTableResult[]
      */
     public $exportedTables;
+
+    public $exportedDocumentCount = 0;
 }
