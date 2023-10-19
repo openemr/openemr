@@ -15,6 +15,7 @@ namespace OpenEMR\Modules\EhiExporter;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\ListService;
 
 class EhiExporter
 {
@@ -23,7 +24,19 @@ class EhiExporter
         // TODO: @adunsulag look at getting the write directory to go to the right location.
     }
 
-    public function exportAll() : ExportResult {
+    public function exportPatient(int $pid, bool $includePatientDocuments) {
+        return $this->exportPatients([$pid], $includePatientDocuments);
+    }
+    public function exportAll(bool $includePatientDocuments) : ExportResult {
+        $sql = "SELECT UNIQUE pid FROM patient_data"; // We do everything here
+        $patientPids = QueryUtils::fetchTableColumn($sql, 'pid', []);
+        $patientPids = array_map('intval', $patientPids);
+        return $this->exportPatients($patientPids, $includePatientDocuments);
+    }
+
+
+    private function exportPatients(array $patientPids, bool $includePatientDocuments) {
+
         // grab the xml file from schemaspy in public/ehi-docs/openemr.openemr.xml file for this module
         // create an xml document from the file
         // use xpath on xml document to grab table[@name="patient_data"] element node
@@ -42,8 +55,105 @@ class EhiExporter
             throw new \RuntimeException("Failed to find openemr.openemr.xml file");
         }
         $xml = simplexml_load_string($contents);
-        $tableNode = $xml->xpath("//table[@name='patient_data']");
-        $columnNode = $xml->xpath("//table[@name='patient_data']/column[@name='pid']");
+
+        $exportedResult = $this->exportDirectPatientTables($xml, $patientPids);
+
+        $this->exportStaticTables($exportedResult);
+        $this->exportUserTable($xml, $exportedResult);
+        $this->exportDependentTables($xml, $patientPids, $exportedResult);
+
+        $zip = new \ZipArchive();
+
+        $zipName = uniqid('ehi-export-') . '.zip';
+        $zipOutput = $this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . $zipName;
+        $openStatus = $zip->open($zipOutput, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        // TODO: @adunsulag check openStatus for exceptions
+        foreach ($exportedResult->exportedTables as $result) {
+            if ($this->shouldExportAdditionalAssets($result->tableName)) {
+                $this->exportAdditionalAssets($result->tableName, $zip);
+            }
+            $zip->addFile($this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . $result->tableName . '.csv', $result->tableName . '.csv');
+        }
+        if ($includePatientDocuments) {
+            $this->addPatientDocuments($exportedResult, $zip, $patientPids);
+        }
+        $saved = $zip->close();
+        $exportedResult->downloadLink = $this->modulePublicUrl . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . $zipName;
+        return $exportedResult;
+    }
+
+    private function shouldExportAdditionalAssets($tableName) {
+        $additionalAssets = ['form_painmap'];
+        return in_array($tableName, $additionalAssets);
+    }
+    private function exportAdditionalAssets(\ZipArchive $zip, $tableName) {
+        $additionalAssets = [
+            'form_painmap' => [
+                ['name' => 'images/painmap.png', 'path' => $GLOBALS['webserver_root'] . "/interface/forms/" . C_FormPainMap::$FORM_CODE . "/templates/painmap.png"]
+            ]
+        ];
+        $assets = $additionalAssets[$tableName] ?? [];
+        foreach ($assets as $assetsToExport) {
+            $zip->addFile($assetsToExport['name'], $assetsToExport['path']);
+        }
+    }
+
+    private function exportStaticTables(ExportResult $exportedResult) {
+        $staticTables = ['issue_types', 'groups'];
+        foreach ($staticTables as $table) {
+            $safeTable = QueryUtils::escapeTableName($table);
+            $records = QueryUtils::fetchRecords("SELECT * FROM $table", [], false);
+            $recordCount = $this->writeCsvFile($records, $table);
+            $exportedTable = new ExportTableResult();
+            $exportedTable->count = $recordCount;
+            $exportedTable->tableName = $table;
+            $exportedResult->exportedTables[] = $exportedTable;
+        }
+    }
+
+    private function exportListOptionTable(ExportResult $exportedResult) {
+
+        // TODO: @adunsulag this current approach could export potentially sensitive data if a clinic has added it to
+        // the list_options table... exporting the whole table is a quick and easy option, but may have security problems.
+        $table = "list_options";
+        $listService = new ListService();
+        // TODO: @adunsulag look at getting the list of tables from the xml file
+//        $lists = ['issue_subtypes', 'occurrence', 'outcome', 'reaction', 'allergyintolerance-verification', 'severity_ccda'];
+//        $issueTypes = QueryUtils::fetchRecords("SELECT * FROM issue_types", [], false);
+//        foreach ($issueTypes as $type) {
+//            $lists[] = $type . "_issue_list";
+//        }
+//        $records = $listService->getListOptionsForLists($lists);
+        $records = QueryUtils::fetchRecords("SELECT * FROM $table", [], false);
+        $recordCount = $this->writeCsvFile($records, $table);
+        $exportedTable = new ExportTableResult();
+        $exportedTable->count = $recordCount;
+        $exportedTable->tableName = $table;
+        $exportedResult->exportedTables[] = $exportedTable;
+    }
+
+    private function exportUserTable(&$xml, ExportResult $exportedResult) {
+        // we just export everyone as the simplest solution for now instead of doing a depth traversal
+        // this makes it easy so we don't have to do more work here.
+        $query = "SELECT id,uuid,username,authorized,fname,lname,mname,suffix,federaltaxid,federaldrugid,facility,facility_id,see_auth,active,npi,title,speciality,billname,url,assistant,valedictory,state,taxonomy,abook_type,default_warehouse,irnpool,state_license_number,weno_prov_id,newcrop_user_role,cpoe,physician_type,portal_user,supervisor_id,billing_facility,billing_facility_id FROM users";
+        $records = QueryUtils::fetchRecords("SELECT * FROM users", [], false);
+        $recordCount = $this->writeCsvFile($records, 'users');
+        $exportedTable = new ExportTableResult();
+        $exportedTable->count = $recordCount;
+        $exportedTable->tableName = 'users';
+        $exportedResult->exportedTables[] = $exportedTable;
+    }
+    private function exportDependentTables(&$xml, &$patientPids, ExportResult $exportedResult) {
+        // amendments_history
+        $sql = "SELECT * FROM amendments_history WHERE amendment_id IN (select amendment_id FROM amendments WHERE pid IN (" . str_repeat('?,', count($patientPids) - 1) . "?))";
+        $records = QueryUtils::fetchRecords($sql, $patientPids, false);
+        $recordCount = $this->writeCsvFile($records, 'amendments_history');
+        $exportedTable = new ExportTableResult();
+        $exportedTable->count = $recordCount;
+        $exportedTable->tableName = 'amendments_history';
+        $exportedResult->exportedTables[] = $exportedTable;
+    }
+    private function exportDirectPatientTables(&$xml, &$patientPids) : ExportResult {
         $foreignKeyTables = $xml->xpath("//table[@name='patient_data']/column[@name='pid']/child[@foreignKey]");
         $tables = [];
         foreach ($foreignKeyTables as $foreignKeyTable) {
@@ -54,18 +164,10 @@ class EhiExporter
         }
         $tables['patient_data'] = 'pid';
         $exportedResult = new ExportResult();
-        $sql = "SELECT UNIQUE pid FROM patient_data"; // We do everything here
-        $patientPids = QueryUtils::fetchTableColumn($sql, 'pid', []);
-        $patientPids = array_map('intval', $patientPids);
+
         $inClause = "IN (" . str_repeat('?,', count($patientPids) - 1) . "?)";
         foreach ($tables as $table => $columnName) {
-            $convertUuid = false;
-            $columns = QueryUtils::listTableFields($table);
             $records = $this->getRecordsForTable($table, $columnName, $inClause, $patientPids);
-            $uuidDefinition = UuidRegistry::getUuidTableDefinitionForTable($table);
-            if (!empty($uuidDefinition)) {
-                $convertUuid = true;
-            }
             if (!empty($records)) {
 
                 // need to check the xml table definition and see if the table has foreign keys pointing to the current table
@@ -74,31 +176,35 @@ class EhiExporter
                 // as we loop through each record, we need to save off the foreign key column values with the table name so we can avoid cyclical loops
                 // we also need to save off the primary key value of this table to make sure we avoid fetching the currently exported record again
 
-                $csvFile = fopen($this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . $table . '.csv', 'w');
-                fputcsv($csvFile, $columns);
-                $recordCount = 0;
-                foreach ($records as $record) {
-                    if ($convertUuid) {
-                        $record['uuid'] = UuidRegistry::uuidToString($record['uuid']);
-                    }
-                    fputcsv($csvFile, $record);
-                    $recordCount++;
-                }
-                fclose($csvFile);
+                $recordCount = $this->writeCsvFile($records, $table);
                 $exportedTable = new ExportTableResult();
                 $exportedTable->count = $recordCount;
                 $exportedTable->tableName = $table;
                 $exportedResult->exportedTables[] = $exportedTable;
             }
         }
-        $zip = new \ZipArchive();
-        $openStatus = $zip->open($this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . 'ehi-export.zip', \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-        foreach ($exportedResult->exportedTables as $result) {
-            $zip->addFile($this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . $result->tableName . '.csv', $result->tableName . '.csv');
-        }
-        $saved = $zip->close();
-        $exportedResult->downloadLink = $this->modulePublicUrl . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . 'ehi-export.zip';
         return $exportedResult;
+    }
+    private function writeCsvFile(&$records, $tableName) {
+        $uuidDefinition = UuidRegistry::getUuidTableDefinitionForTable($tableName);
+        if (!empty($uuidDefinition)) {
+            $convertUuid = true;
+        } else {
+            $convertUuid = false;
+        }
+        $columns = QueryUtils::listTableFields($tableName);
+        $csvFile = fopen($this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . $tableName . '.csv', 'w');
+        fputcsv($csvFile, $columns);
+        $recordCount = 0;
+        foreach ($records as $record) {
+            if ($convertUuid) {
+                $record['uuid'] = UuidRegistry::uuidToString($record['uuid']);
+            }
+            fputcsv($csvFile, $record);
+            $recordCount++;
+        }
+        fclose($csvFile);
+        return $recordCount;
     }
     private function getPrimaryKeyForTable(&$xml, $tableName) {
         // for now we are only going to work with the first primary key
@@ -129,5 +235,28 @@ class EhiExporter
             $tableQuery .= " AND event IN (SELECT option_id FROM list_options WHERE list_id = 'disclosure_type' AND activity = 1) ";
         }
         return QueryUtils::fetchRecords($tableQuery, $patientPids, false);
+    }
+
+    private function addPatientDocuments(ExportResult $exportedResult, \ZipArchive $zip, array $patientPids)
+    {
+        $inClause = "IN (" . str_repeat('?,', count($patientPids) - 1) . "?)";
+        $documentRecords = $this->getRecordsForTable('documents', 'foreign_id', $inClause, $patientPids);
+        $docCount = 0;
+        $docFolder = "documents/";
+        foreach ($documentRecords as $documentRecord) {
+            $documentId = $documentRecord['id'];
+            $documentObj = new \Document($documentId);
+            $documentContents = $documentObj->get_data();
+
+            // we want to make sure the documents are stored by patient id they can be distinguished here.
+            $docName = $documentRecord['foreign_id'] . '/' . $documentObj->get_name();
+            // store it inside of a folder called documents
+            if (!$zip->addFromString($docFolder . $docName, $documentContents)) {
+                // TODO: @adunsulag need to add error logging in the export.
+            } else {
+                $docCount++;
+            }
+        }
+        $exportedResult->exportedDocumentCount = $docCount;
     }
 }

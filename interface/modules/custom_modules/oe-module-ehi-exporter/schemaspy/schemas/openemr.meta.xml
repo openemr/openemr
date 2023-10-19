@@ -1,6 +1,31 @@
 <schemaMeta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://schemaspy.org/xsd/6/schemameta.xsd" >
     <tables>
 
+        <table name="patient_data" comment="Main patient record that contains patient demographic information">
+            <column name="id" comments="Surrogate id of the record used as the primary incrementing key"/>
+            <column name="uuid" comments="UUID of the record"/>
+            <column name="pharmacy_id" comments="The patient's default pharmacy to send prescriptions to">
+                <foreignKey table="pharmacies" column="id" />
+            </column>
+            <column name="pid" comments="The internal patient identifier used throughout the export to represent this unique patient record"/>
+            <column name="pubpid" comments="The public facing Medical Record Number (MRN) of the patient"/>
+            <column name="care_team_provider"  comments="List of care team providers where each id is the provider id contained in the users.id. Entries are separated by a the pipe | symbol." />
+            <column name="care_team_facility"  comments="List of care team facilities where each id is the facility/organization id contained in the facilities.id. Entries are separated by a the pipe | symbol" />
+            <column name="providerID" comments="The id of the assigned provider to this user">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="ref_providerID" comments="The id of the user that referred this patient">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="created_by" comments="The id of the user that initially created this record">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="updated_by" comments="The id of the user that last updated this record">
+                <foreignKey table="users" column="id" />
+            </column>
+            <!-- TODO: @adunsulag need to comment the remaining columns -->
+        </table>
+
         <!-- Allergies Data -->
         <!--        - Medical Problems-->
         <!--        - Medications-->
@@ -41,7 +66,7 @@
                 <foreignKey table="users" column="username" />
             </column>
             <column name="groupname" comments="The user group that created or last updated this issue">
-                <foreignKey table="groups" column="groups" />
+                <foreignKey table="groups" column="name" />
             </column>
             <column name="outcome" comments="Comes from the list_options.list_id='outcome' and represents the outcome of the issue">
                 <foreignKey table="list_options" column="option_id" />
@@ -70,10 +95,54 @@
             </column>
         </table>
 
+        <!-- TODO: @adunsulag look at lists_medication -->
+
+        <!-- Patient History -->
+        <table name="history_data" comment="Contains patient eating,sleeping,drinking,drug habits as well as other patient health history information">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="created_by"  comments="The user that created this record">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+
+        <!-- TODO: @adunsulag Patient Care Team, Previous Names in patient_history -->
+        <table name="patient_history" comment="Contains previous historical entries of the patient's care team (providers and facilities) as well as patient previous name information">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="care_team_provider"  comments="List of care team providers where each id is the provider id contained in the users.id. Entries are separated by a the pipe | symbol." />
+            <column name="care_team_facility"  comments="List of care team facilities where each id is the facility/organization id contained in the facilities.id. Entries are separated by a the pipe | symbol" />
+            <column name="created_by"  comments="The user that created this record">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+
 <!--        - Prescriptions-->
         <table name="prescriptions" comments="Internal and External prescription information">
             <column name="patient_id"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="patient_id"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="filled_by_id" comments="UNUSED - will be removed in the future" />
+            <column name="pharmacy_id"  comments="The internal identifier for the pharmacy that is connected to this prescription">
+                <foreignKey table="pharmacies" column="id" />
+            </column>
+            <column name="provider_id" comments="The id of the user that created this prescription">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="drug_id" comments="The id of the drug that was prescribed to the patient. 0 if the drug was manually entered">
+                <foreignKey table="drugs" column="drug_id" />
+            </column>
+
+            <column name="created_by" comments="The id of the user that initially created this record">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="updated_by" comments="The id of the user that last updated this record">
+                <foreignKey table="users" column="id" />
             </column>
         </table>
 
@@ -82,26 +151,89 @@
             <column name="patient_id"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
+            <!-- immunization_id, administered_by_id, created_by, updated_by, ordering_provider -->
         </table>
+        <!-- TODO: @adunsulag look at immunization_observation table -->
 
 <!--        - Patient Insurance-->
         <table name="insurance_data" comments="Patient Insurance information">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
+            <column name="provider"  comments="The insurance company that insures the patient">
+                <foreignKey table="insurance_companies" column="id" />
+            </column>
+            <!-- provider, policy_type -->
         </table>
+        <!-- TODO: @adunsulag look at insurance_numbers, insurance_companies, insurance_type_codes -->
 
 <!--        - Patient Messages (pnotes)-->
         <table name="pnotes" comments="Patient Messages about the healthcare treatment of the patient">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
+            <column name="user">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="assigned_to">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="groupname">
+                <foreignKey table="groups" column="name" />
+            </column>
+            <column name="update_by">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="update_by">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="message_status" comments="Comes from the list_options.list_id='message_status' and represents the status of the message">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
         </table>
-<!--        - Patient Reminders-->
+<!--        - TODO: @adunsulag see patient_reminders in Patient Reminders-->
+        <table name="patient_reminders" comments="Patient Reminders generated from the clinical decision support engine that are sent via a communication medium to the patient">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="reason_inactivated">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="due_status">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="category">
+                <foreignKey table="rule_action_item" column="category" />
+            </column>
+            <column name="item">
+                <foreignKey table="rule_action_item" column="item" />
+            </column>
+        </table>
+        <!-- rule_patient_data -->
+        <table name="rule_patient_data" comments="Patient Reminders that the Clinical Decision Support system is configured to run for this specific patient.">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="category">
+                <foreignKey table="rule_action_item" column="category" />
+            </column>
+            <column name="item">
+                <foreignKey table="rule_action_item" column="item" />
+            </column>
+        </table>
+        <!-- TODO: rule_action_item table -->
+        <table name="rule_action_item" comments="Patient Reminders configuration for Clinical Decision Support individual rule settings">
+            <column name="category">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="item">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+        </table>
 
 <!--        - Patient Disclosures-->
         <!-- see disc_fragement.php::getDisclosureByDate() -->
-        <table name="extended_log" comment="Holds the disclosures of EHI made to third parties for a given patient">
+        <table name="extended_log" comments="Holds the disclosures of EHI made to third parties for a given patient">
             <column name="id" />
             <column name="date" />
             <column name="event" />
@@ -115,19 +247,44 @@
 
 <!--        - Patient Amendments-->
         <table name="amendments">
+            <!-- TODO: @adunsulag finish commenting this table -->
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
+            <column name="amendment_by" comments="Comes from the list_options.list_id='amendment_from' and represents who is requesting the amendment">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="created_by" comments="The id of the user that initially created this amendment">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="modified_by" comments="The id of the user that last modified this amendment">
+                <foreignKey table="users" column="id" />
+            </column>
         </table>
-        <!-- TODO: add in amendments_history -->
-<!--        - Patient Labs-->
+        <table name="amendments_history">
+            <!-- TODO: @adunsulag finish commenting this table -->
+            <column name="amendment_id"  comments="The internal amendment id">
+                <foreignKey table="amendments" column="amendment_id" />
+            </column>
+            <column name="amendment_by" comments="Comes from the list_options.list_id='amendment_from' and represents who is requesting the amendment">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="created_by" comments="The id of the user that initially created this amendment">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="modified_by" comments="The id of the user that last modified this amendment">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
 <!--        - Patient Vitals-->
         <table name="form_vitals">
+            <!-- user, groupname, temp_method, BMI_status -->
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 <!-- TODO: include form_vital_details FK -->
+        <!-- form_id, interpretation_list_id, interpretation_option_id, reason_status -->
 
 <!--        - Patient recalls-->
 <!--        - Clinical Reminders-->
@@ -164,7 +321,10 @@
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
+            <column name="last_level_billed"  comments="The party for whom payment was last billed. -1=Nobody, 0=Patient, 1=Ins1, 2=Ins2, 3=Ins3" />
+            <column name="last_level_closed"  comments="The party for whom payment was last received. -1=Nobody, 0=Patient, 1=Ins1, 2=Ins2, 3=Ins3" />
         </table>
+        <!-- TODO: @adunsulag look at issue_encounter table -->
 
 <!--        - Fee Sheet-->
 <!--        - Misc Billing Options-->
@@ -351,6 +511,8 @@
         </table>
 
 <!--        - Procedure Order-->
+        <!--        - Patient Labs-->
+        <!-- TODO: @adunsulag procedure_order, procedure_answers, procedure_order_code, procedure_providers, procedure_report, procedure_type -->
 
 <!--        - Questionnaire Responses-->
         <table name="form_questionnaire_assessments">
@@ -358,6 +520,8 @@
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
+        <!-- TODO: @adunsulag look at pro_assessments table -->
+        <!-- TODO: @adunsulag look at questionnaire_response table -->
 
         <!--        - Aftercare Plan-->
         <table name="form_aftercare_plan">
@@ -382,6 +546,7 @@
 
 <!--        - Lab Requisition-->
         <!-- NOTE: the pid here does not match our pid column type definition -->
+        <!-- TODO: @adunsulag put requisition on the back burner, looks like it deals with the printout of
         <table name="requisition">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
@@ -390,7 +555,7 @@
 
 <!--        - Track Anything-->
         <!-- TODO: handle FK following on other tables here -->
-        <table name="form_track_anything">
+        <table name="form_track_anything" comments="Clinical note form that allows clinicians to provide point in time and longitudinal tracking of any data element they configure">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
@@ -406,51 +571,103 @@
 
 
 <!--        - Social Screening Tool-->
-        <table name="form_sdoh">
+        <table name="form_sdoh" comments="Encounter form that holds results for the Social Determinants of Health Screening Tool">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="user">
+                <foreignKey table="users" column="id" comments="The user that created this record." />
+            </column>
+            <column name="groupname">
+                <foreignKey table="groups" column="name" comments="The groupname that created this record." />
             </column>
         </table>
 
 <!--        - Graphic Pain Map-->
-        <table name="form_painmap">
+        <table name="form_painmap" comments="Patient pain map form. Pain map image for mapping this form is stored in the EHI zip export at images/painmap.png">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
+            <column name="user">
+                <foreignKey table="users" column="id" comments="The user that created this record." />
+            </column>
+            <column name="groupname">
+                <foreignKey table="groups" column="name" comments="The groupname that created this record." />
+            </column>
+            <column name="data" comments="Data of the patient pain map to overlay ontop of the pain image.  Each mapped data element is in the following format x1CoordinatePixels^y1CoordinatePixels^pain1Description}...}." />
         </table>
 
 <!--        - Treatment Plan-->
-        <table name="form_treatment_plan">
+        <table name="form_treatment_plan" comments="Patient treatment plan form">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
+            <column name="user">
+                <foreignKey table="users" column="id" comments="The user that created this record." />
+            </column>
+            <column name="groupname">
+                <foreignKey table="groups" column="name" comments="The groupname that created this record." />
+            </column>
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - Physical Exam-->
-        <!-- TODO: @adunsulag need to handle FK following on other tables here -->
-<!--        <table name="form_physical_exam">-->
-<!--            <column name="forms_id">-->
-<!--                <foreignKey table="forms" column="id" />-->
-<!--            </column>-->
-<!--        </table>-->
-
+        <table name="form_physical_exam" comments="Physical Examination clinical note">
+            <column name="forms_id">
+                <foreignKey table="forms" column="id" />
+            </column>
+        </table>
+        <table name="form_physical_exam_diagnoses" comments="Physical Exam Diagnosis for a physical exam that was conducted">
+            <column name="line_id">
+                <foreignKey table="form_physical_exam" column="line_id" />
+            </column>
+        </table>
 
 <!--        - Prior Authorization-->
-        <table name="form_prior_auth">
+        <table name="form_prior_auth" comment="Patient Prior Authorization records">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - GAD-7-->
-        <table name="form_gad7">
+        <table name="form_gad7" comments="Encounter form that holds patient results for the GAD7 assessment">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
+            <column name="user">
+                <foreignKey table="users" column="id" comments="The user that created this record." />
+            </column>
+            <column name="groupname">
+                <foreignKey table="groups" column="name" comments="The groupname that created this record." />
+            </column>
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - PHQ-9-->
-        <table name="form_phq9">
+        <table name="form_phq9" comments="Encounter form that holds patient results for the PHQ9 assessment">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
+            <column name="user">
+                <foreignKey table="users" column="id" comments="The user that created this record." />
+            </column>
+            <column name="groupname">
+                <foreignKey table="groups" column="name" comments="The groupname that created this record." />
+            </column>
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
@@ -458,6 +675,9 @@
 
 <!--        - Work/School Note-->
         <table name="form_note">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
@@ -465,33 +685,172 @@
 
 <!--        - Transfer Summary-->
         <table name="form_transfer_summary">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - Clinic Note-->
-        <!-- TODO: @adunsulag need to handle FK following on other tables here -->
-<!--        <table name="form_clinic_note">-->
-<!--            <column name="id">-->
-<!--                <foreignKey table="forms" column="form_id" />-->
-<!--            </column>-->
-<!--        </table>-->
+        <table name="form_clinic_note">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
+        </table>
 
 <!--        patient notes-->
+        <!-- TODO: @adunsulag check `notes` table -->
+        <!-- TODO: @adunsulag check `notification_log`.`pid` table -->
 <!--        patient documents-->
-<!--        claims-->
+        <!-- TODO: @adunsulag check onsite_documents.pid -->
+        <!-- TODO: @adunsulag check onsite_mail.owner -->
+        <!-- TODO: @adunsulag check onsite_signatures -->
+        <!-- TODO: @adunsulag check onsite_messages -->
 
+        <!-- erx_ttl_touch ??? -->
+        <!-- esign_signatures -->
 
-        <table name="amendments">
+        <!-- external_encounters, external_procedures -->
+        <!-- facility, facility_user_ids -->
+
+        <!-- TODO: @adunsulag patient_tracker,patient_tracker_element in flowboard -->
+
+        <table name="shared_attributes" comment="Dynamic patient, encounter, and transaction table properties created via LBF/LBT mechanism">
             <column name="pid"  comments="The internal patient identifier">
-		 <foreignKey table="patient_data" column="pid" />
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="encounter"  comments="0 if patient attribute, else this is an encounter attribute and references the form_encounter.encounter property">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <!-- TODO: @adunsulag does it make sense to traverse this table... or should we just skip it? -->
+            <column name="field_id"  comments="references layout_options.field_id and is the unique property name of this shared attribute">
+                <foreignKey table="layout_options" column="field_id" />
+            </column>
+            <column name="user_id" comments="User who last updated this shared attribute">
+                <foreignKey table="users" column="id" />
             </column>
         </table>
-        <table name="billing">
+
+        <table name="claims" comment="Insurance Billing Claims">
             <column name="pid"  comments="The internal patient identifier">
-		 <foreignKey table="patient_data" column="pid" />
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <!-- TODO: @adunsulag need to populate -->
+        </table>
+
+        <table name="voids" comment="Tracks a voided receipt or checkout for a patient">
+            <column name="patient_id"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="encounter_id">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="user_id">
+                <foreignKey table="users" column="id" />
             </column>
         </table>
+
+        <table name="billing" comment="Patient billing records for billing codes - Used for Claims Processing">
+            <column name="pid"  comments="The internal patient identifier">
+		        <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="provider_id"  comments="The insurance company being billed. If this is self-pay the id will be 0">
+                <foreignKey table="insurance_companies" column="id" />
+            </column>
+            <column name="payer_id"  comments="The insurance company being billed. If this is self-pay the id will be 0">
+                <foreignKey table="insurance_companies" column="id" />
+            </column>
+            <column name="x12_partner_id"  comments="The X12 partner clearinghouse id.">
+                <foreignKey table="x12_partners" column="id" />
+            </column>
+            <column name="user">
+                <foreignKey table="users" column="id" comments="The user that created this billing record." />
+            </column>
+            <column name="groupname">
+                <foreignKey table="groups" column="name" />
+            </column>
+            <column name="encounter" comments="The encounter that this billing record is connected to">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+        </table>
+
+        <table name="drug_sales" comments="Product/Drug sales to Patients">
+            <column name="sale_id"  comments="The unique identifier for this record" />
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="encounter" comments="The patient encounter which resulted in this drug being sold to the patient.">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="drug_id" comments="The id of the drug that was sold to the patient. 0 if the record is not dispensed to a patient">
+                <foreignKey table="drugs" column="drug_id" />
+            </column>
+            <column name="sale_date"  comments="The date the sale occurred on" />
+            <column name="fee"  comments="The total price of the sale for the drug that was sold to the patient" />
+            <column name="quantity"  comments="The number of items sold of the drug" />
+            <column name="distributor_id" comments="UNUSED - will be removed in the future" />
+        </table>
+
+        <table name="ar_activity" comments="Accounts Receivable Billing Activity - Used for Claims Processing">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="code_type"  comments="The code system that is used for this billing activity" />
+            <column name="code"  comments="The code in the code system referenced in code_type that is the main billing code for this billing activity" />
+            <column name="modifier"  comments="Billing code modifier" />
+            <column name="fee"  comments="The billing fee that is being requested for payment of services rendered" />
+            <column name="adj_amount"  comments="" />
+            <column name="post_time"  comments="Time of the posting on the date referenced in post_date" />
+
+            <column name="session_id">
+                <foreignKey table="ar_activity" column="session_id" />
+            </column>
+            <column name="account_code"  comments="" />
+            <column name="follow_up_note"  comments="" />
+            <!--            <column name="code"  comments="" />-->
+            <!--            <column name="pay_amount"  comments="" />-->
+            <!--            <column name="reason_code"  comments="" />-->
+            <!--            <column name="memo"  comments="" />-->
+            <!--            <column name="payer_type"  comments="" />-->
+            <!--            <column name="sequence_no"  comments="" />-->
+<!--            <column name="deleted"  comments="" />-->
+            <!-- -->
+        </table>
+
+        <table name="ar_session">
+            <column name="session_id"  comments="" />
+            <column name="payer_id"  comments="The insurance company being billed. If this is self-pay the id will be 0">
+                <foreignKey table="insurance_companies" column="id" />
+            </column>
+
+            <column name="reference"  comments="" />
+            <column name="check_date"  comments="" />
+            <column name="deposit_date"  comments="" />
+            <column name="payment_method"  comments="" />
+            <column name="patient_id"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <!-- -->
+        </table>
+
+        <table name="eligibility_verification" comment="Insurance Eligibility Verification Tracking">
+            <column name="insurance_id"  comments="The patient insurance that eligibility is being checked against">
+                <foreignKey table="insurance_data" column="id" />
+            </column>
+            <!-- TODO: @adunsulag need to populate -->
+        </table>
+        <table name="benefit_eligibility" comment="Holds the eligible patient benefits for a specific insurance as received from an eligibility verification">
+            <column name="verification_id"  comments="The eligibility verification record that these benefits are retrived from">
+                <foreignKey table="eligibility_verification" column="verification_id" />
+            </column>
+            <!-- TODO: @adunsulag need to populate -->
+        </table>
+
+        <!-- TODO: @adunsulag look at medex_recalls with r_pid -->
+
+        <!-- Therapy Groups, counselors, participants, participant_attendance -->
+
     </tables>
 </schemaMeta>
