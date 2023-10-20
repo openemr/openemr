@@ -3,12 +3,12 @@
 namespace OpenEMR\Modules\EhiExporter;
 
 use OpenEMR\Common\Logging\SystemLogger;
-
 use OpenEMR\Modules\EhiExporter\ExportResult;
 use OpenEMR\Modules\EhiExporter\ExportKeyDefinition;
 use OpenEMR\Modules\EhiExporter\ExportTableDefinition;
 
-class ExportState {
+class ExportState
+{
     public \SimpleXMLElement $rootNode;
     private \SplQueue $queue;
     private ExportResult $result;
@@ -27,7 +27,8 @@ class ExportState {
         $this->logger = $logger;
     }
 
-    public function addExportResultTable(string $tableName, int $recordCount) {
+    public function addExportResultTable(string $tableName, int $recordCount)
+    {
         $result = new ExportTableResult();
         $result->tableName = $tableName;
         $result->count = $recordCount;
@@ -35,15 +36,18 @@ class ExportState {
         $this->logger->debug("Adding export result table ", ['table' => $tableName, 'count' => $recordCount]);
     }
 
-    public function getExportResult() {
+    public function getExportResult()
+    {
         return $this->result;
     }
 
-    public function xmlXPath(string $xpath) {
+    public function xmlXPath(string $xpath)
+    {
         return $this->rootNode->xpath($xpath);
     }
 
-    public function getNextTableDefinition() : ExportTableDefinition {
+    public function getNextTableDefinition(): ExportTableDefinition
+    {
         $item = $this->queue->dequeue();
         if ($item instanceof ExportTableDefinition) {
             $this->logger->debug("Retrieving next table definition from queue", ['table' => $item->table, 'hasMoreData' => $item->hasNewData()]);
@@ -55,11 +59,13 @@ class ExportState {
         throw new \RuntimeException("Invalid item in queue");
     }
 
-    public function hasTableDefinitions() {
+    public function hasTableDefinitions()
+    {
         return !$this->queue->isEmpty();
     }
 
-    public function addTableDefinition(ExportTableDefinition $tableDefinition) {
+    public function addTableDefinition(ExportTableDefinition $tableDefinition)
+    {
         if (!isset($this->tableDefinitionsMap[$tableDefinition->table])) {
             $this->tableDefinitionsMap[$tableDefinition->table] = $tableDefinition;
         }
