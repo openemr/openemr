@@ -74,6 +74,19 @@
                 <!-- Content Header (Page header) -->
                 <section class="content-header">
                     <h1>prescriptions</h1><br />
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-file-text-o"></i>
+                            <h3 id="Description" class="box-title">Description</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div><!-- /.box-header -->
+                        <div class="box-body clearfix">
+                            <p>Internal and External prescription information</p>
+                        </div><!-- /.box-body -->
+                    </div>
                 </section>
                 <!-- Main content -->
                 <section class="content">
@@ -91,7 +104,7 @@
                                     id="standard_table"
                                     class="table table-bordered table-striped dataTable"
                                     role="grid"
-                                    data-paging="true"
+                                    data-paging="false"
                                     data-page-length="10"
                                     data-length-change="false">
                                 <thead align='left'>
@@ -162,7 +175,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The internal patient identifier</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="filled_by_id">filled_by_id</span></td>
@@ -179,10 +192,10 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>UNUSED - will be removed in the future</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="pharmacy_id">pharmacy_id</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="pharmacy_id">pharmacy_id</span></td>
                                     <td>INT</td>
                                     <td>10</td>
                                     <td title='nullable'>√</td>
@@ -194,9 +207,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="prescriptions.pharmacy_id references pharmacies.id"><a href='pharmacies.html'>pharmacies</a><span class='relatedKey'>.id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The internal identifier for the pharmacy that is connected to this prescription</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="date_added">date_added</span></td>
@@ -233,7 +251,7 @@
                                     <td><p>Datetime the prescriptions was last modified</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="provider_id">provider_id</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="provider_id">provider_id</span></td>
                                     <td>INT</td>
                                     <td>10</td>
                                     <td title='nullable'>√</td>
@@ -245,9 +263,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="prescriptions.provider_id references users.id"><a href='users.html'>users</a><span class='relatedKey'>.id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The id of the user that created this prescription</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="encounter">encounter</span></td>
@@ -301,7 +324,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="drug_id">drug_id</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="drug_id">drug_id</span></td>
                                     <td>INT</td>
                                     <td>10</td>
                                     <td title=''></td>
@@ -313,9 +336,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="prescriptions.drug_id references drugs.drug_id"><a href='drugs.html'>drugs</a><span class='relatedKey'>.drug_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The id of the drug that was prescribed to the patient. 0 if the drug was manually entered</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="rxnorm_drugcode">rxnorm_drugcode</span></td>
@@ -896,7 +924,7 @@
                                     <td><p>Medication dosage instructions</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="created_by">created_by</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="created_by">created_by</span></td>
                                     <td>BIGINT</td>
                                     <td>19</td>
                                     <td title='nullable'>√</td>
@@ -908,12 +936,17 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="prescriptions.created_by references users.id"><a href='users.html'>users</a><span class='relatedKey'>.id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td><p>users.id the user that first created this record</p></td>
+                                    <td><p>The id of the user that initially created this record</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="updated_by">updated_by</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="updated_by">updated_by</span></td>
                                     <td>BIGINT</td>
                                     <td>19</td>
                                     <td title='nullable'>√</td>
@@ -925,9 +958,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="prescriptions.updated_by references users.id"><a href='users.html'>users</a><span class='relatedKey'>.id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td><p>users.id the user that last modified this record</p></td>
+                                    <td><p>The id of the user that last updated this record</p></td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -947,7 +985,7 @@
                                     id="indexes_table"
                                     class="table table-bordered table-striped dataTable"
                                     role="grid"
-                                    data-paging="true"
+                                    data-paging="false"
                                     data-page-length="10"
                                     data-length-change="false">
                                 <thead>
@@ -1013,7 +1051,7 @@
                 </section>
                 <script>
                     var config = {
-                        pagination: true
+                        pagination: false
                     }
                 </script>
             </div>

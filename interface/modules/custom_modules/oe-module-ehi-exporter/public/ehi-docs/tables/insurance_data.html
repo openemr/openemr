@@ -74,6 +74,19 @@
                 <!-- Content Header (Page header) -->
                 <section class="content-header">
                     <h1>insurance_data</h1><br />
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-file-text-o"></i>
+                            <h3 id="Description" class="box-title">Description</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div><!-- /.box-header -->
+                        <div class="box-body clearfix">
+                            <p>Patient Insurance information</p>
+                        </div><!-- /.box-body -->
+                    </div>
                 </section>
                 <!-- Main content -->
                 <section class="content">
@@ -91,7 +104,7 @@
                                     id="standard_table"
                                     class="table table-bordered table-striped dataTable"
                                     role="grid"
-                                    data-paging="true"
+                                    data-paging="false"
                                     data-page-length="10"
                                     data-length-change="false">
                                 <thead align='left'>
@@ -117,6 +130,11 @@
                                     <td>null</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="eligibility_verification.insurance_id references insurance_data.id"><a href='eligibility_verification.html'>eligibility_verification</a><span class='relatedKey'>.insurance_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
                                     <td>
@@ -160,7 +178,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="provider">provider</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="provider">provider</span></td>
                                     <td>VARCHAR</td>
                                     <td>255</td>
                                     <td title='nullable'>√</td>
@@ -172,9 +190,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="insurance_data.provider references insurance_companies.id"><a href='insurance_companies.html'>insurance_companies</a><span class='relatedKey'>.id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The insurance company that insures the patient</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="plan_name">plan_name</span></td>
@@ -587,7 +610,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The internal patient identifier</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="subscriber_sex">subscriber_sex</span></td>
@@ -709,7 +732,7 @@
                                     id="indexes_table"
                                     class="table table-bordered table-striped dataTable"
                                     role="grid"
-                                    data-paging="true"
+                                    data-paging="false"
                                     data-page-length="10"
                                     data-length-change="false">
                                 <thead>
@@ -775,7 +798,7 @@
                 </section>
                 <script>
                     var config = {
-                        pagination: true
+                        pagination: false
                     }
                 </script>
             </div>

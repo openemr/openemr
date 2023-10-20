@@ -117,6 +117,26 @@
                                     <td>null</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="dac_AssessmentBlob.company_id references facility.id via FK_91d91ea76d9fff05f176dcbc79f"><a href='dac_AssessmentBlob.html'>dac_AssessmentBlob</a><span class='relatedKey'>.company_id</span></td>
+                                                <td class="constraint detail">FK_91d91ea76d9fff05f176dcbc79f</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="dac_AssessmentGroup.company_id references facility.id via FK_bca0be9f2a6add5cbe66c61c440"><a href='dac_AssessmentGroup.html'>dac_AssessmentGroup</a><span class='relatedKey'>.company_id</span></td>
+                                                <td class="constraint detail">FK_bca0be9f2a6add5cbe66c61c440</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="dac_AssessmentGroupPermission.company_id references facility.id via FK_cbd6fb3b502f5b58eec80181ed3"><a href='dac_AssessmentGroupPermission.html'>dac_AssessmentGroupPermission</a><span class='relatedKey'>.company_id</span></td>
+                                                <td class="constraint detail">FK_cbd6fb3b502f5b58eec80181ed3</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="dac_ReportPermission.company_id references facility.id via FK_c5860d5449f87126f8bc076318d"><a href='dac_ReportPermission.html'>dac_ReportPermission</a><span class='relatedKey'>.company_id</span></td>
+                                                <td class="constraint detail">FK_c5860d5449f87126f8bc076318d</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
                                     <td>
@@ -797,11 +817,16 @@
                                 <h5>Close relationships within degrees of separation</h5>
                                 <ul class="nav nav-tabs pull-left ui-sortable-handle">
                                     <li class="active"><a href="#oneDegreeImg-chart" data-toggle="tab" aria-expanded="true">One</a></li>
+                                    <li class=""><a href="#twodegreesDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two degrees</a></li>
                                 </ul>
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         
                                         <a name='diagram'><object type="image/svg+xml" id="oneDegreeImg" data="../diagrams/tables/facility.1degree.svg" class="diagram" border="0" align="left"></object></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        
+                                        <a name='diagram'><object type="image/svg+xml" id="twodegreesDegreeImg" data="../diagrams/tables/facility.2degrees.svg" class="diagram" border="0" align="left"></object></a>
                                     </div>
                                 </div>
                             </div>

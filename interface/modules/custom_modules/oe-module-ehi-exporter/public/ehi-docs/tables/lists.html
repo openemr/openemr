@@ -91,7 +91,7 @@
                                     id="standard_table"
                                     class="table table-bordered table-striped dataTable"
                                     role="grid"
-                                    data-paging="true"
+                                    data-paging="false"
                                     data-page-length="10"
                                     data-length-change="false">
                                 <thead align='left'>
@@ -123,7 +123,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Primary identifier of the record</p></td>
                                 </tr>
                                 <tr>
                                     <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="uuid">uuid</span></td>
@@ -140,7 +140,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>UUID of the record</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="date">date</span></td>
@@ -157,10 +157,10 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Date the issue was created</p></td>
                                 </tr>
                                 <tr>
-                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="type">type</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="type">type</span></td>
                                     <td>VARCHAR</td>
                                     <td>255</td>
                                     <td title='nullable'>√</td>
@@ -172,12 +172,17 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="lists.type references issue_types.type"><a href='issue_types.html'>issue_types</a><span class='relatedKey'>.type</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The type of the issue (allergy, medication, etc) where the issue_types.category=&lsquo;default&rsquo;</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="subtype">subtype</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="subtype">subtype</span></td>
                                     <td>VARCHAR</td>
                                     <td>31</td>
                                     <td title=''></td>
@@ -189,9 +194,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="lists.subtype references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The sub type of the issue where the list_options.list_id=&lsquo;issue_subtypes&rsquo;</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="title">title</span></td>
@@ -208,7 +218,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The human readable description of the issue</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="udi">udi</span></td>
@@ -225,7 +235,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The unique device identifier.  Populated if the issue is of type medical_device</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="udi_data">udi_data</span></td>
@@ -242,7 +252,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The JSON serialized medical device as returned from the <a href="https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json">https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json</a> api.  Populated if the issue is of type medical_device</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="begdate">begdate</span></td>
@@ -259,7 +269,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The beginning date for when this issue occurred as reported by the patient or the provider</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="enddate">enddate</span></td>
@@ -276,7 +286,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The end date for when this issue occurred as reported by the patient or the provider</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="returndate">returndate</span></td>
@@ -293,10 +303,10 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>UNUSED - will be removed in the future</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="occurrence">occurrence</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="occurrence">occurrence</span></td>
                                     <td>INT</td>
                                     <td>10</td>
                                     <td title='nullable'>√</td>
@@ -308,12 +318,17 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="lists.occurrence references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td><p>Reference to list_options option_id=&lsquo;occurrence&rsquo;</p></td>
+                                    <td><p>Comes from the list_options.list_id=&lsquo;occurrence&rsquo; and is the frequency that this issue occurs for the patient</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="classification">classification</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="classification">classification</span></td>
                                     <td>INT</td>
                                     <td>10</td>
                                     <td title='nullable'>√</td>
@@ -325,9 +340,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="lists.classification references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>UNUSED - will be removed in the future</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="referredby">referredby</span></td>
@@ -344,7 +364,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The human readable name of Referring physician and practice</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="extrainfo">extrainfo</span></td>
@@ -361,7 +381,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>UNUSED - will be removed in the future</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="diagnosis">diagnosis</span></td>
@@ -378,7 +398,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The diagnosis of the issue.  Format is a text string in the format of &lsquo;system:code<a href="./../null">;system:code2;system:coden</a>&rsquo;</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="activity">activity</span></td>
@@ -395,7 +415,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Value of 0 means the record has been deleted, 1 means the record is active in the system</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="comments">comments</span></td>
@@ -412,7 +432,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Human readable additional notes/comments of the issue</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="pid">pid</span></td>
@@ -434,10 +454,10 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The internal patient identifier</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="user">user</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="user">user</span></td>
                                     <td>VARCHAR</td>
                                     <td>255</td>
                                     <td title='nullable'>√</td>
@@ -449,12 +469,17 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="lists.user references users.username"><a href='users.html'>users</a><span class='relatedKey'>.username</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The user that created or last updated this issue</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="groupname">groupname</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="groupname">groupname</span></td>
                                     <td>VARCHAR</td>
                                     <td>255</td>
                                     <td title='nullable'>√</td>
@@ -466,12 +491,17 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="lists.groupname references groups.name"><a href='groups.html'>groups</a><span class='relatedKey'>.name</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The user group that created or last updated this issue</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="outcome">outcome</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="outcome">outcome</span></td>
                                     <td>INT</td>
                                     <td>10</td>
                                     <td title=''></td>
@@ -483,9 +513,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="lists.outcome references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Comes from the list_options.list_id=&lsquo;outcome&rsquo; and represents the outcome of the issue</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="destination">destination</span></td>
@@ -502,7 +537,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Human readable name of GP, Secondary care specialist, etc.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="reinjury_id">reinjury_id</span></td>
@@ -519,7 +554,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>UNUSED - will be removed in the future</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="injury_part">injury_part</span></td>
@@ -536,7 +571,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>UNUSED - will be removed in the future</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="injury_type">injury_type</span></td>
@@ -553,7 +588,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>UNUSED - will be removed in the future</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="injury_grade">injury_grade</span></td>
@@ -570,10 +605,10 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>UNUSED - will be removed in the future</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="reaction">reaction</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="reaction">reaction</span></td>
                                     <td>VARCHAR</td>
                                     <td>255</td>
                                     <td title=''></td>
@@ -585,12 +620,17 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="lists.reaction references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Comes from the list_options.list_id=&lsquo;reaction&rsquo; and represents the reaction of the patient to the allergy</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="verification">verification</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="verification">verification</span></td>
                                     <td>VARCHAR</td>
                                     <td>36</td>
                                     <td title=''></td>
@@ -602,9 +642,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="lists.verification references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td><p>Reference to list_options option_id = allergyintolerance-verification</p></td>
+                                    <td><p>Comes from the list_options.list_id=&lsquo;allergyintolerance-verification&rsquo; and represents the confirmation status of the allergy</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="external_allergyid">external_allergyid</span></td>
@@ -621,7 +666,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>An identifier for an allergy from an external eRx system</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="erx_source">erx_source</span></td>
@@ -638,7 +683,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>0-OpenEMR 1-External</p></td>
+                                    <td><p>O if the allergy issue originated in OpenEMR, 1 if the allergy issue originated in an external system</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="erx_uploaded">erx_uploaded</span></td>
@@ -655,7 +700,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>0-Pending NewCrop upload 1-Uploaded TO NewCrop</p></td>
+                                    <td><p>O if allergy is still waiting to be uploaded to an external system (such as eRX), 1 if the allergy issue has been successfully received by the eRX system</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="modifydate">modifydate</span></td>
@@ -672,10 +717,10 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The date the issue record was last modified</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="severity_al">severity_al</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="severity_al">severity_al</span></td>
                                     <td>VARCHAR</td>
                                     <td>50</td>
                                     <td title='nullable'>√</td>
@@ -687,9 +732,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="lists.severity_al references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Comes from the list_options.list_id=&lsquo;severity_ccda&rsquo; and represents the severity of the allergic reaction of the patient to the allergy</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="external_id">external_id</span></td>
@@ -706,10 +756,10 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>UNUSED - will be removed in the future</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="list_option_id">list_option_id</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="list_option_id">list_option_id</span></td>
                                     <td>VARCHAR</td>
                                     <td>100</td>
                                     <td title='nullable'>√</td>
@@ -721,9 +771,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="lists.list_option_id references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td><p>Reference to list_options table</p></td>
+                                    <td><p>Comes from the list_options.list_id=CONCAT(lists.type,&lsquo;_issue_list&rsquo;) and represents the prefilled list option id that was chosen as a template to create this issue</p></td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -743,7 +798,7 @@
                                     id="indexes_table"
                                     class="table table-bordered table-striped dataTable"
                                     role="grid"
-                                    data-paging="true"
+                                    data-paging="false"
                                     data-page-length="10"
                                     data-length-change="false">
                                 <thead>
@@ -815,7 +870,7 @@
                 </section>
                 <script>
                     var config = {
-                        pagination: true
+                        pagination: false
                     }
                 </script>
             </div>

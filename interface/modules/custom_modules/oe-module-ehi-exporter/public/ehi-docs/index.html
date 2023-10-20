@@ -78,7 +78,7 @@
                         <div class="col-md-12">
                             <div class="callout callout-info">
                                 <h4>EHI Export Format For openemr.openemr</h4>
-                                <!-- <p>Generated on Tue Oct 17 17:47 GMT-04:00 2023</p> -->
+                                <!-- <p>Generated on Thu Oct 19 16:27 GMT-04:00 2023</p> -->
                             </div>
                         </div>
                     </div>
@@ -94,7 +94,7 @@
                                 <span class="info-box-icon bg-aqua"><i class="fa fa-table"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">TABLES</span>
-                                    <span class="info-box-number">60</span>
+                                    <span class="info-box-number">87</span>
                                 </div>
                                 <!-- /.info-box-content -->
                             </div>
@@ -118,7 +118,7 @@
                                 <span class="info-box-icon bg-green"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">COLUMNS</span>
-                                    <span class="info-box-number">1836</span>
+                                    <span class="info-box-number">2280</span>
                                 </div>
                                 <!-- /.info-box-content -->
                             </div>
@@ -142,7 +142,7 @@
                                 <span class="info-box-icon bg-red-active"><i class="fa fa-question" aria-hidden="true"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Anomalies</span>
-                                    <span class="info-box-number">10</span>
+                                    <span class="info-box-number">18</span>
                                 </div> -->
                                 <!-- /.info-box-content -->
                             <!-- </div> -->
@@ -183,7 +183,7 @@
                                     id="database_objects"
                                     class="table table-bordered table-striped dataTable"
                                     role="grid"
-                                    data-paging="true"
+                                    data-paging="false"
                                     data-page-length="50"
                                     data-length-change="false">
                                 <thead>
@@ -199,9 +199,17 @@
                                 <tbody>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/insurance_data.html">insurance_data</a></td>
-                                        <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">2</td>
                                         <td class="detail" align="right">34</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"><p>Patient Insurance information</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/patient_history.html">patient_history</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">2</td>
+                                        <td class="detail" align="right">14</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
@@ -210,6 +218,14 @@
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">1</td>
                                         <td class="detail" align="right">81</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/groups.html">groups</a></td>
+                                        <td class="detail" align="right">8</td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">3</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
@@ -230,18 +246,18 @@
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
-                                        <td class="detail"><a href="tables/form_eye_mag_orders.html">form_eye_mag_orders</a></td>
-                                        <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">1</td>
-                                        <td class="detail" align="right">10</td>
-                                        <!-- <td class="detail" align="right">Table</td> -->
-                                        <td class="comment detail" style="display: table-cell;"></td>
-                                    </tr>
-                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_eye_mag_prefs.html">form_eye_mag_prefs</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">12</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/form_eye_mag_orders.html">form_eye_mag_orders</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">10</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
@@ -254,9 +270,17 @@
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
-                                        <td class="detail"><a href="tables/requisition.html">requisition</a></td>
+                                        <td class="detail"><a href="tables/form_physical_exam_diagnoses.html">form_physical_exam_diagnoses</a></td>
+                                        <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">1</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"><p>Physical Exam Diagnosis for a physical exam that was conducted</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/requisition.html">requisition</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">4</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"></td>
@@ -275,13 +299,21 @@
                                         <td class="detail" align="right">1</td>
                                         <td class="detail" align="right">5</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
-                                        <td class="comment detail" style="display: table-cell;"></td>
+                                        <td class="comment detail" style="display: table-cell;"><p>Clinical note form that allows clinicians to provide point in time and longitudinal tracking of any data element they configure</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_eye_external.html">form_eye_external</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">1</td>
                                         <td class="detail" align="right">30</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/claims.html">claims</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">13</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
@@ -326,9 +358,25 @@
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/shared_attributes.html">shared_attributes</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">4</td>
+                                        <td class="detail" align="right">6</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/insurance_companies.html">insurance_companies</a></td>
+                                        <td class="detail" align="right">4</td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">13</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/lists.html">lists</a></td>
                                         <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">12</td>
                                         <td class="detail" align="right">36</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"></td>
@@ -344,8 +392,32 @@
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/pnotes.html">pnotes</a></td>
                                         <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">7</td>
                                         <td class="detail" align="right">16</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"><p>Patient Messages about the healthcare treatment of the patient</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/rule_action_item.html">rule_action_item</a></td>
+                                        <td class="detail" align="right">4</td>
+                                        <td class="detail" align="right">2</td>
+                                        <td class="detail" align="right">5</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"><p>Patient Reminders configuration for Clinical Decision Support individual rule settings</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/pharmacies.html">pharmacies</a></td>
+                                        <td class="detail" align="right">2</td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">6</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/x12_partners.html">x12_partners</a></td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">26</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
@@ -368,14 +440,14 @@
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_phq9.html">form_phq9</a></td>
                                         <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">4</td>
                                         <td class="detail" align="right">27</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
-                                        <td class="comment detail" style="display: table-cell;"></td>
+                                        <td class="comment detail" style="display: table-cell;"><p>Encounter form that holds patient results for the PHQ9 assessment</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_encounter.html">form_encounter</a></td>
-                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">4</td>
                                         <td class="detail" align="right">1</td>
                                         <td class="detail" align="right">33</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
@@ -398,20 +470,44 @@
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/amendments_history.html">amendments_history</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">4</td>
+                                        <td class="detail" align="right">4</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/ar_activity.html">ar_activity</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">2</td>
+                                        <td class="detail" align="right">22</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"><p>Accounts Receivable Billing Activity - Used for Claims Processing</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/immunizations.html">immunizations</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">1</td>
                                         <td class="detail" align="right">30</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
-                                        <td class="comment detail" style="display: table-cell;"></td>
+                                        <td class="comment detail" style="display: table-cell;"><p>Patient Immunizations</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_treatment_plan.html">form_treatment_plan</a></td>
                                         <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">4</td>
                                         <td class="detail" align="right">18</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
-                                        <td class="comment detail" style="display: table-cell;"></td>
+                                        <td class="comment detail" style="display: table-cell;"><p>Patient treatment plan form</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/patient_reminders.html">patient_reminders</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">5</td>
+                                        <td class="detail" align="right">14</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"><p>Patient Reminders generated from the clinical decision support engine that are sent via a communication medium to the patient</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_eye_ros.html">form_eye_ros</a></td>
@@ -422,9 +518,17 @@
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/rule_patient_data.html">rule_patient_data</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">3</td>
+                                        <td class="detail" align="right">7</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"><p>Patient Reminders that the Clinical Decision Support system is configured to run for this specific patient.</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_note.html">form_note</a></td>
                                         <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">2</td>
                                         <td class="detail" align="right">11</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"></td>
@@ -432,16 +536,48 @@
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/prescriptions.html">prescriptions</a></td>
                                         <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">7</td>
                                         <td class="detail" align="right">48</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"><p>Internal and External prescription information</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/users.html">users</a></td>
+                                        <td class="detail" align="right">26</td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">62</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_sdoh.html">form_sdoh</a></td>
                                         <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">4</td>
                                         <td class="detail" align="right">135</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"><p>Encounter form that holds results for the Social Determinants of Health Screening Tool</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/issue_types.html">issue_types</a></td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">10</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/layout_options.html">layout_options</a></td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">21</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/list_options.html">list_options</a></td>
+                                        <td class="detail" align="right">15</td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">15</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
@@ -470,18 +606,18 @@
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
-                                        <td class="detail"><a href="tables/transactions.html">transactions</a></td>
-                                        <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">1</td>
-                                        <td class="detail" align="right">7</td>
-                                        <!-- <td class="detail" align="right">Table</td> -->
-                                        <td class="comment detail" style="display: table-cell;"></td>
-                                    </tr>
-                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/documents.html">documents</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">1</td>
                                         <td class="detail" align="right">33</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/transactions.html">transactions</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">7</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
@@ -502,10 +638,26 @@
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
-                                        <td class="detail"><a href="tables/form_transfer_summary.html">form_transfer_summary</a></td>
+                                        <td class="detail"><a href="tables/form_physical_exam.html">form_physical_exam</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">1</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"><p>Physical Examination clinical note</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/form_transfer_summary.html">form_transfer_summary</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">2</td>
                                         <td class="detail" align="right">15</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/ar_session.html">ar_session</a></td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">2</td>
+                                        <td class="detail" align="right">17</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
@@ -518,10 +670,26 @@
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/drug_sales.html">drug_sales</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">3</td>
+                                        <td class="detail" align="right">19</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"><p>Product/Drug sales to Patients</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_clinical_notes.html">form_clinical_notes</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">1</td>
                                         <td class="detail" align="right">17</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/drugs.html">drugs</a></td>
+                                        <td class="detail" align="right">2</td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">22</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
@@ -536,10 +704,10 @@
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_gad7.html">form_gad7</a></td>
                                         <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">4</td>
                                         <td class="detail" align="right">23</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
-                                        <td class="comment detail" style="display: table-cell;"></td>
+                                        <td class="comment detail" style="display: table-cell;"><p>Encounter form that holds patient results for the GAD7 assessment</p></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_CAMOS_subcategory.html">form_CAMOS_subcategory</a></td>
@@ -550,9 +718,17 @@
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/voids.html">voids</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">3</td>
+                                        <td class="detail" align="right">12</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/billing.html">billing</a></td>
                                         <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">7</td>
                                         <td class="detail" align="right">30</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"></td>
@@ -568,7 +744,7 @@
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_prior_auth.html">form_prior_auth</a></td>
                                         <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">2</td>
                                         <td class="detail" align="right">8</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"></td>
@@ -590,10 +766,26 @@
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/extended_log.html">extended_log</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">7</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"><p>Holds the disclosures of EHI made to third parties for a given patient</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_eye_vitals.html">form_eye_vitals</a></td>
                                         <td class="detail" align="right">0</td>
                                         <td class="detail" align="right">1</td>
                                         <td class="detail" align="right">27</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/eligibility_verification.html">eligibility_verification</a></td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">8</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
@@ -615,17 +807,41 @@
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/forms.html">forms</a></td>
-                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">10</td>
                                         <td class="detail" align="right">1</td>
                                         <td class="detail" align="right">14</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/history_data.html">history_data</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">2</td>
+                                        <td class="detail" align="right">91</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/form_painmap.html">form_painmap</a></td>
                                         <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">4</td>
                                         <td class="detail" align="right">8</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"><p>Patient pain map form. Pain map image for mapping this form is stored in the EHI zip export at images/painmap.png</p></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/benefit_eligibility.html">benefit_eligibility</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">18</td>
+                                        <!-- <td class="detail" align="right">Table</td> -->
+                                        <td class="comment detail" style="display: table-cell;"></td>
+                                    </tr>
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/form_clinic_note.html">form_clinic_note</a></td>
+                                        <td class="detail" align="right">0</td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">7</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
@@ -646,18 +862,18 @@
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
-                                        <td class="detail"><a href="tables/form_misc_billing_options.html">form_misc_billing_options</a></td>
-                                        <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">1</td>
-                                        <td class="detail" align="right">33</td>
+                                        <td class="detail"><a href="tables/patient_data.html">patient_data</a></td>
+                                        <td class="detail" align="right">69</td>
+                                        <td class="detail" align="right">5</td>
+                                        <td class="detail" align="right">125</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
                                     <tr class="tbl even" valign="top">
-                                        <td class="detail"><a href="tables/patient_data.html">patient_data</a></td>
-                                        <td class="detail" align="right">59</td>
+                                        <td class="detail"><a href="tables/form_misc_billing_options.html">form_misc_billing_options</a></td>
                                         <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">125</td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">33</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"></td>
                                     </tr>
@@ -671,8 +887,8 @@
                                     </tr>
                                     <tr class="tbl even" valign="top">
                                         <td class="detail"><a href="tables/amendments.html">amendments</a></td>
-                                        <td class="detail" align="right">0</td>
-                                        <td class="detail" align="right">2</td>
+                                        <td class="detail" align="right">1</td>
+                                        <td class="detail" align="right">4</td>
                                         <td class="detail" align="right">10</td>
                                         <!-- <td class="detail" align="right">Table</td> -->
                                         <td class="comment detail" style="display: table-cell;"></td>
@@ -684,7 +900,7 @@
                 <!-- /.content -->
                 <script>
                     var config = {
-                        pagination: true
+                        pagination: false
                     }
                 </script>
 

@@ -91,7 +91,7 @@
                                     id="standard_table"
                                     class="table table-bordered table-striped dataTable"
                                     role="grid"
-                                    data-paging="true"
+                                    data-paging="false"
                                     data-page-length="10"
                                     data-length-change="false">
                                 <thead align='left'>
@@ -230,10 +230,10 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The internal patient identifier</p></td>
                                 </tr>
                                 <tr>
-                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="encounter">encounter</span></td>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="encounter">encounter</span></td>
                                     <td>BIGINT</td>
                                     <td>19</td>
                                     <td title='nullable'>√</td>
@@ -241,6 +241,26 @@
                                     <td>null</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="billing.encounter references form_encounter.encounter"><a href='billing.html'>billing</a><span class='relatedKey'>.encounter</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="drug_sales.encounter references form_encounter.encounter"><a href='drug_sales.html'>drug_sales</a><span class='relatedKey'>.encounter</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="shared_attributes.encounter references form_encounter.encounter"><a href='shared_attributes.html'>shared_attributes</a><span class='relatedKey'>.encounter</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="voids.encounter_id references form_encounter.encounter"><a href='voids.html'>voids</a><span class='relatedKey'>.encounter_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
                                     <td>
@@ -332,7 +352,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>0=none, 1=ins1, 2=ins2, etc</p></td>
+                                    <td><p>The party for whom payment was last billed. -1=Nobody, 0=Patient, 1=Ins1, 2=Ins2, 3=Ins3</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="last_level_closed">last_level_closed</span></td>
@@ -349,7 +369,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>0=none, 1=ins1, 2=ins2, etc</p></td>
+                                    <td><p>The party for whom payment was last received. -1=Nobody, 0=Patient, 1=Ins1, 2=Ins2, 3=Ins3</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="last_stmt_date">last_stmt_date</span></td>
@@ -692,7 +712,7 @@
                                     id="indexes_table"
                                     class="table table-bordered table-striped dataTable"
                                     role="grid"
-                                    data-paging="true"
+                                    data-paging="false"
                                     data-page-length="10"
                                     data-length-change="false">
                                 <thead>
@@ -764,7 +784,7 @@
                 </section>
                 <script>
                     var config = {
-                        pagination: true
+                        pagination: false
                     }
                 </script>
             </div>
