@@ -334,18 +334,6 @@ ALTER TABLE `x12_partners` ADD COLUMN `x12_claim_status_endpoint` tinytext;
 ALTER TABLE `x12_partners` ADD COLUMN `x12_attachment_endpoint` tinytext;
 #EndIf
 
-#IfMissingColumn patient_data nationality_country
-ALTER TABLE `patient_data` ADD `nationality_country` TINYTEXT;
-#EndIf
-
-#IfRow2D list_options list_id lists option_id Nationality_and_Country
-DELETE FROM `list_options` WHERE  `list_id` = 'lists' AND `option_id` = 'Nationality_and_Country';
-#EndIf
-
-#IfRow list_options list_id Nationality_and_Country
-DELETE FROM `list_options` WHERE  `list_id` LIKE 'Nationality_and_Country';
-#EndIf
-
 #IfRow2D layout_options form_id DEM field_id nationality_country
 UPDATE `layout_options` SET `title` = 'Nationality', `list_id` = 'nationality_with_country' WHERE `form_id` = 'DEM' AND `field_id` = 'nationality_country';
 #EndIf
