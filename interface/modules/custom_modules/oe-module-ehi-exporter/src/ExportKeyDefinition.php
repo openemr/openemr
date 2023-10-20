@@ -2,7 +2,8 @@
 
 namespace OpenEMR\Modules\EhiExporter;
 
-class ExportKeyDefinition {
+class ExportKeyDefinition
+{
     public string $foreignKeyTable;
     public string $foreignKeyColumn;
 

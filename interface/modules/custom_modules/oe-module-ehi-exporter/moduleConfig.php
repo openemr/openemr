@@ -40,7 +40,7 @@ if (isset($_POST['submit'])) {
     <?php if ($includeDocuments) : ?>
     <p>Documents Exported: <?php echo $result->exportedDocumentCount; ?></p>
     <?php endif; ?>
-<?php else: ?>
+<?php else : ?>
 <p>Run Export</p>
 <!-- add form to run export.  Form needs to have an input checkbox to include documents, an input textbox to specify a patient pid -->
 <form method="post" action="moduleConfig.php">

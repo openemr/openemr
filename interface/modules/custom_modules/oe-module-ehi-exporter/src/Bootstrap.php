@@ -97,7 +97,8 @@ class Bootstrap
         return self::$instance;
     }
 
-    public function getExporter() {
+    public function getExporter()
+    {
         return new EhiExporter($GLOBALS['webserver_root'] . $this->getPublicPath(), $this->getPublicPath());
     }
 

@@ -19,7 +19,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\ListService;
 use OpenEMR\Modules\EhiExporter\ExportState;
 use OpenEMR\Modules\EhiExporter\ExportTableDefinition;
-use \OpenEMR\Modules\EhiExporter\ExportKeyDefinition;
+use OpenEMR\Modules\EhiExporter\ExportKeyDefinition;
 
 class EhiExporter
 {
@@ -30,10 +30,12 @@ class EhiExporter
         $this->logger = new SystemLogger();
     }
 
-    public function exportPatient(int $pid, bool $includePatientDocuments) {
+    public function exportPatient(int $pid, bool $includePatientDocuments)
+    {
         return $this->exportPatients([$pid], $includePatientDocuments);
     }
-    public function exportAll(bool $includePatientDocuments) : ExportResult {
+    public function exportAll(bool $includePatientDocuments): ExportResult
+    {
         $sql = "SELECT UNIQUE pid FROM patient_data"; // We do everything here
         $patientPids = QueryUtils::fetchTableColumn($sql, 'pid', []);
         $patientPids = array_map('intval', $patientPids);
@@ -42,8 +44,9 @@ class EhiExporter
         return $this->exportBreadthAlgorithm($patientPids, $includePatientDocuments);
     }
 
-    private function exportBreadthAlgorithm(array $patientPids, bool $includePatientDocuments) {
-        $contents = file_get_contents( $this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . 'openemr.openemr.xml');
+    private function exportBreadthAlgorithm(array $patientPids, bool $includePatientDocuments)
+    {
+        $contents = file_get_contents($this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . 'openemr.openemr.xml');
         if ($contents === false) {
             throw new \RuntimeException("Failed to find openemr.openemr.xml file");
         }
@@ -83,7 +86,7 @@ class EhiExporter
          * For safety purposes we limit our max cycles that we will iterate through the tables in order to avoid
          * any kind of infinite loop routine.
          */
-        while($exportState->hasTableDefinitions() && $iterations++ <= $maxCycleLimit) {
+        while ($exportState->hasTableDefinitions() && $iterations++ <= $maxCycleLimit) {
             $tableDefinition = $exportState->getNextTableDefinition();
             $records = $tableDefinition->getRecords();
             if (empty($records)) {
@@ -141,7 +144,8 @@ class EhiExporter
         $exportedResult->downloadLink = $this->modulePublicUrl . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . $zipName;
         return $exportedResult;
     }
-    private function shouldProcessForeignKey(ExportKeyDefinition $definition) {
+    private function shouldProcessForeignKey(ExportKeyDefinition $definition)
+    {
         if ($definition->keyType == 'parent') {
             return true; // we process parent keys as we want to traverse all of the data
         }
@@ -154,7 +158,8 @@ class EhiExporter
         return false;
     }
 
-    private function exportPatients(array $patientPids, bool $includePatientDocuments) {
+    private function exportPatients(array $patientPids, bool $includePatientDocuments)
+    {
 
         // grab the xml file from schemaspy in public/ehi-docs/openemr.openemr.xml file for this module
         // create an xml document from the file
@@ -169,7 +174,7 @@ class EhiExporter
         // create a link to the zip file
         // return the link
 
-        $contents = file_get_contents( $this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . 'openemr.openemr.xml');
+        $contents = file_get_contents($this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . 'openemr.openemr.xml');
         if ($contents === false) {
             throw new \RuntimeException("Failed to find openemr.openemr.xml file");
         }
@@ -201,11 +206,13 @@ class EhiExporter
         return $exportedResult;
     }
 
-    private function shouldExportAdditionalAssets($tableName) {
+    private function shouldExportAdditionalAssets($tableName)
+    {
         $additionalAssets = ['form_painmap'];
         return in_array($tableName, $additionalAssets);
     }
-    private function exportAdditionalAssets(\ZipArchive $zip, $tableName) {
+    private function exportAdditionalAssets(\ZipArchive $zip, $tableName)
+    {
         $additionalAssets = [
             'form_painmap' => [
                 ['name' => 'images/painmap.png', 'path' => $GLOBALS['webserver_root'] . "/interface/forms/painmap/templates/painmap.png"]
@@ -224,7 +231,8 @@ class EhiExporter
         }
     }
 
-    private function exportStaticTables(ExportResult $exportedResult) {
+    private function exportStaticTables(ExportResult $exportedResult)
+    {
         $staticTables = ['issue_types', 'groups'];
         foreach ($staticTables as $table) {
             $safeTable = QueryUtils::escapeTableName($table);
@@ -237,7 +245,8 @@ class EhiExporter
         }
     }
 
-    private function exportListOptionTable(ExportResult $exportedResult) {
+    private function exportListOptionTable(ExportResult $exportedResult)
+    {
 
         // TODO: @adunsulag this current approach could export potentially sensitive data if a clinic has added it to
         // the list_options table... exporting the whole table is a quick and easy option, but may have security problems.
@@ -258,7 +267,8 @@ class EhiExporter
         $exportedResult->exportedTables[] = $exportedTable;
     }
 
-    private function exportUserTable(&$xml, ExportResult $exportedResult) {
+    private function exportUserTable(&$xml, ExportResult $exportedResult)
+    {
         // we just export everyone as the simplest solution for now instead of doing a depth traversal
         // this makes it easy so we don't have to do more work here.
         $query = "SELECT id,uuid,username,authorized,fname,lname,mname,suffix,federaltaxid,federaldrugid,facility,facility_id,see_auth,active,npi,title,speciality,billname,url,assistant,valedictory,state,taxonomy,abook_type,default_warehouse,irnpool,state_license_number,weno_prov_id,newcrop_user_role,cpoe,physician_type,portal_user,supervisor_id,billing_facility,billing_facility_id FROM users";
@@ -269,7 +279,8 @@ class EhiExporter
         $exportedTable->tableName = 'users';
         $exportedResult->exportedTables[] = $exportedTable;
     }
-    private function exportDependentTables(&$xml, &$patientPids, ExportResult $exportedResult) {
+    private function exportDependentTables(&$xml, &$patientPids, ExportResult $exportedResult)
+    {
         // amendments_history
         $sql = "SELECT * FROM amendments_history WHERE amendment_id IN (select amendment_id FROM amendments WHERE pid IN (" . str_repeat('?,', count($patientPids) - 1) . "?))";
         $records = QueryUtils::fetchRecords($sql, $patientPids, false);
@@ -279,7 +290,8 @@ class EhiExporter
         $exportedTable->tableName = 'amendments_history';
         $exportedResult->exportedTables[] = $exportedTable;
     }
-    private function exportDirectPatientTables(&$xml, &$patientPids) : ExportResult {
+    private function exportDirectPatientTables(&$xml, &$patientPids): ExportResult
+    {
         $foreignKeyTables = $xml->xpath("//table[@name='patient_data']/column[@name='pid']/child[@foreignKey]");
         $tables = [];
         foreach ($foreignKeyTables as $foreignKeyTable) {
@@ -295,7 +307,6 @@ class EhiExporter
         foreach ($tables as $table => $columnName) {
             $records = $this->getRecordsForTable($table, $columnName, $inClause, $patientPids);
             if (!empty($records)) {
-
                 // need to check the xml table definition and see if the table has foreign keys pointing to the current table
                 // if so, then we need to grab the foreign key column name(s) to add to our table exporter process
                 // if not, we just export the table as is
@@ -311,7 +322,8 @@ class EhiExporter
         }
         return $exportedResult;
     }
-    private function writeCsvFile(&$records, $tableName) {
+    private function writeCsvFile(&$records, $tableName)
+    {
         $uuidDefinition = UuidRegistry::getUuidTableDefinitionForTable($tableName);
         if (!empty($uuidDefinition)) {
             $convertUuid = true;
@@ -332,15 +344,17 @@ class EhiExporter
         fclose($csvFile);
         return $recordCount;
     }
-    private function getPrimaryKeyForTable(&$xml, $tableName) {
+    private function getPrimaryKeyForTable(&$xml, $tableName)
+    {
         // for now we are only going to work with the first primary key
         $primaryKeys = $xml->xpath("//table[@name='" . $tableName . "']/primaryKey");
         if (!empty($primaryKeys)) {
             return (string)(current($primaryKeys)->attributes()['column']);
         }
     }
-    private function getForeignKeyTableDefinitionsForTable(&$xml, $tableName, $primaryKey) {
-        $foreignKeyTables = $xml->xpath("//table[@name='" . $tableName . "']/column[@name='"  . $primaryKey. "']/child[@foreignKey]");
+    private function getForeignKeyTableDefinitionsForTable(&$xml, $tableName, $primaryKey)
+    {
+        $foreignKeyTables = $xml->xpath("//table[@name='" . $tableName . "']/column[@name='"  . $primaryKey . "']/child[@foreignKey]");
         $tables = [];
         foreach ($foreignKeyTables as $foreignKeyTable) {
             $tableName = (string)($foreignKeyTable->attributes()['table']);
@@ -351,7 +365,8 @@ class EhiExporter
         return $tables;
     }
 
-    private function getRecordsForTable($table, $columnName, &$inClause, &$patientPids) {
+    private function getRecordsForTable($table, $columnName, &$inClause, &$patientPids)
+    {
 
         $safeTableName = QueryUtils::escapeTableName($table);
         $escapeColumnName = QueryUtils::escapeColumnName($columnName);

@@ -4,7 +4,8 @@ namespace OpenEMR\Modules\EhiExporter;
 
 use OpenEMR\Common\Database\QueryUtils;
 
-class ExportTableDefinition {
+class ExportTableDefinition
+{
     public ?string $table;
     public string $selectClause;
 
@@ -23,7 +24,8 @@ class ExportTableDefinition {
         $this->selectClause = '*';
     }
 
-    public function addKeyValue(string $key, int|string $value) {
+    public function addKeyValue(string $key, int|string $value)
+    {
         $hasValue = $this->keyColumnsHashmap[$key][$value] ?? null;
         if (!isset($hasValue)) {
             if (!isset($this->keyColumnsHashmap[$key])) {
@@ -34,17 +36,20 @@ class ExportTableDefinition {
         }
     }
 
-    public function addKeyValueList(string $key, array $values) {
+    public function addKeyValueList(string $key, array $values)
+    {
         foreach ($values as $value) {
             $this->addKeyValue($key, $value);
         }
     }
 
-    public function hasNewData() {
+    public function hasNewData()
+    {
         return $this->hasNewData;
     }
 
-    public function setSelectColumns(array $columns) {
+    public function setSelectColumns(array $columns)
+    {
         $select = [];
         foreach ($columns as $column) {
             $select[] = QueryUtils::escapeColumnName($column);
@@ -52,11 +57,13 @@ class ExportTableDefinition {
         $this->selectClause = implode(',', $columns);
     }
 
-    public function getSelectClause() {
+    public function getSelectClause()
+    {
         return $this->selectClause;
     }
 
-    public function getRecords() {
+    public function getRecords()
+    {
         $whereClause = [];
         $bindColumns = [];
         // we do this inline instead of using getWhereClause due to memory concerns
