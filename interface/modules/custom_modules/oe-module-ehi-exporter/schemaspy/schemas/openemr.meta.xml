@@ -551,7 +551,7 @@
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
-        </table>
+        </table> -->
 
 <!--        - Track Anything-->
         <!-- TODO: handle FK following on other tables here -->
@@ -734,7 +734,7 @@
         </table>
 
         <table name="claims" comment="Insurance Billing Claims">
-            <column name="pid"  comments="The internal patient identifier">
+            <column name="patient_id"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
             <!-- TODO: @adunsulag need to populate -->
@@ -805,7 +805,7 @@
             <column name="post_time"  comments="Time of the posting on the date referenced in post_date" />
 
             <column name="session_id">
-                <foreignKey table="ar_activity" column="session_id" />
+                <foreignKey table="ar_session" column="session_id" />
             </column>
             <column name="account_code"  comments="" />
             <column name="follow_up_note"  comments="" />
