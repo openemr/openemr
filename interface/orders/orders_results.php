@@ -142,7 +142,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                 "`range` = '" . oresData("form_result_range", $lino) . "', " .
                 "units = '" . oresData("form_result_units", $lino) . "', " .
                 "facility = '" . oresData("form_facility", $lino) . "', " .
-                "comments = '" . $form_comments . "', " .
+                "comments = '" . add_escape_custom($form_comments) . "', " .
                 "result_status = '" . oresData("form_result_status", $lino) . "', " .
                 "`date_end` = " . QuotedOrNull(oresData("form_result_date_end", $lino));
             if ($result_id) { // result already exists
