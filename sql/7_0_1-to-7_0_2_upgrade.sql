@@ -334,7 +334,7 @@ ALTER TABLE `x12_partners` ADD COLUMN `x12_claim_status_endpoint` tinytext;
 ALTER TABLE `x12_partners` ADD COLUMN `x12_attachment_endpoint` tinytext;
 #EndIf
 
-#IfRow2D layout_options form_id DEM field_id nationality_country
+#IfRow3D layout_options form_id DEM field_id nationality_country list_id Nationality_and_Country
 UPDATE `layout_options` SET `title` = 'Nationality', `list_id` = 'nationality_with_country' WHERE `form_id` = 'DEM' AND `field_id` = 'nationality_country';
 #EndIf
 
