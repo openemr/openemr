@@ -14,14 +14,20 @@
 namespace OpenEMR\Modules\EhiExporter;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\ListService;
+use OpenEMR\Modules\EhiExporter\ExportState;
+use OpenEMR\Modules\EhiExporter\ExportTableDefinition;
+use \OpenEMR\Modules\EhiExporter\ExportKeyDefinition;
 
 class EhiExporter
 {
+    private SystemLogger $logger;
     public function __construct(private $modulePublicDir, private $modulePublicUrl)
     {
         // TODO: @adunsulag look at getting the write directory to go to the right location.
+        $this->logger = new SystemLogger();
     }
 
     public function exportPatient(int $pid, bool $includePatientDocuments) {
@@ -31,9 +37,122 @@ class EhiExporter
         $sql = "SELECT UNIQUE pid FROM patient_data"; // We do everything here
         $patientPids = QueryUtils::fetchTableColumn($sql, 'pid', []);
         $patientPids = array_map('intval', $patientPids);
-        return $this->exportPatients($patientPids, $includePatientDocuments);
+
+        //return $this->exportPatients($patientPids, $includePatientDocuments);
+        return $this->exportBreadthAlgorithm($patientPids, $includePatientDocuments);
     }
 
+    private function exportBreadthAlgorithm(array $patientPids, bool $includePatientDocuments) {
+        $contents = file_get_contents( $this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . 'openemr.openemr.xml');
+        if ($contents === false) {
+            throw new \RuntimeException("Failed to find openemr.openemr.xml file");
+        }
+        $xml = simplexml_load_string($contents);
+        $exportState = new ExportState($this->logger, $xml);
+
+        $tableDefinition = new ExportTableDefinition();
+        $tableDefinition->table = 'patient_data';
+        $tableDefinition->addKeyValueList('pid', $patientPids);
+        $exportState->addTableDefinition($tableDefinition);
+
+        $maxCycleLimit = 500;
+        $iterations = 0;
+
+        /**
+         * We go through a queue of the tables to do a breadth first traversal of the foreign key
+         * links of each table.  We do this so we can grab the largest amount of datasets and minimize
+         * rework as much as possible.
+         * We grab all of the key definitions for each table and loop primarily through parent relationships
+         * (IE where the table has a column with a foreign key that points to another table, ie its parent relationship)
+         * In limited cases (such as patient_data and a few others) we grab the child relationships (IE where another table has a column with a foreign key that points to the current table)
+         *
+         * We loop through each of the tables and we track the actual key values (both FK&PK) in order to avoid grabbing the same datasets
+         * at the same time.  Granted this could end up holding a ton of data in memory especially for keys with string values and we will need to bench mark this for performance
+         * We write out the data records to disk as a csv file and then record tabulated result data of the total records written.
+         * If a table has been processed previously but is reached again via a different key relationship it will be added to the queue
+         * to be processed again ONLY IF there is new key values that are added.
+         * This means that some tables will be written out to disk multiple times, which creates some redundancy.
+         * For simplicity we just grab the entire unioned data set from all of the keys for that table and then rewrite over the same file.
+         * Additional optimizations work could be done to make this more efficient but I chose in the interest of time for a working algorithm
+         * than a highly efficient algorithm that would take more time to implement.
+         *
+         * Once the data has been exported, the exporter will grab all of the documents and export them to the zip file
+         * as well.  If there are dependent assets for linked tables (such as images in the case of the pain map form)
+         * those also get exported.
+         *
+         * For safety purposes we limit our max cycles that we will iterate through the tables in order to avoid
+         * any kind of infinite loop routine.
+         */
+        while($exportState->hasTableDefinitions() && $iterations++ <= $maxCycleLimit) {
+            $tableDefinition = $exportState->getNextTableDefinition();
+            $records = $tableDefinition->getRecords();
+            if (empty($records)) {
+                continue;
+            }
+
+            $keyDefinitions = $exportState->getKeyDataForTable($tableDefinition);
+            // write out the csv file
+            $this->writeCsvFile($records, $tableDefinition->table);
+            $exportState->addExportResultTable($tableDefinition->table, count($records));
+            $tableDefinition->setHasNewData(false);
+            if (!empty($keyDefinitions)) {
+                foreach ($keyDefinitions['keys'] as $keyDefinition) {
+                    if (!($keyDefinition instanceof ExportKeyDefinition)) {
+                        throw new \RuntimeException("Invalid key definition");
+                    }
+                    $tableDefinition = $keyDefinitions['tables'][$keyDefinition->foreignKeyTable];
+                    // we process ALL parent keys, or if it is a child key we only process a select few of these keys.
+                    if ($this->shouldProcessForeignKey($keyDefinition)) {
+                        foreach ($records as $record) {
+                            $keyColumnName = $keyDefinition->localColumn;
+                            if (isset($record[$keyColumnName])) {
+                                $tableDefinition->addKeyValue($keyDefinition->foreignKeyColumn, $record[$keyColumnName]);
+                            }
+                        }
+                        // we only add it to be processed if there is new data to do so.
+                        if ($tableDefinition->hasNewData()) {
+                            // if the table already is in the queue the operation is a noop
+                            $exportState->addTableDefinition($tableDefinition);
+                        }
+                    }
+                }
+            }
+        }
+        if ($iterations > $maxCycleLimit) {
+            throw new \RuntimeException("Max iterations reached, check for cyclic dependencies");
+        }
+        $exportedResult = $exportState->getExportResult();
+        $zip = new \ZipArchive();
+
+        $zipName = uniqid('ehi-export-') . '.zip';
+        $zipOutput = $this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . $zipName;
+        $openStatus = $zip->open($zipOutput, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        // TODO: @adunsulag check openStatus for exceptions
+        foreach ($exportedResult->exportedTables as $result) {
+            if ($this->shouldExportAdditionalAssets($result->tableName)) {
+                $this->exportAdditionalAssets($zip, $result->tableName);
+            }
+            $zip->addFile($this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . $result->tableName . '.csv', $result->tableName . '.csv');
+        }
+        if ($includePatientDocuments) {
+            $this->addPatientDocuments($exportedResult, $zip, $patientPids);
+        }
+        $saved = $zip->close();
+        $exportedResult->downloadLink = $this->modulePublicUrl . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . $zipName;
+        return $exportedResult;
+    }
+    private function shouldProcessForeignKey(ExportKeyDefinition $definition) {
+        if ($definition->keyType == 'parent') {
+            return true; // we process parent keys as we want to traverse all of the data
+        }
+        if ($definition->keyType == 'child') {
+            $tableName = $definition->localTable;
+            // TODO: @adunsulag need to test and make sure we get eligibility_verification AND benefit_eligibility as part of our export here.
+            $parentTraversalTables = ['patient_data', 'insurance_data','eligibility_verification'];
+            return in_array($tableName, $parentTraversalTables);
+        }
+        return false;
+    }
 
     private function exportPatients(array $patientPids, bool $includePatientDocuments) {
 
@@ -70,7 +189,7 @@ class EhiExporter
         // TODO: @adunsulag check openStatus for exceptions
         foreach ($exportedResult->exportedTables as $result) {
             if ($this->shouldExportAdditionalAssets($result->tableName)) {
-                $this->exportAdditionalAssets($result->tableName, $zip);
+                $this->exportAdditionalAssets($zip, $result->tableName);
             }
             $zip->addFile($this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . $result->tableName . '.csv', $result->tableName . '.csv');
         }
@@ -89,12 +208,19 @@ class EhiExporter
     private function exportAdditionalAssets(\ZipArchive $zip, $tableName) {
         $additionalAssets = [
             'form_painmap' => [
-                ['name' => 'images/painmap.png', 'path' => $GLOBALS['webserver_root'] . "/interface/forms/" . C_FormPainMap::$FORM_CODE . "/templates/painmap.png"]
+                ['name' => 'images/painmap.png', 'path' => $GLOBALS['webserver_root'] . "/interface/forms/painmap/templates/painmap.png"]
             ]
         ];
         $assets = $additionalAssets[$tableName] ?? [];
         foreach ($assets as $assetsToExport) {
-            $zip->addFile($assetsToExport['name'], $assetsToExport['path']);
+            if (file_exists($assetsToExport['path'])) {
+                if (!$zip->addFile($assetsToExport['path'], $assetsToExport['name'])) {
+                    // TODO: @adunsulag should we throw an exception here?
+                    $this->logger->errorLogCaller("File exists but failed to export to zip", ['path' => $assetsToExport['path']]);
+                }
+            } else {
+                $this->logger->errorLogCaller("Failed to export additional asset as file is missing", ['path' => $assetsToExport['path']]);
+            }
         }
     }
 
