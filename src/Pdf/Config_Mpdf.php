@@ -14,7 +14,8 @@ namespace OpenEMR\Pdf;
 
 class Config_Mpdf
 {
-    public static function getConfigMpdf() {
+    public static function getConfigMpdf()
+    {
         return array(
             'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
             'mode' => $GLOBALS['pdf_language'],

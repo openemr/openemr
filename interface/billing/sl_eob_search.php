@@ -578,7 +578,7 @@ if (
                         $invoice_category_id = $catrow['id'];
                     }
                     $doc_pid = $inv_pid[$inv_count];
-                    $inv_filename = 'Invoice-' . date('Y-m-d_H:i:s') . '.pdf'; 
+                    $inv_filename = 'Invoice-' . date('Y-m-d_H:i:s') . '.pdf';
                     $invoice = $d->createDocument(
                         $doc_pid,
                         $invoice_category_id, // TBD: Make sure not 0
@@ -586,7 +586,6 @@ if (
                         'pdf',
                         $tmp
                     );
-                    
                 }
             }
         }
