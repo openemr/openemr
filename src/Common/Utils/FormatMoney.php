@@ -30,12 +30,16 @@ class FormatMoney
         return $s;
     }
 
-    public static function getBucks($amount): string
+    public static function getBucks($amount, $return_zero = false): string
     {
         if ($amount) {
             return self::getFormattedMoney($amount);
         }
 
-        return "";
+        if ($return_zero) {
+            return "0.00";
+        } else {
+            return '';
+        }
     }
 }

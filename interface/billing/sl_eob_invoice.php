@@ -701,7 +701,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                                     <input name="form_line[<?php echo attr($code); ?>][ins]" type="hidden"
                                            value="<?php echo attr($cdata['ins'] ?? ''); ?>" />
                                     <input name="form_line[<?php echo attr($code); ?>][code_type]" type="hidden"
-                                           value="<?php echo attr($cdata['code_type'] ?? ''); ?>" /> <?php echo text(sprintf("%.2f", $cdata['bal'])); ?>
+                                           value="<?php echo attr($cdata['code_type'] ?? ''); ?>" /> <?php echo text(FormatMoney::getBucks($cdata['bal'], true)); ?>
                                     &nbsp;
                                 </td>
                                 <td class="last_detail"></td>
