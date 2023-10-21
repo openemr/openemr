@@ -430,12 +430,12 @@ if (!empty($_GET)) {
                                 <tr>
                                 <td><?php echo text(oeFormatDateTime($iter["date"])); ?></td>
                             <td><?php echo xlt($iter["event"]); ?></td>
-                            <td><?php echo xlt($iter["category"]); ?></td>
+                            <td><?php echo xlt($iter["category"] ?? ''); ?></td>
                             <td><?php echo text($iter["user"]); ?></td>
-                            <td><?php echo text($iter["crt_user"]); ?></td>
-                            <td><?php echo text($iter["groupname"]); ?></td>
+                            <td><?php echo text($iter["crt_user"] ?? ''); ?></td>
+                            <td><?php echo text($iter["groupname"] ?? ''); ?></td>
                             <td><?php echo text($iter["patient_id"]); ?></td>
-                            <td><?php echo text($iter["success"]); ?></td>
+                            <td><?php echo text($iter["success"] ?? ''); ?></td>
                             <td> </td>
                             <td><?php echo text($comments); ?></td>
                         </tr>
