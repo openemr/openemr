@@ -333,10 +333,14 @@
     function FormValidations() {//Screen validations are done here.
         if (document.getElementById('check_date').value == '') {
             let message = <?php echo xlj('Please Fill the Date') ?>;
+            message='<h4 class="bg-light text-danger">'+message+'</h4>';
             // a good use of syncAlertMsg when a promise or an await (then({})) with actions and/or
             // for an alert to time out, is not needed. et al validation alerts.
-            syncAlertMsg('<h4 class="bg-light text-danger">'+message+'</h4>', 1500, 'warning', 'lg');
-            document.getElementById('check_date').focus();
+            (async (message, time) => {
+                await asyncAlertMsg(message, time, 'warning', 'lg');
+            })(message,1500).then(res => {
+                document.getElementById('check_date').focus();
+            });
             return false;
         } else if (!ValidateDateGreaterThanNow(document.getElementById('check_date').value, '<?php echo DateFormatRead();?>')) {
             let message = <?php echo xlj('Date Cannot be greater than Today') ?>;
