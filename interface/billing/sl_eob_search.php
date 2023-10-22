@@ -565,7 +565,6 @@ if (
                     }
                     fwrite($fhprint, $tmp);
                     // now save it to pt documents
-                    // first find mimetype
                     $d = new Document();
                     $doc_pid = $inv_pid[$inv_count];
                     $invoice_category_id = 0;
@@ -573,7 +572,8 @@ if (
                     if (!empty($catrow['id'])) {
                         $invoice_category_id = $catrow['id'];
                     }
-                    // even if click download pdf the file content in $tmp is text without the following config
+                    // even if click download pdf the file content in $tmp is text
+                    // set mimetype and fileext based on statement appearance
                     $isPdf = ($GLOBALS['statement_appearance'] == 1);
                     $fileext = $isPdf ? '.pdf' : '.txt';
                     $inv_filename = 'Invoice-' . date('Y-m-d-H:i:s') . $fileext;
