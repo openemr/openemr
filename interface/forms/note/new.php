@@ -16,7 +16,7 @@
 
 
 require_once dirname(__FILE__, 3) . "/globals.php";
-require_once("$srcdir/api.inc");
+require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -32,7 +32,7 @@ $form_name = "note";
     <?php Header::setupHeader('datetime-picker'); ?>
     <script>
         // required for textbox date verification
-        const mypcc = <?= js_escape($GLOBALS['phone_country_code']); ?>;
+        const mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
         $(function () {
             $('.datepicker').datetimepicker({
@@ -49,8 +49,8 @@ $form_name = "note";
 <div class="container">
     <div class="row">
         <div class="col-sm-12 mt-5">
-            <h1><?= xlt('Work/School Note'); ?></h1>
-            <?= text(date("F d, Y", time())); ?>
+            <h1><?php echo xlt('Work/School Note'); ?></h1>
+            <?php echo text(date("F d, Y", time())); ?>
         </div>
         <div class="row">
             <div class="col-sm-12">
@@ -58,40 +58,40 @@ $form_name = "note";
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
                     <div style="margin: 10px;">
-                        <input type="button" class="btn btn-primary save" value="    <?= xla('Save'); ?>    "> &nbsp;
-                        <input type="button" class="btn btn-warning dontsave" value="<?= xla('Don\'t Save'); ?>"> &nbsp;
+                        <input type="button" class="btn btn-primary save" value="    <?php echo xla('Save'); ?>    "> &nbsp;
+                        <input type="button" class="btn btn-warning dontsave" value="<?php echo xla('Don\'t Save'); ?>"> &nbsp;
                     </div>
 
                     <select class="form-control" name="note_type">
-                        <option value="WORK NOTE"><?= xlt('WORK NOTE'); ?></option>
-                        <option value="SCHOOL NOTE"><?= xlt('SCHOOL NOTE'); ?></option>
+                        <option value="WORK NOTE"><?php echo xlt('WORK NOTE'); ?></option>
+                        <option value="SCHOOL NOTE"><?php echo xlt('SCHOOL NOTE'); ?></option>
                     </select>
                     <br />
-                    <b><?= xlt('MESSAGE:'); ?></b>
+                    <b><?php echo xlt('MESSAGE:'); ?></b>
                     <br />
                     <textarea class="form-control" name="message" id="message" rows="7" cols="47"></textarea>
                     <br />
 
                     <br />
-                    <b><?= xlt('Signature:'); ?></b>
+                    <b><?php echo xlt('Signature:'); ?></b>
                     <br />
                     <table class="table">
                         <tr><td>
-                                <?= xlt('Doctor:'); ?>
-                                <input class="form-control" type="text" name="doctor" id="doctor" value="<?= attr($provider_results["fname"]) . ' ' . attr($provider_results["lname"]); ?>">
+                                <?php echo xlt('Doctor:'); ?>
+                                <input class="form-control" type="text" name="doctor" id="doctor" value="<?php echo attr($provider_results["fname"]) . ' ' . attr($provider_results["lname"]); ?>">
                             </td>
 
                             <td>
-                                <span class="text"><?= xlt('Date'); ?></span>
+                                <span class="text"><?php echo xlt('Date'); ?></span>
                                 <input class="datepicker form-control" type='text' size='10' class='datepicker' name='date_of_signature' id='date_of_signature'
-                                       value='<?= attr(date('Y-m-d', time())); ?>'
-                                       title='<?= xla('yyyy-mm-dd'); ?>' />
+                                       value='<?php echo attr(date('Y-m-d', time())); ?>'
+                                       title='<?php echo xla('yyyy-mm-dd'); ?>' />
                             </td>
                         </tr>
                     </table>
                     <div style="margin: 10px;">
-                        <input type="button" class="btn btn-primary save" value="    <?= xla('Save'); ?>    "> &nbsp;
-                        <input type="button" class="btn btn-warning dontsave" value="<?= xla('Don\'t Save'); ?>"> &nbsp;
+                        <input type="button" class="btn btn-primary save" value="    <?php echo xla('Save'); ?>    "> &nbsp;
+                        <input type="button" class="btn btn-warning dontsave" value="<?php echo xla('Don\'t Save'); ?>"> &nbsp;
                     </div>
                 </form>
             </div>
