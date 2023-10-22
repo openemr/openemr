@@ -554,6 +554,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $soap_status = sqlStatement("select soap_import_status,pid from patient_data where pid=? and soap_import_status in ('1','3')", array($pid));
                 while ($row_soapstatus = sqlFetchArray($soap_status)) { ?>
                     top.restoreSession();
+                    let reloadRequired = false;
                     $.ajax({
                         type: "POST",
                         url: "../../soap_functions/soap_patientfullmedication.php",
@@ -563,7 +564,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         },
                         async: false,
                         success: function(thedata) {
-                            //alert(thedata);
+                            if (!thedata.includes("Nothing")) {
+                                reloadRequired = true;
+                            }
                             msg_updation += thedata;
                         },
                         error: function() {
@@ -581,13 +584,20 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         },
                         async: false,
                         success: function(thedata) {
-                            //alert(thedata);
-                            msg_updation += thedata;
+                            if (!thedata.includes("Nothing")) {
+                                reloadRequired = true;
+                            }
+                            msg_updation += "\n" + thedata;
                         },
                         error: function() {
                             alert('ajax error');
                         }
                     });
+
+                    if (reloadRequired) {
+                        document.location.reload();
+                    }
+
                     <?php
                     if ($GLOBALS['erx_import_status_message']) { ?>
                         if (msg_updation)
@@ -1037,8 +1047,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $cards = $allergy + $pl + $meds;
                     $col = "p-1 ";
 
-                    $colInt = 12 / $cards;
-                    $col .= "col-md-" . $colInt;
+                    if ($cards > 0) {
+                        $colInt = 12 / $cards;
+                        $col .= "col-md-" . $colInt;
+                    }
 
                     /**
                      * Helper function to return only issues with an outcome not equal to resolved
@@ -1365,7 +1377,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
                         }
 
-                        if ($GLOBALS["enable_oa"]) {
+                        if ($GLOBALS["enable_eligibility_requests"]) {
                             if (($_POST['status_update'] ?? '') === 'true') {
                                 unset($_POST['status_update']);
                                 $showEligibility = true;
@@ -1402,7 +1414,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
                             'ins' => $insArr,
                             'eligibility' => $output,
-                            'enable_oa' => $GLOBALS['enable_oa'],
+                            'enable_eligibility_requests' => $GLOBALS['enable_eligibility_requests'],
                             'auth' => AclMain::aclCheckCore('patients', 'demo', '', 'write'),
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),

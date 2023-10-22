@@ -344,17 +344,19 @@ class ClinicalNotesService extends BaseService
         return !empty($options);
     }
 
-    public function getClinicalNoteTypes()
+    public function getClinicalNoteTypes($includeInactive = false)
     {
         $listService = new ListService();
-        $options = $listService->getOptionsByListName('Clinical_Note_Type');
+        $search = ($includeInactive) ? [] :  ['activity' => '1'];
+        $options = $listService->getOptionsByListName('Clinical_Note_Type', $search);
         return $this->getListAsSelectList($options);
     }
 
-    public function getClinicalNoteCategories()
+    public function getClinicalNoteCategories($includeInactive = false)
     {
         $listService = new ListService();
-        $options = $listService->getOptionsByListName('Clinical_Note_Category');
+        $search = ($includeInactive) ? [] :  ['activity' => '1'];
+        $options = $listService->getOptionsByListName('Clinical_Note_Category', $search);
         return $this->getListAsSelectList($options);
     }
 

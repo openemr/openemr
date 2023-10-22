@@ -89,7 +89,7 @@
     </div>
 {% endfor %}
     <div class="tab-pane" id="eligibility" role="tabpanel" aria-labelledby="eligibility-tab">
-        {% if enable_oa %}
+        {% if enable_eligibility_requests %}
         <form action="./demographics.php" method="post">
             <div>
                 <button class='btn btn-success btn-sm btn-transmit float-right' name='status_update' value='true'>{{ "Update Status"|xlt }}</button>

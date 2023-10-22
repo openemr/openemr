@@ -24,11 +24,14 @@ use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Billing\Payments\PostFrontPayment;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\FacilityService;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+
 
 if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
     if (!AclMain::aclCheckCore('acct', 'bill') && !AclMain::aclCheckCore('acct', 'rep_a') && !AclMain::aclCheckCore('patients', 'rx')) {
@@ -68,25 +71,6 @@ $facilityService = new FacilityService();
         <script src=<?php echo $script; ?> charset="utf-8"></script>
     <?php } ?>
 <?php
-// Format dollars for display.
-
-function bucks($amount)
-{
-    if ($amount) {
-        $amount = oeFormatMoney($amount);
-        return $amount;
-    }
-    return '';
-}
-
-function rawbucks($amount)
-{
-    if ($amount) {
-        $amount = sprintf("%.2f", $amount);
-        return $amount;
-    }
-    return '';
-}
 
 // Display a row of data for an encounter.
 //
@@ -95,19 +79,19 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
 {
     global $var_index;
     $var_index++;
-    $balance = bucks($charges - $ptpaid - $inspaid);
+    $balance = FormatMoney::getBucks($charges - $ptpaid - $inspaid);
     $balance = (round($duept, 2) != 0) ? 0 : $balance;//if balance is due from patient, then insurance balance is displayed as zero
     $encounter = $encounter ? $encounter : '';
     echo " <tr id='tr_" . attr($var_index) . "' >\n";
     echo "  <td>" . text(oeFormatShortDate($date)) . "</td>\n";
     echo "  <td class='text-center' id='" . attr($date) . "'>" . text($encounter) . "</td>\n";
-    echo "  <td class='text-center' id='td_charges_$var_index' >" . text(bucks($charges)) . "</td>\n";
-    echo "  <td class='text-center' id='td_inspaid_$var_index' >" . text(bucks($inspaid * -1)) . "</td>\n";
-    echo "  <td class='text-center' id='td_ptpaid_$var_index' >" . text(bucks($ptpaid * -1)) . "</td>\n";
-    echo "  <td class='text-center' id='td_patient_copay_$var_index' >" . text(bucks($patcopay)) . "</td>\n";
-    echo "  <td class='text-center' id='td_copay_$var_index' >" . text(bucks($copay)) . "</td>\n";
-    echo "  <td class='text-center' id='balance_$var_index'>" . text(bucks($balance)) . "</td>\n";
-    echo "  <td class='text-center' id='duept_$var_index'>" . text(bucks(round($duept, 2) * 1)) . "</td>\n";
+    echo "  <td class='text-center' id='td_charges_$var_index' >" . text(FormatMoney::getBucks($charges)) . "</td>\n";
+    echo "  <td class='text-center' id='td_inspaid_$var_index' >" . text(FormatMoney::getBucks($inspaid * -1)) . "</td>\n";
+    echo "  <td class='text-center' id='td_ptpaid_$var_index' >" . text(FormatMoney::getBucks($ptpaid * -1)) . "</td>\n";
+    echo "  <td class='text-center' id='td_patient_copay_$var_index' >" . text(FormatMoney::getBucks($patcopay)) . "</td>\n";
+    echo "  <td class='text-center' id='td_copay_$var_index' >" . text(FormatMoney::getBucks($copay)) . "</td>\n";
+    echo "  <td class='text-center' id='balance_$var_index'>" . text(FormatMoney::getBucks($balance)) . "</td>\n";
+    echo "  <td class='text-center' id='duept_$var_index'>" . text(FormatMoney::getBucks(round($duept, 2) * 1)) . "</td>\n";
     echo "  <td class='text-right'><input type='text' class='form-control' name='" . attr($iname) . "'  id='paying_" . attr($var_index) . "' " .
         " value='' onchange='coloring();calctotal()'  autocomplete='off' " .
         "onkeyup='calctotal()'/></td>\n";
@@ -1170,7 +1154,7 @@ function make_insurance() {
                             <label class="control-label" for="form_method"><?php echo xlt('Payment Method'); ?>:</label>
                             <select class="form-control" id="form_method" name="form_method" onchange='CheckVisible("yes")'>
                                 <?php
-                                $query1112 = "SELECT * FROM list_options where activity=1 AND list_id=?  ORDER BY seq, title ";
+                                $query1112 = "SELECT * FROM `list_options` where activity=1 AND list_id=?  ORDER BY seq, title ";
                                 $bres1112 = sqlStatement($query1112, array('payment_method'));
                                 while ($brow1112 = sqlFetchArray($bres1112)) {
                                     if ($brow1112['option_id'] == 'electronic' || $brow1112['option_id'] == 'bank_draft') {
@@ -1276,7 +1260,7 @@ function make_insurance() {
                                         $encs[$key]['charges'] += $brow['fee'];
                                         // Add taxes.
                                         $sql_array = array();
-                                        $query = "SELECT taxrates FROM codes WHERE " .
+                                        $query = "SELECT taxrates FROM `codes` WHERE " .
                                         "code_type = ? AND " .
                                         "code = ? AND ";
                                         array_push($sql_array, ($code_types[$brow['code_type']]['id'] ?? null), $brow['code']);
@@ -1318,7 +1302,7 @@ function make_insurance() {
 
                                     $encs[$key]['charges'] += $drow['fee'];
                                     // Add taxes.
-                                    $trow = sqlQuery("SELECT taxrates FROM drug_templates WHERE drug_id = ? " .
+                                    $trow = sqlQuery("SELECT taxrates FROM `drug_templates` WHERE drug_id = ? " .
                                     "ORDER BY selector LIMIT 1", array($drow['drug_id']));
                                     $encs[$key]['charges'] += calcTaxes($trow, $drow['fee']);
                                 }
@@ -1376,16 +1360,16 @@ function make_insurance() {
 
                                     //------------------------------------------------------------------------------------
                                     //NumberOfInsurance
-                                    $ResultNumberOfInsurance = sqlStatement("SELECT COUNT( DISTINCT TYPE ) NumberOfInsurance FROM insurance_data
+                                    $ResultNumberOfInsurance = sqlStatement("SELECT COUNT( DISTINCT TYPE ) NumberOfInsurance FROM `insurance_data`
                                     where pid = ? and provider>0 ", array($pid));
                                     $RowNumberOfInsurance = sqlFetchArray($ResultNumberOfInsurance);
                                     $NumberOfInsurance = $RowNumberOfInsurance['NumberOfInsurance'] * 1;
                                     //------------------------------------------------------------------------------------
                                     $duept = 0;
                                     if ((($NumberOfInsurance == 0 || $value['last_level_closed'] == 4 || $NumberOfInsurance == $value['last_level_closed']))) {//Patient balance
-                                        $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
+                                        $brow = sqlQuery("SELECT SUM(fee) AS amount FROM `billing` WHERE " .
                                             "pid = ? and encounter = ? AND activity = 1", array($pid, $enc));
-                                        $srow = sqlQuery("SELECT SUM(fee) AS amount FROM drug_sales WHERE " .
+                                        $srow = sqlQuery("SELECT SUM(fee) AS amount FROM `drug_sales` WHERE " .
                                             "pid = ? and encounter = ? ", array($pid, $enc));
                                         $drow = sqlQuery("SELECT SUM(pay_amount) AS payments, " .
                                             "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
@@ -1887,5 +1871,5 @@ function make_insurance() {
 } // forms else close
 ?>
 </body>
-<?php $ed->dispatch(new PostFrontPayment(), PostFrontPayment::ACTION_POST_FRONT_PAYMENT, 10); ?>
+<?php $GLOBALS['kernel']->getEventDispatcher()->dispatch(new PostFrontPayment(), PostFrontPayment::ACTION_POST_FRONT_PAYMENT, 10); ?>
 </html>

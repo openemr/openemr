@@ -13,7 +13,7 @@ body {
   touch-action: none;
 }
 
-@media (max-width: 1180px) {
+@media (width >= 1180px) {
   #openSignModal .modal-xl {
     min-width: 98vw !important;
   }

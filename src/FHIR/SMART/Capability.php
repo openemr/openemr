@@ -18,7 +18,7 @@ class Capability
 {
     /**
      * The SMART extension capabilites that our system supports
-     * @see http://hl7.org/fhir/smart-app-launch/conformance/index.html
+     * @see https://hl7.org/fhir/smart-app-launch/conformance/index.html
      *
      * All of these capabilities for MU3 are required to be implemented before HIT certification
      * can be complete.
@@ -61,7 +61,7 @@ class Capability
     // NOTE: context-style is marked in HL7 SMART as EXPERIMENTAL, so expect this to change in time
     // HL7/SMART chat forum was a bit confused by ONC's decision to include this, so again expect
     // to see this change.
-    // @see SMARTConfigurationController->getStyles()
+    // @see SMARTSessionTokenContextBuilder->getSmartStyleURL()
     const CONTEXT_STYLE = "context-style";
 
     // FHIR capability statement for some reason requires this capability which is the same as context-style...
