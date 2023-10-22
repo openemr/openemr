@@ -299,7 +299,7 @@ CREATE TABLE `categories` (
 -- Inserting data for table `categories`
 --
 
-INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 59, 'patients|docs', '');
+INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 61, 'patients|docs', '');
 INSERT INTO `categories` VALUES (2, 'Lab Report', '', 1, 1, 2, 'patients|docs', '');
 INSERT INTO `categories` VALUES (3, 'Medical Record', '', 1, 3, 4, 'patients|docs', '');
 INSERT INTO `categories` VALUES (4, 'Patient Information', '', 1, 5, 10, 'patients|demo', '');
@@ -346,7 +346,7 @@ CREATE TABLE `categories_seq` (
 -- Inserting data for table `categories_seq`
 --
 
-INSERT INTO `categories_seq` VALUES (29);
+INSERT INTO `categories_seq` VALUES (31);
 
 -- --------------------------------------------------------
 

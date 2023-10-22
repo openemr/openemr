@@ -580,8 +580,7 @@ ALTER TABLE `x12_partners` ADD COLUMN `x12_attachment_endpoint` tinytext;
 #EndIf
 
 #IfNotRow categories name Invoices
-SET @max_rght = (SELECT MAX(rght) FROM categories);
-INSERT INTO categories(`id`,`name`, `value`, `parent`, `lft`, `rght`, `aco_spec`) select (select MAX(id) from categories) + 1, 'Invoices', '', 1, @max_rght, @max_rght + 1, 'encounters|coding' from categories where name = 'Categories';
+INSERT INTO categories(`id`,`name`, `value`, `parent`, `lft`, `rght`, `aco_spec`) select (select MAX(id) from categories) + 1, 'Invoices', '', 1, rght, rght + 1, 'encounters|coding' from categories where name = 'Categories';
 UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
 UPDATE categories_seq SET id = (select MAX(id) from categories);
 #EndIf
