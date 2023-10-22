@@ -565,25 +565,32 @@ if (
                     }
                     fwrite($fhprint, $tmp);
                     // now save it to pt documents
-                    $pdf2 = new mPDF(Config_Mpdf::getConfigMpdf());
-                    if ($_SESSION['language_direction'] == 'rtl') {
-                        $pdf2->SetDirectionality('rtl');
-                    }
-                    $pdf2->WriteHTML($tmp);
-                    $tmp = $pdf2->Output('', 'S');
+                    // first find mimetype
                     $d = new Document();
+                    $doc_pid = $inv_pid[$inv_count];
                     $invoice_category_id = 0;
                     $catrow = sqlQuery("SELECT id FROM categories WHERE name = ?", ['Invoices']);
                     if (!empty($catrow['id'])) {
                         $invoice_category_id = $catrow['id'];
                     }
-                    $doc_pid = $inv_pid[$inv_count];
-                    $inv_filename = 'Invoice-' . date('Y-m-d_H:i:s') . '.pdf';
+                    // even if click download pdf the file content in $tmp is text without the following config
+                    $isPdf = ($GLOBALS['statement_appearance'] == 1);
+                    $fileext = $isPdf ? '.pdf' : '.txt';
+                    $inv_filename = 'Invoice-' . date('Y-m-d-H:i:s') . $fileext;
+                    $mimetype = $isPdf ? 'pdf' : 'text/plain';
+                    if ($isPdf) {
+                        $pdf2 = new mPDF(Config_Mpdf::getConfigMpdf());
+                        if ($_SESSION['language_direction'] == 'rtl') {
+                            $pdf2->SetDirectionality('rtl');
+                        }
+                        $pdf2->WriteHTML($tmp);
+                        $tmp = $pdf2->Output('', 'S');
+                    }
                     $invoice = $d->createDocument(
                         $doc_pid,
                         $invoice_category_id, // TBD: Make sure not 0
                         $inv_filename,
-                        'pdf',
+                        $mimetype,
                         $tmp
                     );
                 }
