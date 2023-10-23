@@ -18,12 +18,17 @@ class ExportState
     // we use this to make sure if we are scheduled to hit an item again
     private $inQueueList = [];
 
+    private ExportTableDataFilterer $dataFilterer;
+
     public function __construct(SystemLogger $logger, \SimpleXMLElement $node)
     {
         $this->rootNode = $node;
         $this->queue = new \SplQueue();
         $this->result = new ExportResult();
         $this->tableDefinitionsMap = [];
+        $this->dataFilterer = new ExportTableDataFilterer();
+        $this->keyFilterer = new ExportKeyDefinitionFilterer();
+
         $this->logger = $logger;
     }
 
@@ -46,7 +51,14 @@ class ExportState
         return $this->rootNode->xpath($xpath);
     }
 
-    public function getNextTableDefinition(): ExportTableDefinition
+    public function getTableDefinitionForTable(string $tableName) : ?ExportTableDefinition {
+        if (isset($this->tableDefinitionsMap[$tableName])) {
+            return $this->tableDefinitionsMap[$tableName];
+        }
+        return null;
+    }
+
+    public function getNextTableDefinitionToProcess(): ExportTableDefinition
     {
         $item = $this->queue->dequeue();
         if ($item instanceof ExportTableDefinition) {
@@ -67,6 +79,10 @@ class ExportState
     public function addTableDefinition(ExportTableDefinition $tableDefinition)
     {
         if (!isset($this->tableDefinitionsMap[$tableDefinition->table])) {
+            $selectQuery = $this->dataFilterer->getSelectQueryForTable($tableDefinition->table);
+            if ($selectQuery != '*') {
+                $tableDefinition->setSelectColumns($selectQuery);
+            }
             $this->tableDefinitionsMap[$tableDefinition->table] = $tableDefinition;
         }
         if (!isset($this->inQueueList[$tableDefinition->table])) {
@@ -84,7 +100,6 @@ class ExportState
             'tables' => []
             ,'keys' => []
         ];
-        // //table[@name='patient_data']/column
         $elements = $this->xmlXPath("//table[@name='" . $tableDefinition->table . "']/column");
         if ($elements !== false) {
             foreach ($elements as $element) {
@@ -103,12 +118,55 @@ class ExportState
                             $key->localTable = $tableDefinition->table;
                             $key->localColumn = $localColumnName;
                             $key->keyType = $keyType;
-                            $keyData['keys'][] = $key;
+                            if ($this->keyFilterer->hasMultipleKeysForColumn($key)) {
+                                $keys = $this->keyFilterer->filterMultipleKeys($key);
+                                foreach ($keys as $key) {
+                                    $keyData['keys'][] = $key;
+                                }
+                            } else {
+                                $key = $this->keyFilterer->filterKey($key);
+                                $keyData['keys'][] = $key;
+                            }
                         }
                     }
                 }
             }
         }
+        if ($this->hasDenormalizedKeys($tableDefinition)) {
+            $keys = $this->getDenormalizedKeys($tableDefinition);
+            foreach ($keys as $key) {
+                $keyData['keys'][] = $key;
+            }
+        }
         return $keyData;
+    }
+
+    private function hasDenormalizedKeys(ExportTableDefinition $tableDefinition) {
+        if ($tableDefinition->table === 'patient_data' || $tableDefinition->table === 'patient_history') {
+            return true;
+        }
+    }
+
+    private function getDenormalizedKeys(ExportTableDefinition $tableDefinition) {
+        // these columns are denormalized data and have the ids separated by a pipe (|)
+        if ($tableDefinition->table === 'patient_data' || $tableDefinition->table == 'patient_history') {
+            $care_team_provider = new ExportKeyDefinition();
+            $care_team_provider->localTable = $tableDefinition->table;
+            $care_team_provider->localColumn = "care_team_provider";
+            $care_team_provider->foreignKeyColumn = "id";
+            $care_team_provider->foreignKeyTable = "users";
+            $care_team_provider->isDenormalized = true;
+            $care_team_provider->denormalizedKeySeparator = "|";
+
+            $care_team_facility = new ExportKeyDefinition();
+            $care_team_facility->localTable = $tableDefinition->table;
+            $care_team_facility->localColumn = "care_team_facility";
+            $care_team_facility->foreignKeyColumn = "id";
+            $care_team_facility->foreignKeyTable = "facility";
+            $care_team_provider->isDenormalized = true;
+            $care_team_provider->denormalizedKeySeparator = "|";
+            return [$care_team_provider, $care_team_facility];
+        }
+        return [];
     }
 }

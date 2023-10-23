@@ -51,9 +51,7 @@
             <column name="occurrence" comments="Comes from the list_options.list_id='occurrence' and is the frequency that this issue occurs for the patient">
                 <foreignKey table="list_options" column="option_id" />
             </column>
-            <column name="classification" comments="UNUSED - will be removed in the future">
-                <foreignKey table="list_options" column="option_id" />
-            </column>
+            <column name="classification" comments="UNUSED - will be removed in the future" />
             <column name="referredby" comments="The human readable name of Referring physician and practice" />
             <column name="extrainfo" comments="UNUSED - will be removed in the future" />
             <column name="diagnosis" comments="The diagnosis of the issue.  Format is a text string in the format of 'system:code[;system:code2;system:coden]'" />
@@ -95,7 +93,14 @@
             </column>
         </table>
 
-        <!-- TODO: @adunsulag look at lists_medication -->
+        <table name="lists_medication">
+            <column name="list_id"  comments="The internal lists identifier">
+                <foreignKey table="lists" column="id" />
+            </column>
+            <column name="created_by"  comments="The user that created this record">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
 
         <!-- Patient History -->
         <table name="history_data" comment="Contains patient eating,sleeping,drinking,drug habits as well as other patient health history information">
@@ -107,7 +112,7 @@
             </column>
         </table>
 
-        <!-- TODO: @adunsulag Patient Care Team, Previous Names in patient_history -->
+        <!-- Patient Care Team, Previous Names in patient_history -->
         <table name="patient_history" comment="Contains previous historical entries of the patient's care team (providers and facilities) as well as patient previous name information">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
@@ -151,9 +156,19 @@
             <column name="patient_id"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
-            <!-- immunization_id, administered_by_id, created_by, updated_by, ordering_provider -->
+            <!-- TODO: @adunsulag immunization_id, administered_by_id, created_by, updated_by, ordering_provider -->
         </table>
-        <!-- TODO: @adunsulag look at immunization_observation table -->
+        <table name="immunization_observation" comments="Individual observations for a specific immunization">
+            <column name="imo_pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="imo_im_id"  comments="The immunization record this observation is part of">
+                <foreignKey table="immunizations" column="id" />
+            </column>
+            <column name="imo_user">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
 
 <!--        - Patient Insurance-->
         <table name="insurance_data" comments="Patient Insurance information">
@@ -163,10 +178,15 @@
             <column name="provider"  comments="The insurance company that insures the patient">
                 <foreignKey table="insurance_companies" column="id" />
             </column>
-            <!-- provider, policy_type -->
+            <column name="policy_type"  comments="Whether this is the 'primary', 'secondary', or 'tertiary' insurance" />
         </table>
-        <!-- TODO: @adunsulag look at insurance_numbers, insurance_companies, insurance_type_codes -->
 
+        <!-- TODO: @adunsulag look at insurance_numbers, insurance_companies, insurance_type_codes -->
+        <table name="insurance_companies" companies="Insurance company">
+            <column name="ins_type_code"  comments="The type of insurance company this record is">
+                <foreignKey table="insurance_type_codes" column="id" />
+            </column>
+        </table>
 <!--        - Patient Messages (pnotes)-->
         <table name="pnotes" comments="Patient Messages about the healthcare treatment of the patient">
             <column name="pid"  comments="The internal patient identifier">
@@ -191,7 +211,7 @@
                 <foreignKey table="list_options" column="option_id" />
             </column>
         </table>
-<!--        - TODO: @adunsulag see patient_reminders in Patient Reminders-->
+
         <table name="patient_reminders" comments="Patient Reminders generated from the clinical decision support engine that are sent via a communication medium to the patient">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
@@ -221,7 +241,6 @@
                 <foreignKey table="rule_action_item" column="item" />
             </column>
         </table>
-        <!-- TODO: rule_action_item table -->
         <table name="rule_action_item" comments="Patient Reminders configuration for Clinical Decision Support individual rule settings">
             <column name="category">
                 <foreignKey table="list_options" column="option_id" />
@@ -278,25 +297,70 @@
         </table>
 <!--        - Patient Vitals-->
         <table name="form_vitals">
-            <!-- user, groupname, temp_method, BMI_status -->
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="user">
+                <foreignKey table="users" column="username" />
+            </column>
+            <column name="groupname">
+                <foreignKey table="groups" column="name" />
+            </column>
+        </table>
+        <table name="form_vital_details">
+            <column name="form_id">
+                <foreignKey table="form_vitals" column="id" />
+            </column>
+            <column name="interpretation_list_id ">
+                <foreignKey table="list_options" column="list_id" />
+            </column>
+            <column name="interpretation_option_id ">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="reason_status" comments="Valid values are 'completed','negated','pending' or '' for none" />
+        </table>
+<!--        - Patient recalls-->
+        <table name="medex_recalls">
+            <column name="r_pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="r_facility">
+                <foreignKey table="facility" column="id" />
+            </column>
+            <column name="r_provider">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+<!--        - Clinical Reminders-->
+        <table name="clinical_plans">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
-<!-- TODO: include form_vital_details FK -->
-        <!-- form_id, interpretation_list_id, interpretation_option_id, reason_status -->
-
-<!--        - Patient recalls-->
-<!--        - Clinical Reminders-->
 <!--        - Recall Appts-->
 <!--        - Patient Appointments-->
         <table name="openemr_postcalendar_events">
             <column name="pc_pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
+            <column name="pc_catid">
+                <foreignKey table="openemr_postcalendar_categories" column="pc_catid" />
+            </column>
+            <column name="pc_aid">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="pc_gid">
+                <foreignKey table="groups" column="id" />
+            </column>
+            <column name="pc_facility">
+                <foreignKey table="facility" column="id" />
+            </column>
         </table>
 
-<!--        - Patient Documents-->
+        <!-- TODO: @adunsulag openemr_postcalendar_events and openemr_postcalendar_categories -->
+
+
+        <!--        - Patient Documents-->
         <table name="documents">
             <column name="foreign_id"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
@@ -306,6 +370,35 @@
         <table name="transactions">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="lbf_data" comment="Dynamic Field values that are part of the following forms: Demographics, Facility Specific User Information, History Form, and custom dynamically generated encounter forms">
+            <column name="form_id">
+                <foreignKey table="transactions" column="id" />
+            </column>
+            <column name="field_id">
+                <foreignKey table="layout_options" column="field_id" />
+            </column>
+        </table>
+        <table name="lbt_data" comment="Dynamic Field values that are part of the transaction table">
+            <column name="form_id">
+                <foreignKey table="transactions" column="id" />
+            </column>
+            <column name="field_id">
+                <foreignKey table="layout_options" column="field_id" />
+            </column>
+        </table>
+        <table name="layout_options">
+            <column name="form_id">
+                <foreignKey table="layout_group_properties" column="grp_form_id" />
+            </column>
+            <column name="group_id">
+                <foreignKey table="layout_group_properties" column="grp_group_id" />
+            </column>
+        </table>
+        <table name="layout_group_properties">
+            <column name="grp_group_id">
+                <foreignKey table="layout_group_properties" column="grp_group_id" />
             </column>
         </table>
 <!--        - Patient Ledger [what is involved here?]-->
@@ -406,12 +499,6 @@
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
-        <!-- Don't think this table is used -->
-<!--        <table name="form_eye_mag_prefs">-->
-<!--            <column name="pid">-->
-<!--                <foreignKey table="patient_data" column="pid" />-->
-<!--            </column>-->
-<!--        </table>-->
         <table name="form_eye_mag_wearing">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
@@ -520,8 +607,31 @@
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
-        <!-- TODO: @adunsulag look at pro_assessments table -->
-        <!-- TODO: @adunsulag look at questionnaire_response table -->
+        <table name="pro_assessments">
+            <column name="patient_id"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="user_id">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+        <table name="questionnaire_response">
+            <column name="patient_id"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="audit_user_id">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="creator_user_id">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="encounter">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="questionnaire_foreign_id">
+                <foreignKey table="questionnaire_repository" column="id" />
+            </column>
+        </table>
 
         <!--        - Aftercare Plan-->
         <table name="form_aftercare_plan">
@@ -546,7 +656,7 @@
 
 <!--        - Lab Requisition-->
         <!-- NOTE: the pid here does not match our pid column type definition -->
-        <!-- TODO: @adunsulag put requisition on the back burner, looks like it deals with the printout of
+        <!-- TODO: @adunsulag put requisition on the back burner, looks like it deals with the printout of erx and it appears to be broken
         <table name="requisition">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
@@ -704,18 +814,76 @@
         <!-- TODO: @adunsulag check `notes` table -->
         <!-- TODO: @adunsulag check `notification_log`.`pid` table -->
 <!--        patient documents-->
-        <!-- TODO: @adunsulag check onsite_documents.pid -->
+        <table name="onsite_documents">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="facility">
+                <foreignKey table="facility" column="id" />
+            </column>
+            <column name="encounter">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="user" comments="User who created the esignature">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
         <!-- TODO: @adunsulag check onsite_mail.owner -->
-        <!-- TODO: @adunsulag check onsite_signatures -->
+        <table name="onsite_signatures">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="encounter">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="user" comments="User who created the esignature">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+
         <!-- TODO: @adunsulag check onsite_messages -->
 
         <!-- erx_ttl_touch ??? -->
         <!-- esign_signatures -->
 
         <!-- external_encounters, external_procedures -->
-        <!-- facility, facility_user_ids -->
+        <table name="external_encounters" comments="Holds data on encounters that exist outside of this EMR that were in a patient CCDA import">
+            <column name="ee_pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="external_procedures" comments="Holds data on external procedures that exist outside of this EMR that were in a patient CCDA import">
+            <column name="ep_pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="ep_encounter"  comments="The encounter for the external procedure">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+        </table>
 
         <!-- TODO: @adunsulag patient_tracker,patient_tracker_element in flowboard -->
+        <table name="patient_tracker">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="eid"  comments="The calendar appointment id">
+                <foreignKey table="openemr_postcalendar_events" column="pc_eid" />
+            </column>
+            <column name="original_user">
+                <foreignKey table="users" column="username" />
+            </column>
+            <column name="encounter"  comments="The encounter for the external procedure">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+        </table>
+        <table name="patient_tracker_element">
+            <column name="pt_tracker_id">
+                <foreignKey table="patient_tracker" column="id" />
+            </column>
+            <column name="user">
+                <foreignKey table="users" column="username" />
+            </column>
+        </table>
 
         <table name="shared_attributes" comment="Dynamic patient, encounter, and transaction table properties created via LBF/LBT mechanism">
             <column name="pid"  comments="The internal patient identifier">
@@ -848,9 +1016,29 @@
             <!-- TODO: @adunsulag need to populate -->
         </table>
 
-        <!-- TODO: @adunsulag look at medex_recalls with r_pid -->
-
         <!-- Therapy Groups, counselors, participants, participant_attendance -->
-
+        <table name="therapy_groups_participant_attendance">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="therapy_groups_participants">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="group_id">
+                <foreignKey table="therapy_groups" column="group_id" />
+            </column>
+        </table>
+        <table name="therapy_groups" comment="Contains all of the therapy groups that exist in the system">
+        </table>
+        <table name="therapy_groups_counselors" comment="Contains the relationships between the counselors in a therapy group and the group">
+            <column name="group_id">
+                <foreignKey table="therapy_groups" column="group_id" />
+            </column>
+            <column name="user_id">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
     </tables>
 </schemaMeta>
