@@ -24,8 +24,20 @@ class ExportTableDefinition
         $this->selectClause = '*';
     }
 
-    public function addKeyValue(string $key, int|string $value)
+    public function addKeyValue(ExportKeyDefinition $keyDefinition, int|string $value)
     {
+        $key = $keyDefinition->foreignKeyColumn;
+        if ($keyDefinition->isDenormalized && is_string($value)) {
+            $valueList = explode($keyDefinition->denormalizedKeySeparator, $value);
+            foreach ($valueList as $value) {
+                $this->addValueToHashmap($key, $value);
+            }
+        } else {
+            $this->addValueToHashmap($key, $value);
+        }
+    }
+
+    private function addValueToHashmap($key, $value) {
         $hasValue = $this->keyColumnsHashmap[$key][$value] ?? null;
         if (!isset($hasValue)) {
             if (!isset($this->keyColumnsHashmap[$key])) {
@@ -36,7 +48,7 @@ class ExportTableDefinition
         }
     }
 
-    public function addKeyValueList(string $key, array $values)
+    public function addKeyValueList(ExportKeyDefinition $key, array $values)
     {
         foreach ($values as $value) {
             $this->addKeyValue($key, $value);
