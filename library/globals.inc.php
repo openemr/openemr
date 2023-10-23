@@ -4265,6 +4265,13 @@ $GLOBALS_METADATA = array(
             xl('How to display the sensitivity option'),
         ],
 
+        'enc_in_collection' => [
+            xl('Show In Collection on Encounter Form'),
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::SHOW_ALL,
+            xl("How to display the 'In Collection' option. May be overriden by Hide Billing Widget setting"),
+        ],
+
         'enc_enable_issues' => [
             xl('Allow Linking/Adding Issues on Encounter'),
             getDefaultRenderListOptions(),
