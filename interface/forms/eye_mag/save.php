@@ -44,6 +44,7 @@ require_once("$srcdir/report.inc.php");
 use Mpdf\Mpdf;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Pdf\Config_Mpdf;
 
 $returnurl = 'encounter_top.php';
 
@@ -358,23 +359,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $sql = "DELETE from documents where documents.url like ?";
         sqlQuery($sql, ['%' . $filename]);
         // We want to overwrite so only one PDF is stored per form/encounter
-        $config_mpdf = array(
-            'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
-            'mode' => $GLOBALS['pdf_language'],
-            'format' => $GLOBALS['pdf_size'],
-            'default_font_size' => '9',
-            'default_font' => '',
-            'margin_left' => $GLOBALS['pdf_left_margin'],
-            'margin_right' => $GLOBALS['pdf_right_margin'],
-            'margin_top' => $GLOBALS['pdf_top_margin'],
-            'margin_bottom' => $GLOBALS['pdf_bottom_margin'],
-            'margin_header' => '',
-            'margin_footer' => '',
-            'orientation' => $GLOBALS['pdf_layout'],
-            'shrink_tables_to_fit' => 1,
-            'use_kwt' => true,
-            'keep_table_proportions' => true
-        );
+        $config_mpdf = Config_Mpdf::getConfigMpdf();
         $pdf = new mPDF($config_mpdf);
         if ($_SESSION['language_direction'] == 'rtl') {
             $pdf->SetDirectionality('rtl');
@@ -397,23 +382,6 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
 
         global $web_root, $webserver_root;
         $content = ob_get_clean();
-        // Fix a nasty html2pdf bug - it ignores document root!
-        $i = 0;
-        $wrlen = strlen($web_root);
-        $wsrlen = strlen($webserver_root);
-        while (true) {
-            $i = stripos($content, " src='/", $i + 1);
-            if ($i === false) {
-                break;
-            }
-
-            if (
-                substr($content, $i + 6, $wrlen) === $web_root &&
-                substr($content, $i + 6, $wsrlen) !== $webserver_root
-            ) {
-                $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
-            }
-        }
         // Below is for including style sheet for report specific styles. Left here for future use.
         //$styles = file_get_contents('../css/report.css');
         //$pdf->writeHTML($styles, 1);

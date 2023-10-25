@@ -554,6 +554,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $soap_status = sqlStatement("select soap_import_status,pid from patient_data where pid=? and soap_import_status in ('1','3')", array($pid));
                 while ($row_soapstatus = sqlFetchArray($soap_status)) { ?>
                     top.restoreSession();
+                    let reloadRequired = false;
                     $.ajax({
                         type: "POST",
                         url: "../../soap_functions/soap_patientfullmedication.php",
@@ -563,7 +564,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         },
                         async: false,
                         success: function(thedata) {
-                            //alert(thedata);
+                            if (!thedata.includes("Nothing")) {
+                                reloadRequired = true;
+                            }
                             msg_updation += thedata;
                         },
                         error: function() {
@@ -581,13 +584,20 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         },
                         async: false,
                         success: function(thedata) {
-                            //alert(thedata);
-                            msg_updation += thedata;
+                            if (!thedata.includes("Nothing")) {
+                                reloadRequired = true;
+                            }
+                            msg_updation += "\n" + thedata;
                         },
                         error: function() {
                             alert('ajax error');
                         }
                     });
+
+                    if (reloadRequired) {
+                        document.location.reload();
+                    }
+
                     <?php
                     if ($GLOBALS['erx_import_status_message']) { ?>
                         if (msg_updation)
@@ -1034,12 +1044,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $pl = (AclMain::aclCheckIssue('medical_problem')) ? 1 : 0;
                     $meds = (AclMain::aclCheckIssue('medication')) ? 1 : 0;
                     $rx = (!$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx')) ? 1 : 0;
-                    $cards = $allergy + $pl + $meds + $rx;
+                    $cards = $allergy + $pl + $meds;
                     $col = "p-1 ";
 
                     if ($cards > 0) {
                         $colInt = 12 / $cards;
-                        $col = "col-" . $colInt;
+                        $col .= "col-md-" . $colInt;
                     }
 
                     /**
@@ -1192,7 +1202,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $viewArgs['content'] = ob_get_contents();
                         ob_end_clean();
 
-                        echo "<div class=\"$col\">";
+                        echo "<div class=\"col\">";
                         echo $t->render('patient/card/rx.html.twig', $viewArgs);
                         echo "</div>";
                     endif;
@@ -1367,7 +1377,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
                         }
 
-                        if ($GLOBALS["enable_oa"]) {
+                        if ($GLOBALS["enable_eligibility_requests"]) {
                             if (($_POST['status_update'] ?? '') === 'true') {
                                 unset($_POST['status_update']);
                                 $showEligibility = true;
@@ -1404,7 +1414,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
                             'ins' => $insArr,
                             'eligibility' => $output,
-                            'enable_oa' => $GLOBALS['enable_oa'],
+                            'enable_eligibility_requests' => $GLOBALS['enable_eligibility_requests'],
                             'auth' => AclMain::aclCheckCore('patients', 'demo', '', 'write'),
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),

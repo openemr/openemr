@@ -433,7 +433,7 @@ if ($exclude_policy != "") {
                                                     <?php echo xlt('Create batch'); ?>
                                                     <input type='hidden' name='form_savefile' id='form_savefile' value=''></input>
 
-                                                    <?php if ($GLOBALS['enable_oa']) {
+                                                    <?php if ($GLOBALS['enable_eligibility_requests']) {
                                                         echo "<a href='#' class='btn btn-secondary btn-transmit' onclick='return validate_batch(true);'>" . xlt('Request Eligibility') . "</a>\n";
                                                     }
                                                     ?>

@@ -96,7 +96,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
         <?php
     } ?>    <div class="row">
                 <div class="col-sm-12">
-                    <form method='post' class="form-horizontal" action='mfa_totp.php' onsubmit='return top.restoreSession()'>
+                    <form method='post' class="form-horizontal" action='mfa_totp.php' onsubmit="doregister('reg2')">
                         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 
@@ -126,7 +126,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                 </fieldset>
                                 <div class="form-group clearfix">
                                 <div class="col-sm-12 text-left position-override">
-                                        <button type="button" class="btn btn-secondary btn-save" value="<?php echo xla('Submit'); ?>" onclick="doregister('reg2')"><?php echo xlt('Submit'); ?></button>
+                                        <button type="submit" class="btn btn-secondary btn-save" value="<?php echo xla('Submit'); ?>"><?php echo xlt('Submit'); ?></button>
                                         <button type="button" class="btn btn-link btn-cancel" value="<?php echo xla('Cancel'); ?>" onclick="docancel()" ><?php echo xlt('Cancel'); ?></button>
                                     </div>
                                 </div>

@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Billing;
 
+use OpenEMR\Billing\BillingProcessor\BillingClaimBatchControlNumber;
 use OpenEMR\Billing\Claim;
 
 class X125010837I
@@ -50,7 +51,7 @@ class X125010837I
             "*" . date('Hi', $today) .
             "*" . "^" .
             "*" . "00501" .
-            "*" . "000000001" .
+            "*" . BillingClaimBatchControlNumber::getIsa13() .
             "*" . $claim->x12gsisa14() .
             "*" . $claim->x12gsisa15() .
             "*:" .
@@ -61,7 +62,7 @@ class X125010837I
             "*" . trim($claim->x12gs03()) .
             "*" . date('Ymd', $today) .
             "*" . date('Hi', $today) .
-            "*1" .
+            "*" . BillingClaimBatchControlNumber::getGs06();
             "*X" .
             // "*" . $claim->x12gsversionstring() .
             "*" . "005010X223A2" .
