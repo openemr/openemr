@@ -1811,7 +1811,7 @@ CREATE TABLE  `facility_user_ids` (
 --
 -- Table structure for table `fee_schedule`
 --
-
+DROP TABLE IF EXISTS `fee_schedule`;
 CREATE TABLE `fee_schedule` (
     `id` BIGINT NOT NULL auto_increment,
     `insurance_company_id` SMALLINT(4) DEFAULT NULL,
