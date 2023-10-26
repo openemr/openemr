@@ -611,6 +611,6 @@ CREATE TABLE `fee_schedule` (
     `fee` decimal(12,2) DEFAULT NULL,
     `effective_date` date DEFAULT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `ins_plan_code_mod_type_date` (`insurance_company_id`,`plan`, `code`, `modifier`, `type`, `effective_date`)
+    UNIQUE KEY `ins_plan_code_mod_type_date` (`insurance_company_id`, `plan`, `code`, `modifier`, `type`, `effective_date`)
 ) ENGINE=InnoDb AUTO_INCREMENT=1;
 #EndIf
