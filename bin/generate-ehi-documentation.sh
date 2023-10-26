@@ -1,14 +1,16 @@
-#!/usr/bin/bash
+#!/bin/bash
 
 DB_USER=openemr
 DB_NAME=openemr
 DB_SCHEMA=openemr
-DB_HOST=10.0.0.12
+DB_HOST=localhost
 DB_PORT=8320
 DB_PASSWORD=openemr
-SCHEMA_LOCATION=../interface/modules/custom_modules/oe-module-ehi-exporter/schemaspy/schemas/
-TEMPLATE_LOCATION=../interface/modules/custom_modules/oe-module-ehi-exporter/schemaspy/layout/
-DOC_OUTPUT=../interface/modules/custom_modules/oe-module-ehi-exporter/public/ehi-docs/
+EHI_ROOT_FILE=../Documentation/EHI_Export/schemaspy
+SCHEMA_LOCATION=$EHI_ROOT_FILE/schemas/
+TEMPLATE_LOCATION=$EHI_ROOT_FILE/layout/
+DOC_OUTPUT=../Documentation/EHI_Export/docs/
+JAR_FILES=$EHI_ROOT_FILE/jars
 
 EYE_FORMS="form_eye_acuity|form_eye_antseg|form_eye_base|form_eye_biometrics|form_eye_external|form_eye_hpi|form_eye_locking|form_eye_mag_dispense|form_eye_mag_impplan|form_eye_mag_orders|form_eye_mag_prefs|form_eye_mag_wearing|form_eye_neuro|form_eye_postseg|form_eye_refraction|form_eye_ros|form_eye_vitals|form_taskman"
 CAMOS_FORMS="form_CAMOS|form_CAMOS_category|form_CAMOS_item|form_CAMOS_subcategory"
@@ -37,4 +39,4 @@ FILTER_CLAUSE="-i $TABLES_INCLUDE"
 # schema file is named openemr.meta.xml
 
 #java -jar schemaspy.jar -t mysql -host 10.0.12 -port 8320 -db openemr -u openemr -p openemr -o schemaspy -s openemr -dp ./mysql-connector-j-8.1.0/mysql-connector-j-8.1.0.jar -vizjs -pfp -norows -noimplied -dbObjectPageLength 50 -I "(openemr.dac_[a-zA-Z_])*" -meta ../schemas
-java -jar schemaspy.jar -t mysql -host $DB_HOST -port $DB_PORT -db $DB_NAME -u $DB_USER -p $DB_PASSWORD -o $DOC_OUTPUT -s $DB_SCHEMA -dp ./mysql-connector-j-8.1.0.jar -vizjs -norows -noimplied -nopages $FILTER_CLAUSE -meta $SCHEMA_LOCATION -template $TEMPLATE_LOCATION
+java -jar $JAR_FILES/schemaspy.jar -t mysql -host $DB_HOST -port $DB_PORT -db $DB_NAME -u $DB_USER -p $DB_PASSWORD -o $DOC_OUTPUT -s $DB_SCHEMA -dp $JAR_FILES/mysql-connector-j-8.1.0.jar -vizjs -norows -noimplied -nopages $FILTER_CLAUSE -meta $SCHEMA_LOCATION -template $TEMPLATE_LOCATION
