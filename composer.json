@@ -41,6 +41,7 @@
         "laminas/laminas-stdlib": "3.18.0",
         "laminas/laminas-xmlrpc": "2.17.0",
         "lcobucci/jwt": "4.2.1",
+        "league/csv": "9.8.0",
         "league/omnipay": "3.2.1",
         "mobiledetect/mobiledetectlib": "3.74.0",
         "monolog/monolog": "3.4.0",

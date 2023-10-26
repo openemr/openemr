@@ -1809,6 +1809,25 @@ CREATE TABLE  `facility_user_ids` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `fee_schedule`
+--
+
+CREATE TABLE `fee_schedule` (
+    `id` BIGINT NOT NULL auto_increment,
+    `insurance_company_id` SMALLINT(4) DEFAULT NULL,
+    `plan` TINYTEXT DEFAULT NULL,
+    `code` TINYTEXT DEFAULT NULL,
+    `modifier` TINYTEXT DEFAULT NULL,
+    `type` TINYTEXT DEFAULT NULL,
+    `fee` decimal(12,2) DEFAULT NULL,
+    `effective_date` date DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `ins_plan_code_mod_type_date` (`insurance_company_id`,`plan`, `code`, `modifier`, `type`, `effective_date`)
+) ENGINE=InnoDb AUTO_INCREMENT=1;
+
+-----------------------------------------------------------
+
+--
 -- Table structure for table `fee_sheet_options`
 --
 
