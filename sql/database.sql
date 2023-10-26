@@ -1814,7 +1814,7 @@ CREATE TABLE  `facility_user_ids` (
 
 DROP TABLE IF EXISTS `fee_schedule`;
 CREATE TABLE `fee_schedule` (
-  `id` BIGINT NOT NULL auto_increment,
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
   `insurance_company_id` SMALLINT(4) DEFAULT NULL,
   `plan` TINYTEXT,
   `code` TINYTEXT,
