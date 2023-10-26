@@ -11,7 +11,7 @@
 */
 
 // comment this out when using this script (and then uncomment it again when done using script)
-//exit;
+exit;
 
 if (php_sapi_name() !== 'cli') {
     echo "Only php cli can execute command\n";
@@ -32,12 +32,9 @@ $filepath = "/tmp/";
 $reader = Reader::createFromPath($filepath . $filename);
 $reader->setDelimiter("\t");
 
-//echo "record count is " . count($reader);
 $start_record = $argv[3];
 $reader->setHeaderOffset($start_record);
 $header = $reader->getHeader();
-//var_dump($header);
-//exit;
 
 $insurance_company_id = $argv[4];
 $effective_date = $argv[5] ?? '';
@@ -45,8 +42,6 @@ $records = $reader->getRecords($header);
 foreach ($records as $offset => $record) {
     
     if (trim($record['type'] ?? '') == "VT") {
-        //var_dump($record);
-        //exit;
         $sched_code = trim($record['code'] ?? '');
         $sched_mod = trim($record['modifier'] ?? '');
         $sched_fee = $record['fee'] ?? '';
@@ -70,9 +65,11 @@ foreach ($records as $offset => $record) {
                 $ceil_fee = number_format(ceil($sched_fee), 2, '.', '');
                 echo "*** existing fee " . sprintf("%7.2f", $our_fee) . " for $our_code:$our_mod " .
                     "is less than their fee of " . sprintf("%7.2f", $sched_fee) . "\n";
-                /* echo "update prices table for code $our_code:$our_mod from " . $our_fee .
+                /* uncomment below 3 lines to update prices accordingly
+                echo "update prices table for code $our_code:$our_mod from " . $our_fee .
                     " to ". $ceil_fee . " with price id " . $price_id . "\n";
-                $update_prices = sqlQuery("UPDATE `prices` SET `pr_price` = ? WHERE `pr_id` = ?", [$ceil_fee, $price_id]); */
+                $update_prices = sqlQuery("UPDATE `prices` SET `pr_price` = ? WHERE `pr_id` = ?", [$ceil_fee, $price_id]); 
+                */
             }
         }
     }
