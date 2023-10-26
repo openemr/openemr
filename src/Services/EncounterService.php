@@ -732,7 +732,7 @@ class EncounterService extends BaseService
      * @param $facility_id
      * @return mixed
      */
-    public function fetchPosCode($facility_id)
+    public function getPosCode($facility_id)
     {
         $sql = "SELECT pos_code FROM facility WHERE id = ?";
         $result = sqlQuery($sql, [$facility_id]);

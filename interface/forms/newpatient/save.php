@@ -40,7 +40,7 @@ if ($_POST['mode'] == 'new' && ($GLOBALS['enc_service_date'] == 'hide_both' || $
 } else {
     $date = isset($_POST['form_date']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_date']) : null;
 }
-$defaultPosCode = $encounterService->fetchPosCode($_POST['facility_id']);
+$defaultPosCode = $encounterService->getPosCode($_POST['facility_id']);
 $onset_date = isset($_POST['form_onset_date']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_onset_date']) : null;
 $sensitivity = $_POST['form_sensitivity'] ?? null;
 $pc_catid = $_POST['pc_catid'] ?? null;
