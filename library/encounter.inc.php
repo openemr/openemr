@@ -33,9 +33,3 @@ function fetchDateService($encounter)
     return $result[0];
 }
 
-function fetchPosCode($facility_id)
-{
-    $sql = "SELECT pos_code FROM facility WHERE id = ?";
-    $result = sqlQuery($sql, [$facility_id]);
-    return $result['pos_code'];
-}
