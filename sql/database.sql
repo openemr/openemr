@@ -1814,16 +1814,16 @@ CREATE TABLE  `facility_user_ids` (
 
 DROP TABLE IF EXISTS `fee_schedule`;
 CREATE TABLE `fee_schedule` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT,
-  `insurance_company_id` SMALLINT(4) DEFAULT NULL,
-  `plan` TINYTEXT,
-  `code` TINYTEXT,
-  `modifier` TINYTEXT,
-  `type` TINYTEXT,
-  `fee` decimal(12,2) DEFAULT NULL,
-  `effective_date` date DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `ins_plan_code_mod_type_date` (`insurance_company_id`, `plan`, `code`, `modifier`, `type`, `effective_date`)
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `insurance_company_id` SMALLINT(4) DEFAULT NULL,
+    `plan` TINYTEXT(20),
+    `code` TINYTEXT(10),
+    `modifier` TINYTEXT(2),
+    `type` TINYTEXT(20),
+    `fee` decimal(12,2) DEFAULT NULL,
+    `effective_date` date DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `ins_plan_code_mod_type_date` (`insurance_company_id`, `plan`, `code`, `modifier`, `type`, `effective_date`)
 ) ENGINE=InnoDb AUTO_INCREMENT=1;
 
 -----------------------------------------------------------
