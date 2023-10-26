@@ -32,4 +32,3 @@ function fetchDateService($encounter)
     $result = explode(" ", $result['date']);
     return $result[0];
 }
-
