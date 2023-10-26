@@ -604,13 +604,13 @@ UPDATE categories_seq SET id = (select MAX(id) from categories);
 CREATE TABLE `fee_schedule` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
     `insurance_company_id` SMALLINT(4) DEFAULT NULL,
-    `plan` TINYTEXT,
-    `code` TINYTEXT,
-    `modifier` TINYTEXT,
-    `type` TINYTEXT,
+    `plan` VARCHAR(20),
+    `code` VARCHAR(10),
+    `modifier` VARCHAR(2),
+    `type` VARCHAR(20),
     `fee` decimal(12,2) DEFAULT NULL,
     `effective_date` date DEFAULT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE KEY `ins_plan_code_mod_type_date` (`insurance_company_id`, `plan(20)`, `code(10)`, `modifier(2)`, `type(10)`, `effective_date`)
+    UNIQUE KEY `ins_plan_code_mod_type_date` (`insurance_company_id`, `plan`, `code`, `modifier`, `type`, `effective_date`)
 ) ENGINE=InnoDb AUTO_INCREMENT=1;
 #EndIf
