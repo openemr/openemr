@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Modules\EhiExporter;
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
@@ -20,6 +21,9 @@ $memoryLimitUpdated = false;
 $errorMessage = "";
 if (isset($_POST['submit'])) {
     try {
+        if (!CsrfUtils::verifyCsrfToken($_POST['_token'] ?? '')) {
+            throw new \InvalidArgumentException(xl("Invalid CSRF token"));
+        }
         $memoryLimitUpdated = ini_set("memory_limit", "-1"); // set the memory limit to be unlimited so we can run the export.
         $pid = intval($_POST['pid'] ?? 0);
         $includeDocuments = intval($_POST['include_documents'] ?? 0) === 1;
