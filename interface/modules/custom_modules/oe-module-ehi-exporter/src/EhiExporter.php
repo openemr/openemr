@@ -303,6 +303,10 @@ class EhiExporter
          */
         while ($exportState->hasTableDefinitions() && $iterations++ <= $maxCycleLimit) {
             $tableDefinition = $exportState->getNextTableDefinitionToProcess();
+            if ($this->shouldSkipTableDefinition($tableDefinition)) {
+                continue;
+            }
+            // otherwise if we have no records we skip as well.
             $records = $tableDefinition->getRecords();
             if (empty($records)) {
                 continue;
@@ -617,5 +621,12 @@ class EhiExporter
         if (!$zip->addFromString("README", $readmeContents)) {
             $this->logger->errorLogCaller("Failed to add README file");
         }
+    }
+
+    private function shouldSkipTableDefinition(ExportTableDefinition $tableDefinition)
+    {
+        // we need to check if the table even exists in the database, some tables do not get installed (such as form tables)
+        // without user intervention and we need to skip over those tables
+        return !QueryUtils::existsTable($tableDefinition->table);
     }
 }
