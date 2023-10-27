@@ -20,3 +20,4 @@ portal/patient/scripts
 public/assets
 swagger
 vendor
+Documentation/EHI_Export/**/*.js
