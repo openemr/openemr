@@ -48,9 +48,7 @@ class EhiExporter
 
     private SystemLogger $logger;
     private EhiExportJobTaskService $taskService;
-    public function __construct(private $modulePublicDir
-        , private $modulePublicUrl, private $xmlConfigPath
-        , private Environment $twig)
+    public function __construct(private $modulePublicDir, private $modulePublicUrl, private $xmlConfigPath, private Environment $twig)
     {
         $this->logger = new SystemLogger();
         $this->taskService = new EhiExportJobTaskService();
@@ -196,10 +194,6 @@ class EhiExporter
                 }
             }
         }
-        if ($task->hasPatientIds()) {
-            $task = $this->taskService->insert($task);
-            $tasks[] = $task;
-        }
 
         // now handle the patients that have no documents
 
@@ -208,25 +202,36 @@ class EhiExporter
         $hasMorePatients = true;
         $iterations = -1;
         $fetchLimit = self::PATIENT_TASK_BATCH_FETCH_LIMIT;
+        $patientSizePerRecord = 100 * 1024; // average size we estimate to be 100KB per patient in data exports so we will add that up per patient
         // maxes out at 2.5 Million patients which is a lot of patients and should be enough for most use cases
         while ($hasMorePatients && $iterations++ < self::CYCLE_MAX_ITERATIONS_LIMIT) {
             $limitPos = $iterations * $fetchLimit;
             $fetch = ($limitPos + $fetchLimit) >= $jobPatientIdsCount ? ($jobPatientIdsCount - $limitPos) : $fetchLimit;
             $pidSlice = array_slice($jobPatientIds, $limitPos, $fetch);
-            $sql = "SELECT pid FROM patient_data LEFT JOIN documents ON patient_data.pid = documents.foreign_id WHERE documents.id IS NULL AND foreign_id IN ( "
+            $sql = "SELECT pid FROM patient_data LEFT JOIN documents ON patient_data.pid = documents.foreign_id WHERE documents.id IS NULL AND patient_data.pid IN ( "
                 . str_repeat("?, ", count($pidSlice) - 1) . "? )";
             $patientRecords = QueryUtils::fetchRecords($sql, $pidSlice);
             $recordCount = count($patientRecords);
             if ($recordCount < $fetchLimit) {
                 $hasMorePatients = false;
             }
-            $task = new EhiExportJobTask();
-            $task->ehi_export_job_id = $job->getId();
-            $task->ehiExportJob = $job;
+
             for ($i = 0; $i < $recordCount; $i++) {
                 $task->addPatientId(intval($patientRecords[$i]['pid']));
+                $currentDocumentSize += $patientSizePerRecord;
+                if ($currentDocumentSize >= $job->getDocumentLimitSize()) {
+                    $task = $this->taskService->insert($task);
+                    $tasks[] = $task;
+                    $task = new EhiExportJobTask();
+                    $task->ehi_export_job_id = $job->getId();
+                    $task->ehiExportJob = $job;
+                    $currentDocumentSize = 0;
+                }
             }
+            // at the end we add the task if we have patient ids
             if ($task->hasPatientIds()) {
+                // make sure to insert the task
+                $task = $this->taskService->insert($task);
                 $tasks[] = $task;
             }
         }
