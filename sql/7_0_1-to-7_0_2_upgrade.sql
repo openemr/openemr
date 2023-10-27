@@ -603,7 +603,7 @@ UPDATE categories_seq SET id = (select MAX(id) from categories);
 #IfNotTable fee_schedule
 CREATE TABLE `fee_schedule` (
     `id` BIGINT NOT NULL AUTO_INCREMENT,
-    `insurance_company_id` INT(11) DEFAULT NULL,
+    `insurance_company_id` INT(11) NOT NULL DEFAULT 0,
     `plan` VARCHAR(20) DEFAULT '',
     `code` VARCHAR(10) DEFAULT '',
     `modifier` VARCHAR(2) DEFAULT '',
