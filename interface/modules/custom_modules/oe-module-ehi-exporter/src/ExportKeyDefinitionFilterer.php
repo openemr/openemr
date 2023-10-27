@@ -51,11 +51,13 @@ class ExportKeyDefinitionFilterer
     public function filterKey(ExportKeyDefinition $key)
     {
         // override our table settings so we can get better exports here.
-        if (isset(self::LIST_OPTIONS_KEY_FILTER_DEFINITIONS[$key->localTable])
-            && isset(self::LIST_OPTIONS_KEY_FILTER_DEFINITIONS[$key->localTable][$key->localColumn])) {
+        if (
+            isset(self::LIST_OPTIONS_KEY_FILTER_DEFINITIONS[$key->localTable])
+            && isset(self::LIST_OPTIONS_KEY_FILTER_DEFINITIONS[$key->localTable][$key->localColumn])
+        ) {
             $keyDef = self::LIST_OPTIONS_KEY_FILTER_DEFINITIONS[$key->localTable][$key->localColumn];
             $key->localValueOverride = $keyDef['localValueOverride'];
-            $key->foreignKeyColumn =$keyDef['foreignKeyColumn'];
+            $key->foreignKeyColumn = $keyDef['foreignKeyColumn'];
         }
         return $key;
     }
@@ -72,7 +74,6 @@ class ExportKeyDefinitionFilterer
     {
         $keys = [];
         if ($key->localTable == 'lists') {
-
             if (!isset($this->issueTypes)) {
                 $this->issueTypes = QueryUtils::fetchTableColumn("select type from issue_types", 'type');
             }
