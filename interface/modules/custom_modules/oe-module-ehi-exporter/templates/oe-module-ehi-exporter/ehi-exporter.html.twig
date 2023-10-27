@@ -4,11 +4,6 @@
     {{ setupHeader() }}
 </head>
     <body class="p-3">
-    <script>
-        function goBack() {
-            window.history.back();
-        }
-    </script>
     {% if result %}
         {% if result.getStatus() == 'completed' %}
             <h1>{{ "Exported Electronic Health Information (EHI) Zip Files"|xlt }}</h1>
@@ -36,7 +31,7 @@
             </details>
             {% endfor %}
 
-            <a href="javascript:goBack();" class="btn btn-primary">{{ "Go Back"|xlt }}</a>
+            <a href="{{postAction|attr}}" class="btn btn-primary">{{ "Go Back"|xlt }}</a>
         {% elseif result.getStatus() == 'failed' %}
             <div class="alert alert-danger">
                 {{ "Check system logs as export failed to process"|xlt }}
@@ -52,9 +47,14 @@
                     {{ "The php.ini memory_limit setting could not be set to -1 to allow unlimited memory.  This could have caused your export to fail"|xlt }}
                 {% endif %}
             </div>
-            <a href="javascript:goBack();" class="btn btn-primary">{{ "Go Back"|xlt }}</a>
+            <a href="{{postAction|attr}}" class="btn btn-primary">{{ "Go Back"|xlt }}</a>
         {% endif %}
     {% else %}
+        {% if errorMessage %}
+        <div class="alert alert-danger">
+            {{ errorMessage|text }}
+        </div>
+        {% endif %}
         <h1 class="mt-3">{{ "Run Electronic Health Information Export"|xlt }}</h1>
         <div>
             <p>
@@ -88,7 +88,7 @@
             </div>
             <div>
                 <label>
-                    {{ "Zip file limit setting in MBs"|xlt }}
+                    {{ "Zip file limit setting in MBs"|xlt }} ({{ "Max Setting is 4000MB "|xlt }})
                     <input type="text" name="file_size_limit" value="{{ exportSizeSettings.default_zip_size|attr }}" />
                 </label>
                 <p>{{ "Exports will break patients up at this file size, if a single patient's file size exceeds this limit the file size may be larger than this setting"|xlt}}.</p>
@@ -102,6 +102,7 @@
             </div>
             <p class="alert alert-info"> {{ "The export process will attempt to set the ram memory usage to unlimited in order to process the export"|xlt}}.
                 {{ "If this setting is disabled in your environment you will need to manually set your php.ini memory_limit setting"|xlt}}.</p>
+            {{ csrfToken() }}
             <input type="submit" name="submit" class="btn btn-primary" value="Export">
         </form>
     {% endif %}
