@@ -47,6 +47,7 @@ echo $twig->render(
         // TODO: @adunsulag add most recent exports here.
         ,'errorMessage' => $errorMessage
         ,'postAction' => htmlspecialchars($_SERVER['PHP_SELF'])
+        ,'site_addr_oath' => trim($GLOBALS['site_addr_oath'] ?? '')
     ]
 );
 exit;

@@ -76,6 +76,12 @@
                 {{ "Disk Free Space"|xlt }}: <b>{{ exportSizeSettings.disk_free_space|text }}</b>
             </p>
         </div>
+        {% if site_addr_oath is empty %}
+            test
+            <div class="alert alert-danger">
+                {{ "No Site Address Override has been configured for this installation.  Please set this address in order for the export readme to have the correct documentation links"|xlt }}
+            </div>
+        {% endif %}
 
         <hr />
         <form method="post" action="{{ postAction|attr }}">

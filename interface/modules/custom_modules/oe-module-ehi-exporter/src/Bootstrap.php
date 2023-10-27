@@ -107,8 +107,12 @@ class Bootstrap
     {
         $xmlConfigPath = $GLOBALS['webserver_root'] . DIRECTORY_SEPARATOR . 'Documentation' . DIRECTORY_SEPARATOR . 'EHI_Export'
             . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'openemr.openemr.xml';
-        return new EhiExporter($GLOBALS['webserver_root'] . $this->getPublicPath(), $this->getPublicPath()
-            , $xmlConfigPath, $this->getTwig());
+        return new EhiExporter(
+            $GLOBALS['webserver_root'] . $this->getPublicPath(),
+            $this->getPublicPath(),
+            $xmlConfigPath,
+            $this->getTwig()
+        );
     }
 
     public function getTwig()
