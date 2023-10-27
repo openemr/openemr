@@ -97,14 +97,62 @@ class Bootstrap
         return self::$instance;
     }
 
+    public function getLogger()
+    {
+        return new SystemLogger();
+    }
+
     public function getExporter()
     {
-        return new EhiExporter($GLOBALS['webserver_root'] . $this->getPublicPath(), $this->getPublicPath());
+        $xmlConfigPath = $GLOBALS['webserver_root'] . DIRECTORY_SEPARATOR . 'Documentation' . DIRECTORY_SEPARATOR . 'EHI_Export'
+            . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'openemr.openemr.xml';
+        return new EhiExporter($GLOBALS['webserver_root'] . $this->getPublicPath(), $this->getPublicPath(), $xmlConfigPath);
+    }
+
+    public function getTwig()
+    {
+        $container = new TwigContainer($this->getTemplatePath(), $GLOBALS['kernel']);
+        return $container->getTwig();
     }
 
     public function subscribeToEvents()
     {
 //        $this->addGlobalSettings();
+        $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, [$this, 'addCustomModuleMenuItem']);
+    }
+
+    public function addCustomModuleMenuItem(MenuEvent $event)
+    {
+        $menu = $event->getMenu();
+
+        $menuItem = new \stdClass();
+        $menuItem->requirement = 0;
+        $menuItem->target = 'msc';
+        $menuItem->menu_id = 'ehiExporter0';
+        $menuItem->label = xlt("Electronic Health Information Export");
+        $menuItem->url = $GLOBALS['webroot'] . "/interface/modules/custom_modules/" . self::MODULE_NAME . "/public/";
+        $menuItem->children = [];
+
+        /**
+         * This defines the Access Control List properties that are required to use this module.
+         * Only Administrators are allowed to use this feature.
+         */
+        $menuItem->acl_req = ["admin", "super"];
+        /**
+         * If you want your menu item to allows be shown then leave this property blank.
+         */
+        $menuItem->global_req = [];
+
+        foreach ($menu as $item) {
+            if ($item->menu_id == 'misimg') {
+                $item->children[] = $menuItem;
+                break;
+            }
+        }
+
+        $event->setMenu($menu);
+
+        return $event;
     }
 
     /**

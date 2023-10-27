@@ -16,7 +16,8 @@ class ExportTableDataFilterer
         ]
     ];
 
-    public function getSelectQueryForTable(string $tableName) {
+    public function getSelectQueryForTable(string $tableName)
+    {
         if (isset(self::SELECT_COLUMNS[$tableName])) {
             return self::SELECT_COLUMNS[$tableName];
         }

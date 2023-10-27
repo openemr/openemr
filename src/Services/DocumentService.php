@@ -34,6 +34,21 @@ class DocumentService extends BaseService
         UuidRegistry::createMissingUuidsForTables([self::TABLE_NAME]);
     }
 
+    /**
+     * Retrieves a browser download link to retrieve a document given a document id.  The link assumes a valid
+     * OpenEMR session
+     * @return string The absolute path download link to retrieve a document
+     */
+    public function getDownloadLink($documentId, $pid = null)
+    {
+        $queryParams = ['document' => '', 'retrieve' => '','patient_id' => '', 'document_id' => $documentId];
+        if (isset($pid)) {
+            $queryParams['patient_id'] = $pid;
+        }
+        $query = http_build_query($queryParams);
+        return $GLOBALS['web_root'] . '/controller.php?' . $query;
+    }
+
     public function isValidPath($path)
     {
         $docPathParts = explode("/", $path);
@@ -239,10 +254,10 @@ class DocumentService extends BaseService
             ) doc_categories ON doc_categories.document_id = docs.id
             LEFT JOIN
             (
-                select 
+                select
                    name AS category_name
                     ,id AS category_id
-                FROM 
+                FROM
                      categories
             ) category ON category.category_id = doc_categories.category_id
         ";

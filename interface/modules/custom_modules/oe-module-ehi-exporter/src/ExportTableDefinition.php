@@ -37,7 +37,8 @@ class ExportTableDefinition
         }
     }
 
-    private function addValueToHashmap($key, $value) {
+    private function addValueToHashmap($key, $value)
+    {
         $hasValue = $this->keyColumnsHashmap[$key][$value] ?? null;
         if (!isset($hasValue)) {
             if (!isset($this->keyColumnsHashmap[$key])) {
