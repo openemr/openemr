@@ -607,7 +607,7 @@ CREATE TABLE `fee_schedule` (
     `plan` VARCHAR(20) DEFAULT '',
     `code` VARCHAR(10) DEFAULT '',
     `modifier` VARCHAR(2) DEFAULT '',
-    `type` VARCHAR(20) DEFAULT NULL,
+    `type` VARCHAR(20) DEFAULT '',
     `fee` decimal(12,2) DEFAULT NULL,
     `effective_date` date DEFAULT NULL,
     PRIMARY KEY (`id`),
