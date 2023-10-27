@@ -6,6 +6,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Modules\EhiExporter\ExportResult;
 use OpenEMR\Modules\EhiExporter\ExportKeyDefinition;
 use OpenEMR\Modules\EhiExporter\ExportTableDefinition;
+use OpenEMR\Modules\EhiExporter\Models\EhiExportJobTask;
 
 class ExportState
 {
@@ -20,7 +21,7 @@ class ExportState
 
     private ExportTableDataFilterer $dataFilterer;
 
-    public function __construct(SystemLogger $logger, \SimpleXMLElement $node)
+    public function __construct(SystemLogger $logger, \SimpleXMLElement $node, EhiExportJobTask $jobTask)
     {
         $this->rootNode = $node;
         $this->queue = new \SplQueue();
@@ -28,8 +29,14 @@ class ExportState
         $this->tableDefinitionsMap = [];
         $this->dataFilterer = new ExportTableDataFilterer();
         $this->keyFilterer = new ExportKeyDefinitionFilterer();
+        $this->jobTask = $jobTask;
 
         $this->logger = $logger;
+    }
+
+    public function getJobTask()
+    {
+        return $this->jobTask;
     }
 
     public function addExportResultTable(string $tableName, int $recordCount)
@@ -51,7 +58,8 @@ class ExportState
         return $this->rootNode->xpath($xpath);
     }
 
-    public function getTableDefinitionForTable(string $tableName) : ?ExportTableDefinition {
+    public function getTableDefinitionForTable(string $tableName): ?ExportTableDefinition
+    {
         if (isset($this->tableDefinitionsMap[$tableName])) {
             return $this->tableDefinitionsMap[$tableName];
         }
@@ -132,22 +140,28 @@ class ExportState
                 }
             }
         }
+        // for any hard-coded denormalized tables we need to handlethose here.
         if ($this->hasDenormalizedKeys($tableDefinition)) {
             $keys = $this->getDenormalizedKeys($tableDefinition);
             foreach ($keys as $key) {
+                $foreignTableName = $key->foreignKeyTable;
+                $foreignTableDefinition = $this->tableDefinitionsMap[$foreignTableName] ?? new ExportTableDefinition($foreignTableName);
+                $keyData['tables'][$foreignTableName] = $foreignTableDefinition;
                 $keyData['keys'][] = $key;
             }
         }
         return $keyData;
     }
 
-    private function hasDenormalizedKeys(ExportTableDefinition $tableDefinition) {
+    private function hasDenormalizedKeys(ExportTableDefinition $tableDefinition)
+    {
         if ($tableDefinition->table === 'patient_data' || $tableDefinition->table === 'patient_history') {
             return true;
         }
     }
 
-    private function getDenormalizedKeys(ExportTableDefinition $tableDefinition) {
+    private function getDenormalizedKeys(ExportTableDefinition $tableDefinition)
+    {
         // these columns are denormalized data and have the ids separated by a pipe (|)
         if ($tableDefinition->table === 'patient_data' || $tableDefinition->table == 'patient_history') {
             $care_team_provider = new ExportKeyDefinition();

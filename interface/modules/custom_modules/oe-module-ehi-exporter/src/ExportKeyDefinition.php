@@ -4,6 +4,11 @@ namespace OpenEMR\Modules\EhiExporter;
 
 class ExportKeyDefinition
 {
+    public function __construct()
+    {
+        $this->keyType = "child";
+    }
+
     public string $foreignKeyTable;
     public string $foreignKeyColumn;
 
