@@ -41,6 +41,7 @@ class Bootstrap
 {
     const MODULE_INSTALLATION_PATH = "/interface/modules/custom_modules/";
     const MODULE_NAME = "oe-module-ehi-exporter";
+    const CERTIFIED_RELEASE_VERSION = "7.0.2";
     /**
      * @var EventDispatcherInterface The object responsible for sending and subscribing to events through the OpenEMR system
      */
@@ -106,7 +107,8 @@ class Bootstrap
     {
         $xmlConfigPath = $GLOBALS['webserver_root'] . DIRECTORY_SEPARATOR . 'Documentation' . DIRECTORY_SEPARATOR . 'EHI_Export'
             . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'openemr.openemr.xml';
-        return new EhiExporter($GLOBALS['webserver_root'] . $this->getPublicPath(), $this->getPublicPath(), $xmlConfigPath);
+        return new EhiExporter($GLOBALS['webserver_root'] . $this->getPublicPath(), $this->getPublicPath()
+            , $xmlConfigPath, $this->getTwig());
     }
 
     public function getTwig()

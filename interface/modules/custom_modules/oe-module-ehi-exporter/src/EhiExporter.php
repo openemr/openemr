@@ -30,6 +30,7 @@ use OpenEMR\Modules\EhiExporter\ExportState;
 use OpenEMR\Modules\EhiExporter\ExportTableDefinition;
 use OpenEMR\Modules\EhiExporter\ExportKeyDefinition;
 use Ramsey\Uuid\Rfc4122\UuidV4;
+use Twig\Environment;
 
 class EhiExporter
 {
@@ -47,12 +48,15 @@ class EhiExporter
 
     private SystemLogger $logger;
     private EhiExportJobTaskService $taskService;
-    public function __construct(private $modulePublicDir, private $modulePublicUrl, private $xmlConfigPath)
+    public function __construct(private $modulePublicDir
+        , private $modulePublicUrl, private $xmlConfigPath
+        , private Environment $twig)
     {
         $this->logger = new SystemLogger();
         $this->taskService = new EhiExportJobTaskService();
         $this->jobService = new EhiExportJobService();
         $this->taskResultService = new EhiExportJobTaskResultService();
+        $this->twig = $twig;
     }
 
     public function exportPatient(int $pid, bool $includePatientDocuments, $defaultZipSize)
@@ -378,6 +382,7 @@ class EhiExporter
         if ($jobTask->ehiExportJob->include_patient_documents) {
             $this->addPatientDocuments($exportedResult, $zip, $jobTask->getPatientIds());
         }
+        $this->addDocumentationReadme($zip);
         $saved = $zip->close();
         if (!$saved) {
             $this->logger->errorLogCaller("Failed to save zip file ", ['zipName' => $zipName]);
@@ -595,5 +600,17 @@ class EhiExporter
             ,'total_patients' => $totalPatients
             ,'default_zip_size' => '500'
         ];
+    }
+
+    private function addDocumentationReadme(\ZipArchive $zip)
+    {
+        $readmeContents = $this->twig->render(Bootstrap::MODULE_NAME . '/README.text.twig', [
+            'webBaseUrl' => $GLOBALS['site_addr_oath'] . $GLOBALS['webroot']
+            // TODO: @brady.miller do we have a latest certified release version stored anywhere?
+            ,'certifiedReleaseVersion' => Bootstrap::CERTIFIED_RELEASE_VERSION
+        ]);
+        if (!$zip->addFromString("README", $readmeContents)) {
+            $this->logger->errorLogCaller("Failed to add README file");
+        }
     }
 }
