@@ -14,6 +14,10 @@ class ExportTableDataFilterer
             , 'irnpool','state_license_number','weno_prov_id','newcrop_user_role'
             ,'cpoe','physician_type', 'portal_user','supervisor_id','billing_facility','billing_facility_id'
         ]
+        // need to exclude specific information about the user
+        ,'procedure_providers' => [
+            'ppid', 'uuid', 'name', 'npi', 'active', 'type'
+        ]
     ];
 
     public function getSelectQueryForTable(string $tableName)

@@ -21,6 +21,11 @@ class ExportState
 
     private ExportTableDataFilterer $dataFilterer;
 
+    /**
+     * @var string the temp directory to use for this export
+     */
+    private string $tempDir;
+
     public function __construct(SystemLogger $logger, \SimpleXMLElement $node, EhiExportJobTask $jobTask)
     {
         $this->rootNode = $node;
@@ -32,6 +37,20 @@ class ExportState
         $this->jobTask = $jobTask;
 
         $this->logger = $logger;
+    }
+
+    public function getTempSysDir() {
+        if (!isset($this->tempDir)) {
+            $this->tempDir = tempnam(sys_get_temp_dir(), 'ehi-export-');
+            if (file_exists($this->tempDir)) {
+                unlink($this->tempDir);
+            }
+            mkdir($this->tempDir);
+            if (!is_dir($this->tempDir)) {
+                throw new \RuntimeException("Failed to make temporary directory for export in temp directory");
+            }
+        }
+        return $this->tempDir;
     }
 
     public function getJobTask()
@@ -86,11 +105,8 @@ class ExportState
 
     public function addTableDefinition(ExportTableDefinition $tableDefinition)
     {
+        // should exist already, but double check
         if (!isset($this->tableDefinitionsMap[$tableDefinition->table])) {
-            $selectQuery = $this->dataFilterer->getSelectQueryForTable($tableDefinition->table);
-            if ($selectQuery != '*') {
-                $tableDefinition->setSelectColumns($selectQuery);
-            }
             $this->tableDefinitionsMap[$tableDefinition->table] = $tableDefinition;
         }
         if (!isset($this->inQueueList[$tableDefinition->table])) {
@@ -118,7 +134,7 @@ class ExportState
                         $foreignColumnName = (string)($child->attributes()['column'] ?? null);
                         $keyType = $child->getName();
                         if (!empty($foreignTableName) && !empty($foreignColumnName)) {
-                            $foreignTableDefinition = $this->tableDefinitionsMap[$foreignTableName] ?? new ExportTableDefinition($foreignTableName);
+                            $foreignTableDefinition = $this->tableDefinitionsMap[$foreignTableName] ?? $this->createTableDefinition($foreignTableName);
                             $keyData['tables'][$foreignTableName] = $foreignTableDefinition;
                             $key = new ExportKeyDefinition();
                             $key->foreignKeyTable = $foreignTableName;
@@ -145,7 +161,7 @@ class ExportState
             $keys = $this->getDenormalizedKeys($tableDefinition);
             foreach ($keys as $key) {
                 $foreignTableName = $key->foreignKeyTable;
-                $foreignTableDefinition = $this->tableDefinitionsMap[$foreignTableName] ?? new ExportTableDefinition($foreignTableName);
+                $foreignTableDefinition = $this->getTableDefinitionForTable($foreignTableName) ?? $this->createTableDefinition($foreignTableName);
                 $keyData['tables'][$foreignTableName] = $foreignTableDefinition;
                 $keyData['keys'][] = $key;
             }
@@ -182,5 +198,27 @@ class ExportState
             return [$care_team_provider, $care_team_facility];
         }
         return [];
+    }
+
+    public function createTableDefinition(string $tableName)
+    {
+        $tableDef = new ExportTableDefinition($tableName);
+        $primaryKeys = $this->xmlXPath("//table[@name='" . $tableName . "']/primaryKey");
+        $pkBySequence = [];
+        foreach ($primaryKeys as $primaryKey) {
+            $columnName = (string)($primaryKey->attributes()['column']) ?? "";
+            $sequenceNo = (int)($primaryKey->attributes()['sequenceNumberInPK'] ?? 0);
+            $pkBySequence[$sequenceNo] = $columnName;
+        }
+        foreach ($pkBySequence as $sequenceNo => $columnName) {
+            // since we add the sequence by integer, it will be in order and we can add the primary keys here so we create our hashes properly.
+            $tableDef->addPrimaryKey($columnName);
+        }
+        $selectQuery = $this->dataFilterer->getSelectQueryForTable($tableName);
+        if ($selectQuery != '*') {
+            $tableDef->setSelectColumns($selectQuery);
+        }
+        $this->tableDefinitionsMap[$tableName] = $tableDef;
+        return $tableDef;
     }
 }

@@ -30,7 +30,8 @@ class ExportKeyDefinitionFilterer
             'message_status' => ['localValueOverride' => 'message_status', 'foreignKeyColumn' => 'list_id']
         ]
         ,'amendments' => [
-            'amendment_by' => ['localValueOverride' => 'amendment_from', 'foreignKeyColumn' => 'list_id']
+            'amendment_by' => ['localValueOverride' => 'amendment_from', 'foreignKeyColumn' => 'list_id'],
+            'amendment_status' => ['localValueOverride' => 'amendment_status', 'foreignKeyColumn' => 'list_id']
         ]
         ,'amendments_history' => [
             'amendment_by' => ['localValueOverride' => 'amendment_from', 'foreignKeyColumn' => 'list_id']
@@ -45,6 +46,11 @@ class ExportKeyDefinitionFilterer
         ]
         , 'form_vital_details' => [
             'interpretation_option_id' => ['localValueOverride' => 'observation_interpretation', 'foreignKeyColumn' => 'list_id']
+        ]
+        ,'ar_session' => [
+            'payment_type' => ['localValueOverride' => 'payment_type', 'foreignKeyColumn' => 'list_id'],
+            'adjustment_code' => ['localValueOverride' => 'payment_adjustment_code', 'foreignKeyColumn' => 'list_id'],
+            'payment_method' => ['localValueOverride' => 'payment_method', 'foreignKeyColumn' => 'list_id']
         ]
     ];
 
