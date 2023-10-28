@@ -1,5 +1,4 @@
 #used for cleaning up the tables if needed
-#DROP TABLE IF EXISTS ehi_export_job_task_result;
 #DROP TABLE IF EXISTS ehi_export_job_task_patients;
 #DROP table IF EXISTS ehi_export_job_tasks;
 #DROP TABLE IF EXISTS ehi_export_job_patients;
@@ -56,17 +55,6 @@ CREATE TABLE `ehi_export_job_task_patients`(
   CONSTRAINT `FK_ehi_export_job_task_patients_job_id` FOREIGN KEY (`ehi_task_id`) REFERENCES `ehi_export_job_tasks`(`ehi_task_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `FK_ehi_export_job_task_patients_patient_id` FOREIGN KEY (`pid`) REFERENCES `patient_data`(`pid`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = INNODB COMMENT = 'Patients to be exported in the ehi_export_job_tasks';
-#EndIf
-
-#IfNotTable
-CREATE TABLE `ehi_export_job_task_result`(
-   `ehi_task_result_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-   `ehi_export_task_id` BIGINT(20) NOT NULL COMMENT 'FK to documents.id - represents the document result file that was created as part of this task',
-   `table_name` VARCHAR(255) NOT NULL,
-   `result_data` LONGBLOB NOT NULL,
-   PRIMARY KEY(`ehi_task_result_id`),
-   CONSTRAINT `FK_task_result_ehi_export_task_id` FOREIGN KEY (`ehi_export_task_id`) REFERENCES `ehi_export_job_tasks`(`ehi_task_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = INNODB COMMENT = 'Export data generated result for an ehi export task';
 #EndIf
 
 #IfNotRow categories name EHI Export Zip File

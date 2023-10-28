@@ -13,6 +13,7 @@
 
 namespace OpenEMR\Modules\EhiExporter;
 
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -48,6 +49,7 @@ class EhiExporter
 
     private SystemLogger $logger;
     private EhiExportJobTaskService $taskService;
+    private CryptoGen $cryptoGen;
     public function __construct(private $modulePublicDir, private $modulePublicUrl, private $xmlConfigPath, private Environment $twig)
     {
         $this->logger = new SystemLogger();
@@ -55,6 +57,7 @@ class EhiExporter
         $this->jobService = new EhiExportJobService();
         $this->taskResultService = new EhiExportJobTaskResultService();
         $this->twig = $twig;
+        $this->cryptoGen = new CryptoGen();
     }
 
     public function exportPatient(int $pid, bool $includePatientDocuments, $defaultZipSize)
@@ -265,8 +268,7 @@ class EhiExporter
         $xml = simplexml_load_string($contents);
         $exportState = new ExportState($this->logger, $xml, $jobTask);
 
-        $tableDefinition = new ExportTableDefinition();
-        $tableDefinition->table = 'patient_data';
+        $tableDefinition = $exportState->createTableDefinition('patient_data');
         $pidKey = new ExportKeyDefinition();
         $pidKey->foreignKeyTable = "patient_data";
         $pidKey->foreignKeyColumn = "pid";
@@ -314,7 +316,7 @@ class EhiExporter
 
             $keyDefinitions = $exportState->getKeyDataForTable($tableDefinition);
             // write out the csv file
-            $this->writeCsvFile($jobTask, $records, $tableDefinition->table);
+            $this->writeCsvFile($jobTask, $records, $tableDefinition->table, $exportState->getTempSysDir());
             $exportState->addExportResultTable($tableDefinition->table, count($records));
             $tableDefinition->setHasNewData(false);
             if (!empty($keyDefinitions)) {
@@ -322,7 +324,7 @@ class EhiExporter
                     if (!($keyDefinition instanceof ExportKeyDefinition)) {
                         throw new \RuntimeException("Invalid key definition");
                     }
-                    $tableDefinition = $keyDefinitions['tables'][$keyDefinition->foreignKeyTable];
+                    $foreignKeyTableDefinition = $keyDefinitions['tables'][$keyDefinition->foreignKeyTable];
                     // we process ALL parent keys, or if it is a child key we only process a select few of these keys.
                     if ($this->shouldProcessForeignKey($keyDefinition)) {
                         foreach ($records as $record) {
@@ -335,13 +337,13 @@ class EhiExporter
                                 $recordValue = $record[$keyColumnName] ?? null;
                             }
                             if (isset($recordValue)) {
-                                $tableDefinition->addKeyValue($keyDefinition, $recordValue);
+                                $foreignKeyTableDefinition->addKeyValue($keyDefinition, $recordValue);
                             }
                         }
                         // we only add it to be processed if there is new data to do so.
-                        if ($tableDefinition->hasNewData()) {
+                        if ($foreignKeyTableDefinition->hasNewData()) {
                             // if the table already is in the queue the operation is a noop
-                            $exportState->addTableDefinition($tableDefinition);
+                            $exportState->addTableDefinition($foreignKeyTableDefinition);
                         }
                     }
                 }
@@ -352,7 +354,7 @@ class EhiExporter
             throw new \RuntimeException("Max iterations reached, check for cyclic dependencies");
         }
         $exportedResult = $exportState->getExportResult();
-        $document = $this->generateZipfile($jobTask, $exportedResult);
+        $document = $this->generateZipfile($jobTask, $exportedResult, $exportState);
         $documentService = new DocumentService();
         $exportedResult->downloadLink = $documentService->getDownloadLink($document->get_id());
         $jobTask->exportedResult = $exportedResult;
@@ -361,7 +363,7 @@ class EhiExporter
         return $jobTask;
     }
 
-    private function generateZipfile(EhiExportJobTask $jobTask, $exportedResult)
+    private function generateZipfile(EhiExportJobTask $jobTask, $exportedResult, ExportState $exportState)
     {
         $zip = new \ZipArchive();
 
@@ -380,13 +382,12 @@ class EhiExporter
             if ($this->shouldExportAdditionalAssets($result->tableName)) {
                 $this->exportAdditionalAssets($zip, $result->tableName);
             }
-            $taskResultContents = $this->taskResultService->getResultDataForJob($jobTask, $result->tableName);
+            $taskResultContents = $this->getCsvFileContents($exportState, $result->tableName);
             $addedToZip = $zip->addFromString($result->tableName . '.csv', $taskResultContents);
             if (!$addedToZip) {
                 $this->logger->errorLogCaller("Failed to add " . $result->tableName . " to zip file");
                 throw new \Exception("Failed to add " . $result->tableName . " to zip file");
             }
-            //$zip->addFile($this->modulePublicDir . DIRECTORY_SEPARATOR . 'ehi-docs' . DIRECTORY_SEPARATOR . $result->tableName . '.csv', $result->tableName . '.csv');
         }
         if ($jobTask->ehiExportJob->include_patient_documents) {
             $this->addPatientDocuments($exportedResult, $zip, $jobTask->getPatientIds());
@@ -403,8 +404,34 @@ class EhiExporter
         if (!unlink($zipOutput)) {
             $this->logger->errorLogCaller("Failed to EHI zip file export", ['zipName' => $zipOutput]);
         }
-        $this->taskResultService->clearResultsForJob($jobTask);
+        $this->clearResultFilesForJob($jobTask, $exportState);
         return $document;
+    }
+
+    private function clearResultFilesForJob(EhiExportJobTask $jobTask, ExportState $state) {
+        $tempDir = $state->getTempSysDir();
+        // grab list of files in the directory
+        // unlink each file
+        $files = glob($tempDir . '/*'); // get all file names
+        if ($files === false) {
+            $this->logger->errorLogCaller("Failed to retrieve file list from temporary directory", ['tempDir' => $tempDir]);
+            return;
+        }
+        foreach ($files as $file) { // iterate files
+            if (is_file($file)) {
+                unlink($file); // delete file
+            }
+        }
+    }
+
+    private function getCsvFileContents(ExportState $state, string $tableName) {
+        // now we need to decrypt the contents and add them to the export.
+        $filePath = $state->getTempSysDir() . DIRECTORY_SEPARATOR . $tableName . '.csv';
+        if (file_exists($filePath)) {
+            $contents = file_get_contents($filePath);
+            return $this->cryptoGen->decryptStandard($contents);
+        }
+        return "";
     }
 
     private function createDatabaseDocumentFromZip(EhiExportJobTask $jobTask, string $zipLocation, string $zipName): \Document
@@ -449,40 +476,41 @@ class EhiExporter
     }
     private function exportEsignatureData(ExportState $state)
     {
-        // need to grab dynamic tables from LBT & LBF
-        // looks like I just need to grab the form table and form_encounter table where the pid is present
-        // can use the table mapping for all this data including the patient_data table to grab all the pids
-        $formsTableDef = $state->getTableDefinitionForTable('forms');
-        $formsEncounterTableDef = $state->getTableDefinitionForTable('form_encounter');
-
-        $bind = [];
-        if (isset($formsTableDef)) {
-            $records = $formsTableDef->getRecords();
-            // now we need to grab our esignatures
-            if (!empty($records)) {
-                $clauses[] = "(`table`='forms' AND tid IN ( " . str_repeat("?, ", count($records) - 1) . "? ) )";
-                $bind = array_map(function ($item) {
-                    return $item['id'];
-                }, $records);
-            }
-        }
-        if (isset($formsEncounterTableDef)) {
-            $encounterRecords = $formsEncounterTableDef->getRecords();
-            // now we need to grab our esignatures
-            if (!empty($encounterRecords)) {
-                $clauses[] = "(`table`='form_encounter' AND tid IN ( " . str_repeat("?, ", count($encounterRecords) - 1) . "? ) )";
-                $encounterBind = array_map(function ($item) {
-                    return $item['encounter'];
-                }, $encounterRecords);
-                $bind = array_merge($bind, $encounterBind);
-            }
-        }
-        if (!empty($clauses)) {
-            $sql = "SELECT * FROM esign_signatures WHERE " . implode(" OR ", $clauses);
-            $records = QueryUtils::fetchRecords($sql, $bind);
-            $jobTask = $state->getJobTask();
-            $this->writeCsvFile($jobTask, $records, 'esign_signatures');
-        }
+//        // need to grab dynamic tables from LBT & LBF
+//        // looks like I just need to grab the form table and form_encounter table where the pid is present
+//        // can use the table mapping for all this data including the patient_data table to grab all the pids
+//        $formsTableDef = $state->getTableDefinitionForTable('forms');
+//        $formsEncounterTableDef = $state->getTableDefinitionForTable('form_encounter');
+//
+//        $tableDef = new ExportTableDefinition();
+//        $bind = [];
+//        if (isset($formsTableDef)) {
+//            $records = $formsTableDef->getRecords();
+//            // now we need to grab our esignatures
+//            if (!empty($records)) {
+//                $clauses[] = "(`table`='forms' AND tid IN ( " . str_repeat("?, ", count($records) - 1) . "? ) )";
+//                $bind = array_map(function ($item) {
+//                    return $item['id'];
+//                }, $records);
+//            }
+//        }
+//        if (isset($formsEncounterTableDef)) {
+//            $encounterRecords = $formsEncounterTableDef->getRecords();
+//            // now we need to grab our esignatures
+//            if (!empty($encounterRecords)) {
+//                $clauses[] = "(`table`='form_encounter' AND tid IN ( " . str_repeat("?, ", count($encounterRecords) - 1) . "? ) )";
+//                $encounterBind = array_map(function ($item) {
+//                    return $item['encounter'];
+//                }, $encounterRecords);
+//                $bind = array_merge($bind, $encounterBind);
+//            }
+//        }
+//        if (!empty($clauses)) {
+//            $sql = "SELECT * FROM esign_signatures WHERE " . implode(" OR ", $clauses);
+//            $records = QueryUtils::fetchRecords($sql, $bind);
+//            $jobTask = $state->getJobTask();
+//            $this->writeCsvFile($jobTask, $records, 'esign_signatures');
+//        }
     }
     private function shouldProcessForeignKey(ExportKeyDefinition $definition)
     {
@@ -522,7 +550,7 @@ class EhiExporter
         }
     }
 
-    private function writeCsvFile($jobTask, &$records, $tableName)
+    private function writeCsvFile($jobTask, &$records, $tableName, $outputLocation)
     {
         $uuidDefinition = UuidRegistry::getUuidTableDefinitionForTable($tableName);
         if (!empty($uuidDefinition)) {
@@ -538,7 +566,7 @@ class EhiExporter
         fputcsv($csvFile, $columns);
         $recordCount = 0;
         foreach ($records as $record) {
-            if ($convertUuid) {
+            if ($convertUuid && !empty($record['uuid'])) {
                 $record['uuid'] = UuidRegistry::uuidToString($record['uuid']);
             }
             fputcsv($csvFile, $record);
@@ -550,9 +578,13 @@ class EhiExporter
         // huge if there is a lot of patients represented
         fclose($csvFile);
         unset($csvFile);
-        $this->taskResultService->insertResult($jobTask, $tableName, $dataContents);
-        unset($dataContents);
-
+        $encryptedContents = $this->cryptoGen->encryptStandard($dataContents);
+        $fileName = $outputLocation . DIRECTORY_SEPARATOR . $tableName . '.csv';
+        $contentsWritten = file_put_contents($fileName, $encryptedContents);
+        if ($contentsWritten === false) {
+            throw new \RuntimeException("Failed to write csv file to disk");
+        }
+        
         return $recordCount;
     }
 
@@ -578,15 +610,22 @@ class EhiExporter
         foreach ($documentRecords as $documentRecord) {
             $documentId = $documentRecord['id'];
             $documentObj = new \Document($documentId);
-            $documentContents = $documentObj->get_data();
-
-            // we want to make sure the documents are stored by patient id they can be distinguished here.
             $docName = $documentRecord['foreign_id'] . '/' . $documentObj->get_name();
-            // store it inside of a folder called documents
-            if (!$zip->addFromString($docFolder . $docName, $documentContents)) {
-                $this->logger->errorLogCaller("Failed to add document to zip file", ['document' => $docFolder . $docName, 'zipStatus' => $zip->status]);
-            } else {
-                $docCount++;
+            try {
+                $documentContents = $documentObj->get_data();
+                // we want to make sure the documents are stored by patient id they can be distinguished here.
+                // store it inside of a folder called documents
+                if (!$zip->addFromString($docFolder . $docName, $documentContents)) {
+                    $this->logger->errorLogCaller("Failed to add document to zip file", ['document' => $docFolder . $docName, 'zipStatus' => $zip->status]);
+                } else {
+                    $docCount++;
+                }
+            }
+            catch (\RuntimeException $exception) {
+                // if the file contents can not be retrieved we get a runtime exception
+                $this->logger->errorLogCaller("Failed to add document to zip file as document contents could not be retrieved"
+                    , ['document' => $docFolder . $docName
+                    , 'zipStatus' => $zip->status, 'exception' => $exception->getMessage()]);
             }
         }
         $exportedResult->exportedDocumentCount = $docCount;
