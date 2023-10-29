@@ -926,7 +926,7 @@ class FHIRCapabilityStatement extends FHIRDomainResource implements \JsonSeriali
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;

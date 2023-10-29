@@ -524,12 +524,12 @@ function &postcalendar_userapi_getCategories()
         $categories[$i]['active']   = $active;
         $categories[$i]['sequence']   = $seq;
         $categories[$i]['event_repeat'] = $rtype;
-        $rspecs = unserialize($rspec, ['allowed_classes' => false]);
-        $categories[$i]['event_repeat_freq'] = $rspecs['event_repeat_freq'];
-        $categories[$i]['event_repeat_freq_type'] = $rspecs['event_repeat_freq_type'];
-        $categories[$i]['event_repeat_on_num'] = $rspecs['event_repeat_on_num'];
-        $categories[$i]['event_repeat_on_day'] = $rspecs['event_repeat_on_day'];
-        $categories[$i]['event_repeat_on_freq'] = $rspecs['event_repeat_on_freq'];
+        $rspecs = unserialize($rspec ?? '', ['allowed_classes' => false]);
+        $categories[$i]['event_repeat_freq'] = $rspecs['event_repeat_freq'] ?? null;
+        $categories[$i]['event_repeat_freq_type'] = $rspecs['event_repeat_freq_type'] ?? null;
+        $categories[$i]['event_repeat_on_num'] = $rspecs['event_repeat_on_num'] ?? null;
+        $categories[$i]['event_repeat_on_day'] = $rspecs['event_repeat_on_day'] ?? null;
+        $categories[$i]['event_repeat_on_freq'] = $rspecs['event_repeat_on_freq'] ?? null;
         $categories[$i]['event_recurrspec'] = $rspecs;
         $categories[$i]['event_duration'] = $duration;
         $categories[$i]['event_durationh'] = (int)($duration / (60 * 60));    //seconds divided by 60 seconds * 60 minutes;
