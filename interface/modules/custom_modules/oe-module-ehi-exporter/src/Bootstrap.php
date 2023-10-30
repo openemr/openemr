@@ -136,7 +136,7 @@ class Bootstrap
         $menuItem->target = 'msc';
         $menuItem->menu_id = 'ehiExporter0';
         $menuItem->label = xlt("Electronic Health Information Export");
-        $menuItem->url = $GLOBALS['webroot'] . "/interface/modules/custom_modules/" . self::MODULE_NAME . "/public/";
+        $menuItem->url = "/interface/modules/custom_modules/" . self::MODULE_NAME . "/public/";
         $menuItem->children = [];
 
         /**
