@@ -55,7 +55,6 @@ class EhiExporter
         $this->logger = new SystemLogger();
         $this->taskService = new EhiExportJobTaskService();
         $this->jobService = new EhiExportJobService();
-        $this->taskResultService = new EhiExportJobTaskResultService();
         $this->twig = $twig;
         $this->cryptoGen = new CryptoGen();
     }
