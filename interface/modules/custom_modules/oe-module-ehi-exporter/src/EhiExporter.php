@@ -408,7 +408,8 @@ class EhiExporter
         return $document;
     }
 
-    private function clearResultFilesForJob(EhiExportJobTask $jobTask, ExportState $state) {
+    private function clearResultFilesForJob(EhiExportJobTask $jobTask, ExportState $state)
+    {
         $tempDir = $state->getTempSysDir();
         // grab list of files in the directory
         // unlink each file
@@ -424,7 +425,8 @@ class EhiExporter
         }
     }
 
-    private function getCsvFileContents(ExportState $state, string $tableName) {
+    private function getCsvFileContents(ExportState $state, string $tableName)
+    {
         // now we need to decrypt the contents and add them to the export.
         $filePath = $state->getTempSysDir() . DIRECTORY_SEPARATOR . $tableName . '.csv';
         if (file_exists($filePath)) {
@@ -584,7 +586,7 @@ class EhiExporter
         if ($contentsWritten === false) {
             throw new \RuntimeException("Failed to write csv file to disk");
         }
-        
+
         return $recordCount;
     }
 
@@ -620,12 +622,15 @@ class EhiExporter
                 } else {
                     $docCount++;
                 }
-            }
-            catch (\RuntimeException $exception) {
+            } catch (\RuntimeException $exception) {
                 // if the file contents can not be retrieved we get a runtime exception
-                $this->logger->errorLogCaller("Failed to add document to zip file as document contents could not be retrieved"
-                    , ['document' => $docFolder . $docName
-                    , 'zipStatus' => $zip->status, 'exception' => $exception->getMessage()]);
+                $this->logger->errorLogCaller(
+                    "Failed to add document to zip file as document contents could not be retrieved",
+                    ['document' => $docFolder . $docName
+                    ,
+                    'zipStatus' => $zip->status,
+                    'exception' => $exception->getMessage()]
+                );
             }
         }
         $exportedResult->exportedDocumentCount = $docCount;

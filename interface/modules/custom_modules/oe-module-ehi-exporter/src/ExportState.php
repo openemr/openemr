@@ -39,7 +39,8 @@ class ExportState
         $this->logger = $logger;
     }
 
-    public function getTempSysDir() {
+    public function getTempSysDir()
+    {
         if (!isset($this->tempDir)) {
             $this->tempDir = tempnam(sys_get_temp_dir(), 'ehi-export-');
             if (file_exists($this->tempDir)) {
