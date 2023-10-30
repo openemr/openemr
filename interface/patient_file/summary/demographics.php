@@ -928,8 +928,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 // Error handling
                 error: function (error) {
                     $('#ro').removeClass("fa-spin");
-                    console.log(error)
-                    //error_log(error);
                 }
             });
             $('#ro').addClass("fa-spin");

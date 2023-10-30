@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Handles the display of the address list datatype in LBF
+ * Handles the display of weno selected pharmacies
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -19,20 +19,22 @@ if(!AclMain::aclCheckCore('patients', 'med')){
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pharmacy Selector")]);
     exit;
 }
- 
-$pharmacyService = new PharmacyService;
-$prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? [];
-$alt_pharmacy = $pharmacyService->getWenoAlternateParm($_SESSION['pid']) ?? [];
 
+$pharmacyService = new PharmacyService();
+$prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? [];
+$alt_pharmacy = $pharmacyService->getWenoAlternatePharm($_SESSION['pid']) ?? [];
+
+$primary_pharmacy = $prim_pharmacy['business_name'] ?? '' . ' - ' . $prim_pharmacy['address_line_1'] ?? '';
+$alternate_pharmacy = $alt_pharmacy['business_name'] ?? '' . ' - ' . $alt_pharmacy['address_line_1'] ?? '';
 ?>
 
 <div class="row col-12">
     <div>
         <label><b><?php echo text("Weno Primary Pharmacy:"); ?></b></label>
-        <span><?php echo text($prim_pharmacy['business_name'] . ' - ' . $prim_pharmacy['address_line_1'] ?? ''); ?></span>
+        <span><?php echo text($primary_pharmacy); ?></span>
     </div>
     <div>
         <label><b><?php echo text("Weno Alt Pharmacy:"); ?></b></label>
-        <span><?php echo text($alt_pharmacy['business_name'] . ' / ' . $alt_pharmacy['address_line_1'] ?? ''); ?></span>
+        <span><?php echo text($alternate_pharmacy); ?></span>
     </div>
 </div>

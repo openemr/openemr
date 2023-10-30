@@ -1244,7 +1244,7 @@
             "label":"Weno Management",
             "menu_id":"adm0",
             "target":"adm",
-            "url":"/interface/weno/facilities.php",
+            "url":"/interface/modules/custom_modules/oe-module-weno/templates/facilities.php",
             "children":[],
             "requirement":0,
             "acl_req": [
@@ -1332,7 +1332,7 @@
                 "label":"Prescription Log",
                 "menu_id":"rep0",
                 "target":"rep",
-                "url":"/interface/weno/rxlogmanager.php",
+                "url":"/interface/modules/custom_modules/oe-module-weno/templates/rxlogmanager.php",
                 "children":[],
                 "requirement":0,
                 "acl_req": [

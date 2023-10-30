@@ -24,7 +24,7 @@ $params = [];
 if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_city') {
     $return_arr = array();
     $term    = filter_input(INPUT_GET, "term");
-    $val = array('%' . $term . '%');
+    $val = '%' . $term . '%';
 
     array_push($params, $val);
     
@@ -43,7 +43,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
 
     array_push($params, $val);
 
-    $sql = "SELECT business_name, state, ncpdp, city, address_line_1 " .
+    $sql = "SELECT Business_Name, state, ncpdp, city, address_line_1 " .
             "FROM weno_pharmacy WHERE Business_Name LIKE ?";
 
     $weno_coverage  = $_GET['coverage'] ? $_GET['coverage'] : '';
@@ -89,7 +89,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
     $res = sqlStatement($sql, $params);
     while ($row = sqlFetchArray($res)) {
         $return_arr[] = array(
-            "name"  => $row['business_name'] . "/ " . $row['address_line_1'] . " / " . $row['city'],
+            "name"  => $row['Business_Name'] . "/ " . $row['address_line_1'] . " / " . $row['city'],
             "ncpdp" => $row['ncpdp']
         );
     }
@@ -98,10 +98,10 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
 
 if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
     $term    = filter_input(INPUT_GET, "term");
-    $val = array('%' . $term . '%');
+    $val = '%' . $term . '%';
     array_push($params, $val);
 
-    $sql = "SELECT business_name, state, ncpdp, city, address_line_1 " .
+    $sql = "SELECT Business_Name, state, ncpdp, city, address_line_1 " .
             "FROM weno_pharmacy WHERE";
 
     $weno_coverage  = $_GET['coverage'] ? $_GET['coverage'] : '';
@@ -141,7 +141,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
     $res = sqlStatement($sql,$params);
     while ($row = sqlFetchArray($res)) {
         $return_arr[] = array(
-            "name"  => $row['business_name'] . "/ " . $row['address_line_1'] . " / " . $row['city'],
+            "name"  => $row['Business_Name'] . "/ " . $row['address_line_1'] . " / " . $row['city'],
             "ncpdp" => $row['ncpdp']
         );
     }
