@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Modules\EhiExporter;
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
@@ -13,6 +14,13 @@ require_once(__DIR__ . "/../../../../globals.php");
  */
 $bootstrap = Bootstrap::instantiate($GLOBALS['kernel']->getEventDispatcher(), $GLOBALS['kernel']);
 $exporter = $bootstrap->getExporter();
+
+
+if (!AclMain::aclCheckCore("admin", "super")) {
+    $twig = $bootstrap->getTwig();
+    echo $twig->render("error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']);
+    exit;
+}
 
 $result = null;
 $includeDocuments = false;
