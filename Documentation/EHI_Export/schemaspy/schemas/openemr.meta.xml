@@ -23,7 +23,88 @@
             <column name="updated_by" comments="The id of the user that last updated this record">
                 <foreignKey table="users" column="id" />
             </column>
-            <!-- TODO: @adunsulag need to comment the remaining columns -->
+            <column name="title" comments="Title of the patient"/>
+            <column name="language" comments="Language preference of the patient"/>
+            <column name="financial" comments="Financial information of the patient"/>
+            <column name="fname" comments="First name of the patient"/>
+            <column name="lname" comments="Last name of the patient"/>
+            <column name="mname" comments="Middle name of the patient"/>
+            <column name="DOB" comments="Date of Birth of the patient"/>
+            <column name="street" comments="Street address of the patient"/>
+            <column name="postal_code" comments="Postal code of the patient's address"/>
+            <column name="city" comments="City of the patient's address"/>
+            <column name="state" comments="State of the patient's address"/>
+            <column name="country_code" comments="Country code of the patient's address"/>
+            <column name="drivers_license" comments="Driver's license of the patient"/>
+            <column name="ss" comments="Social Security Number of the patient"/>
+            <column name="occupation" comments="Occupation of the patient. UNEMPLOYED, STUDENT, PT STUDENT, or anything else to indicate employed."/>
+            <column name="phone_home" comments="Home phone number of the patient"/>
+            <column name="phone_biz" comments="Business phone number of the patient"/>
+            <column name="phone_contact" comments="Contact phone number of the patient"/>
+            <column name="phone_cell" comments="Cell phone number of the patient"/>
+
+            <column name="status" comments="Marital Status: M = Married, S = Single, or something else"/>
+            <column name="contact_relationship" comments="Relationship of the contact person"/>
+            <column name="date" comments="Date related to the patient"/>
+            <column name="sex" comments="Gender of the patient"/>
+            <column name="referrer" comments="Referrer of the patient"/>
+            <column name="referrerID" comments="ID of the referring user"/>
+            <column name="email" comments="Email address of the patient"/>
+            <column name="email_direct" comments="Trusted Direct email address of the patient"/>
+            <column name="ethnoracial" comments="Ethnicity/Race information of the patient"/>
+            <column name="race" comments="Race of the patient"/>
+            <column name="ethnicity" comments="Ethnicity of the patient"/>
+            <column name="religion" comments="Religion of the patient"/>
+            <column name="interpretter" comments="Interpreter information for the patient"/>
+            <column name="migrantseasonal" comments="Migrant/Seasonal worker information"/>
+            <column name="family_size" comments="Family size information of the patient"/>
+            <column name="monthly_income" comments="Monthly income information of the patient"/>
+            <column name="billing_note" comments="Billing notes for the patient"/>
+            <column name="homeless" comments="Homeless status of the patient"/>
+            <column name="financial_review" comments="Financial review date"/>
+            <column name="genericname1" comments="Generic name field 1"/>
+            <column name="genericval1" comments="Generic value field 1"/>
+            <column name="genericname2" comments="Generic name field 2"/>
+            <column name="genericval2" comments="Generic value field 2"/>
+            <column name="hipaa_mail" comments="HIPAA Mail setting"/>
+            <column name="hipaa_voice" comments="HIPAA Voice setting"/>
+            <column name="hipaa_notice" comments="HIPAA Notice setting"/>
+            <column name="hipaa_message" comments="HIPAA Message setting"/>
+            <column name="hipaa_allowsms" comments="HIPAA Allow SMS setting"/>
+            <column name="hipaa_allowemail" comments="HIPAA Allow Email setting"/>
+            <column name="squad" comments="The Athletic Squad this patient is a member of"/>
+            <column name="fitness" comments="The sport team Fitness level assigned to this patient"/>
+            <column name="referral_source" comments="Source of referral for the patient"/>
+            <column name="usertext1" comments="User text field 1"/>
+            <column name="usertext2" comments="User text field 2"/>
+            <column name="usertext3" comments="User text field 3"/>
+            <column name="usertext4" comments="User text field 4"/>
+            <column name="usertext5" comments="User text field 5"/>
+            <column name="usertext6" comments="User text field 6"/>
+            <column name="usertext7" comments="User text field 7"/>
+            <column name="usertext8" comments="User text field 8"/>
+            <column name="userlist1" comments="User list field 1"/>
+            <column name="userlist2" comments="User list field 2"/>
+            <column name="userlist3" comments="User list field 3"/>
+            <column name="userlist4" comments="User list field 4"/>
+            <column name="userlist5" comments="User list field 5"/>
+            <column name="userlist6" comments="User list field 6"/>
+            <column name="userlist7" comments="User list field 7"/>
+            <column name="pricelevel" comments="Price level information of the patient"/>
+            <column name="regdate" comments="Registration Date"/>
+            <column name="contrastart" comments="Date contraceptives initially used"/>
+            <column name="completed_ad" comments="Completed Ad information"/>
+            <column name="ad_reviewed" comments="Date Ad reviewed"/>
+            <column name="vfc" comments="VFC information"/>
+            <column name="mothersname" comments="Mother's name"/>
+            <column name="guardiansname" comments="Guardian's name"/>
+            <column name="allow_imm_reg_use" comments="Allow Immunization Registry Use"/>
+            <column name="allow_imm_info_share" comments="Allow Immunization Information Sharing"/>
+            <column name="allow_health_info_ex" comments="Allow Health Information Exchange"/>
+            <column name="allow_patient_portal" comments="Allow Patient Portal"/>
+            <column name="deceased_date" comments="Date of Decease"/>
+            <column name="deceased_reason" comments="Reason of Decease"/>
+            <column name="soap_import_status" comments="SOAP Import Status (1-Prescription Press 2-Prescription Import 3-Allergy Press 4-Allergy Import)"/>
         </table>
 
         <!-- Allergies Data -->
@@ -181,7 +262,6 @@
             <column name="policy_type"  comments="Whether this is the 'primary', 'secondary', or 'tertiary' insurance" />
         </table>
 
-        <!-- TODO: @adunsulag look at insurance_numbers, insurance_companies, insurance_type_codes -->
         <table name="insurance_companies" companies="Insurance company">
             <column name="ins_type_code"  comments="The type of insurance company this record is">
                 <foreignKey table="insurance_type_codes" column="id" />
@@ -266,11 +346,15 @@
 
 <!--        - Patient Amendments-->
         <table name="amendments">
-            <!-- TODO: @adunsulag finish commenting this table -->
+            <column name="amendment_id" comments="Primary key for the amendment record. It uniquely identifies each amendment."/>
+            <column name="amendment_date" comments="The date when the amendment request was made."/>
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
             <column name="amendment_by" comments="Comes from the list_options.list_id='amendment_from' and represents who is requesting the amendment">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="amendment_status" comments="Comes from the list_options.list_id='amendment_status' and represents the current status of the amendment">
                 <foreignKey table="list_options" column="option_id" />
             </column>
             <column name="created_by" comments="The id of the user that initially created this amendment">
@@ -279,6 +363,9 @@
             <column name="modified_by" comments="The id of the user that last modified this amendment">
                 <foreignKey table="users" column="id" />
             </column>
+            <column name="amendment_desc" comments="Detailed information about the amendment, including any additional notes or changes."/>
+            <column name="created_time" comments="Timestamp indicating when the amendment record was created."/>
+            <column name="modified_time" comments="Timestamp indicating when the amendment record was last modified."/>
         </table>
         <table name="amendments_history">
             <!-- TODO: @adunsulag finish commenting this table -->
@@ -321,15 +408,21 @@
         </table>
 <!--        - Patient recalls-->
         <table name="medex_recalls">
+            <column name="r_ID" comments="Unique ID for the recall record"/>
             <column name="r_pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
-            <column name="r_facility">
+            <column name="r_facility"  comments="FK facility.id associated with the recall">
                 <foreignKey table="facility" column="id" />
             </column>
-            <column name="r_provider">
+            <column name="r_provider" comments="Provider ID associated with the recall FK to users.id">
                 <foreignKey table="users" column="id" />
             </column>
+
+            <column name="r_PRACTID" comments="UNUSED - Practice ID associated with the recall"/>
+            <column name="r_eventDate" comments="Date of Appointment or Recall"/>
+            <column name="r_reason" comments="Reason for the recall"/>
+            <column name="r_created" comments="Timestamp when the recall was created"/>
         </table>
 <!--        - Clinical Reminders-->
         <table name="clinical_plans">
@@ -339,6 +432,8 @@
         </table>
 <!--        - Recall Appts-->
 <!--        - Patient Appointments-->
+
+        <!-- TODO: @adunsulag openemr_postcalendar_events and openemr_postcalendar_categories -->
         <table name="openemr_postcalendar_events">
             <column name="pc_pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
@@ -357,7 +452,6 @@
             </column>
         </table>
 
-        <!-- TODO: @adunsulag openemr_postcalendar_events and openemr_postcalendar_categories -->
 
 
         <!--        - Patient Documents-->
@@ -402,7 +496,6 @@
             </column>
         </table>
 <!--        - Patient Ledger [what is involved here?]-->
-<!--        - External Data (Encounters  Procedures) [is this included in the designated record set?]-->
 <!--        - Patient Encounters-->
         <table name="forms">
             <column name="pid"  comments="The internal patient identifier">
@@ -600,6 +693,82 @@
 <!--        - Procedure Order-->
         <!--        - Patient Labs-->
         <!-- TODO: @adunsulag procedure_order, procedure_answers, procedure_order_code, procedure_providers, procedure_report, procedure_type -->
+        <table name="procedure_order">
+            <column name="procedure_order_id" />
+            <column name="patient_id"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="provider_id">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="encounter_id">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="lab_id">
+                <foreignKey table="procedure_providers" column="ppid" />
+            </column>
+            <column name="specimen_type" omments="Comes from the list_options.list_id='Specimen_Type' and represents the specimen type collected for the procedure">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="specimen_location" omments="Comes from the list_options.list_id='Specimen_Location' and represents the location the specimen was collected at">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="account_facility">
+                <foreignKey table="facility" column="id" />
+            </column>
+            <column name="collector_id">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+        <table name="procedure_providers">
+            <column name="lab_id">
+                <foreignKey table="procedure_providers" column="ppid" />
+            </column>
+        </table>
+        <table name="procedure_order_code">
+            <column name="procedure_order_id">
+                <foreignKey table="procedure_order" column="procedure_order_id" />
+            </column>
+            <column name="procedure_code">
+                <foreignKey table="procedure_type" column="procedure_code" />
+            </column>
+        </table>
+        <table name="procedure_answers">
+            <column name="procedure_order_id">
+                <foreignKey table="procedure_order" column="procedure_order_id" />
+            </column>
+            <column name="procedure_order_seq">
+                <foreignKey table="procedure_order_code" column="procedure_order_seq" />
+            </column>
+            <column name="question_code">
+                <foreignKey table="procedure_questions" column="question_code" />
+            </column>
+        </table>
+        <table name="procedure_questions">
+            <column name="question_code"/>
+            <column name="lab_id">
+                <foreignKey table="procedure_providers" column="ppid" />
+            </column>
+            <column name="procedure_code">
+                <foreignKey table="procedure_type" column="procedure_code" />
+            </column>
+        </table>
+        <table name="procedure_result">
+            <column name="procedure_report_id">
+                <foreignKey table="procedure_report" column="procedure_report_id" />
+            </column>
+        </table>
+        <table name="procedure_result">
+            <column name="procedure_order_id">
+                <foreignKey table="procedure_order" column="procedure_order_id" />
+            </column>
+            <column name="procedure_order_seq">
+                <foreignKey table="procedure_order" column="procedure_order_seq" />
+            </column>
+            <column name="source">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
 
 <!--        - Questionnaire Responses-->
         <table name="form_questionnaire_assessments">
@@ -734,11 +903,15 @@
             <column name="forms_id">
                 <foreignKey table="forms" column="id" />
             </column>
+            <column name="line_id">
+                <foreignKey table="form_physical_exam_diagnoses" column="line_id" />
+            </column>
+            <column name="diagnosis">
+                <foreignKey table="form_physical_exam_diagnoses" column="diagnosis" />
+            </column>
         </table>
         <table name="form_physical_exam_diagnoses" comments="Physical Exam Diagnosis for a physical exam that was conducted">
-            <column name="line_id">
-                <foreignKey table="form_physical_exam" column="line_id" />
-            </column>
+            <!-- TODO: @adunsulag document this table -->
         </table>
 
 <!--        - Prior Authorization-->
@@ -846,7 +1019,7 @@
         <!-- erx_ttl_touch ??? -->
         <!-- esign_signatures -->
 
-        <!-- external_encounters, external_procedures -->
+        <!--        - External Data (Encounters  Procedures) -->
         <table name="external_encounters" comments="Holds data on encounters that exist outside of this EMR that were in a patient CCDA import">
             <column name="ee_pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
@@ -921,6 +1094,7 @@
         </table>
 
         <table name="billing" comment="Patient billing records for billing codes - Used for Claims Processing">
+            <column name="id" comments="Surrogate id of the record used as the primary incrementing key"/>
             <column name="pid"  comments="The internal patient identifier">
 		        <foreignKey table="patient_data" column="pid" />
             </column>
@@ -930,17 +1104,41 @@
             <column name="payer_id"  comments="The insurance company being billed. If this is self-pay the id will be 0">
                 <foreignKey table="insurance_companies" column="id" />
             </column>
-            <column name="x12_partner_id"  comments="The X12 partner clearinghouse id.">
-                <foreignKey table="x12_partners" column="id" />
-            </column>
+            <column name="x12_partner_id"  comments="The X12 partner clearinghouse id." />
             <column name="user">
                 <foreignKey table="users" column="id" comments="The user that created this billing record." />
             </column>
-            <column name="groupname">
+            <column name="groupname" comments="Group name associated with the billing record">
                 <foreignKey table="groups" column="name" />
             </column>
             <column name="encounter" comments="The encounter that this billing record is connected to">
                 <foreignKey table="form_encounter" column="encounter" />
+            </column>
+
+
+            <column name="date" comments="Date associated with the billing record"/>
+            <column name="code_type" comments="Type of billing code"/>
+            <column name="code" comments="Billing code"/>
+            <column name="authorized" comments="Authorization status (1 for authorized, 0 for unauthorized)"/>
+            <column name="code_text" comments="Text associated with the billing code"/>
+            <column name="billed" comments="Billing status (1 for billed, 0 for unbilled)"/>
+            <column name="activity" comments="Activity status (1 for active, 0 for inactive)"/>
+            <column name="bill_process" comments="Bill process code -1=leave unprocessed,0=open,1=in progress,2=billed"/>
+            <column name="bill_date" comments="Date when billing moved into the billed status"/>
+            <column name="process_date" comments="Date when the bill was moved into the processing state"/>
+            <column name="process_file" comments="File associated with billing process"/>
+            <column name="modifier" comments="Modifier for billing code"/>
+            <column name="units" comments="Number of units for billing"/>
+            <column name="fee" comments="Fee associated with billing"/>
+            <column name="justify" comments="Justification for billing code"/>
+            <column name="target" comments="Target associated with billing code"/>
+            <column name="ndc_info" comments="NDC (National Drug Code) information"/>
+            <column name="notecodes" comments="Notecodes associated with billing"/>
+            <column name="external_id" comments="External identifier associated with billing"/>
+            <column name="pricelevel" comments="Price level associated with billing"/>
+            <column name="revenue_code" comments="Item revenue code"/>
+            <column name="chargecat" omments="Comes from the list_options.list_id='chargecats' and represents the charge category for certain insursers">
+                <foreignKey table="list_options" column="option_id" />
             </column>
         </table>
 
@@ -961,46 +1159,72 @@
             <column name="distributor_id" comments="UNUSED - will be removed in the future" />
         </table>
 
-        <table name="ar_activity" comments="Accounts Receivable Billing Activity - Used for Claims Processing">
+        <table name="ar_activity" comments="Accounts Receivable item entries in invoice/claim activity">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
+            <column name="encounter" comments="The identifier for the encounter for which the payment is connected to (foreign key reference to the forms_encounter.encounter).">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="sequence_no" comments="A unique identifier for this payment activity, incremented in the code." />
             <column name="code_type"  comments="The code system that is used for this billing activity" />
             <column name="code"  comments="The code in the code system referenced in code_type that is the main billing code for this billing activity" />
             <column name="modifier"  comments="Billing code modifier" />
+            <column name="payer_type" comments="The payer type code, indicating the source of payment (0=patient, 1=primary insurance, 2=secondary insurance, etc)."/>
+            <column name="post_time" comments="The timestamp indicating when the payment was posted (in DATETIME format)."/>
+            <column name="post_user" comments="The user ID (foreign key reference to the users table) of the person who posted the payment.">
+                <foreignKey table="users" column="id" />
+            </column>
             <column name="fee"  comments="The billing fee that is being requested for payment of services rendered" />
-            <column name="adj_amount"  comments="" />
             <column name="post_time"  comments="Time of the posting on the date referenced in post_date" />
 
-            <column name="session_id">
+            <column name="session_id" comments="The session ID (foreign key reference to the ar_session table) associated with this payment activity, if applicable.">
                 <foreignKey table="ar_session" column="session_id" />
             </column>
-            <column name="account_code"  comments="" />
-            <column name="follow_up_note"  comments="" />
-            <!--            <column name="code"  comments="" />-->
-            <!--            <column name="pay_amount"  comments="" />-->
-            <!--            <column name="reason_code"  comments="" />-->
-            <!--            <column name="memo"  comments="" />-->
-            <!--            <column name="payer_type"  comments="" />-->
-            <!--            <column name="sequence_no"  comments="" />-->
-<!--            <column name="deleted"  comments="" />-->
-            <!-- -->
+            <column name="memo" comments="Additional comments or adjustment reasons related to the payment activity."/>
+            <column name="pay_amount" comments="The actual payment amount received (in DECIMAL format), which may differ from the fee amount due to adjustments or discounts."/>
+            <column name="adj_amount" comments="The adjustment amount, if any, to account for changes in the payment (in DECIMAL format)."/>
+            <column name="modified_time" comments="The timestamp indicating when this payment activity was last modified (in DATETIME format)."/>
+            <column name="follow_up" comments="A flag (CHAR) indicating follow-up actions needed for this payment activity (e.g., 'y' for yes, 'n' for no)."/>
+            <column name="follow_up_note" comments="Additional notes or instructions related to follow-up actions for this payment activity (in TEXT format)."/>
+            <column name="account_code" comments="The account code used to categorize or classify this payment activity (e.g., a billing code or account code)."/>
+            <column name="reason_code" comments="An optional reason code used to explain adjustments or changes in the payment amount (e.g., primary payer adjustment reason code)."/>
+            <column name="deleted" comments="A timestamp (in DATETIME format) indicating when the payment activity was deleted (NULL if active, otherwise when voided)."/>
+            <column name="post_date" comments="The date (in DATE format) when the payment was posted, if specified at the time of payment."/>
+            <column name="payer_claim_number" comments="The claim number or reference number provided by the payer or insurance company for this payment activity."/>
         </table>
 
         <table name="ar_session">
-            <column name="session_id"  comments="" />
+            <column name="session_id" comments="The unique identifier for an accounting session, used as a surrogate key."/>
             <column name="payer_id"  comments="The insurance company being billed. If this is self-pay the id will be 0">
                 <foreignKey table="insurance_companies" column="id" />
             </column>
-
-            <column name="reference"  comments="" />
-            <column name="check_date"  comments="" />
-            <column name="deposit_date"  comments="" />
-            <column name="payment_method"  comments="" />
+            <column name="user_id" comments="The reference to the user ID the created this billing session">
+                <foreignKey table="users" column="id" />
+            </column>
             <column name="patient_id"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
-            <!-- -->
+            <column name="payment_type" comments="Comes from the list_options.list_id='payment_type' and represents the type of payment, such as if this is a patient or insurance payment.">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="adjustment_code" comments="Comes from the list_options.list_id='payment_adjustment_code' and represents the payment adjustment code to apply.">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="payment_method" comments="Comes from the list_options.list_id='payment_method' The method of payment, e.g., ACH, Cash, CC, Check, etc.">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+
+            <column name="closed" comments="A flag indicating if the session is closed. 0 for open, 1 for closed."/>
+            <column name="reference" comments="The check or EOB (Explanation of Benefits) number associated with the payment."/>
+            <column name="check_date" comments="The date when the check was received for the payment."/>
+            <column name="deposit_date" comments="The date when the payment was deposited."/>
+            <column name="pay_total" comments="The total payment amount for the claim or billing invoice."/>
+            <column name="created_time" comments="The timestamp when the payment record was created."/>
+            <column name="modified_time" comments="The date and time of the last modification to the payment record."/>
+            <column name="global_amount" comments="The global amount for the payment."/>
+            <column name="description" comments="Additional description or notes related to the payment."/>
+            <column name="post_to_date" comments="The date when the payment is posted to the claim or billing invoice."/>
         </table>
 
         <table name="eligibility_verification" comment="Insurance Eligibility Verification Tracking">
@@ -1010,10 +1234,26 @@
             <!-- TODO: @adunsulag need to populate -->
         </table>
         <table name="benefit_eligibility" comment="Holds the eligible patient benefits for a specific insurance as received from an eligibility verification">
-            <column name="verification_id"  comments="The eligibility verification record that these benefits are retrived from">
+            <column name="response_id" comments="Surrogate ID of the benefit eligibility record used as the primary incrementing key"/>
+            <column name="verification_id"  comments="The eligibility verification record that these benefits are retrieved from">
                 <foreignKey table="eligibility_verification" column="verification_id" />
             </column>
-            <!-- TODO: @adunsulag need to populate -->
+            <column name="type" comments="Type of benefit"/>
+            <column name="benefit_type" comments="Type of the benefit, if applicable"/>
+            <column name="start_date" comments="Start date for the benefit coverage"/>
+            <column name="end_date" comments="End date for the benefit coverage"/>
+            <column name="coverage_level" comments="Coverage level, if specified"/>
+            <column name="coverage_type" comments="Type of coverage"/>
+            <column name="plan_type" comments="Type of insurance plan"/>
+            <column name="plan_description" comments="Description of the insurance plan"/>
+            <column name="coverage_period" comments="Period of coverage"/>
+            <column name="amount" comments="Benefit amount, if applicable"/>
+            <column name="percent" comments="Benefit percentage, if applicable"/>
+            <column name="network_ind" comments="Network indicator"/>
+            <column name="message" comments="Additional message or information"/>
+            <column name="response_status" comments="Status of the response (Active 'A' or Denied 'D')"/>
+            <column name="response_create_date" comments="Date when the benefit response was created"/>
+            <column name="response_modify_date" comments="Date when the benefit response was last modified"/>
         </table>
 
         <!-- Therapy Groups, counselors, participants, participant_attendance -->
