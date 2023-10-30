@@ -47,6 +47,9 @@ class EhiExporter
     const PATIENT_TASK_BATCH_FETCH_LIMIT = 5000;
     const CYCLE_MAX_ITERATIONS_LIMIT = 500;
 
+    // average size we estimate to be 100KB per patient in data exports so we will add that up per patient
+    const PATIENT_SIZE_PER_RECORD = 100 * 1024;
+
     private SystemLogger $logger;
     private EhiExportJobTaskService $taskService;
     private CryptoGen $cryptoGen;
@@ -170,6 +173,10 @@ class EhiExporter
         $jobPatientIds = $job->getPatientIds();
         $jobPatientIdsCount = count($jobPatientIds);
 
+        if (!$job->include_patient_documents) {
+            return $this->createExportTasksFromJobWithoutDocuments($job, $jobPatientIds, $jobPatientIdsCount);
+        }
+
         $currentDocumentSize = 0; // we want to start at 0 for our iterations
         while ($hasMorePatients && $iterations++ < self::CYCLE_MAX_ITERATIONS_LIMIT) {
             $limitPos = $iterations * $fetchLimit;
@@ -204,7 +211,7 @@ class EhiExporter
         $hasMorePatients = true;
         $iterations = -1;
         $fetchLimit = self::PATIENT_TASK_BATCH_FETCH_LIMIT;
-        $patientSizePerRecord = 100 * 1024; // average size we estimate to be 100KB per patient in data exports so we will add that up per patient
+        $patientSizePerRecord = self::PATIENT_SIZE_PER_RECORD; // average size we estimate to be 100KB per patient in data exports so we will add that up per patient
         // maxes out at 2.5 Million patients which is a lot of patients and should be enough for most use cases
         while ($hasMorePatients && $iterations++ < self::CYCLE_MAX_ITERATIONS_LIMIT) {
             $limitPos = $iterations * $fetchLimit;
@@ -230,12 +237,13 @@ class EhiExporter
                     $currentDocumentSize = 0;
                 }
             }
-            // at the end we add the task if we have patient ids
-            if ($task->hasPatientIds()) {
-                // make sure to insert the task
-                $task = $this->taskService->insert($task);
-                $tasks[] = $task;
-            }
+        }
+
+        // at the end we add the task if we have patient ids
+        if ($task->hasPatientIds()) {
+            // make sure to insert the task
+            $task = $this->taskService->insert($task);
+            $tasks[] = $task;
         }
 
 
@@ -259,7 +267,6 @@ class EhiExporter
     private function exportBreadthAlgorithm(EhiExportJobTask $jobTask): EhiExportJobTask
     {
         $patientPids = $jobTask->getPatientIds();
-        $includePatientDocuments = $jobTask->includePatientDocuments;
         $contents = file_get_contents($this->xmlConfigPath);
         if ($contents === false) {
             throw new \RuntimeException("Failed to find openemr.openemr.xml file");
@@ -671,5 +678,46 @@ class EhiExporter
         // we need to check if the table even exists in the database, some tables do not get installed (such as form tables)
         // without user intervention and we need to skip over those tables
         return !QueryUtils::existsTable($tableDefinition->table);
+    }
+
+    private function createExportTasksFromJobWithoutDocuments(EhiExportJob $job, array &$jobPatientIds, int $jobPatientIdsCount)
+    {
+        $task = new EhiExportJobTask();
+        $task->ehi_export_job_id = $job->getId();
+        $task->ehiExportJob = $job;
+        $hasMorePatients = true;
+        $iterations = -1;
+        $fetchLimit = self::PATIENT_TASK_BATCH_FETCH_LIMIT;
+        $patientSizePerRecord = self::PATIENT_SIZE_PER_RECORD;
+        // maxes out at 2.5 Million patients which is a lot of patients and should be enough for most use cases
+        while ($hasMorePatients && $iterations++ < self::CYCLE_MAX_ITERATIONS_LIMIT) {
+            $limitPos = $iterations * $fetchLimit;
+            $fetch = ($limitPos + $fetchLimit) >= $jobPatientIdsCount ? ($jobPatientIdsCount - $limitPos) : $fetchLimit;
+            if ($fetch <= 0) {
+                $hasMorePatients = false;
+            } else {
+                $pidSlice = array_slice($jobPatientIds, $limitPos, $fetch);
+            }
+            for ($i = 0; $i < $fetch; $i++) {
+                $task->addPatientId(intval($pidSlice[$i]));
+                $currentDocumentSize += $patientSizePerRecord;
+                if ($currentDocumentSize >= $job->getDocumentLimitSize()) {
+                    $task = $this->taskService->insert($task);
+                    $tasks[] = $task;
+                    $task = new EhiExportJobTask();
+                    $task->ehi_export_job_id = $job->getId();
+                    $task->ehiExportJob = $job;
+                    $currentDocumentSize = 0;
+                }
+            }
+        }
+
+        // at the end we add the task if we have patient ids
+        if ($task->hasPatientIds()) {
+            // make sure to insert the task
+            $task = $this->taskService->insert($task);
+            $tasks[] = $task;
+        }
+        return $tasks;
     }
 }
