@@ -460,6 +460,11 @@
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
+        <table name="notes">
+            <column name="foreign_id"  comments="The documents.id key for the document this note is connected to">
+                <foreignKey table="documents" column="id" />
+            </column>
+        </table>
 <!--        - Patient Transactions (Billing  Legal  Patient Request  Physician Request  Referral/Counter Referral)-->
         <table name="transactions">
             <column name="pid"  comments="The internal patient identifier">
@@ -769,6 +774,17 @@
                 <foreignKey table="users" column="id" />
             </column>
         </table>
+        <table name="procedure_report">
+            <column name="procedure_order_id">
+                <foreignKey table="procedure_order" column="procedure_order_id" />
+            </column>
+            <column name="procedure_order_seq">
+                <foreignKey table="procedure_order" column="procedure_order_seq" />
+            </column>
+            <column name="source">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
 
 <!--        - Questionnaire Responses-->
         <table name="form_questionnaire_assessments">
@@ -1016,7 +1032,6 @@
 
         <!-- TODO: @adunsulag check onsite_messages -->
 
-        <!-- erx_ttl_touch ??? -->
         <!-- esign_signatures -->
 
         <!--        - External Data (Encounters  Procedures) -->
@@ -1034,7 +1049,6 @@
             </column>
         </table>
 
-        <!-- TODO: @adunsulag patient_tracker,patient_tracker_element in flowboard -->
         <table name="patient_tracker">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
@@ -1278,6 +1292,73 @@
             </column>
             <column name="user_id">
                 <foreignKey table="users" column="id" />
+            </column>
+        </table>
+
+        <table name="users">
+            <column name="id" comments="Unique identifier for each user in the system."/>
+            <column name="uuid" comments="Universally unique identifier for the user."/>
+            <column name="username" comments="The username associated with the user's account."/>
+            <column name="password" comments="The password for the user's account. EMPTY for exports"/>
+            <column name="authorized" comments="Indicates whether the user is authorized (1 for authorized, 0 for unauthorized)."/>
+            <column name="info" comments="Additional information or notes about the user."/>
+            <column name="source" comments="An indicator of the source of the user (e.g., internal or external)."/>
+            <column name="fname" comments="First name of the user."/>
+            <column name="mname" comments="Middle name of the user."/>
+            <column name="lname" comments="Last name of the user."/>
+            <column name="suffix" comments="Suffix for the user's name (e.g., Jr., Sr.)."/>
+            <column name="federaltaxid" comments="Federal Tax ID associated with the user."/>
+            <column name="federaldrugid" comments="Federal Drug ID associated with the user."/>
+            <column name="upin" comments="Universal Physician Identification Number for the user."/>
+            <column name="facility" comments="The facility where the user is associated."/>
+            <column name="facility_id" comments="Unique identifier for the user's associated facility."/>
+            <column name="see_auth" comments="Indicates if the user has the ability to see authorizations."/>
+            <column name="active" comments="Indicates the user's activity status (1 for active, 0 for inactive)."/>
+            <column name="npi" comments="National Provider Identifier for the user."/>
+            <column name="title" comments="Title or designation of the user (e.g., MD, RN)."/>
+            <column name="specialty" comments="The specialty of the user (e.g., cardiology, pediatrics)."/>
+            <column name="billname" comments="Billing name for the user."/>
+            <column name="email" comments="Email address associated with the user's account. EMPTY for exports"/>
+            <column name="email_direct" comments="Trusted Direct email address for the user."/>
+            <column name="google_signin_email" comments="Email address for Google Sign-In (if applicable). EMPTY for exports"/>
+            <column name="url" comments="URL associated with the user's profile."/>
+            <column name="assistant" comments="Name of the user's assistant or support staff."/>
+            <column name="organization" comments="Name of the user's organization or practice."/>
+            <column name="valedictory" comments="Valedictory or honorary title of the user."/>
+            <column name="street" comments="Street address for the user. EMPTY for exports"/>
+            <column name="streetb" comments="Secondary street address for the user. EMPTY for exports"/>
+            <column name="city" comments="City of residence or practice for the user. EMPTY for exports"/>
+            <column name="state" comments="State or province of residence or practice for the user. EMPTY for exports"/>
+            <column name="zip" comments="ZIP code or postal code for the user. EMPTY for exports"/>
+            <column name="street2" comments="Alternative street address for the user. EMPTY for exports"/>
+            <column name="streetb2" comments="Alternative street address for the user. EMPTY for exports"/>
+            <column name="city2" comments="Alternative City of residence or practice for the user. EMPTY for exports"/>
+            <column name="state2" comments="Alternative State or province of residence or practice for the user. EMPTY for exports"/>
+            <column name="zip2" comments="Alternative ZIP code or postal code for the user. EMPTY for exports"/>
+            <column name="phone" comments="Phone number for the user. EMPTY for exports"/>
+            <column name="fax" comments="Fax number for the user. EMPTY for exports"/>
+            <column name="phonew1" comments="Work phone number for the user."/>
+            <column name="phonew2" comments="Alternative Work phone number for the user."/>
+            <column name="phonecell" comments="Cell phone number for the user. EMPTY for exports"/>
+            <column name="notes" comments="Additional notes or comments about the user. EMPTY for exports"/>
+            <column name="cal_ui" comments="UNUSED"/>
+            <column name="taxonomy" comments="Taxonomy code associated with the user."/>
+            <column name="calendar" comments="Indicates whether the user appears in the calendar (1 for appears, 0 for doesn't appear)."/>
+            <column name="abook_type" comments="Address book type for the user."/>
+            <column name="default_warehouse" comments="Default warehouse for the user."/>
+            <column name="irnpool" comments="IRN (Insurance Referral Network) pool for the user."/>
+            <column name="state_license_number" comments="State license number for the user."/>
+            <column name="weno_prov_id" comments="WENO Provider ID for the user. EMPTY for exports"/>
+            <column name="newcrop_user_role" comments="NewCrop user role for the user.EMPTY for exports"/>
+            <column name="cpoe" comments="Indicates whether the user has CPOE (Computerized Physician Order Entry) capabilities."/>
+            <column name="physician_type" comments="Type or designation of the physician (e.g., standard, specialist)."/>
+            <column name="main_menu_role" comments="Main menu role for the user. EMPTY for exports"/>
+            <column name="patient_menu_role" comments="Patient menu role for the user. EMPTY for exports"/>
+            <column name="portal_user" comments="Indicates if the user is a portal user (1 for portal user, 0 for non-portal user). EMPTY for exports"/>
+            <column name="supervisor_id" comments="Unique identifier of the user's supervisor. EMPTY for exports"/>
+            <column name="billing_facility" comments="Billing facility information for the user."/>
+            <column name="billing_facility_id" comments="Unique identifier for the user's billing facility.">
+                    <foreignKey table="facility" column="id" />
             </column>
         </table>
     </tables>
