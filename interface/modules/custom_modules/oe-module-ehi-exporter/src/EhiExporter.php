@@ -53,7 +53,8 @@ class EhiExporter
     private SystemLogger $logger;
     private EhiExportJobTaskService $taskService;
     private CryptoGen $cryptoGen;
-    public function __construct(private $modulePublicDir, private $modulePublicUrl, private $xmlConfigPath, private Environment $twig)
+    public function __construct(private $modulePublicDir, private $modulePublicUrl
+        , private $xmlConfigPath, private Environment $twig)
     {
         $this->logger = new SystemLogger();
         $this->taskService = new EhiExportJobTaskService();
@@ -264,15 +265,22 @@ class EhiExporter
         return $updatedJobTask;
     }
 
+    private function getXmlNode($path) {
+        $contents = file_get_contents($path);
+        if ($contents === false) {
+            throw new \RuntimeException("Failed to find file " . $path);
+        }
+        $xml = simplexml_load_string($contents);
+        return $xml;
+    }
+
     private function exportBreadthAlgorithm(EhiExportJobTask $jobTask): EhiExportJobTask
     {
         $patientPids = $jobTask->getPatientIds();
-        $contents = file_get_contents($this->xmlConfigPath);
-        if ($contents === false) {
-            throw new \RuntimeException("Failed to find openemr.openemr.xml file");
-        }
-        $xml = simplexml_load_string($contents);
-        $exportState = new ExportState($this->logger, $xml, $jobTask);
+        $xmlTableStructure = $this->getXmlNode($this->xmlConfigPath . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'openemr.openemr.xml');
+        $xmlMetaStructure = $this->getXmlNode($this->xmlConfigPath . DIRECTORY_SEPARATOR . 'schemaspy'
+            . DIRECTORY_SEPARATOR . 'schemas' . DIRECTORY_SEPARATOR . 'openemr.meta.xml');
+        $exportState = new ExportState($this->logger, $xmlTableStructure, $xmlMetaStructure, $jobTask);
 
         $tableDefinition = $exportState->createTableDefinition('patient_data');
         $pidKey = new ExportKeyDefinition();
@@ -322,12 +330,7 @@ class EhiExporter
 
             $keyDefinitions = $exportState->getKeyDataForTable($tableDefinition);
             // write out the csv file
-            $csvHeaderColumns = [];
-            if ($tableDefinition->getSelectClause() != '*') {
-                $csvHeaderColumns = explode(",", $tableDefinition->getSelectClause());
-            }
-
-            $this->writeCsvFile($jobTask, $records, $tableDefinition->table, $exportState->getTempSysDir(), $csvHeaderColumns);
+            $this->writeCsvFile($jobTask, $records, $tableDefinition->table, $exportState->getTempSysDir(), $tableDefinition->getColumnNames());
             $exportState->addExportResultTable($tableDefinition->table, count($records));
             $tableDefinition->setHasNewData(false);
             if (!empty($keyDefinitions)) {
@@ -401,7 +404,7 @@ class EhiExporter
             }
         }
         if ($jobTask->ehiExportJob->include_patient_documents) {
-            $this->addPatientDocuments($exportedResult, $zip, $jobTask->getPatientIds());
+            $this->addPatientDocuments($exportState, $exportedResult, $zip, $jobTask->getPatientIds());
         }
         $this->addDocumentationReadme($zip);
         $saved = $zip->close();
@@ -620,23 +623,10 @@ class EhiExporter
         return $recordCount;
     }
 
-    private function getRecordsForTable($table, $columnName, &$inClause, &$patientPids)
+    private function addPatientDocuments(ExportState $exportState, ExportResult $exportedResult, \ZipArchive $zip, array $patientPids)
     {
-
-        $safeTableName = QueryUtils::escapeTableName($table);
-        $escapeColumnName = QueryUtils::escapeColumnName($columnName, [$table]);
-        $tableQuery = "SELECT * FROM $safeTableName WHERE $escapeColumnName $inClause";
-
-        if ($table == 'extended_log') {
-            $tableQuery .= " AND event IN (SELECT option_id FROM list_options WHERE list_id = 'disclosure_type' AND activity = 1) ";
-        }
-        return QueryUtils::fetchRecords($tableQuery, $patientPids, false);
-    }
-
-    private function addPatientDocuments(ExportResult $exportedResult, \ZipArchive $zip, array $patientPids)
-    {
-        $inClause = "IN (" . str_repeat('?,', count($patientPids) - 1) . "?)";
-        $documentRecords = $this->getRecordsForTable('documents', 'foreign_id', $inClause, $patientPids);
+        $tableDef = $exportState->getTableDefinitionForTable('documents');
+        $documentRecords = $tableDef->getRecords();
         $docCount = 0;
         $docFolder = "documents/";
         foreach ($documentRecords as $documentRecord) {
@@ -699,6 +689,8 @@ class EhiExporter
 
     private function shouldSkipTableDefinition(ExportTableDefinition $tableDefinition)
     {
+        // TODO: @adunsulag look at deprecating this as we now skip over keys if the table doesn't exist.
+
         // we need to check if the table even exists in the database, some tables do not get installed (such as form tables)
         // without user intervention and we need to skip over those tables
         return !QueryUtils::existsTable($tableDefinition->table);

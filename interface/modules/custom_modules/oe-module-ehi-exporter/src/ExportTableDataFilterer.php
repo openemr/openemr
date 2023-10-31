@@ -4,28 +4,25 @@ namespace OpenEMR\Modules\EhiExporter;
 
 class ExportTableDataFilterer
 {
-    private const SELECT_COLUMNS = [
-        'users' =>
-        [
-            'id', 'uuid', 'username', 'authorized', 'fname', 'lname', 'suffix'
-            , 'federaltaxid', 'federaldrugid', 'facility', 'facility_id', 'see_auth'
-            , 'active', 'npi', 'title', 'specialty', 'billname', 'url', 'assistant'
-            , 'valedictory', 'state', 'taxonomy', 'abook_type', 'default_warehouse'
-            , 'irnpool','state_license_number','weno_prov_id','newcrop_user_role'
-            ,'cpoe','physician_type', 'portal_user','supervisor_id','billing_facility','billing_facility_id'
-        ]
-        // need to exclude specific information about the user
-        ,'procedure_providers' => [
-            'ppid', 'uuid', 'name', 'npi', 'active', 'type'
-        ]
-    ];
-
-    public function getSelectQueryForTable(string $tableName)
+    public function generateSelectQueryForTableFromMetadata(ExportTableDefinition $tableDef, \SimpleXMLElement $metaNode)
     {
-        if (isset(self::SELECT_COLUMNS[$tableName])) {
-            return self::SELECT_COLUMNS[$tableName];
+        // grab the table node with the attribute name of the table
+        // grab all of the column nodes where the element has an attribute of exclude='true'
+        // create a select query where all of the table columns are selected but the exclude columns are set to null
+        // on the retrieval so that they are not included in the export.
+
+        $xpathColumnsToExclude = $metaNode->xpath("//table[@name='" . $tableDef->table . "']/column[@exclude='true']");
+        if (!empty($xpathColumnsToExclude)) {
+            $columns = $tableDef->getColumnNames();
+            $hashMap = array_combine($columns, $columns);
+            foreach ($xpathColumnsToExclude as $excludeColumn) {
+                $columnName = (string)($excludeColumn->attributes()['name']) ?? "";
+                if (!empty($columnName) && !empty($hashMap[$columnName])) {
+                    $hashMap[$columnName] = "null as " . $columnName;
+                }
+            }
+            $selectClause = implode(',', $hashMap);
+            $tableDef->setSelectClause($selectClause);
         }
-        // all tables not in the list should return every column
-        return "*";
     }
 }

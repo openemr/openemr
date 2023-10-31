@@ -16,6 +16,11 @@ class ExportTableDefinition
 
     private bool $hasNewData;
 
+    /**
+     * @var string[]
+     */
+    private array $tableColumnNames;
+
     public function __construct(?string $table = null, array $pks = [])
     {
         $this->table = $table;
@@ -76,6 +81,15 @@ class ExportTableDefinition
         return $this->hasNewData;
     }
 
+    public function setSelectClause(string $clause) {
+        $this->selectClause = $clause;
+    }
+
+    /**
+     * @deprecated
+     * @param array $columns
+     * @return void
+     */
     public function setSelectColumns(array $columns)
     {
         $select = [];
@@ -106,8 +120,12 @@ class ExportTableDefinition
             $bindColumnsCount = count($items);
             do {
                 $fetchSize = min($batchSize, $bindColumnsCount - $pos);
-                $safeColumn = QueryUtils::escapeColumnName($key, [$this->table]);
-                $whereClause = "($safeColumn IN (" . str_repeat('?,', $fetchSize - 1) . "?))";
+                // key has already been escaped when we created the table definitions so we can just search against the valid
+                // table columns, if it exists we are good to go, otherwise we fail.
+                if (array_search($key, $this->tableColumnNames) === false) {
+                    throw new \RuntimeException("Invalid key column name for table " . $this->table . ": $key");
+                }
+                $whereClause = "($key IN (" . str_repeat('?,', $fetchSize - 1) . "?))";
                 $bindColumns = array_slice($items, $pos, $fetchSize);
 
                 $sql = "SELECT {$this->getSelectClause()} FROM {$this->table} WHERE $whereClause";
@@ -128,5 +146,21 @@ class ExportTableDefinition
     public function setHasNewData(bool $newData)
     {
         $this->hasNewData = false;
+    }
+
+    /**
+     * @param string[]  $safeColumnNames
+     * @return void
+     */
+    public function setColumnNames(array $safeColumnNames)
+    {
+        $this->tableColumnNames = $safeColumnNames;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getColumnNames() : array {
+        return $this->tableColumnNames;
     }
 }

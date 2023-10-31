@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Modules\EhiExporter;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Modules\EhiExporter\ExportResult;
 use OpenEMR\Modules\EhiExporter\ExportKeyDefinition;
@@ -26,9 +27,10 @@ class ExportState
      */
     private string $tempDir;
 
-    public function __construct(SystemLogger $logger, \SimpleXMLElement $node, EhiExportJobTask $jobTask)
+    public function __construct(SystemLogger $logger, \SimpleXMLElement $tableNode, \SimpleXMLElement $metaNode, EhiExportJobTask $jobTask)
     {
-        $this->rootNode = $node;
+        $this->rootNode = $tableNode;
+        $this->metaNode = $metaNode;
         $this->queue = new \SplQueue();
         $this->result = new ExportResult();
         $this->tableDefinitionsMap = [];
@@ -76,6 +78,10 @@ class ExportState
     public function xmlXPath(string $xpath)
     {
         return $this->rootNode->xpath($xpath);
+    }
+
+    public function xmlMetaXPath(string $xpath) {
+        return $this->metaNode->xpath($xpath);
     }
 
     public function getTableDefinitionForTable(string $tableName): ?ExportTableDefinition
@@ -135,7 +141,19 @@ class ExportState
                         $foreignColumnName = (string)($child->attributes()['column'] ?? null);
                         $keyType = $child->getName();
                         if (!empty($foreignTableName) && !empty($foreignColumnName)) {
-                            $foreignTableDefinition = $this->tableDefinitionsMap[$foreignTableName] ?? $this->createTableDefinition($foreignTableName);
+                            if (!isset($this->tableDefinitionsMap[$foreignTableName])) {
+                                // TODO: @adunsulag is there a better location higher up the chain to do this
+                                // or would it be cleaner to have a NOOP table definition that we can use for this?
+                                if (!$this->existsTable($foreignTableName)) {
+                                    // we are skipping any tables that don't exist due to the fact that they may not be installed
+                                    // such as an optional form.
+                                    continue;
+                                } else {
+                                    $foreignTableDefinition = $this->createTableDefinition($foreignTableName);
+                                }
+                            } else {
+                                $foreignTableDefinition = $this->tableDefinitionsMap[$foreignTableName];
+                            }
                             $keyData['tables'][$foreignTableName] = $foreignTableDefinition;
                             $key = new ExportKeyDefinition();
                             $key->foreignKeyTable = $foreignTableName;
@@ -203,8 +221,11 @@ class ExportState
 
     public function createTableDefinition(string $tableName)
     {
-        $tableDef = new ExportTableDefinition($tableName);
-        $primaryKeys = $this->xmlXPath("//table[@name='" . $tableName . "']/primaryKey");
+        // need to make sure we sanitize this
+        $safeTableName = QueryUtils::escapeTableName($tableName);
+        // we are going to do our safe escaping here so we don't have to do it in the rest of the code.
+        $tableDef = new ExportTableDefinition($safeTableName);
+        $primaryKeys = $this->xmlXPath("//table[@name='" . $safeTableName . "']/primaryKey");
         $pkBySequence = [];
         foreach ($primaryKeys as $primaryKey) {
             $columnName = (string)($primaryKey->attributes()['column']) ?? "";
@@ -215,11 +236,16 @@ class ExportState
             // since we add the sequence by integer, it will be in order and we can add the primary keys here so we create our hashes properly.
             $tableDef->addPrimaryKey($columnName);
         }
-        $selectQuery = $this->dataFilterer->getSelectQueryForTable($tableName);
-        if ($selectQuery != '*') {
-            $tableDef->setSelectColumns($selectQuery);
-        }
-        $this->tableDefinitionsMap[$tableName] = $tableDef;
+        // this will be used to make sure we don't have any sql injection attacks
+        $safeColumnNames = QueryUtils::listTableFields($safeTableName);
+        $tableDef->setColumnNames($safeColumnNames);
+        $this->dataFilterer->generateSelectQueryForTableFromMetadata($tableDef, $this->metaNode);
+        $this->tableDefinitionsMap[$safeTableName] = $tableDef;
         return $tableDef;
+    }
+
+    private function existsTable(string $foreignTableName)
+    {
+        return QueryUtils::existsTable($foreignTableName);
     }
 }
