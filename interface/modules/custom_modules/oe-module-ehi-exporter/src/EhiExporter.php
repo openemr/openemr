@@ -42,10 +42,10 @@ class EhiExporter
      */
     const EHI_DOCUMENT_FOLDER = 'system-ehi-export';
 
-    const PARENT_FK_TABLES_TRAVERSAL = ['patient_data', 'insurance_data', 'eligibility_verification', 'form_vitals', 'lbt_data',  'lbf_data', 'patient_tracker', 'therapy_groups'];
+    const PARENT_FK_TABLES_TRAVERSAL = ['patient_data', 'insurance_data', 'eligibility_verification', 'form_vitals', 'lbt_data',  'lbf_data', 'patient_tracker', 'therapy_groups', 'documents'];
     const ZIP_MIME_TYPE = "application/zip";
     const PATIENT_TASK_BATCH_FETCH_LIMIT = 5000;
-    const CYCLE_MAX_ITERATIONS_LIMIT = 500;
+    const CYCLE_MAX_ITERATIONS_LIMIT = 1500;
 
     // average size we estimate to be 100KB per patient in data exports so we will add that up per patient
     const PATIENT_SIZE_PER_RECORD = 100 * 1024;
@@ -322,7 +322,12 @@ class EhiExporter
 
             $keyDefinitions = $exportState->getKeyDataForTable($tableDefinition);
             // write out the csv file
-            $this->writeCsvFile($jobTask, $records, $tableDefinition->table, $exportState->getTempSysDir());
+            $csvHeaderColumns = [];
+            if ($tableDefinition->getSelectClause() != '*') {
+                $csvHeaderColumns = explode(",", $tableDefinition->getSelectClause());
+            }
+
+            $this->writeCsvFile($jobTask, $records, $tableDefinition->table, $exportState->getTempSysDir(), $csvHeaderColumns);
             $exportState->addExportResultTable($tableDefinition->table, count($records));
             $tableDefinition->setHasNewData(false);
             if (!empty($keyDefinitions)) {
@@ -355,7 +360,7 @@ class EhiExporter
                 }
             }
         }
-        $this->exportCustomTables($exportState);
+        $this->exportCustomTables($jobTask, $exportState);
         if ($iterations > $maxCycleLimit) {
             throw new \RuntimeException("Max iterations reached, check for cyclic dependencies");
         }
@@ -478,50 +483,50 @@ class EhiExporter
         return $document;
     }
 
-    private function exportCustomTables(ExportState $state)
+    private function exportCustomTables(EhiExportJobTask $jobTask, ExportState $state)
     {
         $this->exportEsignatureData($state);
+        $this->exportClinicalNotesForm($state);
+    }
+    private function exportClinicalNotesForm(ExportState $state) {
+        $tableDef = $state->getTableDefinitionForTable('forms');
+        $jobTask = $state->getJobTask();
+        // make sure we are exporting some of our forms objects here
+        if (isset($tableDef)) {
+            $sql = "SELECT `form_clinic_note`.* FROM `form_clinic_note` JOIN `forms` ON (`form_clinic_note`.`id` = `forms`.`form_id` AND `formdir`='clinic_note') WHERE `forms`.`pid` IN ("
+                . str_repeat("?, ", count($jobTask->getPatientIds()) - 1) . "? )";
+            $records = QueryUtils::fetchRecords($sql , $jobTask->getPatientIds());
+            if (!empty($records)) {
+                $this->writeCsvFile($jobTask, $records, 'form_clinic_note', $state->getTempSysDir());
+                $state->addExportResultTable('form_clinic_note' , count($records));
+            }
+        }
     }
     private function exportEsignatureData(ExportState $state)
     {
-//        // need to grab dynamic tables from LBT & LBF
-//        // looks like I just need to grab the form table and form_encounter table where the pid is present
-//        // can use the table mapping for all this data including the patient_data table to grab all the pids
-//        $formsTableDef = $state->getTableDefinitionForTable('forms');
-//        $formsEncounterTableDef = $state->getTableDefinitionForTable('form_encounter');
-//
-//        $tableDef = new ExportTableDefinition();
-//        $bind = [];
-//        if (isset($formsTableDef)) {
-//            $records = $formsTableDef->getRecords();
-//            // now we need to grab our esignatures
-//            if (!empty($records)) {
-//                $clauses[] = "(`table`='forms' AND tid IN ( " . str_repeat("?, ", count($records) - 1) . "? ) )";
-//                $bind = array_map(function ($item) {
-//                    return $item['id'];
-//                }, $records);
-//            }
-//        }
-//        if (isset($formsEncounterTableDef)) {
-//            $encounterRecords = $formsEncounterTableDef->getRecords();
-//            // now we need to grab our esignatures
-//            if (!empty($encounterRecords)) {
-//                $clauses[] = "(`table`='form_encounter' AND tid IN ( " . str_repeat("?, ", count($encounterRecords) - 1) . "? ) )";
-//                $encounterBind = array_map(function ($item) {
-//                    return $item['encounter'];
-//                }, $encounterRecords);
-//                $bind = array_merge($bind, $encounterBind);
-//            }
-//        }
-//        if (!empty($clauses)) {
-//            $sql = "SELECT * FROM esign_signatures WHERE " . implode(" OR ", $clauses);
-//            $records = QueryUtils::fetchRecords($sql, $bind);
-//            $jobTask = $state->getJobTask();
-//            $this->writeCsvFile($jobTask, $records, 'esign_signatures');
-//        }
+        $jobTask = $state->getJobTask();
+        $patientIds = $jobTask->getPatientIds();
+        $patientIdsCount = count($patientIds);
+        $sql = "SELECT * FROM `esign_signatures` WHERE `table`='forms' AND `tid` IN (select `id` FROM `forms` WHERE `pid` IN ( "
+            . str_repeat("?, ", $patientIdsCount - 1) . "? ) )";
+        $records = QueryUtils::fetchRecords($sql, $patientIds);
+
+        $encounterSql = "SELECT * FROM `esign_signatures` WHERE `table`='form_encounter' AND `tid` IN (select `encounter` FROM `form_encounter` WHERE `pid` IN ( "
+            . str_repeat("?, ", $patientIdsCount - 1) . "? ) )";
+        $encounterRecords = QueryUtils::fetchRecords($encounterSql, $patientIds);
+
+        $combinedRecords = array_merge($records, $encounterRecords);
+        unset($records);
+        unset($encounterRecords);
+        $this->writeCsvFile($jobTask, $combinedRecords, 'esign_signatures', $state->getTempSysDir());
+        $state->addExportResultTable('esign_signatures' , count($combinedRecords));
     }
     private function shouldProcessForeignKey(ExportKeyDefinition $definition)
     {
+        // we don't want to traverse keys that are not unique as we risk jeopardizing patient data following the references
+        if ($this->isNonUniqueKey($definition)) {
+            return false;
+        }
         if ($definition->keyType == 'parent') {
             return true; // we process parent keys as we want to traverse all of the data
         }
@@ -532,6 +537,21 @@ class EhiExporter
             return in_array($tableName, $parentTraversalTables);
         }
         return false;
+    }
+
+    private function isNonUniqueKey(ExportKeyDefinition $definition) {
+        // everything in the forms table is ALREADY grabbed from the pid id so we don't need to try and grab some the
+        // non-unique key form_id here since the data is already fetched that is related to the patient (assuming the forms
+        // are filled out from the code properly)
+        // the only form that misbehaves this way is the form_clinical_notes which has no pid column and needs to be
+        // handled separately, we'll grab it like we do the esignatures.
+        if ($definition->foreignKeyTable == 'forms' && $definition->foreignKeyColumn == 'form_id') {
+            return true;
+        }
+        // procedure_order_seq is not a unique key and we grab the records already with procedure_order_id in these cases
+        if ($definition->foreignKeyTable == 'procedure_order_code' && $definition->foreignKeyColumn == 'procedure_order_seq') {
+            return true;
+        }
     }
 
     private function shouldExportAdditionalAssets($tableName)
@@ -558,7 +578,7 @@ class EhiExporter
         }
     }
 
-    private function writeCsvFile($jobTask, &$records, $tableName, $outputLocation)
+    private function writeCsvFile($jobTask, &$records, $tableName, $outputLocation, array $overrideHeaderColumns = array())
     {
         $uuidDefinition = UuidRegistry::getUuidTableDefinitionForTable($tableName);
         if (!empty($uuidDefinition)) {
@@ -566,7 +586,11 @@ class EhiExporter
         } else {
             $convertUuid = false;
         }
-        $columns = QueryUtils::listTableFields($tableName);
+        if (empty($overrideHeaderColumns)) {
+            $columns = QueryUtils::listTableFields($tableName);
+        } else {
+            $columns = $overrideHeaderColumns;
+        }
         // note I am intentionally avoiding php://temp/maxmemory here which would be more performant but runs a higher risk of files being
         // left around on the hard disk which we do not want to do.  Memory is harder to read against but does run the risk of overloading the server
         // if there isn't enough RAM or if the php ini max memory setting is too low.
