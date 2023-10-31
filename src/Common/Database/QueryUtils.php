@@ -38,12 +38,9 @@ class QueryUtils
         return \escape_table_name($table);
     }
 
-    public static function escapeColumnName($columnName)
+    public static function escapeColumnName($columnName, $tables = [])
     {
-
-        // TODO: @adunsulag figure out how to fix this and make it less expensive...
-        //return \escape_sql_column_name($columnName);
-        return $columnName;
+        return \escape_sql_column_name($columnName, $tables);
     }
 
     public static function fetchRecordsNoLog($sqlStatement, $binds)

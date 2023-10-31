@@ -34,7 +34,7 @@ CREATE TABLE `ehi_export_job_patients`(
 CREATE TABLE `ehi_export_job_tasks`(
      `ehi_task_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
      `ehi_export_job_id` int(11) NOT NULL,
-     `export_document_id` int(11) DEFAULT NULL COMMENT 'FK to documents.id - represents the document result file that was created as part of this task',
+     `export_document_id` int(11) COMMENT 'FK to documents.id - represents the document result file that was created as part of this task',
 #      `export_document_size_limit` int(11) DEFAULT 525312500 COMMENT 'The patient documents export size, default set to 500MB',
      `creation_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
      `completion_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -58,8 +58,7 @@ CREATE TABLE `ehi_export_job_task_patients`(
 #EndIf
 
 #IfNotRow categories name EHI Export Zip File
-SET @max_rght = (SELECT MAX(rght) FROM categories);
-INSERT INTO categories(`id`,`name`, `value`, `parent`, `lft`, `rght`, `aco_spec`) select (select MAX(id) from categories) + 1, 'EHI Export Zip File', '', 1, @max_rght, @max_rght + 1, 'admin|super' from categories where name = 'Categories';
+INSERT INTO categories(`id`,`name`, `value`, `parent`, `lft`, `rght`, `aco_spec`) select (select MAX(id) from categories) + 1, 'EHI Export Zip File', '', 1, rght, rght + 1, 'admin|super' from categories where name = 'Categories';
 UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
 UPDATE categories_seq SET id = (select MAX(id) from categories);
 #EndIf

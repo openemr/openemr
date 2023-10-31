@@ -80,7 +80,7 @@ class ExportTableDefinition
     {
         $select = [];
         foreach ($columns as $column) {
-            $select[] = QueryUtils::escapeColumnName($column);
+            $select[] = QueryUtils::escapeColumnName($column, [$this->table]);
         }
         $this->selectClause = implode(',', $columns);
     }
@@ -106,7 +106,7 @@ class ExportTableDefinition
             $bindColumnsCount = count($items);
             do {
                 $fetchSize = min($batchSize, $bindColumnsCount - $pos);
-                $safeColumn = QueryUtils::escapeColumnName($key);
+                $safeColumn = QueryUtils::escapeColumnName($key, [$this->table]);
                 $whereClause = "($safeColumn IN (" . str_repeat('?,', $fetchSize - 1) . "?))";
                 $bindColumns = array_slice($items, $pos, $fetchSize);
 

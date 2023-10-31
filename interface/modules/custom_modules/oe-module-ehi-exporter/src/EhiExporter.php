@@ -442,7 +442,7 @@ class EhiExporter
         $filePath = $state->getTempSysDir() . DIRECTORY_SEPARATOR . $tableName . '.csv';
         if (file_exists($filePath)) {
             $contents = file_get_contents($filePath);
-            return $this->cryptoGen->decryptStandard($contents);
+            return $this->cryptoGen->decryptStandard($contents, null, 'database');
         }
         return "";
     }
@@ -610,7 +610,7 @@ class EhiExporter
         // huge if there is a lot of patients represented
         fclose($csvFile);
         unset($csvFile);
-        $encryptedContents = $this->cryptoGen->encryptStandard($dataContents);
+        $encryptedContents = $this->cryptoGen->encryptStandard($dataContents, null, 'database');
         $fileName = $outputLocation . DIRECTORY_SEPARATOR . $tableName . '.csv';
         $contentsWritten = file_put_contents($fileName, $encryptedContents);
         if ($contentsWritten === false) {
@@ -624,7 +624,7 @@ class EhiExporter
     {
 
         $safeTableName = QueryUtils::escapeTableName($table);
-        $escapeColumnName = QueryUtils::escapeColumnName($columnName);
+        $escapeColumnName = QueryUtils::escapeColumnName($columnName, [$table]);
         $tableQuery = "SELECT * FROM $safeTableName WHERE $escapeColumnName $inClause";
 
         if ($table == 'extended_log') {
