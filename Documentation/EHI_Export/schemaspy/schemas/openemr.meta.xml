@@ -833,23 +833,166 @@
 
         <!--        - Aftercare Plan-->
         <table name="form_aftercare_plan">
+
+        </table>
+        <table name="form_aftercare_plan" remarks="Table for chart notes on patient aftercare plans, including Acute Intoxication/Withdrawal, Emotional/Behavioral Conditions and Complications, and Relapse Potential for patients' care plans.">
+            <column name="id" comments="Unique identifier for each aftercare plan entry. Primary key." />
+            <column name="date" comments="Date and time when the aftercare plan was created." />
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
+            <column name="user" comments="User responsible for creating the aftercare plan.">
+                <foreignKey table="users" column="username" />
+            </column>
+            <column name="provider" comments="Provider assigned to the patient for aftercare planning.UNUSED" />
+            <column name="groupname" comments="The groupname that created this record.">
+                <foreignKey table="groups" column="name" />
+            </column>
+            <column name="authorized" comments="Indicates authorization status for the aftercare plan." />
+            <column name="activity" comments="1 if plan is active, 0 if deleted" />
+            <column name="client_name" comments="Human readable name of the patient for whom the aftercare plan is created." />
+            <column name="admit_date" comments="Date when the patient was admitted to the aftercare plan." />
+            <column name="discharged" comments="Date when the patient was discharged from the aftercare plan." />
+            <column name="goal_a_acute_intoxication" comments="1st Goal for Acute Intoxication/Withdrawal." />
+            <column name="goal_a_acute_intoxication_I" comments="2nd Goal for Acute Intoxication/Withdrawal." />
+            <column name="goal_a_acute_intoxication_II" comments="3rd Goal for Acute Intoxication/Withdrawal." />
+            <column name="goal_b_emotional_behavioral_conditions" comments="1st Goal for Emotional/Behavioral Conditions and Complications." />
+            <column name="goal_b_emotional_behavioral_conditions_I" comments="2nd Goal for Emotional/Behavioral Conditions and Complications." />
+            <column name="goal_c_relapse_potential" comments="1st Goal related to Relapse Potential." />
+            <column name="goal_c_relapse_potential_I" comments="2nd Goal related to Relapse Potential." />
         </table>
 
         <!--        - Ankle Evaluation Form-->
-        <table name="form_ankleinjury">
+        <table name="form_ankleinjury" remarks="Represents a provider's evaluation of an ankle injury including x-ray information, diagnosis, and recommended treatments">
+            <column name="id" comments="Surrogate id of the record used as the primary incrementing key"/>
+            <column name="date" comments="Date of the evaluation"/>
             <column name="pid" comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
+            <column name="user" comments="User responsible for creating the record.">
+                <foreignKey table="users" column="username" />
+            </column>
+            <column name="groupname" comments="The groupname that created this record.">
+                <foreignKey table="groups" column="name" />
+            </column>
+            <column name="authorized" comments="Authorization status"/>
+            <column name="activity" comments="Activity status, 1=form is active, 0=inactive"/>
+            <column name="ankle_date_of_injury" comments="Date of the ankle injury"/>
+            <column name="ankle_work_related" comments="Work-related information for the injury"/>
+            <column name="ankle_foot" comments="Foot information related to the injury"/>
+            <column name="ankle_severity_of_pain" comments="Severity of pain associated with the injury 1-3"/>
+            <column name="ankle_significant_swelling" comments="Indication of significant swelling"/>
+            <column name="ankle_onset_of_swelling" comments="Onset of swelling"/>
+            <column name="ankle_how_did_injury_occur" comments="Description of how the injury occurred"/>
+            <column name="ankle_ottawa_bone_tenderness" comments="Information about Ottawa bone tenderness"/>
+            <column name="ankle_able_to_bear_weight_steps" comments="Ability to bear weight and steps information"/>
+            <column name="ankle_x_ray_interpretation" comments="Interpretation of X-ray results"/>
+            <column name="ankle_additional_x_ray_notes" comments="Additional notes related to X-ray"/>
+            <column name="ankle_diagnosis1" comments="Diagnosis 1 for the ankle injury"/>
+            <column name="ankle_diagnosis2" comments="Diagnosis 2 for the ankle injury"/>
+            <column name="ankle_diagnosis3" comments="Diagnosis 3 for the ankle injury"/>
+            <column name="ankle_diagnosis4" comments="Diagnosis 4 for the ankle injury"/>
+            <column name="ankle_plan" comments="Recommended treatment plan for the ankle injury"/>
+            <column name="ankle_additional_diagnosis" comments="Additional diagnosis for the ankle injury"/>
         </table>
 
         <!--        - Bronchitis Form-->
-        <table name="form_bronchitis">
+        <table name="form_bronchitis" remarks="Records symptoms, diagnosis, and recommended treatments for bronchitis in a patient">
+            <column name="id" comments="Surrogate id of the record used as the primary incrementing key"/>
+            <column name="date" comments="Date when the record was created"/>
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
+            <column name="user" comments="User responsible for creating the record.">
+                <foreignKey table="users" column="username" />
+            </column>
+            <column name="groupname" comments="The groupname that created this record.">
+                <foreignKey table="groups" column="name" />
+            </column>
+            <column name="authorized" comments="Authorization flag"/>
+            <column name="activity" comments="Activity status, 1=form is active, 0=inactive"/>
+            <column name="bronchitis_date_of_illness" comments="Date of illness for bronchitis"/>
+            <column name="bronchitis_hpi" comments="History of Present Illness for bronchitis"/>
+            <column name="bronchitis_ops_fever" comments="Operations related to fever"/>
+            <column name="bronchitis_ops_cough" comments="Operations related to cough"/>
+            <column name="bronchitis_ops_dizziness" comments="Operations related to dizziness"/>
+            <column name="bronchitis_ops_chest_pain" comments="Operations related to chest pain"/>
+            <column name="bronchitis_ops_dyspnea" comments="Operations related to dyspnea"/>
+            <column name="bronchitis_ops_sweating" comments="Operations related to sweating"/>
+            <column name="bronchitis_ops_wheezing" comments="Operations related to wheezing"/>
+            <column name="bronchitis_ops_malaise" comments="Operations related to malaise"/>
+            <column name="bronchitis_ops_sputum" comments="Operations related to sputum"/>
+            <column name="bronchitis_ops_appearance" comments="Operations related to appearance"/>
+            <column name="bronchitis_ops_all_reviewed" comments="Operations related to all reviewed"/>
+            <column name="bronchitis_review_of_pmh" comments="Review of Past Medical History for bronchitis"/>
+            <column name="bronchitis_review_of_medications" comments="Review of medications for bronchitis"/>
+            <column name="bronchitis_review_of_allergies" comments="Review of allergies for bronchitis"/>
+            <column name="bronchitis_review_of_sh" comments="Review of social history for bronchitis"/>
+            <column name="bronchitis_review_of_fh" comments="Review of family history for bronchitis"/>
+            <column name="bronchitis_tms_normal_right" comments="Tympanic Membrane and Sinus - Normal Right"/>
+            <column name="bronchitis_tms_normal_left" comments="Tympanic Membrane and Sinus - Normal Left"/>
+            <column name="bronchitis_nares_normal_right" comments="Nares - Normal Right"/>
+            <column name="bronchitis_nares_normal_left" comments="Nares - Normal Left"/>
+            <column name="bronchitis_tms_thickened_right" comments="Tympanic Membrane and Sinus - Thickened Right"/>
+            <column name="bronchitis_tms_thickened_left" comments="Tympanic Membrane and Sinus - Thickened Left"/>
+            <column name="bronchitis_tms_af_level_right" comments="Tympanic Membrane and Sinus - AF Level Right"/>
+            <column name="bronchitis_tms_af_level_left" comments="Tympanic Membrane and Sinus - AF Level Left"/>
+            <column name="bronchitis_nares_swelling_right" comments="Nares - Swelling Right"/>
+            <column name="bronchitis_nares_swelling_left" comments="Nares - Swelling Left"/>
+            <column name="bronchitis_tms_retracted_right" comments="Tympanic Membrane and Sinus - Retracted Right"/>
+            <column name="bronchitis_tms_retracted_left" comments="Tympanic Membrane and Sinus - Retracted Left"/>
+            <column name="bronchitis_nares_discharge_right" comments="Nares - Discharge Right"/>
+            <column name="bronchitis_nares_discharge_left" comments="Nares - Discharge Left"/>
+            <column name="bronchitis_tms_bulging_right" comments="Tympanic Membrane and Sinus - Bulging Right"/>
+            <column name="bronchitis_tms_bulging_left" comments="Tympanic Membrane and Sinus - Bulging Left"/>
+            <column name="bronchitis_tms_perforated_right" comments="Tympanic Membrane and Sinus - Perforated Right"/>
+            <column name="bronchitis_tms_perforated_left" comments="Tympanic Membrane and Sinus - Perforated Left"/>
+            <column name="bronchitis_tms_nares_not_examined" comments="Tympanic Membrane and Sinus - Nares Not Examined"/>
+            <column name="bronchitis_no_sinus_tenderness" comments="No sinus tenderness"/>
+            <column name="bronchitis_oropharynx_normal" comments="Oropharynx - Normal"/>
+            <column name="bronchitis_sinus_tenderness_frontal_right" comments="Sinus Tenderness - Frontal Right"/>
+            <column name="bronchitis_sinus_tenderness_frontal_left" comments="Sinus Tenderness - Frontal Left"/>
+            <column name="bronchitis_oropharynx_erythema" comments="Oropharynx - Erythema"/>
+            <column name="bronchitis_oropharynx_exudate" comments="Oropharynx - Exudate"/>
+            <column name="bronchitis_oropharynx_abcess" comments="Oropharynx - Abscess"/>
+            <column name="bronchitis_oropharynx_ulcers" comments="Oropharynx - Ulcers"/>
+            <column name="bronchitis_sinus_tenderness_maxillary_right" comments="Sinus Tenderness - Maxillary Right"/>
+            <column name="bronchitis_sinus_tenderness_maxillary_left" comments="Sinus Tenderness - Maxillary Left"/>
+            <column name="bronchitis_oropharynx_appearance" comments="Oropharynx - Appearance"/>
+            <column name="bronchitis_sinus_tenderness_not_examined" comments="Sinus Tenderness - Not Examined"/>
+            <column name="bronchitis_oropharynx_not_examined" comments="Oropharynx - Not Examined"/>
+            <column name="bronchitis_heart_pmi" comments="Heart - PMI (Point of Maximal Impulse)"/>
+            <column name="bronchitis_heart_s3" comments="Heart - S3 Sound"/>
+            <column name="bronchitis_heart_s4" comments="Heart - S4 Sound"/>
+            <column name="bronchitis_heart_click" comments="Heart - Click Sound"/>
+            <column name="bronchitis_heart_rub" comments="Heart - Rub Sound"/>
+            <column name="bronchitis_heart_murmur" comments="Heart - Murmur"/>
+            <column name="bronchitis_heart_grade" comments="Heart - Grade"/>
+            <column name="bronchitis_heart_location" comments="Heart - Location"/>
+            <column name="bronchitis_heart_normal" comments="Heart - Normal Exam"/>
+            <column name="bronchitis_heart_not_examined" comments="Heart - Not Examined"/>
+            <column name="bronchitis_lungs_bs_normal" comments="Lungs - Breath Sounds Normal"/>
+            <column name="bronchitis_lungs_bs_reduced" comments="Lungs - Breath Sounds Reduced"/>
+            <column name="bronchitis_lungs_bs_increased" comments="Lungs - Breath Sounds Increased"/>
+            <column name="bronchitis_lungs_crackles_lll" comments="Lungs - Crackles - Left Lower Lobe"/>
+            <column name="bronchitis_lungs_crackles_rll" comments="Lungs - Crackles - Right Lower Lobe"/>
+            <column name="bronchitis_lungs_crackles_bll" comments="Lungs - Crackles - Both Lower Lobes"/>
+            <column name="bronchitis_lungs_rubs_lll" comments="Lungs - Rubs - Left Lower Lobe"/>
+            <column name="bronchitis_lungs_rubs_rll" comments="Lungs - Rubs - Right Lower Lobe"/>
+            <column name="bronchitis_lungs_rubs_bll" comments="Lungs - Rubs - Both Lower Lobes"/>
+            <column name="bronchitis_lungs_wheezes_lll" comments="Lungs - Wheezes - Left Lower Lobe"/>
+            <column name="bronchitis_lungs_wheezes_rll" comments="Lungs - Wheezes - Right Lower Lobe"/>
+            <column name="bronchitis_lungs_wheezes_bll" comments="Lungs - Wheezes - Both Lower Lobes"/>
+            <column name="bronchitis_lungs_wheezes_dll" comments="Lungs - Wheezes - Diffuse"/>
+            <column name="bronchitis_lungs_normal_exam" comments="Lungs - Normal Exam"/>
+            <column name="bronchitis_lungs_not_examined" comments="Lungs - Not Examined"/>
+            <column name="bronchitis_diagnostic_tests" comments="Diagnostic tests for bronchitis"/>
+            <column name="diagnosis1_bronchitis_form" comments="Diagnosis 1 for bronchitis form"/>
+            <column name="diagnosis2_bronchitis_form" comments="Diagnosis 2 for bronchitis form"/>
+            <column name="diagnosis3_bronchitis_form" comments="Diagnosis 3 for bronchitis form"/>
+            <column name="diagnosis4_bronchitis_form" comments="Diagnosis 4 for bronchitis form"/>
+            <column name="bronchitis_additional_diagnosis" comments="Additional diagnoses for bronchitis"/>
+            <column name="bronchitis_treatment" comments="Treatment information for bronchitis"/>
         </table>
 
 <!--        - Lab Requisition-->
@@ -1323,14 +1466,14 @@
             <column name="state" comments="State where the facility is located"/>
             <column name="postal_code" comments="Postal code of the facility"/>
             <column name="country_code" comments="Country code of the facility"/>
-            <column name="federal_ein" comments="Federal Employer Identification Number of the facility"/>
+            <column name="federal_ein" comments="Federal Employer Identification Number of the facility" exclude="true"/>
             <column name="website" comments="Website of the facility"/>
             <column name="email" comments="Email address of the facility"/>
             <column name="service_location" comments="Indicates if it's a service location (0-Not a service location, 1-Service location)"/>
             <column name="billing_location" comments="Indicates if it's a billing location (0-Not a billing location, 1-Billing location)"/>
             <column name="accepts_assignment" comments="Indicates if the facility accepts assignment (0-Does not accept assignment, 1-Accepts assignment)"/>
             <column name="pos_code" comments="POS (Place of Service) code of the facility"/>
-            <column name="x12_sender_id" comments="X12 Sender ID of the facility. EMPTY IN Export"/>
+            <column name="x12_sender_id" comments="X12 Sender ID of the facility. EMPTY IN Export" exclude="true"/>
             <column name="attn" comments="Attention line for the facility"/>
             <column name="domain_identifier" comments="Domain identifier for the facility"/>
             <column name="facility_npi" comments="NPI (National Provider Identifier) for the facility"/>
@@ -1346,9 +1489,9 @@
             <column name="mail_state" comments="Mailing state of the facility"/>
             <column name="mail_zip" comments="Mailing ZIP code of the facility"/>
             <column name="oid" comments="For HIEs, CCDA, and FHIR an OID is required/wanted for the facility"/>
-            <column name="iban" comments="International Bank Account Number (IBAN) for the facility EMPTY IN Export"/>
-            <column name="info" comments="Additional information about the facility EMPTY in Export"/>
-            <column name="weno_id" comments="WENO ID for the facility"/>
+            <column name="iban" comments="International Bank Account Number (IBAN) for the facility EMPTY IN Export" exclude="true"/>
+            <column name="info" comments="Additional information about the facility EMPTY in Export" exclude="true"/>
+            <column name="weno_id" comments="WENO ID for the facility" exclude="true"/>
             <column name="inactive" comments="Indicates if the facility is inactive (0-Active, 1-Inactive)"/>
         </table>
 
