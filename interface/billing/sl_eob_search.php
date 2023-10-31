@@ -42,6 +42,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Pdf\Config_Mpdf;
 
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("EOB Posting - Search")]);
@@ -274,24 +275,7 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
     global $srcdir;
 
     if ($GLOBALS['statement_appearance'] == '1') {
-        $config_mpdf = array(
-            'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
-            'mode' => $GLOBALS['pdf_language'],
-            'format' => $GLOBALS['pdf_size'],
-            'default_font_size' => '9',
-            'default_font' => 'dejavusans',
-            'margin_left' => $GLOBALS['pdf_left_margin'],
-            'margin_right' => $GLOBALS['pdf_right_margin'],
-            'margin_top' => $GLOBALS['pdf_top_margin'],
-            'margin_bottom' => $GLOBALS['pdf_bottom_margin'],
-            'margin_header' => '',
-            'margin_footer' => '',
-            'orientation' => $GLOBALS['pdf_layout'],
-            'shrink_tables_to_fit' => 1,
-            'use_kwt' => true,
-            'autoScriptToLang' => true,
-            'keep_table_proportions' => true
-        );
+        $config_mpdf = Config_Mpdf::getConfigMpdf();
         $pdf2 = new mPDF($config_mpdf);
         if ($_SESSION['language_direction'] == 'rtl') {
             $pdf2->SetDirectionality('rtl');
@@ -299,29 +283,10 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
         ob_start();
         // this file contains the HTML to be converted to pdf.
         readfile($file_to_send, "r");
-
         $content = ob_get_clean();
-
-        // Fix a nasty html2pdf bug - it ignores document root!
-        // TODO - now use mPDF, so should test if still need this fix
-        global $web_root, $webserver_root;
-        $i = 0;
-        $wrlen = strlen($web_root);
-        $wsrlen = strlen($webserver_root);
-        if (!empty($content)) {
-            $i = stripos($content, " src='/", $i + 1);
-            if ($i != false) {
-                if (
-                    substr($content, $i + 6, $wrlen) === $web_root &&
-                    substr($content, $i + 6, $wsrlen) !== $webserver_root
-                ) {
-                    $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
-                }
-            }
-            $pdf2->WriteHTML($content);
-            $temp_filename = $STMT_TEMP_FILE_PDF;
-            $content_pdf = $pdf2->Output($STMT_TEMP_FILE_PDF, 'F');
-        }
+        $pdf2->WriteHTML($content);
+        $temp_filename = $STMT_TEMP_FILE_PDF;
+        $pdf2->Output($temp_filename, 'S');
     } else {
         $pdf = new Cezpdf('LETTER');//pdf creation starts
         $pdf->ezSetMargins(45, 9, 36, 10);
@@ -599,6 +564,35 @@ if (
                         $tmp .= "<br />\n\014<br /><br />";
                     }
                     fwrite($fhprint, $tmp);
+                    // now save it to pt documents
+                    $d = new Document();
+                    $doc_pid = $inv_pid[$inv_count];
+                    $invoice_category_id = 0;
+                    $catrow = sqlQuery("SELECT id FROM categories WHERE name = ?", ['Invoices']);
+                    if (!empty($catrow['id'])) {
+                        $invoice_category_id = $catrow['id'];
+                    }
+                    // even if click download pdf the file content in $tmp is text
+                    // set mimetype and fileext based on statement appearance
+                    $isPdf = ($GLOBALS['statement_appearance'] == 1);
+                    $fileext = $isPdf ? '.pdf' : '.txt';
+                    $inv_filename = 'Invoice-' . date('Y-m-d-H:i:s') . $fileext;
+                    $mimetype = $isPdf ? 'pdf' : 'text/plain';
+                    if ($isPdf) {
+                        $pdf2 = new mPDF(Config_Mpdf::getConfigMpdf());
+                        if ($_SESSION['language_direction'] == 'rtl') {
+                            $pdf2->SetDirectionality('rtl');
+                        }
+                        $pdf2->WriteHTML($tmp);
+                        $tmp = $pdf2->Output('', 'S');
+                    }
+                    $invoice = $d->createDocument(
+                        $doc_pid,
+                        $invoice_category_id, // TBD: Make sure not 0
+                        $inv_filename,
+                        $mimetype,
+                        $tmp
+                    );
                 }
             }
         }

@@ -221,7 +221,7 @@ class FHIRSubstanceSourceMaterialOrganismGeneral extends FHIRBackboneElement imp
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         if (isset($this->kingdom)) {

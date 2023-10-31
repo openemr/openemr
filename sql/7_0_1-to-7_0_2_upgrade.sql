@@ -593,3 +593,24 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'ZM', 'Zambian', '2490', '0', '0', '', 'Zambia', 'ZMB:894');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'ZW', 'Zimbabwean', '2500', '0', '0', '', 'Zimbabwe', 'ZWE:716');
 #EndIf
+
+#IfNotRow categories name Invoices
+INSERT INTO categories(`id`,`name`, `value`, `parent`, `lft`, `rght`, `aco_spec`) select (select MAX(id) from categories) + 1, 'Invoices', '', 1, rght, rght + 1, 'encounters|coding' from categories where name = 'Categories';
+UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
+UPDATE categories_seq SET id = (select MAX(id) from categories);
+#EndIf
+
+#IfNotTable fee_schedule
+CREATE TABLE `fee_schedule` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `insurance_company_id` INT(11) NOT NULL DEFAULT 0,
+    `plan` VARCHAR(20) DEFAULT '',
+    `code` VARCHAR(10) DEFAULT '',
+    `modifier` VARCHAR(2) DEFAULT '',
+    `type` VARCHAR(20) DEFAULT '',
+    `fee` decimal(12,2) DEFAULT NULL,
+    `effective_date` date DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `ins_plan_code_mod_type_date` (`insurance_company_id`, `plan`, `code`, `modifier`, `type`, `effective_date`)
+) ENGINE=InnoDb AUTO_INCREMENT=1;
+#EndIf

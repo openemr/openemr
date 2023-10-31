@@ -17,6 +17,7 @@
  */
 
 use Mpdf\Mpdf;
+use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\FacilityService;
 use PHPMailer\PHPMailer\PHPMailer;
 
@@ -350,24 +351,7 @@ function make_document($task)
         sqlQuery($sql, array("%" . $filename));
     }
 
-    $config_mpdf = array(
-        'tempDir'                   => $GLOBALS['MPDF_WRITE_DIR'],
-        'mode'                      => $GLOBALS['pdf_language'],
-        'format'                    => $GLOBALS['pdf_size'],
-        'default_font_size'         => '9',
-        'default_font'              => '',
-        'margin_left'               => $GLOBALS['pdf_left_margin'],
-        'margin_right'              => $GLOBALS['pdf_right_margin'],
-        'margin_top'                => $GLOBALS['pdf_top_margin'],
-        'margin_bottom'             => $GLOBALS['pdf_bottom_margin'],
-        'margin_header'             => '',
-        'margin_footer'             => '',
-        'orientation'               => $GLOBALS['pdf_layout'],
-        'shrink_tables_to_fit'      => 1,
-        'use_kwt'                   => true,
-        'keep_table_proportions'    => true
-    );
-
+    $config_mpdf = Config_Mpdf::getConfigMpdf();
     $pdf = new mPDF($config_mpdf);
     if ($_SESSION['language_direction'] == 'rtl') {
         $pdf->SetDirectionality('rtl');
@@ -517,24 +501,6 @@ function make_document($task)
     </html>
     <?php
     $content = ob_get_clean();
-
-    // Fix a nasty html2pdf bug - it ignores document root!
-    $i = 0;
-    $wrlen = strlen($web_root);
-    $wsrlen = strlen($webserver_root);
-    while (true) {
-        $i = stripos($content, " src='/", $i + 1);
-        if ($i === false) {
-            break;
-        }
-
-        if (
-            substr($content, $i + 6, $wrlen) === $web_root &&
-            substr($content, $i + 6, $wsrlen) !== $webserver_root
-        ) {
-            $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
-        }
-    }
 
     $header = '<!--mpdf
 

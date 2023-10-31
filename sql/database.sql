@@ -299,7 +299,7 @@ CREATE TABLE `categories` (
 -- Inserting data for table `categories`
 --
 
-INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 59, 'patients|docs', '');
+INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 61, 'patients|docs', '');
 INSERT INTO `categories` VALUES (2, 'Lab Report', '', 1, 1, 2, 'patients|docs', '');
 INSERT INTO `categories` VALUES (3, 'Medical Record', '', 1, 3, 4, 'patients|docs', '');
 INSERT INTO `categories` VALUES (4, 'Patient Information', '', 1, 5, 10, 'patients|demo', '');
@@ -329,7 +329,7 @@ INSERT INTO `categories` VALUES (27, 'Onsite Portal', '', 1, 51, 56, 'patients|d
 INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 52, 53, 'patients|docs','');
 INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 54, 55, 'patients|docs','LOINC:LP173394-0');
 INSERT INTO `categories` VALUES (30, 'FHIR Export Document', '', 1, 57, 58, 'admin|super','LOINC:LP173421-1');
-
+INSERT INTO `categories` VALUES (31, 'Invoices', '', 1, 59, 60, 'encounters|coding', '');
 -- --------------------------------------------------------
 
 --
@@ -346,7 +346,7 @@ CREATE TABLE `categories_seq` (
 -- Inserting data for table `categories_seq`
 --
 
-INSERT INTO `categories_seq` VALUES (29);
+INSERT INTO `categories_seq` VALUES (31);
 
 -- --------------------------------------------------------
 
@@ -1806,7 +1806,27 @@ CREATE TABLE  `facility_user_ids` (
   KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB  AUTO_INCREMENT=1;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
+
+--
+-- Table structure for table `fee_schedule`
+--
+
+DROP TABLE IF EXISTS `fee_schedule`;
+CREATE TABLE `fee_schedule` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `insurance_company_id` INT(11) NOT NULL DEFAULT 0,
+    `plan` VARCHAR(20) DEFAULT '',
+    `code` VARCHAR(10) DEFAULT '',
+    `modifier` VARCHAR(2) DEFAULT '',
+    `type` VARCHAR(20) DEFAULT '',
+    `fee` decimal(12,2) DEFAULT NULL,
+    `effective_date` date DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `ins_plan_code_mod_type_date` (`insurance_company_id`, `plan`, `code`, `modifier`, `type`, `effective_date`)
+) ENGINE=InnoDb AUTO_INCREMENT=1;
+
+-----------------------------------------------------------
 
 --
 -- Table structure for table `fee_sheet_options`

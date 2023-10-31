@@ -262,7 +262,7 @@ class FHIRSubstancePolymerRepeatUnit extends FHIRBackboneElement implements \Jso
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         if (isset($this->orientationOfPolymerisation)) {

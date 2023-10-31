@@ -238,7 +238,7 @@ class FHIRMedicationKnowledgeDrugCharacteristic extends FHIRBackboneElement impl
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         if (isset($this->type)) {

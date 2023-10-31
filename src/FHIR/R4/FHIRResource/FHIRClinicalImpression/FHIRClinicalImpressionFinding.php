@@ -192,7 +192,7 @@ class FHIRClinicalImpressionFinding extends FHIRBackboneElement implements \Json
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         if (isset($this->itemCodeableConcept)) {

@@ -507,7 +507,7 @@ class FHIRMedicinalProductPackagedPackageItem extends FHIRBackboneElement implem
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         if (0 < count($this->identifier)) {

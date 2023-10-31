@@ -132,7 +132,7 @@ class FHIRBiologicallyDerivedProductStorageScale extends FHIRElement implements 
     /**
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->value;
     }

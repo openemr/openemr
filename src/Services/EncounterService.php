@@ -725,4 +725,17 @@ class EncounterService extends BaseService
         }
         return [];
     }
+
+    /**
+     * Returns the default POS code that is set in the facility table.
+     *
+     * @param $facility_id
+     * @return mixed
+     */
+    public function getPosCode($facility_id)
+    {
+        $sql = "SELECT pos_code FROM facility WHERE id = ?";
+        $result = sqlQuery($sql, [$facility_id]);
+        return $result['pos_code'];
+    }
 }

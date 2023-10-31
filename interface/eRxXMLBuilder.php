@@ -728,7 +728,8 @@ class eRxXMLBuilder
                     // NewCrop only accepts ICD10 codes, so only add XML elements for diagnosis with ICD10 code types
                     if (
                         $codeType == 'ICD10' &&
-                        !empty($diagnosisId)
+                        !empty($diagnosisId) &&
+                        empty($diagnosis['enddate'])
                     ) {
                         $element = $this->getDocument()->createElement('PatientDiagnosis');
                         $element->appendChild($this->createElementText('diagnosisID', $diagnosisId));
