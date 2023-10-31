@@ -12,7 +12,7 @@
  */
 
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Services\PharmacyService;
+use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Common\Twig\TwigContainer; 
 
 if(!AclMain::aclCheckCore('patients', 'med')){
