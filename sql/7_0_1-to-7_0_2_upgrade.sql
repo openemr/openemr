@@ -599,3 +599,18 @@ INSERT INTO categories(`id`,`name`, `value`, `parent`, `lft`, `rght`, `aco_spec`
 UPDATE categories SET rght = rght + 2 WHERE name = 'Categories';
 UPDATE categories_seq SET id = (select MAX(id) from categories);
 #EndIf
+
+#IfNotTable fee_schedule
+CREATE TABLE `fee_schedule` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `insurance_company_id` INT(11) NOT NULL DEFAULT 0,
+    `plan` VARCHAR(20) DEFAULT '',
+    `code` VARCHAR(10) DEFAULT '',
+    `modifier` VARCHAR(2) DEFAULT '',
+    `type` VARCHAR(20) DEFAULT '',
+    `fee` decimal(12,2) DEFAULT NULL,
+    `effective_date` date DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `ins_plan_code_mod_type_date` (`insurance_company_id`, `plan`, `code`, `modifier`, `type`, `effective_date`)
+) ENGINE=InnoDb AUTO_INCREMENT=1;
+#EndIf
