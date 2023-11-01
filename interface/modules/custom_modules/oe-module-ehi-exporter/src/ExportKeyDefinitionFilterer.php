@@ -52,6 +52,10 @@ class ExportKeyDefinitionFilterer
             'adjustment_code' => ['localValueOverride' => 'payment_adjustment_code', 'foreignKeyColumn' => 'list_id'],
             'payment_method' => ['localValueOverride' => 'payment_method', 'foreignKeyColumn' => 'list_id']
         ]
+        ,'form_clinical_notes' => [
+            'clinical_notes_type' => ['localValueOverride' => 'Clinical_Note_Type', 'foreignKeyColumn' => 'list_id'],
+            'clinical_notes_category' => ['localValueOverride' => 'Clinical_Note_Category', 'foreignKeyColumn' => 'list_id'],
+        ]
     ];
 
     public function filterKey(ExportKeyDefinition $key)

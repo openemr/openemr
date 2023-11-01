@@ -453,18 +453,61 @@
             </column>
         </table>
 
-
-
         <!--        - Patient Documents-->
         <table name="documents" comments="Stores all of the digital documents that are connected to a patient.">
+            <column name="id" comments="Surrogate id of the record used as the primary incrementing key"/>
+            <column name="uuid" comments="Binary of Unique User Identifier that is for both external reference to this entity and for future offline use."/>
+            <column name="type" comments="Type of the document (e.g., 'file_url', 'blob', 'web_url')"/>
+            <column name="size" comments="Size of the document in bytes"/>
+            <column name="date" comments="Date when the document was created"/>
+            <column name="date_expires" comments="Date when the document expires and is no longer available."/>
+            <column name="url" comments="URL of the document"/>
+            <column name="thumb_url" comments="URL of the document's thumbnail"/>
+            <column name="mimetype" comments="MIME type of the document"/>
+            <column name="pages" comments="If the document is a multi-page format like tiff and has at least 1 page this will be 1 or greater,if a non-multi-page format this should be null or empty"/>
+            <column name="owner" comments="Foreign key identifier to users of who initially persisted the document">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="revision" comments="Timestamp of the last time the document was changed and persisted"/>
             <column name="foreign_id"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
+            <column name="docdate" comments="Date (YYYY-MM-DD) logically associated with the document, e.g. when a picture was taken."/>
+            <column name="hash" comments="Hash value of the document from when it was uploaded"/>
+            <column name="list_id" comments="FK to lists.id associated with the document when the document is related to an issue">
+                <foreignKey table="lists" column="id" />
+            </column>
+            <column name="name" comments="Name of the document. Populated since OpenEMR versions 6.0.0+"/>
+            <column name="drive_uuid" comments="UUID of the document's drive. Empty in export" exclude="true"/>
+            <column name="couch_docid" comments="CouchDB document ID"/>
+            <column name="couch_revid" comments="CouchDB revision ID"/>
+            <column name="storagemethod" comments="Storage method (0->Harddisk, 1->CouchDB)"/>
+            <column name="path_depth" comments="Depth of path to use in the URL to find the document. Not applicable for CouchDB. . Empty in export." exclude="true"/>
+            <column name="imported" comments="Parsing status for CCR/CCD/CCDA importing"/>
+            <column name="encounter_id" comments="Encounter ID if tagged">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="encounter_check" comments="If an encounter is created while tagging (0 or 1)"/>
+            <column name="audit_master_approval_status" comments="Approval status from audit_master table"/>
+            <column name="audit_master_id" comments="ID from the audit_master table"/>
+            <column name="documentationOf" comments="Used for CCDA and lab documents where the individual / contents of the documentation of a service event is recorded"/>
+            <column name="encrypted" comments="Encryption status (0->No, 1->Yes)"/>
+            <column name="document_data" comments="Additional metadata concerning the document is stored here.  CCDA/CDA documents store their validation log in this field and DICOM files store a JSON history of actions taken on the DICOM in this field"/>
+            <column name="deleted" comments="Flag indicating if the document is deleted (0 or 1).  If a file has been marked as deleted the underlying file stored in the file storage system is NOT included in data exports and is no longer available for retrieval"/>
+            <column name="foreign_reference_id" comments="DB Unique identifier reference to another table record in the database.  This is not unique in the document. The table that this record points to is in the foreign_reference_table"/>
+            <column name="foreign_reference_table" comments="Table associated with the foreign reference_id will be populated if foreign_reference_id is populated"/>
         </table>
         <table name="notes"  comments="Clinical notes and comments for individual patient documents">
+            <column name="id" comments="Surrogate id of the record used as the primary incrementing key"/>
             <column name="foreign_id"  comments="The documents.id key for the document this note is connected to">
                 <foreignKey table="documents" column="id" />
             </column>
+            <column name="note" comments="The notes or comments for the document referenced in foreign_id"/>
+            <column name="owner" comments="Foreign key identifier to users of who initially created this note">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="date" comments="Date and time the note was created" />
+            <column name="revision" comments="Date and time the note was created" />
         </table>
 <!--        - Patient Transactions (Billing  Legal  Patient Request  Physician Request  Referral/Counter Referral)-->
         <table name="transactions" comments="Represents patient referrals, and transactional records for billing, legal, and requests from the patient or their physician">
@@ -509,7 +552,7 @@
             </column>
         </table>
 <!--        - Encounter Summary-->
-        <table name="form_encounter">
+        <table name="form_encounter" comments="Represents the information related to a patient's visit to a healthcare provider.  This is different than an appointment as this table tracks the actual service of care">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
@@ -520,179 +563,214 @@
 
 <!--        - Fee Sheet-->
 <!--        - Misc Billing Options-->
-        <table name="form_misc_billing_options">
+        <table name="form_misc_billing_options" comments="Contains encounter claims billing options that modifies the claims submitted for this encounter">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - Care Plan-->
-        <table name="form_care_plan">
+        <table name="form_care_plan" comments="Patient Clinical Care Plans">
             <column name="pid" comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - Clinical Instructions-->
-        <table name="form_clinical_instructions">
+        <table name="form_clinical_instructions" comments="Patient clinical instructions chart note">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
+            <column name="instruction"  comments="The actual instructions to be given to the patient" />
         </table>
 
 <!--        - Clinical Notes-->
-        <table name="form_clinical_notes">
+        <table name="form_clinical_notes" comments="Patient clinical notes with support for USCDI V1 standardized note types">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="clinical_notes_type" comments="Comes from the list_options.list_id='Clinical_Note_Type' and represents the standardized note type for this note">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="clinical_notes_category" comments="Comes from the list_options.list_id='Clinical_Note_Category' and represents the main category for this kind of clinical note">
+                <foreignKey table="list_options" column="option_id" />
             </column>
         </table>
 
 <!--        - Eye Exam-->
-        <table name="form_eye_acuity">
+        <table name="form_eye_acuity" comments="This table is related to recording visual acuity measurements for different eye conditions.">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
-        <table name="form_eye_antseg">
+        <table name="form_eye_antseg" comments="This table is used to store data related to anterior segment eye examinations, which typically include details about the front portion of the eye, such as the cornea, lens, iris, and pupil.">
             <column name="pid">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
-        <table name="form_eye_base">
+        <table name="form_eye_base" comments="Eye form base container record that all other eye forms are connected to">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
-        <table name="form_eye_biometrics">
+        <table name="form_eye_biometrics" comments="This table stores biometric data related to the eye, including axial length, pupil diameter, and other measurements.">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
-        <table name="form_eye_external">
+        <table name="form_eye_external" comments="This table is used for recording external eye examination findings.">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
-        <table name="form_eye_hpi">
+        <table name="form_eye_hpi" comments="This table stores the history of present illness (HPI) information related to eye conditions.">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
-        <table name="form_eye_locking">
+        <table name="form_eye_locking" comments="Used for tracking the editing status of a form and whether it is currently being edited by a user">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
-        <table name="form_eye_mag_dispense">
+        <table name="form_eye_mag_dispense" comments="Stores information related to eye prescriptions and dispensing for both the left (OS) and right (OD) eyes">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
-        <table name="form_eye_mag_impplan">
+        <table name="form_eye_mag_impplan" comments="Stores implementation plans for eye-related activities.">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
-        <table name="form_eye_mag_orders">
+        <table name="form_eye_mag_orders" comments="This table is used to track eye-related orders, such as eyeglass or contact lens orders.">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
-        <table name="form_eye_mag_wearing">
+        <table name="form_eye_mag_wearing" comments="This table is used to record information related to wearing eyeglasses or contact lenses.">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
-        <table name="form_eye_neuro">
+        <table name="form_eye_neuro" comments="This table includes numerous fields for recording the results of neurological tests and assessments, such as near and distant vision, motility measurements, comments, and various neurological parameters.">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
-        <table name="form_eye_postseg">
+        <table name="form_eye_postseg" comments="This table is used for storing data related to posterior segment eye examinations, which typically involve the back of the eye, including the retina, optic disc, macula, and blood vessels.">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
-        <table name="form_eye_refraction">
+        <table name="form_eye_refraction" comments="This table is used for recording eye refraction details, including sphere, cylinder, axis, prism, and base measurements.">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
-        <table name="form_eye_ros">
+        <table name="form_eye_ros" comments="This table stores review of systems (ROS) information related to various aspects of the eye and its associated systems.">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
-        <table name="form_eye_vitals">
+        <table name="form_eye_vitals" comments="This table is used for recording vital signs and measurements related to the eye.">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
-        <table name="form_taskman">
+        <table name="form_taskman" comments="This table holds eye related tasks for providing care to the patient.">
             <column name="PATIENT_ID"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - Functional and Cognitive Status-->
-        <table name="form_functional_cognitive_status">
+        <table name="form_functional_cognitive_status" comments="Holds information about assessments, evaluations, or observations of a patient's functional and cognitive abilities.">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 <!--        - Observation-->
-        <table name="form_observation">
+        <table name="form_observation" comments="Used for recording observations related to patients during medical encounters">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 <!--        - Review of Systems-->
-        <table name="form_reviewofs">
+        <table name="form_reviewofs" comments="Review of Systems observations of the patient. Providers can use this form or the form_ros.">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - Review of Systems Checks-->
-        <table name="form_ros">
+        <table name="form_ros" comments="Review of Systems observations of the patient. Providers can use this form or the form_reviewofs">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - SOAP-->
-        <table name="form_soap">
+        <table name="form_soap" comments="Holds Subjective, Objective, Assessment, and Plan (SOAP) notes">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - Speech Dictation-->
-        <table name="form_dictation">
+        <table name="form_dictation" comments="Patient chart note that holds notes created from a provider's speech dictation software">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
 
 <!--        - CAMOS-->
-        <table name="form_CAMOS">
+        <table name="form_CAMOS" comments="Computer Aided Medical Ordering System notes that are part of a patient's chart">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
+            <column name="category"  comments="The category that this note is based upon">
+                <foreignKey table="form_CAMOS_category" column="category" />
+            </column>
+            <column name="subcategory"  comments="The CAMOS subcategory template that this note is based on">
+                <foreignKey table="form_CAMOS_item" column="item" />
+            </column>
+            <column name="item"  comments="The CAMOS item template that this note is based on">
+                <foreignKey table="form_CAMOS_item" column="item" />
+            </column>
+            <column name="content"  comments="The actual chart note text that was entered in for the patient" />
         </table>
-        <table name="form_CAMOS_category">
+        <table name="form_CAMOS_category" comments="Note categories used in the CAMOS note generator">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
+            <column name="groupname" comments="The groupname that created this record.">
+                <foreignKey table="groups" column="name" />
+            </column>
+            <column name="user" comments="User responsible for creating this category.">
+                <foreignKey table="users" column="username" />
+            </column>
         </table>
-        <table name="form_CAMOS_item">
+        <table name="form_CAMOS_item" comments="CAMOS patient chart templates for a single item inside a CAMOS subcategory">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
+            <column name="groupname" comments="The groupname that created this record.">
+                <foreignKey table="groups" column="name" />
+            </column>
+            <column name="user" comments="User responsible for creating this category.">
+                <foreignKey table="users" column="username" />
+            </column>
+            <column name="subcategory_id" comments="The CAMOS subcategory this item is part of.">
+                <foreignKey table="form_CAMOS_subcategory" column="id" />
+            </column>
         </table>
-        <table name="form_CAMOS_subcategory">
+        <table name="form_CAMOS_subcategory" comments="CAMOS patient chart sub categories inside a single category">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="category_id"  comments="The CAMOS category this subcategory is part of.">
+                <foreignKey table="form_CAMOS_category" column="id" />
             </column>
         </table>
 
@@ -800,12 +878,25 @@
         </table>
 
 <!--        - Questionnaire Responses-->
-        <table name="form_questionnaire_assessments">
+        <table name="form_questionnaire_assessments" comments="Holds questionnaires results for a patient entered in by a provider as a patient charted form">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
+            <column name="response_id"  comments="The foreign uuid key to the questionnaire_response.response_id">
+                <foreignKey table="questionnaire_response" column="response_id" />
+            </column>
+            <column name="questionnaire_id"  comments="The foreign uuid key to the questionnaire.questionnaire_id">
+                <foreignKey table="questionnaire_repository" column="questionnaire_id" />
+            </column>
+            <column name="user">
+                <foreignKey table="users" column="username" />
+            </column>
+            <column name="groupname" comments="The groupname that created this record.">
+                <foreignKey table="groups" column="name" />
+            </column>
         </table>
-        <table name="pro_assessments">
+
+        <table name="pro_assessments" comments="Contains Patient Reported Outcome assessment results as delivered via the PROMIS assessment delivery system">
             <column name="patient_id"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
@@ -813,7 +904,7 @@
                 <foreignKey table="users" column="id" />
             </column>
         </table>
-        <table name="questionnaire_response">
+        <table name="questionnaire_response" comments="Holds questionnaire results for a patient ">
             <column name="patient_id"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
@@ -1129,7 +1220,7 @@
         </table>
 
 <!--        - Work/School Note-->
-        <table name="form_note">
+        <table name="form_note" comments="Work/School note written by a provider for a patient to provide documentation of their medical condition to their work or school">
             <column name="id" comments="The primary key which is the same as the forms.form_id column">
                 <foreignKey table="forms" column="form_id" />
             </column>
@@ -1139,7 +1230,7 @@
         </table>
 
 <!--        - Transfer Summary-->
-        <table name="form_transfer_summary">
+        <table name="form_transfer_summary" comments="Records transfer summary of care and is an alternative to recording referrals in the transactions table">
             <column name="id" comments="The primary key which is the same as the forms.form_id column">
                 <foreignKey table="forms" column="form_id" />
             </column>
@@ -1149,7 +1240,7 @@
         </table>
 
 <!--        - Clinic Note-->
-        <table name="form_clinic_note">
+        <table name="form_clinic_note" comments="Holds patient history, provider examination conducted, patient treatment plan, and follow up status">
             <column name="id" comments="The primary key which is the same as the forms.form_id column">
                 <foreignKey table="forms" column="form_id" />
             </column>
