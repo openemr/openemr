@@ -14,6 +14,7 @@
 
 use RobThree\Auth\Providers\Qr\BaconQrCodeProvider;
 use RobThree\Auth\TwoFactorAuth;
+use RobThree\Auth\Algorithm;
 
 /**
  * Class Totp
@@ -60,7 +61,7 @@ class Totp
         }
 
         $qrCodeProvider = new BaconQrCodeProvider(4, '#ffffff', '#000000', 'svg');
-        $tfa = new TwoFactorAuth($this->_issuer, 6, 30, 'sha1', $qrCodeProvider);
+        $tfa = new TwoFactorAuth($this->_issuer, 6, 30, Algorithm::Sha1, $qrCodeProvider);
         $qr = $tfa->getQRCodeImageAsDataUri($this->_username, $this->_secret);
         if (empty($qr)) {
             return false;
