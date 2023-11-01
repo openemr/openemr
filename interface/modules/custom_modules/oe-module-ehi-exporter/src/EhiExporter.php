@@ -632,6 +632,10 @@ class EhiExporter
         foreach ($documentRecords as $documentRecord) {
             $documentId = $documentRecord['id'];
             $documentObj = new \Document($documentId);
+            // we don't export document files that are deleted or expired documents
+            if ($documentObj->is_deleted() || $documentObj->has_expired()) {
+                continue;
+            }
             $docName = $documentRecord['foreign_id'] . '/' . $documentObj->get_name();
             try {
                 $documentContents = $documentObj->get_data();
