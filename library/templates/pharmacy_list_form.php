@@ -17,7 +17,7 @@
 
 require_once $GLOBALS['srcdir'] . '/options.inc.php';
 
-use OpenEMR\Services\PharmacyService;
+use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -59,18 +59,15 @@ $res = sqlStatement($sql);
     }
 </style>
 
-<div id="weno_form">
-
-</div>
+<div id="weno_form"></div>
 
 <template id="weno_template">
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-
     <input type="text" name="primary_pharmacy" id="primary_pharmacy" hidden>
     <input type="text" name="alternate_pharmacy" id="alternate_pharmacy" hidden>
 
-    <div class="row col-12">
-        <div style="text-align: center; color: blue; font-weight: 600">
+    <div class="d-flex">
+        <div class="h4 text-primary">
             <?php echo xlt("Weno Pharmacy Selector"); ?>
         </div><br/>
     </div>
@@ -102,7 +99,7 @@ $res = sqlStatement($sql);
             <span><?php echo xlt("TEST PHARMACIES"); ?></span>
         </div>
     </div>
-    <div class="row col-12 px-0 mx-0">
+    <div class="row px-0 mx-0">
         <div class="mr-3 col px-0 mx-0">
             <select class="form-control form-control-sm" name="weno_state" id="weno_state" onchange="stateChanged()">
                 <option value=""><?php echo xlt("State") . " *"; ?></option>
@@ -119,35 +116,32 @@ $res = sqlStatement($sql);
             <div class="warn"></div>
         </div>
         <span class="ml-1">OR</span>
-        <div class="col">
+        <div class="mx-3">
             <input class="form-control form-control-sm" name="weno_zipcode" id="weno_zipcode" placeholder="Zipcode">
         </div>
         <div>
             <button type="button" class="btn btn-primary btn-sm" onclick="search()"><?php echo xlt("Search"); ?></button>
         </div>
     </div>
-
-    <div class="row col mt-2">
-        <div>
-            <select class="form-control form-control-sm" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()" >
-                <option value=""></option>
-            </select>
-        </div>
+    <div class="mt-2">
+        <select class="form-control form-control-sm" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()" >
+            <option value=""></option>
+        </select>
     </div>
-    <div class="row mt-2 mb-1 contianer col-12">
+    <div class="mt-2 mb-1">
         <button type="button" class="btn btn-primary btn-sm mr-3" onclick="assignPrimaryPharmacy()"><?php echo xlt("Assign Primary Pharmacy"); ?></button>
         <button type="button" class="btn btn-primary btn-sm" onclick="assignAlternatePharmacy()"><?php echo xlt("Assign Alternate Pharmacy"); ?></button>
-        <button type="button" class="btn btn-light btn-sm ml-3" onclick="resetForm()"><?php echo xlt("Reset"); ?></button>
+        <button type="button" class="btn btn-danger btn-sm ml-3" onclick="resetForm()"><?php echo xlt("Reset"); ?></button>
     </div>
 
-    <div class="row col-12 small mb-1">
+    <div class="small mb-1">
         <?php echo xlt("See below Weno Selected Pharmacies"); ?>
     </div>
-    <div class="row col-12">
+    <div>
         <span class="font-weight-bold"><?php echo xlt("Weno Selected Primary Pharmacy: "); ?></span>
         <span id="weno_primary"></span>
     </div>
-    <div class="row col-12">
+    <div>
         <span class="font-weight-bold"><?php echo xlt("Weno Selected Alternate Pharmacy: "); ?></span>
         <span id="weno_alt"></span>
     </div>
@@ -170,7 +164,6 @@ $res = sqlStatement($sql);
     var requirdField = "Field is required";
 
     window.onload = (event) => {
-
         //the template is hidden by default. use this to display the template
         var template = document.getElementById("weno_template");
         var weno_form = document.getElementById("weno_form");
@@ -196,6 +189,7 @@ $res = sqlStatement($sql);
         if(citySelector !== null){
             createWenoCitySelect2();
         }
+        
     };
 
     function init(prevPrimPharmacy, prevAltPharmacy){

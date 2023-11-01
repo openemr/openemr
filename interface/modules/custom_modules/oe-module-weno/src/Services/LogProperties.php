@@ -167,11 +167,13 @@ class LogProperties
         } else {
             EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$statusCode");
             $wenolog->insertWenoLog("prescription", "Failed");
+            return false;
         }
 
         if (file_exists($this->rxsynclog)) {
             $log = new LogImportBuild();
             $log->buildInsertArray();
+            return true;
         }
     }
 

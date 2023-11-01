@@ -7,9 +7,10 @@
  *  @copyright Copyright (c) 2021 Sherwin Gaddis <sherwingaddis@gmail.com>
  *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-use OpenEMR\Rx\Weno\LogProperties;
-use OpenEMR\Rx\Weno\WenoPharmaciesJson;
 use OpenEMR\Common\Crypto\CryptoGen;
+
+use OpenEMR\Modules\WenoModule\Services\LogProperties;
+use OpenEMR\Modules\WenoModule\Services\WenoPharmaciesJson;
 
 
 if(isset($_GET['key']) && !empty(isset($_GET['key']))){
@@ -37,3 +38,10 @@ function downloadWenoPharmacy(){
         die;
     }
 }
+
+function downloadWenoPrescriptionLog(){
+    $logsync = new LogProperties();
+    $logsync->logSync();
+    error_log("Background services completed for prescription log");
+}
+

@@ -7,8 +7,7 @@
  *  @copyright Copyright (c) 2023 omegasystemsgroup.com <info@omegasystemsgroup.com>
  *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-
-require_once("../../../../globals.php");
+require_once(dirname(__DIR__, 4) . "/globals.php");
 
 use OpenEMR\Modules\WenoModule\Services\LogProperties;
 use OpenEMR\Common\Acl\AclMain;
@@ -25,3 +24,8 @@ $logproperties = new LogProperties();
 $result = $logproperties->logSync();
 
 
+if($result == true){
+    http_response_code(200);
+} else {
+    http_response_code(500);
+}

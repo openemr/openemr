@@ -916,22 +916,53 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         });
 
         function sync_weno(){
-            $('#ro').addClass("fa-spin");
-            $.ajax({
-                url: '<?php echo $GLOBALS['webroot'] ?>' + '/interface/weno/synch.php',
-                type: "GET",
-                data:{key: "sync"},
-                success: function (data) {
-                    $('#ro').removeClass("fa-spin");
-                    alert("Successfully updated");
-                },
-                // Error handling
-                error: function (error) {
-                    $('#ro').removeClass("fa-spin");
+            var syncIcon = document.getElementById("sync-icon");
+            var syncAlert = document.getElementById("sync-alert");
+            const url = '<?php echo $GLOBALS['webroot'] ?>' + '/interface/modules/custom_modules/oe-module-weno/templates/synch.php';
+            
+            syncIcon.classList.add("fa-spin");
+            
+            let formData = new FormData();
+            formData.append("key", "sync");
+            formData.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+            
+            fetch(url, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                  throw new Error('Server responded with an error status: ' + response.status);
+                } else {
+                    //setting alert details
+                    wenoAlertManager("success",syncAlert,syncIcon);
                 }
+            }).catch(error=> {
+                wenoAlertManager("failed",syncAlert,syncIcon);
             });
-            $('#ro').addClass("fa-spin");
-            window.location.reload();
+        }
+
+        function wenoAlertManager(option, element, spinElement){
+            spinElement.classList.remove("fa-spin");
+            if(option == "success"){
+                element.classList.remove("d-none");
+                element.classList.add("alert", "alert-success");
+                element.innerHTML  = "Successfully updated";
+                setTimeout(function(){
+                    element.classList.add("d-none");
+                    element.classList.remove("alert", "alert-success");
+                    element.innerHTML  = "";
+                    }, 3000)
+            } else {
+                setTimeout(function(){
+                    element.classList.remove("d-none");
+                    element.classList.add("alert", "alert-danger");
+                    element.innerHTML  = "An error occurred";
+                }, 3000)
+                element.classList.add("d-none");
+                element.classList.remove("alert", "alert-danger");
+                element.innerHTML  = "";
+            }
         }
     </script>
 
@@ -1580,10 +1611,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                     if ($weno_is_enabled && AclMain::aclCheckCore('patients', 'med')) :
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('weno'), CardRenderEvent::EVENT_HANDLE);
-                        // weno expand collapse widget
-                        // check to see if any weno exists
-                        $weno_exist = sqlQuery("SELECT * FROM prescriptions WHERE patient_id=? AND indication OR external_id IS NOT NULL ", array($pid));
-                        $widgetAuth = ($weno_exist) ? true : false;
 
                         $id = "weno_ps_expand";
                         $viewArgs = [
@@ -1591,10 +1618,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'id' => $id,
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
                             'btnLabel' => 'Trend',
-                            'btnLink' => "../encounter/trend_form.php?formname=vitals",
+                            'btnLink' => "",
                             'linkMethod' => 'html',
                             'bodyClass' => 'collapse show',
-                            'auth' => $widgetAuth,
+                            'auth' => AclMain::aclCheckCore('patients', 'med'),
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
