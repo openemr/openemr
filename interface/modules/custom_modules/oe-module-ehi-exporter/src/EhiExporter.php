@@ -42,7 +42,7 @@ class EhiExporter
      */
     const EHI_DOCUMENT_FOLDER = 'system-ehi-export';
 
-    const PARENT_FK_TABLES_TRAVERSAL = ['patient_data', 'insurance_data', 'eligibility_verification', 'form_vitals', 'lbt_data',  'lbf_data', 'patient_tracker', 'therapy_groups', 'documents'];
+    const PARENT_FK_TABLES_TRAVERSAL = ['patient_data', 'insurance_data', 'eligibility_verification', 'form_vitals', 'lbt_data',  'lbf_data', 'patient_tracker', 'documents'];
     const ZIP_MIME_TYPE = "application/zip";
     const PATIENT_TASK_BATCH_FETCH_LIMIT = 5000;
     const CYCLE_MAX_ITERATIONS_LIMIT = 1500;
@@ -490,6 +490,7 @@ class EhiExporter
     {
         $this->exportEsignatureData($state);
         $this->exportClinicalNotesForm($state);
+        $this->exportTherapyGroupForm($state);
     }
     private function exportClinicalNotesForm(ExportState $state) {
         $tableDef = $state->getTableDefinitionForTable('forms');
@@ -502,6 +503,32 @@ class EhiExporter
             if (!empty($records)) {
                 $this->writeCsvFile($jobTask, $records, 'form_clinic_note', $state->getTempSysDir());
                 $state->addExportResultTable('form_clinic_note' , count($records));
+            }
+        }
+    }
+
+    private function exportTherapyGroupForm(ExportState $state) {
+
+        // we have to custom export this form because it has no pid column and is not directly linked to the patient data
+        // however therapy_groups is linked to therapy_group_participants which is linked to patient_data so we will
+        // grab the groups table and from there we can grab our encounters form.
+        $tableDef = $state->getTableDefinitionForTable('therapy_groups');
+        $jobTask = $state->getJobTask();
+        // make sure we are exporting some of our forms objects here
+        if (isset($tableDef)) {
+            $groupRecords = $tableDef->getRecords();
+            if (!empty($groupRecords)) {
+                $groupRecordIds = array_column($groupRecords, 'group_id');
+                $sql = "SELECT form_groups_encounter.* FROM form_groups_encounter WHERE group_id IN ("
+                    . str_repeat("?, ", count($groupRecordIds) - 1) . "? )";
+                $records = QueryUtils::fetchRecords($sql, $jobTask->getPatientIds());
+                if (!empty($records)) {
+                    $this->writeCsvFile($jobTask, $records, 'form_groups_encounter', $state->getTempSysDir());
+                    $state->addExportResultTable('form_groups_encounter', count($records));
+                }
+
+                // now export the calendar events that are linked to the groups
+                // TODO: @adunsulag export calendar events that are linked to the groups
             }
         }
     }

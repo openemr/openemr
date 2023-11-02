@@ -54,7 +54,17 @@ class ExportKeyDefinitionFilterer
         ]
         ,'form_clinical_notes' => [
             'clinical_notes_type' => ['localValueOverride' => 'Clinical_Note_Type', 'foreignKeyColumn' => 'list_id'],
-            'clinical_notes_category' => ['localValueOverride' => 'Clinical_Note_Category', 'foreignKeyColumn' => 'list_id'],
+            'clinical_notes_category' => ['localValueOverride' => 'Clinical_Note_Category', 'foreignKeyColumn' => 'list_id']
+        ]
+        ,'patient_tracker_element' => [
+            'room' => ['localValueOverride' => 'patient_flow_board_rooms', 'foreignKeyColumn' => 'list_id']
+        ]
+        ,'openemr_postcalendar_events' => [
+            'pc_apptstatus' => ['localValueOverride' => 'apptstat', 'foreignKeyColumn' => 'list_id'],
+            'pc_room' => ['localValueOverride' => 'patient_flow_board_rooms', 'foreignKeyColumn' => 'list_id']
+        ]
+        ,'therapy_groups_participant_attendance' => [
+            'meeting_patient_status' => ['localValueOverride' => 'groupstat', 'foreignKeyColumn' => 'list_id'],
         ]
     ];
 
