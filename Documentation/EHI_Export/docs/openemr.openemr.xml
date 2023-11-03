@@ -256,7 +256,7 @@
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="null" name="template_content" nullable="false" remarks="Digital document template that is assigned to a patient to be filled out.  Uses Domain Specific Language (DSL) template tags to inject specific functionality into the template for patients to fill out.  Patient data template tags can be found at the following URL: https://www.open-emr.org/wiki/index.php/Patient_Portal_Document_Templates" size="0" type="Unknown" typeCode="12"/>
       </table>
-      <table catalog="openemr" name="documents" numRows="297" remarks="Stores all of the digital documents that are connected to a patient." type="TABLE">
+      <table catalog="openemr" name="documents" numRows="303" remarks="Stores all of the digital documents that are connected to a patient." type="TABLE">
          <column autoUpdated="false" defaultValue="0" digits="0" id="0" name="id" nullable="false" remarks="Surrogate id of the record used as the primary incrementing key" size="10" type="INT" typeCode="4">
             <child catalog="openemr" column="foreign_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" schema="openemr" table="notes"/>
          </column>
