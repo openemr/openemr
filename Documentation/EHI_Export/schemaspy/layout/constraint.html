@@ -1,0 +1,102 @@
+<!-- Content Header (Page header) -->
+                <section class="content-header">
+                    <h1>Constraints</h1>
+                </section>
+                <!-- Main content -->
+                <section class="content">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="ion ion-key"></i>
+                            <h3 class="box-title">{{constraints.size}} Foreign Key Constraints</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table
+                                    id="fk_table"
+                                    class="table table-bordered table-striped dataTable"
+                                    role="grid"
+                                    data-paging="{{dataTableConfig.fkTable.paging}}"
+                                    data-page-length="{{dataTableConfig.fkTable.pageLength}}"
+                                    data-length-change="{{dataTableConfig.fkTable.lengthChange}}">
+                                <thead align='left'>
+                                    <tr>
+                                        <th>Constraint Name</th>
+                                        <th>Child Column</th>
+                                        <th>Parent Column</th>
+                                        <th>Delete Rule</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{#constraints}}
+                                    <tr>
+                                        <td>{{name}}</td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                {{#childColumns}}
+                                                <tr>
+                                                    <td><a href='tables/{{#toFileName}}{{{table.name}}}{{/toFileName}}.html'>{{table.name}}</a><span>.{{name}}</span></td>
+                                                </tr>
+                                                {{/childColumns}}
+                                            </table>
+                                        </td>
+                                        <td>
+                                            <table border='0' cellspacing='0' cellpadding='0'>
+                                                {{#parentColumns}}
+                                                <tr>
+                                                    <td><a href='tables/{{#toFileName}}{{{table.name}}}{{/toFileName}}.html'>{{table.name}}</a><span>.{{name}}</span></td>
+                                                </tr>
+                                                {{/parentColumns}}
+                                            </table>
+                                        </td>
+                                        <td><span title='{{deleteRuleDescription}}'>{{deleteRuleName}}</span></td>
+                                    </tr>
+                                    {{/constraints}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-sitemap"></i>
+                            <h3 class="box-title">Check Constraints</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table
+                                    id="check_table"
+                                    class="table table-bordered table-striped dataTable"
+                                    role="grid"
+                                    data-paging="{{dataTableConfig.checkTable.paging}}"
+                                    data-page-length="{{dataTableConfig.checkTable.pageLength}}"
+                                    data-length-change="{{dataTableConfig.checkTable.lengthChange}}">
+                                <thead align='left'>
+                                    <tr>
+                                        <th>Table</th>
+                                        <th>Constraint Name</th>
+                                        <th>Constraint</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{#checkConstraints}}
+                                    <tr>
+                                        <td><a href='tables/{{#toFileName}}{{{tableName}}}{{/toFileName}}.html'>{{tableName}}</a></td>
+                                        <td>{{name}}</td>
+                                        <td>{{definition}}</td>
+                                    </tr>
+                                    {{/checkConstraints}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                <script>
+                    var config = {
+                        pagination: {{paginationEnabled}}
+                    }
+                </script>

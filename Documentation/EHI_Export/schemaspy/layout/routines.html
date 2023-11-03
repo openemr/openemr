@@ -1,0 +1,52 @@
+<!-- Content Header (Page header) -->
+                <section class="content-header">
+                    <h1>Routines</h1>
+                </section>
+                <!-- Main content -->
+                <section class="content">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-file-code-o" aria-hidden="true"></i>
+                            <h3 class="box-title">Routines</h3>
+                        </div>
+                        <div class="box-body">
+                            <table
+                                    id="routine_table"
+                                    class="table table-bordered table-striped dataTable"
+                                    role="grid"
+                                    data-paging="{{dataTableConfig.routineTable.paging}}"
+                                    data-page-length="{{dataTableConfig.routineTable.pageLength}}"
+                                    data-length-change="{{dataTableConfig.routineTable.lengthChange}}">
+                                <thead align='left'>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Language</th>
+                                        <th>Deterministic</th>
+                                        <th>Return Type</th>
+                                        <th>Security Restriction</th>
+                                        <th title='Comments' class="toggle"><span>Comments</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{#routines}}
+                                    <tr>
+                                        <td><a href="routines/{{#toFileName}}{{{name}}}{{/toFileName}}.html">{{name}}</a></td>
+                                        <td>{{type}}</td>
+                                        <td>{{definitionLanguage}}</td>
+                                        <td>{{deterministic}}</td>
+                                        <td>{{returnType}}</td>
+                                        <td>{{securityType}}</td>
+                                        <td>{{#md2html}}{{{comment}}}{{/md2html}}</td>
+                                    </tr>
+                                    {{/routines}}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                <script>
+                    var config = {
+                        pagination: {{paginationEnabled}}
+                    }
+                </script>
