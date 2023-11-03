@@ -4,7 +4,7 @@
 #DROP TABLE IF EXISTS ehi_export_job_patients;
 #DROP TABLE IF EXISTS ehi_export_job;
 
-#IfNotTable
+#IfNotTable ehi_export_job
 CREATE TABLE `ehi_export_job`(
    `ehi_export_job_id` int(11) NOT NULL AUTO_INCREMENT,
    `uuid` BINARY(16) DEFAULT NULL,
@@ -19,7 +19,7 @@ CREATE TABLE `ehi_export_job`(
 ) ENGINE = INNODB COMMENT = 'User initiated export of patient electronic health info.';
 #EndIf
 
-#IfNotTable
+#IfNotTable ehi_export_job_patients
 CREATE TABLE `ehi_export_job_patients`(
      `ehi_export_job_id` int(11) NOT NULL,
      `pid`  BIGINT(20) NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE `ehi_export_job_patients`(
 ) ENGINE = INNODB COMMENT = 'Patients to be exported in the ehi_export_job';
 #EndIf
 
-#IfNotTable
+#IfNotTable ehi_export_job_tasks
 CREATE TABLE `ehi_export_job_tasks`(
      `ehi_task_id` BIGINT(20) NOT NULL AUTO_INCREMENT,
      `ehi_export_job_id` int(11) NOT NULL,
@@ -46,7 +46,7 @@ CREATE TABLE `ehi_export_job_tasks`(
 ) ENGINE = INNODB COMMENT = 'Export task for a subset of patients in the export job';
 #EndIf
 
-#IfNotTable
+#IfNotTable ehi_export_job_task_patients
 CREATE TABLE `ehi_export_job_task_patients`(
   `ehi_task_id` BIGINT(20) NOT NULL,
   `pid`  BIGINT(20) NOT NULL,
