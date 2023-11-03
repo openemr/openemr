@@ -1,7 +1,7 @@
 <?php
 
 /**
- *
+ * Represents a cumulative result of an export operation.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -11,7 +11,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Modules\EhiExporter;
+namespace OpenEMR\Modules\EhiExporter\Models;
+
+use OpenEMR\Modules\EhiExporter\Models\ExportTableResult;
 
 class ExportResult
 {

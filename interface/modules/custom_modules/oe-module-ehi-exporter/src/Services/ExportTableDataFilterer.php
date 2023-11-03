@@ -1,6 +1,20 @@
 <?php
 
-namespace OpenEMR\Modules\EhiExporter;
+/**
+ * Handles the filtering of the select query for a table based on the metadata xml file.
+ * This is used to filter out columns that should not be exported.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ *
+ * @author    Stephen Nielson <snielson@discoverandchange.com
+ * @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+namespace OpenEMR\Modules\EhiExporter\Services;
+
+use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition;
 
 class ExportTableDataFilterer
 {

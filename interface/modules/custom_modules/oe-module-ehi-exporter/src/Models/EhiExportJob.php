@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Represents the export job that is being processed and stored in the database.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ *
+ * @author    Stephen Nielson <snielson@discoverandchange.com
+ * @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Modules\EhiExporter\Models;
 
 use OpenEMR\Services\Utils\DateFormatterUtils;
@@ -7,15 +18,6 @@ use Ramsey\Uuid\Rfc4122\UuidV4;
 
 class EhiExportJob
 {
-    /**
-     * `ehi_export_job_id` int(11) NOT NULL AUTO_INCREMENT,
-    `uuid` BINARY(16) DEFAULT NULL,
-    `user_id` BIGINT(20) NOT NULL COMMENT 'FK to users.id - represents the user that started the export process',
-    `creation_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `completion_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `status` VARCHAR(20) NOT NULL DEFAULT 'processing' COMMENT 'processing=export in progress, failed=error occurred in one or more tasks, completed=export completed without errors',
-     */
-
     public function __construct()
     {
         $this->ehi_export_job_id = null;

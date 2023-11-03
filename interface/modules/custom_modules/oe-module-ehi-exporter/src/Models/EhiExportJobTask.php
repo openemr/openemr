@@ -1,8 +1,20 @@
 <?php
 
+/**
+ * Handles the representation of a foreign key definition for a table.  This is used to
+ * handle the retrieval of the foreign key values for a table as well as the local key values.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ *
+ * @author    Stephen Nielson <snielson@discoverandchange.com
+ * @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Modules\EhiExporter\Models;
 
-use OpenEMR\Modules\EhiExporter\ExportResult;
+use OpenEMR\Modules\EhiExporter\Models\ExportResult;
 
 class EhiExportJobTask
 {

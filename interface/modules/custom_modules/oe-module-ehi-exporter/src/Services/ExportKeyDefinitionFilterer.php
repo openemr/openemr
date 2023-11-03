@@ -1,8 +1,21 @@
 <?php
 
-namespace OpenEMR\Modules\EhiExporter;
+/**
+ * Responsible for filtering and customizing an ExportKeyDefinition for custom table logic especially our list_options
+ * table where the foreign keys are not unique or need special processing such as denormalized keys.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ *
+ * @author    Stephen Nielson <snielson@discoverandchange.com
+ * @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+namespace OpenEMR\Modules\EhiExporter\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition;
 
 class ExportKeyDefinitionFilterer
 {
@@ -65,6 +78,18 @@ class ExportKeyDefinitionFilterer
         ]
         ,'therapy_groups_participant_attendance' => [
             'meeting_patient_status' => ['localValueOverride' => 'groupstat', 'foreignKeyColumn' => 'list_id'],
+        ]
+        ,'procedure_type' => [
+            'procedure_type' => ['localValueOverride' => 'proc_type', 'foreignKeyColumn' => 'list_id']
+        ]
+        ,'procedure_order' => [
+            'order_priority' => ['localValueOverride' => 'ord_priority', 'foreignKeyColumn' => 'list_id'],
+            'order_status' => ['localValueOverride' => 'ord_status', 'foreignKeyColumn' => 'list_id'],
+            'billing_type' => ['localValueOverride' => 'procedure_billing', 'foreignKeyColumn' => 'list_id'],
+            'procedure_order_type' => ['localValueOverride' => 'order_type', 'foreignKeyColumn' => 'list_id']
+        ]
+        ,'procedure_report' => [
+            'procedure_type' => ['localValueOverride' => 'proc_rep_status', 'foreignKeyColumn' => 'list_id']
         ]
     ];
 

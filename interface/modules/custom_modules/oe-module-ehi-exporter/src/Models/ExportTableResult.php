@@ -1,7 +1,7 @@
 <?php
 
 /**
- *
+ * Represents a specific table definition result as to how many records were exported for a given table.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -11,7 +11,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Modules\EhiExporter;
+namespace OpenEMR\Modules\EhiExporter\Models;
 
 class ExportTableResult
 {

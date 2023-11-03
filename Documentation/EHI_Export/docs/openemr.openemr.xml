@@ -250,7 +250,13 @@
             <column ascending="true" name="pid"/>
          </index>
       </table>
-      <table catalog="openemr" name="documents" numRows="285" remarks="Stores all of the digital documents that are connected to a patient." type="TABLE">
+      <table catalog="openemr" name="document_templates" numRows="0" remarks="Digital document templates that are assigned to patients" schema="openemr" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="null" name="pid" nullable="false" remarks="The internal patient identifier." size="0" type="Unknown" typeCode="12">
+            <parent catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="null" name="template_content" nullable="false" remarks="Digital document template that is assigned to a patient to be filled out.  Uses Domain Specific Language (DSL) template tags to inject specific functionality into the template for patients to fill out.  Patient data template tags can be found at the following URL: https://www.open-emr.org/wiki/index.php/Patient_Portal_Document_Templates" size="0" type="Unknown" typeCode="12"/>
+      </table>
+      <table catalog="openemr" name="documents" numRows="297" remarks="Stores all of the digital documents that are connected to a patient." type="TABLE">
          <column autoUpdated="false" defaultValue="0" digits="0" id="0" name="id" nullable="false" remarks="Surrogate id of the record used as the primary incrementing key" size="10" type="INT" typeCode="4">
             <child catalog="openemr" column="foreign_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" schema="openemr" table="notes"/>
          </column>
@@ -907,7 +913,7 @@
             <column ascending="true" name="id"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_encounter" numRows="53310" remarks="Represents the information related to a patient's visit to a healthcare provider.  This is different than an appointment as this table tracks the actual service of care" type="TABLE">
+      <table catalog="openemr" name="form_encounter" numRows="53311" remarks="Represents the information related to a patient's visit to a healthcare provider.  This is different than an appointment as this table tracks the actual service of care" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="uuid" nullable="true" remarks="" size="16" type="BINARY" typeCode="-2"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="date" nullable="true" remarks="" size="19" type="DATETIME" typeCode="93"/>
@@ -2603,7 +2609,7 @@
             <column ascending="true" name="uuid"/>
          </index>
       </table>
-      <table catalog="openemr" name="forms" numRows="194949" remarks="Patient chart forms that are connected to a patient's encounter visit. Serves as the base record containing all of the common form encounter properties where each sub-type form has data records contained in a table that is named CONCAT('form_',formdir)" type="TABLE">
+      <table catalog="openemr" name="forms" numRows="194951" remarks="Patient chart forms that are connected to a patient's encounter visit. Serves as the base record containing all of the common form encounter properties where each sub-type form has data records contained in a table that is named CONCAT('form_',formdir)" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="Surrogate id of the record used as the primary incrementing key" size="19" type="BIGINT" typeCode="-5">
             <child catalog="openemr" column="forms_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="form_physical_exam"/>
          </column>
@@ -3051,7 +3057,7 @@
             <column ascending="true" name="seq"/>
          </index>
       </table>
-      <table catalog="openemr" name="lbf_data" numRows="6" remarks="Dynamic Field values that are part of the following forms: Demographics, Facility Specific User Information, History Form, and custom dynamically generated encounter forms" type="TABLE">
+      <table catalog="openemr" name="lbf_data" numRows="17" remarks="Dynamic Field values that are part of the following forms: Demographics, Facility Specific User Information, History Form, and custom dynamically generated encounter forms" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="form_id" nullable="false" remarks="references forms.form_id" size="10" type="INT" typeCode="4">
             <parent catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="transactions"/>
          </column>
@@ -3111,8 +3117,15 @@
             <child catalog="openemr" column="room" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_tracker_element"/>
             <child catalog="openemr" column="status" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_tracker_element"/>
             <child catalog="openemr" column="message_status" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="pnotes"/>
+            <child catalog="openemr" column="billing_type" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_order"/>
+            <child catalog="openemr" column="order_priority" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_order"/>
+            <child catalog="openemr" column="order_status" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_order"/>
+            <child catalog="openemr" column="procedure_order_type" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_order"/>
+            <child catalog="openemr" column="procedure_type" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_order"/>
             <child catalog="openemr" column="specimen_location" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_order"/>
             <child catalog="openemr" column="specimen_type" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_order"/>
+            <child catalog="openemr" column="report_status" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_report"/>
+            <child catalog="openemr" column="procedure_type" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_type"/>
             <child catalog="openemr" column="category" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="rule_action_item"/>
             <child catalog="openemr" column="item" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="rule_action_item"/>
             <child catalog="openemr" column="meeting_patient_status" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="therapy_groups_participant_attendance"/>
@@ -3277,7 +3290,7 @@
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="null" name="revision" nullable="false" remarks="UNUSED" size="0" type="Unknown" typeCode="12"/>
       </table>
-      <table catalog="openemr" name="onsite_documents" remarks="" type="TABLE">
+      <table catalog="openemr" name="onsite_documents" numRows="3" remarks="Digital documents that have been assigned to a patient from a document_template that the patient has saved or submitted for review by clinical staff" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT UNSIGNED" typeCode="4"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="pid" nullable="true" remarks="The internal patient identifier" size="20" type="BIGINT UNSIGNED" typeCode="-5">
             <parent catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
@@ -3312,10 +3325,79 @@
             <column ascending="true" name="id"/>
          </index>
       </table>
-      <table catalog="openemr" name="onsite_signatures" remarks="" type="TABLE">
+      <table catalog="openemr" name="onsite_mail" numRows="4" remarks="Patient asynchronous messages to and from clinical staff" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="date" nullable="true" remarks="" size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="owner" nullable="true" remarks="" size="128" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="user" nullable="true" remarks="" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="groupname" nullable="true" remarks="" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="activity" nullable="true" remarks="" size="3" type="TINYINT" typeCode="-6"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="authorized" nullable="true" remarks="" size="3" type="TINYINT" typeCode="-6"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="header" nullable="true" remarks="" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="title" nullable="true" remarks="" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="body" nullable="true" remarks="" size="2147483647" type="LONGTEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="recipient_id" nullable="true" remarks="" size="128" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="recipient_name" nullable="true" remarks="" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="sender_id" nullable="true" remarks="" size="128" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="sender_name" nullable="true" remarks="" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="assigned_to" nullable="true" remarks="" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="15" name="deleted" nullable="true" remarks="flag indicates note is deleted" size="3" type="TINYINT" typeCode="-6"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="delete_date" nullable="true" remarks="" size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="17" name="mtype" nullable="true" remarks="" size="128" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="New" digits="0" id="18" name="message_status" nullable="false" remarks="" size="20" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="mail_chain" nullable="true" remarks="" size="10" type="INT" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="20" name="reply_mail_chain" nullable="true" remarks="" size="10" type="INT" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="21" name="is_msg_encrypted" nullable="true" remarks="Whether messsage encrypted 0-Not encrypted, 1-Encrypted" size="3" type="TINYINT" typeCode="-6"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="pid" unique="false">
+            <column ascending="true" name="owner"/>
+         </index>
+      </table>
+      <table catalog="openemr" name="onsite_messages" numRows="5" remarks="Patient secure chat messages to and from clinical staff for real time communication" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="username" nullable="false" remarks="" size="64" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="message" nullable="true" remarks="" size="2147483647" type="LONGTEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="ip" nullable="false" remarks="" size="15" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="date" nullable="false" remarks="" size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="sender_id" nullable="true" remarks="who sent id" size="64" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="recip_id" nullable="false" remarks="who to id array" size="255" type="VARCHAR" typeCode="12"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+      </table>
+      <table catalog="openemr" name="onsite_portal_activity" numRows="89" remarks="Patient portal activity (document submission, and other activities) that requires review before they are accepted into the patient chart" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="date" nullable="true" remarks="" size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="patient_id" nullable="true" remarks="The internal patient identifier" size="19" type="BIGINT" typeCode="-5">
+            <parent catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="activity" nullable="true" remarks="" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="1" digits="0" id="4" name="require_audit" nullable="true" remarks="" size="1" type="BIT" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="pending_action" nullable="true" remarks="" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="action_taken" nullable="true" remarks="" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="status" nullable="true" remarks="" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="narrative" nullable="true" remarks="" size="2147483647" type="LONGTEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="table_action" nullable="true" remarks="" size="2147483647" type="LONGTEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="table_args" nullable="true" remarks="" size="2147483647" type="LONGTEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="action_user" nullable="true" remarks="" size="10" type="INT" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="action_taken_time" nullable="true" remarks="" size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="checksum" nullable="true" remarks="" size="2147483647" type="LONGTEXT" typeCode="-1"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="date" unique="false">
+            <column ascending="true" name="date"/>
+         </index>
+      </table>
+      <table catalog="openemr" name="onsite_signatures" numRows="2" remarks="Patient portal digital signatures used for patient documents and anywhere else a signature is required in the portal" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="waiting" digits="0" id="1" name="status" nullable="false" remarks="" size="128" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="type" nullable="false" remarks="" size="128" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="type" nullable="false" remarks="witness-signature" size="128" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="created" nullable="false" remarks="" size="10" type="INT" typeCode="4"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="lastmod" nullable="false" remarks="" size="19" type="DATETIME" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="pid" nullable="true" remarks="The internal patient identifier" size="19" type="BIGINT" typeCode="-5">
@@ -3324,16 +3406,15 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="encounter" nullable="true" remarks="" size="10" type="INT" typeCode="4">
             <parent catalog="openemr" column="encounter" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="form_encounter"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="user" nullable="true" remarks="User who created the esignature" size="255" type="VARCHAR" typeCode="12">
-            <parent catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="users"/>
-         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="user" nullable="true" remarks="User who created the esignature.  If the signature is a staff member (administrator/witness) it will come from the users.username.  If it is a patient signature the value will be '-patient-'" size="255" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="0" digits="0" id="8" name="activity" nullable="false" remarks="" size="3" type="TINYINT" typeCode="-6"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="authorized" nullable="true" remarks="" size="3" type="TINYINT" typeCode="-6"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="signator" nullable="false" remarks="" size="255" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="sig_image" nullable="true" remarks="" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="sig_image" nullable="true" remarks="The image of the signature as a Data URI created from a browser Canvas object representing an image/png image of the signature" size="65535" type="TEXT" typeCode="-1"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="signature" nullable="true" remarks="" size="65535" type="TEXT" typeCode="-1"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="sig_hash" nullable="false" remarks="" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="sig_hash" nullable="false" remarks="sha3-512 hash of the sig_image" size="255" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="ip" nullable="false" remarks="" size="46" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="null" name="signer" nullable="false" remarks="If type=witness-signature signer will be 'Witness Signature' if type='admin-signature' then signer will be the Username of the clinical staff member that signed, if type='patient-signature' then the value will be the patient's name" size="0" type="Unknown" typeCode="12"/>
          <primaryKey column="id" sequenceNumberInPK="1"/>
          <index name="PRIMARY" unique="true">
             <column ascending="true" name="id"/>
@@ -3458,6 +3539,25 @@
             <column ascending="true" name="uuid"/>
          </index>
       </table>
+      <table catalog="openemr" name="patient_access_onsite" numRows="2" remarks="Holds patient portal onsite credentials, username information and login meta information" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="pid" nullable="true" remarks="The internal patient identifier" size="19" type="BIGINT" typeCode="-5">
+            <parent catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="portal_username" nullable="true" remarks="" size="100" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="portal_pwd" nullable="true" remarks="Hash of the patient password.  Empty for export." size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="1" digits="0" id="4" name="portal_pwd_status" nullable="true" remarks="0=&gt;Password Created Through Demographics by The provider or staff. Patient Should Change it at first time it.1=&gt;Pwd updated or created by patient itself" size="3" type="TINYINT" typeCode="-6"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="portal_login_username" nullable="true" remarks="User entered username" size="100" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="portal_onetime" nullable="true" remarks="One time login key.  Empty for export." size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="current_timestamp()" digits="0" id="7" name="date_created" nullable="false" remarks="" size="19" type="DATETIME" typeCode="93"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="pid" unique="true">
+            <column ascending="true" name="pid"/>
+         </index>
+      </table>
       <table catalog="openemr" name="patient_data" numRows="888" remarks="Main patient record that contains patient demographic information" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="Surrogate id of the record used as the primary incrementing key" size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="uuid" nullable="true" remarks="UUID of the record" size="16" type="BINARY" typeCode="-2"/>
@@ -3574,9 +3674,12 @@
             <child catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="lists"/>
             <child catalog="openemr" column="r_pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="medex_recalls"/>
             <child catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="onsite_documents"/>
+            <child catalog="openemr" column="patient_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="onsite_portal_activity"/>
             <child catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="onsite_signatures"/>
+            <child catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" schema="openemr" table="document_templates"/>
             <child catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" schema="openemr" table="form_gad7"/>
             <child catalog="openemr" column="pc_pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="openemr_postcalendar_events"/>
+            <child catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_access_onsite"/>
             <child catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_history"/>
             <child catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_reminders"/>
             <child catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_tracker"/>
@@ -3954,7 +4057,7 @@
             <column ascending="true" name="id"/>
          </index>
       </table>
-      <table catalog="openemr" name="procedure_answers" remarks="" type="TABLE">
+      <table catalog="openemr" name="procedure_answers" remarks="Answers to questions that are requested to be answered for a given procedure by a procedure provider (lab, or other provider)" type="TABLE">
          <column autoUpdated="false" defaultValue="0" digits="0" id="0" name="procedure_order_id" nullable="false" remarks="references procedure_order.procedure_order_id" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="procedure_order_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_order"/>
          </column>
@@ -3976,31 +4079,34 @@
             <column ascending="true" name="answer_seq"/>
          </index>
       </table>
-      <table catalog="openemr" name="procedure_order" numRows="128870" remarks="A procedure order is an encounter form within a patient visit representing a procedure order and its associated report/results for the procedure" type="TABLE">
-         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="procedure_order_id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5">
-            <child catalog="openemr" column="procedure_order_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" schema="openemr" table="procedure_order_code"/>
-            <child catalog="openemr" column="procedure_order_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" schema="openemr" table="procedure_result"/>
+      <table catalog="openemr" name="procedure_order" numRows="128870" remarks="A procedure order is an encounter form within a patient visit representing an order for one or more procedures and its associated report/results for the procedure.  Orders can be for either internal or external procedure providers" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="procedure_order_id" nullable="false" remarks="Surrogate id of the procedure order record" size="19" type="BIGINT" typeCode="-5">
             <child catalog="openemr" column="procedure_order_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_answers"/>
+            <child catalog="openemr" column="procedure_order_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_order_code"/>
             <child catalog="openemr" column="procedure_order_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_report"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="uuid" nullable="true" remarks="" size="16" type="BINARY" typeCode="-2"/>
-         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="provider_id" nullable="false" remarks="references users.id, the ordering provider" size="19" type="BIGINT" typeCode="-5">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="uuid" nullable="true" remarks="UUID of the record" size="16" type="BINARY" typeCode="-2"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="provider_id" nullable="false" remarks="References users.id, representing the ordering provider" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="users"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="patient_id" nullable="false" remarks="The internal patient identifier" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
          </column>
-         <column autoUpdated="false" defaultValue="0" digits="0" id="4" name="encounter_id" nullable="false" remarks="references form_encounter.encounter" size="19" type="BIGINT" typeCode="-5">
+         <column autoUpdated="false" defaultValue="0" digits="0" id="4" name="encounter_id" nullable="false" remarks="References form_encounter.encounter, representing the encounter for the order" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="encounter" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="form_encounter"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="date_collected" nullable="true" remarks="time specimen collected" size="19" type="DATETIME" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="date_ordered" nullable="true" remarks="" size="19" type="DATETIME" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="7" name="order_priority" nullable="false" remarks="" size="31" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="8" name="order_status" nullable="false" remarks="pending,routed,complete,canceled" size="31" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="patient_instructions" nullable="true" remarks="" size="65535" type="TEXT" typeCode="-1"/>
-         <column autoUpdated="false" defaultValue="1" digits="0" id="10" name="activity" nullable="false" remarks="0 if deleted" size="1" type="BIT" typeCode="-7"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="11" name="control_id" nullable="false" remarks="This is the CONTROL ID that is sent back from lab" size="255" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="0" digits="0" id="12" name="lab_id" nullable="false" remarks="references procedure_providers.ppid" size="19" type="BIGINT" typeCode="-5">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="date_collected" nullable="true" remarks="Time the specimen was collected" size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="date_ordered" nullable="true" remarks="Date and time the order was placed" size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="7" name="order_priority" nullable="false" remarks="Comes from the list_options.list_id='ord_priority' and represents the priority of the order" size="31" type="VARCHAR" typeCode="12">
+            <parent catalog="openemr" column="option_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="list_options"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="8" name="order_status" nullable="false" remarks="Comes from the list_options.list_id='ord_status' and represents the status of the order (pending, routed, complete, canceled)" size="31" type="VARCHAR" typeCode="12">
+            <parent catalog="openemr" column="option_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="list_options"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="patient_instructions" nullable="true" remarks="Instructions to be given to the patient for the procedure" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="1" digits="0" id="10" name="activity" nullable="false" remarks="0 if the record is deleted, 1 if the record is active" size="1" type="BIT" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="11" name="control_id" nullable="false" remarks="Control ID sent back from the lab" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="12" name="lab_id" nullable="false" remarks="References procedure_providers.ppid and is the lab or provider of the procedure that will process the order and the order is being sent to" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="ppid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_providers"/>
          </column>
          <column autoUpdated="false" defaultValue="" digits="0" id="13" name="specimen_type" nullable="false" remarks="Comes from the list_options.list_id='Specimen_Type' and represents the specimen type collected for the procedure" size="31" type="VARCHAR" typeCode="12">
@@ -4009,25 +4115,32 @@
          <column autoUpdated="false" defaultValue="" digits="0" id="14" name="specimen_location" nullable="false" remarks="Comes from the list_options.list_id='Specimen_Location' and represents the location the specimen was collected at" size="31" type="VARCHAR" typeCode="12">
             <parent catalog="openemr" column="option_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="list_options"/>
          </column>
-         <column autoUpdated="false" defaultValue="" digits="0" id="15" name="specimen_volume" nullable="false" remarks="from a text input field" size="30" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="date_transmitted" nullable="true" remarks="time of order transmission, null if unsent" size="19" type="DATETIME" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="17" name="clinical_hx" nullable="false" remarks="clinical history text that may be relevant to the order" size="255" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="18" name="external_id" nullable="true" remarks="" size="20" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="0" digits="0" id="19" name="history_order" nullable="true" remarks="references order is added for history purpose only." size="1" type="enum('0', '1')" typeCode="1"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="20" name="order_diagnosis" nullable="true" remarks="primary order diagnosis" size="255" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="21" name="billing_type" nullable="true" remarks="" size="4" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="22" name="specimen_fasting" nullable="true" remarks="" size="31" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="23" name="order_psc" nullable="true" remarks="" size="3" type="TINYINT" typeCode="-6"/>
-         <column autoUpdated="false" defaultValue="not_required" digits="0" id="24" name="order_abn" nullable="false" remarks="" size="31" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="0" digits="0" id="25" name="collector_id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5">
+         <column autoUpdated="false" defaultValue="" digits="0" id="15" name="specimen_volume" nullable="false" remarks="Volume of the specimen" size="30" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="date_transmitted" nullable="true" remarks="Time of order transmission (null if unsent)" size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="17" name="clinical_hx" nullable="false" remarks="Clinical history text relevant to the order" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="18" name="external_id" nullable="true" remarks="External identifier" size="20" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="19" name="history_order" nullable="true" remarks="Indicates if the order is added for history purposes only. 0=No, 1=Yes" size="1" type="enum('0', '1')" typeCode="1"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="20" name="order_diagnosis" nullable="true" remarks="Primary order diagnosis" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="21" name="billing_type" nullable="true" remarks="Comes from the list_options.list_id='procedure_billing' and represents the kind billing being used for this procedure order (insurance, self-pay, etc)" size="4" type="VARCHAR" typeCode="12">
+            <parent catalog="openemr" column="option_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="list_options"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="22" name="specimen_fasting" nullable="true" remarks="Fasting status of the patient at the time the specimen was collected. 0=Patient not fasting, 1=Patient was fasting at time of collection" size="31" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="23" name="order_psc" nullable="true" remarks="Should the order for the Patient  Service Center (PSC) be put on hold. 0=No, 1=Yes" size="3" type="TINYINT" typeCode="-6"/>
+         <column autoUpdated="false" defaultValue="not_required" digits="0" id="24" name="order_abn" nullable="false" remarks="The status of the US CMS Advanced Beneficiary Notice and whether the patient has already been given the ABN. Possible values are 'not_required'=Patient doesn't need an ABN, 'required'=Patient needs to be given an ABN before procedure can occur, or 'signed'=Patient has already been given an ABN and signed it." size="31" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="25" name="collector_id" nullable="false" remarks="References users.id, representing the individual that collected the specimen" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="users"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="26" name="account" nullable="true" remarks="" size="60" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="27" name="account_facility" nullable="true" remarks="" size="10" type="INT" typeCode="4">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="26" name="account" nullable="true" remarks="The specific name of the facility location associated with the order where the lab work will be sent from.  This is typically used for LabCorp orders." size="60" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="27" name="account_facility" nullable="true" remarks="Facility Location associated with the order where the lab work is being sent from.  This is typically used for LabCorp orders." size="10" type="INT" typeCode="4">
             <parent catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="facility"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="28" name="provider_number" nullable="true" remarks="" size="30" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="laboratory_test" digits="0" id="29" name="procedure_order_type" nullable="false" remarks="" size="32" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="null" name="procedure_type" nullable="false" remarks="Comes from the list_options.list_id='proc_type' and represents the kind of procedure_type this is ('group', 'order', 'discrete_result', etc')" size="0" type="Unknown" typeCode="12">
+            <parent catalog="openemr" column="option_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="list_options"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="28" name="provider_number" nullable="true" remarks="Provider number" size="30" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="laboratory_test" digits="0" id="29" name="procedure_order_type" nullable="false" remarks="Comes from the list_options.list_id='order_type' and represents the type of procedure order this is (order, lab test, imaging, physical exams, etc" size="32" type="VARCHAR" typeCode="12">
+            <parent catalog="openemr" column="option_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="list_options"/>
+         </column>
          <primaryKey column="procedure_order_id" sequenceNumberInPK="1"/>
          <index name="PRIMARY" unique="true">
             <column ascending="true" name="procedure_order_id"/>
@@ -4043,13 +4156,33 @@
             <column ascending="true" name="uuid"/>
          </index>
       </table>
-      <table catalog="openemr" name="procedure_order_code" numRows="0" remarks="" schema="openemr" type="TABLE">
-         <column autoUpdated="false" defaultValue="null" digits="0" id="null" name="procedure_code" nullable="false" remarks="" size="0" type="Unknown" typeCode="12">
-            <parent catalog="openemr" column="procedure_code" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_type"/>
-         </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="null" name="procedure_order_id" nullable="false" remarks="" size="0" type="Unknown" typeCode="12">
+      <table catalog="openemr" name="procedure_order_code" numRows="130914" remarks="Holds individual procedure / labs ordered from the procedure_type table for a given procedure order.  It contains also the individual diagnosis code that is related to the ordered procedure" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="procedure_order_id" nullable="false" remarks="references procedure_order.procedure_order_id" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="procedure_order_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_order"/>
          </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="procedure_order_seq" nullable="false" remarks="Supports multiple tests per order. Procedure_order_seq, incremented in code" size="10" type="INT" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="procedure_code" nullable="false" remarks="like procedure_type.procedure_code" size="64" type="VARCHAR" typeCode="12">
+            <parent catalog="openemr" column="procedure_code" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_type"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="3" name="procedure_name" nullable="false" remarks="descriptive name of the procedure code" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="1" digits="0" id="4" name="procedure_source" nullable="false" remarks="1=original order, 2=added after order sent" size="1" type="CHAR" typeCode="1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="diagnoses" nullable="true" remarks="diagnoses and maybe other coding (e.g. ICD9:111.11)" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="6" name="do_not_send" nullable="false" remarks="0 = normal, 1 = do not transmit to lab" size="1" type="BIT" typeCode="-7"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="procedure_order_title" nullable="true" remarks="" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="procedure_type" nullable="true" remarks="" size="31" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="transport" nullable="true" remarks="" size="31" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="date_end" nullable="true" remarks="" size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="reason_code" nullable="true" remarks="" size="31" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="reason_description" nullable="true" remarks="" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="13" name="reason_date_low" nullable="true" remarks="" size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="14" name="reason_date_high" nullable="true" remarks="" size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="reason_status" nullable="true" remarks="" size="31" type="VARCHAR" typeCode="12"/>
+         <primaryKey column="procedure_order_id" sequenceNumberInPK="1"/>
+         <primaryKey column="procedure_order_seq" sequenceNumberInPK="2"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="procedure_order_id"/>
+            <column ascending="true" name="procedure_order_seq"/>
+         </index>
       </table>
       <table catalog="openemr" name="procedure_providers" numRows="2" remarks="This table holds both internal and external laboratories as well as other organizations that provide lab testing, results, and other procedures that can be ordered by a provider" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="ppid" nullable="false" remarks="Surrogate ID of the record used as the primary incrementing key" size="19" type="BIGINT" typeCode="-5">
@@ -4059,20 +4192,20 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="uuid" nullable="true" remarks="UUID of the record" size="16" type="BINARY" typeCode="-2"/>
          <column autoUpdated="false" defaultValue="" digits="0" id="2" name="name" nullable="false" remarks="Name of the laboratory or organization" size="255" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="" digits="0" id="3" name="npi" nullable="false" remarks="National Provider Identifier (NPI)" size="15" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="send_app_id" nullable="false" remarks="Sending application ID (MSH-3.1)" size="255" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="5" name="send_fac_id" nullable="false" remarks="Sending facility ID (MSH-4.1)" size="255" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="6" name="recv_app_id" nullable="false" remarks="Receiving application ID (MSH-5.1)" size="255" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="7" name="recv_fac_id" nullable="false" remarks="Receiving facility ID (MSH-6.1)" size="255" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="D" digits="0" id="8" name="DorP" nullable="false" remarks="Debugging or Production (MSH-11)" size="1" type="CHAR" typeCode="1"/>
-         <column autoUpdated="false" defaultValue="B" digits="0" id="9" name="direction" nullable="false" remarks="Bidirectional or Results-only" size="1" type="CHAR" typeCode="1"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="send_app_id" nullable="false" remarks="Sending application ID (MSH-3.1). Empty on Export" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="5" name="send_fac_id" nullable="false" remarks="Sending facility ID (MSH-4.1). Empty on Export" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="6" name="recv_app_id" nullable="false" remarks="Receiving application ID (MSH-5.1). Empty on Export" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="7" name="recv_fac_id" nullable="false" remarks="Receiving facility ID (MSH-6.1). Empty on Export" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="D" digits="0" id="8" name="DorP" nullable="false" remarks="Debugging or Production (MSH-11). Empty on Export" size="1" type="CHAR" typeCode="1"/>
+         <column autoUpdated="false" defaultValue="B" digits="0" id="9" name="direction" nullable="false" remarks="Bidirectional or Results-only. Empty on Export" size="1" type="CHAR" typeCode="1"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="null" name="lab_id" nullable="false" remarks="Laboratory ID" size="0" type="Unknown" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="DL" digits="0" id="10" name="protocol" nullable="false" remarks="Protocol for communication" size="15" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="11" name="remote_host" nullable="false" remarks="Remote host for communication" size="255" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="12" name="login" nullable="false" remarks="Login information for communication" size="255" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="13" name="password" nullable="false" remarks="Password for communication" size="255" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="14" name="orders_path" nullable="false" remarks="Path for orders" size="255" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="15" name="results_path" nullable="false" remarks="Path for results" size="255" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="notes" nullable="true" remarks="Additional notes or information" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="DL" digits="0" id="10" name="protocol" nullable="false" remarks="Protocol for communication. Empty on Export" size="15" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="11" name="remote_host" nullable="false" remarks="Remote host for communication. Empty on Export" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="12" name="login" nullable="false" remarks="Login information for communication. Empty on Export" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="13" name="password" nullable="false" remarks="Password for communication. Empty on Export" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="14" name="orders_path" nullable="false" remarks="Path for orders. Empty on Export" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="15" name="results_path" nullable="false" remarks="Path for results. Empty on Export" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="16" name="notes" nullable="true" remarks="Additional notes or information. Empty on Export" size="65535" type="TEXT" typeCode="-1"/>
          <column autoUpdated="false" defaultValue="0" digits="0" id="17" name="lab_director" nullable="false" remarks="ID of the laboratory director" size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="1" digits="0" id="18" name="active" nullable="false" remarks="Indicates whether the provider is active" size="1" type="BIT" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="type" nullable="true" remarks="Type of provider or organization" size="31" type="VARCHAR" typeCode="12"/>
@@ -4084,7 +4217,7 @@
             <column ascending="true" name="uuid"/>
          </index>
       </table>
-      <table catalog="openemr" name="procedure_questions" remarks="" type="TABLE">
+      <table catalog="openemr" name="procedure_questions" remarks="Information/questions that should be answered for a given procedure as requested by the procedure service provider. Created as part of the procedure compendium import/creation process." type="TABLE">
          <column autoUpdated="false" defaultValue="0" digits="0" id="0" name="lab_id" nullable="false" remarks="references procedure_providers.ppid to identify the lab" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="ppid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_providers"/>
          </column>
@@ -4111,26 +4244,28 @@
             <column ascending="true" name="question_code"/>
          </index>
       </table>
-      <table catalog="openemr" name="procedure_report" numRows="44299" remarks="" type="TABLE">
-         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="procedure_report_id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5">
-            <child catalog="openemr" column="procedure_report_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" schema="openemr" table="procedure_result"/>
+      <table catalog="openemr" name="procedure_report" numRows="44299" remarks="Procedure order overall report container for an ordered procedure result in procedure_order_codes which represents findings, conclusions, and recommendations for the procedure order" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="procedure_report_id" nullable="false" remarks="Unique identifier for the procedure report. This is the primary key." size="19" type="BIGINT" typeCode="-5">
+            <child catalog="openemr" column="procedure_report_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_result"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="uuid" nullable="true" remarks="" size="16" type="BINARY" typeCode="-2"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="procedure_order_id" nullable="true" remarks="references procedure_order.procedure_order_id" size="19" type="BIGINT" typeCode="-5">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="uuid" nullable="true" remarks="Universally unique identifier for the procedure report." size="16" type="BINARY" typeCode="-2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="procedure_order_id" nullable="true" remarks="References the procedure order for which this report is associated." size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="procedure_order_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_order"/>
          </column>
-         <column autoUpdated="false" defaultValue="1" digits="0" id="3" name="procedure_order_seq" nullable="false" remarks="references procedure_order_code.procedure_order_seq" size="10" type="INT" typeCode="4"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="date_collected" nullable="true" remarks="" size="19" type="DATETIME" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="5" name="date_collected_tz" nullable="true" remarks="+-hhmm offset from UTC" size="5" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="date_report" nullable="true" remarks="" size="19" type="DATETIME" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="7" name="date_report_tz" nullable="true" remarks="+-hhmm offset from UTC" size="5" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="0" digits="0" id="8" name="source" nullable="false" remarks="references users.id, who entered this data" size="19" type="BIGINT" typeCode="-5">
+         <column autoUpdated="false" defaultValue="1" digits="0" id="3" name="procedure_order_seq" nullable="false" remarks="References procedure_order_code.procedure_order_seq." size="10" type="INT" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="date_collected" nullable="true" remarks="Date and time when the report was collected." size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="5" name="date_collected_tz" nullable="true" remarks="Timezone offset from UTC for the date collected." size="5" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="date_report" nullable="true" remarks="Date and time when the report was generated." size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="7" name="date_report_tz" nullable="true" remarks="Timezone offset from UTC for the date reported." size="5" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="8" name="source" nullable="false" remarks="References the user who entered this report data." size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="users"/>
          </column>
-         <column autoUpdated="false" defaultValue="" digits="0" id="9" name="specimen_num" nullable="false" remarks="" size="63" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="10" name="report_status" nullable="false" remarks="received,complete,error" size="31" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="received" digits="0" id="11" name="review_status" nullable="false" remarks="pending review status: received,reviewed" size="31" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="report_notes" nullable="true" remarks="notes from the lab" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="9" name="specimen_num" nullable="false" remarks="A unique identifier for the specimen associated with the report." size="63" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="10" name="report_status" nullable="false" remarks="Comes from the list_options.list_id='proc_rep_status' and represents the current state/status of the report (e.g. received, complete, error)" size="31" type="VARCHAR" typeCode="12">
+            <parent catalog="openemr" column="option_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="list_options"/>
+         </column>
+         <column autoUpdated="false" defaultValue="received" digits="0" id="11" name="review_status" nullable="false" remarks="The status of the report review (e.g., pending review, received, reviewed)." size="31" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="report_notes" nullable="true" remarks="Notes from the lab related to the report." size="65535" type="TEXT" typeCode="-1"/>
          <primaryKey column="procedure_report_id" sequenceNumberInPK="1"/>
          <index name="PRIMARY" unique="true">
             <column ascending="true" name="procedure_report_id"/>
@@ -4142,40 +4277,60 @@
             <column ascending="true" name="uuid"/>
          </index>
       </table>
-      <table catalog="openemr" name="procedure_result" numRows="0" remarks="" schema="openemr" type="TABLE">
-         <column autoUpdated="false" defaultValue="null" digits="0" id="null" name="procedure_order_id" nullable="false" remarks="" size="0" type="Unknown" typeCode="12">
-            <parent catalog="openemr" column="procedure_order_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_order"/>
-         </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="null" name="procedure_order_seq" nullable="false" remarks="" size="0" type="Unknown" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="null" name="procedure_report_id" nullable="false" remarks="" size="0" type="Unknown" typeCode="12">
+      <table catalog="openemr" name="procedure_result" numRows="255762" remarks="The table stores the actual results and findings from medical procedures and tests, such as laboratory tests, radiology reports, diagnostic imaging, and other clinical tests." type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="procedure_result_id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="uuid" nullable="true" remarks="" size="16" type="BINARY" typeCode="-2"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="procedure_report_id" nullable="false" remarks="references procedure_report.procedure_report_id" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="procedure_report_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_report"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="null" name="source" nullable="false" remarks="" size="0" type="Unknown" typeCode="12">
-            <parent catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="users"/>
-         </column>
+         <column autoUpdated="false" defaultValue="S" digits="0" id="3" name="result_data_type" nullable="false" remarks="N=Numeric, S=String, F=Formatted, E=External, L=Long text as first line of comments" size="1" type="CHAR" typeCode="1"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="result_code" nullable="false" remarks="LOINC code, might match a procedure_type.procedure_code" size="31" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="5" name="result_text" nullable="false" remarks="Description of result_code" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="date" nullable="true" remarks="lab-provided date specific to this result" size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="7" name="facility" nullable="false" remarks="lab-provided testing facility ID" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="8" name="units" nullable="false" remarks="" size="31" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="9" name="result" nullable="false" remarks="" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="10" name="range" nullable="false" remarks="" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="11" name="abnormal" nullable="false" remarks="no,yes,high,low" size="31" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="12" name="comments" nullable="true" remarks="comments from the lab" size="65535" type="TEXT" typeCode="-1"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="13" name="document_id" nullable="false" remarks="references documents.id if this result is a document" size="19" type="BIGINT" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="14" name="result_status" nullable="false" remarks="preliminary, cannot be done, final, corrected, incomplete...etc." size="31" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="date_end" nullable="true" remarks="lab-provided end date specific to this result" size="19" type="DATETIME" typeCode="93"/>
+         <primaryKey column="procedure_result_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="procedure_result_id"/>
+         </index>
+         <index name="procedure_report_id" unique="false">
+            <column ascending="true" name="procedure_report_id"/>
+         </index>
+         <index name="uuid" unique="true">
+            <column ascending="true" name="uuid"/>
+         </index>
       </table>
-      <table catalog="openemr" name="procedure_type" numRows="399" remarks="" type="TABLE">
-         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="procedure_type_id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5"/>
-         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="parent" nullable="false" remarks="references procedure_type.procedure_type_id" size="19" type="BIGINT" typeCode="-5"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="name" nullable="false" remarks="name for this category, procedure or result type" size="63" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="0" digits="0" id="3" name="lab_id" nullable="false" remarks="references procedure_providers.ppid, 0 means default to parent" size="19" type="BIGINT" typeCode="-5"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="procedure_code" nullable="false" remarks="code identifying this procedure" size="64" type="VARCHAR" typeCode="12">
-            <child catalog="openemr" column="procedure_code" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" schema="openemr" table="procedure_order_code"/>
+      <table catalog="openemr" name="procedure_type" numRows="399" remarks="This table holds a compendium of possible procedures and labs that can be ordered by the procedure ordering system within OpenEMR" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="procedure_type_id" nullable="false" remarks="Surrogate id of the record used as the primary incrementing key" size="19" type="BIGINT" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="1" name="parent" nullable="false" remarks="References procedure_type.procedure_type_id for heirarchies of procedure types" size="19" type="BIGINT" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="2" name="name" nullable="false" remarks="Name for this category, procedure or result type" size="63" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="3" name="lab_id" nullable="false" remarks="References procedure_providers.ppid, 0 means default to parent" size="19" type="BIGINT" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="4" name="procedure_code" nullable="false" remarks="Code and code system identifying this procedure in the format of [codesystem:code]" size="64" type="VARCHAR" typeCode="12">
+            <child catalog="openemr" column="procedure_code" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_order_code"/>
             <child catalog="openemr" column="procedure_code" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_questions"/>
          </column>
-         <column autoUpdated="false" defaultValue="" digits="0" id="5" name="procedure_type" nullable="false" remarks="see list proc_type" size="31" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="6" name="body_site" nullable="false" remarks="where to do injection, e.g. arm, buttock" size="31" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="7" name="specimen" nullable="false" remarks="blood, urine, saliva, etc." size="31" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="8" name="route_admin" nullable="false" remarks="oral, injection" size="31" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="9" name="laterality" nullable="false" remarks="left, right, ..." size="31" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="10" name="description" nullable="false" remarks="descriptive text for procedure_code" size="255" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="11" name="standard_code" nullable="false" remarks="industry standard code type and code (e.g. CPT4:12345)" size="255" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="12" name="related_code" nullable="false" remarks="suggested code(s) for followup services if result is abnormal" size="255" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="13" name="units" nullable="false" remarks="default for procedure_result.units" size="31" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="14" name="range" nullable="false" remarks="default for procedure_result.range" size="255" type="VARCHAR" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="0" digits="0" id="15" name="seq" nullable="false" remarks="sequence number for ordering" size="10" type="INT" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="5" name="procedure_type" nullable="false" remarks="Comes from the list_options.list_id='proc_type' and represents the kind of procedure_type this is ('group', 'order', 'discrete_result', etc')" size="31" type="VARCHAR" typeCode="12">
+            <parent catalog="openemr" column="option_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="list_options"/>
+         </column>
+         <column autoUpdated="false" defaultValue="" digits="0" id="6" name="body_site" nullable="false" remarks="Where to do injection, e.g. arm, buttock" size="31" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="7" name="specimen" nullable="false" remarks="Blood, urine, saliva, etc." size="31" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="8" name="route_admin" nullable="false" remarks="Oral, injection" size="31" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="9" name="laterality" nullable="false" remarks="Left, right, ..." size="31" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="10" name="description" nullable="false" remarks="Descriptive text for procedure_code" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="11" name="standard_code" nullable="false" remarks="Industry standard code type and code (e.g. CPT4:12345)" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="12" name="related_code" nullable="false" remarks="Suggested code(s) for follow-up services if result is abnormal" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="13" name="units" nullable="false" remarks="Default for procedure_result.units" size="31" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="14" name="range" nullable="false" remarks="Default for procedure_result.range" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="15" name="seq" nullable="false" remarks="Sequence number for ordering" size="10" type="INT" typeCode="4"/>
          <column autoUpdated="false" defaultValue="1" digits="0" id="16" name="activity" nullable="false" remarks="1=active, 0=inactive" size="1" type="BIT" typeCode="-7"/>
-         <column autoUpdated="false" defaultValue="" digits="0" id="17" name="notes" nullable="false" remarks="additional notes to enhance description" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="" digits="0" id="17" name="notes" nullable="false" remarks="Additional notes to enhance description" size="255" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="18" name="transport" nullable="true" remarks="" size="31" type="VARCHAR" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="procedure_type_name" nullable="true" remarks="" size="64" type="VARCHAR" typeCode="12"/>
          <primaryKey column="procedure_type_id" sequenceNumberInPK="1"/>
@@ -4380,7 +4535,7 @@
             <column ascending="true" name="user_id"/>
          </index>
       </table>
-      <table catalog="openemr" name="therapy_groups_participant_attendance" numRows="2" remarks="Track patient attendance to a therapy group session as contained in the Used by the form_group_attendance table" type="TABLE">
+      <table catalog="openemr" name="therapy_groups_participant_attendance" numRows="3" remarks="Track patient attendance to a therapy group session as contained in the Used by the form_group_attendance table" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="form_id" nullable="false" remarks="The group attendance encounter form that is the container entity used to track this patient's attendance" size="10" type="INT" typeCode="4">
             <parent catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="form_group_attendance"/>
          </column>
@@ -4398,7 +4553,7 @@
             <column ascending="true" name="pid"/>
          </index>
       </table>
-      <table catalog="openemr" name="therapy_groups_participants" numRows="2" remarks="Connects the patient participants to a therapy group" type="TABLE">
+      <table catalog="openemr" name="therapy_groups_participants" numRows="3" remarks="Connects the patient participants to a therapy group" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="group_id" nullable="false" remarks="" size="10" type="INT" typeCode="4">
             <parent catalog="openemr" column="group_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="therapy_groups"/>
          </column>
@@ -4458,11 +4613,9 @@
             <child catalog="openemr" column="created_by" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="lists_medication"/>
             <child catalog="openemr" column="r_provider" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="medex_recalls"/>
             <child catalog="openemr" column="user" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="onsite_documents"/>
-            <child catalog="openemr" column="user" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="onsite_signatures"/>
             <child catalog="openemr" column="created_by" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" schema="openemr" table="amendments_history"/>
             <child catalog="openemr" column="user" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" schema="openemr" table="form_gad7"/>
             <child catalog="openemr" column="owner" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" schema="openemr" table="notes"/>
-            <child catalog="openemr" column="source" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" schema="openemr" table="procedure_result"/>
             <child catalog="openemr" column="pc_aid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="openemr_postcalendar_events"/>
             <child catalog="openemr" column="created_by" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
             <child catalog="openemr" column="providerID" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>

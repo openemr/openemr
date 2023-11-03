@@ -849,7 +849,6 @@
         <table name="procedure_order" comments="A procedure order is an encounter form within a patient visit representing an order for one or more procedures and its associated report/results for the procedure.  Orders can be for either internal or external procedure providers">
             <column name="procedure_order_id" comments="Surrogate id of the procedure order record" />
             <column name="uuid" comments="UUID of the record" />
-
             <column name="patient_id"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
@@ -861,12 +860,16 @@
             </column>
             <column name="date_collected" comments="Time the specimen was collected" />
             <column name="date_ordered" comments="Date and time the order was placed" />
-            <column name="order_priority" comments="Priority of the order" />
-            <column name="order_status" comments="Status of the order (pending, routed, complete, canceled)" />
-            <column name="patient_instructions" comments="Instructions for the patient" />
-            <column name="activity" comments="0 if the record is deleted" />
+            <column name="order_priority" comments="Comes from the list_options.list_id='ord_priority' and represents the priority of the order">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="order_status" comments="Comes from the list_options.list_id='ord_status' and represents the status of the order (pending, routed, complete, canceled)">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="patient_instructions" comments="Instructions to be given to the patient for the procedure" />
+            <column name="activity" comments="0 if the record is deleted, 1 if the record is active" />
             <column name="control_id" comments="Control ID sent back from the lab" />
-            <column name="lab_id" comments="References procedure_providers.ppid">
+            <column name="lab_id" comments="References procedure_providers.ppid and is the lab or provider of the procedure that will process the order and the order is being sent to">
                 <foreignKey table="procedure_providers" column="ppid" />
             </column>
             <column name="specimen_type" comments="Comes from the list_options.list_id='Specimen_Type' and represents the specimen type collected for the procedure">
@@ -879,21 +882,28 @@
             <column name="date_transmitted" comments="Time of order transmission (null if unsent)" />
             <column name="clinical_hx" comments="Clinical history text relevant to the order" />
             <column name="external_id" comments="External identifier" />
-            <column name="history_order" comments="Indicates if the order is added for history purposes only" />
+            <column name="history_order" comments="Indicates if the order is added for history purposes only. 0=No, 1=Yes" />
             <column name="order_diagnosis" comments="Primary order diagnosis" />
-            <column name="billing_type" comments="Billing type" />
-            <column name="specimen_fasting" comments="Fasting status for the specimen" />
-            <column name="order_psc" comments="Order PSC" />
-            <column name="order_abn" comments="Order ABN" />
-            <column name="collector_id" comments="References users.id, representing the collector">
+            <column name="billing_type" comments="Comes from the list_options.list_id='procedure_billing' and represents the kind billing being used for this procedure order (insurance, self-pay, etc)">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="specimen_fasting" comments="Fasting status of the patient at the time the specimen was collected. 0=Patient not fasting, 1=Patient was fasting at time of collection" />
+            <column name="order_psc" comments="Should the order for the Patient  Service Center (PSC) be put on hold. 0=No, 1=Yes" />
+            <column name="order_abn" comments="The status of the US CMS Advanced Beneficiary Notice and whether the patient has already been given the ABN. Possible values are 'not_required'=Patient doesn't need an ABN, 'required'=Patient needs to be given an ABN before procedure can occur, or 'signed'=Patient has already been given an ABN and signed it." />
+            <column name="collector_id" comments="References users.id, representing the individual that collected the specimen">
                 <foreignKey table="users" column="id" />
             </column>
-            <column name="account" comments="Account associated with the order" />
-            <column name="account_facility" comments="Facility associated with the account">
+            <column name="account" comments="The specific name of the facility location associated with the order where the lab work will be sent from.  This is typically used for LabCorp orders." />
+            <column name="account_facility" comments="Facility Location associated with the order where the lab work is being sent from.  This is typically used for LabCorp orders.">
                 <foreignKey table="facility" column="id" />
             </column>
             <column name="provider_number" comments="Provider number" />
-            <column name="procedure_order_type" comments="Type of procedure order" />
+            <column name="procedure_order_type" comments="Comes from the list_options.list_id='order_type' and represents the type of procedure order this is (order, lab test, imaging, physical exams, etc">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="procedure_type" comments="Comes from the list_options.list_id='proc_type' and represents the kind of procedure_type this is ('group', 'order', 'discrete_result', etc')">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
         </table>
         <table name="procedure_providers" comments="This table holds both internal and external laboratories as well as other organizations that provide lab testing, results, and other procedures that can be ordered by a provider">
             <column name="ppid" comments="Surrogate ID of the record used as the primary incrementing key"/>
@@ -918,7 +928,7 @@
             <column name="active" comments="Indicates whether the provider is active"/>
             <column name="type" comments="Type of provider or organization"/>
         </table>
-        <table name="procedure_order_code">
+        <table name="procedure_order_code" comments="Holds individual procedure / labs ordered from the procedure_type table for a given procedure order.  It contains also the individual diagnosis code that is related to the ordered procedure">
             <column name="procedure_order_id">
                 <foreignKey table="procedure_order" column="procedure_order_id" />
             </column>
@@ -926,7 +936,7 @@
                 <foreignKey table="procedure_type" column="procedure_code" />
             </column>
         </table>
-        <table name="procedure_answers">
+        <table name="procedure_answers" comments="Answers to questions that are requested to be answered for a given procedure by a procedure provider (lab, or other provider)">
             <column name="procedure_order_id">
                 <foreignKey table="procedure_order" column="procedure_order_id" />
             </column>
@@ -935,7 +945,7 @@
                 <foreignKey table="procedure_questions" column="question_code" />
             </column>
         </table>
-        <table name="procedure_questions">
+        <table name="procedure_questions" comments="Information/questions that should be answered for a given procedure as requested by the procedure service provider. Created as part of the procedure compendium import/creation process.">
             <column name="question_code"/>
             <column name="lab_id">
                 <foreignKey table="procedure_providers" column="ppid" />
@@ -944,30 +954,66 @@
                 <foreignKey table="procedure_type" column="procedure_code" />
             </column>
         </table>
-        <table name="procedure_result">
+        <table name="procedure_result" comments="The table stores the actual results and findings from medical procedures and tests, such as laboratory tests, radiology reports, diagnostic imaging, and other clinical tests.">
             <column name="procedure_report_id">
                 <foreignKey table="procedure_report" column="procedure_report_id" />
             </column>
         </table>
-        <table name="procedure_result">
-            <column name="procedure_order_id">
+        <!-- TODO: @adunsulag where did this double table come from -->
+<!--        <table name="procedure_result">-->
+<!--            <column name="procedure_order_id">-->
+<!--                <foreignKey table="procedure_order" column="procedure_order_id" />-->
+<!--            </column>-->
+<!--            <column name="procedure_order_seq" />-->
+<!--            <column name="source">-->
+<!--                <foreignKey table="users" column="id" />-->
+<!--            </column>-->
+<!--        </table>-->
+        <table name="procedure_report" comments="Procedure order overall report container for an ordered procedure result in procedure_order_codes which represents findings, conclusions, and recommendations for the procedure order">
+            <column name="procedure_report_id" comments="Unique identifier for the procedure report. This is the primary key."/>
+            <column name="uuid" comments="Universally unique identifier for the procedure report."/>
+            <column name="procedure_order_seq" comments="References procedure_order_code.procedure_order_seq." />
+            <column name="procedure_order_id" comments="References the procedure order for which this report is associated.">
                 <foreignKey table="procedure_order" column="procedure_order_id" />
             </column>
-            <column name="procedure_order_seq" />
-            <column name="source">
+            <column name="source" comments="References the user who entered this report data.">
                 <foreignKey table="users" column="id" />
             </column>
-        </table>
-        <table name="procedure_report">
-            <column name="procedure_order_id">
-                <foreignKey table="procedure_order" column="procedure_order_id" />
+            <column name="date_collected" comments="Date and time when the report was collected."/>
+            <column name="date_collected_tz" comments="Timezone offset from UTC for the date collected."/>
+            <column name="date_report" comments="Date and time when the report was generated."/>
+            <column name="date_report_tz" comments="Timezone offset from UTC for the date reported."/>
+            <column name="specimen_num" comments="A unique identifier for the specimen associated with the report."/>
+            <column name="report_status" comments="Comes from the list_options.list_id='proc_rep_status' and represents the current state/status of the report (e.g. received, complete, error)">
+                <foreignKey table="list_options" column="option_id" />
             </column>
-            <column name="procedure_order_seq" />
-            <column name="source">
-                <foreignKey table="users" column="id" />
-            </column>
+            <column name="review_status" comments="The status of the report review (e.g., pending review, received, reviewed)."/>
+            <column name="report_notes" comments="Notes from the lab related to the report."/>
         </table>
-        <table name="procedure_type"></table>
+        <table name="procedure_type" comments="This table holds a compendium of possible procedures and labs that can be ordered by the procedure ordering system within OpenEMR">
+            <column name="procedure_type_id" comments="Surrogate id of the record used as the primary incrementing key"/>
+            <column name="parent" comments="References procedure_type.procedure_type_id for heirarchies of procedure types"/>
+            <column name="name" comments="Name for this category, procedure or result type"/>
+            <column name="lab_id" comments="References procedure_providers.ppid, 0 means default to parent"/>
+            <column name="procedure_code" comments="Code and code system identifying this procedure in the format of [codesystem:code]" />
+            <column name="procedure_type" comments="Comes from the list_options.list_id='proc_type' and represents the kind of procedure_type this is ('group', 'order', 'discrete_result', etc')">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="body_site" comments="Where to do injection, e.g. arm, buttock"/>
+            <column name="specimen" comments="Blood, urine, saliva, etc."/>
+            <column name="route_admin" comments="Oral, injection"/>
+            <column name="laterality" comments="Left, right, ..."/>
+            <column name="description" comments="Descriptive text for procedure_code"/>
+            <column name="standard_code" comments="Industry standard code type and code (e.g. CPT4:12345)"/>
+            <column name="related_code" comments="Suggested code(s) for follow-up services if result is abnormal"/>
+            <column name="units" comments="Default for procedure_result.units"/>
+            <column name="range" comments="Default for procedure_result.range"/>
+            <column name="seq" comments="Sequence number for ordering"/>
+            <column name="activity" comments="1=active, 0=inactive"/>
+            <column name="notes" comments="Additional notes to enhance description"/>
+            <column name="transport" comments=""/>
+            <column name="procedure_type_name" comments=""/>
+        </table>
 
 <!--        - Questionnaire Responses-->
         <table name="form_questionnaire_assessments" comments="Holds questionnaires results for a patient entered in by a provider as a patient charted form">
@@ -1019,9 +1065,6 @@
         </table>
 
         <!--        - Aftercare Plan-->
-        <table name="form_aftercare_plan">
-
-        </table>
         <table name="form_aftercare_plan" comments="Table for chart notes on patient aftercare plans, including Acute Intoxication/Withdrawal, Emotional/Behavioral Conditions and Complications, and Relapse Potential for patients' care plans.">
             <column name="id" comments="Unique identifier for each aftercare plan entry. Primary key." />
             <column name="date" comments="Date and time when the aftercare plan was created." />
@@ -1344,7 +1387,7 @@
 
 <!--        patient notes-->
 <!--        patient documents-->
-        <table name="onsite_documents">
+        <table name="onsite_documents" comments="Digital documents that have been assigned to a patient from a document_template that the patient has saved or submitted for review by clinical staff">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
@@ -1358,20 +1401,45 @@
                 <foreignKey table="users" column="id" />
             </column>
         </table>
-        <!-- TODO: @adunsulag check onsite_mail.owner -->
-        <table name="onsite_signatures">
+
+        <table name="document_templates" comments="Digital document templates that are assigned to patients">
+            <column name="pid"  comments="The internal patient identifier.">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="template_content" comments="Digital document template that is assigned to a patient to be filled out.  Uses Domain Specific Language (DSL) template tags to inject specific functionality into the template for patients to fill out.  Patient data template tags can be found at the following URL: https://www.open-emr.org/wiki/index.php/Patient_Portal_Document_Templates" />
+        </table>
+
+        <table name="onsite_signatures" comments="Patient portal digital signatures used for patient documents and anywhere else a signature is required in the portal">
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
             <column name="encounter">
                 <foreignKey table="form_encounter" column="encounter" />
             </column>
-            <column name="user" comments="User who created the esignature">
-                <foreignKey table="users" column="id" />
+            <column name="type" comments="witness-signature " />
+            <column name="signer" comments="If type=witness-signature signer will be 'Witness Signature' if type='admin-signature' then signer will be the Username of the clinical staff member that signed, if type='patient-signature' then the value will be the patient's name" />
+            <column name="user" comments="User who created the esignature.  If the signature is a staff member (administrator/witness) it will come from the users.username.  If it is a patient signature the value will be '-patient-'" />
+            <column name="sig_image" comments="The image of the signature as a Data URI created from a browser Canvas object representing an image/png image of the signature" />
+            <column name="sig_hash" comments="sha3-512 hash of the sig_image" />
+        </table>
+        <table name="patient_access_onsite" comments="Holds patient portal onsite credentials, username information and login meta information">
+            <column name="portal_pwd" comments="Hash of the patient password.  Empty for export." exclude="true"/>
+            <column name="portal_onetime" comments="One time login key.  Empty for export." exclude="true"/>
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
             </column>
         </table>
-
-        <!-- TODO: @adunsulag check onsite_messages -->
+        <table name="onsite_portal_activity" comments="Patient portal activity (document submission, and other activities) that requires review before they are accepted into the patient chart">
+            <column name="patient_id"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="onsite_mail" comments="Patient asynchronous messages to and from clinical staff">
+            <!-- TODO: @adunsulag as the data here is denormalized, need to explain this table -->
+        </table>
+        <table name="onsite_messages" comments="Patient secure chat messages to and from clinical staff for real time communication">
+            <!-- TODO: @adunsulag as the data here is denormalized, need to explain this table -->
+        </table>
         <!--        - External Data (Encounters  Procedures) -->
         <table name="external_encounters" comments="Holds data on encounters that exist outside of this EMR that were in a patient CCDA import">
             <column name="ee_pid"  comments="The internal patient identifier">

@@ -11,7 +11,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Modules\EhiExporter;
+namespace OpenEMR\Modules\EhiExporter\Services;
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
@@ -20,18 +20,28 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FileUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\Export\ExportException;
+use OpenEMR\Modules\EhiExporter\Bootstrap;
+use OpenEMR\Modules\EhiExporter\Models;
 use OpenEMR\Modules\EhiExporter\Models\EhiExportJob;
 use OpenEMR\Modules\EhiExporter\Models\EhiExportJobTask;
+use OpenEMR\Modules\EhiExporter\Models\ExportResult;
 use OpenEMR\Modules\EhiExporter\Services\EhiExportJobService;
 use OpenEMR\Modules\EhiExporter\Services\EhiExportJobTaskResultService;
 use OpenEMR\Modules\EhiExporter\Services\EhiExportJobTaskService;
+use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportClinicalNotesFormTableDefinition;
+use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportEsignatureTableDefinition;
+use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportFormsGroupsEncounterTableDefinition;
+use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportOnsiteMailTableDefinition;
+use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportOnsiteMessagesTableDefinition;
 use OpenEMR\Services\DocumentService;
 use OpenEMR\Services\ListService;
-use OpenEMR\Modules\EhiExporter\ExportState;
-use OpenEMR\Modules\EhiExporter\ExportTableDefinition;
-use OpenEMR\Modules\EhiExporter\ExportKeyDefinition;
+use OpenEMR\Modules\EhiExporter\Models\ExportState;
+use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition;
+use OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition;
 use Ramsey\Uuid\Rfc4122\UuidV4;
 use Twig\Environment;
+
+use function xl;
 
 class EhiExporter
 {
@@ -53,8 +63,7 @@ class EhiExporter
     private SystemLogger $logger;
     private EhiExportJobTaskService $taskService;
     private CryptoGen $cryptoGen;
-    public function __construct(private $modulePublicDir, private $modulePublicUrl
-        , private $xmlConfigPath, private Environment $twig)
+    public function __construct(private $modulePublicDir, private $modulePublicUrl, private $xmlConfigPath, private Environment $twig)
     {
         $this->logger = new SystemLogger();
         $this->taskService = new EhiExportJobTaskService();
@@ -265,7 +274,8 @@ class EhiExporter
         return $updatedJobTask;
     }
 
-    private function getXmlNode($path) {
+    private function getXmlNode($path)
+    {
         $contents = file_get_contents($path);
         if ($contents === false) {
             throw new \RuntimeException("Failed to find file " . $path);
@@ -280,14 +290,25 @@ class EhiExporter
         $xmlTableStructure = $this->getXmlNode($this->xmlConfigPath . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'openemr.openemr.xml');
         $xmlMetaStructure = $this->getXmlNode($this->xmlConfigPath . DIRECTORY_SEPARATOR . 'schemaspy'
             . DIRECTORY_SEPARATOR . 'schemas' . DIRECTORY_SEPARATOR . 'openemr.meta.xml');
-        $exportState = new ExportState($this->logger, $xmlTableStructure, $xmlMetaStructure, $jobTask);
+        $exportState = new Models\ExportState($this->logger, $xmlTableStructure, $xmlMetaStructure, $jobTask);
 
-        $tableDefinition = $exportState->createTableDefinition('patient_data');
-        $pidKey = new ExportKeyDefinition();
+        $pidKey = new Models\ExportKeyDefinition();
         $pidKey->foreignKeyTable = "patient_data";
         $pidKey->foreignKeyColumn = "pid";
-        $tableDefinition->addKeyValueList($pidKey, $patientPids);
-        $exportState->addTableDefinition($tableDefinition);
+
+        $specialTables = [
+            'patient_data'
+            , ExportOnsiteMessagesTableDefinition::TABLE_NAME
+            , ExportOnsiteMailTableDefinition::TABLE_NAME
+            , ExportEsignatureTableDefinition::TABLE_NAME
+            , ExportClinicalNotesFormTableDefinition::TABLE_NAME
+            , ExportFormsGroupsEncounterTableDefinition::TABLE_NAME
+        ];
+        foreach ($specialTables as $table) {
+            $tableDefinition = $exportState->createTableDefinition($table);
+            $tableDefinition->addKeyValueList($pidKey, $patientPids);
+            $exportState->addTableDefinition($tableDefinition);
+        }
 
         $maxCycleLimit = self::CYCLE_MAX_ITERATIONS_LIMIT;
         $iterations = 0;
@@ -453,8 +474,8 @@ class EhiExporter
     private function createDatabaseDocumentFromZip(EhiExportJobTask $jobTask, string $zipLocation, string $zipName): \Document
     {
         $folder = self::EHI_DOCUMENT_FOLDER;
-        $categoryId = sqlQuery('Select `id` FROM categories WHERE name=?', [self::EHI_DOCUMENT_CATEGORY]);
-        if ($categoryId === false) {
+        $categoryId = QueryUtils::fetchSingleValue('Select `id` FROM categories WHERE name=?', 'id', [self::EHI_DOCUMENT_CATEGORY]);
+        if ($categoryId === null) {
             throw new ExportException("document category id does not exist in system");
         }
 
@@ -486,72 +507,12 @@ class EhiExporter
         return $document;
     }
 
-    private function exportCustomTables(EhiExportJobTask $jobTask, ExportState $state)
+    private function exportCustomTables(EhiExportJobTask $jobTask, Models\ExportState $state)
     {
-        $this->exportEsignatureData($state);
-        $this->exportClinicalNotesForm($state);
-        $this->exportTherapyGroupForm($state);
-    }
-    private function exportClinicalNotesForm(ExportState $state) {
-        $tableDef = $state->getTableDefinitionForTable('forms');
-        $jobTask = $state->getJobTask();
-        // make sure we are exporting some of our forms objects here
-        if (isset($tableDef)) {
-            $sql = "SELECT `form_clinic_note`.* FROM `form_clinic_note` JOIN `forms` ON (`form_clinic_note`.`id` = `forms`.`form_id` AND `formdir`='clinic_note') WHERE `forms`.`pid` IN ("
-                . str_repeat("?, ", count($jobTask->getPatientIds()) - 1) . "? )";
-            $records = QueryUtils::fetchRecords($sql , $jobTask->getPatientIds());
-            if (!empty($records)) {
-                $this->writeCsvFile($jobTask, $records, 'form_clinic_note', $state->getTempSysDir());
-                $state->addExportResultTable('form_clinic_note' , count($records));
-            }
-        }
+        // if we have to do anything custom that is different than our custom table definition
     }
 
-    private function exportTherapyGroupForm(ExportState $state) {
-
-        // we have to custom export this form because it has no pid column and is not directly linked to the patient data
-        // however therapy_groups is linked to therapy_group_participants which is linked to patient_data so we will
-        // grab the groups table and from there we can grab our encounters form.
-        $tableDef = $state->getTableDefinitionForTable('therapy_groups');
-        $jobTask = $state->getJobTask();
-        // make sure we are exporting some of our forms objects here
-        if (isset($tableDef)) {
-            $groupRecords = $tableDef->getRecords();
-            if (!empty($groupRecords)) {
-                $groupRecordIds = array_column($groupRecords, 'group_id');
-                $sql = "SELECT form_groups_encounter.* FROM form_groups_encounter WHERE group_id IN ("
-                    . str_repeat("?, ", count($groupRecordIds) - 1) . "? )";
-                $records = QueryUtils::fetchRecords($sql, $jobTask->getPatientIds());
-                if (!empty($records)) {
-                    $this->writeCsvFile($jobTask, $records, 'form_groups_encounter', $state->getTempSysDir());
-                    $state->addExportResultTable('form_groups_encounter', count($records));
-                }
-
-                // now export the calendar events that are linked to the groups
-                // TODO: @adunsulag export calendar events that are linked to the groups
-            }
-        }
-    }
-    private function exportEsignatureData(ExportState $state)
-    {
-        $jobTask = $state->getJobTask();
-        $patientIds = $jobTask->getPatientIds();
-        $patientIdsCount = count($patientIds);
-        $sql = "SELECT * FROM `esign_signatures` WHERE `table`='forms' AND `tid` IN (select `id` FROM `forms` WHERE `pid` IN ( "
-            . str_repeat("?, ", $patientIdsCount - 1) . "? ) )";
-        $records = QueryUtils::fetchRecords($sql, $patientIds);
-
-        $encounterSql = "SELECT * FROM `esign_signatures` WHERE `table`='form_encounter' AND `tid` IN (select `encounter` FROM `form_encounter` WHERE `pid` IN ( "
-            . str_repeat("?, ", $patientIdsCount - 1) . "? ) )";
-        $encounterRecords = QueryUtils::fetchRecords($encounterSql, $patientIds);
-
-        $combinedRecords = array_merge($records, $encounterRecords);
-        unset($records);
-        unset($encounterRecords);
-        $this->writeCsvFile($jobTask, $combinedRecords, 'esign_signatures', $state->getTempSysDir());
-        $state->addExportResultTable('esign_signatures' , count($combinedRecords));
-    }
-    private function shouldProcessForeignKey(ExportKeyDefinition $definition)
+    private function shouldProcessForeignKey(Models\ExportKeyDefinition $definition)
     {
         // we don't want to traverse keys that are not unique as we risk jeopardizing patient data following the references
         if ($this->isNonUniqueKey($definition)) {
@@ -569,7 +530,8 @@ class EhiExporter
         return false;
     }
 
-    private function isNonUniqueKey(ExportKeyDefinition $definition) {
+    private function isNonUniqueKey(ExportKeyDefinition $definition)
+    {
         // everything in the forms table is ALREADY grabbed from the pid id so we don't need to try and grab some the
         // non-unique key form_id here since the data is already fetched that is related to the patient (assuming the forms
         // are filled out from the code properly)

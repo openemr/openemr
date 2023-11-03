@@ -1,8 +1,25 @@
 <?php
 
-namespace OpenEMR\Modules\EhiExporter;
+/**
+ * Export table definition class for a table.  Responsible for retrieving the records for a given
+ * table definition as well as holding all of the key values for the table.  The key values are used
+ * for retrieving the table records based upon all of the foreign key values that have been added to the table
+ * to filter on.  Table records are retrieved using the union (SQL OR clause) of all of the key values.
+ *
+ * Custom tables that have more specific queries can extend this class to override the getRecords method.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ *
+ * @author    Stephen Nielson <snielson@discoverandchange.com
+ * @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+namespace OpenEMR\Modules\EhiExporter\TableDefinitions;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition;
 
 class ExportTableDefinition
 {
@@ -81,7 +98,8 @@ class ExportTableDefinition
         return $this->hasNewData;
     }
 
-    public function setSelectClause(string $clause) {
+    public function setSelectClause(string $clause)
+    {
         $this->selectClause = $clause;
     }
 
@@ -102,6 +120,11 @@ class ExportTableDefinition
     public function getSelectClause()
     {
         return $this->selectClause;
+    }
+
+    protected function getHashmapForKey($key)
+    {
+        return $this->keyColumnsHashmap[$key] ?? [];
     }
 
     public function getRecords()
@@ -160,7 +183,8 @@ class ExportTableDefinition
     /**
      * @return string[]
      */
-    public function getColumnNames() : array {
+    public function getColumnNames(): array
+    {
         return $this->tableColumnNames;
     }
 }

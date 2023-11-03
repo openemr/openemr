@@ -1,7 +1,7 @@
 <?php
 
 /**
- *
+ * Handles specific configuration values for this module.
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org

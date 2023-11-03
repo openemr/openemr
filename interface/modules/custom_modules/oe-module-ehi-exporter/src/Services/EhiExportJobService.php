@@ -1,5 +1,16 @@
 <?php
 
+/**
+ * Handles the saving, retriving, and updating of ehi_export_job records.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ *
+ * @author    Stephen Nielson <snielson@discoverandchange.com
+ * @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Modules\EhiExporter\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
