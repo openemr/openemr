@@ -305,9 +305,13 @@ class EhiExporter
             , ExportFormsGroupsEncounterTableDefinition::TABLE_NAME
         ];
         foreach ($specialTables as $table) {
-            $tableDefinition = $exportState->createTableDefinition($table);
-            $tableDefinition->addKeyValueList($pidKey, $patientPids);
-            $exportState->addTableDefinition($tableDefinition);
+            // some tables are not installed yet and must be skipped if they do not exist
+            // such as the ExportClinicalNotesFormTableDefinition::TABLE_NAME which must be specially handled
+            if (QueryUtils::existsTable($table)) {
+                $tableDefinition = $exportState->createTableDefinition($table);
+                $tableDefinition->addKeyValueList($pidKey, $patientPids);
+                $exportState->addTableDefinition($tableDefinition);
+            }
         }
 
         $maxCycleLimit = self::CYCLE_MAX_ITERATIONS_LIMIT;
@@ -340,9 +344,6 @@ class EhiExporter
          */
         while ($exportState->hasTableDefinitions() && $iterations++ <= $maxCycleLimit) {
             $tableDefinition = $exportState->getNextTableDefinitionToProcess();
-            if ($this->shouldSkipTableDefinition($tableDefinition)) {
-                continue;
-            }
             // otherwise if we have no records we skip as well.
             $records = $tableDefinition->getRecords();
             if (empty($records)) {
@@ -678,15 +679,6 @@ class EhiExporter
         if (!$zip->addFromString("README", $readmeContents)) {
             $this->logger->errorLogCaller("Failed to add README file");
         }
-    }
-
-    private function shouldSkipTableDefinition(ExportTableDefinition $tableDefinition)
-    {
-        // TODO: @adunsulag look at deprecating this as we now skip over keys if the table doesn't exist.
-
-        // we need to check if the table even exists in the database, some tables do not get installed (such as form tables)
-        // without user intervention and we need to skip over those tables
-        return !QueryUtils::existsTable($tableDefinition->table);
     }
 
     private function createExportTasksFromJobWithoutDocuments(EhiExportJob $job, array &$jobPatientIds, int $jobPatientIdsCount)

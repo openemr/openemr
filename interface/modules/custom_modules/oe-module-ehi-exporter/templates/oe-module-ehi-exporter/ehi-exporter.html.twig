@@ -105,7 +105,7 @@
             </div>
             <div>
                 <label>
-                    {{ "Zip file limit setting in MBs"|xlt }} ({{ "Max Setting is 4000MB"|xlt }})
+                    {{ "Zip file limit setting in MBs (Max Setting is 4000MB)"|xlt }}
                     <input type="text" name="file_size_limit" value="{{ exportSizeSettings.default_zip_size|attr }}" />
                 </label>
                 <p>{{ "Exports will break patients up at this file size, if a single patient's file size exceeds this limit the file size may be larger than this setting."|xlt}}</p>

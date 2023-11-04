@@ -39,7 +39,7 @@ CREATE TABLE `ehi_export_job_tasks`(
      `creation_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
      `completion_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
      `status` VARCHAR(20) NOT NULL DEFAULT 'pending' COMMENT 'pending=task export has not started, processing=task export in progress, failed=error occurred in the task, completed=export task completed without errors',
-     `error_message` TEXT DEFAULT NULL COMMENT 'The error that occurred in the export process, only populated if status=failed',
+     `error_message` TEXT COMMENT 'The error that occurred in the export process, only populated if status=failed',
      PRIMARY KEY(`ehi_task_id`),
      CONSTRAINT `FK_task_ehi_export_job_id` FOREIGN KEY (`ehi_export_job_id`) REFERENCES `ehi_export_job`(`ehi_export_job_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
      CONSTRAINT `FK_task_ehi_export_document_id` FOREIGN KEY (`export_document_id`) REFERENCES `documents`(`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
