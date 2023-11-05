@@ -286,7 +286,7 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
         $content = ob_get_clean();
         $pdf2->WriteHTML($content);
         $temp_filename = $STMT_TEMP_FILE_PDF;
-        $pdf2->Output($temp_filename, 'S');
+        $pdf2->Output($temp_filename, 'F');
     } else {
         $pdf = new Cezpdf('LETTER');//pdf creation starts
         $pdf->ezSetMargins(45, 9, 36, 10);
