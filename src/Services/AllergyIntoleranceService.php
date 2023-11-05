@@ -88,7 +88,7 @@ class AllergyIntoleranceService extends BaseService
             FROM users
             -- US CORE only allows physicians or patients to be our allergy recorder
             -- so we will filter out anyone who is not actually a practitioner (May 14th 2021)
-            WHERE users.authorized = 1
+            WHERE (users.npi != '' OR users.npi IS NOT NULL)
         ) practitioners ON practitioners.username = lists.user
         LEFT JOIN (
             select
