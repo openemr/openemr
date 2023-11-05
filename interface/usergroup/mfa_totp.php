@@ -187,7 +187,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                             <br />
                                             <p><?php echo xlt("Or paste in the following code into your authenticator app"); ?></p>
                                             <p><?php echo $mfaAuth->getSecret(); ?></p>
-                                            <p><?php echo xlt('Example authenticator apps include'); ?></p>:
+                                            <p><?php echo xlt('Example authenticator apps include'); ?>:</p>
                                             <div class="col-sm-4 offset-sm-4">
                                                 <ul>
                                                     <li><?php echo xlt('Google Auth'); ?>
