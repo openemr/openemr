@@ -17,4 +17,10 @@ class ExportTableResult
 {
     public $count;
     public $tableName;
+
+    public function fromJSON(array $exportedTable)
+    {
+        $this->tableName = $exportedTable['tableName'] ?? '';
+        $this->count = $exportedTable['count'] ?? 0;
+    }
 }

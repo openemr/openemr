@@ -15,7 +15,9 @@ namespace OpenEMR\Modules\EhiExporter\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Modules\EhiExporter\Models\EhiExportJobTask;
+use OpenEMR\Modules\EhiExporter\Models\ExportResult;
 use OpenEMR\Services\BaseService;
+use OpenEMR\Validators\ProcessingResult;
 
 class EhiExportJobTaskService extends BaseService
 {
@@ -25,6 +27,36 @@ class EhiExportJobTaskService extends BaseService
     public function __construct()
     {
         parent::__construct(self::TABLE_NAME);
+    }
+
+    public function getTaskFromId(int $taskId, bool $loadPatients = true): ?EhiExportJobTask
+    {
+        $ehiExportJobTask = null;
+        $processingResult = $this->search(['ehi_task_id' => $taskId]);
+        if ($processingResult->hasData()) {
+            $taskRecord = ProcessingResult::extractDataArray($processingResult)[0];
+            $ehiExportJobTask = new EhiExportJobTask();
+            $ehiExportJobTask->ehi_task_id = $taskRecord['ehi_task_id'];
+            $ehiExportJobTask->ehi_export_job_id = $taskRecord['ehi_export_job_id'];
+            $ehiExportJobTask->export_document_id = $taskRecord['export_document_id'];
+            $ehiExportJobTask->error_message = $taskRecord['error_message'];
+            $ehiExportJobTask->setStatus($taskRecord['status']);
+            if (isset($ehiExportJobTask->export_document_id)) {
+                $ehiExportJobTask->document = new \Document($ehiExportJobTask->export_document_id);
+            }
+
+            if (isset($taskRecord['exported_result'])) {
+                $exportedResult = json_decode($taskRecord['exported_result'], true);
+                $exportResult = new ExportResult();
+                $exportResult->fromJSON($exportedResult);
+                $ehiExportJobTask->exportedResult = $exportResult;
+            }
+            if ($loadPatients) {
+                $patientPids = $this->getPatientPidsForJobTaskId($ehiExportJobTask->getId());
+                $ehiExportJobTask->addPatientIdList($patientPids);
+            }
+        }
+        return $ehiExportJobTask;
     }
 
     public function insert(EhiExportJobTask $task)
@@ -78,6 +110,15 @@ class EhiExportJobTaskService extends BaseService
         } else {
             $sql .= ",error_message= NULL ";
         }
+        if (isset($task->exportedResult)) {
+            $sql .= ",exported_result= ? ";
+            $bind[] = json_encode($task->exportedResult);
+        } else {
+            $sql .= ",exported_result= NULL ";
+        }
+
+        $sql .= " WHERE ehi_task_id = ? ";
+        $bind[] = $task->getId();
 
         QueryUtils::startTransaction();
         try {
@@ -89,5 +130,11 @@ class EhiExportJobTaskService extends BaseService
             throw $exception;
         }
         return $task;
+    }
+
+    private function getPatientPidsForJobTaskId(?int $taskId)
+    {
+        return QueryUtils::fetchTableColumn("SELECT pid FROM " . self::TABLE_NAME_PATIENT_JOIN_TABLE
+            . " WHERE ehi_task_id = ?", 'pid', [$taskId]);
     }
 }

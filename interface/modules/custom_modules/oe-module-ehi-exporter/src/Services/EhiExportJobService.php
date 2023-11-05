@@ -17,6 +17,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Modules\EhiExporter\Models\EhiExportJob;
 use OpenEMR\Modules\EhiExporter\Models\EhiExportJobTask;
 use OpenEMR\Services\BaseService;
+use OpenEMR\Validators\ProcessingResult;
 
 class EhiExportJobService extends BaseService
 {
@@ -64,8 +65,10 @@ class EhiExportJobService extends BaseService
     public function update(EhiExportJob $job)
     {
         $sql = "UPDATE " . self::TABLE_NAME . " SET `status`= ?" . ($job->isCompleted() ? ",`completion_date`= NOW() " : "");
+        $sql .= " WHERE `ehi_export_job_id` = ? ";
         $bind = [
             $job->getStatus()
+            ,$job->getId()
         ];
         QueryUtils::startTransaction();
         try {
@@ -77,5 +80,34 @@ class EhiExportJobService extends BaseService
             throw $exception;
         }
         return $job;
+    }
+
+    public function getJobById(?int $ehi_export_job_id, $loadPatients = false): ?EhiExportJob
+    {
+        $ehiExportJob = null;
+        $processingResult = $this->search(['ehi_export_job_id' => $ehi_export_job_id]);
+        if ($processingResult->hasData()) {
+            $record = ProcessingResult::extractDataArray($processingResult)[0];
+            $ehiExportJob = new EhiExportJob();
+            $ehiExportJob->setId($record['ehi_export_job_id']);
+            $ehiExportJob->setStatus($record['status']);
+            $ehiExportJob->setDocumentLimitSize($record['document_limit_size']);
+            $ehiExportJob->include_patient_documents = $record['include_patient_documents'] == 1;
+            $ehiExportJob->user_id = $record['user_id'];
+            $ehiExportJob->uuid = $record['uuid'];
+
+            // now we need to grab all of the patient ids here
+            if ($loadPatients) {
+                $patientPids = $this->getPatientPidsForJobId($ehiExportJob->getId());
+                $ehiExportJob->addPatientIdList($patientPids);
+            }
+        }
+        return $ehiExportJob;
+    }
+
+    private function getPatientPidsForJobId(?int $jobId)
+    {
+        return QueryUtils::fetchTableColumn("SELECT pid FROM " . self::TABLE_NAME_PATIENT_JOIN_TABLE
+            . " WHERE ehi_export_job_id = ?", 'pid', [$jobId]);
     }
 }

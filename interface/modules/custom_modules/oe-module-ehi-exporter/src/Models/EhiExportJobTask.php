@@ -96,4 +96,29 @@ class EhiExportJobTask
     {
         return !empty($this->pids);
     }
+
+    public function getJSON()
+    {
+        $data = [
+            'status' => $this->status
+            , 'taskId' => $this->ehi_task_id
+            , 'includePatientDocuments' => false
+        ];
+        if (isset($this->ehiExportJob)) {
+            $data['includePatientDocuments'] = $this->ehiExportJob->include_patient_documents;
+        }
+        if (isset($this->exportedResult)) {
+            // so we can update progress on the client side
+            $data['exportedResult'] = $this->exportedResult;
+        }
+        if ($this->status == 'completed') {
+            $data['hashAlgoTitle'] = $this->document->get_hash_algo_title();
+            $data['hash'] = $this->document->get_hash();
+            $data['downloadLink'] = $this->exportedResult->downloadLink;
+            $data['downloadName'] = $this->document->get_name();
+        } else if ($this->status == 'failed') {
+            $data['errorMessage'] = $this->error_message;
+        }
+        return $data;
+    }
 }
