@@ -192,7 +192,7 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                     continue;
                 }
 
-                $relative_link = "/interface/modules/" . $modulePath . "/" . $hookrow['mod_relative_link'] . $hookrow['path'];
+                $relative_link = "/interface/modules/" . $modulePath . "/" . ($hookrow['mod_relative_link'] ?? '') . $hookrow['path'];
                 $mod_nick_name = $hookrow['menu_name'] ? $hookrow['menu_name'] : 'NoName';
 
                 $subEntry = new \stdClass();
