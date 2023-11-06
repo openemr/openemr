@@ -31,6 +31,7 @@ use OpenEMR\Modules\EhiExporter\Models\ExportResult;
 use OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition;
 use OpenEMR\Modules\EhiExporter\Models\EhiExportJobTask;
+use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTrackAnythingFormTableDefinition;
 
 class ExportState
 {
@@ -283,6 +284,8 @@ class ExportState
             return new ExportClinicalNotesFormTableDefinition($tableName);
         } else if ($tableName == ExportFormsGroupsEncounterTableDefinition::TABLE_NAME) {
             return new ExportFormsGroupsEncounterTableDefinition($tableName);
+        } else if ($tableName == ExportTrackAnythingFormTableDefinition::TABLE_NAME) {
+            return new ExportTrackAnythingFormTableDefinition($tableName);
         }
         return new \OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition($tableName);
     }

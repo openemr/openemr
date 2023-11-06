@@ -33,6 +33,7 @@ use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportEsignatureTableDefinition
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportFormsGroupsEncounterTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportOnsiteMailTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportOnsiteMessagesTableDefinition;
+use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTrackAnythingFormTableDefinition;
 use OpenEMR\Services\DocumentService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Modules\EhiExporter\Models\ExportState;
@@ -52,7 +53,7 @@ class EhiExporter
      */
     const EHI_DOCUMENT_FOLDER = 'system-ehi-export';
 
-    const PARENT_FK_TABLES_TRAVERSAL = ['patient_data', 'insurance_data', 'eligibility_verification', 'form_vitals', 'lbt_data',  'lbf_data', 'patient_tracker', 'documents'];
+    const PARENT_FK_TABLES_TRAVERSAL = ['patient_data', 'insurance_data', 'eligibility_verification', 'form_vitals', 'lbt_data',  'lbf_data', 'patient_tracker', 'documents', 'form_track_anything'];
     const ZIP_MIME_TYPE = "application/zip";
     const PATIENT_TASK_BATCH_FETCH_LIMIT = 5000;
     const CYCLE_MAX_ITERATIONS_LIMIT = 1500;
@@ -303,6 +304,7 @@ class EhiExporter
             , ExportEsignatureTableDefinition::TABLE_NAME
             , ExportClinicalNotesFormTableDefinition::TABLE_NAME
             , ExportFormsGroupsEncounterTableDefinition::TABLE_NAME
+            , ExportTrackAnythingFormTableDefinition::TABLE_NAME
         ];
         foreach ($specialTables as $table) {
             // some tables are not installed yet and must be skipped if they do not exist
