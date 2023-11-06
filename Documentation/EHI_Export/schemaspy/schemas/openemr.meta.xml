@@ -1234,21 +1234,39 @@
             </column>
         </table> -->
 
-<!--        - Track Anything-->
-        <!-- TODO: handle FK following on other tables here -->
+        <!--        - Track Anything-->
         <table name="form_track_anything" comments="Clinical note form that allows clinicians to provide point in time and longitudinal tracking of any data element they configure">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
             <column name="pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
-<!--            <column name="procedure_type_id">-->
-<!--                <foreignKey table="form_track_anything_type" column="track_anything_type_id" />-->
-<!--            </column>-->
+            <column name="procedure_type_id">
+                <foreignKey table="form_track_anything_type" column="track_anything_type_id" />
+            </column>
+            <column name="name"  comments="The name of the type of the data element being tracked" />
         </table>
-<!--        <table name="form_track_anything_results">-->
-<!--            <column name="track_anything_id">-->
-<!--                <foreignKey table="form_track_anything" column="id" />-->
-<!--            </column>-->
-<!--        </table>-->
+        <table name="form_track_anything_type" comments="Represents the category grouping / track of the data element being tracked via the track_anything form">
+            <column name="name"  comments="The name of the type of the data element being tracked" />
+            <column name="description"  comments="Description of the data element type being tracked" />
+            <column name="parent"  comments="This is a reference to a parent form_track_anything_type element. 0=There is no parent, if !0 then it is the track_anything_type_id for the parent element" />
+            <column name="position"  comments="The order this element should be filled out in the track anything population mechanism" />
+            <column name="active"  comments="1=The element is active and allows for data entry, 0=data entry is disabled and the element is not displayed to the user" />
+        </table>
+        <table name="form_track_anything_results">
+            <column name="id" comments="Surrogate ID of the result record used as the primary incrementing key"/>
+            <column name="track_anything_id">
+                <foreignKey table="form_track_anything" column="id" />
+            </column>
+            <column name="track_timestamp" comments="The time this result was recorded" />
+            <column name="itemid" comments="The data element that is being tracked for this result that is found in the form_track_anything_type table">
+                <foreignKey table="form_track_anything_type" column="track_anything_type_id" />
+            </column>
+            <column name="result" comments="The user entered response for this data element being tracked" />
+            <column name="comment" comments="UNUSED" />
+            <column name="notes" comments="UNUSED" />
+        </table>
 
 
 <!--        - Social Screening Tool-->
@@ -1471,11 +1489,27 @@
             </column>
         </table>
 
-        <table name="claims" comments="Insurance Billing Claims">
+        <table name="claims" comments="Insurance Billing Claims - Used for tracking and submission of billing claims to payers">
             <column name="patient_id"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
             <!-- TODO: @adunsulag need to populate -->
+            <column name="encounter_id" comments="Encounter identifier - Identifier for the patient encounter associated with the claim">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="version" comments="Claim version - Incremented in code to track changes in claims" />
+            <column name="payer_id"  comments="The insurance company being billed. If this is self-pay the id will be 0">
+                <foreignKey table="insurance_companies" column="id" />
+            </column>
+            <column name="status" comments="Claim status - Status of the billing claim" />
+            <column name="payer_type" comments="Payer type - Type of the payer (e.g., public or private)" />
+            <column name="bill_process" comments="Billing process - Process related to billing" />
+            <column name="bill_time" comments="Billing time - Time of billing" />
+            <column name="process_time" comments="Processing time - Time of claim processing" />
+            <column name="process_file" comments="Processing file - File associated with claim processing" />
+            <column name="target" comments="Claim target - Target associated with the claim" />
+            <column name="x12_partner_id" comments="X12 Partner identifier - Identifier for the X12 partner.  Empty in export" exclude="true" />
+            <column name="submitted_claim" comments="Submitted claim - Claims form data" />
         </table>
 
         <table name="voids" comments="Tracks a voided receipt or checkout for a patient">

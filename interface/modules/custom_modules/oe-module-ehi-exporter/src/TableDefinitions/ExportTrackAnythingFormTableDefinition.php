@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Export table definition for the form_clinic_note table.  Handles the custom query for exporting
- * this table since the table does not have a foreign key to the patient_data table like the other form
+ * Export table definition for the form_track_anything table.  Handles the custom query for exporting
+ * this table since the table does not save off the patient pid for the foreign key to the patient_data table like the other form
  * tables do and instead must be mapped through the forms table.
  *
  * @package   OpenEMR
@@ -18,10 +18,10 @@ namespace OpenEMR\Modules\EhiExporter\TableDefinitions;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition;
 
-class ExportClinicalNotesFormTableDefinition extends ExportTableDefinition
+class ExportTrackAnythingFormTableDefinition extends ExportTableDefinition
 {
-    const TABLE_NAME = 'form_clinic_note';
-    const FORM_DIR = "clinic_note";
+    const TABLE_NAME = 'form_track_anything';
+    const FORM_DIR = "track_anything";
 
     public function getRecords()
     {

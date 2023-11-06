@@ -256,7 +256,7 @@
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="null" name="template_content" nullable="false" remarks="Digital document template that is assigned to a patient to be filled out.  Uses Domain Specific Language (DSL) template tags to inject specific functionality into the template for patients to fill out.  Patient data template tags can be found at the following URL: https://www.open-emr.org/wiki/index.php/Patient_Portal_Document_Templates" size="0" type="Unknown" typeCode="12"/>
       </table>
-      <table catalog="openemr" name="documents" numRows="303" remarks="Stores all of the digital documents that are connected to a patient." type="TABLE">
+      <table catalog="openemr" name="documents" numRows="600" remarks="Stores all of the digital documents that are connected to a patient." type="TABLE">
          <column autoUpdated="false" defaultValue="0" digits="0" id="0" name="id" nullable="false" remarks="Surrogate id of the record used as the primary incrementing key" size="10" type="INT" typeCode="4">
             <child catalog="openemr" column="foreign_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" schema="openemr" table="notes"/>
          </column>
@@ -451,7 +451,7 @@
             <column ascending="true" name="patient_id"/>
          </index>
       </table>
-      <table catalog="openemr" name="external_encounters" numRows="62418" remarks="Holds data on encounters that exist outside of this EMR that were in a patient CCDA import" type="TABLE">
+      <table catalog="openemr" name="external_encounters" numRows="62342" remarks="Holds data on encounters that exist outside of this EMR that were in a patient CCDA import" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="ee_id" nullable="false" remarks="" size="10" type="INT" typeCode="4"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="ee_date" nullable="true" remarks="" size="10" type="DATE" typeCode="91"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="ee_pid" nullable="true" remarks="The internal patient identifier" size="10" type="INT" typeCode="4">
@@ -466,7 +466,7 @@
             <column ascending="true" name="ee_id"/>
          </index>
       </table>
-      <table catalog="openemr" name="external_procedures" numRows="90509" remarks="Holds data on external procedures that exist outside of this EMR that were in a patient CCDA import" type="TABLE">
+      <table catalog="openemr" name="external_procedures" numRows="88896" remarks="Holds data on external procedures that exist outside of this EMR that were in a patient CCDA import" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="ep_id" nullable="false" remarks="" size="10" type="INT" typeCode="4"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="ep_date" nullable="true" remarks="" size="10" type="DATE" typeCode="91"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="ep_code_type" nullable="true" remarks="" size="20" type="VARCHAR" typeCode="12"/>
@@ -542,7 +542,7 @@
             <column ascending="true" name="uuid"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_aftercare_plan" numRows="1" remarks="Table for chart notes on patient aftercare plans, including Acute Intoxication/Withdrawal, Emotional/Behavioral Conditions and Complications, and Relapse Potential for patients' care plans." type="TABLE">
+      <table catalog="openemr" name="form_aftercare_plan" remarks="Table for chart notes on patient aftercare plans, including Acute Intoxication/Withdrawal, Emotional/Behavioral Conditions and Complications, and Relapse Potential for patients' care plans." type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="Unique identifier for each aftercare plan entry. Primary key." size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="date" nullable="true" remarks="Date and time when the aftercare plan was created." size="19" type="DATETIME" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="pid" nullable="true" remarks="The internal patient identifier" size="19" type="BIGINT" typeCode="-5">
@@ -572,7 +572,7 @@
             <column ascending="true" name="id"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_ankleinjury" numRows="1" remarks="Represents a provider's evaluation of an ankle injury including x-ray information, diagnosis, and recommended treatments" type="TABLE">
+      <table catalog="openemr" name="form_ankleinjury" remarks="Represents a provider's evaluation of an ankle injury including x-ray information, diagnosis, and recommended treatments" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="null" name="ankle_additional_diagnosis" nullable="false" remarks="Additional diagnosis for the ankle injury" size="0" type="Unknown" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="null" name="ankle_date_of_injury" nullable="false" remarks="Date of the ankle injury" size="0" type="Unknown" typeCode="12"/>
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="Surrogate id of the record used as the primary incrementing key" size="19" type="BIGINT" typeCode="-5"/>
@@ -610,7 +610,7 @@
             <column ascending="true" name="id"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_bronchitis" numRows="1" remarks="Records symptoms, diagnosis, and recommended treatments for bronchitis in a patient" type="TABLE">
+      <table catalog="openemr" name="form_bronchitis" remarks="Records symptoms, diagnosis, and recommended treatments for bronchitis in a patient" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="Surrogate id of the record used as the primary incrementing key" size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="date" nullable="true" remarks="Date when the record was created" size="19" type="DATETIME" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="pid" nullable="true" remarks="The internal patient identifier" size="19" type="BIGINT" typeCode="-5">
@@ -834,7 +834,7 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="18" name="reason_date_high" nullable="true" remarks="The date the explanation reason for the care plan entry value ends" size="19" type="DATETIME" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="19" name="reason_status" nullable="true" remarks="" size="31" type="VARCHAR" typeCode="12"/>
       </table>
-      <table catalog="openemr" name="form_clinic_note" numRows="1" remarks="Holds patient history, provider examination conducted, patient treatment plan, and follow up status" type="TABLE">
+      <table catalog="openemr" name="form_clinic_note" remarks="Holds patient history, provider examination conducted, patient treatment plan, and follow up status" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="The primary key which is the same as the forms.form_id column" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="form_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="forms"/>
          </column>
@@ -913,7 +913,7 @@
             <column ascending="true" name="id"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_encounter" numRows="53311" remarks="Represents the information related to a patient's visit to a healthcare provider.  This is different than an appointment as this table tracks the actual service of care" type="TABLE">
+      <table catalog="openemr" name="form_encounter" numRows="60817" remarks="Represents the information related to a patient's visit to a healthcare provider.  This is different than an appointment as this table tracks the actual service of care" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="uuid" nullable="true" remarks="" size="16" type="BINARY" typeCode="-2"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="date" nullable="true" remarks="" size="19" type="DATETIME" typeCode="93"/>
@@ -978,7 +978,7 @@
             <column ascending="true" name="uuid"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_eye_acuity" numRows="1" remarks="This table is related to recording visual acuity measurements for different eye conditions." type="TABLE">
+      <table catalog="openemr" name="form_eye_acuity" numRows="2" remarks="This table is related to recording visual acuity measurements for different eye conditions." type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="Links to forms.form_id" size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="pid" nullable="true" remarks="The internal patient identifier" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
@@ -1020,7 +1020,7 @@
             <column ascending="true" name="pid"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_eye_antseg" numRows="1" remarks="This table is used to store data related to anterior segment eye examinations, which typically include details about the front portion of the eye, such as the cornea, lens, iris, and pupil." type="TABLE">
+      <table catalog="openemr" name="form_eye_antseg" numRows="2" remarks="This table is used to store data related to anterior segment eye examinations, which typically include details about the front portion of the eye, such as the cornea, lens, iris, and pupil." type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="Links to forms.form_id" size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="pid" nullable="true" remarks="" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
@@ -1071,7 +1071,7 @@
             <column ascending="true" name="pid"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_eye_base" numRows="1" remarks="Eye form base container record that all other eye forms are connected to" type="TABLE">
+      <table catalog="openemr" name="form_eye_base" numRows="2" remarks="Eye form base container record that all other eye forms are connected to" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="Links to forms.form_id" size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="date" nullable="true" remarks="" size="19" type="DATETIME" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="pid" nullable="true" remarks="The internal patient identifier" size="19" type="BIGINT" typeCode="-5">
@@ -1086,7 +1086,7 @@
             <column ascending="true" name="id"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_eye_biometrics" numRows="1" remarks="This table stores biometric data related to the eye, including axial length, pupil diameter, and other measurements." type="TABLE">
+      <table catalog="openemr" name="form_eye_biometrics" numRows="2" remarks="This table stores biometric data related to the eye, including axial length, pupil diameter, and other measurements." type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="Links to forms.form_id" size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="pid" nullable="true" remarks="The internal patient identifier" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
@@ -1116,7 +1116,7 @@
             <column ascending="true" name="pid"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_eye_external" numRows="1" remarks="This table is used for recording external eye examination findings." type="TABLE">
+      <table catalog="openemr" name="form_eye_external" numRows="2" remarks="This table is used for recording external eye examination findings." type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="Links to forms.form_id" size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="pid" nullable="true" remarks="The internal patient identifier" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
@@ -1158,7 +1158,7 @@
             <column ascending="true" name="pid"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_eye_hpi" numRows="1" remarks="This table stores the history of present illness (HPI) information related to eye conditions." type="TABLE">
+      <table catalog="openemr" name="form_eye_hpi" numRows="2" remarks="This table stores the history of present illness (HPI) information related to eye conditions." type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="Links to forms.form_id" size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="pid" nullable="true" remarks="The internal patient identifier" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
@@ -1205,7 +1205,7 @@
             <column ascending="true" name="pid"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_eye_locking" numRows="1" remarks="Used for tracking the editing status of a form and whether it is currently being edited by a user" type="TABLE">
+      <table catalog="openemr" name="form_eye_locking" numRows="2" remarks="Used for tracking the editing status of a form and whether it is currently being edited by a user" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="Links to forms.form_id" size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="pid" nullable="true" remarks="The internal patient identifier" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
@@ -1396,7 +1396,7 @@
             <column ascending="true" name="id"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_eye_neuro" numRows="1" remarks="This table includes numerous fields for recording the results of neurological tests and assessments, such as near and distant vision, motility measurements, comments, and various neurological parameters." type="TABLE">
+      <table catalog="openemr" name="form_eye_neuro" numRows="2" remarks="This table includes numerous fields for recording the results of neurological tests and assessments, such as near and distant vision, motility measurements, comments, and various neurological parameters." type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="Links to forms.form_id" size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="pid" nullable="true" remarks="The internal patient identifier" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
@@ -1489,7 +1489,7 @@
             <column ascending="true" name="pid"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_eye_postseg" numRows="1" remarks="This table is used for storing data related to posterior segment eye examinations, which typically involve the back of the eye, including the retina, optic disc, macula, and blood vessels." type="TABLE">
+      <table catalog="openemr" name="form_eye_postseg" numRows="2" remarks="This table is used for storing data related to posterior segment eye examinations, which typically involve the back of the eye, including the retina, optic disc, macula, and blood vessels." type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="Links to forms.form_id" size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="pid" nullable="true" remarks="The internal patient identifier" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
@@ -1526,7 +1526,7 @@
             <column ascending="true" name="pid"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_eye_refraction" numRows="1" remarks="This table is used for recording eye refraction details, including sphere, cylinder, axis, prism, and base measurements." type="TABLE">
+      <table catalog="openemr" name="form_eye_refraction" numRows="2" remarks="This table is used for recording eye refraction details, including sphere, cylinder, axis, prism, and base measurements." type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="Links to forms.form_id" size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="pid" nullable="true" remarks="The internal patient identifier" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
@@ -1603,7 +1603,7 @@
             <column ascending="true" name="pid"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_eye_ros" numRows="1" remarks="This table stores review of systems (ROS) information related to various aspects of the eye and its associated systems." type="TABLE">
+      <table catalog="openemr" name="form_eye_ros" numRows="2" remarks="This table stores review of systems (ROS) information related to various aspects of the eye and its associated systems." type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="Links to forms.form_id" size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="pid" nullable="true" remarks="The internal patient identifier" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
@@ -1630,7 +1630,7 @@
             <column ascending="true" name="pid"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_eye_vitals" numRows="1" remarks="This table is used for recording vital signs and measurements related to the eye." type="TABLE">
+      <table catalog="openemr" name="form_eye_vitals" numRows="2" remarks="This table is used for recording vital signs and measurements related to the eye." type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="Links to forms.form_id" size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="pid" nullable="true" remarks="The internal patient identifier" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
@@ -1699,7 +1699,7 @@
             <parent catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="users"/>
          </column>
       </table>
-      <table catalog="openemr" name="form_group_attendance" numRows="1" remarks="Group encounter form for tracking the attendance of therapy participants to a group session encounter" type="TABLE">
+      <table catalog="openemr" name="form_group_attendance" remarks="Group encounter form for tracking the attendance of therapy participants to a group session encounter" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="The primary key which is the same as the forms.form_id column" size="19" type="BIGINT" typeCode="-5">
             <child catalog="openemr" column="form_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="therapy_groups_participant_attendance"/>
             <parent catalog="openemr" column="form_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="forms"/>
@@ -1819,7 +1819,7 @@
             <column ascending="true" name="id"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_note" numRows="1" remarks="Work/School note written by a provider for a patient to provide documentation of their medical condition to their work or school" type="TABLE">
+      <table catalog="openemr" name="form_note" remarks="Work/School note written by a provider for a patient to provide documentation of their medical condition to their work or school" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="The primary key which is the same as the forms.form_id column" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="form_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="forms"/>
          </column>
@@ -2140,7 +2140,7 @@
             <column ascending="true" name="id"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_ros" numRows="1" remarks="Review of Systems observations of the patient. Providers can use this form or the form_reviewofs" type="TABLE">
+      <table catalog="openemr" name="form_ros" remarks="Review of Systems observations of the patient. Providers can use this form or the form_reviewofs" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT" typeCode="4"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="pid" nullable="false" remarks="The internal patient identifier" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
@@ -2439,7 +2439,7 @@
             <column ascending="true" name="id"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_soap" numRows="1" remarks="Holds Subjective, Objective, Assessment, and Plan (SOAP) notes" type="TABLE">
+      <table catalog="openemr" name="form_soap" remarks="Holds Subjective, Objective, Assessment, and Plan (SOAP) notes" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="date" nullable="true" remarks="" size="19" type="DATETIME" typeCode="93"/>
          <column autoUpdated="false" defaultValue="0" digits="0" id="2" name="pid" nullable="true" remarks="The internal patient identifier" size="19" type="BIGINT" typeCode="-5">
@@ -2479,20 +2479,58 @@
             <column ascending="true" name="ID"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_track_anything" remarks="Clinical note form that allows clinicians to provide point in time and longitudinal tracking of any data element they configure" type="TABLE">
-         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5"/>
+      <table catalog="openemr" name="form_track_anything" numRows="5" remarks="Clinical note form that allows clinicians to provide point in time and longitudinal tracking of any data element they configure" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="The primary key which is the same as the forms.form_id column" size="19" type="BIGINT" typeCode="-5">
+            <child catalog="openemr" column="track_anything_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="form_track_anything_results"/>
+            <parent catalog="openemr" column="form_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="forms"/>
+         </column>
          <column autoUpdated="false" defaultValue="current_timestamp()" digits="0" id="1" name="date" nullable="false" remarks="" size="19" type="TIMESTAMP" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="null" name="name" nullable="false" remarks="The name of the type of the data element being tracked" size="0" type="Unknown" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="pid" nullable="true" remarks="The internal patient identifier" size="10" type="INT" typeCode="4">
             <parent catalog="openemr" column="pid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="procedure_type_id" nullable="true" remarks="" size="19" type="BIGINT" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="procedure_type_id" nullable="true" remarks="" size="19" type="BIGINT" typeCode="-5">
+            <parent catalog="openemr" column="track_anything_type_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="form_track_anything_type"/>
+         </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="comment" nullable="true" remarks="" size="255" type="VARCHAR" typeCode="12"/>
          <primaryKey column="id" sequenceNumberInPK="1"/>
          <index name="PRIMARY" unique="true">
             <column ascending="true" name="id"/>
          </index>
       </table>
-      <table catalog="openemr" name="form_transfer_summary" numRows="1" remarks="Records transfer summary of care and is an alternative to recording referrals in the transactions table" type="TABLE">
+      <table catalog="openemr" name="form_track_anything_results" numRows="6" remarks="" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="Surrogate ID of the result record used as the primary incrementing key" size="19" type="BIGINT" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="track_anything_id" nullable="true" remarks="" size="19" type="BIGINT" typeCode="-5">
+            <parent catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="form_track_anything"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="track_timestamp" nullable="true" remarks="The time this result was recorded" size="19" type="DATETIME" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="itemid" nullable="true" remarks="The data element that is being tracked for this result that is found in the form_track_anything_type table" size="19" type="BIGINT" typeCode="-5">
+            <parent catalog="openemr" column="track_anything_type_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="form_track_anything_type"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="result" nullable="true" remarks="The user entered response for this data element being tracked" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="comment" nullable="true" remarks="UNUSED" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="notes" nullable="true" remarks="UNUSED" size="255" type="VARCHAR" typeCode="12"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+      </table>
+      <table catalog="openemr" name="form_track_anything_type" numRows="6" remarks="Represents the category grouping / track of the data element being tracked via the track_anything form" type="TABLE">
+         <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="track_anything_type_id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5">
+            <child catalog="openemr" column="procedure_type_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="form_track_anything"/>
+            <child catalog="openemr" column="itemid" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="form_track_anything_results"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="name" nullable="true" remarks="The name of the type of the data element being tracked" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="description" nullable="true" remarks="Description of the data element type being tracked" size="255" type="VARCHAR" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="parent" nullable="true" remarks="This is a reference to a parent form_track_anything_type element. 0=There is no parent, if !0 then it is the track_anything_type_id for the parent element" size="19" type="BIGINT" typeCode="-5"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="position" nullable="true" remarks="The order this element should be filled out in the track anything population mechanism" size="10" type="INT" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="active" nullable="true" remarks="1=The element is active and allows for data entry, 0=data entry is disabled and the element is not displayed to the user" size="10" type="INT" typeCode="4"/>
+         <primaryKey column="track_anything_type_id" sequenceNumberInPK="1"/>
+         <index name="PRIMARY" unique="true">
+            <column ascending="true" name="track_anything_type_id"/>
+         </index>
+      </table>
+      <table catalog="openemr" name="form_transfer_summary" remarks="Records transfer summary of care and is an alternative to recording referrals in the transactions table" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="The primary key which is the same as the forms.form_id column" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="form_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="forms"/>
          </column>
@@ -2609,7 +2647,7 @@
             <column ascending="true" name="uuid"/>
          </index>
       </table>
-      <table catalog="openemr" name="forms" numRows="194951" remarks="Patient chart forms that are connected to a patient's encounter visit. Serves as the base record containing all of the common form encounter properties where each sub-type form has data records contained in a table that is named CONCAT('form_',formdir)" type="TABLE">
+      <table catalog="openemr" name="forms" numRows="194673" remarks="Patient chart forms that are connected to a patient's encounter visit. Serves as the base record containing all of the common form encounter properties where each sub-type form has data records contained in a table that is named CONCAT('form_',formdir)" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="Surrogate id of the record used as the primary incrementing key" size="19" type="BIGINT" typeCode="-5">
             <child catalog="openemr" column="forms_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="form_physical_exam"/>
          </column>
@@ -2625,6 +2663,7 @@
             <child catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="form_phq9"/>
             <child catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="form_prior_auth"/>
             <child catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="form_sdoh"/>
+            <child catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="form_track_anything"/>
             <child catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="form_transfer_summary"/>
             <child catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="form_treatment_plan"/>
             <child catalog="openemr" column="id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" schema="openemr" table="form_gad7"/>
@@ -2826,7 +2865,7 @@
             <column ascending="true" name="imo_id"/>
          </index>
       </table>
-      <table catalog="openemr" name="immunizations" numRows="13312" remarks="Patient Immunizations" type="TABLE">
+      <table catalog="openemr" name="immunizations" numRows="13694" remarks="Patient Immunizations" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5">
             <child catalog="openemr" column="imo_im_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="immunization_observation"/>
          </column>
@@ -3150,7 +3189,7 @@
             <column ascending="true" name="option_id"/>
          </index>
       </table>
-      <table catalog="openemr" name="lists" numRows="40001" remarks="Patient issues list including allergies, medical problems, medications, medical devices, surgeries, and dental issues. Type of issue is in the type column." type="TABLE">
+      <table catalog="openemr" name="lists" numRows="40920" remarks="Patient issues list including allergies, medical problems, medications, medical devices, surgeries, and dental issues. Type of issue is in the type column." type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="Primary identifier of the record" size="19" type="BIGINT" typeCode="-5">
             <child catalog="openemr" column="list_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="documents"/>
             <child catalog="openemr" column="issue_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="forms"/>
@@ -3911,7 +3950,7 @@
             <column ascending="true" name="seq"/>
          </index>
       </table>
-      <table catalog="openemr" name="pharmacies" numRows="1" remarks="Contains records of pharmacies that a patient uses, or that providers interact with" type="TABLE">
+      <table catalog="openemr" name="pharmacies" remarks="Contains records of pharmacies that a patient uses, or that providers interact with" type="TABLE">
          <column autoUpdated="false" defaultValue="0" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT" typeCode="4">
             <child catalog="openemr" column="pharmacy_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="patient_data"/>
             <child catalog="openemr" column="pharmacy_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="prescriptions"/>
@@ -3963,7 +4002,7 @@
             <column ascending="true" name="pid"/>
          </index>
       </table>
-      <table catalog="openemr" name="prescriptions" numRows="4977" remarks="Internal and External prescription information" type="TABLE">
+      <table catalog="openemr" name="prescriptions" numRows="5140" remarks="Internal and External prescription information" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="INT" typeCode="4"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="uuid" nullable="true" remarks="" size="16" type="BINARY" typeCode="-2"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="patient_id" nullable="true" remarks="The internal patient identifier" size="19" type="BIGINT" typeCode="-5">
@@ -4079,7 +4118,7 @@
             <column ascending="true" name="answer_seq"/>
          </index>
       </table>
-      <table catalog="openemr" name="procedure_order" numRows="128870" remarks="A procedure order is an encounter form within a patient visit representing an order for one or more procedures and its associated report/results for the procedure.  Orders can be for either internal or external procedure providers" type="TABLE">
+      <table catalog="openemr" name="procedure_order" numRows="132835" remarks="A procedure order is an encounter form within a patient visit representing an order for one or more procedures and its associated report/results for the procedure.  Orders can be for either internal or external procedure providers" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="procedure_order_id" nullable="false" remarks="Surrogate id of the procedure order record" size="19" type="BIGINT" typeCode="-5">
             <child catalog="openemr" column="procedure_order_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_answers"/>
             <child catalog="openemr" column="procedure_order_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_order_code"/>
@@ -4156,7 +4195,7 @@
             <column ascending="true" name="uuid"/>
          </index>
       </table>
-      <table catalog="openemr" name="procedure_order_code" numRows="130914" remarks="Holds individual procedure / labs ordered from the procedure_type table for a given procedure order.  It contains also the individual diagnosis code that is related to the ordered procedure" type="TABLE">
+      <table catalog="openemr" name="procedure_order_code" numRows="130736" remarks="Holds individual procedure / labs ordered from the procedure_type table for a given procedure order.  It contains also the individual diagnosis code that is related to the ordered procedure" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="procedure_order_id" nullable="false" remarks="references procedure_order.procedure_order_id" size="19" type="BIGINT" typeCode="-5">
             <parent catalog="openemr" column="procedure_order_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_order"/>
          </column>
@@ -4244,7 +4283,7 @@
             <column ascending="true" name="question_code"/>
          </index>
       </table>
-      <table catalog="openemr" name="procedure_report" numRows="44299" remarks="Procedure order overall report container for an ordered procedure result in procedure_order_codes which represents findings, conclusions, and recommendations for the procedure order" type="TABLE">
+      <table catalog="openemr" name="procedure_report" numRows="44550" remarks="Procedure order overall report container for an ordered procedure result in procedure_order_codes which represents findings, conclusions, and recommendations for the procedure order" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="procedure_report_id" nullable="false" remarks="Unique identifier for the procedure report. This is the primary key." size="19" type="BIGINT" typeCode="-5">
             <child catalog="openemr" column="procedure_report_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="procedure_result"/>
          </column>
@@ -4277,7 +4316,7 @@
             <column ascending="true" name="uuid"/>
          </index>
       </table>
-      <table catalog="openemr" name="procedure_result" numRows="255762" remarks="The table stores the actual results and findings from medical procedures and tests, such as laboratory tests, radiology reports, diagnostic imaging, and other clinical tests." type="TABLE">
+      <table catalog="openemr" name="procedure_result" numRows="261850" remarks="The table stores the actual results and findings from medical procedures and tests, such as laboratory tests, radiology reports, diagnostic imaging, and other clinical tests." type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="procedure_result_id" nullable="false" remarks="" size="19" type="BIGINT" typeCode="-5"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="uuid" nullable="true" remarks="" size="16" type="BINARY" typeCode="-2"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="procedure_report_id" nullable="false" remarks="references procedure_report.procedure_report_id" size="19" type="BIGINT" typeCode="-5">
@@ -4499,7 +4538,7 @@
             <column ascending="true" name="field_id"/>
          </index>
       </table>
-      <table catalog="openemr" name="therapy_groups" numRows="1" remarks="Contains all of the therapy groups that exist in the system" type="TABLE">
+      <table catalog="openemr" name="therapy_groups" remarks="Contains all of the therapy groups that exist in the system" type="TABLE">
          <column autoUpdated="true" defaultValue="null" digits="0" id="0" name="group_id" nullable="false" remarks="Surrogate id of the record used as the primary incrementing key" size="10" type="INT" typeCode="4">
             <child catalog="openemr" column="group_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="form_group_attendance"/>
             <child catalog="openemr" column="group_id" foreignKey="Defined in XML" implied="false" onDeleteCascade="false" table="form_groups_encounter"/>
