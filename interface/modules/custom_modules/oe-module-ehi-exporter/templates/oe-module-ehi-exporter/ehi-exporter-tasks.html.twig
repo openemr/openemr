@@ -87,7 +87,7 @@
                         {{ "Expand for Export Zip Details"|xlt }}
                     </summary>
                     <p>{{ "Patient Pids To Be Exported"|xlt }}</p>
-                    <div class="patientPids">{{ task.getPatientIds()|json_encode }}</div>
+                    <div class="patientPids">{{ task.getPatientIds()|json_encode|text }}</div>
                 </details>
             </div>
         </div>

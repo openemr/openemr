@@ -63,6 +63,8 @@ class EhiExporter
     private SystemLogger $logger;
     private EhiExportJobTaskService $taskService;
     private CryptoGen $cryptoGen;
+    private EhiExportJobService $jobService;
+
     public function __construct(private $modulePublicDir, private $modulePublicUrl, private $xmlConfigPath, private Environment $twig)
     {
         $this->logger = new SystemLogger();

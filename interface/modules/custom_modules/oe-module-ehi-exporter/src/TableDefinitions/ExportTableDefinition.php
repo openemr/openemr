@@ -38,6 +38,8 @@ class ExportTableDefinition
      */
     private array $tableColumnNames;
 
+    private array $primaryKeys;
+
     public function __construct(?string $table = null, array $pks = [])
     {
         $this->table = $table;

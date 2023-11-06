@@ -50,6 +50,12 @@ class ExportState
      */
     private string $tempDir;
 
+    private \SimpleXMLElement $metaNode;
+
+    private ExportKeyDefinitionFilterer $keyFilterer;
+
+    private EhiExportJobTask $jobTask;
+
     public function __construct(SystemLogger $logger, \SimpleXMLElement $tableNode, \SimpleXMLElement $metaNode, EhiExportJobTask $jobTask)
     {
         $this->rootNode = $tableNode;
