@@ -10,8 +10,10 @@ digraph "twoDegreesRelationshipsDiagram" {
   "ar_session":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "ar_session":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "billing":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "billing":"elipses":w -> "groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "billing":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "billing":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "claims":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "claims":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "clinical_plans":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "documents":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -24,24 +26,30 @@ digraph "twoDegreesRelationshipsDiagram" {
   "external_encounters":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "external_procedures":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "external_procedures":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_aftercare_plan":"elipses":w -> "groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_aftercare_plan":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_aftercare_plan":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_ankleinjury":"elipses":w -> "groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_ankleinjury":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_ankleinjury":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_bronchitis":"elipses":w -> "groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_bronchitis":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_bronchitis":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_CAMOS":"elipses":w -> "form_CAMOS_category":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_CAMOS":"elipses":w -> "form_CAMOS_item":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_CAMOS":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_CAMOS":"elipses":w -> "form_CAMOS_item":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_CAMOS_category":"elipses":w -> "groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_CAMOS_category":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_CAMOS_category":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_CAMOS_item":"elipses":w -> "groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_CAMOS_item":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_CAMOS_item":"elipses":w -> "form_CAMOS_subcategory":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_CAMOS_item":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_CAMOS_subcategory":"elipses":w -> "form_CAMOS_category":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_CAMOS_subcategory":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_care_plan":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_clinic_note":"elipses":w -> "forms":"form_id":e [arrowhead=none dir=back arrowtail=teeodot];
   "form_clinical_instructions":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_clinical_notes":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_dictation":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -63,47 +71,76 @@ digraph "twoDegreesRelationshipsDiagram" {
   "form_eye_ros":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_eye_vitals":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_functional_cognitive_status":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_group_attendance":"elipses":w -> "form_groups_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_group_attendance":"elipses":w -> "therapy_groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_group_attendance":"elipses":w -> "groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_group_attendance":"elipses":w -> "forms":"form_id":e [arrowhead=none dir=back arrowtail=teeodot];
+  "form_group_attendance":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_groups_encounter":"elipses":w -> "openemr_postcalendar_events":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_groups_encounter":"elipses":w -> "therapy_groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_groups_encounter":"elipses":w -> "forms":"form_id":e [arrowhead=none dir=back arrowtail=teeodot];
+  "form_groups_encounter":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_groups_encounter":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_misc_billing_options":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_note":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=teeodot];
+  "form_note":"elipses":w -> "forms":"form_id":e [arrowhead=none dir=back arrowtail=teeodot];
   "form_note":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_observation":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_painmap":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=teeodot];
+  "form_painmap":"elipses":w -> "groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_painmap":"elipses":w -> "forms":"form_id":e [arrowhead=none dir=back arrowtail=teeodot];
   "form_painmap":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_painmap":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_phq9":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=teeodot];
+  "form_phq9":"elipses":w -> "groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_phq9":"elipses":w -> "forms":"form_id":e [arrowhead=none dir=back arrowtail=teeodot];
   "form_phq9":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_phq9":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_prior_auth":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=teeodot];
+  "form_physical_exam":"elipses":w -> "forms":"id":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_prior_auth":"elipses":w -> "forms":"form_id":e [arrowhead=none dir=back arrowtail=teeodot];
   "form_prior_auth":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_questionnaire_assessments":"elipses":w -> "groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_questionnaire_assessments":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_questionnaire_assessments":"elipses":w -> "questionnaire_response":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_questionnaire_assessments":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_reviewofs":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_ros":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_sdoh":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=teeodot];
+  "form_sdoh":"elipses":w -> "groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_sdoh":"elipses":w -> "forms":"form_id":e [arrowhead=none dir=back arrowtail=teeodot];
   "form_sdoh":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_sdoh":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_soap":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_taskman":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_track_anything":"id":w -> "forms":"form_id":e [arrowhead=none dir=back arrowtail=teeodot];
   "form_track_anything":"pid":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_transfer_summary":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=teeodot];
+  "form_track_anything":"procedure_type_id":w -> "form_track_anything_type":"track_anything_type_id":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_track_anything_results":"itemid":w -> "form_track_anything_type":"track_anything_type_id":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_track_anything_results":"track_anything_id":w -> "form_track_anything":"id.type":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_transfer_summary":"elipses":w -> "forms":"form_id":e [arrowhead=none dir=back arrowtail=teeodot];
   "form_transfer_summary":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_treatment_plan":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=teeodot];
+  "form_treatment_plan":"elipses":w -> "groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_treatment_plan":"elipses":w -> "forms":"form_id":e [arrowhead=none dir=back arrowtail=teeodot];
   "form_treatment_plan":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_treatment_plan":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_vitals":"elipses":w -> "groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_vitals":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_vitals":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
-  "forms":"elipses":w -> "lists":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
-  "forms":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "forms":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
-  "forms":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "forms":"groupname":w -> "groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "forms":"issue_id":w -> "lists":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "forms":"pid":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "forms":"provider_id":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "forms":"therapy_group_id":w -> "therapy_groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "forms":"user":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "groups":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "history_data":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "history_data":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "immunization_observation":"elipses":w -> "immunizations":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "immunization_observation":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "immunization_observation":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "immunizations":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "immunizations":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "immunizations":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "immunizations":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "immunizations":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "insurance_data":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "lists":"elipses":w -> "groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "lists":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "lists":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "medex_recalls":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -115,9 +152,15 @@ digraph "twoDegreesRelationshipsDiagram" {
   "onsite_signatures":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "onsite_signatures":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "document_templates":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_gad7":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_gad7":"elipses":w -> "groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_gad7":"elipses":w -> "forms":"form_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_gad7":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_gad7":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "issue_encounter":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "issue_encounter":"elipses":w -> "lists":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "issue_encounter":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "openemr_postcalendar_events":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "openemr_postcalendar_events":"elipses":w -> "therapy_groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "openemr_postcalendar_events":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "openemr_postcalendar_events":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "patient_access_onsite":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=teeodot];
@@ -134,6 +177,7 @@ digraph "twoDegreesRelationshipsDiagram" {
   "patient_tracker":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "patient_tracker":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "pnotes":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "pnotes":"elipses":w -> "groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "pnotes":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "pnotes":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "pnotes":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -156,7 +200,9 @@ digraph "twoDegreesRelationshipsDiagram" {
   "shared_attributes":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "shared_attributes":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "shared_attributes":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "therapy_groups_participant_attendance":"elipses":w -> "form_group_attendance":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "therapy_groups_participant_attendance":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "therapy_groups_participants":"elipses":w -> "therapy_groups":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "therapy_groups_participants":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "transactions":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "voids":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -211,7 +257,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="43" HEIGHT="16"><B>claims</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
     </TABLE>>
     URL="../../tables/claims.html"
     target="_top"
@@ -233,7 +279,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="74" HEIGHT="16"><B>documents</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/documents.html"
     target="_top"
@@ -371,6 +417,17 @@ digraph "twoDegreesRelationshipsDiagram" {
     target="_top"
     tooltip="form_care_plan"
   ];
+  "form_clinic_note" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="109" HEIGHT="16"><B>form_clinic_note</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="../../tables/form_clinic_note.html"
+    target="_top"
+    tooltip="form_clinic_note"
+  ];
   "form_clinical_instructions" [
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
@@ -409,7 +466,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="106" HEIGHT="16"><B>form_encounter</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">12 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">14 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/form_encounter.html"
     target="_top"
@@ -602,6 +659,28 @@ digraph "twoDegreesRelationshipsDiagram" {
     target="_top"
     tooltip="form_functional_cognitive_status"
   ];
+  "form_group_attendance" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="160" HEIGHT="16"><B>form_group_attendance</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 5</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
+    </TABLE>>
+    URL="../../tables/form_group_attendance.html"
+    target="_top"
+    tooltip="form_group_attendance"
+  ];
+  "form_groups_encounter" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="159" HEIGHT="16"><B>form_groups_encounter</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 7</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
+    </TABLE>>
+    URL="../../tables/form_groups_encounter.html"
+    target="_top"
+    tooltip="form_groups_encounter"
+  ];
   "form_misc_billing_options" [
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
@@ -656,6 +735,17 @@ digraph "twoDegreesRelationshipsDiagram" {
     URL="../../tables/form_phq9.html"
     target="_top"
     tooltip="form_phq9"
+  ];
+  "form_physical_exam" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="135" HEIGHT="16"><B>form_physical_exam</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="../../tables/form_physical_exam.html"
+    target="_top"
+    tooltip="form_physical_exam"
   ];
   "form_prior_auth" [
    label=<
@@ -740,14 +830,37 @@ digraph "twoDegreesRelationshipsDiagram" {
       <TR><TD COLSPAN="4"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="138" HEIGHT="16"><B>form_track_anything</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="id" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="138" HEIGHT="16">id</TD></TR></TABLE></TD><TD PORT="id.type" ALIGN="LEFT">bigint[19]</TD></TR>
       <TR><TD PORT="date" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="138" HEIGHT="16">date</TD></TR></TABLE></TD><TD PORT="date.type" ALIGN="LEFT">timestamp[19]</TD></TR>
+      <TR><TD PORT="name" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="138" HEIGHT="16">name</TD></TR></TABLE></TD><TD PORT="name.type" ALIGN="LEFT">unknown[0]</TD></TR>
       <TR><TD PORT="pid" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="138" HEIGHT="16">pid</TD></TR></TABLE></TD><TD PORT="pid.type" ALIGN="LEFT">int[10]</TD></TR>
-      <TR><TD PORT="procedure_type_id" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="138" HEIGHT="16">procedure_type_id</TD></TR></TABLE></TD><TD PORT="procedure_type_id.type" ALIGN="LEFT">bigint[19]</TD></TR>
+      <TR><TD PORT="procedure_type_id" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="138" HEIGHT="16">procedure_type_id</TD></TR></TABLE></TD><TD PORT="procedure_type_id.type" ALIGN="LEFT">bigint[19]</TD></TR>
       <TR><TD PORT="comment" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="138" HEIGHT="16">comment</TD></TR></TABLE></TD><TD PORT="comment.type" ALIGN="LEFT">varchar[255]</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">0 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/form_track_anything.html"
     target="_top"
     tooltip="form_track_anything"
+  ];
+  "form_track_anything_results" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="191" HEIGHT="16"><B>form_track_anything_results</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="../../tables/form_track_anything_results.html"
+    target="_top"
+    tooltip="form_track_anything_results"
+  ];
+  "form_track_anything_type" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="175" HEIGHT="16"><B>form_track_anything_type</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 &gt;</TD></TR>
+    </TABLE>>
+    URL="../../tables/form_track_anything_type.html"
+    target="_top"
+    tooltip="form_track_anything_type"
   ];
   "form_transfer_summary" [
    label=<
@@ -787,11 +900,22 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="39" HEIGHT="16"><B>forms</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 6</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">12 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 6</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">13 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/forms.html"
     target="_top"
     tooltip="forms"
+  ];
+  "groups" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="47" HEIGHT="16"><B>groups</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">17 &gt;</TD></TR>
+    </TABLE>>
+    URL="../../tables/groups.html"
+    target="_top"
+    tooltip="groups"
   ];
   "history_data" [
    label=<
@@ -820,7 +944,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="99" HEIGHT="16"><B>immunizations</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 13</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/immunizations.html"
     target="_top"
@@ -842,7 +966,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="28" HEIGHT="16"><B>lists</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 11</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">3 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 11</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">4 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/lists.html"
     target="_top"
@@ -914,12 +1038,23 @@ digraph "twoDegreesRelationshipsDiagram" {
     target="_top"
     tooltip="form_gad7"
   ];
+  "issue_encounter" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="109" HEIGHT="16"><B>issue_encounter</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="../../tables/issue_encounter.html"
+    target="_top"
+    tooltip="issue_encounter"
+  ];
   "openemr_postcalendar_events" [
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="205" HEIGHT="16"><B>openemr_postcalendar_events</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 7</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 10</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/openemr_postcalendar_events.html"
     target="_top"
@@ -940,16 +1075,8 @@ digraph "twoDegreesRelationshipsDiagram" {
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="85" HEIGHT="16"><B>patient_data</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="146" HEIGHT="16">id</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="uuid" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="146" HEIGHT="16">uuid</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="pharmacy_id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="146" HEIGHT="16">pharmacy_id</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="providerID" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="146" HEIGHT="16">providerID</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="ref_providerID" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="146" HEIGHT="16">ref_providerID</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="pid" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="146" HEIGHT="16">pid</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="created_by" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="146" HEIGHT="16">created_by</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="updated_by" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="146" HEIGHT="16">updated_by</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 5</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">84 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 5</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">85 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/patient_data.html"
     target="_top"
@@ -1076,6 +1203,17 @@ digraph "twoDegreesRelationshipsDiagram" {
     target="_top"
     tooltip="shared_attributes"
   ];
+  "therapy_groups" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="105" HEIGHT="16"><B>therapy_groups</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">6 &gt;</TD></TR>
+    </TABLE>>
+    URL="../../tables/therapy_groups.html"
+    target="_top"
+    tooltip="therapy_groups"
+  ];
   "therapy_groups_participant_attendance" [
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
@@ -1114,7 +1252,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="36" HEIGHT="16"><B>users</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">56 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">61 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/users.html"
     target="_top"

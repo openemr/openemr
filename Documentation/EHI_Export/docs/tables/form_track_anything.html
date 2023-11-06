@@ -132,13 +132,23 @@
                                     <td>null</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="form_track_anything_results.track_anything_id references form_track_anything.id"><a href='form_track_anything_results.html'>form_track_anything_results</a><span class='relatedKey'>.track_anything_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="form_track_anything.id references forms.form_id"><a href='forms.html'>forms</a><span class='relatedKey'>.form_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The primary key which is the same as the forms.form_id column</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="date">date</span></td>
@@ -156,6 +166,23 @@
                                         </table>
                                     </td>
                                     <td></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="name">name</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>The name of the type of the data element being tracked</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="pid">pid</span></td>
@@ -180,7 +207,7 @@
                                     <td><p>The internal patient identifier</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="procedure_type_id">procedure_type_id</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="procedure_type_id">procedure_type_id</span></td>
                                     <td>BIGINT</td>
                                     <td>19</td>
                                     <td title='nullable'>√</td>
@@ -192,6 +219,11 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="form_track_anything.procedure_type_id references form_track_anything_type.track_anything_type_id"><a href='form_track_anything_type.html'>form_track_anything_type</a><span class='relatedKey'>.track_anything_type_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
                                     <td></td>
