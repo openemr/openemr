@@ -13,6 +13,7 @@
 <head>
     <title>{{ "Electronic Health Information Export"|xlt }}</title>
     {{ setupHeader() }}
+    <script src="{{ assetPath }}js/{{ "ehi-exporter.js"|addCacheParam()}}"></script>
 </head>
     <body class="p-3">
     {% if result %}
@@ -120,8 +121,40 @@
             <p class="alert alert-info"> {{ "The export process will attempt to set the ram memory usage to unlimited in order to process the export."|xlt}}
                 {{ "If this setting is disabled in your environment you will need to manually set your php.ini memory_limit setting."|xlt}}</p>
             {{ csrfToken() }}
+            <script>
+                window.document.addEventListener("DOMContentLoaded", function() {
+                    var form = document.querySelector("form");
+                    form.addEventListener("submit", function(event) {
+                        if (oeExporter && oeExporter.displayExportStartDialog) {
+                            oeExporter.displayExportStartDialog("ehi-export-start-dialog");
+                            // we want the page to submit as it will take a moment for the processing to come back
+                            // so we won't prevent the default action
+                        }
+                    });
+                })
+            </script>
+            <input type="hidden" name="action" value="createExport" />
             <input type="submit" name="submit" class="btn btn-primary" value="Export">
         </form>
     {% endif %}
+    <div class="modal fade" id="ehi-export-start-dialog" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog mw-50 ml-auto mr-auto">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ "Starting Electronic Health Information Export" | xlt }}</h5>
+                    <button type="button" class="close btn-telehealth-confirm-cancel" aria-label="{{ "Close" | xla }}">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <p>{{ "Please wait while your export job is being created and setup"|xlt }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

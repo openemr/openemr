@@ -64,6 +64,8 @@ class EhiExporter
     private SystemLogger $logger;
     private EhiExportJobTaskService $taskService;
     private CryptoGen $cryptoGen;
+    private EhiExportJobService $jobService;
+
     public function __construct(private $modulePublicDir, private $modulePublicUrl, private $xmlConfigPath, private Environment $twig)
     {
         $this->logger = new SystemLogger();
@@ -71,6 +73,50 @@ class EhiExporter
         $this->jobService = new EhiExportJobService();
         $this->twig = $twig;
         $this->cryptoGen = new CryptoGen();
+    }
+
+
+    public function createExportPatientJob(int $pid, bool $includePatientDocuments, int $defaultZipSize)
+    {
+        $patientPids = [$pid];
+        $job = null;
+        try {
+            $job = $this->createJobForRequest($patientPids, $includePatientDocuments, $defaultZipSize);
+        } catch (\Exception $exception) {
+            if ($job !== null) {
+                $job->setStatus("failed");
+                try {
+                    $this->jobService->update($job);
+                } catch (\Exception $exception) {
+                    $this->logger->errorLogCaller("Failed to mark job as failed ", [$exception->getMessage()]);
+                    return $job;
+                }
+            }
+            throw $exception;
+        }
+        return $job;
+    }
+
+    public function createExportPatientPopulationJob(bool $includePatientDocuments, int $defaultZipSize): EhiExportJob
+    {
+        $job = null;
+        try {
+            $sql = "SELECT pid FROM patient_data"; // We do everything here
+            $patientPids = QueryUtils::fetchTableColumn($sql, 'pid', []);
+            $job = $this->createJobForRequest($patientPids, $includePatientDocuments, $defaultZipSize);
+        } catch (\Exception $exception) {
+            if ($job !== null) {
+                $job->setStatus("failed");
+                try {
+                    $this->jobService->update($job);
+                } catch (\Exception $exception) {
+                    $this->logger->errorLogCaller("Failed to mark job as failed ", [$exception->getMessage()]);
+                    return $job;
+                }
+            }
+            throw $exception;
+        }
+        return $job;
     }
 
     public function exportPatient(int $pid, bool $includePatientDocuments, $defaultZipSize)
@@ -138,6 +184,16 @@ class EhiExporter
         $job->addPatientIdList($patientPids);
         $job->setDocumentLimitSize($defaultZipSize * 1024 * 1024); // set our max size in bytes
         $updatedJob = $this->jobService->insert($job);
+
+        // now create the job tasks
+        $jobTasks = $this->createExportTasksFromJob($job);
+        if (empty($jobTasks)) {
+            $job->setStatus("failed"); // no tasks to process, we mark as failed.
+        } else {
+            foreach ($jobTasks as $jobTask) {
+                $job->addJobTask($jobTask);
+            }
+        }
         return $updatedJob;
     }
 
@@ -356,6 +412,8 @@ class EhiExporter
             // write out the csv file
             $this->writeCsvFile($jobTask, $records, $tableDefinition->table, $exportState->getTempSysDir(), $tableDefinition->getColumnNames());
             $exportState->addExportResultTable($tableDefinition->table, count($records));
+            $jobTask->exportedResult = $exportState->getExportResult();
+            $this->taskService->update($jobTask); // for progress updates
             $tableDefinition->setHasNewData(false);
             if (!empty($keyDefinitions)) {
                 foreach ($keyDefinitions['keys'] as $keyDefinition) {
@@ -722,5 +780,34 @@ class EhiExporter
             $tasks[] = $task;
         }
         return $tasks;
+    }
+
+    public function runExportTask(int $taskId): EhiExportJobTask
+    {
+        $task = $this->taskService->getTaskFromId($taskId);
+        if (empty($task)) {
+            throw new \InvalidArgumentException("Invalid task id");
+        }
+        $job = $this->jobService->getJobById($task->ehi_export_job_id);
+        if (empty($job)) {
+            throw new \InvalidArgumentException("Invalid job id.  This should never happen and indicates there is a system error");
+        }
+        $task->ehiExportJob = $job;
+        if ($task->getStatus() == 'completed') {
+            // if the task is already complete we are just going to return it.
+            return $task;
+        }
+        $task->setStatus('processing');
+        $updatedTask  = $this->taskService->update($task);
+        return $this->processJobTask($updatedTask);
+    }
+
+    public function getExportTaskForStatusUpdate(int $taskId)
+    {
+        $task = $this->taskService->getTaskFromId($taskId);
+        if (empty($task)) {
+            throw new \InvalidArgumentException("Invalid task id");
+        }
+        return $task;
     }
 }

@@ -99,6 +99,11 @@ class Bootstrap
         return self::$instance;
     }
 
+    public function getAssetPath()
+    {
+        return $GLOBALS['webroot'] . self::MODULE_INSTALLATION_PATH . $this->moduleDirectoryName . "/public/assets/";
+    }
+
     public function getLogger()
     {
         return new SystemLogger();
