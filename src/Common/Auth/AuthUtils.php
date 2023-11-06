@@ -1376,6 +1376,7 @@ class AuthUtils
         $_SESSION['authUserID'] = $userInfo['id']; // user id
         $_SESSION['authProvider'] = $authGroup; // user group
         $_SESSION['userauthorized'] = $userInfo['authorized']; // user authorized setting
+        $_SESSION['seeAuth'] = $userInfo['see_auth']; // user see_auth setting (see auth group)
         // Some users may be able to authorize without being providers:
         if ($userInfo['see_auth'] > '2') {
             $_SESSION['userauthorized'] = '1';
