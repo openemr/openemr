@@ -17,9 +17,9 @@ $res = sqlStatement($sql,array($pid));
 function getProviderByWenoId($external_id){
     $provider = sqlQuery("SELECT fname, mname, lname FROM users WHERE weno_prov_id = ? ", array($external_id));
     if($provider){
-            return $provider['fname'] . " " . $provider['mname'] . " " . $provider['lname'];
+        return $provider['fname'] . " " . $provider['mname'] . " " . $provider['lname'];
     } else{
-            return "";
+        return "";
     }
 }
 ?>
