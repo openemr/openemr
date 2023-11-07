@@ -138,7 +138,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Surrogate ID of the message record</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="username">username</span></td>
@@ -155,7 +155,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Username associated with the message sender  This will be the patient&rsquo;s portal username if a patient sent the message.  Otherwise it is the user&rsquo;s username if a user sent the message.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="message">message</span></td>
@@ -172,7 +172,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The content of the chat message</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="ip">ip</span></td>
@@ -189,7 +189,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>IP address of the sender.  Empty on export</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="date">date</span></td>
@@ -206,7 +206,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Timestamp of when the message was sent</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="sender_id">sender_id</span></td>
@@ -223,7 +223,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>who sent id</p></td>
+                                    <td><p>ID of the message sender.  This will be the patient_data.pid if a patient sent the message.  Otherwise it is the users.id if a user sent the message.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="recip_id">recip_id</span></td>
@@ -240,7 +240,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>who to id array</p></td>
+                                    <td><p>JSON array of message recipients.  If the message is being sent to one or more clinical staff it will be a JSON array of the usernames from the users table.  If a user sends the message it will be a JSON array of one or more patient_data.pid ids.  On EHI export this array is filtered to only include patient_data.pids that are in the the specific export task.  These messages will be duplicated if patients are in different export tasks but received the same message.</p></td>
                                 </tr>
                                 </tbody>
                             </table>

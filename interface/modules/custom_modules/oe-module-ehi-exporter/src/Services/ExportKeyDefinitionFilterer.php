@@ -91,6 +91,17 @@ class ExportKeyDefinitionFilterer
         ,'procedure_report' => [
             'procedure_type' => ['localValueOverride' => 'proc_rep_status', 'foreignKeyColumn' => 'list_id']
         ]
+        ,'immunizations' => [
+            'immunization_id' => ['localValueOverride' => 'immunizations', 'foreignKeyColumn' => 'list_id'],
+            'amount_administered_unit' => ['localValueOverride' => 'drug_units', 'foreignKeyColumn' => 'list_id'],
+            'manufacturer' => ['localValueOverride' => 'Immunization_Manufacturer', 'foreignKeyColumn' => 'list_id'],
+            'route' => ['localValueOverride' => 'drug_route', 'foreignKeyColumn' => 'list_id'],
+            'administration_site' => ['localValueOverride' => 'immunization_administered_site', 'foreignKeyColumn' => 'list_id'],
+            'information_source' => ['localValueOverride' => 'immunization_informationsource', 'foreignKeyColumn' => 'list_id'],
+            'completion_status' => ['localValueOverride' => 'Immunization_Completion_Status', 'foreignKeyColumn' => 'list_id'],
+            'refusal_reason' => ['localValueOverride' => 'immunization_refusal_reason', 'foreignKeyColumn' => 'list_id'],
+
+        ]
     ];
 
     public function filterKey(ExportKeyDefinition $key)

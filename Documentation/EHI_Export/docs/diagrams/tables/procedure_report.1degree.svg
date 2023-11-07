@@ -107,7 +107,7 @@
 <text text-anchor="start" x="100.3862" y="-279.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000"> &#160;</text>
 <polygon fill="#ffffff" stroke="transparent" points="109.5,-273.7 109.5,-292.7 157.5,-292.7 157.5,-273.7 109.5,-273.7"/>
 <polygon fill="none" stroke="#000000" points="109.5,-273.7 109.5,-292.7 157.5,-292.7 157.5,-273.7 109.5,-273.7"/>
-<text text-anchor="start" x="132.7904" y="-279.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">38 &gt;</text>
+<text text-anchor="start" x="132.7904" y="-279.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">46 &gt;</text>
 </a>
 </g>
 </g>
@@ -200,7 +200,7 @@
 <text text-anchor="start" x="112.3862" y="-43.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000"> &#160;</text>
 <polygon fill="#ffffff" stroke="transparent" points="121.5,-37.7 121.5,-56.7 175.5,-56.7 175.5,-37.7 121.5,-37.7"/>
 <polygon fill="none" stroke="#000000" points="121.5,-37.7 121.5,-56.7 175.5,-56.7 175.5,-37.7 121.5,-37.7"/>
-<text text-anchor="start" x="150.7904" y="-43.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">56 &gt;</text>
+<text text-anchor="start" x="150.7904" y="-43.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">61 &gt;</text>
 </a>
 </g>
 </g>
@@ -323,7 +323,7 @@
 <g id="node5" class="node">
 <title>procedure_result</title>
 <g id="a_node5"><a xlink:href="../../tables/procedure_result.html" xlink:title="procedure_result" target="_top">
-<polygon fill="#ffffff" stroke="transparent" points="723,-516.2 723,-643.2 880,-643.2 880,-516.2 723,-516.2"/>
+<polygon fill="#ffffff" stroke="transparent" points="723,-494.2 723,-643.2 880,-643.2 880,-494.2 723,-494.2"/>
 <polygon fill="#f5f5f5" stroke="transparent" points="723.5,-619.7 723.5,-642.7 880.5,-642.7 880.5,-619.7 723.5,-619.7"/>
 <polygon fill="none" stroke="#000000" points="723.5,-619.7 723.5,-642.7 880.5,-642.7 880.5,-619.7 723.5,-619.7"/>
 <text text-anchor="start" x="728.5" y="-628.3" font-family="Helvetica,sans-Serif" font-weight="bold" font-size="11.00" fill="#000000">procedure_result</text>
@@ -338,17 +338,20 @@
 <polygon fill="none" stroke="#000000" points="723.5,-553.7 723.5,-575.7 880.5,-575.7 880.5,-553.7 723.5,-553.7"/>
 <image xlink:href="../../images/foreignKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="728.5" y="-570.7"/>
 <text text-anchor="start" x="743.5" y="-560.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">procedure_report_id</text>
-<polygon fill="none" stroke="#000000" points="723.5,-534.7 723.5,-553.7 880.5,-553.7 880.5,-534.7 723.5,-534.7"/>
-<text text-anchor="start" x="726.5" y="-540.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">...</text>
-<polygon fill="#ffffff" stroke="transparent" points="723.5,-515.7 723.5,-534.7 800.5,-534.7 800.5,-515.7 723.5,-515.7"/>
-<polygon fill="none" stroke="#000000" points="723.5,-515.7 723.5,-534.7 800.5,-534.7 800.5,-515.7 723.5,-515.7"/>
-<text text-anchor="start" x="726.5" y="-521.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">&lt; 1</text>
-<polygon fill="#ffffff" stroke="transparent" points="800.5,-515.7 800.5,-534.7 840.5,-534.7 840.5,-515.7 800.5,-515.7"/>
-<polygon fill="none" stroke="#000000" points="800.5,-515.7 800.5,-534.7 840.5,-534.7 840.5,-515.7 800.5,-515.7"/>
-<text text-anchor="start" x="831.3862" y="-521.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000"> &#160;</text>
-<polygon fill="#ffffff" stroke="transparent" points="840.5,-515.7 840.5,-534.7 880.5,-534.7 880.5,-515.7 840.5,-515.7"/>
-<polygon fill="none" stroke="#000000" points="840.5,-515.7 840.5,-534.7 880.5,-534.7 880.5,-515.7 840.5,-515.7"/>
-<text text-anchor="start" x="871.3862" y="-521.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000"> &#160;</text>
+<polygon fill="none" stroke="#000000" points="723.5,-531.7 723.5,-553.7 880.5,-553.7 880.5,-531.7 723.5,-531.7"/>
+<image xlink:href="../../images/foreignKeys.png" width="11px" height="12px" preserveAspectRatio="xMinYMin meet" x="728.5" y="-548.7"/>
+<text text-anchor="start" x="743.5" y="-538.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">document_id</text>
+<polygon fill="none" stroke="#000000" points="723.5,-512.7 723.5,-531.7 880.5,-531.7 880.5,-512.7 723.5,-512.7"/>
+<text text-anchor="start" x="726.5" y="-518.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">...</text>
+<polygon fill="#ffffff" stroke="transparent" points="723.5,-493.7 723.5,-512.7 800.5,-512.7 800.5,-493.7 723.5,-493.7"/>
+<polygon fill="none" stroke="#000000" points="723.5,-493.7 723.5,-512.7 800.5,-512.7 800.5,-493.7 723.5,-493.7"/>
+<text text-anchor="start" x="726.5" y="-499.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000">&lt; 2</text>
+<polygon fill="#ffffff" stroke="transparent" points="800.5,-493.7 800.5,-512.7 840.5,-512.7 840.5,-493.7 800.5,-493.7"/>
+<polygon fill="none" stroke="#000000" points="800.5,-493.7 800.5,-512.7 840.5,-512.7 840.5,-493.7 800.5,-493.7"/>
+<text text-anchor="start" x="831.3862" y="-499.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000"> &#160;</text>
+<polygon fill="#ffffff" stroke="transparent" points="840.5,-493.7 840.5,-512.7 880.5,-512.7 880.5,-493.7 840.5,-493.7"/>
+<polygon fill="none" stroke="#000000" points="840.5,-493.7 840.5,-512.7 880.5,-512.7 880.5,-493.7 840.5,-493.7"/>
+<text text-anchor="start" x="871.3862" y="-499.8" font-family="Helvetica,sans-Serif" font-size="11.00" fill="#000000"> &#160;</text>
 </a>
 </g>
 </g>
