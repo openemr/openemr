@@ -312,7 +312,6 @@ function image_widget($doc_id, $doc_catg)
 // Determine if the Vitals form is in use for this site.
 $tmp = sqlQuery("SELECT count(*) AS count FROM registry WHERE directory = 'vitals' AND state = 1");
 $vitals_is_registered = $tmp['count'];
-$weno_is_enabled = $GLOBALS['weno_rx_enable'];
 
 // Get patient/employer/insurance information.
 //
@@ -396,11 +395,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             let url = '../../main/calendar/add_edit_event.php?patientid=' + <?php echo js_url($pid); ?>;
             dlgopen(url, '_blank', 800, 500, '', title);
             return false;
-        }
-
-        function getWeno() {
-            top.restoreSession();
-            location.href = '../../weno/indexrx.php'
         }
 
         function toggleIndicator(target, div) {
@@ -623,11 +617,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <?php if ($vitals_is_registered && AclMain::aclCheckCore('patients', 'med')) { ?>
                 // Initialize the Vitals form if it is registered and user is authorized.
                 placeHtml("vitals_fragment.php", "vitals_ps_expand");
-            <?php } ?>
-
-            <?php if ($GLOBALS['weno_rx_enable'] && AclMain::aclCheckCore('patients', 'med')) { ?>
-                // Initialize the weno fragment when weno has been enabled
-                placeHtml("weno_fragment.php", "weno_ps_expand");
             <?php } ?>
 
             <?php if ($GLOBALS['enable_cdr'] && $GLOBALS['enable_cdr_crw']) { ?>
@@ -914,56 +903,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         document.addEventListener("DOMContentLoaded", () => {
             cardTitleButtonClickListener();
         });
-
-        function sync_weno(){
-            var syncIcon = document.getElementById("sync-icon");
-            var syncAlert = document.getElementById("sync-alert");
-            const url = '<?php echo $GLOBALS['webroot'] ?>' + '/interface/modules/custom_modules/oe-module-weno/templates/synch.php';
-            
-            syncIcon.classList.add("fa-spin");
-            
-            let formData = new FormData();
-            formData.append("key", "sync");
-            formData.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
-            
-            fetch(url, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                  throw new Error('Server responded with an error status: ' + response.status);
-                } else {
-                    //setting alert details
-                    wenoAlertManager("success",syncAlert,syncIcon);
-                }
-            }).catch(error=> {
-                wenoAlertManager("failed",syncAlert,syncIcon);
-            });
-        }
-
-        function wenoAlertManager(option, element, spinElement){
-            spinElement.classList.remove("fa-spin");
-            if(option == "success"){
-                element.classList.remove("d-none");
-                element.classList.add("alert", "alert-success");
-                element.innerHTML  = "Successfully updated";
-                setTimeout(function(){
-                    element.classList.add("d-none");
-                    element.classList.remove("alert", "alert-success");
-                    element.innerHTML  = "";
-                    }, 3000)
-            } else {
-                setTimeout(function(){
-                    element.classList.remove("d-none");
-                    element.classList.add("alert", "alert-danger");
-                    element.innerHTML  = "An error occurred";
-                }, 3000)
-                element.classList.add("d-none");
-                element.classList.remove("alert", "alert-danger");
-                element.innerHTML  = "";
-            }
-        }
     </script>
 
     <style>
@@ -1222,15 +1161,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $viewArgs['title'] = 'Prescription History';
                             $viewArgs['btnLabel'] = 'Add';
                             $viewArgs['btnLink'] = "{$GLOBALS['webroot']}/interface/eRx.php?page=compose";
-                        } elseif ($GLOBALS['weno_rx_enable']) {
-                            // weno plus button which opens their iframe
-                            $viewArgs['weno'] = true;
-                            $viewArgs['title'] = "WENO ComposeRx";
-                            $viewArgs['btnLabel'] = 'Add';
-                            $viewArgs['btnLink'] = "{$GLOBALS['webroot']}/interface/weno/indexrx.php";
-                            $viewArgs['btnClass'] = "iframe";
-                            $viewArgs['linkMethod'] = "javascript";
-                            $viewArgs['btnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
                         } else {
                             $viewArgs['btnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
                             $viewArgs['linkMethod'] = "javascript";
@@ -1608,25 +1538,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         ];
                         echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
                     endif; // end vitals
-
-                    if ($weno_is_enabled && AclMain::aclCheckCore('patients', 'med')) :
-                        $dispatchResult = $ed->dispatch(new CardRenderEvent('weno'), CardRenderEvent::EVENT_HANDLE);
-
-                        $id = "weno_ps_expand";
-                        $viewArgs = [
-                            'title' => xl('Weno'),
-                            'id' => $id,
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? false : true,
-                            'btnLabel' => 'Trend',
-                            'btnLink' => "",
-                            'linkMethod' => 'html',
-                            'bodyClass' => 'collapse show',
-                            'auth' => AclMain::aclCheckCore('patients', 'med'),
-                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
-                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
-                        ];
-                        echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
-                    endif; // end weno
 
                     // if anyone wants to render anything after the patient demographic list
                     $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_AFTER, 10);

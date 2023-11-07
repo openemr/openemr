@@ -258,47 +258,46 @@ class Bootstrap
     {
         $menu = $event->getMenu();
 
+        //Prescripption Log
         $menuItem = new \stdClass();
         $menuItem->requirement = 0;
-        $menuItem->target = 'mod';
-        $menuItem->menu_id = 'mod0';
-        $menuItem->label = xlt("ClaimRev Connect");
-        // TODO: pull the install location into a constant into the codebase so if OpenEMR changes this location it
-        // doesn't break any modules.
-        $menuItem->url = "/interface/modules/custom_modules/oe-module-claimrev-connect/public/index.php";
+        $menuItem->target = 'rep';
+        $menuItem->menu_id = 'rep0';
+        $menuItem->label = xlt("Prescription Log");
+        $menuItem->url = self::MODULE_INSTALLATION_PATH . "/templates/rxlogmanager.php";
         $menuItem->children = [];
-
-        /**
-         * This defines the Access Control List properties that are required to use this module.
-         * Several examples are provided
-         */
-        $menuItem->acl_req = [];
-
-        /**
-         * If you would like to restrict this menu to only logged in users who have access to see all user data
-         */
-        //$menuItem->acl_req = ["admin", "users"];
-
-        /**
-         * If you would like to restrict this menu to logged in users who can access patient demographic information
-         */
-        //$menuItem->acl_req = ["users", "demo"];
-
-
-        /**
-         * This menu flag takes a boolean property defined in the $GLOBALS array that OpenEMR populates.
-         * It allows a menu item to display if the property is true, and be hidden if the property is false
-         */
-        //$menuItem->global_req = ["custom_skeleton_module_enable"];
-
-        /**
-         * If you want your menu item to allows be shown then leave this property blank.
-         */
-        $menuItem->global_req = [];
+        $menuItem->acl_req = ["patients", "rx"];
+        $menuItem->global_req = ["weno_rx_enable"];
+        
+        //Weno Management
+        $mgtMenu = new \stdClass();
+        $mgtMenu->requirement = 0;
+        $mgtMenu->target = 'adm0';
+        $mgtMenu->menu_id = 'adm';
+        $mgtMenu->label = xlt("Weno Management");
+        $mgtMenu->url = self::MODULE_INSTALLATION_PATH . "/templates/facilities.php";
+        $mgtMenu->children = [];
+        $mgtMenu->acl_req = ["admin", "super"];
+        $mgtMenu->global_req = ["weno_rx_enable"];
 
         foreach ($menu as $item) {
-            if ($item->menu_id == 'modimg') {
-                $item->children[] = $menuItem;
+            if($item->menu_id == 'admimg'){
+                foreach($item->children as $other){
+                    if($other->label == 'Other'){
+                        $other->children[] = $mgtMenu;
+                        break;
+                    }
+                }
+            }
+            
+            if ($item->menu_id == 'repimg') {
+                foreach($item->children as $clientReport){
+                    if($clientReport->label == 'Clients'){
+                        $clientReport->children[] = $menuItem;
+                        break;
+                    }
+                }
+                
                 break;
             }
         }

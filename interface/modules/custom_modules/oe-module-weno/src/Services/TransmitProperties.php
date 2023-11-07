@@ -100,9 +100,11 @@ class TransmitProperties
      */
     public function getProviderEmail()
     {
-        $provider_info = sqlQuery("select email from users where username=? ", [$_SESSION["authUser"]]);
+        $uid = $_SESSION['authUserID'];
+        $sql = "select setting_value AS email from user_settings where setting_user = ? and setting_label = 'global:weno_provider_email'";
+        $provider_info = sqlQuery($sql, [$uid]);
         if (empty($provider_info['email'])) {
-            echo xlt('Provider email address is missing. Go to [Admin > Address Book] to add providers email address');
+            echo xlt('Provider email address is missing. Go to [User Settings > Weno Tab] and enter your Weno Provider Password');
             exit;
         } else {
             return $provider_info;

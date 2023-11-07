@@ -91,8 +91,6 @@ class LogImportBuild
                     $insertdata['patient_id'] = $pid;
                     $drug = isset($line[11]) ? str_replace('"', '', $line[11]) : null;
                     $insertdata['drug'] = $drug;
-                    $type = $this->drugForm($line[19]);
-                    $insertdata['form'] = $type ?? null;
                     $insertdata['quantity'] = $line[18] ?? null;
                     $insertdata['refills'] = $refills;
                     $sub = ($line[14] = 'Allowed' ? 1 : 0);

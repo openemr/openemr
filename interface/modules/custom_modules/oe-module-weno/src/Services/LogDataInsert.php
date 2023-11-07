@@ -26,15 +26,13 @@ class LogDataInsert
             . "date_added = ?, "
             . "patient_id = ?, "
             . "drug = ?, "
-            . "form = ?, "
             . "quantity = ?, "
             . "refills = ?, "
             . "substitute = ?,"
             . "note = ?, "
             . "rxnorm_drugcode = ?, "
             . "external_id = ?, "
-            . "indication = ?, "
-            . "start_date = ? ";
+            . "indication = ? ";
 
         try {
             sqlInsert($sql, [
@@ -42,15 +40,13 @@ class LogDataInsert
                 $insertdata['date_added'],
                 $insertdata['patient_id'],
                 $insertdata['drug'],
-                $insertdata['form'],
                 $insertdata['quantity'],
                 $insertdata['refills'],
                 $insertdata['substitute'],
                 $insertdata['note'],
                 $insertdata['rxnorm_drugcode'],
                 $insertdata['provider_id'],
-                $insertdata['prescriptionguid'],
-                $insertdata['start_date']
+                $insertdata['prescriptionguid']
             ]);
         } catch (Exception $e) {
             return $e->getMessage();

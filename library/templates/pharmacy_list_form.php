@@ -115,7 +115,7 @@ $res = sqlStatement($sql);
             <select class="form-control" name="weno_city" id="weno_city" onchange="cityChanged()"><?php echo xlt("Enter City") . " *"; ?></select>
             <div class="warn"></div>
         </div>
-        <span class="ml-1">OR</span>
+        <span class="ml-1"><?php echo xlt("OR"); ?></span>
         <div class="mx-3">
             <input class="form-control form-control-sm" name="weno_zipcode" id="weno_zipcode" placeholder="Zipcode">
         </div>
@@ -131,7 +131,7 @@ $res = sqlStatement($sql);
     <div class="mt-2 mb-1">
         <button type="button" class="btn btn-primary btn-sm mr-3" onclick="assignPrimaryPharmacy()"><?php echo xlt("Assign Primary Pharmacy"); ?></button>
         <button type="button" class="btn btn-primary btn-sm" onclick="assignAlternatePharmacy()"><?php echo xlt("Assign Alternate Pharmacy"); ?></button>
-        <button type="button" class="btn btn-danger btn-sm ml-3" onclick="resetForm()"><?php echo xlt("Reset"); ?></button>
+        <button type="button" class="btn btn-secondary btn-sm ml-3" onclick="resetForm()"><?php echo xlt("Reset"); ?></button>
     </div>
 
     <div class="small mb-1">

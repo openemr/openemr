@@ -1,9 +1,9 @@
 {
-  "name": "medsov/oe-module-blood-bank",
-  "description": "Blood Bank module",
+  "name": "openemr/oe-module-weno",
+  "description": "Weno EZ Integration Module",
   "type": "openemr-module",
   "minimum-stability": "stable",
-  "license": "proprietary",
+  "license": "GPL-3.0",
   "authors": [
     {
       "name": "Kofi Appiah",
@@ -11,18 +11,10 @@
     }
   ],
   "require": {
-    "openemr/oe-module-installer-plugin": "0.1.0",
-    "ext-json": "*",
-    "ext-curl": "*",
-    "php": ">=7.4",
-    "mongodb/mongodb": "^1.16"
   },
   "conflict": {
-    "openemr/openemr": ">=6.0.0"
+    "openemr/openemr": ">=7.0.1"
   },
   "config": {
-    "allow-plugins": {
-      "openemr/oe-module-installer-plugin": true
-    }
   }
 }
