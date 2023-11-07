@@ -1167,7 +1167,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'card_container_class_list' => ['flex-fill', 'mx-1'],
                             'id' => $id,
                             'forceAlwaysOpen' => false,
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                            'initiallyCollapsed' => (getUserSetting($id) == 0),
                             'btnLabel' => "Edit",
                             'auth' => AclMain::aclCheckCore('patients', 'rx', '', ['write', 'addonly']),
                         ];
