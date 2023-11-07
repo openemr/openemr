@@ -3429,7 +3429,7 @@ paths:
           schema:
             type: string
         -
-          name: eid
+          name: mid
           in: path
           description: 'The id for the pnote message.'
           required: true
@@ -4911,6 +4911,14 @@ paths:
       tags:
         - fhir
       description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'The id for the Group resource.'
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: 'The BULK FHIR Exports documentation can be found at <a href=''https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API'' target=''_blank'' rel=''noopener''>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>'

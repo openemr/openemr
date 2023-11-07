@@ -6919,7 +6919,7 @@ RestConfig::$ROUTE_MAP = array(
      *          )
      *      ),
      *      @OA\Parameter(
-     *          name="eid",
+     *          name="mid",
      *          in="path",
      *          description="The id for the pnote message.",
      *          required=true,
@@ -9689,6 +9689,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      path="/fhir/Group/{id}/$export",
      *      description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
      *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The id for the Group resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
