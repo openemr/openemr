@@ -83,11 +83,13 @@ if (count($emr_app)) {
     if (isset($_REQUEST['app']) && $emr_app[$_REQUEST['app']]) {
         $div_app = sprintf('<input type="hidden" name="appChoice" value="%s">', attr($_REQUEST['app']));
     } else {
+        $opt_htm = '';
+        // Is $opt_default suppose to be defined somewhere?
         foreach ($emr_app as $opt_disp => $opt_value) {
             $opt_htm .= sprintf(
                 '<option value="%s" %s>%s</option>\n',
                 attr($opt_disp),
-                ($opt_disp == $opt_default ? 'selected="selected"' : ''),
+                ($opt_disp == ($opt_default ?? '') ? 'selected="selected"' : ''),
                 text(xl_list_label($opt_disp))
             );
         }
