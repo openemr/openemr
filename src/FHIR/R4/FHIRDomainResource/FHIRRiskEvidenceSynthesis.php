@@ -1077,7 +1077,7 @@ class FHIRRiskEvidenceSynthesis extends FHIRDomainResource implements \JsonSeria
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;

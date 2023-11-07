@@ -227,7 +227,7 @@ class FHIRSubscriptionChannel extends FHIRBackboneElement implements \JsonSerial
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         if (isset($this->type)) {

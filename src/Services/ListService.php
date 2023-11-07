@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use Particle\Validator\Validator;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
@@ -54,6 +55,14 @@ class ListService
         }
 
         return $results;
+    }
+
+    public function getListOptionsForLists($lists)
+    {
+        $sql = "SELECT * FROM list_options WHERE list_id IN (" . str_repeat('?,', count($lists) - 1) . "?) "
+            . " ORDER BY list_id, seq";
+        $records = QueryUtils::fetchRecords($sql, $lists, false);
+        return $records;
     }
 
     public function getOptionsByListName($list_name, $search = array())

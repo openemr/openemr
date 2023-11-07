@@ -1,0 +1,27 @@
+{
+  "name": "openemr/oe-module-ehi-exporter",
+  "description": "OpenEMR EHI Exporter",
+  "type": "openemr-module",
+  "license": "GPL-3.0",
+  "authors": [
+    {
+      "name": "Stephen Nielson",
+      "email": "snielson@discoverandchange.com",
+      "role": "Developer"
+    }
+  ],
+  "keywords": ["openemr", "openemr-module"],
+  "minimum-stability": "stable",
+  "autoload": {
+    "psr-4": {"OpenEMR\\Modules\\EhiExporter\\": "src/"}
+  },
+  "require": {
+    "openemr/oe-module-installer-plugin": "^0.1.0",
+    "php": ">= 8.1",
+    "symfony/event-dispatcher": "^4.4.0",
+    "nyholm/psr7": "^1.4"
+  },
+  "conflict": {
+    "openemr/openemr": "<7.0.0"
+  }
+}

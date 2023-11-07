@@ -19,6 +19,7 @@ use Mpdf\Mpdf;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Pdf\Config_Mpdf;
 
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('patients', 'med');
@@ -58,24 +59,7 @@ if (!empty($_POST['form_send_to_portal'])) {
   // Borrowing the general strategy here from custom_report.php.
   // See also: http://wiki.spipu.net/doku.php?id=html2pdf:en:v3:output
     require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
-    $config_mpdf = array(
-        'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
-        'mode' => $GLOBALS['pdf_language'],
-        'format' => 'Letter',
-        'default_font_size' => '9',
-        'default_font' => 'dejavusans',
-        'margin_left' => $GLOBALS['pdf_left_margin'],
-        'margin_right' => $GLOBALS['pdf_right_margin'],
-        'margin_top' => $GLOBALS['pdf_top_margin'],
-        'margin_bottom' => $GLOBALS['pdf_bottom_margin'],
-        'margin_header' => '',
-        'margin_footer' => '',
-        'orientation' => 'P',
-        'shrink_tables_to_fit' => 1,
-        'use_kwt' => true,
-        'autoScriptToLang' => true,
-        'keep_table_proportions' => true
-    );
+    $config_mpdf = Config_Mpdf::getConfigMpdf();
     $pdf = new mPDF($config_mpdf);
     if ($_SESSION['language_direction'] == 'rtl') {
         $pdf->SetDirectionality('rtl');

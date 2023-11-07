@@ -132,7 +132,7 @@ class FHIRImmunizationEvaluationStatusCodes extends FHIRElement implements \Json
     /**
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->value;
     }

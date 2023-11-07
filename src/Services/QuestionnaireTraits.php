@@ -139,7 +139,7 @@ trait QuestionnaireTraits
      * @return false|string
      * @throws Exception
      */
-    public function jsonSerialize($fhirObjectOrArray)
+    public function jsonSerialize($fhirObjectOrArray): mixed
     {
         $a = $this->fhirObjectToArray($fhirObjectOrArray);
         return json_encode($a, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);

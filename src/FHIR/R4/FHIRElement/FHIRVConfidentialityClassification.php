@@ -132,7 +132,7 @@ class FHIRVConfidentialityClassification extends FHIRElement implements \JsonSer
     /**
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->value;
     }

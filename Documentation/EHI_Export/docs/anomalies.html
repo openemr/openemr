@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>openemr.openemr</title>
+        <!-- Tell the browser to be responsive to screen width -->
+        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+        <link rel="icon" type="image/png" sizes="16x16" href="favicon.png">
+        <!-- Bootstrap 3.3.5 -->
+        <link rel="stylesheet" href="bower/admin-lte/bootstrap/css/bootstrap.min.css">
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="bower/font-awesome/css/font-awesome.min.css">
+        <!-- Ionicons -->
+        <link rel="stylesheet" href="bower/ionicons/css/ionicons.min.css">
+        <!-- DataTables -->
+        <link rel="stylesheet" href="bower/datatables.net-bs/css/dataTables.bootstrap.min.css">
+        <link rel="stylesheet" href="bower/datatables.net-buttons-bs/css/buttons.bootstrap.min.css">
+        <!-- Code Mirror -->
+        <link rel="stylesheet" href="bower/codemirror/codemirror.css">
+        <!-- Fonts -->
+        <link href='fonts/indieflower/indie-flower.css' rel='stylesheet' type='text/css'>
+        <link href='fonts/source-sans-pro/source-sans-pro.css' rel='stylesheet' type='text/css'>
+
+        <!-- Theme style -->
+        <link rel="stylesheet" href="bower/admin-lte/dist/css/AdminLTE.min.css">
+        <!-- Salvattore -->
+        <link rel="stylesheet" href="bower/salvattore/salvattore.css">
+        <!-- AdminLTE Skins. Choose a skin from the css/skins
+           folder instead of downloading all of them to reduce the load. -->
+        <link rel="stylesheet" href="bower/admin-lte/dist/css/skins/_all-skins.min.css">
+        <!-- SchemaSpy -->
+        <link rel="stylesheet" href="schemaSpy.css">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+        <script src="bower/html5shiv/html5shiv.min.js"></script>
+        <script src="bower/respond/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    <!-- ADD THE CLASS layout-top-nav TO REMOVE THE SIDEBAR. -->
+    <body class="hold-transition skin-blue layout-top-nav">
+        <div class="wrapper">
+            <header class="main-header">
+                <nav class="navbar navbar-static-top">
+                    <div class="container">
+                        <div class="navbar-header">
+                            <a href="index.html" class="navbar-brand"><b>openemr</b></a><span class="navbar-brand" style="padding-left: 0">.openemr</span>
+                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse"><i class="fa fa-bars"></i></button>
+                        </div>
+
+                        <!-- Collect the nav links, forms, and other content for toggling -->
+                        <div class="collapse navbar-collapse pull-left" id="navbar-collapse">
+                            <ul class="nav navbar-nav">
+                                <li><a href="index.html">Tables <span class="sr-only">(current)</span></a></li>
+                                <li><a href="columns.html" title="All of the columns in the schema">Columns</a></li>
+<!--                                <li><a href="constraints.html" title="Useful for diagnosing error messages that just give constraint name or number">Constraints</a></li>-->
+                                <li><a href="relationships.html" title="Diagram of table relationships">Relationships</a></li>
+                                <!-- <li><a href="orphans.html" title="View of tables with neither parents nor children">Orphan&nbsp;Tables</a></li> -->
+                                <!-- <li><a href="anomalies.html" title="Things that might not be quite right">Anomalies</a></li> -->
+                                <!-- <li><a href="routines.html" title="Procedures and functions">Routines</a></li> -->
+                            </ul>
+                        </div>
+                        <!-- /.navbar-collapse -->
+                        <!-- Navbar Right Menu -->
+                    </div>
+                    <!-- /.container-fluid -->
+                </nav>
+            </header>
+            <!-- Main content -->
+            <!-- Full Width Column -->
+            <div class="content-wrapper">
+                <!-- Content Header (Page header) -->
+                <section class="content-header">
+                    <h1>Anomalies</h1><br />
+                    <div class="callout callout-warning">
+                        <p>Things that might not be 'quite right' about your database and schema</p>
+                    </div>
+                </section>
+                <!-- Main content -->
+                <section class="content">
+                    <div class="row">
+                        <div class="col-md-6"> <!-- Implied Relationship -->
+                            <div class="box box-success">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">Columns whose name and type imply a relationship to another table's primary key</h3>
+                                    <div class="box-tools pull-right">
+                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <table
+                                            id="implied_constraint"
+                                            class="table table-bordered table-striped dataTable"
+                                            role="grid"
+                                            data-paging="false"
+                                            data-page-length="10"
+                                            data-length-change="false">
+                                        <thead align='left'>
+                                            <tr>
+                                                <th>Child Column</th>
+                                                <th>Implied Parent Column</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="3">Anomaly not detected</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6"> <!-- Tables without indexes -->
+                            <div class="box box-danger">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">Tables without indexes</h3>
+                                    <div class="box-tools pull-right">
+                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <table
+                                            id="un_indexed_table"
+                                            class="table table-bordered table-striped dataTable"
+                                            role="grid"
+                                            data-paging="false"
+                                            data-page-length="10"
+                                            data-length-change="false">
+                                        <thead align='left'>
+                                            <tr>
+                                                <th>Table</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><a href='tables/benefit_eligibility.html'>benefit_eligibility</a></td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href='tables/form_care_plan.html'>form_care_plan</a></td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href='tables/form_functional_cognitive_status.html'>form_functional_cognitive_status</a></td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href='tables/form_observation.html'>form_observation</a></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6"> <!-- Tables that contain a single column -->
+                            <div class="box box-info">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">Tables that contain a single column</h3>
+                                    <div class="box-tools pull-right">
+                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <table
+                                            id="single_column_table"
+                                            class="table table-bordered table-striped dataTable"
+                                            role="grid"
+                                            data-paging="false"
+                                            data-page-length="10"
+                                            data-length-change="false">
+                                        <thead align='left'>
+                                            <tr>
+                                                <th>Table</th>
+                                                <th>Column</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="3">Anomaly not detected</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6"> <!-- Tables with incrementing column names, potentially indicating denormalization -->
+                            <div class="box box-danger">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">Tables with incrementing column names, potentially indicating denormalization</h3>
+                                    <div class="box-tools pull-right">
+                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <table
+                                            id="inc_column_table"
+                                            class="table table-bordered table-striped dataTable"
+                                            role="grid"
+                                            data-paging="false"
+                                            data-page-length="10"
+                                            data-length-change="false">
+                                        <thead align='left'>
+                                            <tr>
+                                                <th>Table</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><a href='tables/facility.html'>facility</a></td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href='tables/form_ankleinjury.html'>form_ankleinjury</a></td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href='tables/form_bronchitis.html'>form_bronchitis</a></td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href='tables/form_eye_antseg.html'>form_eye_antseg</a></td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href='tables/form_eye_biometrics.html'>form_eye_biometrics</a></td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href='tables/form_eye_hpi.html'>form_eye_hpi</a></td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href='tables/form_eye_vitals.html'>form_eye_vitals</a></td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href='tables/history_data.html'>history_data</a></td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href='tables/list_options.html'>list_options</a></td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href='tables/patient_data.html'>patient_data</a></td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href='tables/users.html'>users</a></td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href='tables/voids.html'>voids</a></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6"> <!-- Columns whose default value is the word 'NULL' or 'null', but the SQL NULL value may have been intended -->
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title" title="Columns whose default value is the word 'NULL' or 'null', but the SQL NULL value may have been intende">Columns whose default value is the word 'NULL' or 'null'</h3>
+                                    <div class="box-tools pull-right">
+                                        <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                        <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                                    </div>
+                                </div>
+                                <div class="box-body">
+                                    <table
+                                            id="null_string_table"
+                                            class="table table-bordered table-striped dataTable"
+                                            role="grid"
+                                            data-paging="false"
+                                            data-page-length="10"
+                                            data-length-change="false">
+                                        <thead align='left'>
+                                            <tr>
+                                                <th>Table</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="3">Anomaly not detected</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <!-- /.content-wrapper -->
+            <footer class="main-footer">
+                <div>
+                    <div class="pull-right hidden-xs">
+                        <a href="https://github.com/schemaspy/schemaspy" title="GitHub for SchemaSpy"><i class="fa fa-github-square fa-2x"></i></a>
+                        <a href="http://stackoverflow.com/questions/tagged/schemaspy" title="StackOverflow for SchemaSpy"><i class="fa fa-stack-overflow fa-2x"></i></a>
+                    </div>
+                    <strong>Generated by <a href="http://schemaspy.org/" class="logo-text"><i class="fa fa-database"></i> SchemaSpy 6.2.4</a></strong>
+                </div>
+                <!-- /.container -->
+            </footer>
+        </div>
+        <!-- ./wrapper -->
+
+        <!-- jQuery 2.2.3 -->
+        <script src="bower/admin-lte/plugins/jQuery/jquery-2.2.3.min.js"></script>
+        <script src="bower/admin-lte/plugins/jQueryUI/jquery-ui.min.js"></script>
+        <!-- Bootstrap 3.3.5 -->
+        <script src="bower/admin-lte/bootstrap/js/bootstrap.min.js"></script>
+        <!-- DataTables -->
+        <script src="bower/datatables.net/jquery.dataTables.min.js"></script>
+        <script src="bower/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+        <script src="bower/datatables.net-buttons/dataTables.buttons.min.js"></script>
+        <script src="bower/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+        <script src="bower/datatables.net-buttons/buttons.html5.min.js"></script>
+        <script src="bower/datatables.net-buttons/buttons.print.min.js"></script>
+        <script src="bower/datatables.net-buttons/buttons.colVis.min.js"></script>
+        <!-- SheetJS -->
+        <script src="bower/js-xlsx/xlsx.full.min.js"></script>
+        <!-- pdfmake -->
+        <script src="bower/pdfmake/pdfmake.min.js"></script>
+        <script src="bower/pdfmake/vfs_fonts.js"></script>
+        <!-- SlimScroll -->
+        <script src="bower/admin-lte/plugins/slimScroll/jquery.slimscroll.min.js"></script>
+        <!-- FastClick -->
+        <script src="bower/admin-lte/plugins/fastclick/fastclick.js"></script>
+        <!-- Salvattore -->
+        <script src="bower/salvattore/salvattore.min.js"></script>
+        <!-- AnchorJS -->
+        <script src="bower/anchor-js/anchor.min.js"></script>
+        <!-- CodeMirror -->
+        <script src="bower/codemirror/codemirror.js"></script>
+        <script src="bower/codemirror/sql.js"></script>
+        <!-- AdminLTE App -->
+        <script src="bower/admin-lte/dist/js/app.min.js"></script>
+        <script src="anomalies.js"></script>
+        <script src="schemaSpy.js"></script>
+    </body>
+</html>
