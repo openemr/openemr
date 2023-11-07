@@ -578,10 +578,3 @@ ALTER TABLE `x12_partners` ADD COLUMN `x12_claim_status_endpoint` tinytext;
 #IfMissingColumn x12_partners x12_attachment_endpoint
 ALTER TABLE `x12_partners` ADD COLUMN `x12_attachment_endpoint` tinytext;
 #EndIf
-
-#IfRow lists type allergy
-SET @username = (SELECT `username` FROM `users` WHERE `authorized` = 1 AND `active` = 1 LIMIT 1);
-UPDATE `lists` SET `user` = @username WHERE `type` = 'allergy' AND (`user` = '' OR `user` IS NULL);
-SET @user = (SELECT `user` FROM `lists` WHERE `type` = 'allergy');
-UPDATE `users` SET `npi` = COALESCE(`npi`, '0123456789') WHERE `username` = @user;
-#EndIf
