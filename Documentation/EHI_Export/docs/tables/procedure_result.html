@@ -138,7 +138,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Surrogate id of the record used as the primary incrementing key</p></td>
                                 </tr>
                                 <tr>
                                     <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="uuid">uuid</span></td>
@@ -155,7 +155,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>UUID of the record</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="procedure_report_id">procedure_report_id</span></td>
@@ -194,7 +194,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>N=Numeric, S=String, F=Formatted, E=External, L=Long text as first line of comments</p></td>
+                                    <td><p>N=Numeric, S=String, F=Formatted, E=External, L=Long text as the first line of comments</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="result_code">result_code</span></td>
@@ -245,7 +245,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>lab-provided date specific to this result</p></td>
+                                    <td><p>Lab-provided date specific to this result</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="facility">facility</span></td>
@@ -262,7 +262,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>lab-provided testing facility ID</p></td>
+                                    <td><p>Lab-provided testing facility ID</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="units">units</span></td>
@@ -279,7 +279,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Units for the result</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="result">result</span></td>
@@ -296,7 +296,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Result data</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="range">range</span></td>
@@ -313,7 +313,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Result range</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="abnormal">abnormal</span></td>
@@ -330,7 +330,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>no,yes,high,low</p></td>
+                                    <td><p>Abnormal values (no, yes, high, low)</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="comments">comments</span></td>
@@ -347,10 +347,10 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>comments from the lab</p></td>
+                                    <td><p>Comments from the lab</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="document_id">document_id</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="document_id">document_id</span></td>
                                     <td>BIGINT</td>
                                     <td>19</td>
                                     <td title=''></td>
@@ -362,9 +362,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="procedure_result.document_id references documents.id"><a href='documents.html'>documents</a><span class='relatedKey'>.id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td><p>references documents.id if this result is a document</p></td>
+                                    <td><p>References documents.id if this result is a document</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="result_status">result_status</span></td>
@@ -381,7 +386,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>preliminary, cannot be done, final, corrected, incomplete&hellip;etc.</p></td>
+                                    <td><p>Result status (preliminary, cannot be done, final, corrected, incomplete, etc.)</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="date_end">date_end</span></td>
@@ -398,7 +403,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>lab-provided end date specific to this result</p></td>
+                                    <td><p>Lab-provided end date specific to this result</p></td>
                                 </tr>
                                 </tbody>
                             </table>

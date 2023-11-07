@@ -12,6 +12,7 @@ digraph "twoDegreesRelationshipsDiagram" {
   "billing":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "billing":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "billing":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "claims":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "claims":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "clinical_plans":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "documents":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -85,6 +86,7 @@ digraph "twoDegreesRelationshipsDiagram" {
   "form_sdoh":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_soap":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_taskman":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_track_anything":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=teeodot];
   "form_track_anything":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_transfer_summary":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=teeodot];
   "form_transfer_summary":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -102,7 +104,11 @@ digraph "twoDegreesRelationshipsDiagram" {
   "immunization_observation":"elipses":w -> "immunizations":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "immunization_observation":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "immunization_observation":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "immunizations":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "immunizations":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "immunizations":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "immunizations":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "immunizations":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "insurance_data":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "lists":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "lists":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -118,6 +124,10 @@ digraph "twoDegreesRelationshipsDiagram" {
   "form_gad7":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_gad7":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_gad7":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "issue_encounter":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "issue_encounter":"elipses":w -> "lists":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "issue_encounter":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "openemr_postcalendar_events":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "openemr_postcalendar_events":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "openemr_postcalendar_events":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "patient_access_onsite":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=teeodot];
@@ -211,7 +221,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="43" HEIGHT="16"><B>claims</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
     </TABLE>>
     URL="../../tables/claims.html"
     target="_top"
@@ -233,7 +243,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="74" HEIGHT="16"><B>documents</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/documents.html"
     target="_top"
@@ -428,7 +438,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="106" HEIGHT="16"><B>form_encounter</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">12 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">14 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/form_encounter.html"
     target="_top"
@@ -758,7 +768,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="138" HEIGHT="16"><B>form_track_anything</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/form_track_anything.html"
     target="_top"
@@ -802,7 +812,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="39" HEIGHT="16"><B>forms</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 6</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">12 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 6</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">13 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/forms.html"
     target="_top"
@@ -835,7 +845,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="99" HEIGHT="16"><B>immunizations</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 13</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/immunizations.html"
     target="_top"
@@ -857,7 +867,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="28" HEIGHT="16"><B>lists</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 11</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">3 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 11</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">4 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/lists.html"
     target="_top"
@@ -929,12 +939,23 @@ digraph "twoDegreesRelationshipsDiagram" {
     target="_top"
     tooltip="form_gad7"
   ];
+  "issue_encounter" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="109" HEIGHT="16"><B>issue_encounter</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="../../tables/issue_encounter.html"
+    target="_top"
+    tooltip="issue_encounter"
+  ];
   "openemr_postcalendar_events" [
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="205" HEIGHT="16"><B>openemr_postcalendar_events</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 7</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 10</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/openemr_postcalendar_events.html"
     target="_top"
@@ -964,7 +985,7 @@ digraph "twoDegreesRelationshipsDiagram" {
       <TR><TD PORT="created_by" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="146" HEIGHT="16">created_by</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="updated_by" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="146" HEIGHT="16">updated_by</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 5</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">84 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 5</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">85 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/patient_data.html"
     target="_top"
@@ -1129,7 +1150,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="36" HEIGHT="16"><B>users</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">56 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">61 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/users.html"
     target="_top"
