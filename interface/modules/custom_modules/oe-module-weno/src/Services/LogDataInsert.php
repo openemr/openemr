@@ -21,18 +21,18 @@ class LogDataInsert
     }
     public function insertPrescriptions($insertdata)
     {
-        $sql = "INSERT INTO prescriptions SET "
-            . "active = ?, "
-            . "date_added = ?, "
-            . "patient_id = ?, "
-            . "drug = ?, "
-            . "quantity = ?, "
-            . "refills = ?, "
-            . "substitute = ?,"
-            . "note = ?, "
-            . "rxnorm_drugcode = ?, "
-            . "external_id = ?, "
-            . "indication = ? ";
+        $sql = "INSERT INTO prescriptions SET ";
+        $sql .= "active = ?, ";
+        $sql .= "date_added = ?, ";
+        $sql .= "patient_id = ?, ";
+        $sql .= "drug = ?, ";
+        $sql .= "quantity = ?, ";
+        $sql .= "refills = ?, ";
+        $sql .= "substitute = ?,";
+        $sql .= "note = ?, ";
+        $sql .= "rxnorm_drugcode = ?, ";
+        $sql .= "external_id = ?, ";
+        $sql .= "indication = ? ";
 
         try {
             sqlInsert($sql, [
