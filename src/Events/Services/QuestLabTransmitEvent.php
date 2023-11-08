@@ -12,7 +12,7 @@ namespace OpenEMR\Events\Services;
 
 use Symfony\Contracts\EventDispatcher\Event;
 
-class LabTransmitEvent extends Event
+class QuestLabTransmitEvent extends Event
 {
     /**
      * This event is triggered when a lab is to be transmitted
