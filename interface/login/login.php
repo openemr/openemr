@@ -55,6 +55,7 @@ $layout = $GLOBALS['login_page_layout'];
 // If this script is called with app parameter, validate it without showing other apps.
 //
 // Build a list of valid entries
+// Original merge v5.0.1
 $emr_app = array();
 $sql = "SELECT option_id, title,is_default FROM list_options WHERE list_id=? and activity=1 ORDER BY seq, option_id";
 $rs = sqlStatement($sql, ['apps']);
@@ -84,12 +85,11 @@ if (count($emr_app)) {
         $div_app = sprintf('<input type="hidden" name="appChoice" value="%s">', attr($_REQUEST['app']));
     } else {
         $opt_htm = '';
-        // Is $opt_default suppose to be defined somewhere?
         foreach ($emr_app as $opt_disp => $opt_value) {
             $opt_htm .= sprintf(
                 '<option value="%s" %s>%s</option>\n',
                 attr($opt_disp),
-                ($opt_disp == ($opt_default ?? '') ? 'selected="selected"' : ''),
+                ($opt_disp == ($emr_app_def ?? '') ? 'selected="selected"' : ''),
                 text(xl_list_label($opt_disp))
             );
         }
@@ -210,16 +210,16 @@ if (session_name()) {
 
 $viewArgs = [
     'title' => $openemr_name,
-    'displayLanguage' => ($GLOBALS["language_menu_login"] && (count($languageList) != 1)) ? true : false,
+    'displayLanguage' => $GLOBALS["language_menu_login"] && (count($languageList) != 1),
     'defaultLangID' => $defaultLanguage['id'],
     'defaultLangName' => $defaultLanguage['language'],
     'languageList' => $languageList,
     'relogin' => $relogin,
-    'loginFail' => (isset($_SESSION["loginfailure"]) && $_SESSION["loginfailure"] == 1) ? true : false,
-    'displayFacilities' => ($GLOBALS["login_into_facility"]) ? true : false,
+    'loginFail' => isset($_SESSION["loginfailure"]) && $_SESSION["loginfailure"] == 1,
+    'displayFacilities' => (bool)$GLOBALS["login_into_facility"],
     'facilityList' => $facilities,
     'facilitySelected' => $facilitySelected,
-    'displayGoogleSignin' => (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_client_id'])) ? true : false,
+    'displayGoogleSignin' => !empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_client_id']),
     'googleSigninClientID' => $GLOBALS['google_signin_client_id'],
     'displaySmallLogo' => $displaySmallLogo,
     'smallLogoOne' => $smallLogoOne,
@@ -228,7 +228,7 @@ $viewArgs = [
     'displayTagline' => $GLOBALS['show_tagline_on_login'],
     'tagline' => $GLOBALS['login_tagline_text'],
     'displayAck' => $GLOBALS['display_acknowledgements_on_login'],
-    'hasSession' => (session_name()) ? true : false,
+    'hasSession' => (bool)session_name(),
     'cookieText' => $cookie,
     'regTranslations' => $regTranslations,
     'regConstants' => json_encode(['webroot' => $GLOBALS['webroot']]),
