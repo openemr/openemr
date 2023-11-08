@@ -20,6 +20,12 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
+function orderDate($order)
+{
+    $sql = "SELECT DATE_FORMAT(date_ordered, '%m/%d/%Y') AS date_ordered FROM procedure_order WHERE procedure_order_id = ? ";
+    return sqlQuery($sql, [$order]);
+}
+
 $action = $_GET['action'];
 
 if ($action === 'code_detail') {
@@ -63,6 +69,8 @@ if ($action === 'print_labels') {
     $specimen = array();
     $specimens = explode(";", $_GET['specimen']);
     $patient = strtoupper($_GET['patient']);
+    $order_date = orderDate($order);
+    $dob = $_GET['dob'];
     $count = 1;
     if ($_GET['count']) {
         $count = (int)$_GET['count'];
@@ -96,13 +104,14 @@ if ($action === 'print_labels') {
 
             $pdf->AddPage();
             $barcode = '<div style="text-align: center;vertical-align: bottom;">';
-            $pdf->SetFont('', '', 7);
-            $pdf->writeCell(0, 3, 'CLIENT #: ' . $client, 0, 1, 'C');
-            $pdf->writeCell(0, 3, 'LAB REF #: ' . $ord, 0, 1, 'C');
             $pdf->SetFont('', 'B', 8);
             $pdf->writeCell(0, 3, $patient, 0, 1, 'C');
+            $pdf->SetFont('', '', 7);
+            $pdf->writeCell(0, 3, 'CLIENT#: ' . $client . '-WDL', 0, 1, 'C');
+            $pdf->writeCell(0, 3, 'DOS: ' . $order_date['date_ordered'], 0, 1, 'C');
+            $pdf->writeCell(0, 3, 'DOB: ' . $dob, 0, 1, 'C');
             $code_info = $client . '-' . $ord;
-            $barcode .= '<barcode size=".8" pr=".4" code="' . attr($code_info) . '" type="C39" /></div>';
+            $barcode .= '<barcode size=".6" pr=".4" code="' . attr($code_info) . '" type="C39" /></div>';
             $pdf->writeHTML($barcode);
         }
         $count--;
