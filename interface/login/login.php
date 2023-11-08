@@ -96,9 +96,9 @@ if (count($emr_app)) {
 
         $div_app = sprintf(
             '
-            <div id="divApp" class="form-group">
-                <label for="appChoice" class="text-right">%s:</label>
-                <div>
+            <div id="divApp" class="form-group row">
+                <label for="appChoice" class="col-form-label col-sm-4">%s:</label>
+                <div class="col">
                     <select class="form-control" id="selApp" name="appChoice" size="1">%s</select>
                 </div>
             </div>',
