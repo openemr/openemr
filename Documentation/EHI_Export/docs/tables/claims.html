@@ -86,7 +86,7 @@
                             </div>
                         </div><!-- /.box-header -->
                         <div class="box-body clearfix">
-                            <p>Insurance Billing Claims</p>
+                            <p>Insurance Billing Claims - Used for tracking and submission of billing claims to payers</p>
                         </div><!-- /.box-body -->
                     </div>
                 </section>
@@ -158,9 +158,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="claims.encounter_id references form_encounter.encounter"><a href='form_encounter.html'>form_encounter</a><span class='relatedKey'>.encounter</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Encounter identifier - Identifier for the patient encounter associated with the claim</p></td>
                                 </tr>
                                 <tr>
                                     <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="version">version</span></td>
@@ -177,10 +182,10 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>Claim version, incremented in code</p></td>
+                                    <td><p>Claim version - Incremented in code to track changes in claims</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="payer_id">payer_id</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="payer_id">payer_id</span></td>
                                     <td>INT</td>
                                     <td>10</td>
                                     <td title=''></td>
@@ -192,9 +197,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="claims.payer_id references insurance_companies.id"><a href='insurance_companies.html'>insurance_companies</a><span class='relatedKey'>.id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The insurance company being billed. If this is self-pay the id will be 0</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="status">status</span></td>
@@ -211,7 +221,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Claim status - Status of the billing claim. -1=Leave Unchanged,1=Unbilled,2=Mark as billed, 7=Denied</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="payer_type">payer_type</span></td>
@@ -228,7 +238,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The payer type code, indicating the source of payment (0=patient, 1=primary insurance, 2=secondary insurance, etc).</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="bill_process">bill_process</span></td>
@@ -245,7 +255,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Billing process status. -1=Leave unchanged, 0=Claim is open,1=Processing in progress,2=Billed,3=Error</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="bill_time">bill_time</span></td>
@@ -262,7 +272,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Billing time - The datetime this bill was created</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="process_time">process_time</span></td>
@@ -279,7 +289,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Processing time - Time of claim processing</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="process_file">process_file</span></td>
@@ -296,7 +306,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Processing file - File associated with claim processing</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="target">target</span></td>
@@ -313,7 +323,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Claim target - Target associated with the claim</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="x12_partner_id">x12_partner_id</span></td>
@@ -330,7 +340,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>X12 Partner identifier - Identifier for the X12 partner.  Empty in export</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="submitted_claim">submitted_claim</span></td>
@@ -347,7 +357,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>This claims form claim data</p></td>
+                                    <td><p>Submitted claim - Claims form data</p></td>
                                 </tr>
                                 </tbody>
                             </table>

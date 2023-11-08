@@ -148,7 +148,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Surrogate id of the record used as the primary incrementing key</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="pc_catid">pc_catid</span></td>
@@ -170,7 +170,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The appointment category</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_multiple">pc_multiple</span></td>
@@ -187,7 +187,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Multiple occurrences of the event. Used if this is a recurring appointment.</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="pc_aid">pc_aid</span></td>
@@ -209,7 +209,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The provider this appointment is connected to</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="pc_pid">pc_pid</span></td>
@@ -247,13 +247,13 @@
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
-                                                <td title="openemr_postcalendar_events.pc_gid references groups.id"><a href='groups.html'>groups</a><span class='relatedKey'>.id</span></td>
+                                                <td title="openemr_postcalendar_events.pc_gid references therapy_groups.group_id"><a href='therapy_groups.html'>therapy_groups</a><span class='relatedKey'>.group_id</span></td>
                                                 <td class="constraint detail">Defined in XML</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The therapy group id this appointment is for</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_title">pc_title</span></td>
@@ -270,7 +270,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Title of the event</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_time">pc_time</span></td>
@@ -287,7 +287,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Time of the event</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_hometext">pc_hometext</span></td>
@@ -304,7 +304,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Description of the event</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_comments">pc_comments</span></td>
@@ -321,7 +321,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Comments associated with the event</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_counter">pc_counter</span></td>
@@ -338,7 +338,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Event counter</p></td>
                                 </tr>
                                 <tr>
                                     <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="pc_topic">pc_topic</span></td>
@@ -355,10 +355,10 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Topic id of the event</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="pc_informant">pc_informant</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="pc_informant">pc_informant</span></td>
                                     <td>VARCHAR</td>
                                     <td>20</td>
                                     <td title='nullable'>√</td>
@@ -370,9 +370,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="openemr_postcalendar_events.pc_informant references users.id"><a href='users.html'>users</a><span class='relatedKey'>.id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>User creating the event</p></td>
                                 </tr>
                                 <tr>
                                     <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="pc_eventDate">pc_eventDate</span></td>
@@ -389,7 +394,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Date of the event</p></td>
                                 </tr>
                                 <tr>
                                     <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="pc_endDate">pc_endDate</span></td>
@@ -406,7 +411,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>End date of the event</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_duration">pc_duration</span></td>
@@ -423,7 +428,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Duration of the event</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_recurrtype">pc_recurrtype</span></td>
@@ -440,7 +445,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Recurrence type of the event</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_recurrspec">pc_recurrspec</span></td>
@@ -457,7 +462,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Recurrence specification of the event</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_recurrfreq">pc_recurrfreq</span></td>
@@ -474,7 +479,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Recurrence frequency of the event</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_startTime">pc_startTime</span></td>
@@ -491,7 +496,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Start time of the event</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_endTime">pc_endTime</span></td>
@@ -508,7 +513,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>End time of the event</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_alldayevent">pc_alldayevent</span></td>
@@ -525,7 +530,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Indicates if the event is an all-day event</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_location">pc_location</span></td>
@@ -542,7 +547,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Location of the event</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_conttel">pc_conttel</span></td>
@@ -559,7 +564,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Contact telephone number</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_contname">pc_contname</span></td>
@@ -576,7 +581,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Contact name</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_contemail">pc_contemail</span></td>
@@ -593,7 +598,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Contact email address</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_website">pc_website</span></td>
@@ -610,7 +615,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Website associated with the event</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_fee">pc_fee</span></td>
@@ -627,7 +632,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Event fee</p></td>
                                 </tr>
                                 <tr>
                                     <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="pc_eventstatus">pc_eventstatus</span></td>
@@ -644,7 +649,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Event status -1=hidden,0=queued,1=approved</p></td>
                                 </tr>
                                 <tr>
                                     <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="pc_sharing">pc_sharing</span></td>
@@ -661,7 +666,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Sharing status of the event</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_language">pc_language</span></td>
@@ -678,7 +683,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Language of the event</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="pc_apptstatus">pc_apptstatus</span></td>
@@ -703,7 +708,7 @@
                                     <td><p>Comes from the list_options.list_id=&lsquo;apptstat&rsquo; if it is a single patient appointment OR list_options.list_id=&lsquo;groupstat&rsquo; if this is a group appointment. It represents the current appointment status checked in, checked out, waiting, etc</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="pc_prefcatid">pc_prefcatid</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="pc_prefcatid">pc_prefcatid</span></td>
                                     <td>INT</td>
                                     <td>10</td>
                                     <td title=''></td>
@@ -715,9 +720,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="openemr_postcalendar_events.pc_prefcatid references openemr_postcalendar_categories.pc_catid"><a href='openemr_postcalendar_categories.html'>openemr_postcalendar_categories</a><span class='relatedKey'>.pc_catid</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Preferred category id for a provider available slot</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="pc_facility">pc_facility</span></td>
@@ -739,7 +749,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td><p>facility id for this event</p></td>
+                                    <td><p>The facility for where the service for this appointment will be rendered</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_sendalertsms">pc_sendalertsms</span></td>
@@ -756,7 +766,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Send SMS alerts for the event</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="pc_sendalertemail">pc_sendalertemail</span></td>
@@ -773,10 +783,10 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Send email alerts for the event</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="pc_billing_location">pc_billing_location</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="pc_billing_location">pc_billing_location</span></td>
                                     <td>SMALLINT</td>
                                     <td>5</td>
                                     <td title=''></td>
@@ -788,9 +798,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="openemr_postcalendar_events.pc_billing_location references facility.id"><a href='facility.html'>facility</a><span class='relatedKey'>.id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Billing facility location of the event</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="pc_room">pc_room</span></td>
@@ -829,7 +844,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>UUID of the record</p></td>
                                 </tr>
                                 </tbody>
                             </table>

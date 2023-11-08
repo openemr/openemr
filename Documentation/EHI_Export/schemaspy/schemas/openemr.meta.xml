@@ -239,7 +239,42 @@
             <column name="patient_id"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
-            <!-- TODO: @adunsulag immunization_id, administered_by_id, created_by, updated_by, ordering_provider -->
+            <column name="administered_by_id" comments="The person that administered the immunization">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="created_by" comments="The user that created this record">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="updated_by" comments="The user that last updated this record">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="ordering_provider" comments="The provider that issued the order to administer this immunization">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="immunization_id" comments="Comes from the list_options.list_id='immunizations' and represents common list of immunizations the EMR works with">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="amount_administered_unit" comments="Comes from the list_options.list_id='drug_units' and represents the units of drug administered">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="manufacturer" comments="Comes from the list_options.list_id='Immunization_Manufacturer' and represents a list of immunization manufacturers">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="route" comments="Comes from the list_options.list_id='drug_route' and represents a list of immunization manufacturers">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="administration_site" comments="Comes from the list_options.list_id='immunization_administered_site' and represents the body sites where the immunization can be administered">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="information_source" comments="Comes from the list_options.list_id='immunization_informationsource' and represents where the source of information the immmunization is coming from originates">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="completion_status" comments="Comes from the list_options.list_id='Immunization_Completion_Status' and represents the status of the immunization">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="refusal_reason" comments="Comes from the list_options.list_id='immunization_refusal_reason' and represents the reasons the individual refused immunization">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
         </table>
         <table name="immunization_observation" comments="Individual observations for a specific immunization">
             <column name="imo_pid"  comments="The internal patient identifier">
@@ -248,7 +283,7 @@
             <column name="imo_im_id"  comments="The immunization record this observation is part of">
                 <foreignKey table="immunizations" column="id" />
             </column>
-            <column name="imo_user">
+            <column name="imo_user" comments="The user that is recording the observation for this immunization">
                 <foreignKey table="users" column="id" />
             </column>
         </table>
@@ -438,22 +473,21 @@
         </table>
 <!--        - Recall Appts-->
 <!--        - Patient Appointments-->
-
-        <!-- TODO: @adunsulag openemr_postcalendar_events and openemr_postcalendar_categories -->
         <table name="openemr_postcalendar_events" comments="Holds records for Patient Appointment/Calendar information">
+            <column name="pc_eid" comments="Surrogate id of the record used as the primary incrementing key"/>
             <column name="pc_pid"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
-            <column name="pc_catid">
+            <column name="pc_catid" comments="The appointment category">
                 <foreignKey table="openemr_postcalendar_categories" column="pc_catid" />
             </column>
-            <column name="pc_aid">
+            <column name="pc_aid" comments="The provider this appointment is connected to">
                 <foreignKey table="users" column="id" />
             </column>
-            <column name="pc_gid">
-                <foreignKey table="groups" column="id" />
+            <column name="pc_gid" comments="The therapy group id this appointment is for">
+                <foreignKey table="therapy_groups" column="group_id"/>
             </column>
-            <column name="pc_facility">
+            <column name="pc_facility" comments="The facility for where the service for this appointment will be rendered">
                 <foreignKey table="facility" column="id" />
             </column>
             <column name="pc_apptstatus"  comments="Comes from the list_options.list_id='apptstat' if it is a single patient appointment OR list_options.list_id='groupstat' if this is a group appointment. It represents the current appointment status checked in, checked out, waiting, etc">
@@ -462,8 +496,64 @@
             <column name="pc_room"  comments="Comes from the list_options.list_id='patient_flow_board_rooms' and represents the facility room that the patient has been assigned to for this appointment if one has been assigned">
                 <foreignKey table="list_options" column="option_id" />
             </column>
+            <column name="pc_billing_location" comments="Billing facility location of the event">
+                <foreignKey table="facility" column="id" />
+            </column>
+            <column name="pc_informant" comments="User creating the event">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="pc_prefcatid" comments="Preferred category id for a provider available slot">
+                <foreignKey table="openemr_postcalendar_categories" column="pc_catid" />
+            </column>
+            <column name="pc_multiple" comments="Multiple occurrences of the event. Used if this is a recurring appointment."/>
+            <column name="pc_title" comments="Title of the event"/>
+            <column name="pc_time" comments="Time of the event"/>
+            <column name="pc_hometext" comments="Description of the event"/>
+            <column name="pc_comments" comments="Comments associated with the event"/>
+            <column name="pc_counter" comments="Event counter"/>
+            <column name="pc_topic" comments="Topic id of the event"/>
+            <column name="pc_eventDate" comments="Date of the event"/>
+            <column name="pc_endDate" comments="End date of the event"/>
+            <column name="pc_duration" comments="Duration of the event"/>
+            <column name="pc_recurrtype" comments="Recurrence type of the event"/>
+            <column name="pc_recurrspec" comments="Recurrence specification of the event"/>
+            <column name="pc_recurrfreq" comments="Recurrence frequency of the event"/>
+            <column name="pc_startTime" comments="Start time of the event"/>
+            <column name="pc_endTime" comments="End time of the event"/>
+            <column name="pc_alldayevent" comments="Indicates if the event is an all-day event"/>
+            <column name="pc_location" comments="Location of the event"/>
+            <column name="pc_conttel" comments="Contact telephone number"/>
+            <column name="pc_contname" comments="Contact name"/>
+            <column name="pc_contemail" comments="Contact email address"/>
+            <column name="pc_website" comments="Website associated with the event"/>
+            <column name="pc_fee" comments="Event fee"/>
+            <column name="pc_eventstatus" comments="Event status -1=hidden,0=queued,1=approved"/>
+            <column name="pc_sharing" comments="Sharing status of the event"/>
+            <column name="pc_language" comments="Language of the event"/>
+            <column name="pc_sendalertsms" comments="Send SMS alerts for the event"/>
+            <column name="pc_sendalertemail" comments="Send email alerts for the event"/>
+            <column name="uuid" comments="UUID of the record"/>
         </table>
         <table name="openemr_postcalendar_categories" comments="Contains the types / categories a patient scheduled appointment can be">
+            <column name="pc_catid" comments="Auto-incremented identifier for the appointment category"/>
+            <column name="pc_constant_id" comments="Identifier for the appointment category which is referenced in the codebase for appointment specific functionality"/>
+            <column name="pc_catname" comments="Name of the appointment category"/>
+            <column name="pc_catcolor" comments="Visual display color associated with the appointment category"/>
+            <column name="pc_catdesc" comments="Description of the appointment category"/>
+            <column name="pc_recurrtype" comments="Type of recurring appointment 0=Not recurring,1=Recurring appointment"/>
+            <column name="pc_enddate" comments="End date of the appointment"/>
+            <column name="pc_recurrspec" comments="Specification for recurring appointments in php array serialized format. Includes information on the repeating frequency, the type of repeat (daily, weekday,week,monthly, etc)"/>
+            <column name="pc_recurrfreq" comments="Frequency of recurring appointments"/>
+            <column name="pc_duration" comments="Duration of the appointment in seconds"/>
+            <column name="pc_end_date_flag" comments="Flag indicating the use of an end date for the appointment"/>
+            <column name="pc_end_date_type" comments="Type of end date for the appointment"/>
+            <column name="pc_end_date_freq" comments="Frequency of the end date"/>
+            <column name="pc_end_all_day" comments="Flag indicating if the end date is all-day"/>
+            <column name="pc_dailylimit" comments="Limit on daily appointments for the category"/>
+            <column name="pc_cattype" comments="Type of category used in grouping categories"/>
+            <column name="pc_active" comments="Flag indicating the category is active"/>
+            <column name="pc_seq" comments="Sequence number for the category"/>
+            <column name="aco_spec" comments="Access control for the category.  Empty on export" exclude="true"/>
         </table>
 
         <table name="patient_tracker" comments="Patient appointment events that occur in the system. Used in the patient flowboard and for patient data reporting">
@@ -628,7 +718,18 @@
             <column name="last_level_billed"  comments="The party for whom payment was last billed. -1=Nobody, 0=Patient, 1=Ins1, 2=Ins2, 3=Ins3" />
             <column name="last_level_closed"  comments="The party for whom payment was last received. -1=Nobody, 0=Patient, 1=Ins1, 2=Ins2, 3=Ins3" />
         </table>
-        <!-- TODO: @adunsulag look at issue_encounter table -->
+        <table name="issue_encounter" comments="Links patient medical issues in the lists table with patient service encounters">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="encounter" comments="References form_encounter.encounter, representing the encounter that is connected to the issue">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="list_id" comments="Represents the specific medical issue (allergy,surgery,etc) this encounter is linked to">
+                <foreignKey table="lists" column="id" />
+            </column>
+            <column name="resolved" comments="0=Issue not resolved,1=Issue is resolved" />
+        </table>
 
 <!--        - Fee Sheet-->
 <!--        - Misc Billing Options-->
@@ -845,7 +946,6 @@
 
 <!--        - Procedure Order-->
         <!--        - Patient Labs-->
-        <!-- TODO: @adunsulag procedure_answers, procedure_order_code, procedure_report, procedure_type -->
         <table name="procedure_order" comments="A procedure order is an encounter form within a patient visit representing an order for one or more procedures and its associated report/results for the procedure.  Orders can be for either internal or external procedure providers">
             <column name="procedure_order_id" comments="Surrogate id of the procedure order record" />
             <column name="uuid" comments="UUID of the record" />
@@ -955,20 +1055,27 @@
             </column>
         </table>
         <table name="procedure_result" comments="The table stores the actual results and findings from medical procedures and tests, such as laboratory tests, radiology reports, diagnostic imaging, and other clinical tests.">
+            <column name="procedure_result_id" comments="Surrogate id of the record used as the primary incrementing key"/>
+            <column name="uuid" comments="UUID of the record"/>
             <column name="procedure_report_id">
                 <foreignKey table="procedure_report" column="procedure_report_id" />
             </column>
+            <column name="result_data_type" comments="N=Numeric, S=String, F=Formatted, E=External, L=Long text as the first line of comments"/>
+            <column name="result_code" comments="LOINC code, might match a procedure_type.procedure_code"/>
+            <column name="result_text" comments="Description of result_code"/>
+            <column name="date" comments="Lab-provided date specific to this result"/>
+            <column name="facility" comments="Lab-provided testing facility ID"/>
+            <column name="units" comments="Units for the result"/>
+            <column name="result" comments="Result data"/>
+            <column name="range" comments="Result range"/>
+            <column name="abnormal" comments="Abnormal values (no, yes, high, low)"/>
+            <column name="comments" comments="Comments from the lab"/>
+            <column name="document_id" comments="References documents.id if this result is a document">
+                <foreignKey table="documents" column="id" />
+            </column>
+            <column name="result_status" comments="Result status (preliminary, cannot be done, final, corrected, incomplete, etc.)"/>
+            <column name="date_end" comments="Lab-provided end date specific to this result"/>
         </table>
-        <!-- TODO: @adunsulag where did this double table come from -->
-<!--        <table name="procedure_result">-->
-<!--            <column name="procedure_order_id">-->
-<!--                <foreignKey table="procedure_order" column="procedure_order_id" />-->
-<!--            </column>-->
-<!--            <column name="procedure_order_seq" />-->
-<!--            <column name="source">-->
-<!--                <foreignKey table="users" column="id" />-->
-<!--            </column>-->
-<!--        </table>-->
         <table name="procedure_report" comments="Procedure order overall report container for an ordered procedure result in procedure_order_codes which represents findings, conclusions, and recommendations for the procedure order">
             <column name="procedure_report_id" comments="Unique identifier for the procedure report. This is the primary key."/>
             <column name="uuid" comments="Universally unique identifier for the procedure report."/>
@@ -1061,7 +1168,23 @@
         </table>
 
         <table name="questionnaire_repository" comments="Holds questionnaires that providers or patients fill out for healthcare information collection and/or assessment.">
-
+            <column name="id" comments="Unique identifier for the questionnaire record"/>
+            <column name="uuid" comments="Universally unique identifier for the questionnaire in the EMR system"/>
+            <column name="questionnaire_id" comments="Unique public identifier"/>
+            <column name="provider" comments="Identifier for the provider associated with the inputting/creation of this questionnaire"/>
+            <column name="version" comments="Version number of the questionnaire"/>
+            <column name="created_date" comments="Date and time when the questionnaire was created"/>
+            <column name="modified_date" comments="Date and time when the questionnaire was last modified"/>
+            <column name="name" comments="Name or title of the questionnaire"/>
+            <column name="type" comments="Type of questionnaire (e.g., FHIR 'Questionnaire')"/>
+            <column name="profile" comments="Profile information for the questionnaire"/>
+            <column name="active" comments="Indicates if the questionnaire is active (1 for active, 0 for inactive)"/>
+            <column name="status" comments="Status information for the questionnaire"/>
+            <column name="source_url" comments="URL associated with the questionnaire for where the questionnaire originated or where more information about the questionnaire can be obtained"/>
+            <column name="code" comments="Code associated with the questionnaire"/>
+            <column name="code_display" comments="Display information for the code associated with the questionnaire"/>
+            <column name="questionnaire" comments="JSON serialized version of the questionnaire.  If the type of this record is Questionnaire than the JSON will be a serialized definition of a FHIR Questionnaire resource"/>
+            <column name="lform" comments="National Institutes of Health (NIH) Lforms version of text content for the questionnaire (e.g., for long forms)"/>
         </table>
 
         <!--        - Aftercare Plan-->
@@ -1225,15 +1348,6 @@
             <column name="bronchitis_treatment" comments="Treatment information for bronchitis"/>
         </table>
 
-<!--        - Lab Requisition-->
-        <!-- NOTE: the pid here does not match our pid column type definition -->
-        <!-- TODO: @adunsulag put requisition on the back burner, looks like it deals with the printout of erx and it appears to be broken
-        <table name="requisition">
-            <column name="pid"  comments="The internal patient identifier">
-                <foreignKey table="patient_data" column="pid" />
-            </column>
-        </table> -->
-
         <!--        - Track Anything-->
         <table name="form_track_anything" comments="Clinical note form that allows clinicians to provide point in time and longitudinal tracking of any data element they configure">
             <column name="id" comments="The primary key which is the same as the forms.form_id column">
@@ -1331,7 +1445,6 @@
             </column>
         </table>
         <table name="form_physical_exam_diagnoses" comments="Physical Exam Diagnosis for a physical exam that was conducted">
-            <!-- TODO: @adunsulag document this table -->
         </table>
 
 <!--        - Prior Authorization-->
@@ -1453,10 +1566,37 @@
             </column>
         </table>
         <table name="onsite_mail" comments="Patient asynchronous messages to and from clinical staff">
-            <!-- TODO: @adunsulag as the data here is denormalized, need to explain this table -->
+            <column name="id" comments="Surrogate id of the record used as the primary incrementing key"/>
+            <column name="date" comments="Date and time of the message"/>
+            <column name="owner" comments="Owner of the message. If this is a message intended for a patient this will be the patient_data.pid if it is for a user this will be the users.id"/>
+            <column name="user" comments="User associated with the message"/>
+            <column name="groupname" comments="Name of the group associated with the message"/>
+            <column name="activity" comments="Activity associated with the message. 0=deleted, 1=message is active"/>
+            <column name="authorized" comments="Authorization status of the message"/>
+            <column name="header" comments="Header of the message"/>
+            <column name="title" comments="Title of the message"/>
+            <column name="body" comments="Body of the message"/>
+            <column name="recipient_id" comments="ID of the message recipient. If a patient is sending this message to a user this will be the users.id, otherwise it is i the patient_data.pid"/>
+            <column name="recipient_name" comments="Name of the message recipient. This will be the first and last name of the recipient."/>
+            <column name="sender_id" comments="ID of the message sender.  If a patient is sending this message to a user this will be the patient_data.pid, otherwise it is the users.id"/>
+            <column name="sender_name" comments="Name of the message sender"/>
+            <column name="assigned_to" comments="Assignment information for the message"/>
+            <column name="deleted" comments="Flag indicating whether the mail is deleted"/>
+            <column name="delete_date" comments="Date and time when the message was deleted"/>
+            <column name="mtype" comments="Message type ('Notification', 'Message')"/>
+            <column name="message_status" comments="Status of the message ('Done','New')"/>
+            <column name="mail_chain" comments="Mail chain ID"/>
+            <column name="reply_mail_chain" comments="Reply mail chain ID"/>
+            <column name="is_msg_encrypted" comments="Whether the message is encrypted (0-Not encrypted, 1-Encrypted)"/>
         </table>
         <table name="onsite_messages" comments="Patient secure chat messages to and from clinical staff for real time communication">
-            <!-- TODO: @adunsulag as the data here is denormalized, need to explain this table -->
+            <column name="id" comments="Surrogate ID of the message record" />
+            <column name="username" comments="Username associated with the message sender  This will be the patient's portal username if a patient sent the message.  Otherwise it is the user's username if a user sent the message." />
+            <column name="message" comments="The content of the chat message" />
+            <column name="ip" comments="IP address of the sender.  Empty on export" exclude="true" />
+            <column name="date" comments="Timestamp of when the message was sent" />
+            <column name="sender_id" comments="ID of the message sender.  This will be the patient_data.pid if a patient sent the message.  Otherwise it is the users.id if a user sent the message." />
+            <column name="recip_id" comments="JSON array of message recipients.  If the message is being sent to one or more clinical staff it will be a JSON array of the usernames from the users table.  If a user sends the message it will be a JSON array of one or more patient_data.pid ids.  On EHI export this array is filtered to only include patient_data.pids that are in the the specific export task.  These messages will be duplicated if patients are in different export tasks but received the same message." />
         </table>
         <!--        - External Data (Encounters  Procedures) -->
         <table name="external_encounters" comments="Holds data on encounters that exist outside of this EMR that were in a patient CCDA import">
@@ -1480,7 +1620,6 @@
             <column name="encounter"  comments="0 if patient attribute, else this is an encounter attribute and references the form_encounter.encounter property">
                 <foreignKey table="form_encounter" column="encounter" />
             </column>
-            <!-- TODO: @adunsulag does it make sense to traverse this table... or should we just skip it? -->
             <column name="field_id"  comments="references layout_options.field_id and is the unique property name of this shared attribute">
                 <foreignKey table="layout_options" column="field_id" />
             </column>
@@ -1493,7 +1632,6 @@
             <column name="patient_id"  comments="The internal patient identifier">
                 <foreignKey table="patient_data" column="pid" />
             </column>
-            <!-- TODO: @adunsulag need to populate -->
             <column name="encounter_id" comments="Encounter identifier - Identifier for the patient encounter associated with the claim">
                 <foreignKey table="form_encounter" column="encounter" />
             </column>
@@ -1501,10 +1639,10 @@
             <column name="payer_id"  comments="The insurance company being billed. If this is self-pay the id will be 0">
                 <foreignKey table="insurance_companies" column="id" />
             </column>
-            <column name="status" comments="Claim status - Status of the billing claim" />
-            <column name="payer_type" comments="Payer type - Type of the payer (e.g., public or private)" />
-            <column name="bill_process" comments="Billing process - Process related to billing" />
-            <column name="bill_time" comments="Billing time - Time of billing" />
+            <column name="status" comments="Claim status - Status of the billing claim. -1=Leave Unchanged,1=Unbilled,2=Mark as billed, 7=Denied" />
+            <column name="payer_type" comments="The payer type code, indicating the source of payment (0=patient, 1=primary insurance, 2=secondary insurance, etc)." />
+            <column name="bill_process" comments="Billing process status. -1=Leave unchanged, 0=Claim is open,1=Processing in progress,2=Billed,3=Error" />
+            <column name="bill_time" comments="Billing time - The datetime this bill was created" />
             <column name="process_time" comments="Processing time - Time of claim processing" />
             <column name="process_file" comments="Processing file - File associated with claim processing" />
             <column name="target" comments="Claim target - Target associated with the claim" />
@@ -1664,10 +1802,16 @@
         </table>
 
         <table name="eligibility_verification" comments="Insurance Eligibility Verification Tracking">
+            <column name="verification_id" comments="Unique identifier for eligibility verification"/>
             <column name="insurance_id"  comments="The patient insurance that eligibility is being checked against">
                 <foreignKey table="insurance_data" column="id" />
             </column>
-            <!-- TODO: @adunsulag need to populate -->
+            <column name="response_id" comments="Identifier for the response related to the eligibility verification"/>
+            <column name="eligibility_check_date" comments="Date and time when the eligibility check was performed"/>
+            <column name="copay" comments="Patient copayment amount"/>
+            <column name="deductible" comments="Patient deductible amount"/>
+            <column name="deductiblemet" comments="Indicates whether the deductible has been met ('Y' or 'N')"/>
+            <column name="create_date" comments="Date when the record was created"/>
         </table>
         <table name="benefit_eligibility" comments="Holds the eligible patient benefits for a specific insurance as received from an eligibility verification">
             <column name="response_id" comments="Surrogate ID of the benefit eligibility record used as the primary incrementing key"/>

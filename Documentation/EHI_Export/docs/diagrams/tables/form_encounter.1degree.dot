@@ -4,6 +4,8 @@ digraph "oneDegreeRelationshipsDiagram" {
   "ar_activity":"pid":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "billing":"encounter":w -> "form_encounter":"encounter.type":e [arrowhead=none dir=back arrowtail=crowodot];
   "billing":"pid":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "claims":"encounter_id":w -> "form_encounter":"encounter.type":e [arrowhead=none dir=back arrowtail=crowodot];
+  "claims":"patient_id":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "documents":"encounter_id":w -> "form_encounter":"encounter.type":e [arrowhead=none dir=back arrowtail=crowodot];
   "documents":"foreign_id":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "drug_sales":"encounter":w -> "form_encounter":"encounter.type":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -15,6 +17,8 @@ digraph "oneDegreeRelationshipsDiagram" {
   "onsite_documents":"pid":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "onsite_signatures":"encounter":w -> "form_encounter":"encounter.type":e [arrowhead=none dir=back arrowtail=crowodot];
   "onsite_signatures":"pid":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "issue_encounter":"encounter":w -> "form_encounter":"encounter.type":e [arrowhead=none dir=back arrowtail=crowodot];
+  "issue_encounter":"pid":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "patient_tracker":"encounter":w -> "form_encounter":"encounter.type":e [arrowhead=none dir=back arrowtail=crowodot];
   "patient_tracker":"pid":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "procedure_order":"encounter_id":w -> "form_encounter":"encounter.type":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -60,6 +64,21 @@ digraph "oneDegreeRelationshipsDiagram" {
     target="_top"
     tooltip="billing"
   ];
+  "claims" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="43" HEIGHT="16"><B>claims</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="patient_id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="111" HEIGHT="16">patient_id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="encounter_id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="111" HEIGHT="16">encounter_id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="version" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="111" HEIGHT="16">version</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="payer_id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="111" HEIGHT="16">payer_id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="../../tables/claims.html"
+    target="_top"
+    tooltip="claims"
+  ];
   "documents" [
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
@@ -75,7 +94,7 @@ digraph "oneDegreeRelationshipsDiagram" {
       <TR><TD PORT="foreign_reference_id" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="202" HEIGHT="16">foreign_reference_id</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="foreign_reference_table" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="202" HEIGHT="16">foreign_reference_table</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/documents.html"
     target="_top"
@@ -147,7 +166,7 @@ digraph "oneDegreeRelationshipsDiagram" {
       <TR><TD PORT="referring_provider_id" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="187" HEIGHT="16">referring_provider_id</TD></TR></TABLE></TD><TD PORT="referring_provider_id.type" ALIGN="LEFT">int[10]</TD></TR>
       <TR><TD PORT="date_end" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="187" HEIGHT="16">date_end</TD></TR></TABLE></TD><TD PORT="date_end.type" ALIGN="LEFT">datetime[19]</TD></TR>
       <TR><TD PORT="in_collection" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="187" HEIGHT="16">in_collection</TD></TR></TABLE></TD><TD PORT="in_collection.type" ALIGN="LEFT">bit[1]</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">12 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">14 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/form_encounter.html"
     target="_top"
@@ -184,6 +203,20 @@ digraph "oneDegreeRelationshipsDiagram" {
     target="_top"
     tooltip="onsite_signatures"
   ];
+  "issue_encounter" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="109" HEIGHT="16"><B>issue_encounter</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="encounter" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="109" HEIGHT="16">encounter</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="list_id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="109" HEIGHT="16">list_id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="pid" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="109" HEIGHT="16">pid</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="../../tables/issue_encounter.html"
+    target="_top"
+    tooltip="issue_encounter"
+  ];
   "patient_data" [
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
@@ -197,7 +230,7 @@ digraph "oneDegreeRelationshipsDiagram" {
       <TR><TD PORT="created_by" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="146" HEIGHT="16">created_by</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="updated_by" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="146" HEIGHT="16">updated_by</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 5</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">84 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 5</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">85 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/patient_data.html"
     target="_top"

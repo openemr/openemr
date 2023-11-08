@@ -3,26 +3,31 @@ digraph "twoDegreesRelationshipsDiagram" {
   "amendments":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "amendments":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "amendments":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "ar_activity":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "ar_activity":"elipses":w -> "form_encounter":"encounter":e [arrowhead=none dir=back arrowtail=crowodot];
   "ar_activity":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "ar_activity":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "ar_activity":"elipses":w -> "ar_session":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "ar_session":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "ar_session":"elipses":w -> "insurance_companies":"id":e [arrowhead=none dir=back arrowtail=crowodot];
   "ar_session":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
-  "billing":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "billing":"elipses":w -> "form_encounter":"encounter":e [arrowhead=none dir=back arrowtail=crowodot];
+  "billing":"elipses":w -> "insurance_companies":"id":e [arrowhead=none dir=back arrowtail=crowodot];
   "billing":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "billing":"elipses":w -> "insurance_companies":"id":e [arrowhead=none dir=back arrowtail=crowodot];
   "billing":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "claims":"encounter_id":w -> "form_encounter":"encounter":e [arrowhead=none dir=back arrowtail=crowodot];
   "claims":"patient_id":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "claims":"payer_id":w -> "insurance_companies":"id":e [arrowhead=none dir=back arrowtail=crowodot];
   "clinical_plans":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "documents":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "documents":"elipses":w -> "form_encounter":"encounter":e [arrowhead=none dir=back arrowtail=crowodot];
   "documents":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "documents":"elipses":w -> "lists":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "documents":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
-  "drug_sales":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "drug_sales":"elipses":w -> "form_encounter":"encounter":e [arrowhead=none dir=back arrowtail=crowodot];
   "drug_sales":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "extended_log":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "external_encounters":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "external_procedures":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "external_procedures":"elipses":w -> "form_encounter":"encounter":e [arrowhead=none dir=back arrowtail=crowodot];
   "external_procedures":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_aftercare_plan":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_aftercare_plan":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -45,7 +50,7 @@ digraph "twoDegreesRelationshipsDiagram" {
   "form_clinical_instructions":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_clinical_notes":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_dictation":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "form_encounter":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_encounter":"pid":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_eye_acuity":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_eye_antseg":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_eye_base":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -85,6 +90,7 @@ digraph "twoDegreesRelationshipsDiagram" {
   "form_sdoh":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_soap":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_taskman":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "form_track_anything":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=teeodot];
   "form_track_anything":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_transfer_summary":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=teeodot];
   "form_transfer_summary":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -102,22 +108,32 @@ digraph "twoDegreesRelationshipsDiagram" {
   "immunization_observation":"elipses":w -> "immunizations":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "immunization_observation":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "immunization_observation":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "immunizations":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "immunizations":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "immunizations":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "immunizations":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "immunizations":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "insurance_companies":"ins_type_code":w -> "insurance_type_codes":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "insurance_data":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "insurance_data":"elipses":w -> "insurance_companies":"id":e [arrowhead=none dir=back arrowtail=crowodot];
   "lists":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "lists":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "medex_recalls":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "medex_recalls":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
-  "onsite_documents":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "onsite_documents":"elipses":w -> "form_encounter":"encounter":e [arrowhead=none dir=back arrowtail=crowodot];
   "onsite_documents":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "onsite_documents":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "onsite_portal_activity":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "onsite_signatures":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "onsite_signatures":"elipses":w -> "form_encounter":"encounter":e [arrowhead=none dir=back arrowtail=crowodot];
   "onsite_signatures":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "document_templates":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_gad7":"elipses":w -> "forms":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_gad7":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "form_gad7":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "issue_encounter":"elipses":w -> "form_encounter":"encounter":e [arrowhead=none dir=back arrowtail=crowodot];
+  "issue_encounter":"elipses":w -> "lists":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "issue_encounter":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
+  "openemr_postcalendar_events":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "openemr_postcalendar_events":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "openemr_postcalendar_events":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "patient_access_onsite":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=teeodot];
@@ -130,7 +146,7 @@ digraph "twoDegreesRelationshipsDiagram" {
   "patient_history":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "patient_reminders":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "patient_tracker":"elipses":w -> "openemr_postcalendar_events":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
-  "patient_tracker":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "patient_tracker":"elipses":w -> "form_encounter":"encounter":e [arrowhead=none dir=back arrowtail=crowodot];
   "patient_tracker":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "patient_tracker":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "pnotes":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -145,21 +161,21 @@ digraph "twoDegreesRelationshipsDiagram" {
   "pro_assessments":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "pro_assessments":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "procedure_order":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
-  "procedure_order":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "procedure_order":"elipses":w -> "form_encounter":"encounter":e [arrowhead=none dir=back arrowtail=crowodot];
   "procedure_order":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "procedure_order":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "questionnaire_response":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "questionnaire_response":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
-  "questionnaire_response":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "questionnaire_response":"elipses":w -> "form_encounter":"encounter":e [arrowhead=none dir=back arrowtail=crowodot];
   "questionnaire_response":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "rule_patient_data":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "shared_attributes":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "shared_attributes":"elipses":w -> "form_encounter":"encounter":e [arrowhead=none dir=back arrowtail=crowodot];
   "shared_attributes":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "shared_attributes":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "therapy_groups_participant_attendance":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "therapy_groups_participants":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "transactions":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
-  "voids":"elipses":w -> "form_encounter":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
+  "voids":"elipses":w -> "form_encounter":"encounter":e [arrowhead=none dir=back arrowtail=crowodot];
   "voids":"elipses":w -> "patient_data":"pid":e [arrowhead=none dir=back arrowtail=crowodot];
   "voids":"elipses":w -> "users":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "amendments" [
@@ -213,7 +229,7 @@ digraph "twoDegreesRelationshipsDiagram" {
       <TR><TD PORT="patient_id" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="111" HEIGHT="16">patient_id</TD></TR></TABLE></TD><TD PORT="patient_id.type" ALIGN="LEFT">bigint[19]</TD></TR>
       <TR><TD PORT="encounter_id" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="111" HEIGHT="16">encounter_id</TD></TR></TABLE></TD><TD PORT="encounter_id.type" ALIGN="LEFT">int[10]</TD></TR>
       <TR><TD PORT="version" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="111" HEIGHT="16">version</TD></TR></TABLE></TD><TD PORT="version.type" ALIGN="LEFT">int unsigned[10]</TD></TR>
-      <TR><TD PORT="payer_id" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="111" HEIGHT="16">payer_id</TD></TR></TABLE></TD><TD PORT="payer_id.type" ALIGN="LEFT">int[10]</TD></TR>
+      <TR><TD PORT="payer_id" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="111" HEIGHT="16">payer_id</TD></TR></TABLE></TD><TD PORT="payer_id.type" ALIGN="LEFT">int[10]</TD></TR>
       <TR><TD PORT="status" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="111" HEIGHT="16">status</TD></TR></TABLE></TD><TD PORT="status.type" ALIGN="LEFT">tinyint[3]</TD></TR>
       <TR><TD PORT="payer_type" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="111" HEIGHT="16">payer_type</TD></TR></TABLE></TD><TD PORT="payer_type.type" ALIGN="LEFT">tinyint[3]</TD></TR>
       <TR><TD PORT="bill_process" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="111" HEIGHT="16">bill_process</TD></TR></TABLE></TD><TD PORT="bill_process.type" ALIGN="LEFT">tinyint[3]</TD></TR>
@@ -223,7 +239,7 @@ digraph "twoDegreesRelationshipsDiagram" {
       <TR><TD PORT="target" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="111" HEIGHT="16">target</TD></TR></TABLE></TD><TD PORT="target.type" ALIGN="LEFT">varchar[30]</TD></TR>
       <TR><TD PORT="x12_partner_id" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="111" HEIGHT="16">x12_partner_id</TD></TR></TABLE></TD><TD PORT="x12_partner_id.type" ALIGN="LEFT">int[10]</TD></TR>
       <TR><TD PORT="submitted_claim" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="111" HEIGHT="16">submitted_claim</TD></TR></TABLE></TD><TD PORT="submitted_claim.type" ALIGN="LEFT">text[65535]</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">0 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">0 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/claims.html"
     target="_top"
@@ -245,7 +261,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="74" HEIGHT="16"><B>documents</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/documents.html"
     target="_top"
@@ -421,7 +437,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="106" HEIGHT="16"><B>form_encounter</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">12 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">14 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/form_encounter.html"
     target="_top"
@@ -751,7 +767,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="138" HEIGHT="16"><B>form_track_anything</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/form_track_anything.html"
     target="_top"
@@ -795,7 +811,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="39" HEIGHT="16"><B>forms</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 6</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">12 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 6</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">13 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/forms.html"
     target="_top"
@@ -828,11 +844,25 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="99" HEIGHT="16"><B>immunizations</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 13</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/immunizations.html"
     target="_top"
     tooltip="immunizations"
+  ];
+  "insurance_companies" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="144" HEIGHT="16"><B>insurance_companies</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="167" HEIGHT="16">id</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="uuid" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="167" HEIGHT="16">uuid</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="ins_type_code" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="167" HEIGHT="16">ins_type_code</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">5 &gt;</TD></TR>
+    </TABLE>>
+    URL="../../tables/insurance_companies.html"
+    target="_top"
+    tooltip="insurance_companies"
   ];
   "insurance_data" [
    label=<
@@ -845,12 +875,23 @@ digraph "twoDegreesRelationshipsDiagram" {
     target="_top"
     tooltip="insurance_data"
   ];
+  "insurance_type_codes" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="147" HEIGHT="16"><B>insurance_type_codes</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
+    </TABLE>>
+    URL="../../tables/insurance_type_codes.html"
+    target="_top"
+    tooltip="insurance_type_codes"
+  ];
   "lists" [
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="28" HEIGHT="16"><B>lists</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 11</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">3 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 11</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">4 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/lists.html"
     target="_top"
@@ -922,12 +963,23 @@ digraph "twoDegreesRelationshipsDiagram" {
     target="_top"
     tooltip="form_gad7"
   ];
+  "issue_encounter" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="109" HEIGHT="16"><B>issue_encounter</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="../../tables/issue_encounter.html"
+    target="_top"
+    tooltip="issue_encounter"
+  ];
   "openemr_postcalendar_events" [
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="205" HEIGHT="16"><B>openemr_postcalendar_events</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 7</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 10</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/openemr_postcalendar_events.html"
     target="_top"
@@ -948,16 +1000,8 @@ digraph "twoDegreesRelationshipsDiagram" {
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="85" HEIGHT="16"><B>patient_data</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="146" HEIGHT="16">id</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="uuid" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="146" HEIGHT="16">uuid</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="pharmacy_id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="146" HEIGHT="16">pharmacy_id</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="providerID" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="146" HEIGHT="16">providerID</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="ref_providerID" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="146" HEIGHT="16">ref_providerID</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="pid" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="146" HEIGHT="16">pid</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="created_by" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="146" HEIGHT="16">created_by</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="updated_by" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="146" HEIGHT="16">updated_by</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 5</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">84 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 5</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">85 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/patient_data.html"
     target="_top"
@@ -1122,7 +1166,7 @@ digraph "twoDegreesRelationshipsDiagram" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="36" HEIGHT="16"><B>users</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">56 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">61 &gt;</TD></TR>
     </TABLE>>
     URL="../../tables/users.html"
     target="_top"

@@ -138,7 +138,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Surrogate id of the record used as the primary incrementing key</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="date">date</span></td>
@@ -155,7 +155,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Date and time of the message</p></td>
                                 </tr>
                                 <tr>
                                     <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="owner">owner</span></td>
@@ -172,7 +172,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Owner of the message. If this is a message intended for a patient this will be the patient_data.pid if it is for a user this will be the users.id</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="user">user</span></td>
@@ -189,7 +189,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>User associated with the message</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="groupname">groupname</span></td>
@@ -206,7 +206,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Name of the group associated with the message</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="activity">activity</span></td>
@@ -223,7 +223,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Activity associated with the message. 0=deleted, 1=message is active</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="authorized">authorized</span></td>
@@ -240,7 +240,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Authorization status of the message</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="header">header</span></td>
@@ -257,7 +257,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Header of the message</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="title">title</span></td>
@@ -274,7 +274,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Title of the message</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="body">body</span></td>
@@ -291,7 +291,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Body of the message</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="recipient_id">recipient_id</span></td>
@@ -308,7 +308,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>ID of the message recipient. If a patient is sending this message to a user this will be the users.id, otherwise it is i the patient_data.pid</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="recipient_name">recipient_name</span></td>
@@ -325,7 +325,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Name of the message recipient. This will be the first and last name of the recipient.</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="sender_id">sender_id</span></td>
@@ -342,7 +342,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>ID of the message sender.  If a patient is sending this message to a user this will be the patient_data.pid, otherwise it is the users.id</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="sender_name">sender_name</span></td>
@@ -359,7 +359,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Name of the message sender</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="assigned_to">assigned_to</span></td>
@@ -376,7 +376,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Assignment information for the message</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="deleted">deleted</span></td>
@@ -393,7 +393,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>flag indicates note is deleted</p></td>
+                                    <td><p>Flag indicating whether the mail is deleted</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="delete_date">delete_date</span></td>
@@ -410,7 +410,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Date and time when the message was deleted</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="mtype">mtype</span></td>
@@ -427,7 +427,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Message type (&lsquo;Notification&rsquo;, &lsquo;Message&rsquo;)</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="message_status">message_status</span></td>
@@ -444,7 +444,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Status of the message (&lsquo;Done&rsquo;,&lsquo;New&rsquo;)</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="mail_chain">mail_chain</span></td>
@@ -461,7 +461,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Mail chain ID</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="reply_mail_chain">reply_mail_chain</span></td>
@@ -478,7 +478,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Reply mail chain ID</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="is_msg_encrypted">is_msg_encrypted</span></td>
@@ -495,7 +495,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td><p>Whether messsage encrypted 0-Not encrypted, 1-Encrypted</p></td>
+                                    <td><p>Whether the message is encrypted (0-Not encrypted, 1-Encrypted)</p></td>
                                 </tr>
                                 </tbody>
                             </table>

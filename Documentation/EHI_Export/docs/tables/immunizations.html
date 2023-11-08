@@ -202,7 +202,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="immunization_id">immunization_id</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="immunization_id">immunization_id</span></td>
                                     <td>INT</td>
                                     <td>10</td>
                                     <td title='nullable'>√</td>
@@ -214,9 +214,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="immunizations.immunization_id references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Comes from the list_options.list_id=&lsquo;immunizations&rsquo; and represents common list of immunizations the EMR works with</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="cvx_code">cvx_code</span></td>
@@ -236,7 +241,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="manufacturer">manufacturer</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="manufacturer">manufacturer</span></td>
                                     <td>VARCHAR</td>
                                     <td>100</td>
                                     <td title='nullable'>√</td>
@@ -248,9 +253,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="immunizations.manufacturer references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Comes from the list_options.list_id=&lsquo;Immunization_Manufacturer&rsquo; and represents a list of immunization manufacturers</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="lot_number">lot_number</span></td>
@@ -270,7 +280,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="administered_by_id">administered_by_id</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="administered_by_id">administered_by_id</span></td>
                                     <td>BIGINT</td>
                                     <td>19</td>
                                     <td title='nullable'>√</td>
@@ -282,9 +292,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="immunizations.administered_by_id references users.id"><a href='users.html'>users</a><span class='relatedKey'>.id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The person that administered the immunization</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="administered_by">administered_by</span></td>
@@ -389,7 +404,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="created_by">created_by</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="created_by">created_by</span></td>
                                     <td>BIGINT</td>
                                     <td>19</td>
                                     <td title='nullable'>√</td>
@@ -401,12 +416,17 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="immunizations.created_by references users.id"><a href='users.html'>users</a><span class='relatedKey'>.id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The user that created this record</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="updated_by">updated_by</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="updated_by">updated_by</span></td>
                                     <td>BIGINT</td>
                                     <td>19</td>
                                     <td title='nullable'>√</td>
@@ -418,9 +438,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="immunizations.updated_by references users.id"><a href='users.html'>users</a><span class='relatedKey'>.id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The user that last updated this record</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="amount_administered">amount_administered</span></td>
@@ -440,7 +465,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="amount_administered_unit">amount_administered_unit</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="amount_administered_unit">amount_administered_unit</span></td>
                                     <td>VARCHAR</td>
                                     <td>50</td>
                                     <td title='nullable'>√</td>
@@ -452,9 +477,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="immunizations.amount_administered_unit references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Comes from the list_options.list_id=&lsquo;drug_units&rsquo; and represents the units of drug administered</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="expiration_date">expiration_date</span></td>
@@ -474,7 +504,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="route">route</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="route">route</span></td>
                                     <td>VARCHAR</td>
                                     <td>100</td>
                                     <td title='nullable'>√</td>
@@ -486,12 +516,17 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="immunizations.route references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Comes from the list_options.list_id=&lsquo;drug_route&rsquo; and represents a list of immunization manufacturers</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="administration_site">administration_site</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="administration_site">administration_site</span></td>
                                     <td>VARCHAR</td>
                                     <td>100</td>
                                     <td title='nullable'>√</td>
@@ -503,9 +538,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="immunizations.administration_site references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Comes from the list_options.list_id=&lsquo;immunization_administered_site&rsquo; and represents the body sites where the immunization can be administered</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="added_erroneously">added_erroneously</span></td>
@@ -542,7 +582,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="completion_status">completion_status</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="completion_status">completion_status</span></td>
                                     <td>VARCHAR</td>
                                     <td>50</td>
                                     <td title='nullable'>√</td>
@@ -554,12 +594,17 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="immunizations.completion_status references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Comes from the list_options.list_id=&lsquo;Immunization_Completion_Status&rsquo; and represents the status of the immunization</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="information_source">information_source</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="information_source">information_source</span></td>
                                     <td>VARCHAR</td>
                                     <td>31</td>
                                     <td title='nullable'>√</td>
@@ -571,12 +616,17 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="immunizations.information_source references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Comes from the list_options.list_id=&lsquo;immunization_informationsource&rsquo; and represents where the source of information the immmunization is coming from originates</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="refusal_reason">refusal_reason</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="refusal_reason">refusal_reason</span></td>
                                     <td>VARCHAR</td>
                                     <td>31</td>
                                     <td title='nullable'>√</td>
@@ -588,12 +638,17 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="immunizations.refusal_reason references list_options.option_id"><a href='list_options.html'>list_options</a><span class='relatedKey'>.option_id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Comes from the list_options.list_id=&lsquo;immunization_refusal_reason&rsquo; and represents the reasons the individual refused immunization</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="ordering_provider">ordering_provider</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="ordering_provider">ordering_provider</span></td>
                                     <td>INT</td>
                                     <td>10</td>
                                     <td title='nullable'>√</td>
@@ -605,9 +660,14 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="immunizations.ordering_provider references users.id"><a href='users.html'>users</a><span class='relatedKey'>.id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>The provider that issued the order to administer this immunization</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="reason_code">reason_code</span></td>
