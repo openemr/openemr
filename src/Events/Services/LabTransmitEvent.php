@@ -1,12 +1,11 @@
 <?php
 
-/*
- *   package   OpenEMR
- *   link      http://www.open-emr.org
- *  author    Sherwin Gaddis <sherwingaddis@gmail.com>
- *  Copyright (c)
- *  All rights reserved
- *
+/**
+ * @package openemr
+ * @link      http://www.open-emr.org
+ * @author    Juggernaut Systems Express, <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2023 Juggernaut Systems Express, <sherwingaddis@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Events\Services;
