@@ -105,7 +105,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             'fullcode' => 'LOINC:8327-9',
             'code' => '8327-9',
             'description' => 'Temperature Location',
-            'column' => 'temp_method',
+            'column' => ['temp_method'],
             'in_vitals_panel' => true
         ]
         ,'8302-2' => [
@@ -696,8 +696,12 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
 
     private function populateBodyTemperatureLocation(FHIRObservation $observation, $record)
     {
-        // no guidance on how to pass this on, so we are using the value string to pass this on.
-        $observation->setValueString($record['temp_method']);
+        if (empty($record['temp_method'])) {
+            $observation->setDataAbsentReason(UtilsService::createDataAbsentUnknownCodeableConcept());
+        } else {
+            // no guidance on how to pass this on, so we are using the value string to pass this on.
+            $observation->setValueString($record['temp_method']);
+        }
     }
 
     /**
