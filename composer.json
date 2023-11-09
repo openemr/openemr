@@ -43,7 +43,6 @@
         "lcobucci/jwt": "4.2.1",
         "league/csv": "9.8.0",
         "league/omnipay": "3.2.1",
-        "maennchen/zipstream-php": "2.4.0",
         "mobiledetect/mobiledetectlib": "3.74.3",
         "monolog/monolog": "3.5.0",
         "mpdf/mpdf": "8.2.0",
