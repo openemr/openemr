@@ -1044,13 +1044,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $pl = (AclMain::aclCheckIssue('medical_problem')) ? 1 : 0;
                     $meds = (AclMain::aclCheckIssue('medication')) ? 1 : 0;
                     $rx = (!$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx')) ? 1 : 0;
-                    $cards = $allergy + $pl + $meds;
+                    $cards = max(1, ($allergy + $pl + $meds));
                     $col = "p-1 ";
-
-                    if ($cards > 0) {
-                        $colInt = 12 / $cards;
-                        $col .= "col-md-" . $colInt;
-                    }
+                    $colInt = 12 / $cards;
+                    $col .= "col-md-" . $colInt;
 
                     /**
                      * Helper function to return only issues with an outcome not equal to resolved
