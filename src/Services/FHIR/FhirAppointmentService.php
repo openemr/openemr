@@ -184,7 +184,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
             $concatenatedDate = $dataRecord['pc_eventDate'] . ' ' . $dataRecord['pc_startTime'];
             $startInstant = UtilsService::getLocalDateAsUTC($concatenatedDate);
             $appt->setStart(new FHIRInstant($startInstant));
-        } else if ($dataRecord['pc_endDate'] != '0000-00-00' && !empty($dataRecord['pc_startTime'])) {
+        } elseif ($dataRecord['pc_endDate'] != '0000-00-00' && !empty($dataRecord['pc_startTime'])) {
             $concatenatedDate = $dataRecord['pc_endDate'] . ' ' . $dataRecord['pc_startTime'];
             $startInstant = UtilsService::getLocalDateAsUTC($concatenatedDate);
             $appt->setStart(new FHIRInstant($startInstant));
@@ -195,7 +195,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
             $concatenatedDate = $dataRecord['pc_eventDate'] . ' ' . $dataRecord['pc_endTime'];
             $endInstant = UtilsService::getLocalDateAsUTC($concatenatedDate);
             $appt->setEnd(new FHIRInstant($endInstant));
-        } else if (!empty($dataRecord['pc_endDate']) && !empty($dataRecord['pc_endTime'])) {
+        } elseif (!empty($dataRecord['pc_endDate']) && !empty($dataRecord['pc_endTime'])) {
             $concatenatedDate = $dataRecord['pc_endDate'] . ' ' . $dataRecord['pc_endTime'];
             $endInstant = UtilsService::getLocalDateAsUTC($concatenatedDate);
             $appt->setEnd(new FHIRInstant($endInstant));
