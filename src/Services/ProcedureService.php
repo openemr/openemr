@@ -62,14 +62,14 @@ class ProcedureService extends BaseService
                     ,porder.order_diagnosis
                     ,porder.order_encounter_id
                     ,porder.order_lab_id
-     
+
                     ,preport.report_date
                     ,preport.procedure_report_id
                     ,preport.report_uuid
                     ,preport.report_notes
-       
+
                     ,presult.procedure_result_id
-                    ,presult.result_uuid 
+                    ,presult.result_uuid
                     ,presult.result_code
                     ,presult.result_text
                     ,presult.result_units
@@ -78,18 +78,18 @@ class ProcedureService extends BaseService
                     ,presult.result_abnormal
                     ,presult.result_comments
                     ,presult.result_status
-     
+
                     ,order_codes.procedure_name
                     ,order_codes.procedure_code
                     ,order_codes.procedure_type
-     
+
                     ,pcode_types.standard_code
 
                     ,labs.lab_id
                     ,labs.lab_uuid
                     ,labs.lab_npi
                     ,labs.lab_name
-     
+
                     ,patients.puuid
                     ,patients.pid
 
@@ -99,7 +99,7 @@ class ProcedureService extends BaseService
 
                     ,docs.doc_id
                     ,docs.doc_uuid
-                    
+
                     ,provider.provider_uuid
                     ,provider.provider_id
                     ,provider.provider_fname
@@ -118,7 +118,7 @@ class ProcedureService extends BaseService
                     procedure_report
                 ) preport
                 LEFT JOIN (
-                    SELECT 
+                    SELECT
                         procedure_result_id
                          ,procedure_report_id
                          ,uuid AS result_uuid
@@ -137,10 +137,10 @@ class ProcedureService extends BaseService
                     FROM
                         `procedure_result`
                 ) presult
-                ON 
+                ON
                     preport.procedure_report_id = presult.procedure_report_id
                 LEFT JOIN (
-                    SELECT 
+                    SELECT
                         procedure_order_id
                         ,uuid AS order_uuid
                         ,provider_id AS order_provider_id
@@ -154,7 +154,7 @@ class ProcedureService extends BaseService
                     FROM
                         procedure_order
                 ) porder
-                ON 
+                ON
                     porder.procedure_order_id = preport.procedure_order_id
                 LEFT JOIN
                 (
@@ -173,12 +173,12 @@ class ProcedureService extends BaseService
                                ,npi AS lab_npi
                                ,`name` AS lab_name
                                ,`active` AS lab_active
-                        FROM 
+                        FROM
                              procedure_providers
                     ) labs
-                ON 
+                ON
                     labs.lab_id = porder.order_lab_id
-                LEFT JOIN 
+                LEFT JOIN
                     (
                         select
                             procedure_order_id
@@ -190,7 +190,7 @@ class ProcedureService extends BaseService
                         FROM procedure_order_code
                     )
                     order_codes
-                ON 
+                ON
                     order_codes.procedure_order_id = porder.procedure_order_id AND order_codes.procedure_order_seq = preport.procedure_order_seq
                 LEFT JOIN (
                     select
@@ -199,17 +199,17 @@ class ProcedureService extends BaseService
                     FROM procedure_type
                 ) pcode_types ON order_codes.procedure_code = pcode_types.proc_code
                 LEFT JOIN (
-                    select 
+                    select
                         pid
                         ,uuid AS puuid
                     FROM
                         patient_data
                 ) patients
-                ON 
-                    patients.pid = porder.order_patient_id 
-                
+                ON
+                    patients.pid = porder.order_patient_id
+
                 LEFT JOIN (
-                    select 
+                    select
                        id AS doc_id
                        ,uuid AS doc_uuid
                     FROM
@@ -298,10 +298,10 @@ class ProcedureService extends BaseService
                     $procedure['provider'] = [
                         'id' => $record['provider_id']
                         ,'uuid' => $record['provider_uuid']
-                        ,'fname' => $record['fname']
-                        ,'mname' => $record['mname']
-                        ,'lname' => $record['lname']
-                        ,'npi' => $record['npi']
+                        ,'fname' => $record['provider_fname']
+                        ,'mname' => $record['provider_mname']
+                        ,'lname' => $record['provider_lname']
+                        ,'npi' => $record['provider_npi']
                     ];
                 }
                 if (!empty($record['lab_id'])) {
@@ -366,7 +366,7 @@ class ProcedureService extends BaseService
                     , 'range' => $record['result_range']
                     , 'abnormal' => $record['result_abnormal']
                     , 'comments' => $record['result_comments']
-                    , 'document_id' => $record['result_document_id']
+                    , 'document_id' => $record['doc_id']
                     , 'status' => $record['result_status']
                 ];
                 $report['results'][] = $result;
