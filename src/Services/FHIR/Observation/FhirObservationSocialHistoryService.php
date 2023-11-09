@@ -212,8 +212,6 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
                 ,"description" => $this->getDescriptionForCode($code)
                 ,"category" => "social-history"
                 , "puuid" => $record['puuid']
-                , "euuid" => $record['euuid']
-                , "user_uuid" => $record['user_uuid']
                 ,"uuid" => UuidRegistry::uuidToString($uuidMappings[$code])
                 ,"date" => $record['date']
             ];
