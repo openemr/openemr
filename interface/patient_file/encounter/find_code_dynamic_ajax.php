@@ -339,7 +339,8 @@ if ($what == 'fields' && $source == 'V') {
             $arow[] = $row['title'];
         } else {
             $arow[] = str_replace('|', ':', rtrim($row['code'], '|'));
-            $arow[] = $row['description'];
+            $arow[] = $row['description'] ?? "";
+            $arow[] = $row['modifier'] ?? "";
         }
         $out['aaData'][] = $arow;
     }
