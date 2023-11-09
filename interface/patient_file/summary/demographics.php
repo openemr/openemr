@@ -853,7 +853,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
         // Update the User's visibility setting when the card header is clicked
         function cardTitleButtonClickListener() {
-            const buttons = document.querySelectorAll(".card-title a[data-toggle='collapse']");
+            const buttons = document.querySelectorAll(".card-title button[data-toggle='collapse']");
             buttons.forEach((b) => {
                 b.addEventListener("click", (e) => {
                     updateUserVisibilitySetting(e);
