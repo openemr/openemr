@@ -163,7 +163,7 @@ class FhirAllergyIntoleranceService extends FhirServiceBase implements IResource
             $allergyIntoleranceResource->setPatient($patient);
         }
 
-        if (isset($dataRecord['practitioner'])) {
+        if (isset($dataRecord['practitioner']) && !empty($dataRecord['practitioner_npi'])) {
             $recorder = new FHIRReference();
             $recorder->setReference('Practitioner/' . $dataRecord['practitioner']);
             $allergyIntoleranceResource->setRecorder($recorder);
