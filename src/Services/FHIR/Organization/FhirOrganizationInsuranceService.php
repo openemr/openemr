@@ -93,7 +93,7 @@ class FhirOrganizationInsuranceService extends FhirServiceBase
 
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
-        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $organizationResource->setMeta($fhirMeta);
         $organizationResource->setActive($dataRecord['inactive'] == '0');
 
