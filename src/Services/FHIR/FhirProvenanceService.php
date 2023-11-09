@@ -473,7 +473,10 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
 
         $servicesByResource = $this->serviceLocator->findServices(IResourceUSCIGProfileService::class);
 
-        $patientUuids = $job->getPatientUuidsToExport();
+        $patientUuids = [];
+        if ($type == ExportJob::EXPORT_OPERATION_GROUP) {
+            $patientUuids = $job->getPatientUuidsToExport();
+        }
 
         foreach ($job->getResources() as $resource) {
             $searchParams = [];
