@@ -326,7 +326,7 @@ services:
       MYSQL_ROOT_PASSWORD: root
   mysql:
     restart: always
-    image: mysql:8
+    image: mysql:8.0
     command: ['mysqld','--character-set-server=utf8mb4','--default-authentication-plugin=mysql_native_password']
     ports:
     - 8220:3306
