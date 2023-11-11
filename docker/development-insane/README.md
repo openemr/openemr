@@ -142,7 +142,7 @@ docker pull mariadb:10.6
 docker pull mariadb:10.5
 docker pull mariadb:10.4
 docker pull mariadb:10.3
-docker pull mysql:8
+docker pull mysql:8.0
 docker pull mysql:5.7
 docker pull phpmyadmin/phpmyadmin
 docker pull couchdb
