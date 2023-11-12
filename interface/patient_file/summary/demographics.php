@@ -928,11 +928,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
 
         /* Short term fix. This ensures the problem list, allergies, medications, and immunization cards handle long lists without interuppting
-           the UI. This should be configurable and should go in a more appropriate place */
+           the UI. This should be configurable and should go in a more appropriate place
         .pami-list {
             max-height: 200px;
             overflow-y: scroll;
-        }
+        } */
 
         <?php
         if (!empty($GLOBALS['right_justify_labels_demographics']) && ($_SESSION['language_direction'] == 'ltr')) { ?>
