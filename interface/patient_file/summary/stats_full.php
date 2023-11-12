@@ -67,7 +67,13 @@ function dopclick(id, category) {
     top.restoreSession();
     category = (category == 0) ? '' : category;
     let dlg_url = 'add_edit_issue.php?issue=' + encodeURIComponent(id) + '&thistype=' + encodeURIComponent(category);
-    dlgopen(dlg_url, '_blank', 1280, 900, '', <?php echo xlj("Add/Edit Issue"); ?>);
+    dlgopen(dlg_url, '_blank', 1280, 900, '', <?php echo xlj("Add/Edit Issue"); ?>, {
+        allowDrag: false,
+        allowResize: true,
+        resolvePromiseOn: 'close',
+    }).then(() => {
+        location.reload();
+    });
 }
 
 // Process click on number of encounters.
