@@ -198,7 +198,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                 });
             });
 
-            function printForm(){
+            function printForm() {
                  var win = top.printLogPrint ? top : opener.top;
                  win.printLogPrint(window);
             }
@@ -565,7 +565,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     break;
                 case "Insurance Companies":
                     //$commsort = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(','))";
-                    $sort = array("patient_date", "patient_name", "patient_id", "patient_age", "patient_sex", "users_provider", "insurance_companies");
+                    $sort = array("patient_date", "patient_name", "patient_id", "patient_age", "patient_sex", "patient_ethnic", "users_provider", "insurance_companies");
                     if ($sortby == "") {
                         $sortby = $sort[7];
                     }
