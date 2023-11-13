@@ -335,7 +335,7 @@ $arrOeUiSettings = array(
     'heading_title' => xl('Medical Record Dashboard'),
     'include_patient_name' => true,
     'expandable' => true,
-    'expandable_files' => array(), //all file names need suffix _xpd
+    'expandable_files' => array('demographics_xpd'), //all file names need suffix _xpd
     'action' => "", //conceal, reveal, search, reset, link or back
     'action_title' => "",
     'action_href' => "", //only for actions - reset, link or back
@@ -1923,6 +1923,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             // Show Recall if one exists
                             $query = sqlStatement("SELECT * FROM `medex_recalls` WHERE `r_pid` = ?", [(int)$pid]);
                             $recallArr = [];
+                            $count2 = 0;
                             while ($result2 = sqlFetchArray($query)) {
                                 //tabYourIt('recall', 'main/messages/messages.php?go=' + choice);
                                 //parent.left_nav.loadFrame('1', tabNAME, url);
