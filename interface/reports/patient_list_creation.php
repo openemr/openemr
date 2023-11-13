@@ -43,7 +43,9 @@ $search_options = array
     "Allergies"           => xl("Allergies"),
     "Lab results"         => xl("Lab Results"),
     "Communication"       => xl("Communication"),
-    "Insurance Companies" => xl("Insurance Companies")
+    "Insurance Companies" => xl("Insurance Companies"),
+    "Encounters"          => xl("Encounters"),
+    "Observations"        => xl("Observations")
 );
 
 $comarr = array
@@ -376,64 +378,85 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
         $sqlBindArray = array();
         if (!empty($_POST['form_refresh'])) {
             $sqlstmt = "select
-                        pd.date as patient_date,
-                        concat(pd.lname, ', ', pd.fname) AS patient_name,
-                        pd.pid AS patient_id,
-                        DATE_FORMAT(FROM_DAYS(DATEDIFF('" . date('Y-m-d H:i:s') . "',pd.dob)), '%Y')+0 AS patient_age,
-                        pd.sex AS patient_sex,
-                        pd.race AS patient_race,
-                        pd.ethnicity AS patient_ethnic,
-                        concat(u.lname, ', ', u.fname)  AS users_provider";
+                pd.date as patient_date,
+                concat(pd.lname, ', ', pd.fname) AS patient_name,
+                pd.pid AS patient_id,
+                DATE_FORMAT(FROM_DAYS(DATEDIFF('" . date('Y-m-d H:i:s') . "',pd.dob)), '%Y')+0 AS patient_age,
+                pd.sex AS patient_sex,
+                pd.race AS patient_race,
+                REPLACE(TRIM('|' FROM pd.ethnicity), '|', ', ') AS patient_ethnic,
+                concat(u.lname, ', ', u.fname)  AS users_provider";
 
             $srch_option = $_POST['srch_option'];
             switch ($srch_option) {
                 case "Medications":
                 case "Allergies":
                 case "Problems":
-                    $sqlstmt = $sqlstmt . ",li.date AS lists_date,
-						   li.diagnosis AS lists_diagnosis,
-								li.title AS lists_title";
+                    $sqlstmt .= ",li.date AS lists_date,
+                        li.diagnosis AS lists_diagnosis,
+                        li.title AS lists_title";
                     break;
                 case "Lab results":
-                    $sqlstmt = $sqlstmt . ",pr.date AS procedure_result_date,
-							pr.facility AS procedure_result_facility,
-							pr.units AS procedure_result_units,
-							pr.result AS procedure_result_result,
-							pr.range AS procedure_result_range,
-							pr.abnormal AS procedure_result_abnormal,
-							pr.comments AS procedure_result_comments,
-							pr.document_id AS procedure_result_document_id";
+                    $sqlstmt .= ",pr.date AS procedure_result_date,
+                        pr.facility AS procedure_result_facility,
+                        pr.units AS procedure_result_units,
+                        pr.result AS procedure_result_result,
+                        pr.range AS procedure_result_range,
+                        pr.abnormal AS procedure_result_abnormal,
+                        pr.comments AS procedure_result_comments,
+                        pr.document_id AS procedure_result_document_id";
                     break;
                 case "Communication":
-                    $sqlstmt = $sqlstmt . ",REPLACE(REPLACE(concat_ws(',',IF(pd.hipaa_allowemail = 'YES', 'Allow Email','NO'),IF(pd.hipaa_allowsms = 'YES', 'Allow SMS','NO') , IF(pd.hipaa_mail = 'YES', 'Allow Mail Message','NO') , IF(pd.hipaa_voice = 'YES', 'Allow Voice Message','NO') ), ',NO',''), 'NO,','') as communications";
+                    $sqlstmt .= ",REPLACE(REPLACE(concat_ws(',',IF(pd.hipaa_allowemail = 'YES', 'Allow Email','NO'),IF(pd.hipaa_allowsms = 'YES', 'Allow SMS','NO') ,
+                        IF(pd.hipaa_mail = 'YES', 'Allow Mail Message','NO') , IF(pd.hipaa_voice = 'YES', 'Allow Voice Message','NO') ), ',NO',''), 'NO,','') as communications";
                     break;
                 case "Insurance Companies":
-                    $sqlstmt = $sqlstmt . ", id.type AS ins_type, id.provider AS ins_provider, ic.name as ins_name";
+                    $sqlstmt .= ", id.type AS ins_type, id.provider AS ins_provider, ic.name as ins_name";
+                    break;
+                case "Encounters":
+                    $sqlstmt .= ", enc.date AS enc_date, enc.reason AS enc_reason, enc.facility AS enc_facility,
+                        enc.encounter_type_description AS enc_type, REPLACE(enc.discharge_disposition, '-', ' ') AS enc_discharge";
+                    break;
+                case "Observations":
+                    $sqlstmt .= ", obs.date AS obs_date, obs.code AS obs_code, obs.observation AS obs_comments, obs.description AS obs_description,
+                        REPLACE(obs.ob_type, '_', ' ') AS obs_type, obs.ob_value AS obs_value, obs.ob_unit AS obs_units";
+                    break;
             }
 
             //from
-            $sqlstmt = $sqlstmt . " from patient_data as pd left outer join users as u on u.id = pd.providerid";
+            $sqlstmt .= " from patient_data as pd";
+            if ($srch_option != "Encounters" && $srch_option != "Observations") {
+                $sqlstmt .= " left outer join users as u on u.id = pd.providerid";
+            }
             //JOINS
             switch ($srch_option) {
                 case "Problems":
-                    $sqlstmt = $sqlstmt . " left outer join lists as li on (li.pid  = pd.pid AND li.type='medical_problem')";
+                    $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND li.type='medical_problem')";
                     break;
                 case "Medications":
-                    $sqlstmt = $sqlstmt . " left outer join lists as li on (li.pid  = pd.pid AND (li.type='medication')) ";
+                    $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND (li.type='medication')) ";
                     break;
                 case "Allergies":
-                    $sqlstmt = $sqlstmt . " left outer join lists as li on (li.pid  = pd.pid AND (li.type='allergy')) ";
+                    $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND (li.type='allergy')) ";
                     break;
                 case "Lab results":
-                    $sqlstmt = $sqlstmt . " left outer join procedure_order as po on po.patient_id = pd.pid
-							left outer join procedure_order_code as pc on pc.procedure_order_id = po.procedure_order_id
-							left outer join procedure_report as pp on pp.procedure_order_id = po.procedure_order_id
-							left outer join procedure_type as pt on pt.procedure_code = pc.procedure_code and pt.lab_id = po.lab_id
-							left outer join procedure_result as pr on pr.procedure_report_id = pp.procedure_report_id";
+                    $sqlstmt .= " left outer join procedure_order as po on po.patient_id = pd.pid
+                        left outer join procedure_order_code as pc on pc.procedure_order_id = po.procedure_order_id
+                        left outer join procedure_report as pp on pp.procedure_order_id = po.procedure_order_id
+                        left outer join procedure_type as pt on pt.procedure_code = pc.procedure_code and pt.lab_id = po.lab_id
+                        left outer join procedure_result as pr on pr.procedure_report_id = pp.procedure_report_id";
                     break;
                 case "Insurance Companies":
-                    $sqlstmt = $sqlstmt . " left outer join insurance_data as id on id.pid = pd.pid
-                            left outer join insurance_companies as ic on ic.id = id.provider";
+                    $sqlstmt .= " left outer join insurance_data as id on id.pid = pd.pid
+                        left outer join insurance_companies as ic on ic.id = id.provider";
+                    break;
+                case "Encounters":
+                    $sqlstmt .= " left outer join form_encounter as enc on pd.pid = enc.pid
+                        left outer join users as u on enc.provider_id = u.id";
+                    break;
+                case "Observations":
+                    $sqlstmt .= " left outer join form_observation as obs on pd.pid = obs.pid
+                        left outer join users as u on obs.user = u.username";
                     break;
             }
 
@@ -442,17 +465,17 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
             switch ($srch_option) {
                 case "Medications":
                 case "Allergies":
-                    $whr_stmt = $whr_stmt . " AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND li.date <= ?";
+                    $whr_stmt .= " AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND li.date <= ?";
                     array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
                     break;
                 case "Problems":
-                    $whr_stmt = $whr_stmt . " AND li.title != '' ";
-                    $whr_stmt = $whr_stmt . " AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND li.date <= ?";
+                    $whr_stmt .= " AND li.title != '' ";
+                    $whr_stmt .= " AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND li.date <= ?";
                     array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
                     break;
                 case "Lab results":
-                    $whr_stmt = $whr_stmt . " AND pr.date >= ? AND pr.date < DATE_ADD(?, INTERVAL 1 DAY) AND pr.date <= ?";
-                    $whr_stmt = $whr_stmt . " AND (pr.result != '') ";
+                    $whr_stmt .= " AND pr.date >= ? AND pr.date < DATE_ADD(?, INTERVAL 1 DAY) AND pr.date <= ?";
+                    $whr_stmt .= " AND (pr.result != '') ";
                     array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
                     break;
                 case "Communication":
@@ -461,30 +484,38 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                 case "Insurance Companies":
                     $whr_stmt .= " AND id.type = 'primary' AND ic.name != ''";
                     break;
+                case "Encounters":
+                    $whr_stmt .= " AND enc.date >= ? AND enc.date < DATE_ADD(?, INTERVAL 1 DAY) AND enc.date <= ?";
+                    array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
+                    break;
+                case "Observations":
+                    $whr_stmt .= " AND obs.date >= ? AND obs.date < DATE_ADD(?, INTERVAL 1 DAY) AND obs.date <= ?";
+                    array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
+                    break;
             }
 
             if (strlen($patient_id) != 0) {
-                $whr_stmt = $whr_stmt . "   and pd.pid = ?";
+                $whr_stmt .= "   and pd.pid = ?";
                 array_push($sqlBindArray, $patient_id);
             }
 
             if (strlen($age_from) != 0) {
-                $whr_stmt = $whr_stmt . "   and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 >= ?";
+                $whr_stmt .= "   and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 >= ?";
                 array_push($sqlBindArray, $age_from);
             }
 
             if (strlen($age_to) != 0) {
-                $whr_stmt = $whr_stmt . "   and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 <= ?";
+                $whr_stmt .= "   and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 <= ?";
                 array_push($sqlBindArray, $age_to);
             }
 
             if (strlen($sql_gender) != 0) {
-                $whr_stmt = $whr_stmt . "   and pd.sex = ?";
+                $whr_stmt .= "   and pd.sex = ?";
                 array_push($sqlBindArray, $sql_gender);
             }
 
             if (strlen($sql_ethnicity) != 0) {
-                $whr_stmt = $whr_stmt . "   and pd.ethnicity = ?";
+                $whr_stmt .= "   and pd.ethnicity = ?";
                 array_push($sqlBindArray, $sql_ethnicity);
             }
 
@@ -501,7 +532,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
             }
 
             if ($srch_option == "Insurance Companies" && strlen($insurance_company) > 0 && $insurance_company != "All") {
-                $whr_stmt = $whr_stmt . " AND ic.name = ?";
+                $whr_stmt .= " AND ic.name = ?";
                 array_push($sqlBindArray, $insurance_company);
             }
 
@@ -540,6 +571,12 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     }
 
                     //$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
+                    break;
+                case "Encounters":
+                    $sort = array("enc_date", "patient_name", "patient_id", "patient_age", "patient_sex", "users_provider", "enc_type", "enc_reason", "enc_facility", "enc_discharge");
+                    break;
+                case "Observations":
+                    $sort = array("obs_date", "patient_name", "patient_id", "patient_age", "patient_sex", "users_provider", "obs_code", "obs_description", "obs_type", "obs_comments", "obs_value", "obs_units");
                     break;
                 case "Demographics":
                     $sort = array("patient_date","patient_name","patient_id","patient_age","patient_sex","patient_race","patient_ethnic","users_provider");
@@ -589,6 +626,12 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                 case "Insurance Companies":
                     $odrstmt = " ORDER BY ins_provider asc";
                     break;
+                case "Encounters":
+                    $odrstmt = " ORDER BY enc_date asc, enc_type asc, enc_reason asc, enc_discharge asc";
+                    break;
+                case "Observations":
+                    $odrstmt = " ORDER BY obs_date asc, obs_code asc, obs_type asc, obs_units asc, obs_value asc, obs_comments asc";
+                    break;
             }
 
             if (!empty($_POST['sortby']) && !empty($_POST['sortorder'])) {
@@ -601,7 +644,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                 }
             }
 
-            $sqlstmt = $sqlstmt . " " . $whr_stmt . " " . $odrstmt;
+            $sqlstmt .= " " . $whr_stmt . " " . $odrstmt;
             //echo $sqlstmt."<hr>";
             $result = sqlStatement($sqlstmt, $sqlBindArray);
             //print_r($result);
@@ -653,6 +696,32 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                         $patInfoArr['patient_ethnic'] = $row['patient_ethnic'];
                         $patInfoArr['users_provider'] = $row['users_provider'];
                         $patInfoArr['insurance_companies'] = $row['ins_name'];
+                    } elseif ($srch_option == "Encounters") {
+                        $patInfoArr['encounter_date'] = $row['enc_date'];
+                        $patInfoArr['patient_date'] = $row['patient_date'];
+                        $patInfoArr['patient_name'] = $row['patient_name'];
+                        $patInfoArr['patient_age'] = $row['patient_age'];
+                        $patInfoArr['patient_sex'] = $row['patient_sex'];
+                        $patInfoArr['patient_ethnic'] = $row['patient_ethnic'];
+                        $patInfoArr['users_provider'] = $row['users_provider'];
+                        $patInfoArr['encounter_type'] = $row['enc_type'];
+                        $patInfoArr['encounter_reason'] = $row['enc_reason'];
+                        $patInfoArr['encounter_facility'] = $row['enc_facility'];
+                        $patInfoArr['encounter_discharge'] = $row['enc_discharge'];
+                    } elseif ($srch_option == "Observations") {
+                        $patInfoArr['observation_date'] = $row['obs_date'];
+                        $patInfoArr['patient_date'] = $row['patient_date'];
+                        $patInfoArr['patient_name'] = $row['patient_name'];
+                        $patInfoArr['patient_age'] = $row['patient_age'];
+                        $patInfoArr['patient_sex'] = $row['patient_sex'];
+                        $patInfoArr['patient_ethnic'] = $row['patient_ethnic'];
+                        $patInfoArr['users_provider'] = $row['users_provider'];
+                        $patInfoArr['observation_code'] = $row['obs_code'];
+                        $patInfoArr['observation_description'] = $row['obs_description'];
+                        $patInfoArr['observation_type'] = $row['obs_type'];
+                        $patInfoArr['observation_value'] = $row['obs_value'];
+                        $patInfoArr['observation_units'] = $row['obs_units'];
+                        $patInfoArr['observation_comments'] = $row['obs_comments'];
                     } elseif ($srch_option == "Demographics") {
                         $patInfoArr['patient_date'] = $row['patient_date'];
                         $patInfoArr['patient_name'] = $row['patient_name'];
@@ -775,6 +844,68 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                                     <td ><?php echo text($patDetailVal['patient_ethnic']);?></td>
                                     <td ><?php echo text($patDetailVal['users_provider']);?></td>
                                     <td ><?php echo text($patDetailVal['insurance_companies']);?></td>
+                               </tr>
+                        <?php }
+                    } elseif ($srch_option == "Encounters") { ?>
+                        <tr style="font-size:15px;">
+                            <td><strong><?php echo xlt('Encounter Date'); ?></strong><?php echo $sortlink[0]; ?></td>
+                            <td><strong><?php echo xlt('Patient Name'); ?></strong><?php echo $sortlink[1]; ?></td>
+                            <td><strong><?php echo xlt('PID');?></strong><?php echo $sortlink[2]; ?></td>
+                            <td><strong><?php echo xlt('Age');?></strong><?php echo $sortlink[3]; ?></td>
+                            <td><strong><?php echo xlt('Gender');?></strong><?php echo $sortlink[4]; ?></td>
+                            <td><strong><?php echo xlt('Ethnicity');?></strong><?php echo $sortlink[5]; ?></td>
+                            <td><strong><?php echo xlt('Encounter Provider');?></strong><?php echo $sortlink[6]; ?></td>
+                            <td><strong><?php echo xlt('Encounter type');?></strong><?php echo $sortlink[7]; ?></td>
+                            <td><strong><?php echo xlt('Reason');?></strong><?php echo $sortlink[8]; ?></td>
+                            <td><strong><?php echo xlt('Facility');?></strong><?php echo $sortlink[9]; ?></td>
+                            <td><strong><?php echo xlt('Discharge Disposition');?></strong><?php echo $sortlink[10]; ?></td>
+                        </tr>
+                        <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
+                                <tr bgcolor = "#CCCCCC" >
+                                    <td> <?php echo text(oeFormatDateTime($patDetailVal['encounter_date'], "global", true));?>&nbsp;</td>
+                                    <td ><?php echo text($patDetailVal['patient_name']); ?></td>
+                                    <td ><?php echo text($patDetailVal['patient_id']); ?></td>
+                                    <td ><?php echo text($patDetailVal['patient_age']);?></td>
+                                    <td ><?php echo text($patDetailVal['patient_sex']);?></td>
+                                    <td ><?php echo text($patDetailVal['patient_ethnic']);?></td>
+                                    <td ><?php echo text($patDetailVal['users_provider']);?></td>
+                                    <td ><?php echo text($patDetailVal['encounter_type']);?></td>
+                                    <td ><?php echo text($patDetailVal['encounter_reason']);?></td>
+                                    <td ><?php echo text($patDetailVal['encounter_facility']);?></td>
+                                    <td ><?php echo text($patDetailVal['encounter_discharge']);?></td>
+                               </tr>
+                        <?php }
+                    } elseif ($srch_option == "Observations") { ?>
+                        <tr style="font-size:15px;">
+                            <td><strong><?php echo xlt('Observation') . " " . xlt('Date'); ?></strong><?php echo $sortlink[0]; ?></td>
+                            <td><strong><?php echo xlt('Patient Name'); ?></strong><?php echo $sortlink[1]; ?></td>
+                            <td><strong><?php echo xlt('PID');?></strong><?php echo $sortlink[2]; ?></td>
+                            <td><strong><?php echo xlt('Age');?></strong><?php echo $sortlink[3]; ?></td>
+                            <td><strong><?php echo xlt('Gender');?></strong><?php echo $sortlink[4]; ?></td>
+                            <td><strong><?php echo xlt('Ethnicity');?></strong><?php echo $sortlink[5]; ?></td>
+                            <td><strong><?php echo xlt('Observation') . " " . xlt('Provider');?></strong><?php echo $sortlink[6]; ?></td>
+                            <td><strong><?php echo xlt('Code');?></strong><?php echo $sortlink[7]; ?></td>
+                            <td><strong><?php echo xlt('Description');?></strong><?php echo $sortlink[8]; ?></td>
+                            <td><strong><?php echo xlt('Type');?></strong><?php echo $sortlink[9]; ?></td>
+                            <td><strong><?php echo xlt('Value');?></strong><?php echo $sortlink[10]; ?></td>
+                            <td><strong><?php echo xlt('Units');?></strong><?php echo $sortlink[11]; ?></td>
+                            <td><strong><?php echo xlt('Comments');?></strong><?php echo $sortlink[12]; ?></td>
+                        </tr>
+                        <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
+                                <tr bgcolor = "#CCCCCC" >
+                                    <td> <?php echo text(oeFormatDateTime($patDetailVal['observation_date'], "global", true));?>&nbsp;</td>
+                                    <td ><?php echo text($patDetailVal['patient_name']); ?></td>
+                                    <td ><?php echo text($patDetailVal['patient_id']); ?></td>
+                                    <td ><?php echo text($patDetailVal['patient_age']);?></td>
+                                    <td ><?php echo text($patDetailVal['patient_sex']);?></td>
+                                    <td ><?php echo text($patDetailVal['patient_ethnic']);?></td>
+                                    <td ><?php echo text($patDetailVal['users_provider']);?></td>
+                                    <td ><?php echo text($patDetailVal['observation_code']);?></td>
+                                    <td ><?php echo text($patDetailVal['observation_description']);?></td>
+                                    <td ><?php echo text($patDetailVal['observation_type']);?></td>
+                                    <td ><?php echo text($patDetailVal['observation_value']);?></td>
+                                    <td ><?php echo text($patDetailVal['observation_units']);?></td>
+                                    <td ><?php echo text($patDetailVal['observation_comments']);?></td>
                                </tr>
                         <?php }
                     } elseif ($srch_option == "Demographics") { ?>
