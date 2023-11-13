@@ -1923,6 +1923,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             // Show Recall if one exists
                             $query = sqlStatement("SELECT * FROM `medex_recalls` WHERE `r_pid` = ?", [(int)$pid]);
                             $recallArr = [];
+                            $count2 = 0;
                             while ($result2 = sqlFetchArray($query)) {
                                 //tabYourIt('recall', 'main/messages/messages.php?go=' + choice);
                                 //parent.left_nav.loadFrame('1', tabNAME, url);
