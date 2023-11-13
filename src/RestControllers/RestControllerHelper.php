@@ -278,15 +278,17 @@ class RestControllerHelper
         }
 
         if ($operation == '$export') {
+            // operation definition must use the operation 'name'
+            // rest.resource.operation.name must come from the OperationDefinition's code attribute which in this case is 'export'
+            $definitionName = 'export';
+            $operationName = 'export';
             if ($resource != '$export') {
-                $operationName = strtolower($resource) . '-export';
-            } else {
-                $operationName = 'export';
+                $definitionName = strtolower($resource) . '-export';
             }
             // define export operation
             $fhirOperation = new FHIRCapabilityStatementOperation();
-            $fhirOperation->setName($operation);
-            $fhirOperation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/uv/bulkdata/OperationDefinition/' . $operationName));
+            $fhirOperation->setName($operationName);
+            $fhirOperation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/uv/bulkdata/OperationDefinition/' . $definitionName));
             $capResource->addOperation($fhirOperation);
         } else if ($operation === '$bulkdata-status') {
             $fhirOperation = new FHIRCapabilityStatementOperation();
