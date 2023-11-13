@@ -407,8 +407,8 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                         pr.document_id AS procedure_result_document_id";
                     break;
                 case "Communication":
-                    $sqlstmt .= ",REPLACE(REPLACE(concat_ws(',',IF(pd.hipaa_allowemail = 'YES', 'Allow Email','NO'),IF(pd.hipaa_allowsms = 'YES', 'Allow SMS','NO') ,
-                        IF(pd.hipaa_mail = 'YES', 'Allow Mail Message','NO') , IF(pd.hipaa_voice = 'YES', 'Allow Voice Message','NO') ), ',NO',''), 'NO,','') as communications";
+                    $sqlstmt .= ",REPLACE(REPLACE(concat_ws(', ', IF(pd.hipaa_allowemail = 'YES', 'Email', 'NO'), IF(pd.hipaa_allowsms = 'YES', 'SMS', 'NO'),
+                        IF(pd.hipaa_mail = 'YES', 'Mail Message', 'NO') , IF(pd.hipaa_voice = 'YES', 'Voice Message', 'NO') ), ', NO', ''), 'NO,', '') as communications";
                     break;
                 case "Insurance Companies":
                     $sqlstmt .= ", id.type AS ins_type, id.provider AS ins_provider, ic.name as ins_name";
@@ -545,18 +545,18 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                 case "Medications":
                 case "Allergies":
                 case "Problems":
-                    $sort = array("lists_date","lists_diagnosis","lists_title");
+                    $sort = array("lists_date", "lists_diagnosis", "lists_title");
                     if ($sortby == "") {
                         $sortby = $sort[1];
                     }
                     break;
                 case "Lab results":
-                    $sort = array("procedure_result_date","procedure_result_facility","procedure_result_units","procedure_result_result","procedure_result_range","procedure_result_abnormal");
+                    $sort = array("procedure_result_date", "procedure_result_facility", "procedure_result_units", "procedure_result_result", "procedure_result_range", "procedure_result_abnormal");
                     //$odrstmt = " procedure_result_result";
                     break;
                 case "Communication":
                     //$commsort = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(','))";
-                    $sort = array("patient_date","patient_name","patient_id","patient_age","patient_sex","users_provider", "communications");
+                    $sort = array("patient_date", "patient_name", "patient_id", "patient_age", "patient_sex", "patient_ethnic", "users_provider", "communications");
                     if ($sortby == "") {
                         $sortby = $sort[6];
                     }
@@ -573,13 +573,13 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     //$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
                     break;
                 case "Encounters":
-                    $sort = array("enc_date", "patient_name", "patient_id", "patient_age", "patient_sex", "users_provider", "enc_type", "enc_reason", "enc_facility", "enc_discharge");
+                    $sort = array("enc_date", "patient_name", "patient_id", "patient_age", "patient_sex", "patient_ethnic", "users_provider", "enc_type", "enc_reason", "enc_facility", "enc_discharge");
                     break;
                 case "Observations":
-                    $sort = array("obs_date", "patient_name", "patient_id", "patient_age", "patient_sex", "users_provider", "obs_code", "obs_description", "obs_type", "obs_comments", "obs_value", "obs_units");
+                    $sort = array("obs_date", "patient_name", "patient_id", "patient_age", "patient_sex", "patient_ethnic", "users_provider", "obs_code", "obs_description", "obs_type", "obs_comments", "obs_value", "obs_units");
                     break;
                 case "Demographics":
-                    $sort = array("patient_date","patient_name","patient_id","patient_age","patient_sex","patient_race","patient_ethnic","users_provider");
+                    $sort = array("patient_date", "patient_name", "patient_id", "patient_age", "patient_sex", "patient_race", "patient_ethnic", "users_provider");
                     break;
             }
 
@@ -618,7 +618,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     $odrstmt = " ORDER BY procedure_result_date asc";
                     break;
                 case "Communication":
-                    $odrstmt = "ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) asc, communications asc";
+                    $odrstmt = " ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) asc, communications asc";
                     break;
                 case "Demographics":
                     $odrstmt = " ORDER BY patient_date asc";
@@ -636,11 +636,11 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
 
             if (!empty($_POST['sortby']) && !empty($_POST['sortorder'])) {
                 if ($_POST['sortby'] == "communications") {
-                    $odrstmt = "ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) " . escape_sort_order($_POST['sortorder']) . ", communications " . escape_sort_order($_POST['sortorder']);
+                    $odrstmt = " ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) " . escape_sort_order($_POST['sortorder']) . ", communications " . escape_sort_order($_POST['sortorder']);
                 } elseif ($_POST['sortby'] == "insurance_companies") {
-                    $odrstmt = "ORDER BY ins_provider " . escape_sort_order($_POST['sortorder']);
+                    $odrstmt = " ORDER BY ins_provider " . escape_sort_order($_POST['sortorder']);
                 } else {
-                    $odrstmt = "ORDER BY " . escape_identifier($_POST['sortby'], $sort, true) . " " . escape_sort_order($_POST['sortorder']);
+                    $odrstmt = " ORDER BY " . escape_identifier($_POST['sortby'], $sort, true) . " " . escape_sort_order($_POST['sortorder']);
                 }
             }
 
@@ -686,6 +686,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                         $patInfoArr['patient_name'] = $row['patient_name'];
                         $patInfoArr['patient_age'] = $row['patient_age'];
                         $patInfoArr['patient_sex'] = $row['patient_sex'];
+                        $patInfoArr['patient_ethnic'] = $row['patient_ethnic'];
                         $patInfoArr['users_provider'] = $row['users_provider'];
                         $patInfoArr['communications'] = $row['communications'];
                     } elseif ($srch_option == "Insurance Companies") {
@@ -809,7 +810,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                             <td width="10%"><strong><?php echo xlt('Gender');?></strong><?php echo $sortlink[4]; ?></td>
                             <td width="10%"><strong><?php echo xlt('Ethnicity');?></strong><?php echo $sortlink[5]; ?></td>
                             <td width="15%"><strong><?php echo xlt('Provider');?></strong><?php echo $sortlink[6]; ?></td>
-                            <td ><strong><?php echo xlt('Communication');?></strong><?php echo $sortlink[7]; ?></td>
+                            <td ><strong><?php echo xlt('Allowed') . " " . xlt('Communication');?></strong><?php echo $sortlink[7]; ?></td>
                         </tr>
                         <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
                                 <tr bgcolor = "#CCCCCC" >
