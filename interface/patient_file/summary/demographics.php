@@ -609,7 +609,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             ?>
 
             // load divs
-            placeHtml("stats.php", "stats_div", true);
+            placeHtml("stats.php", "stats_div", true).then(() => {
+                $('[data-toggle="collapse"]').on('click', function (e) {
+                    updateUserVisibilitySetting(e);
+                });
+            });
             placeHtml("pnotes_fragment.php", 'pnotes_ps_expand').then(() => {
                 // must be delegated event!
                 $(this).on("click", ".complete_btn", function() {
@@ -815,11 +819,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <?php } elseif ($active_reminders || $all_allergy_alerts) { ?>
                 openReminderPopup();
             <?php } ?>
-
-            // $(".card-title").on('click', "button", (e) => {
-            //     console.debug("click");
-            //     updateUserVisibilitySetting(e);
-            // });
         });
 
         /**
@@ -862,16 +861,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             });
 
             return await response.text();
-        }
-
-        // Update the User's visibility setting when the card header is clicked
-        function cardTitleButtonClickListener() {
-            const buttons = document.querySelectorAll(".card-title a[data-toggle='collapse']");
-            buttons.forEach((b) => {
-                b.addEventListener("click", (e) => {
-                    updateUserVisibilitySetting(e);
-                });
-            });
         }
 
         // JavaScript stuff to do when a new patient is set.
@@ -926,10 +915,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
         $(window).on('load', function() {
             setMyPatient();
-        });
-
-        document.addEventListener("DOMContentLoaded", () => {
-            cardTitleButtonClickListener();
         });
     </script>
 
