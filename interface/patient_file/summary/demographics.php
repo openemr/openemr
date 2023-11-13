@@ -609,7 +609,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             ?>
 
             // load divs
-            placeHtml("stats.php", "stats_div", true);
+            placeHtml("stats.php", "stats_div", true).then(() => {
+                $('[data-toggle="collapse"]').on('click', function (e) {
+                    updateUserVisibilitySetting(e);
+                });
+            });
             placeHtml("pnotes_fragment.php", 'pnotes_ps_expand').then(() => {
                 // must be delegated event!
                 $(this).on("click", ".complete_btn", function() {
@@ -815,11 +819,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <?php } elseif ($active_reminders || $all_allergy_alerts) { ?>
                 openReminderPopup();
             <?php } ?>
-
-            // $(".card-title").on('click', "button", (e) => {
-            //     console.debug("click");
-            //     updateUserVisibilitySetting(e);
-            // });
         });
 
         /**
@@ -835,30 +834,33 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             const targetID = e.target.getAttribute("data-target");
             const target = document.querySelector(targetID);
             const targetStr = targetID.substring(1);
-
+            // test ensure at least an element we want.
+            if (target.classList.contains("collapse")) {
+                // who is icon. Easier to catch BS event than create one specific for this decision..
+                // Should always be icon target
+                let iconTarget = e.target.children[0] || e.target;
+                // toggle
+                if (iconTarget.classList.contains("fa-expand")) {
+                    iconTarget.classList.remove('fa-expand');
+                    iconTarget.classList.add('fa-compress');
+                }
+                else {
+                    iconTarget.classList.remove('fa-compress');
+                    iconTarget.classList.add('fa-expand');
+                }
+            }
             let formData = new FormData();
             formData.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
             formData.append("target", targetStr);
             formData.append("mode", (target.classList.contains("show")) ? 0 : 1);
-
+            top.restoreSession();
             const response = await fetch("../../../library/ajax/user_settings.php", {
                 method: "POST",
                 credentials: 'same-origin',
                 body: formData,
             });
 
-            const update = await response.text();
-            return update;
-        }
-
-        // Update the User's visibility setting when the card header is clicked
-        function cardTitleButtonClickListener() {
-            const buttons = document.querySelectorAll(".card-title button[data-toggle='collapse']");
-            buttons.forEach((b) => {
-                b.addEventListener("click", (e) => {
-                    updateUserVisibilitySetting(e);
-                });
-            });
+            return await response.text();
         }
 
         // JavaScript stuff to do when a new patient is set.
@@ -914,10 +916,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         $(window).on('load', function() {
             setMyPatient();
         });
-
-        document.addEventListener("DOMContentLoaded", () => {
-            cardTitleButtonClickListener();
-        });
     </script>
 
     <style>
@@ -928,11 +926,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
 
         /* Short term fix. This ensures the problem list, allergies, medications, and immunization cards handle long lists without interuppting
-           the UI. This should be configurable and should go in a more appropriate place */
+           the UI. This should be configurable and should go in a more appropriate place
         .pami-list {
             max-height: 200px;
             overflow-y: scroll;
-        }
+        } */
 
         <?php
         if (!empty($GLOBALS['right_justify_labels_demographics']) && ($_SESSION['language_direction'] == 'ltr')) { ?>
