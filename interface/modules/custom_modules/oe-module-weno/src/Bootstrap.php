@@ -167,37 +167,44 @@ class Bootstrap {
 
     public function registerMenuItems()
     {
-        $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, [$this, 'addPrescriptionLogMenu']);
+        $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, [$this, 'addCustomMenuItem']);
     }
 
-    public function addPrescriptionLogMenu(MenuEvent $event)
+    public function addCustomMenuItem(MenuEvent $event)
     {
         $menu = $event->getMenu();
-
+        //Prescripption Log
         $menuItem = new \stdClass();
         $menuItem->requirement = 0;
         $menuItem->target = 'rep';
         $menuItem->menu_id = 'rep0';
         $menuItem->label = xlt("Prescription Log");
-        // TODO: pull the install location into a constant into the codebase so if OpenEMR changes this location it
-        // doesn't break any modules.
         $menuItem->url = self::MODULE_INSTALLATION_PATH . "/templates/rxlogmanager.php";
         $menuItem->children = [];
-
-        /**
-         * This defines the Access Control List properties that are required to use this module.
-         * Several examples are provided
-         */
         $menuItem->acl_req = ["patients", "rx"];
-
-
-        /**
-         * This menu flag takes a boolean property defined in the $GLOBALS array that OpenEMR populates.
-         * It allows a menu item to display if the property is true, and be hidden if the property is false
-         */
         $menuItem->global_req = ["weno_rx_enable"];
+        
+        //Weno Management
+        $mgtMenu = new \stdClass();
+        $mgtMenu->requirement = 0;
+        $mgtMenu->target = 'adm0';
+        $mgtMenu->menu_id = 'adm';
+        $mgtMenu->label = xlt("Weno Management");
+        $mgtMenu->url = self::MODULE_INSTALLATION_PATH . "/templates/facilities.php";
+        $mgtMenu->children = [];
+        $mgtMenu->acl_req = ["admin", "super"];
+        $mgtMenu->global_req = ["weno_rx_enable"];
 
         foreach ($menu as $item) {
+            if($item->menu_id == 'admimg'){
+                foreach($item->children as $other){
+                    if($other->label == 'Other'){
+                        $other->children[] = $mgtMenu;
+                        break;
+                    }
+                }
+            }
+            
             if ($item->menu_id == 'repimg') {
                 foreach($item->children as $clientReport){
                     if($clientReport->label == 'Clients'){
