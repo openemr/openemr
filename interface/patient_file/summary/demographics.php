@@ -853,7 +853,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             formData.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
             formData.append("target", targetStr);
             formData.append("mode", (target.classList.contains("show")) ? 0 : 1);
-
+            top.restoreSession();
             const response = await fetch("../../../library/ajax/user_settings.php", {
                 method: "POST",
                 credentials: 'same-origin',
