@@ -115,25 +115,25 @@ class Prescription extends ORDataObject
      */
 
     var $id;
-    var $patient;
-    var $pharmacist;
+    var $patient = '';
+    var $pharmacist = '';
     var $date_added;
     var $txDate;
     var $date_modified;
-    var $pharmacy;
+    var $pharmacy = '';
     var $start_date;
     var $filled_date;
-    var $provider;
-    var $note;
-    var $drug;
-    var $rxnorm_drugcode;
-    var $form;
-    var $dosage;
+    var $provider = '';
+    var $note = '';
+    var $drug = '';
+    var $rxnorm_drugcode = '';
+    var $form = '';
+    var $dosage = '';
     var $quantity;
-    var $size;
+    var $size = '';
     var $unit;
     var $route;
-    var $interval;
+    var $interval = '';
     var $substitute;
     var $refills;
     var $per_refill;
@@ -248,7 +248,7 @@ class Prescription extends ORDataObject
             . "Provider ID: " . $this->provider->id . "\n"
             . "Note: " . $this->note . "\n"
             . "Drug: " . $this->drug . "\n"
-          . "Code: " . $this->rxnorm_drugcode . "\n"
+            . "Code: " . $this->rxnorm_drugcode . "\n"
             . "Form: " . $this->form_array[$this->form] . "\n"
             . "Dosage: " . $this->dosage . "\n"
             . "Qty: " . $this->quantity . "\n"
@@ -321,7 +321,7 @@ class Prescription extends ORDataObject
         if (empty($this->form) && empty($this->interval)) {
             return( $this->dosage );
         } else {
-            return ($this->dosage . " " . xl('in') . " " . $this->form_array[$this->form] . " " . $this->interval_array[$this->interval]);
+            return ($this->dosage . " " . xl('in') . " " . ($this->form_array[$this->form] ?? '') . " " . ($this->interval_array[$this->interval] ?? ''));
         }
     }
 
@@ -410,7 +410,7 @@ class Prescription extends ORDataObject
     }
     function gen_lists_medication($id)
     {
-        $instructions = $this->size . $this->unit_array[$this->unit] . "\t\t" . $this->get_dosage_display();
+        $instructions = $this->size . ($this->unit_array[$this->unit] ?? '') . "\t\t" . $this->get_dosage_display();
         if (!empty($id)) {
             $medId = sqlQuery("select list_id from lists_medication where list_id = '" . add_escape_custom($id) . "' limit 1");
             if (isset($medId["list_id"])) {
@@ -744,9 +744,9 @@ class Prescription extends ORDataObject
                 . "Provider: " . "\t\t" . $this->provider->get_name_display() . "\n"
                 . "Provider DEA No.: " . "\t\t" . $this->provider->federal_drug_id . "\n"
                 . "Drug: " . "\t\t\t" . $this->drug . "\n"
-                . "Dosage: " . "\t\t" . $this->dosage . " in " . $this->form_array[$this->form] . " form " . $this->interval_array[$this->interval] . "\n"
+                . "Dosage: " . "\t\t" . $this->dosage . " in " . ($this->form_array[$this->form] ?? '') . " form " . ($this->interval_array[$this->interval] ?? '') . "\n"
                 . "Qty: " . "\t\t\t" . $this->quantity . "\n"
-                . "Medication Unit: " . "\t" . $this->size  . " " . $this->unit_array[$this->unit] . "\n"
+                . "Medication Unit: " . "\t" . $this->size  . " " . ($this->unit_array[$this->unit] ?? '') . "\n"
                 . "Substitute: " . "\t\t" . $this->substitute_array[$this->substitute] . "\n";
         if ($this->refills > 0) {
             $string .= "Refills: " . "\t\t" . $this->refills . ", of quantity: " . $this->per_refill . "\n";
@@ -796,7 +796,7 @@ class Prescription extends ORDataObject
         $string .= "\n";
         $string .= date("F j, Y", strtotime($this->start_date)) . "\n";
         $string .= "\n";
-        $string .= strtoupper($this->drug) . " " . $this->size  . " " . $this->unit_array[$this->unit] . "\n";
+        $string .= strtoupper($this->drug) . " " . $this->size  . " " . ($this->unit_array[$this->unit] ?? '') . "\n";
         if (strlen($this->note) > 0) {
             $string .= "Notes: \n" . $this->note . "\n";
         }
