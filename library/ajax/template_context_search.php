@@ -38,7 +38,7 @@ Where
     cl3.cl_list_type = 3 And
     cl3.cl_deleted = 0 And
     cl2.cl_list_item_long Like ? And
-    cl3.cl_creator = ?
+    (cl3.cl_creator = ? or cl3.cl_list_slno in (select c.cl_list_slno as context_id from template_users tu left join customlists c on c.cl_list_type = 3 and tu.tu_template_id = c.cl_list_slno where tu_user_id = ? and c.cl_list_type = 3))
 Group By
     cl2.cl_list_item_long
 createQuery;
@@ -46,7 +46,7 @@ createQuery;
 $search = $_GET['search'];
 $eSearch = "%" . $search . "%";
 $results = [];
-$r = sqlStatementNoLog($cq, array($eSearch, (int)$_SESSION['authUserID']));
+$r = sqlStatementNoLog($cq, array($eSearch, (int)$_SESSION['authUserID'], (int)$_SESSION['authUserID']));
 
 while ($result = sqlFetchArray($r)) {
     $results[] = array_map('text', $result);

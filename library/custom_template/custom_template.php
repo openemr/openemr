@@ -28,8 +28,8 @@
 // +------------------------------------------------------------------------------+
 
 require_once("../../interface/globals.php");
-require_once("$srcdir/lists.inc.php");
-require_once("$srcdir/user.inc.php");
+require_once("$srcdir/lists.inc");
+require_once("$srcdir/user.inc");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -70,6 +70,30 @@ if (empty($isNN) && empty($rowContext)) {
     }
     .is-dragging {
         cursor: move !important;
+    }
+    .draggable > span {
+        display: grid !important;
+        grid-template-columns: auto auto 1fr;
+        align-items: center;
+        grid-template-areas:
+        "h1 h2 h3"
+        "h4 h4 h4";
+    }
+    .draggable > span img:nth-child(1) {
+        grid-area: h1;
+    }
+    .draggable > span div:nth-child(2), .draggable > span div[title] {
+        display: inline;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        grid-area: h2;
+    }
+    .draggable > span img:nth-child(3) {
+        grid-area: h3;
+    }
+    .draggable > span div:nth-child(4) {
+        grid-area: h4;
     }
 </style>
 <?php Header::setupHeader(['common', 'opener', 'select2', 'ckeditor']); ?>

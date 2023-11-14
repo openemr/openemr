@@ -73,12 +73,14 @@ if ($Source == "add_template") {
     $newid = sqlInsert("INSERT INTO customlists (cl_list_id,cl_list_type,cl_list_item_long,cl_order,cl_creator) VALUES (?,?,?,?,?)", array($templateid, 4, $item, $order, $_SESSION['authUserID']));
     sqlStatement("INSERT INTO template_users (tu_user_id,tu_template_id,tu_template_order) VALUES (?,?,?)", array($_SESSION['authUserID'], $newid, $order));
 } elseif ($Source == "delete_item") {
-    sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($item, $_SESSION['authUserID']));
+    //sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($item, $_SESSION['authUserID']));
+    sqlStatement("DELETE FROM template_users WHERE tu_template_id=?", array($item));
 } elseif ($Source == "update_item") {
     $row = sqlQuery("SELECT max(cl_order)+1 as order1 FROM customlists WHERE cl_list_id=?", array($templateid));
     $order = $row['order1'];
     $newid = sqlInsert("INSERT INTO customlists (cl_list_id,cl_list_type,cl_list_item_long,cl_order,cl_creator) VALUES (?,?,?,?,?)", array($templateid, 4, $content, $order, $_SESSION['authUserID']));
-    sqlStatement("UPDATE template_users SET tu_template_id=? WHERE tu_template_id=? AND tu_user_id=?", array($newid, $item, $_SESSION['authUserID']));
+    //sqlStatement("UPDATE template_users SET tu_template_id=? WHERE tu_template_id=? AND tu_user_id=?", array($newid, $item, $_SESSION['authUserID']));
+    sqlStatement("UPDATE template_users SET tu_template_id=? WHERE tu_template_id=?", array($newid, $item));
 } elseif ($Source == 'item_show') {
     $sql = "SELECT * FROM customlists WHERE cl_list_id=? AND cl_list_type=4 AND cl_deleted=0";
     $res = sqlStatement($sql, array($list_id));
@@ -152,8 +154,8 @@ if ($Source == "add_template") {
 if ($Source != "add_template") {
     $res = sqlStatement(
         "SELECT * FROM customlists AS cl LEFT  OUTER JOIN template_users AS tu ON cl.cl_list_slno=tu.tu_template_id
-                        WHERE cl_list_type=4 AND cl_list_id=? AND cl_deleted=0 AND tu.tu_user_id=? ORDER BY tu.tu_template_order",
-        array($templateid, $_SESSION['authUserID'])
+                        WHERE cl_list_type=4 AND cl_list_id=? AND cl_deleted=0 AND (tu.tu_user_id=? OR tu.tu_template_id in (select t1.cl_list_slno from (select count(tu1.tu_template_id) as total_count, tu1.tu_user_id, c1.* from customlists c1 left join template_users tu1 on tu1.tu_template_id = c1.cl_list_slno where c1.cl_list_id = ? and c1.cl_list_type = 4 and tu1.tu_template_id != '' group by tu1.tu_template_id) as t1 where t1.total_count = 1)) ORDER BY tu.tu_template_order",
+        array($templateid, $_SESSION['authUserID'], $templateid)
     );
     $i = 0;
     while ($row = sqlFetchArray($res)) {
@@ -162,7 +164,7 @@ if ($Source != "add_template") {
         if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
             echo "<img src='" . $GLOBALS['images_static_relative'] . "/b_edit.png' onclick=update_item_div('" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "')>";
         }
-        echo "<div style='display:inline' id='" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "' onclick=\"moveOptions_11('" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "', 'textarea1');\">" . htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES) . "</div>";
+        echo "<div style='display:inline' id='" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "' onclick=\"moveOptions_11('" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "', 'textarea1');\" title='" . htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES) . "'>" . htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES) . "</div>";
         if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
             echo "<img src='" . $GLOBALS['images_static_relative'] . "/deleteBtn.png' onclick=\"delete_item('" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "')\">";
             echo "<div id='update_item" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "' style='display:none'><textarea name='update_item_txt" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "' id='update_item_txt" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "' class='w-100'>" . htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES) . "</textarea><br />";
