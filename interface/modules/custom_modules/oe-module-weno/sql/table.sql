@@ -45,10 +45,6 @@ CREATE TABLE `weno_pharmacy` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 #EndIf
 
-#IfTable weno_assigned_pharmacy
-DROP TABLE IF EXISTS `weno_assigned_pharmacy`;
-#EndIf
-
 #IfNotTable weno_assigned_pharmacy
 CREATE TABLE IF NOT EXISTS `weno_assigned_pharmacy` (
     `id` INT(10) NOT NULL AUTO_INCREMENT,
@@ -57,10 +53,6 @@ CREATE TABLE IF NOT EXISTS `weno_assigned_pharmacy` (
     `alternate_ncpdp` VARCHAR(8) NOT NULL,
     PRIMARY KEY(id)
 ) ENGINE=InnoDB;
-#EndIf
-
-#IfTable weno_download_log
-DROP TABLE IF EXISTS `weno_download_log`;
 #EndIf
 
 #IfNotTable weno_download_log
