@@ -658,10 +658,10 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                 $patDataArr = array();
                 $smoke_codes_arr = getSmokeCodes();
                 while ($row = sqlFetchArray($result)) {
-                        $patArr[] = $row['patient_id'];
-                        $patInfoArr = array();
-                        $patInfoArr['patient_id'] = $row['patient_id'];
-                        //Diagnosis Check
+                    $patArr[] = $row['patient_id'];
+                    $patInfoArr = array();
+                    $patInfoArr['patient_id'] = $row['patient_id'];
+                    //Diagnosis Check
                     if ($srch_option == "Medications" || $srch_option == "Allergies" || $srch_option == "Problems") {
                         $patInfoArr['lists_date'] = $row['lists_date'];
                         $patInfoArr['lists_diagnosis'] = $row['lists_diagnosis'];
@@ -771,6 +771,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                                     <td ><?php echo text($patDetailVal['patient_id']); ?></td>
                                     <td ><?php echo text($patDetailVal['patient_age']);?></td>
                                     <td ><?php echo text($patDetailVal['patient_sex']);?></td>
+                                    <td ><?php echo text($patDetailVal['patient_ethnic']);?></td>
                                     <td colspan='4'><?php echo text($patDetailVal['users_provider']);?></td>
                                 </tr>
                         <?php	}
