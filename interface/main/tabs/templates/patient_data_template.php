@@ -63,6 +63,7 @@ switch ($search_any_type) {
                 <!-- ko if: patient -->
                 <?php
                 $classes = "";
+                $closeAnchorClasses = '';
                 switch ($GLOBALS['patient_name_display']) :
                     case 'btn':
                         $classes = "btn btn-sm btn-secondary";

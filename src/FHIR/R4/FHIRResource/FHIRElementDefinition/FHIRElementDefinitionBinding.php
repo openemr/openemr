@@ -193,7 +193,7 @@ class FHIRElementDefinitionBinding extends FHIRBackboneElement implements \JsonS
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         if (isset($this->strength)) {

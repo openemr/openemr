@@ -175,7 +175,7 @@ class FHIRChargeItemDefinitionPropertyGroup extends FHIRBackboneElement implemen
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         if (0 < count($this->applicability)) {

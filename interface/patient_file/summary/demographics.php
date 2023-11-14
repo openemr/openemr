@@ -335,7 +335,7 @@ $arrOeUiSettings = array(
     'heading_title' => xl('Medical Record Dashboard'),
     'include_patient_name' => true,
     'expandable' => true,
-    'expandable_files' => array(), //all file names need suffix _xpd
+    'expandable_files' => array('demographics_xpd'), //all file names need suffix _xpd
     'action' => "", //conceal, reveal, search, reset, link or back
     'action_title' => "",
     'action_href' => "", //only for actions - reset, link or back
@@ -549,6 +549,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $soap_status = sqlStatement("select soap_import_status,pid from patient_data where pid=? and soap_import_status in ('1','3')", array($pid));
                 while ($row_soapstatus = sqlFetchArray($soap_status)) { ?>
                     top.restoreSession();
+                    let reloadRequired = false;
                     $.ajax({
                         type: "POST",
                         url: "../../soap_functions/soap_patientfullmedication.php",
@@ -558,7 +559,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         },
                         async: false,
                         success: function(thedata) {
-                            //alert(thedata);
+                            if (!thedata.includes("Nothing")) {
+                                reloadRequired = true;
+                            }
                             msg_updation += thedata;
                         },
                         error: function() {
@@ -576,13 +579,20 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         },
                         async: false,
                         success: function(thedata) {
-                            //alert(thedata);
-                            msg_updation += thedata;
+                            if (!thedata.includes("Nothing")) {
+                                reloadRequired = true;
+                            }
+                            msg_updation += "\n" + thedata;
                         },
                         error: function() {
                             alert('ajax error');
                         }
                     });
+
+                    if (reloadRequired) {
+                        document.location.reload();
+                    }
+
                     <?php
                     if ($GLOBALS['erx_import_status_message']) { ?>
                         if (msg_updation)
@@ -594,7 +604,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             ?>
 
             // load divs
-            placeHtml("stats.php", "stats_div", true);
+            placeHtml("stats.php", "stats_div", true).then(() => {
+                $('[data-toggle="collapse"]').on('click', function (e) {
+                    updateUserVisibilitySetting(e);
+                });
+            });
             placeHtml("pnotes_fragment.php", 'pnotes_ps_expand').then(() => {
                 // must be delegated event!
                 $(this).on("click", ".complete_btn", function() {
@@ -800,11 +814,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <?php } elseif ($active_reminders || $all_allergy_alerts) { ?>
                 openReminderPopup();
             <?php } ?>
-
-            // $(".card-title").on('click', "button", (e) => {
-            //     console.debug("click");
-            //     updateUserVisibilitySetting(e);
-            // });
         });
 
         /**
@@ -820,30 +829,33 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             const targetID = e.target.getAttribute("data-target");
             const target = document.querySelector(targetID);
             const targetStr = targetID.substring(1);
-
+            // test ensure at least an element we want.
+            if (target.classList.contains("collapse")) {
+                // who is icon. Easier to catch BS event than create one specific for this decision..
+                // Should always be icon target
+                let iconTarget = e.target.children[0] || e.target;
+                // toggle
+                if (iconTarget.classList.contains("fa-expand")) {
+                    iconTarget.classList.remove('fa-expand');
+                    iconTarget.classList.add('fa-compress');
+                }
+                else {
+                    iconTarget.classList.remove('fa-compress');
+                    iconTarget.classList.add('fa-expand');
+                }
+            }
             let formData = new FormData();
             formData.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
             formData.append("target", targetStr);
             formData.append("mode", (target.classList.contains("show")) ? 0 : 1);
-
+            top.restoreSession();
             const response = await fetch("../../../library/ajax/user_settings.php", {
                 method: "POST",
                 credentials: 'same-origin',
                 body: formData,
             });
 
-            const update = await response.text();
-            return update;
-        }
-
-        // Update the User's visibility setting when the card header is clicked
-        function cardTitleButtonClickListener() {
-            const buttons = document.querySelectorAll(".card-title a[data-toggle='collapse']");
-            buttons.forEach((b) => {
-                b.addEventListener("click", (e) => {
-                    updateUserVisibilitySetting(e);
-                });
-            });
+            return await response.text();
         }
 
         // JavaScript stuff to do when a new patient is set.
@@ -899,10 +911,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         $(window).on('load', function() {
             setMyPatient();
         });
-
-        document.addEventListener("DOMContentLoaded", () => {
-            cardTitleButtonClickListener();
-        });
     </script>
 
     <style>
@@ -913,11 +921,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
 
         /* Short term fix. This ensures the problem list, allergies, medications, and immunization cards handle long lists without interuppting
-           the UI. This should be configurable and should go in a more appropriate place */
+           the UI. This should be configurable and should go in a more appropriate place
         .pami-list {
             max-height: 200px;
             overflow-y: scroll;
-        }
+        } */
 
         <?php
         if (!empty($GLOBALS['right_justify_labels_demographics']) && ($_SESSION['language_direction'] == 'ltr')) { ?>
@@ -1029,13 +1037,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $pl = (AclMain::aclCheckIssue('medical_problem')) ? 1 : 0;
                     $meds = (AclMain::aclCheckIssue('medication')) ? 1 : 0;
                     $rx = (!$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx')) ? 1 : 0;
-                    $cards = $allergy + $pl + $meds + $rx;
+                    $cards = max(1, ($allergy + $pl + $meds));
                     $col = "p-1 ";
-
-                    if ($cards > 0) {
-                        $colInt = 12 / $cards;
-                        $col = "col-" . $colInt;
-                    }
+                    $colInt = 12 / $cards;
+                    $col .= "col-md-" . $colInt;
 
                     /**
                      * Helper function to return only issues with an outcome not equal to resolved
@@ -1178,7 +1183,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $viewArgs['content'] = ob_get_contents();
                         ob_end_clean();
 
-                        echo "<div class=\"$col\">";
+                        echo "<div class=\"col\">";
                         echo $t->render('patient/card/rx.html.twig', $viewArgs);
                         echo "</div>";
                     endif;
@@ -1353,7 +1358,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
                         }
 
-                        if ($GLOBALS["enable_oa"]) {
+                        if ($GLOBALS["enable_eligibility_requests"]) {
                             if (($_POST['status_update'] ?? '') === 'true') {
                                 unset($_POST['status_update']);
                                 $showEligibility = true;
@@ -1390,7 +1395,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
                             'ins' => $insArr,
                             'eligibility' => $output,
-                            'enable_oa' => $GLOBALS['enable_oa'],
+                            'enable_eligibility_requests' => $GLOBALS['enable_eligibility_requests'],
                             'auth' => AclMain::aclCheckCore('patients', 'demo', '', 'write'),
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
@@ -1904,6 +1909,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             // Show Recall if one exists
                             $query = sqlStatement("SELECT * FROM `medex_recalls` WHERE `r_pid` = ?", [(int)$pid]);
                             $recallArr = [];
+                            $count2 = 0;
                             while ($result2 = sqlFetchArray($query)) {
                                 //tabYourIt('recall', 'main/messages/messages.php?go=' + choice);
                                 //parent.left_nav.loadFrame('1', tabNAME, url);

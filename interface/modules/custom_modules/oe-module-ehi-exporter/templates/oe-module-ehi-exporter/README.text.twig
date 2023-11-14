@@ -1,0 +1,19 @@
+{#
+# Handles the EHI Export README file that is included inside every EHI export zip file.
+#
+# @package   OpenEMR
+# @link      http://www.open-emr.org
+#
+# @author    Stephen Nielson <snielson@discoverandchange.com
+# @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
+# @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+*
+#}
+{{ "Electronic Health Information Export"|xlt }}
+{{ "This Zip file contains the EHI Export data that you requested"|xlt }}
+
+{{ "The local installation documentation for the format of the EHI Export data can be found at"|xlt }}:
+{{ webBaseUrl|text }}/Documentation/EHI_Export/docs/
+
+{{ "The ONC 2015 Certification public URL documentation for this export can be found at"|xlt }}
+https://raw.githubusercontent.com/openemr/openemr/{{ certifiedReleaseVersion|text }}/Documentation/EHI_Exports/docs/

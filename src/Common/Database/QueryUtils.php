@@ -33,6 +33,16 @@ class QueryUtils
         return $field_list;
     }
 
+    public static function escapeTableName($table)
+    {
+        return \escape_table_name($table);
+    }
+
+    public static function escapeColumnName($columnName, $tables = [])
+    {
+        return \escape_sql_column_name($columnName, $tables);
+    }
+
     public static function fetchRecordsNoLog($sqlStatement, $binds)
     {
         // Below line is to avoid a nasty bug in windows.
@@ -150,6 +160,34 @@ class QueryUtils
     }
 
     /**
+     * @param $tableName Table name to check if it exists must conform to the following regex ^[a-zA-Z_]{1}[a-zA-Z0-9_]{1,63}$
+     * @return bool
+     */
+    public static function existsTable($tableName)
+    {
+
+        try {
+            if (preg_match("/^[a-zA-Z_]{1}[a-zA-Z0-9_]{1,63}$/", $tableName) === false) {
+                return false; // don't allow invalid table names
+            }
+            // escape table name just DIES if the table name is not valid so we need to handle that here
+            // to determine if it exists
+            // normally we'd skip throwing the exception but default OpenEMR behavior is to die if the exception isn't
+            // thrown which doesn't help us at all.
+
+            $query = "SELECT 1 as id FROM " . $tableName . " LIMIT 1";
+            $statement = \sqlStatementNoLog($query, [], true);
+            if ($statement !== false) {
+                unset($statement); // free the resource
+                return true;
+            }
+        } catch (\Exception $e) {
+            // do nothing as we know the table doesn't exist
+        }
+        return false;
+    }
+
+    /**
      * Sql insert query in OpenEMR.
      *  Only use this function if you need to have the
      *  id returned. If doing an insert query and do
@@ -227,6 +265,11 @@ class QueryUtils
     public static function generateId()
     {
         return \generate_id();
+    }
+
+    public static function ediGenerateId()
+    {
+        return \edi_generate_id();
     }
 
     public static function startTransaction()

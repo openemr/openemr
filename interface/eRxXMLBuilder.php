@@ -722,26 +722,35 @@ class eRxXMLBuilder
                 // explode() will return an array containing the individual diagnosis if there is no semicolon
                 $multiple = explode(";", $diagnosis['diagnosis']);
                 foreach ($multiple as $individual) {
-                    $element = $this->getDocument()->createElement('PatientDiagnosis');
                     $res = explode(":", $individual); //split diagnosis type and code
+                    $codeType = $res[0];
+                    $diagnosisId = $res[1];
+                    // NewCrop only accepts ICD10 codes, so only add XML elements for diagnosis with ICD10 code types
+                    if (
+                        $codeType == 'ICD10' &&
+                        !empty($diagnosisId) &&
+                        empty($diagnosis['enddate'])
+                    ) {
+                        $element = $this->getDocument()->createElement('PatientDiagnosis');
+                        $element->appendChild($this->createElementText('diagnosisID', $diagnosisId));
+                        $element->appendChild($this->createElementText('diagnosisType', $codeType));
 
-                    $element->appendChild($this->createElementText('diagnosisID', $res[1]));
-                    $element->appendChild($this->createElementText('diagnosisType', $res[0]));
+                        if ($diagnosis['begdate']) {
+                            $onsetDate = new DateTime($diagnosis['begdate']);
+                            $element->appendChild($this->createElementText('onsetDate', date_format($onsetDate, 'Ymd')));
+                        }
 
-                    if ($diagnosis['begdate']) {
-                        $element->appendChild($this->createElementText('onsetDate', str_replace("-", "", $diagnosis['begdate'])));
+                        if ($diagnosis['title']) {
+                            $element->appendChild($this->createElementText('diagnosisName', $diagnosis['title']));
+                        }
+
+                        if ($diagnosis['date']) {
+                            $date = new DateTime($diagnosis['date']);
+                            $element->appendChild($this->createElementText('recordedDate', date_format($date, 'Ymd')));
+                        }
+
+                        $elements[] = $element;
                     }
-
-                    if ($diagnosis['title']) {
-                        $element->appendChild($this->createElementText('diagnosisName', $diagnosis['title']));
-                    }
-
-                    if ($diagnosis['date']) {
-                        $date = new DateTime($diagnosis['date']);
-                        $element->appendChild($this->createElementText('recordedDate', date_format($date, 'Ymd')));
-                    }
-
-                    $elements[] = $element;
                 }
             }
         }

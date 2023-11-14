@@ -29,7 +29,7 @@ require_once("$srcdir/payment.inc.php");
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 
 $debug = 0; // set to 1 for debugging mode
@@ -46,15 +46,6 @@ if ($from_posting) {
 $ALLOW_DELETE = true;
 
 $info_msg = "";
-
-// Format money for display.
-//
-function bucks($amount)
-{
-    if ($amount) {
-        return sprintf("%.2f", $amount);
-    }
-}
 
 ?>
 <html>
@@ -664,7 +655,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                                 ?>
                                 <tr>
                                     <td class="detail" style="background:<?php echo $dispcode ? 'lightyellow' : ''; ?>"><?php echo text($dispcode); $dispcode = "" ?></td>
-                                    <td class="detail"><?php echo text(bucks($tmpchg)); ?></td>
+                                    <td class="detail"><?php echo text(FormatMoney::getBucks($tmpchg)); ?></td>
                                     <td class="detail">&nbsp;</td>
                                     <td class="detail">
                                         <?php
@@ -679,8 +670,8 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                                         ?>
                                     </td>
                                     <td class="detail"><?php echo text($ddate); ?></td>
-                                    <td class="detail"><?php echo text(bucks($ddata['pmt'] ?? '')); ?></td>
-                                    <td class="detail"><?php echo text(bucks($tmpadj)); ?></td>
+                                    <td class="detail"><?php echo text(FormatMoney::getBucks($ddata['pmt'] ?? '')); ?></td>
+                                    <td class="detail"><?php echo text(FormatMoney::getBucks($tmpadj ?? '')); ?></td>
                                     <td class="detail">&nbsp;</td>
                                     <td class="detail"><?php echo text($ddata['rsn'] ?? ''); ?></td>
                                     <?php
@@ -706,11 +697,11 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
                                 <td class="last_detail">&nbsp;</td>
                                 <td class="last_detail">
                                     <input name="form_line[<?php echo attr($code); ?>][bal]" type="hidden"
-                                           value="<?php echo attr(bucks($cdata['bal'])); ?>" />
+                                           value="<?php echo attr(FormatMoney::getBucks($cdata['bal'] ?? '')); ?>" />
                                     <input name="form_line[<?php echo attr($code); ?>][ins]" type="hidden"
                                            value="<?php echo attr($cdata['ins'] ?? ''); ?>" />
                                     <input name="form_line[<?php echo attr($code); ?>][code_type]" type="hidden"
-                                           value="<?php echo attr($cdata['code_type'] ?? ''); ?>" /> <?php echo text(sprintf("%.2f", $cdata['bal'])); ?>
+                                           value="<?php echo attr($cdata['code_type'] ?? ''); ?>" /> <?php echo text(FormatMoney::getBucks($cdata['bal'], true)); ?>
                                     &nbsp;
                                 </td>
                                 <td class="last_detail"></td>

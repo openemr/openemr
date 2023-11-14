@@ -132,7 +132,7 @@ class FHIRAssertionResponseTypes extends FHIRElement implements \JsonSerializabl
     /**
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->value;
     }

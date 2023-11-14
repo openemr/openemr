@@ -140,7 +140,7 @@ class FHIRTestReportSetup extends FHIRBackboneElement implements \JsonSerializab
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         if (0 < count($this->action)) {

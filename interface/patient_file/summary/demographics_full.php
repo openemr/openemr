@@ -524,7 +524,7 @@ $(function () {
         div.demographicsEditContainer div.label_custom {
             font-size: 0.8rem;
             display: grid;
-            align-items: center;
+            align-items: normal;
             line-height: 1.2;
             padding-top: 0 !important;
             margin-bottom: 0.2rem;

@@ -211,7 +211,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false)
         echo "</td>\n";
 
         echo "  <td>";
-        echo myCellText($specimen_num);
+        echo !empty($specimen_num) ? myCellText($specimen_num) : myCellText($date_collected); //quest wanted the specimen date to show here
         echo "</td>\n";
 
         echo "  <td title='" . xla('Check mark indicates reviewed') . "'>";

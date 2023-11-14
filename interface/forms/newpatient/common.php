@@ -33,11 +33,6 @@ if ($GLOBALS['enable_group_therapy']) {
     require_once("$srcdir/group.inc.php");
 }
 
-$months = array("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12");
-$days = array("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31");
-$thisyear = date("Y");
-$years = array($thisyear - 1, $thisyear, $thisyear + 1, $thisyear + 2);
-
 $mode = (!empty($_GET['mode'])) ? $_GET['mode'] : null;
 
 $viewmode = false;
@@ -122,7 +117,7 @@ function getFacilityList()
     $facilities = $facilityService->getAllServiceLocations();
     $results = [];
     foreach ($facilities as $iter) {
-        $posCode = (($def_facility === intval($iter['id'])) && !$viewmode) ? $iter['pos_code'] : $posCode;
+        $posCode = ((int) $def_facility === (int) $iter['id'] && !$viewmode) ? $iter['pos_code'] : $posCode;
 
         $results[] = [
             'id' => $iter['id'],
@@ -373,10 +368,7 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                 <input type='hidden' name='id' value='<?php echo (isset($_GET["id"])) ? attr($_GET["id"]) : '' ?>' />
             <?php } else { ?>
                 <input type='hidden' name='mode' value='new' />
-                <?php if (empty($GLOBALS['set_pos_code_encounter'])) : ?>
-                    <input type='hidden' name='pos_code' value='<?php echo attr($posCode); ?>' />
-                <?php endif;
-            } ?>
+            <?php } ?>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
             <?php if ($mode === "followup") { ?>
@@ -637,7 +629,8 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                 </select>
                             </div>
                         </div>
-                        <div class="col-sm <?php echo ($GLOBALS['hide_billing_widget'] != 1) ?: 'd-none';?>">
+                        <?php $collectionDisplay = ($GLOBALS['hide_billing_widget'] == 1) ? 'd-none' : displayOption('enc_in_collection'); ?>
+                        <div class="col-sm <?php echo $collectionDisplay; ?>">
                             <div class="form-group">
                                 <label for='in_collection' class="text-right"><?php echo xlt('In Collection'); ?>:</label>
                                 <select class='form-control' name='in_collection' id='in_collection'>

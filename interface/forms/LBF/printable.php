@@ -22,6 +22,7 @@ require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
 use Mpdf\Mpdf;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Pdf\Config_Mpdf;
 
 // Font size in points for table cell data.
 $FONTSIZE = 9;
@@ -89,24 +90,7 @@ $PDF_OUTPUT = ($formid && $isblankform) ? false : true;
 //$PDF_OUTPUT = false; // debugging
 
 if ($PDF_OUTPUT) {
-    $config_mpdf = array(
-        'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
-        'mode' => $GLOBALS['pdf_language'],
-        'format' => $GLOBALS['pdf_size'],
-        'default_font_size' => '',
-        'default_font' => '',
-        'margin_left' => $GLOBALS['pdf_left_margin'],
-        'margin_right' => $GLOBALS['pdf_right_margin'],
-        'margin_top' => $GLOBALS['pdf_top_margin'] * 2,
-        'margin_bottom' => $GLOBALS['pdf_bottom_margin'] * 2,
-        'margin_header' => $GLOBALS['pdf_top_margin'],
-        'margin_footer' => $GLOBALS['pdf_bottom_margin'],
-        'orientation' => $GLOBALS['pdf_layout'],
-        'shrink_tables_to_fit' => 1,
-        'use_kwt' => true,
-        'autoScriptToLang' => true,
-        'keep_table_proportions' => true
-    );
+    $config_mpdf = Config_Mpdf::getConfigMpdf();
     $pdf = new mPDF($config_mpdf);
     $pdf->SetDisplayMode('real');
     if ($_SESSION['language_direction'] == 'rtl') {
@@ -316,25 +300,7 @@ function end_row()
 
 function getContent()
 {
-    global $web_root, $webserver_root;
     $content = ob_get_clean();
-    // Fix a nasty html2pdf bug - it ignores document root!
-    // TODO - now use mPDF, so should test if still need this fix
-    $i = 0;
-    $wrlen = strlen($web_root);
-    $wsrlen = strlen($webserver_root);
-    while (true) {
-        $i = stripos($content, " src='/", $i + 1);
-        if ($i === false) {
-            break;
-        }
-        if (
-            substr($content, $i + 6, $wrlen) === $web_root &&
-            substr($content, $i + 6, $wsrlen) !== $webserver_root
-        ) {
-            $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
-        }
-    }
     return $content;
 }
 

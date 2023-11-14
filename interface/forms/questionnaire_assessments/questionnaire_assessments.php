@@ -362,7 +362,7 @@ try {
             </div>
             <?php die();
         } ?>
-        <form method="post" id="qa_form" name="qa_form" onsubmit="return saveQR()" action="<?php echo $rootdir; ?>/forms/questionnaire_assessments/save.php?form_id=<?php echo attr_url($formid); ?><?php echo ($isPortal) ? '&isPortal=1' : ''; ?><?php echo ($patientPortalOther) ? '&formOrigin=' . attr_url($_GET['formOrigin']) : '' ?><?php echo '&mode=' . attr_url($mode ?? ''); ?>">
+        <form method="post" id="qa_form" name="qa_form" onsubmit="return saveQR()" action="<?php echo $rootdir; ?>/forms/questionnaire_assessments/save.php?form_id=<?php echo attr_url($formid ?? ''); ?><?php echo ($isPortal) ? '&isPortal=1' : ''; ?><?php echo ($patientPortalOther) ? '&formOrigin=' . attr_url($_GET['formOrigin']) : '' ?><?php echo '&mode=' . attr_url($mode ?? ''); ?>">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
             <input type="hidden" id="lform" name="lform" value="<?php echo attr($form['lform'] ?? ''); ?>" />
             <input type="hidden" id="lform_response" name="lform_response" value="<?php echo attr($form['lform_response'] ?? ''); ?>" />
@@ -388,13 +388,15 @@ try {
                     <select class="select-dropdown my-2" type="text" id="select_item" name="select_item" autocomplete="off" role="combobox" aria-expanded="false">
                         <option value=""></option>
                         <?php
-                        foreach ($q_list as $item) {
-                            $id = attr($item['id']);
-                            if ($id == $repository_item) {
-                                echo "<option selected value='$id'>" . text($item['name']) . "</option>";
-                                continue;
+                        if (!empty($q_list)) {
+                            foreach ($q_list as $item) {
+                                $id = attr($item['id']);
+                                if ($id == $repository_item) {
+                                    echo "<option selected value='$id'>" . text($item['name']) . "</option>";
+                                    continue;
+                                }
+                                echo "<option value='$id'>" . text($item['name']) . "</option>";
                             }
-                            echo "<option value='$id'>" . text($item['name']) . "</option>";
                         }
                         ?>
                     </select>
@@ -402,7 +404,7 @@ try {
                 <div class="input-group isNew d-none">
                     <hr />
                     <label class="font-weight-bold my-2" for="form_name"><?php echo xlt("Form Name") . ':'; ?></label>
-                    <input required type="text" class="form-control skip-template-editor ml-1" id="form_name" name="form_name" title="<?php echo xla('You may edit name to shorten to be more understandable.'); ?>" placeholder="<?php echo xla('Name of new Encounter form. You may change or leave as displayed.'); ?>" value="<?php echo attr($form['form_name'] ?: $form_name); ?>" />
+                    <input required type="text" class="form-control skip-template-editor ml-1" id="form_name" name="form_name" title="<?php echo xla('You may edit name to shorten to be more understandable.'); ?>" placeholder="<?php echo xla('Name of new Encounter form. You may change or leave as displayed.'); ?>" value="<?php echo attr((($form['form_name'] ?? null) ?: $form_name) ?? ''); ?>" />
                 </div>
             </div>
             <hr />

@@ -397,7 +397,7 @@ The value of mustSupport SHALL be a FHIRPath resolveable on the type of the Data
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         if (isset($this->type)) {

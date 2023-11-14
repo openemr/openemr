@@ -1,0 +1,2075 @@
+<schemaMeta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="schemameta.xsd" >
+    <tables>
+
+        <table name="patient_data" comments="Main patient record that contains patient demographic information">
+            <column name="id" comments="Surrogate id of the record used as the primary incrementing key"/>
+            <column name="uuid" comments="UUID of the record"/>
+            <column name="pharmacy_id" comments="The patient's default pharmacy to send prescriptions to">
+                <foreignKey table="pharmacies" column="id" />
+            </column>
+            <column name="pid" comments="The internal patient identifier used throughout the export to represent this unique patient record"/>
+            <column name="pubpid" comments="The public facing Medical Record Number (MRN) of the patient"/>
+            <column name="care_team_provider"  comments="List of care team providers where each id is the provider id contained in the users.id. Entries are separated by a the pipe | symbol." />
+            <column name="care_team_facility"  comments="List of care team facilities where each id is the facility/organization id contained in the facilities.id. Entries are separated by a the pipe | symbol" />
+            <column name="providerID" comments="The id of the assigned provider to this user">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="ref_providerID" comments="The id of the user that referred this patient">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="created_by" comments="The id of the user that initially created this record">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="updated_by" comments="The id of the user that last updated this record">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="title" comments="Title of the patient"/>
+            <column name="language" comments="Language preference of the patient"/>
+            <column name="financial" comments="Financial information of the patient"/>
+            <column name="fname" comments="First name of the patient"/>
+            <column name="lname" comments="Last name of the patient"/>
+            <column name="mname" comments="Middle name of the patient"/>
+            <column name="DOB" comments="Date of Birth of the patient"/>
+            <column name="street" comments="Street address of the patient"/>
+            <column name="postal_code" comments="Postal code of the patient's address"/>
+            <column name="city" comments="City of the patient's address"/>
+            <column name="state" comments="State of the patient's address"/>
+            <column name="country_code" comments="Country code of the patient's address"/>
+            <column name="drivers_license" comments="Driver's license of the patient"/>
+            <column name="ss" comments="Social Security Number of the patient"/>
+            <column name="occupation" comments="Occupation of the patient. UNEMPLOYED, STUDENT, PT STUDENT, or anything else to indicate employed."/>
+            <column name="phone_home" comments="Home phone number of the patient"/>
+            <column name="phone_biz" comments="Business phone number of the patient"/>
+            <column name="phone_contact" comments="Contact phone number of the patient"/>
+            <column name="phone_cell" comments="Cell phone number of the patient"/>
+
+            <column name="status" comments="Marital Status: M = Married, S = Single, or something else"/>
+            <column name="contact_relationship" comments="Relationship of the contact person"/>
+            <column name="date" comments="Date related to the patient"/>
+            <column name="sex" comments="Gender of the patient"/>
+            <column name="referrer" comments="Referrer of the patient"/>
+            <column name="referrerID" comments="ID of the referring user"/>
+            <column name="email" comments="Email address of the patient"/>
+            <column name="email_direct" comments="Trusted Direct email address of the patient"/>
+            <column name="ethnoracial" comments="Ethnicity/Race information of the patient"/>
+            <column name="race" comments="Race of the patient"/>
+            <column name="ethnicity" comments="Ethnicity of the patient"/>
+            <column name="religion" comments="Religion of the patient"/>
+            <column name="interpretter" comments="Interpreter information for the patient"/>
+            <column name="migrantseasonal" comments="Migrant/Seasonal worker information"/>
+            <column name="family_size" comments="Family size information of the patient"/>
+            <column name="monthly_income" comments="Monthly income information of the patient"/>
+            <column name="billing_note" comments="Billing notes for the patient"/>
+            <column name="homeless" comments="Homeless status of the patient"/>
+            <column name="financial_review" comments="Financial review date"/>
+            <column name="genericname1" comments="Generic name field 1"/>
+            <column name="genericval1" comments="Generic value field 1"/>
+            <column name="genericname2" comments="Generic name field 2"/>
+            <column name="genericval2" comments="Generic value field 2"/>
+            <column name="hipaa_mail" comments="HIPAA Mail setting"/>
+            <column name="hipaa_voice" comments="HIPAA Voice setting"/>
+            <column name="hipaa_notice" comments="HIPAA Notice setting"/>
+            <column name="hipaa_message" comments="HIPAA Message setting"/>
+            <column name="hipaa_allowsms" comments="HIPAA Allow SMS setting"/>
+            <column name="hipaa_allowemail" comments="HIPAA Allow Email setting"/>
+            <column name="squad" comments="The Athletic Squad this patient is a member of"/>
+            <column name="fitness" comments="The sport team Fitness level assigned to this patient"/>
+            <column name="referral_source" comments="Source of referral for the patient"/>
+            <column name="usertext1" comments="User text field 1"/>
+            <column name="usertext2" comments="User text field 2"/>
+            <column name="usertext3" comments="User text field 3"/>
+            <column name="usertext4" comments="User text field 4"/>
+            <column name="usertext5" comments="User text field 5"/>
+            <column name="usertext6" comments="User text field 6"/>
+            <column name="usertext7" comments="User text field 7"/>
+            <column name="usertext8" comments="User text field 8"/>
+            <column name="userlist1" comments="User list field 1"/>
+            <column name="userlist2" comments="User list field 2"/>
+            <column name="userlist3" comments="User list field 3"/>
+            <column name="userlist4" comments="User list field 4"/>
+            <column name="userlist5" comments="User list field 5"/>
+            <column name="userlist6" comments="User list field 6"/>
+            <column name="userlist7" comments="User list field 7"/>
+            <column name="pricelevel" comments="Price level information of the patient"/>
+            <column name="regdate" comments="Registration Date"/>
+            <column name="contrastart" comments="Date contraceptives initially used"/>
+            <column name="completed_ad" comments="Completed Ad information"/>
+            <column name="ad_reviewed" comments="Date Ad reviewed"/>
+            <column name="vfc" comments="VFC information"/>
+            <column name="mothersname" comments="Mother's name"/>
+            <column name="guardiansname" comments="Guardian's name"/>
+            <column name="allow_imm_reg_use" comments="Allow Immunization Registry Use"/>
+            <column name="allow_imm_info_share" comments="Allow Immunization Information Sharing"/>
+            <column name="allow_health_info_ex" comments="Allow Health Information Exchange"/>
+            <column name="allow_patient_portal" comments="Allow Patient Portal"/>
+            <column name="deceased_date" comments="Date of Decease"/>
+            <column name="deceased_reason" comments="Reason of Decease"/>
+            <column name="soap_import_status" comments="SOAP Import Status (1-Prescription Press 2-Prescription Import 3-Allergy Press 4-Allergy Import)"/>
+        </table>
+
+        <!-- Allergies Data -->
+        <!--        - Medical Problems-->
+        <!--        - Medications-->
+        <!--        - Medical Devices-->
+        <!--        - Surgeries-->
+        <!--        - Dental Issues-->
+        <table name="lists" comments="Patient issues list including allergies, medical problems, medications, medical devices, surgeries, and dental issues. Type of issue is in the type column.">
+            <column name="id" comments="Primary identifier of the record"/>
+            <column name="uuid" comments="UUID of the record"/>
+            <column name="date" comments="Date the issue was created"/>
+            <column name="type" comments="The type of the issue (allergy, medication, etc) where the issue_types.category='default'">
+                <foreignKey table="issue_types" column="type" />
+            </column>
+            <column name="subtype" comments="The sub type of the issue where the list_options.list_id='issue_subtypes'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="title" comments="The human readable description of the issue" />
+            <column name="udi" comments="The unique device identifier.  Populated if the issue is of type medical_device" />
+            <column name="udi_data" comments="The JSON serialized medical device as returned from the https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json api.  Populated if the issue is of type medical_device" />
+            <column name="begdate" comments="The beginning date for when this issue occurred as reported by the patient or the provider" />
+            <column name="enddate" comments="The end date for when this issue occurred as reported by the patient or the provider" />
+            <column name="returndate" comments="UNUSED - will be removed in the future" />
+            <column name="occurrence" comments="Comes from the list_options.list_id='occurrence' and is the frequency that this issue occurs for the patient">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="classification" comments="UNUSED - will be removed in the future" />
+            <column name="referredby" comments="The human readable name of Referring physician and practice" />
+            <column name="extrainfo" comments="UNUSED - will be removed in the future" />
+            <column name="diagnosis" comments="The diagnosis of the issue.  Format is a text string in the format of 'system:code[;system:code2;system:coden]'" />
+            <column name="activity" comments="Value of 0 means the record has been deleted, 1 means the record is active in the system" />
+            <column name="comments" comments="Human readable additional notes/comments of the issue" />
+            <column name="pid" comments="The internal patient identifier">
+		        <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="user" comments="The user that created or last updated this issue">
+                <foreignKey table="users" column="username" />
+            </column>
+            <column name="groupname" comments="The user group that created or last updated this issue">
+                <foreignKey table="groups" column="name" />
+            </column>
+            <column name="outcome" comments="Comes from the list_options.list_id='outcome' and represents the outcome of the issue">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="destination" comments="Human readable name of GP, Secondary care specialist, etc." />
+            <column name="reinjury_id" comments="UNUSED - will be removed in the future" />
+            <column name="injury_part" comments="UNUSED - will be removed in the future" />
+            <column name="injury_type" comments="UNUSED - will be removed in the future" />
+            <column name="injury_grade" comments="UNUSED - will be removed in the future" />
+            <column name="reaction" comments="Comes from the list_options.list_id='reaction' and represents the reaction of the patient to the allergy">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="verification" comments="Comes from the list_options.list_id='allergyintolerance-verification' and represents the confirmation status of the allergy">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="external_allergyid" comments="An identifier for an allergy from an external eRx system" />
+            <column name="erx_source" comments="O if the allergy issue originated in OpenEMR, 1 if the allergy issue originated in an external system" />
+            <column name="erx_uploaded" comments="O if allergy is still waiting to be uploaded to an external system (such as eRX), 1 if the allergy issue has been successfully received by the eRX system" />
+            <column name="modifydate" comments="The date the issue record was last modified" />
+            <column name="severity_al" comments="Comes from the list_options.list_id='severity_ccda' and represents the severity of the allergic reaction of the patient to the allergy">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="external_id" comments="UNUSED - will be removed in the future" />
+            <column name="list_option_id" comments="Comes from the list_options.list_id=CONCAT(lists.type,'_issue_list') and represents the prefilled list option id that was chosen as a template to create this issue">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+        </table>
+
+        <table name="issue_types" comments="Contains the list of issue types that medical health issue can be."></table>
+        <table name="list_options" comments="Contains lists of unique value sets that a record's property can be.  Individual values/options in the list may be linked to a specific codesystem"></table>
+        <table name="lists_medication">
+            <column name="list_id"  comments="The internal lists identifier">
+                <foreignKey table="lists" column="id" />
+            </column>
+            <column name="created_by"  comments="The user that created this record">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+
+        <!-- Patient History -->
+        <table name="history_data" comments="Contains patient eating,sleeping,drinking,drug habits as well as other patient health history information">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="created_by"  comments="The user that created this record">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+
+        <!-- Patient Care Team, Previous Names in patient_history -->
+        <table name="patient_history" comments="Contains previous historical entries of the patient's care team (providers and facilities) as well as patient previous name information">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="care_team_provider"  comments="List of care team providers where each id is the provider id contained in the users.id. Entries are separated by a the pipe | symbol." />
+            <column name="care_team_facility"  comments="List of care team facilities where each id is the facility/organization id contained in the facilities.id. Entries are separated by a the pipe | symbol" />
+            <column name="created_by"  comments="The user that created this record">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+
+<!--        - Prescriptions-->
+        <table name="prescriptions" comments="Internal and External prescription information">
+            <column name="patient_id"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="patient_id"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="filled_by_id" comments="UNUSED - will be removed in the future" />
+            <column name="pharmacy_id"  comments="The internal identifier for the pharmacy that is connected to this prescription">
+                <foreignKey table="pharmacies" column="id" />
+            </column>
+            <column name="provider_id" comments="The id of the user that created this prescription">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="drug_id" comments="The id of the drug that was prescribed to the patient. 0 if the drug was manually entered">
+                <foreignKey table="drugs" column="drug_id" />
+            </column>
+
+            <column name="created_by" comments="The id of the user that initially created this record">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="updated_by" comments="The id of the user that last updated this record">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+
+<!--        - Immunizations-->
+        <table name="immunizations" comments="Patient Immunizations">
+            <column name="patient_id"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="administered_by_id" comments="The person that administered the immunization">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="created_by" comments="The user that created this record">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="updated_by" comments="The user that last updated this record">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="ordering_provider" comments="The provider that issued the order to administer this immunization">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="immunization_id" comments="Comes from the list_options.list_id='immunizations' and represents common list of immunizations the EMR works with">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="amount_administered_unit" comments="Comes from the list_options.list_id='drug_units' and represents the units of drug administered">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="manufacturer" comments="Comes from the list_options.list_id='Immunization_Manufacturer' and represents a list of immunization manufacturers">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="route" comments="Comes from the list_options.list_id='drug_route' and represents a list of immunization manufacturers">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="administration_site" comments="Comes from the list_options.list_id='immunization_administered_site' and represents the body sites where the immunization can be administered">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="information_source" comments="Comes from the list_options.list_id='immunization_informationsource' and represents where the source of information the immmunization is coming from originates">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="completion_status" comments="Comes from the list_options.list_id='Immunization_Completion_Status' and represents the status of the immunization">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="refusal_reason" comments="Comes from the list_options.list_id='immunization_refusal_reason' and represents the reasons the individual refused immunization">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+        </table>
+        <table name="immunization_observation" comments="Individual observations for a specific immunization">
+            <column name="imo_pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="imo_im_id"  comments="The immunization record this observation is part of">
+                <foreignKey table="immunizations" column="id" />
+            </column>
+            <column name="imo_user" comments="The user that is recording the observation for this immunization">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+
+<!--        - Patient Insurance-->
+        <table name="insurance_data" comments="Patient Insurance information">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="provider"  comments="The insurance company that insures the patient">
+                <foreignKey table="insurance_companies" column="id" />
+            </column>
+            <column name="policy_type"  comments="Whether this is the 'primary', 'secondary', or 'tertiary' insurance" />
+        </table>
+
+        <table name="insurance_companies" comments="Insurance company">
+            <column name="ins_type_code"  comments="The type of insurance company this record is">
+                <foreignKey table="insurance_type_codes" column="id" />
+            </column>
+        </table>
+
+        <table name="insurance_type_codes" comments="Contains a list of different insurance types or categories that an insurance company is related to.  This type includes both public and private payer types"></table>
+
+<!--        - Patient Messages (pnotes)-->
+        <table name="pnotes" comments="Patient Messages about the healthcare treatment of the patient">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="user">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="assigned_to">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="groupname">
+                <foreignKey table="groups" column="name" />
+            </column>
+            <column name="update_by">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="update_by">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="message_status" comments="Comes from the list_options.list_id='message_status' and represents the status of the message">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+        </table>
+
+        <table name="patient_reminders" comments="Patient Reminders generated from the clinical decision support engine that are sent via a communication medium to the patient">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="reason_inactivated">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="due_status">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="category">
+                <foreignKey table="rule_action_item" column="category" />
+            </column>
+            <column name="item">
+                <foreignKey table="rule_action_item" column="item" />
+            </column>
+        </table>
+        <!-- rule_patient_data -->
+        <table name="rule_patient_data" comments="Patient Reminders that the Clinical Decision Support system is configured to run for this specific patient.">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="category">
+                <foreignKey table="rule_action_item" column="category" />
+            </column>
+            <column name="item">
+                <foreignKey table="rule_action_item" column="item" />
+            </column>
+        </table>
+        <table name="rule_action_item" comments="Patient Reminders configuration for Clinical Decision Support individual rule settings">
+            <column name="category">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="item">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+        </table>
+
+<!--        - Patient Disclosures-->
+        <!-- see disc_fragement.php::getDisclosureByDate() -->
+        <table name="extended_log" comments="Holds the disclosures of EHI made to third parties for a given patient">
+            <column name="id" />
+            <column name="date" />
+            <column name="event" />
+            <column name="user" />
+            <column name="recipient" />
+            <column name="description" />
+            <column name="patient_id"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Patient Amendments-->
+        <table name="amendments" comments="Holds requests to amend health care information typically initiated by the patient or an insurance company">
+            <column name="amendment_id" comments="Primary key for the amendment record. It uniquely identifies each amendment."/>
+            <column name="amendment_date" comments="The date when the amendment request was made."/>
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="amendment_by" comments="Comes from the list_options.list_id='amendment_from' and represents who is requesting the amendment">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="amendment_status" comments="Comes from the list_options.list_id='amendment_status' and represents the current status of the amendment">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="created_by" comments="The id of the user that initially created this amendment">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="modified_by" comments="The id of the user that last modified this amendment">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="amendment_desc" comments="Detailed information about the amendment, including any additional notes or changes."/>
+            <column name="created_time" comments="Timestamp indicating when the amendment record was created."/>
+            <column name="modified_time" comments="Timestamp indicating when the amendment record was last modified."/>
+        </table>
+        <table name="amendments_history" comments="Contains clinicinan comments regarding an amendment request">
+            <column name="amendment_id"  comments="The internal amendment id">
+                <foreignKey table="amendments" column="amendment_id" />
+            </column>
+            <column name="amendment_status" comments="Comes from the list_options.list_id='amendment_status' and represents the current status of the amendment">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="created_by" comments="The id of the user that initially created this amendment">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="created_time" comments="Timestamp indicating when the amendment record was created."/>
+            <column name="amendment_note" comments="Comments regarding the amendment as entered by the creating user.  Also contains a human readable description of the amendment status.">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+        </table>
+
+<!--        - Patient Vitals-->
+        <table name="form_vitals" comments="Records of patient vital sign assessment">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="user">
+                <foreignKey table="users" column="username" />
+            </column>
+            <column name="groupname">
+                <foreignKey table="groups" column="name" />
+            </column>
+        </table>
+        <table name="form_vital_details" comments="Record of a specific vital sign measurement, including its interpretation, and reason of the measurement">
+            <column name="form_id">
+                <foreignKey table="form_vitals" column="id" />
+            </column>
+            <column name="interpretation_list_id ">
+                <foreignKey table="list_options" column="list_id" />
+            </column>
+            <column name="interpretation_option_id ">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="reason_status" comments="Valid values are 'completed','negated','pending' or '' for none" />
+        </table>
+<!--        - Patient recalls-->
+        <table name="medex_recalls" comments="Tracks Patient Recalls.  Recalls are when a patient should be reached out to or contacted for a healthcare followup.">
+            <column name="r_ID" comments="Unique ID for the recall record"/>
+            <column name="r_pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="r_facility"  comments="FK facility.id associated with the recall">
+                <foreignKey table="facility" column="id" />
+            </column>
+            <column name="r_provider" comments="Provider ID associated with the recall FK to users.id">
+                <foreignKey table="users" column="id" />
+            </column>
+
+            <column name="r_PRACTID" comments="UNUSED - Practice ID associated with the recall"/>
+            <column name="r_eventDate" comments="Date of Appointment or Recall"/>
+            <column name="r_reason" comments="Reason for the recall"/>
+            <column name="r_created" comments="Timestamp when the recall was created"/>
+        </table>
+<!--        - Clinical Reminders-->
+        <table name="clinical_plans" comments="The Clinical Quality Measures that are being applied to a specific patient to track.  This is used in the clinical reminders system">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+<!--        - Recall Appts-->
+<!--        - Patient Appointments-->
+        <table name="openemr_postcalendar_events" comments="Holds records for Patient Appointment/Calendar information">
+            <column name="pc_eid" comments="Surrogate id of the record used as the primary incrementing key"/>
+            <column name="pc_pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="pc_catid" comments="The appointment category">
+                <foreignKey table="openemr_postcalendar_categories" column="pc_catid" />
+            </column>
+            <column name="pc_aid" comments="The provider this appointment is connected to">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="pc_gid" comments="The therapy group id this appointment is for">
+                <foreignKey table="therapy_groups" column="group_id"/>
+            </column>
+            <column name="pc_facility" comments="The facility for where the service for this appointment will be rendered">
+                <foreignKey table="facility" column="id" />
+            </column>
+            <column name="pc_apptstatus"  comments="Comes from the list_options.list_id='apptstat' if it is a single patient appointment OR list_options.list_id='groupstat' if this is a group appointment. It represents the current appointment status checked in, checked out, waiting, etc">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="pc_room"  comments="Comes from the list_options.list_id='patient_flow_board_rooms' and represents the facility room that the patient has been assigned to for this appointment if one has been assigned">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="pc_billing_location" comments="Billing facility location of the event">
+                <foreignKey table="facility" column="id" />
+            </column>
+            <column name="pc_informant" comments="User creating the event">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="pc_prefcatid" comments="Preferred category id for a provider available slot">
+                <foreignKey table="openemr_postcalendar_categories" column="pc_catid" />
+            </column>
+            <column name="pc_multiple" comments="Multiple occurrences of the event. Used if this is a recurring appointment."/>
+            <column name="pc_title" comments="Title of the event"/>
+            <column name="pc_time" comments="Time of the event"/>
+            <column name="pc_hometext" comments="Description of the event"/>
+            <column name="pc_comments" comments="Comments associated with the event"/>
+            <column name="pc_counter" comments="Event counter"/>
+            <column name="pc_topic" comments="Topic id of the event"/>
+            <column name="pc_eventDate" comments="Date of the event"/>
+            <column name="pc_endDate" comments="End date of the event"/>
+            <column name="pc_duration" comments="Duration of the event"/>
+            <column name="pc_recurrtype" comments="Recurrence type of the event"/>
+            <column name="pc_recurrspec" comments="Recurrence specification of the event"/>
+            <column name="pc_recurrfreq" comments="Recurrence frequency of the event"/>
+            <column name="pc_startTime" comments="Start time of the event"/>
+            <column name="pc_endTime" comments="End time of the event"/>
+            <column name="pc_alldayevent" comments="Indicates if the event is an all-day event"/>
+            <column name="pc_location" comments="Location of the event"/>
+            <column name="pc_conttel" comments="Contact telephone number"/>
+            <column name="pc_contname" comments="Contact name"/>
+            <column name="pc_contemail" comments="Contact email address"/>
+            <column name="pc_website" comments="Website associated with the event"/>
+            <column name="pc_fee" comments="Event fee"/>
+            <column name="pc_eventstatus" comments="Event status -1=hidden,0=queued,1=approved"/>
+            <column name="pc_sharing" comments="Sharing status of the event"/>
+            <column name="pc_language" comments="Language of the event"/>
+            <column name="pc_sendalertsms" comments="Send SMS alerts for the event"/>
+            <column name="pc_sendalertemail" comments="Send email alerts for the event"/>
+            <column name="uuid" comments="UUID of the record"/>
+        </table>
+        <table name="openemr_postcalendar_categories" comments="Contains the types / categories a patient scheduled appointment can be">
+            <column name="pc_catid" comments="Auto-incremented identifier for the appointment category"/>
+            <column name="pc_constant_id" comments="Identifier for the appointment category which is referenced in the codebase for appointment specific functionality"/>
+            <column name="pc_catname" comments="Name of the appointment category"/>
+            <column name="pc_catcolor" comments="Visual display color associated with the appointment category"/>
+            <column name="pc_catdesc" comments="Description of the appointment category"/>
+            <column name="pc_recurrtype" comments="Type of recurring appointment 0=Not recurring,1=Recurring appointment"/>
+            <column name="pc_enddate" comments="End date of the appointment"/>
+            <column name="pc_recurrspec" comments="Specification for recurring appointments in php array serialized format. Includes information on the repeating frequency, the type of repeat (daily, weekday,week,monthly, etc)"/>
+            <column name="pc_recurrfreq" comments="Frequency of recurring appointments"/>
+            <column name="pc_duration" comments="Duration of the appointment in seconds"/>
+            <column name="pc_end_date_flag" comments="Flag indicating the use of an end date for the appointment"/>
+            <column name="pc_end_date_type" comments="Type of end date for the appointment"/>
+            <column name="pc_end_date_freq" comments="Frequency of the end date"/>
+            <column name="pc_end_all_day" comments="Flag indicating if the end date is all-day"/>
+            <column name="pc_dailylimit" comments="Limit on daily appointments for the category"/>
+            <column name="pc_cattype" comments="Type of category used in grouping categories"/>
+            <column name="pc_active" comments="Flag indicating the category is active"/>
+            <column name="pc_seq" comments="Sequence number for the category"/>
+            <column name="aco_spec" comments="Access control for the category.  Empty on export" exclude="true"/>
+        </table>
+
+        <table name="patient_tracker" comments="Patient appointment events that occur in the system. Used in the patient flowboard and for patient data reporting">
+            <column name="id" comments="Surrogate ID of the patient tracker record used as the primary incrementing key"/>
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="eid"  comments="The calendar appointment id">
+                <foreignKey table="openemr_postcalendar_events" column="pc_eid" />
+            </column>
+            <column name="original_user" comments="This is the user that created the original record">
+                <foreignKey table="users" column="username" />
+            </column>
+            <column name="encounter"  comments="The encounter the patient appointment is connected to">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="date"  comments="The datetime this tracker event was created" />
+            <column name="apptdate"  comments="The appointment date this patient tracker record applies to" />
+            <column name="appttime"  comments="The appointment time this patient tracker record applies to" />
+            <column name="random_drug_test"  comments="Tracks if the patient should be given a randomized drug test. NULL if not randomized. If randomized, 0 is no, 1 is yes" />
+            <column name="drug_screen_completed"  comments="Tracks if the patient has completed a drug screening. 0 if no, 1, if they have completed a drug screening" />
+        </table>
+        <table name="patient_tracker_element" comments="Used for tracking individual state changes in the appointment/encounter of a patient">
+            <column name="pt_tracker_id" comments="maps to id column in patient_tracker table">
+                <foreignKey table="patient_tracker" column="id" />
+            </column>
+            <column name="seq" comments="This is a numerical sequence for this pt_tracker_id events	and in combination with the pt_tracker_id uniquely identifies this record" />
+            <column name="start_datetime"  comments="The datetime this tracker element event was created" />
+            <column name="room"  comments="Comes from the list_options.list_id='patient_flow_board_rooms' and represents the facility room that the patient has been assigned to and this tracker element is connected to">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="status"  comments="Comes from the list_options.list_id='apptstat' if it is a single patient appointment OR list_options.list_id='groupstat' if this is a group appointment. It represents the current appointment status at the time this tracker element was created">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="user" comments="This is the user that created this element">
+                <foreignKey table="users" column="username" />
+            </column>
+        </table>
+
+        <!--        - Patient Documents-->
+        <table name="documents" comments="Stores all of the digital documents that are connected to a patient.">
+            <column name="id" comments="Surrogate id of the record used as the primary incrementing key"/>
+            <column name="uuid" comments="Binary of Unique User Identifier that is for both external reference to this entity and for future offline use."/>
+            <column name="type" comments="Type of the document (e.g., 'file_url', 'blob', 'web_url')"/>
+            <column name="size" comments="Size of the document in bytes"/>
+            <column name="date" comments="Date when the document was created"/>
+            <column name="date_expires" comments="Date when the document expires and is no longer available."/>
+            <column name="url" comments="URL of the document"/>
+            <column name="thumb_url" comments="URL of the document's thumbnail"/>
+            <column name="mimetype" comments="MIME type of the document"/>
+            <column name="pages" comments="If the document is a multi-page format like tiff and has at least 1 page this will be 1 or greater,if a non-multi-page format this should be null or empty"/>
+            <column name="owner" comments="Foreign key identifier to users of who initially persisted the document">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="revision" comments="Timestamp of the last time the document was changed and persisted"/>
+            <column name="foreign_id"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="docdate" comments="Date (YYYY-MM-DD) logically associated with the document, e.g. when a picture was taken."/>
+            <column name="hash" comments="Hash value of the document from when it was uploaded"/>
+            <column name="list_id" comments="FK to lists.id associated with the document when the document is related to an issue">
+                <foreignKey table="lists" column="id" />
+            </column>
+            <column name="name" comments="Name of the document. Populated since OpenEMR versions 6.0.0+"/>
+            <column name="drive_uuid" comments="UUID of the document's drive. Empty in export" exclude="true"/>
+            <column name="couch_docid" comments="CouchDB document ID"/>
+            <column name="couch_revid" comments="CouchDB revision ID"/>
+            <column name="storagemethod" comments="Storage method (0->Harddisk, 1->CouchDB)"/>
+            <column name="path_depth" comments="Depth of path to use in the URL to find the document. Not applicable for CouchDB. . Empty in export." exclude="true"/>
+            <column name="imported" comments="Parsing status for CCR/CCD/CCDA importing"/>
+            <column name="encounter_id" comments="Encounter ID if tagged">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="encounter_check" comments="If an encounter is created while tagging (0 or 1)"/>
+            <column name="audit_master_approval_status" comments="Approval status from audit_master table"/>
+            <column name="audit_master_id" comments="ID from the audit_master table"/>
+            <column name="documentationOf" comments="Used for CCDA and lab documents where the individual / contents of the documentation of a service event is recorded"/>
+            <column name="encrypted" comments="Encryption status (0->No, 1->Yes)"/>
+            <column name="document_data" comments="Additional metadata concerning the document is stored here.  CCDA/CDA documents store their validation log in this field and DICOM files store a JSON history of actions taken on the DICOM in this field"/>
+            <column name="deleted" comments="Flag indicating if the document is deleted (0 or 1).  If a file has been marked as deleted the underlying file stored in the file storage system is NOT included in data exports and is no longer available for retrieval"/>
+            <column name="foreign_reference_id" comments="DB Unique identifier reference to another table record in the database.  This is not unique in the document. The table that this record points to is in the foreign_reference_table"/>
+            <column name="foreign_reference_table" comments="Table associated with the foreign reference_id will be populated if foreign_reference_id is populated"/>
+        </table>
+        <table name="notes"  comments="Clinical notes and comments for individual patient documents">
+            <column name="id" comments="Surrogate id of the record used as the primary incrementing key"/>
+            <column name="foreign_id"  comments="The documents.id key for the document this note is connected to">
+                <foreignKey table="documents" column="id" />
+            </column>
+            <column name="note" comments="The notes or comments for the document referenced in foreign_id"/>
+            <column name="owner" comments="Foreign key identifier to users of who initially created this note">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="date" comments="Date and time the note was created" />
+            <column name="revision" comments="UNUSED" />
+        </table>
+<!--        - Patient Transactions (Billing  Legal  Patient Request  Physician Request  Referral/Counter Referral)-->
+        <table name="transactions" comments="Represents patient referrals, and transactional records for billing, legal, and requests from the patient or their physician">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="lbf_data" comments="Dynamic Field values that are part of the following forms: Demographics, Facility Specific User Information, History Form, and custom dynamically generated encounter forms">
+            <column name="form_id">
+                <foreignKey table="transactions" column="id" />
+            </column>
+            <column name="field_id">
+                <foreignKey table="layout_options" column="field_id" />
+            </column>
+        </table>
+        <table name="lbt_data" comments="Dynamic Field values that an installation can use to extend the data stored in the transactions table">
+            <column name="form_id">
+                <foreignKey table="transactions" column="id" />
+            </column>
+            <column name="field_id">
+                <foreignKey table="layout_options" column="field_id" />
+            </column>
+        </table>
+        <table name="layout_options" comments="Holds the layout settings for a specific dynamic field in the system">
+            <column name="form_id">
+                <foreignKey table="layout_group_properties" column="grp_form_id" />
+            </column>
+            <column name="group_id">
+                <foreignKey table="layout_group_properties" column="grp_group_id" />
+            </column>
+        </table>
+        <table name="layout_group_properties" comments="Record of the grouped fields used in dynamic layout based forms (LBF)"></table>
+<!--        - Patient Encounters-->
+        <table name="forms" comments="Patient chart forms that are connected to a patient's encounter visit. Serves as the base record containing all of the common form encounter properties where each sub-type form has data records contained in a table that is named CONCAT('form_',formdir)">
+
+            <column name="id" comments="Surrogate id of the record used as the primary incrementing key"/>
+            <column name="date" comments="Date of the form"/>
+            <column name="encounter" comments="ID of the associated encounter"/>
+            <column name="form_name" comments="Name of the form"/>
+            <column name="form_id" comments="ID of the specific form instance"/>
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="user" comments="User responsible for creating this form.">
+                <foreignKey table="users" column="username" />
+            </column>
+            <column name="groupname" comments="The groupname that created this record.">
+                <foreignKey table="groups" column="name" />
+            </column>
+            <column name="authorized" comments="Authorization status"/>
+            <column name="deleted" comments="Flag indicating if the form has been deleted"/>
+            <column name="formdir" comments="Directory name of where the form exists in the filesystem.  Also is the suffix name of the sub-type form that holds the individual form data for this form.  The full table name is CONCAT('form_',formdir)"/>
+            <column name="therapy_group_id" comments="ID of the therapy group that this form's encounter session is connected to">
+                <foreignKey table="therapy_groups" column="group_id"/>
+            </column>
+            <column name="issue_id" comments="References lists.id to identify the medical issue this form is connected to">
+                <foreignKey table="lists" column="id" />
+            </column>
+            <column name="provider_id" comments="References users.id to identify the provider who is responsible for or involved in the healthcare this form relates to.  This field is only populated in some types of procedure order forms and when a form is a dynamic Layout Based Form (LBF)">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+<!--        - Encounter Summary-->
+        <table name="form_encounter" comments="Represents the information related to a patient's visit to a healthcare provider.  This is different than an appointment as this table tracks the actual service of care">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="last_level_billed"  comments="The party for whom payment was last billed. -1=Nobody, 0=Patient, 1=Ins1, 2=Ins2, 3=Ins3" />
+            <column name="last_level_closed"  comments="The party for whom payment was last received. -1=Nobody, 0=Patient, 1=Ins1, 2=Ins2, 3=Ins3" />
+        </table>
+        <table name="issue_encounter" comments="Links patient medical issues in the lists table with patient service encounters">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="encounter" comments="References form_encounter.encounter, representing the encounter that is connected to the issue">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="list_id" comments="Represents the specific medical issue (allergy,surgery,etc) this encounter is linked to">
+                <foreignKey table="lists" column="id" />
+            </column>
+            <column name="resolved" comments="0=Issue not resolved,1=Issue is resolved" />
+        </table>
+
+<!--        - Fee Sheet-->
+<!--        - Misc Billing Options-->
+        <table name="form_misc_billing_options" comments="Contains encounter claims billing options that modifies the claims submitted for this encounter">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Care Plan-->
+        <table name="form_care_plan" comments="Patient Clinical Care Plans">
+            <column name="pid" comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Clinical Instructions-->
+        <table name="form_clinical_instructions" comments="Patient clinical instructions chart note">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="instruction"  comments="The actual instructions to be given to the patient" />
+        </table>
+
+<!--        - Clinical Notes-->
+        <table name="form_clinical_notes" comments="Patient clinical notes with support for USCDI V1 standardized note types">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="clinical_notes_type" comments="Comes from the list_options.list_id='Clinical_Note_Type' and represents the standardized note type for this note">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="clinical_notes_category" comments="Comes from the list_options.list_id='Clinical_Note_Category' and represents the main category for this kind of clinical note">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+        </table>
+
+<!--        - Eye Exam-->
+        <table name="form_eye_acuity" comments="This table is related to recording visual acuity measurements for different eye conditions.">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_antseg" comments="This table is used to store data related to anterior segment eye examinations, which typically include details about the front portion of the eye, such as the cornea, lens, iris, and pupil.">
+            <column name="pid">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_base" comments="Eye form base container record that all other eye forms are connected to">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_biometrics" comments="This table stores biometric data related to the eye, including axial length, pupil diameter, and other measurements.">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_external" comments="This table is used for recording external eye examination findings.">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_hpi" comments="This table stores the history of present illness (HPI) information related to eye conditions.">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_locking" comments="Used for tracking the editing status of a form and whether it is currently being edited by a user">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_mag_dispense" comments="Stores information related to eye prescriptions and dispensing for both the left (OS) and right (OD) eyes">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_mag_impplan" comments="Stores implementation plans for eye-related activities.">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_mag_orders" comments="This table is used to track eye-related orders, such as eyeglass or contact lens orders.">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_mag_wearing" comments="This table is used to record information related to wearing eyeglasses or contact lenses.">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_neuro" comments="This table includes numerous fields for recording the results of neurological tests and assessments, such as near and distant vision, motility measurements, comments, and various neurological parameters.">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_postseg" comments="This table is used for storing data related to posterior segment eye examinations, which typically involve the back of the eye, including the retina, optic disc, macula, and blood vessels.">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_refraction" comments="This table is used for recording eye refraction details, including sphere, cylinder, axis, prism, and base measurements.">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_ros" comments="This table stores review of systems (ROS) information related to various aspects of the eye and its associated systems.">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_eye_vitals" comments="This table is used for recording vital signs and measurements related to the eye.">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="form_taskman" comments="This table holds eye related tasks for providing care to the patient.">
+            <column name="PATIENT_ID"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Functional and Cognitive Status-->
+        <table name="form_functional_cognitive_status" comments="Holds information about assessments, evaluations, or observations of a patient's functional and cognitive abilities.">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+<!--        - Observation-->
+        <table name="form_observation" comments="Used for recording observations related to patients during medical encounters">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+<!--        - Review of Systems-->
+        <table name="form_reviewofs" comments="Review of Systems observations of the patient. Providers can use this form or the form_ros.">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Review of Systems Checks-->
+        <table name="form_ros" comments="Review of Systems observations of the patient. Providers can use this form or the form_reviewofs">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - SOAP-->
+        <table name="form_soap" comments="Holds Subjective, Objective, Assessment, and Plan (SOAP) notes">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Speech Dictation-->
+        <table name="form_dictation" comments="Patient chart note that holds notes created from a provider's speech dictation software">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - CAMOS-->
+        <table name="form_CAMOS" comments="Computer Aided Medical Ordering System notes that are part of a patient's chart">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="category"  comments="The category that this note is based upon">
+                <foreignKey table="form_CAMOS_category" column="category" />
+            </column>
+            <column name="subcategory"  comments="The CAMOS subcategory template that this note is based on">
+                <foreignKey table="form_CAMOS_item" column="item" />
+            </column>
+            <column name="item"  comments="The CAMOS item template that this note is based on">
+                <foreignKey table="form_CAMOS_item" column="item" />
+            </column>
+            <column name="content"  comments="The actual chart note text that was entered in for the patient" />
+        </table>
+        <table name="form_CAMOS_category" comments="Note categories used in the CAMOS note generator">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="groupname" comments="The groupname that created this record.">
+                <foreignKey table="groups" column="name" />
+            </column>
+            <column name="user" comments="User responsible for creating this category.">
+                <foreignKey table="users" column="username" />
+            </column>
+        </table>
+        <table name="form_CAMOS_item" comments="CAMOS patient chart templates for a single item inside a CAMOS subcategory">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="groupname" comments="The groupname that created this record.">
+                <foreignKey table="groups" column="name" />
+            </column>
+            <column name="user" comments="User responsible for creating this category.">
+                <foreignKey table="users" column="username" />
+            </column>
+            <column name="subcategory_id" comments="The CAMOS subcategory this item is part of.">
+                <foreignKey table="form_CAMOS_subcategory" column="id" />
+            </column>
+        </table>
+        <table name="form_CAMOS_subcategory" comments="CAMOS patient chart sub categories inside a single category">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="category_id"  comments="The CAMOS category this subcategory is part of.">
+                <foreignKey table="form_CAMOS_category" column="id" />
+            </column>
+        </table>
+
+<!--        - Procedure Order-->
+        <!--        - Patient Labs-->
+        <table name="procedure_order" comments="A procedure order is an encounter form within a patient visit representing an order for one or more procedures and its associated report/results for the procedure.  Orders can be for either internal or external procedure providers">
+            <column name="procedure_order_id" comments="Surrogate id of the procedure order record" />
+            <column name="uuid" comments="UUID of the record" />
+            <column name="patient_id"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="provider_id" comments="References users.id, representing the ordering provider">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="encounter_id" comments="References form_encounter.encounter, representing the encounter for the order">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="date_collected" comments="Time the specimen was collected" />
+            <column name="date_ordered" comments="Date and time the order was placed" />
+            <column name="order_priority" comments="Comes from the list_options.list_id='ord_priority' and represents the priority of the order">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="order_status" comments="Comes from the list_options.list_id='ord_status' and represents the status of the order (pending, routed, complete, canceled)">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="patient_instructions" comments="Instructions to be given to the patient for the procedure" />
+            <column name="activity" comments="0 if the record is deleted, 1 if the record is active" />
+            <column name="control_id" comments="Control ID sent back from the lab" />
+            <column name="lab_id" comments="References procedure_providers.ppid and is the lab or provider of the procedure that will process the order and the order is being sent to">
+                <foreignKey table="procedure_providers" column="ppid" />
+            </column>
+            <column name="specimen_type" comments="Comes from the list_options.list_id='Specimen_Type' and represents the specimen type collected for the procedure">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="specimen_location" comments="Comes from the list_options.list_id='Specimen_Location' and represents the location the specimen was collected at">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="specimen_volume" comments="Volume of the specimen" />
+            <column name="date_transmitted" comments="Time of order transmission (null if unsent)" />
+            <column name="clinical_hx" comments="Clinical history text relevant to the order" />
+            <column name="external_id" comments="External identifier" />
+            <column name="history_order" comments="Indicates if the order is added for history purposes only. 0=No, 1=Yes" />
+            <column name="order_diagnosis" comments="Primary order diagnosis" />
+            <column name="billing_type" comments="Comes from the list_options.list_id='procedure_billing' and represents the kind billing being used for this procedure order (insurance, self-pay, etc)">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="specimen_fasting" comments="Fasting status of the patient at the time the specimen was collected. 0=Patient not fasting, 1=Patient was fasting at time of collection" />
+            <column name="order_psc" comments="Should the order for the Patient  Service Center (PSC) be put on hold. 0=No, 1=Yes" />
+            <column name="order_abn" comments="The status of the US CMS Advanced Beneficiary Notice and whether the patient has already been given the ABN. Possible values are 'not_required'=Patient doesn't need an ABN, 'required'=Patient needs to be given an ABN before procedure can occur, or 'signed'=Patient has already been given an ABN and signed it." />
+            <column name="collector_id" comments="References users.id, representing the individual that collected the specimen">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="account" comments="The specific name of the facility location associated with the order where the lab work will be sent from.  This is typically used for LabCorp orders." />
+            <column name="account_facility" comments="Facility Location associated with the order where the lab work is being sent from.  This is typically used for LabCorp orders.">
+                <foreignKey table="facility" column="id" />
+            </column>
+            <column name="provider_number" comments="Provider number" />
+            <column name="procedure_order_type" comments="Comes from the list_options.list_id='order_type' and represents the type of procedure order this is (order, lab test, imaging, physical exams, etc">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="procedure_type" comments="Comes from the list_options.list_id='proc_type' and represents the kind of procedure_type this is ('group', 'order', 'discrete_result', etc')">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+        </table>
+        <table name="procedure_providers" comments="This table holds both internal and external laboratories as well as other organizations that provide lab testing, results, and other procedures that can be ordered by a provider">
+            <column name="ppid" comments="Surrogate ID of the record used as the primary incrementing key"/>
+            <column name="uuid" comments="UUID of the record"/>
+            <column name="name" comments="Name of the laboratory or organization"/>
+            <column name="npi" comments="National Provider Identifier (NPI)"/>
+            <column name="send_app_id" comments="Sending application ID (MSH-3.1). Empty on Export" exclude="true"/>
+            <column name="send_fac_id" comments="Sending facility ID (MSH-4.1). Empty on Export" exclude="true"/>
+            <column name="recv_app_id" comments="Receiving application ID (MSH-5.1). Empty on Export" exclude="true"/>
+            <column name="recv_fac_id" comments="Receiving facility ID (MSH-6.1). Empty on Export" exclude="true"/>
+            <column name="DorP" comments="Debugging or Production (MSH-11). Empty on Export" exclude="true"/>
+            <column name="direction" comments="Bidirectional or Results-only. Empty on Export" exclude="true"/>
+            <column name="lab_id" comments="Laboratory ID"/>
+            <column name="protocol" comments="Protocol for communication. Empty on Export" exclude="true"/>
+            <column name="remote_host" comments="Remote host for communication. Empty on Export" exclude="true"/>
+            <column name="login" comments="Login information for communication. Empty on Export" exclude="true"/>
+            <column name="password" comments="Password for communication. Empty on Export" exclude="true"/>
+            <column name="orders_path" comments="Path for orders. Empty on Export" exclude="true"/>
+            <column name="results_path" comments="Path for results. Empty on Export" exclude="true"/>
+            <column name="notes" comments="Additional notes or information. Empty on Export" exclude="true"/>
+            <column name="lab_director" comments="ID of the laboratory director"/>
+            <column name="active" comments="Indicates whether the provider is active"/>
+            <column name="type" comments="Type of provider or organization"/>
+        </table>
+        <table name="procedure_order_code" comments="Holds individual procedure / labs ordered from the procedure_type table for a given procedure order.  It contains also the individual diagnosis code that is related to the ordered procedure">
+            <column name="procedure_order_id">
+                <foreignKey table="procedure_order" column="procedure_order_id" />
+            </column>
+            <column name="procedure_code">
+                <foreignKey table="procedure_type" column="procedure_code" />
+            </column>
+        </table>
+        <table name="procedure_answers" comments="Answers to questions that are requested to be answered for a given procedure by a procedure provider (lab, or other provider)">
+            <column name="procedure_order_id">
+                <foreignKey table="procedure_order" column="procedure_order_id" />
+            </column>
+            <column name="procedure_order_seq" />
+            <column name="question_code">
+                <foreignKey table="procedure_questions" column="question_code" />
+            </column>
+        </table>
+        <table name="procedure_questions" comments="Information/questions that should be answered for a given procedure as requested by the procedure service provider. Created as part of the procedure compendium import/creation process.">
+            <column name="question_code"/>
+            <column name="lab_id">
+                <foreignKey table="procedure_providers" column="ppid" />
+            </column>
+            <column name="procedure_code">
+                <foreignKey table="procedure_type" column="procedure_code" />
+            </column>
+        </table>
+        <table name="procedure_result" comments="The table stores the actual results and findings from medical procedures and tests, such as laboratory tests, radiology reports, diagnostic imaging, and other clinical tests.">
+            <column name="procedure_result_id" comments="Surrogate id of the record used as the primary incrementing key"/>
+            <column name="uuid" comments="UUID of the record"/>
+            <column name="procedure_report_id">
+                <foreignKey table="procedure_report" column="procedure_report_id" />
+            </column>
+            <column name="result_data_type" comments="N=Numeric, S=String, F=Formatted, E=External, L=Long text as the first line of comments"/>
+            <column name="result_code" comments="LOINC code, might match a procedure_type.procedure_code"/>
+            <column name="result_text" comments="Description of result_code"/>
+            <column name="date" comments="Lab-provided date specific to this result"/>
+            <column name="facility" comments="Lab-provided testing facility ID"/>
+            <column name="units" comments="Units for the result"/>
+            <column name="result" comments="Result data"/>
+            <column name="range" comments="Result range"/>
+            <column name="abnormal" comments="Abnormal values (no, yes, high, low)"/>
+            <column name="comments" comments="Comments from the lab"/>
+            <column name="document_id" comments="References documents.id if this result is a document">
+                <foreignKey table="documents" column="id" />
+            </column>
+            <column name="result_status" comments="Result status (preliminary, cannot be done, final, corrected, incomplete, etc.)"/>
+            <column name="date_end" comments="Lab-provided end date specific to this result"/>
+        </table>
+        <table name="procedure_report" comments="Procedure order overall report container for an ordered procedure result in procedure_order_codes which represents findings, conclusions, and recommendations for the procedure order">
+            <column name="procedure_report_id" comments="Unique identifier for the procedure report. This is the primary key."/>
+            <column name="uuid" comments="Universally unique identifier for the procedure report."/>
+            <column name="procedure_order_seq" comments="References procedure_order_code.procedure_order_seq." />
+            <column name="procedure_order_id" comments="References the procedure order for which this report is associated.">
+                <foreignKey table="procedure_order" column="procedure_order_id" />
+            </column>
+            <column name="source" comments="References the user who entered this report data.">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="date_collected" comments="Date and time when the report was collected."/>
+            <column name="date_collected_tz" comments="Timezone offset from UTC for the date collected."/>
+            <column name="date_report" comments="Date and time when the report was generated."/>
+            <column name="date_report_tz" comments="Timezone offset from UTC for the date reported."/>
+            <column name="specimen_num" comments="A unique identifier for the specimen associated with the report."/>
+            <column name="report_status" comments="Comes from the list_options.list_id='proc_rep_status' and represents the current state/status of the report (e.g. received, complete, error)">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="review_status" comments="The status of the report review (e.g., pending review, received, reviewed)."/>
+            <column name="report_notes" comments="Notes from the lab related to the report."/>
+        </table>
+        <table name="procedure_type" comments="This table holds a compendium of possible procedures and labs that can be ordered by the procedure ordering system within OpenEMR">
+            <column name="procedure_type_id" comments="Surrogate id of the record used as the primary incrementing key"/>
+            <column name="parent" comments="References procedure_type.procedure_type_id for heirarchies of procedure types"/>
+            <column name="name" comments="Name for this category, procedure or result type"/>
+            <column name="lab_id" comments="References procedure_providers.ppid, 0 means default to parent"/>
+            <column name="procedure_code" comments="Code and code system identifying this procedure in the format of [codesystem:code]" />
+            <column name="procedure_type" comments="Comes from the list_options.list_id='proc_type' and represents the kind of procedure_type this is ('group', 'order', 'discrete_result', etc')">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="body_site" comments="Where to do injection, e.g. arm, buttock"/>
+            <column name="specimen" comments="Blood, urine, saliva, etc."/>
+            <column name="route_admin" comments="Oral, injection"/>
+            <column name="laterality" comments="Left, right, ..."/>
+            <column name="description" comments="Descriptive text for procedure_code"/>
+            <column name="standard_code" comments="Industry standard code type and code (e.g. CPT4:12345)"/>
+            <column name="related_code" comments="Suggested code(s) for follow-up services if result is abnormal"/>
+            <column name="units" comments="Default for procedure_result.units"/>
+            <column name="range" comments="Default for procedure_result.range"/>
+            <column name="seq" comments="Sequence number for ordering"/>
+            <column name="activity" comments="1=active, 0=inactive"/>
+            <column name="notes" comments="Additional notes to enhance description"/>
+            <column name="transport" comments=""/>
+            <column name="procedure_type_name" comments=""/>
+        </table>
+
+<!--        - Questionnaire Responses-->
+        <table name="form_questionnaire_assessments" comments="Holds questionnaires results for a patient entered in by a provider as a patient charted form">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="response_id"  comments="The foreign uuid key to the questionnaire_response.response_id">
+                <foreignKey table="questionnaire_response" column="response_id" />
+            </column>
+            <column name="questionnaire_id"  comments="The foreign uuid key to the questionnaire.questionnaire_id">
+                <foreignKey table="questionnaire_repository" column="questionnaire_id" />
+            </column>
+            <column name="user">
+                <foreignKey table="users" column="username" />
+            </column>
+            <column name="groupname" comments="The groupname that created this record.">
+                <foreignKey table="groups" column="name" />
+            </column>
+        </table>
+
+        <table name="pro_assessments" comments="Contains Patient Reported Outcome assessment results as delivered via the PROMIS assessment delivery system">
+            <column name="patient_id"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="user_id">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+        <table name="questionnaire_response" comments="Holds questionnaire results for a patient ">
+            <column name="patient_id"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="audit_user_id">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="creator_user_id">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="encounter">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="questionnaire_foreign_id">
+                <foreignKey table="questionnaire_repository" column="id" />
+            </column>
+        </table>
+
+        <table name="questionnaire_repository" comments="Holds questionnaires that providers or patients fill out for healthcare information collection and/or assessment.">
+            <column name="id" comments="Unique identifier for the questionnaire record"/>
+            <column name="uuid" comments="Universally unique identifier for the questionnaire in the EMR system"/>
+            <column name="questionnaire_id" comments="Unique public identifier"/>
+            <column name="provider" comments="Identifier for the provider associated with the inputting/creation of this questionnaire"/>
+            <column name="version" comments="Version number of the questionnaire"/>
+            <column name="created_date" comments="Date and time when the questionnaire was created"/>
+            <column name="modified_date" comments="Date and time when the questionnaire was last modified"/>
+            <column name="name" comments="Name or title of the questionnaire"/>
+            <column name="type" comments="Type of questionnaire (e.g., FHIR 'Questionnaire')"/>
+            <column name="profile" comments="Profile information for the questionnaire"/>
+            <column name="active" comments="Indicates if the questionnaire is active (1 for active, 0 for inactive)"/>
+            <column name="status" comments="Status information for the questionnaire"/>
+            <column name="source_url" comments="URL associated with the questionnaire for where the questionnaire originated or where more information about the questionnaire can be obtained"/>
+            <column name="code" comments="Code associated with the questionnaire"/>
+            <column name="code_display" comments="Display information for the code associated with the questionnaire"/>
+            <column name="questionnaire" comments="JSON serialized version of the questionnaire.  If the type of this record is Questionnaire than the JSON will be a serialized definition of a FHIR Questionnaire resource"/>
+            <column name="lform" comments="National Institutes of Health (NIH) Lforms version of text content for the questionnaire (e.g., for long forms)"/>
+        </table>
+
+        <!--        - Aftercare Plan-->
+        <table name="form_aftercare_plan" comments="Table for chart notes on patient aftercare plans, including Acute Intoxication/Withdrawal, Emotional/Behavioral Conditions and Complications, and Relapse Potential for patients' care plans.">
+            <column name="id" comments="Unique identifier for each aftercare plan entry. Primary key." />
+            <column name="date" comments="Date and time when the aftercare plan was created." />
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="user" comments="User responsible for creating the aftercare plan.">
+                <foreignKey table="users" column="username" />
+            </column>
+            <column name="provider" comments="Provider assigned to the patient for aftercare planning.UNUSED" />
+            <column name="groupname" comments="The groupname that created this record.">
+                <foreignKey table="groups" column="name" />
+            </column>
+            <column name="authorized" comments="Indicates authorization status for the aftercare plan." />
+            <column name="activity" comments="1 if plan is active, 0 if deleted" />
+            <column name="client_name" comments="Human readable name of the patient for whom the aftercare plan is created." />
+            <column name="admit_date" comments="Date when the patient was admitted to the aftercare plan." />
+            <column name="discharged" comments="Date when the patient was discharged from the aftercare plan." />
+            <column name="goal_a_acute_intoxication" comments="1st Goal for Acute Intoxication/Withdrawal." />
+            <column name="goal_a_acute_intoxication_I" comments="2nd Goal for Acute Intoxication/Withdrawal." />
+            <column name="goal_a_acute_intoxication_II" comments="3rd Goal for Acute Intoxication/Withdrawal." />
+            <column name="goal_b_emotional_behavioral_conditions" comments="1st Goal for Emotional/Behavioral Conditions and Complications." />
+            <column name="goal_b_emotional_behavioral_conditions_I" comments="2nd Goal for Emotional/Behavioral Conditions and Complications." />
+            <column name="goal_c_relapse_potential" comments="1st Goal related to Relapse Potential." />
+            <column name="goal_c_relapse_potential_I" comments="2nd Goal related to Relapse Potential." />
+        </table>
+
+        <!--        - Ankle Evaluation Form-->
+        <table name="form_ankleinjury" comments="Represents a provider's evaluation of an ankle injury including x-ray information, diagnosis, and recommended treatments">
+            <column name="id" comments="Surrogate id of the record used as the primary incrementing key"/>
+            <column name="date" comments="Date of the evaluation"/>
+            <column name="pid" comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="user" comments="User responsible for creating the record.">
+                <foreignKey table="users" column="username" />
+            </column>
+            <column name="groupname" comments="The groupname that created this record.">
+                <foreignKey table="groups" column="name" />
+            </column>
+            <column name="authorized" comments="Authorization status"/>
+            <column name="activity" comments="Activity status, 1=form is active, 0=inactive"/>
+            <column name="ankle_date_of_injury" comments="Date of the ankle injury"/>
+            <column name="ankle_work_related" comments="Work-related information for the injury"/>
+            <column name="ankle_foot" comments="Foot information related to the injury"/>
+            <column name="ankle_severity_of_pain" comments="Severity of pain associated with the injury 1-3"/>
+            <column name="ankle_significant_swelling" comments="Indication of significant swelling"/>
+            <column name="ankle_onset_of_swelling" comments="Onset of swelling"/>
+            <column name="ankle_how_did_injury_occur" comments="Description of how the injury occurred"/>
+            <column name="ankle_ottawa_bone_tenderness" comments="Information about Ottawa bone tenderness"/>
+            <column name="ankle_able_to_bear_weight_steps" comments="Ability to bear weight and steps information"/>
+            <column name="ankle_x_ray_interpretation" comments="Interpretation of X-ray results"/>
+            <column name="ankle_additional_x_ray_notes" comments="Additional notes related to X-ray"/>
+            <column name="ankle_diagnosis1" comments="Diagnosis 1 for the ankle injury"/>
+            <column name="ankle_diagnosis2" comments="Diagnosis 2 for the ankle injury"/>
+            <column name="ankle_diagnosis3" comments="Diagnosis 3 for the ankle injury"/>
+            <column name="ankle_diagnosis4" comments="Diagnosis 4 for the ankle injury"/>
+            <column name="ankle_plan" comments="Recommended treatment plan for the ankle injury"/>
+            <column name="ankle_additional_diagnosis" comments="Additional diagnosis for the ankle injury"/>
+        </table>
+
+        <!--        - Bronchitis Form-->
+        <table name="form_bronchitis" comments="Records symptoms, diagnosis, and recommended treatments for bronchitis in a patient">
+            <column name="id" comments="Surrogate id of the record used as the primary incrementing key"/>
+            <column name="date" comments="Date when the record was created"/>
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="user" comments="User responsible for creating the record.">
+                <foreignKey table="users" column="username" />
+            </column>
+            <column name="groupname" comments="The groupname that created this record.">
+                <foreignKey table="groups" column="name" />
+            </column>
+            <column name="authorized" comments="Authorization flag"/>
+            <column name="activity" comments="Activity status, 1=form is active, 0=inactive"/>
+            <column name="bronchitis_date_of_illness" comments="Date of illness for bronchitis"/>
+            <column name="bronchitis_hpi" comments="History of Present Illness for bronchitis"/>
+            <column name="bronchitis_ops_fever" comments="Operations related to fever"/>
+            <column name="bronchitis_ops_cough" comments="Operations related to cough"/>
+            <column name="bronchitis_ops_dizziness" comments="Operations related to dizziness"/>
+            <column name="bronchitis_ops_chest_pain" comments="Operations related to chest pain"/>
+            <column name="bronchitis_ops_dyspnea" comments="Operations related to dyspnea"/>
+            <column name="bronchitis_ops_sweating" comments="Operations related to sweating"/>
+            <column name="bronchitis_ops_wheezing" comments="Operations related to wheezing"/>
+            <column name="bronchitis_ops_malaise" comments="Operations related to malaise"/>
+            <column name="bronchitis_ops_sputum" comments="Operations related to sputum"/>
+            <column name="bronchitis_ops_appearance" comments="Operations related to appearance"/>
+            <column name="bronchitis_ops_all_reviewed" comments="Operations related to all reviewed"/>
+            <column name="bronchitis_review_of_pmh" comments="Review of Past Medical History for bronchitis"/>
+            <column name="bronchitis_review_of_medications" comments="Review of medications for bronchitis"/>
+            <column name="bronchitis_review_of_allergies" comments="Review of allergies for bronchitis"/>
+            <column name="bronchitis_review_of_sh" comments="Review of social history for bronchitis"/>
+            <column name="bronchitis_review_of_fh" comments="Review of family history for bronchitis"/>
+            <column name="bronchitis_tms_normal_right" comments="Tympanic Membrane and Sinus - Normal Right"/>
+            <column name="bronchitis_tms_normal_left" comments="Tympanic Membrane and Sinus - Normal Left"/>
+            <column name="bronchitis_nares_normal_right" comments="Nares - Normal Right"/>
+            <column name="bronchitis_nares_normal_left" comments="Nares - Normal Left"/>
+            <column name="bronchitis_tms_thickened_right" comments="Tympanic Membrane and Sinus - Thickened Right"/>
+            <column name="bronchitis_tms_thickened_left" comments="Tympanic Membrane and Sinus - Thickened Left"/>
+            <column name="bronchitis_tms_af_level_right" comments="Tympanic Membrane and Sinus - AF Level Right"/>
+            <column name="bronchitis_tms_af_level_left" comments="Tympanic Membrane and Sinus - AF Level Left"/>
+            <column name="bronchitis_nares_swelling_right" comments="Nares - Swelling Right"/>
+            <column name="bronchitis_nares_swelling_left" comments="Nares - Swelling Left"/>
+            <column name="bronchitis_tms_retracted_right" comments="Tympanic Membrane and Sinus - Retracted Right"/>
+            <column name="bronchitis_tms_retracted_left" comments="Tympanic Membrane and Sinus - Retracted Left"/>
+            <column name="bronchitis_nares_discharge_right" comments="Nares - Discharge Right"/>
+            <column name="bronchitis_nares_discharge_left" comments="Nares - Discharge Left"/>
+            <column name="bronchitis_tms_bulging_right" comments="Tympanic Membrane and Sinus - Bulging Right"/>
+            <column name="bronchitis_tms_bulging_left" comments="Tympanic Membrane and Sinus - Bulging Left"/>
+            <column name="bronchitis_tms_perforated_right" comments="Tympanic Membrane and Sinus - Perforated Right"/>
+            <column name="bronchitis_tms_perforated_left" comments="Tympanic Membrane and Sinus - Perforated Left"/>
+            <column name="bronchitis_tms_nares_not_examined" comments="Tympanic Membrane and Sinus - Nares Not Examined"/>
+            <column name="bronchitis_no_sinus_tenderness" comments="No sinus tenderness"/>
+            <column name="bronchitis_oropharynx_normal" comments="Oropharynx - Normal"/>
+            <column name="bronchitis_sinus_tenderness_frontal_right" comments="Sinus Tenderness - Frontal Right"/>
+            <column name="bronchitis_sinus_tenderness_frontal_left" comments="Sinus Tenderness - Frontal Left"/>
+            <column name="bronchitis_oropharynx_erythema" comments="Oropharynx - Erythema"/>
+            <column name="bronchitis_oropharynx_exudate" comments="Oropharynx - Exudate"/>
+            <column name="bronchitis_oropharynx_abcess" comments="Oropharynx - Abscess"/>
+            <column name="bronchitis_oropharynx_ulcers" comments="Oropharynx - Ulcers"/>
+            <column name="bronchitis_sinus_tenderness_maxillary_right" comments="Sinus Tenderness - Maxillary Right"/>
+            <column name="bronchitis_sinus_tenderness_maxillary_left" comments="Sinus Tenderness - Maxillary Left"/>
+            <column name="bronchitis_oropharynx_appearance" comments="Oropharynx - Appearance"/>
+            <column name="bronchitis_sinus_tenderness_not_examined" comments="Sinus Tenderness - Not Examined"/>
+            <column name="bronchitis_oropharynx_not_examined" comments="Oropharynx - Not Examined"/>
+            <column name="bronchitis_heart_pmi" comments="Heart - PMI (Point of Maximal Impulse)"/>
+            <column name="bronchitis_heart_s3" comments="Heart - S3 Sound"/>
+            <column name="bronchitis_heart_s4" comments="Heart - S4 Sound"/>
+            <column name="bronchitis_heart_click" comments="Heart - Click Sound"/>
+            <column name="bronchitis_heart_rub" comments="Heart - Rub Sound"/>
+            <column name="bronchitis_heart_murmur" comments="Heart - Murmur"/>
+            <column name="bronchitis_heart_grade" comments="Heart - Grade"/>
+            <column name="bronchitis_heart_location" comments="Heart - Location"/>
+            <column name="bronchitis_heart_normal" comments="Heart - Normal Exam"/>
+            <column name="bronchitis_heart_not_examined" comments="Heart - Not Examined"/>
+            <column name="bronchitis_lungs_bs_normal" comments="Lungs - Breath Sounds Normal"/>
+            <column name="bronchitis_lungs_bs_reduced" comments="Lungs - Breath Sounds Reduced"/>
+            <column name="bronchitis_lungs_bs_increased" comments="Lungs - Breath Sounds Increased"/>
+            <column name="bronchitis_lungs_crackles_lll" comments="Lungs - Crackles - Left Lower Lobe"/>
+            <column name="bronchitis_lungs_crackles_rll" comments="Lungs - Crackles - Right Lower Lobe"/>
+            <column name="bronchitis_lungs_crackles_bll" comments="Lungs - Crackles - Both Lower Lobes"/>
+            <column name="bronchitis_lungs_rubs_lll" comments="Lungs - Rubs - Left Lower Lobe"/>
+            <column name="bronchitis_lungs_rubs_rll" comments="Lungs - Rubs - Right Lower Lobe"/>
+            <column name="bronchitis_lungs_rubs_bll" comments="Lungs - Rubs - Both Lower Lobes"/>
+            <column name="bronchitis_lungs_wheezes_lll" comments="Lungs - Wheezes - Left Lower Lobe"/>
+            <column name="bronchitis_lungs_wheezes_rll" comments="Lungs - Wheezes - Right Lower Lobe"/>
+            <column name="bronchitis_lungs_wheezes_bll" comments="Lungs - Wheezes - Both Lower Lobes"/>
+            <column name="bronchitis_lungs_wheezes_dll" comments="Lungs - Wheezes - Diffuse"/>
+            <column name="bronchitis_lungs_normal_exam" comments="Lungs - Normal Exam"/>
+            <column name="bronchitis_lungs_not_examined" comments="Lungs - Not Examined"/>
+            <column name="bronchitis_diagnostic_tests" comments="Diagnostic tests for bronchitis"/>
+            <column name="diagnosis1_bronchitis_form" comments="Diagnosis 1 for bronchitis form"/>
+            <column name="diagnosis2_bronchitis_form" comments="Diagnosis 2 for bronchitis form"/>
+            <column name="diagnosis3_bronchitis_form" comments="Diagnosis 3 for bronchitis form"/>
+            <column name="diagnosis4_bronchitis_form" comments="Diagnosis 4 for bronchitis form"/>
+            <column name="bronchitis_additional_diagnosis" comments="Additional diagnoses for bronchitis"/>
+            <column name="bronchitis_treatment" comments="Treatment information for bronchitis"/>
+        </table>
+
+        <!--        - Track Anything-->
+        <table name="form_track_anything" comments="Clinical note form that allows clinicians to provide point in time and longitudinal tracking of any data element they configure">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="procedure_type_id">
+                <foreignKey table="form_track_anything_type" column="track_anything_type_id" />
+            </column>
+            <column name="name"  comments="The name of the type of the data element being tracked" />
+        </table>
+        <table name="form_track_anything_type" comments="Represents the category grouping / track of the data element being tracked via the track_anything form">
+            <column name="name"  comments="The name of the type of the data element being tracked" />
+            <column name="description"  comments="Description of the data element type being tracked" />
+            <column name="parent"  comments="This is a reference to a parent form_track_anything_type element. 0=There is no parent, if !0 then it is the track_anything_type_id for the parent element" />
+            <column name="position"  comments="The order this element should be filled out in the track anything population mechanism" />
+            <column name="active"  comments="1=The element is active and allows for data entry, 0=data entry is disabled and the element is not displayed to the user" />
+        </table>
+        <table name="form_track_anything_results">
+            <column name="id" comments="Surrogate ID of the result record used as the primary incrementing key"/>
+            <column name="track_anything_id">
+                <foreignKey table="form_track_anything" column="id" />
+            </column>
+            <column name="track_timestamp" comments="The time this result was recorded" />
+            <column name="itemid" comments="The data element that is being tracked for this result that is found in the form_track_anything_type table">
+                <foreignKey table="form_track_anything_type" column="track_anything_type_id" />
+            </column>
+            <column name="result" comments="The user entered response for this data element being tracked" />
+            <column name="comment" comments="UNUSED" />
+            <column name="notes" comments="UNUSED" />
+        </table>
+
+
+<!--        - Social Screening Tool-->
+        <table name="form_sdoh" comments="Encounter form that holds results for the Social Determinants of Health Screening Tool">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="user" comments="The user that created this record.">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="groupname" comments="The groupname that created this record.">
+                <foreignKey table="groups" column="name" />
+            </column>
+        </table>
+
+<!--        - Graphic Pain Map-->
+        <table name="form_painmap" comments="Patient pain map form. Pain map image for mapping this form is stored in the EHI zip export at images/painmap.png">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="user" comments="The user that created this record.">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="groupname" comments="The groupname that created this record." >
+                <foreignKey table="groups" column="name" />
+            </column>
+            <column name="data" comments="Data of the patient pain map to overlay ontop of the pain image.  Each mapped data element is in the following format x1CoordinatePixels^y1CoordinatePixels^pain1Description}...}." />
+        </table>
+
+<!--        - Treatment Plan-->
+        <table name="form_treatment_plan" comments="Patient treatment plan form">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
+            <column name="user" comments="The user that created this record." >
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="groupname" comments="The groupname that created this record.">
+                <foreignKey table="groups" column="name" />
+            </column>
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Physical Exam-->
+        <table name="form_physical_exam" comments="Physical Examination clinical note">
+            <column name="forms_id">
+                <foreignKey table="forms" column="id" />
+            </column>
+            <column name="line_id">
+                <foreignKey table="form_physical_exam_diagnoses" column="line_id" />
+            </column>
+            <column name="diagnosis">
+                <foreignKey table="form_physical_exam_diagnoses" column="diagnosis" />
+            </column>
+        </table>
+        <table name="form_physical_exam_diagnoses" comments="Physical Exam Diagnosis for a physical exam that was conducted">
+        </table>
+
+<!--        - Prior Authorization-->
+        <table name="form_prior_auth" comments="Patient Prior Authorization records">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - GAD-7-->
+        <table name="form_gad7" comments="Encounter form that holds patient results for the GAD7 assessment">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
+            <column name="user" comments="The user that created this record.">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="groupname" comments="The groupname that created this record.">
+                <foreignKey table="groups" column="name"  />
+            </column>
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - PHQ-9-->
+        <table name="form_phq9" comments="Encounter form that holds patient results for the PHQ9 assessment">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
+            <column name="user" comments="The user that created this record.">
+                <foreignKey table="users" column="id"  />
+            </column>
+            <column name="groupname" comments="The groupname that created this record." >
+                <foreignKey table="groups" column="name" />
+            </column>
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Work/School Note-->
+        <table name="form_note" comments="Work/School note written by a provider for a patient to provide documentation of their medical condition to their work or school">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Transfer Summary-->
+        <table name="form_transfer_summary" comments="Records transfer summary of care and is an alternative to recording referrals in the transactions table">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+
+<!--        - Clinic Note-->
+        <table name="form_clinic_note" comments="Holds patient history, provider examination conducted, patient treatment plan, and follow up status">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
+        </table>
+
+<!--        patient notes-->
+<!--        patient documents-->
+        <table name="onsite_documents" comments="Digital documents that have been assigned to a patient from a document_template that the patient has saved or submitted for review by clinical staff">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="facility">
+                <foreignKey table="facility" column="id" />
+            </column>
+            <column name="encounter">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="user" comments="User who created the esignature">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+
+        <table name="document_templates" comments="Digital document templates that are assigned to patients">
+            <column name="pid"  comments="The internal patient identifier.">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="template_content" comments="Digital document template that is assigned to a patient to be filled out.  Uses Domain Specific Language (DSL) template tags to inject specific functionality into the template for patients to fill out.  Patient data template tags can be found at the following URL: https://www.open-emr.org/wiki/index.php/Patient_Portal_Document_Templates" />
+        </table>
+
+        <table name="onsite_signatures" comments="Patient portal digital signatures used for patient documents and anywhere else a signature is required in the portal">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="encounter">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="type" comments="witness-signature " />
+            <column name="signer" comments="If type=witness-signature signer will be 'Witness Signature' if type='admin-signature' then signer will be the Username of the clinical staff member that signed, if type='patient-signature' then the value will be the patient's name" />
+            <column name="user" comments="User who created the esignature.  If the signature is a staff member (administrator/witness) it will come from the users.username.  If it is a patient signature the value will be '-patient-'" />
+            <column name="sig_image" comments="The image of the signature as a Data URI created from a browser Canvas object representing an image/png image of the signature" />
+            <column name="sig_hash" comments="sha3-512 hash of the sig_image" />
+        </table>
+        <table name="patient_access_onsite" comments="Holds patient portal onsite credentials, username information and login meta information">
+            <column name="portal_pwd" comments="Hash of the patient password.  Empty for export." exclude="true"/>
+            <column name="portal_onetime" comments="One time login key.  Empty for export." exclude="true"/>
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="onsite_portal_activity" comments="Patient portal activity (document submission, and other activities) that requires review before they are accepted into the patient chart">
+            <column name="patient_id"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="onsite_mail" comments="Patient asynchronous messages to and from clinical staff">
+            <column name="id" comments="Surrogate id of the record used as the primary incrementing key"/>
+            <column name="date" comments="Date and time of the message"/>
+            <column name="owner" comments="Owner of the message. If this is a message intended for a patient this will be the patient_data.pid if it is for a user this will be the users.id"/>
+            <column name="user" comments="User associated with the message"/>
+            <column name="groupname" comments="Name of the group associated with the message"/>
+            <column name="activity" comments="Activity associated with the message. 0=deleted, 1=message is active"/>
+            <column name="authorized" comments="Authorization status of the message"/>
+            <column name="header" comments="Header of the message"/>
+            <column name="title" comments="Title of the message"/>
+            <column name="body" comments="Body of the message"/>
+            <column name="recipient_id" comments="ID of the message recipient. If a patient is sending this message to a user this will be the users.id, otherwise it is i the patient_data.pid"/>
+            <column name="recipient_name" comments="Name of the message recipient. This will be the first and last name of the recipient."/>
+            <column name="sender_id" comments="ID of the message sender.  If a patient is sending this message to a user this will be the patient_data.pid, otherwise it is the users.id"/>
+            <column name="sender_name" comments="Name of the message sender"/>
+            <column name="assigned_to" comments="Assignment information for the message"/>
+            <column name="deleted" comments="Flag indicating whether the mail is deleted"/>
+            <column name="delete_date" comments="Date and time when the message was deleted"/>
+            <column name="mtype" comments="Message type ('Notification', 'Message')"/>
+            <column name="message_status" comments="Status of the message ('Done','New')"/>
+            <column name="mail_chain" comments="Mail chain ID"/>
+            <column name="reply_mail_chain" comments="Reply mail chain ID"/>
+            <column name="is_msg_encrypted" comments="Whether the message is encrypted (0-Not encrypted, 1-Encrypted)"/>
+        </table>
+        <table name="onsite_messages" comments="Patient secure chat messages to and from clinical staff for real time communication">
+            <column name="id" comments="Surrogate ID of the message record" />
+            <column name="username" comments="Username associated with the message sender  This will be the patient's portal username if a patient sent the message.  Otherwise it is the user's username if a user sent the message." />
+            <column name="message" comments="The content of the chat message" />
+            <column name="ip" comments="IP address of the sender.  Empty on export" exclude="true" />
+            <column name="date" comments="Timestamp of when the message was sent" />
+            <column name="sender_id" comments="ID of the message sender.  This will be the patient_data.pid if a patient sent the message.  Otherwise it is the users.id if a user sent the message." />
+            <column name="recip_id" comments="JSON array of message recipients.  If the message is being sent to one or more clinical staff it will be a JSON array of the usernames from the users table.  If a user sends the message it will be a JSON array of one or more patient_data.pid ids.  On EHI export this array is filtered to only include patient_data.pids that are in the the specific export task.  These messages will be duplicated if patients are in different export tasks but received the same message." />
+        </table>
+        <!--        - External Data (Encounters  Procedures) -->
+        <table name="external_encounters" comments="Holds data on encounters that exist outside of this EMR that were in a patient CCDA import">
+            <column name="ee_pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+        </table>
+        <table name="external_procedures" comments="Holds data on external procedures that exist outside of this EMR that were in a patient CCDA import">
+            <column name="ep_pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="ep_encounter"  comments="The encounter for the external procedure">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+        </table>
+
+        <table name="shared_attributes" comments="Dynamic patient, encounter, and transaction table properties created via LBF/LBT mechanism">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="encounter"  comments="0 if patient attribute, else this is an encounter attribute and references the form_encounter.encounter property">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="field_id"  comments="references layout_options.field_id and is the unique property name of this shared attribute">
+                <foreignKey table="layout_options" column="field_id" />
+            </column>
+            <column name="user_id" comments="User who last updated this shared attribute">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+
+        <table name="claims" comments="Insurance Billing Claims - Used for tracking and submission of billing claims to payers">
+            <column name="patient_id"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="encounter_id" comments="Encounter identifier - Identifier for the patient encounter associated with the claim">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="version" comments="Claim version - Incremented in code to track changes in claims" />
+            <column name="payer_id"  comments="The insurance company being billed. If this is self-pay the id will be 0">
+                <foreignKey table="insurance_companies" column="id" />
+            </column>
+            <column name="status" comments="Claim status - Status of the billing claim. -1=Leave Unchanged,1=Unbilled,2=Mark as billed, 7=Denied" />
+            <column name="payer_type" comments="The payer type code, indicating the source of payment (0=patient, 1=primary insurance, 2=secondary insurance, etc)." />
+            <column name="bill_process" comments="Billing process status. -1=Leave unchanged, 0=Claim is open,1=Processing in progress,2=Billed,3=Error" />
+            <column name="bill_time" comments="Billing time - The datetime this bill was created" />
+            <column name="process_time" comments="Processing time - Time of claim processing" />
+            <column name="process_file" comments="Processing file - File associated with claim processing" />
+            <column name="target" comments="Claim target - Target associated with the claim" />
+            <column name="x12_partner_id" comments="X12 Partner identifier - Identifier for the X12 partner.  Empty in export" exclude="true" />
+            <column name="submitted_claim" comments="Submitted claim - Claims form data" />
+        </table>
+
+        <table name="voids" comments="Tracks a voided receipt or checkout for a patient">
+            <column name="patient_id"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="encounter_id">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="user_id">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+
+        <table name="billing" comments="Patient billing records for billing codes - Used for Claims Processing">
+            <column name="id" comments="Surrogate id of the record used as the primary incrementing key"/>
+            <column name="pid"  comments="The internal patient identifier">
+		        <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="provider_id"  comments="The insurance company being billed. If this is self-pay the id will be 0">
+                <foreignKey table="insurance_companies" column="id" />
+            </column>
+            <column name="payer_id"  comments="The insurance company being billed. If this is self-pay the id will be 0">
+                <foreignKey table="insurance_companies" column="id" />
+            </column>
+            <column name="x12_partner_id"  comments="The X12 partner clearinghouse id. Empty On Export" exclude="true" />
+            <column name="user" comments="The user that created this billing record.">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="groupname" comments="Group name associated with the billing record">
+                <foreignKey table="groups" column="name" />
+            </column>
+            <column name="encounter" comments="The encounter that this billing record is connected to">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+
+
+            <column name="date" comments="Date associated with the billing record"/>
+            <column name="code_type" comments="Type of billing code"/>
+            <column name="code" comments="Billing code"/>
+            <column name="authorized" comments="Authorization status (1 for authorized, 0 for unauthorized)"/>
+            <column name="code_text" comments="Text associated with the billing code"/>
+            <column name="billed" comments="Billing status (1 for billed, 0 for unbilled)"/>
+            <column name="activity" comments="Activity status (1 for active, 0 for inactive)"/>
+            <column name="bill_process" comments="Bill process code -1=leave unprocessed,0=open,1=in progress,2=billed"/>
+            <column name="bill_date" comments="Date when billing moved into the billed status"/>
+            <column name="process_date" comments="Date when the bill was moved into the processing state"/>
+            <column name="process_file" comments="File associated with billing process"/>
+            <column name="modifier" comments="Modifier for billing code"/>
+            <column name="units" comments="Number of units for billing"/>
+            <column name="fee" comments="Fee associated with billing"/>
+            <column name="justify" comments="Justification for billing code"/>
+            <column name="target" comments="Target associated with billing code"/>
+            <column name="ndc_info" comments="NDC (National Drug Code) information"/>
+            <column name="notecodes" comments="Notecodes associated with billing"/>
+            <column name="external_id" comments="External identifier associated with billing"/>
+            <column name="pricelevel" comments="Price level associated with billing"/>
+            <column name="revenue_code" comments="Item revenue code"/>
+            <column name="chargecat" comments="Comes from the list_options.list_id='chargecats' and represents the charge category for certain insursers">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+        </table>
+
+        <table name="drugs" comments="Contains information about drugs that are dispensed/prescribed to patients.  Also holds product inventory information if providers are internally managing their own drugs/medical supplies">
+
+        </table>
+
+        <table name="drug_sales" comments="Product/Drug sales to Patients">
+            <column name="sale_id"  comments="The unique identifier for this record" />
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="encounter" comments="The patient encounter which resulted in this drug being sold to the patient.">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="drug_id" comments="The id of the drug that was sold to the patient. 0 if the record is not dispensed to a patient">
+                <foreignKey table="drugs" column="drug_id" />
+            </column>
+            <column name="sale_date"  comments="The date the sale occurred on" />
+            <column name="fee"  comments="The total price of the sale for the drug that was sold to the patient" />
+            <column name="quantity"  comments="The number of items sold of the drug" />
+            <column name="distributor_id" comments="UNUSED - will be removed in the future" />
+        </table>
+
+        <table name="ar_activity" comments="Accounts Receivable item entries in invoice/claim activity">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="encounter" comments="The identifier for the encounter for which the payment is connected to (foreign key reference to the forms_encounter.encounter).">
+                <foreignKey table="form_encounter" column="encounter" />
+            </column>
+            <column name="sequence_no" comments="A unique identifier for this payment activity, incremented in the code." />
+            <column name="code_type"  comments="The code system that is used for this billing activity" />
+            <column name="code"  comments="The code in the code system referenced in code_type that is the main billing code for this billing activity" />
+            <column name="modifier"  comments="Billing code modifier" />
+            <column name="payer_type" comments="The payer type code, indicating the source of payment (0=patient, 1=primary insurance, 2=secondary insurance, etc)."/>
+            <column name="post_time" comments="The timestamp indicating when the payment was posted (in DATETIME format)."/>
+            <column name="post_user" comments="The user ID (foreign key reference to the users table) of the person who posted the payment.">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="fee"  comments="The billing fee that is being requested for payment of services rendered" />
+            <column name="post_time"  comments="Time of the posting on the date referenced in post_date" />
+
+            <column name="session_id" comments="The session ID (foreign key reference to the ar_session table) associated with this payment activity, if applicable.">
+                <foreignKey table="ar_session" column="session_id" />
+            </column>
+            <column name="memo" comments="Additional comments or adjustment reasons related to the payment activity."/>
+            <column name="pay_amount" comments="The actual payment amount received (in DECIMAL format), which may differ from the fee amount due to adjustments or discounts."/>
+            <column name="adj_amount" comments="The adjustment amount, if any, to account for changes in the payment (in DECIMAL format)."/>
+            <column name="modified_time" comments="The timestamp indicating when this payment activity was last modified (in DATETIME format)."/>
+            <column name="follow_up" comments="A flag (CHAR) indicating follow-up actions needed for this payment activity (e.g., 'y' for yes, 'n' for no)."/>
+            <column name="follow_up_note" comments="Additional notes or instructions related to follow-up actions for this payment activity (in TEXT format)."/>
+            <column name="account_code" comments="The account code used to categorize or classify this payment activity (e.g., a billing code or account code)."/>
+            <column name="reason_code" comments="An optional reason code used to explain adjustments or changes in the payment amount (e.g., primary payer adjustment reason code)."/>
+            <column name="deleted" comments="A timestamp (in DATETIME format) indicating when the payment activity was deleted (NULL if active, otherwise when voided)."/>
+            <column name="post_date" comments="The date (in DATE format) when the payment was posted, if specified at the time of payment."/>
+            <column name="payer_claim_number" comments="The claim number or reference number provided by the payer or insurance company for this payment activity."/>
+        </table>
+
+        <!--        - Patient Ledger -->
+        <table name="ar_session" comments="Accounts Receivable overall payment made towards a patient invoice/claim and is the main table that holds the patient payments ledger">
+            <column name="session_id" comments="The unique identifier for an accounting session, used as a surrogate key."/>
+            <column name="payer_id"  comments="The insurance company being billed. If this is self-pay the id will be 0">
+                <foreignKey table="insurance_companies" column="id" />
+            </column>
+            <column name="user_id" comments="The reference to the user ID the created this billing session">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="patient_id"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="payment_type" comments="Comes from the list_options.list_id='payment_type' and represents the type of payment, such as if this is a patient or insurance payment.">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="adjustment_code" comments="Comes from the list_options.list_id='payment_adjustment_code' and represents the payment adjustment code to apply.">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+            <column name="payment_method" comments="Comes from the list_options.list_id='payment_method' The method of payment, e.g., ACH, Cash, CC, Check, etc.">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+
+            <column name="closed" comments="A flag indicating if the session is closed. 0 for open, 1 for closed."/>
+            <column name="reference" comments="The check or EOB (Explanation of Benefits) number associated with the payment."/>
+            <column name="check_date" comments="The date when the check was received for the payment."/>
+            <column name="deposit_date" comments="The date when the payment was deposited."/>
+            <column name="pay_total" comments="The total payment amount for the claim or billing invoice."/>
+            <column name="created_time" comments="The timestamp when the payment record was created."/>
+            <column name="modified_time" comments="The date and time of the last modification to the payment record."/>
+            <column name="global_amount" comments="The global amount for the payment."/>
+            <column name="description" comments="Additional description or notes related to the payment."/>
+            <column name="post_to_date" comments="The date when the payment is posted to the claim or billing invoice."/>
+        </table>
+
+        <table name="eligibility_verification" comments="Insurance Eligibility Verification Tracking">
+            <column name="verification_id" comments="Unique identifier for eligibility verification"/>
+            <column name="insurance_id"  comments="The patient insurance that eligibility is being checked against">
+                <foreignKey table="insurance_data" column="id" />
+            </column>
+            <column name="response_id" comments="Identifier for the response related to the eligibility verification"/>
+            <column name="eligibility_check_date" comments="Date and time when the eligibility check was performed"/>
+            <column name="copay" comments="Patient copayment amount"/>
+            <column name="deductible" comments="Patient deductible amount"/>
+            <column name="deductiblemet" comments="Indicates whether the deductible has been met ('Y' or 'N')"/>
+            <column name="create_date" comments="Date when the record was created"/>
+        </table>
+        <table name="benefit_eligibility" comments="Holds the eligible patient benefits for a specific insurance as received from an eligibility verification">
+            <column name="response_id" comments="Surrogate ID of the benefit eligibility record used as the primary incrementing key"/>
+            <column name="verification_id"  comments="The eligibility verification record that these benefits are retrieved from">
+                <foreignKey table="eligibility_verification" column="verification_id" />
+            </column>
+            <column name="type" comments="Type of benefit"/>
+            <column name="benefit_type" comments="Type of the benefit, if applicable"/>
+            <column name="start_date" comments="Start date for the benefit coverage"/>
+            <column name="end_date" comments="End date for the benefit coverage"/>
+            <column name="coverage_level" comments="Coverage level, if specified"/>
+            <column name="coverage_type" comments="Type of coverage"/>
+            <column name="plan_type" comments="Type of insurance plan"/>
+            <column name="plan_description" comments="Description of the insurance plan"/>
+            <column name="coverage_period" comments="Period of coverage"/>
+            <column name="amount" comments="Benefit amount, if applicable"/>
+            <column name="percent" comments="Benefit percentage, if applicable"/>
+            <column name="network_ind" comments="Network indicator"/>
+            <column name="message" comments="Additional message or information"/>
+            <column name="response_status" comments="Status of the response (Active 'A' or Denied 'D')"/>
+            <column name="response_create_date" comments="Date when the benefit response was created"/>
+            <column name="response_modify_date" comments="Date when the benefit response was last modified"/>
+        </table>
+
+        <!-- Therapy Groups, counselors, participants, participant_attendance -->
+        <table name="form_groups_encounter" comments="Represents the information related to a group of patient's visit to a healthcare provider.  This is different than an appointment as this table tracks the actual service of care for a therapy group">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
+            <column name="date" comments="Date and time of the encounter"/>
+            <column name="reason" comments="The reason for the encounter"/>
+            <column name="facility" comments="The facility or location of the encounter"/>
+            <column name="facility_id" comments="Unique identifier for the facility where the encounter took place.">
+                <foreignKey table="facility" column="id" />
+            </column>
+            <column name="group_id" comments="FK to the therapy group that is attending for the encounter service">
+                <foreignKey table="therapy_groups" column="group_id" />
+            </column>
+            <column name="onset_date" comments="The date when the condition or issue for the group started"/>
+            <column name="sensitivity" comments="Sensitivity information related to the encounter as to who should be able to access / view this encounter"/>
+            <column name="billing_note" comments="Notes related to billing for the encounter"/>
+            <column name="pc_catid" comments="The encounter service category taken from 'openemr_postcalendar_categories'">
+                <foreignKey table="openemr_postcalendar_categories" column="pc_catid" />
+            </column>
+            <column name="last_level_billed"  comments="The party for whom payment was last billed. 0=None, 1=Ins1, 2=Ins2, 3=Ins3" />
+            <column name="last_level_closed"  comments="The party for whom payment was last received. 0=None, 1=Ins1, 2=Ins2, 3=Ins3" />
+            <column name="last_stmt_date" comments="The date of the last statement"/>
+            <column name="stmt_count" comments="The statement count"/>
+            <column name="provider_id" comments="Default and main provider for this visit">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="supervisor_id" comments="Supervising provider, if any, for this visit">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="invoice_refno" comments="Reference number for the invoice"/>
+            <column name="referral_source" comments="Source of the referral"/>
+            <column name="facility_id" comments="Unique identifier for the billing facility that will be used for this encounter.">
+                <foreignKey table="facility" column="id" />
+            </column>
+            <column name="billing_facility" comments="ID of the billing facility"/>
+            <column name="external_id" comments="External ID associated with the encounter"/>
+            <column name="pos_code" comments="Place of service code"/>
+            <column name="counselors" comments="Information about counselors related to the encounter"/>
+            <column name="appt_id"  comments="The calendar appointment id that this encounter is associated with or that this encounter was created from">
+                <foreignKey table="openemr_postcalendar_events" column="pc_eid" />
+            </column>
+        </table>
+        <table name="form_group_attendance" comments="Group encounter form for tracking the attendance of therapy participants to a group session encounter">
+            <column name="id" comments="The primary key which is the same as the forms.form_id column">
+                <foreignKey table="forms" column="form_id" />
+            </column>
+            <column name="group_id" comments="FK to the therapy group that this attendance form is tracking">
+                <foreignKey table="therapy_groups" column="group_id" />
+            </column>
+            <column name="user" comments="The username of the user that created this record.">
+                <foreignKey table="users" column="username" />
+            </column>
+            <column name="groupname" comments="User Group that the user was part of that created this record (This is not the therapy group)">
+                <foreignKey table="groups" column="name" />
+            </column>
+            <column name="encounter_id" comments="The group encounter that this group attendance form is part of">
+                <foreignKey table="form_groups_encounter" column="encounter" />
+            </column>
+            <column name="authorized" comments="Authorization status (1 for authorized, 0 for unauthorized)"/>
+            <column name="activity" comments="Activity status (1 for active, 0 for inactive)"/>
+        </table>
+
+        <table name="therapy_groups_participant_attendance" comments="Track patient attendance to a therapy group session as contained in the Used by the form_group_attendance table">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="form_id"  comments="The group attendance encounter form that is the container entity used to track this patient's attendance">
+                <foreignKey table="form_group_attendance" column="id" />
+            </column>
+            <column name="meeting_patient_comment" comments="Comments about the participant's attendance in the meeting"/>
+            <column name="meeting_patient_status" comments="The patient status in the meeting from the list_options.list_id='groupstat'">
+                <foreignKey table="list_options" column="option_id" />
+            </column>
+        </table>
+        <table name="therapy_groups_participants" comments="Connects the patient participants to a therapy group">
+            <column name="pid"  comments="The internal patient identifier">
+                <foreignKey table="patient_data" column="pid" />
+            </column>
+            <column name="group_id">
+                <foreignKey table="therapy_groups" column="group_id" />
+            </column>
+        </table>
+        <table name="therapy_groups" comments="Contains all of the therapy groups that exist in the system">
+            <column name="group_id" comments="Surrogate id of the record used as the primary incrementing key"/>
+            <column name="name" comments="The name of the therapy group"/>
+            <column name="group_status" comments="Represents the current status of the therapy group. 10=Active, 20=Finished, 30=Canceled"/>
+            <column name="group_type" comments="Represents the type of therapy group. 1=Closed, 2=Open, 3=Training"/>
+            <column name="group_participation" comments="Represents the participant requirements for the group. 1=Mandatory, 2=Optional"/>
+            <column name="group_start_date" comments="Represents the date the group should start"/>
+            <column name="group_end_date" comments="Represents the date the group should end"/>
+            <column name="group_notes" comments="Notes about the overall therapy group"/>
+            <column name="group_guest_counselors" comments="Names of guest counselors participating in the group that do not exist in the users table"/>
+        </table>
+        <table name="therapy_groups_counselors" comments="Contains the relationships between the counselors in a therapy group and the group">
+            <column name="group_id">
+                <foreignKey table="therapy_groups" column="group_id" />
+            </column>
+            <column name="user_id">
+                <foreignKey table="users" column="id" />
+            </column>
+        </table>
+
+        <table name="facility" comments="The facility table holds all of the facilities that provide healthcare in the EMR. It contains the primary billing location and other service locations/organizations that are not insurance companies tracked inside the EMR">
+            <column name="id" comments="Surrogate id of the record used as the primary incrementing key"/>
+            <column name="uuid" comments="UUID of the record"/>
+            <column name="name" comments="The name of the facility"/>
+            <column name="phone" comments="Phone number of the facility"/>
+            <column name="fax" comments="Fax number of the facility"/>
+            <column name="street" comments="Street address of the facility"/>
+            <column name="city" comments="City where the facility is located"/>
+            <column name="state" comments="State where the facility is located"/>
+            <column name="postal_code" comments="Postal code of the facility"/>
+            <column name="country_code" comments="Country code of the facility"/>
+            <column name="federal_ein" comments="Federal Employer Identification Number of the facility" exclude="true"/>
+            <column name="website" comments="Website of the facility"/>
+            <column name="email" comments="Email address of the facility"/>
+            <column name="service_location" comments="Indicates if it's a service location (0-Not a service location, 1-Service location)"/>
+            <column name="billing_location" comments="Indicates if it's a billing location (0-Not a billing location, 1-Billing location)"/>
+            <column name="accepts_assignment" comments="Indicates if the facility accepts assignment (0-Does not accept assignment, 1-Accepts assignment)"/>
+            <column name="pos_code" comments="POS (Place of Service) code of the facility"/>
+            <column name="x12_sender_id" comments="X12 Sender ID of the facility. EMPTY IN Export" exclude="true"/>
+            <column name="attn" comments="Attention line for the facility"/>
+            <column name="domain_identifier" comments="Domain identifier for the facility"/>
+            <column name="facility_npi" comments="NPI (National Provider Identifier) for the facility"/>
+            <column name="facility_taxonomy" comments="Taxonomy code for the facility"/>
+            <column name="tax_id_type" comments="Tax ID type for the facility"/>
+            <column name="color" comments="Color code for the facility"/>
+            <column name="primary_business_entity" comments="Primary business entity (0-Not set as the primary business entity, 1-Set as the primary business entity)"/>
+            <column name="facility_code" comments="Facility code for the facility"/>
+            <column name="extra_validation" comments="Extra validation indicator (0-No extra validation, 1-Extra validation)"/>
+            <column name="mail_street" comments="Mailing street address of the facility"/>
+            <column name="mail_street2" comments="Additional mailing street address of the facility"/>
+            <column name="mail_city" comments="Mailing city of the facility"/>
+            <column name="mail_state" comments="Mailing state of the facility"/>
+            <column name="mail_zip" comments="Mailing ZIP code of the facility"/>
+            <column name="oid" comments="For HIEs, CCDA, and FHIR an OID is required/wanted for the facility"/>
+            <column name="iban" comments="International Bank Account Number (IBAN) for the facility EMPTY IN Export" exclude="true"/>
+            <column name="info" comments="Additional information about the facility EMPTY in Export" exclude="true"/>
+            <column name="weno_id" comments="WENO ID for the facility" exclude="true"/>
+            <column name="inactive" comments="Indicates if the facility is inactive (0-Active, 1-Inactive)"/>
+        </table>
+
+        <table name="users" comments="Contains actors in the system that are not patients.  This includes providers, employees, and external organizations/contacts records as well as system processes.  This does not include API actors">
+            <column name="id" comments="Unique identifier for each user in the system."/>
+            <column name="uuid" comments="Universally unique identifier for the user."/>
+            <column name="username" comments="The username associated with the user's account."/>
+            <column name="password" comments="The password for the user's account." exclude="true"/>
+            <column name="authorized" comments="Indicates whether the user is authorized (1 for authorized, 0 for unauthorized)."/>
+            <column name="info" comments="Additional information or notes about the user." exclude="true"/>
+            <column name="source" comments="An indicator of the source of the user (e.g., internal or external)."/>
+            <column name="fname" comments="First name of the user."/>
+            <column name="mname" comments="Middle name of the user."/>
+            <column name="lname" comments="Last name of the user."/>
+            <column name="suffix" comments="Suffix for the user's name (e.g., Jr., Sr.)."/>
+            <column name="federaltaxid" comments="Federal Tax ID associated with the user." exclude="true"/>
+            <column name="federaldrugid" comments="Federal Drug ID associated with the user." exclude="true"/>
+            <column name="upin" comments="Universal Physician Identification Number for the user."/>
+            <column name="facility" comments="The facility where the user is associated."/>
+            <column name="facility_id" comments="Unique identifier for the user's associated facility.">
+                <foreignKey table="facility" column="id" />
+            </column>
+            <column name="see_auth" comments="Indicates if the user has the ability to see authorizations."/>
+            <column name="active" comments="Indicates the user's activity status (1 for active, 0 for inactive)."/>
+            <column name="npi" comments="National Provider Identifier for the user."/>
+            <column name="title" comments="Title or designation of the user (e.g., MD, RN)."/>
+            <column name="specialty" comments="The specialty of the user (e.g., cardiology, pediatrics)."/>
+            <column name="billname" comments="Billing name for the user."/>
+            <column name="email" comments="Email address associated with the user's account. EMPTY for exports"/>
+            <column name="email_direct" comments="Trusted Direct email address for the user."/>
+            <column name="google_signin_email" comments="Email address for Google Sign-In (if applicable). EMPTY for exports" exclude="true"/>
+            <column name="url" comments="URL associated with the user's profile."/>
+            <column name="assistant" comments="Name of the user's assistant or support staff."/>
+            <column name="organization" comments="Name of the user's organization or practice."/>
+            <column name="valedictory" comments="Valedictory or honorary title of the user."/>
+            <column name="street" comments="Street address for the user. EMPTY for exports" exclude="true"/>
+            <column name="streetb" comments="Secondary street address for the user. EMPTY for exports" exclude="true"/>
+            <column name="city" comments="City of residence or practice for the user. EMPTY for exports" exclude="true"/>
+            <column name="state" comments="State or province of residence or practice for the user. EMPTY for exports" exclude="true"/>
+            <column name="zip" comments="ZIP code or postal code for the user. EMPTY for exports" exclude="true"/>
+            <column name="street2" comments="Alternative street address for the user. EMPTY for exports" exclude="true"/>
+            <column name="streetb2" comments="Alternative street address for the user. EMPTY for exports" exclude="true"/>
+            <column name="city2" comments="Alternative City of residence or practice for the user. EMPTY for exports" exclude="true"/>
+            <column name="state2" comments="Alternative State or province of residence or practice for the user. EMPTY for exports" exclude="true"/>
+            <column name="zip2" comments="Alternative ZIP code or postal code for the user. EMPTY for exports" exclude="true"/>
+            <column name="phone" comments="Phone number for the user. EMPTY for exports" exclude="true"/>
+            <column name="fax" comments="Fax number for the user. EMPTY for exports" exclude="true"/>
+            <column name="phonew1" comments="Work phone number for the user."/>
+            <column name="phonew2" comments="Alternative Work phone number for the user."/>
+            <column name="phonecell" comments="Cell phone number for the user. EMPTY for exports" exclude="true"/>
+            <column name="notes" comments="Additional notes or comments about the user. EMPTY for exports" exclude="true"/>
+            <column name="cal_ui" comments="UNUSED" exclude="true"/>
+            <column name="taxonomy" comments="Taxonomy code associated with the user."/>
+            <column name="calendar" comments="Indicates whether the user appears in the calendar (1 for appears, 0 for doesn't appear)."/>
+            <column name="abook_type" comments="Address book type for the user."/>
+            <column name="default_warehouse" comments="Default warehouse for the user."/>
+            <column name="irnpool" comments="IRN (Insurance Referral Network) pool for the user."/>
+            <column name="state_license_number" comments="State license number for the user."/>
+            <column name="weno_prov_id" comments="WENO Provider ID for the user. EMPTY for exports" exclude="true"/>
+            <column name="newcrop_user_role" comments="NewCrop user role for the user.EMPTY for exports" exclude="true"/>
+            <column name="cpoe" comments="Indicates whether the user has CPOE (Computerized Physician Order Entry) capabilities."/>
+            <column name="physician_type" comments="Type or designation of the physician (e.g., standard, specialist)."/>
+            <column name="main_menu_role" comments="Main menu role for the user. EMPTY for exports" exclude="true"/>
+            <column name="patient_menu_role" comments="Patient menu role for the user. EMPTY for exports" exclude="true"/>
+            <column name="portal_user" comments="Indicates if the user is a portal user (1 for portal user, 0 for non-portal user). EMPTY for exports" exclude="true"/>
+            <column name="supervisor_id" comments="Unique identifier of the user's supervisor. EMPTY for exports" exclude="true"/>
+            <column name="billing_facility" comments="Billing facility information for the user."/>
+            <column name="billing_facility_id" comments="Unique identifier for the user's billing facility.">
+                    <foreignKey table="facility" column="id" />
+            </column>
+        </table>
+
+        <table name="groups" comments="Represent groups of users in the system">
+            <column name="id" comments="Surrogate id of the record used as the primary incrementing key."/>
+            <column name="name" comments="The name of the group."/>
+            <column name="user" comments="The username of the user that belongs to this group.">
+                <foreignKey table="users" column="username" />
+            </column>
+        </table>
+
+        <table name="esign_signatures" comments="Holds the digital author signature records for encounters and individual charted forms in the system.">
+            <column name="id" comments="Surrogate id of the record used as the primary incrementing key."/>
+            <column name="tid" comments="Table row ID for signature. This is either the forms.id or the form_encounter.encounter id"/>
+            <column name="table" comments="Table name for the signature. This will either be 'forms' if it represents an individual form the provider is e-signing or 'form_encounter' if it represents the entire encounter record the provider is attesting to."/>
+            <column name="uid" comments="User id for the signing user.">
+                <foreignKey table="users" column="id" />
+            </column>
+            <column name="datetime" comments="Datetime of the signature action."/>
+            <column name="is_lock" comments="Indicates whether the record is signed, locked, or amended."/>
+            <column name="amendment" comments="Amendment text, if any."/>
+            <column name="hash" comments="Hash of signed data. For an individual form_[formdir] this will be the hash of the string concatenation of all of the column values for the main entry table. For an overall encounter this will be the string concatenation of all individual form records that are connected to the encounter."/>
+            <column name="signature_hash" comments="Hash of the signature itself hash(tid,table,uid,is_lock,hash,amendment). sha1= less than 50 chars; greater than 50chars=sha3-512 algorithm. "/>
+        </table>
+
+        <table name="pharmacies" comments="Contains records of pharmacies that a patient uses, or that providers interact with"></table>
+    </tables>
+</schemaMeta>

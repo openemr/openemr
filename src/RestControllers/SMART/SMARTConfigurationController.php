@@ -29,33 +29,6 @@ class SMARTConfigurationController
         $this->authServer = $authServer;
     }
 
-    /**
-     * Needed for OpenEMR\FHIR\SMART\Capability::CONTEXT_STYLE support
-     * TODO: adunsulag do we want to try and read from the scss files and generate some kind of styles...
-     * Reading the SMART FHIR spec author forums so few app writers are actually using this at all, it seems like we
-     * can just use defaults without getting into our skins... so that we can be spec compliant with ONC.
-     */
-    public function getStyles()
-    {
-        $styles = [
-            // copied from light theme background color
-            "color_background" => "#f8f9fa",
-            "color_error" => "#9e2d2d",
-            "color_highlight" => "#69b5ce",
-            "color_modal_backdrop" => "",
-            "color_success" => "#498e49",
-            // set text to black
-            "color_text" => "#000",
-            "dim_border_radius" => "6px",
-            "dim_font_size" => "13px",
-            "dim_spacing_size" => "20px",
-            // copied from our light theme font families
-            "font_family_body" => '"Lato","Helvetica",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"',
-            "font_family_heading" => '"Lato","Helvetica",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"'
-        ];
-        return $styles;
-    }
-
     public function getConfig(): array
     {
         $authServer = $this->authServer;

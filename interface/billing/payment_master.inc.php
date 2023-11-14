@@ -269,7 +269,7 @@ if (($screen == 'new_payment' && $payment_id * 1 == 0) || ($screen == 'edit_paym
                 <div class="col-sm-12 text-left position-override">
                     <div class="btn-group" role="group">
                         <button onClick="return SavePayment();" class="btn btn-primary btn-save"><?php echo xlt('Save Changes'); ?></button>
-                        <button class="btn btn-primary btn-save" onClick="OpenEOBEntry();"><?php echo xlt('Allocate'); ?></button>
+                        <button class="btn btn-primary btn-save" onClick="return OpenEOBEntry();"><?php echo xlt('Allocate'); ?></button>
                         <button onclick="ResetForm(); return false;" class="btn btn-secondary btn-cancel"><?php echo xlt('Cancel Changes'); ?></button>
                         <br />
                     </div>

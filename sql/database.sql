@@ -299,7 +299,7 @@ CREATE TABLE `categories` (
 -- Inserting data for table `categories`
 --
 
-INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 59, 'patients|docs', '');
+INSERT INTO `categories` VALUES (1, 'Categories', '', 0, 0, 61, 'patients|docs', '');
 INSERT INTO `categories` VALUES (2, 'Lab Report', '', 1, 1, 2, 'patients|docs', '');
 INSERT INTO `categories` VALUES (3, 'Medical Record', '', 1, 3, 4, 'patients|docs', '');
 INSERT INTO `categories` VALUES (4, 'Patient Information', '', 1, 5, 10, 'patients|demo', '');
@@ -329,7 +329,7 @@ INSERT INTO `categories` VALUES (27, 'Onsite Portal', '', 1, 51, 56, 'patients|d
 INSERT INTO `categories` VALUES (28, 'Patient', '', 27, 52, 53, 'patients|docs','');
 INSERT INTO `categories` VALUES (29, 'Reviewed', '', 27, 54, 55, 'patients|docs','LOINC:LP173394-0');
 INSERT INTO `categories` VALUES (30, 'FHIR Export Document', '', 1, 57, 58, 'admin|super','LOINC:LP173421-1');
-
+INSERT INTO `categories` VALUES (31, 'Invoices', '', 1, 59, 60, 'encounters|coding', '');
 -- --------------------------------------------------------
 
 --
@@ -346,7 +346,7 @@ CREATE TABLE `categories_seq` (
 -- Inserting data for table `categories_seq`
 --
 
-INSERT INTO `categories_seq` VALUES (29);
+INSERT INTO `categories_seq` VALUES (31);
 
 -- --------------------------------------------------------
 
@@ -1494,6 +1494,18 @@ CREATE TABLE `drugs` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `edi_sequences`
+--
+
+DROP TABLE IF EXISTS `edi_sequences`;
+CREATE TABLE `edi_sequences` (
+  `id` int(9) unsigned NOT NULL default '0'
+) ENGINE=InnoDB;
+
+INSERT INTO `edi_sequences` VALUES (0);
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `eligibility_verification`
 --
 
@@ -1794,7 +1806,27 @@ CREATE TABLE  `facility_user_ids` (
   KEY `uuid` (`uuid`)
 ) ENGINE=InnoDB  AUTO_INCREMENT=1;
 
--- --------------------------------------------------------
+-----------------------------------------------------------
+
+--
+-- Table structure for table `fee_schedule`
+--
+
+DROP TABLE IF EXISTS `fee_schedule`;
+CREATE TABLE `fee_schedule` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT,
+    `insurance_company_id` INT(11) NOT NULL DEFAULT 0,
+    `plan` VARCHAR(20) DEFAULT '',
+    `code` VARCHAR(10) DEFAULT '',
+    `modifier` VARCHAR(2) DEFAULT '',
+    `type` VARCHAR(20) DEFAULT '',
+    `fee` decimal(12,2) DEFAULT NULL,
+    `effective_date` date DEFAULT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `ins_plan_code_mod_type_date` (`insurance_company_id`, `plan`, `code`, `modifier`, `type`, `effective_date`)
+) ENGINE=InnoDb AUTO_INCREMENT=1;
+
+-----------------------------------------------------------
 
 --
 -- Table structure for table `fee_sheet_options`
@@ -3593,16 +3625,18 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'language', '5', 'Language', 1, 26, 1, 0, 0, 'language', 1, 1, '', '', 'Preferred Language', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'ethnicity', '5', 'Ethnicity', 2, 33, 1, 0, 0, 'ethnicity', 1, 1, '', '[\"EP\"]', 'Ethnicity', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'race', '5', 'Race', 3, 33, 1, 0, 0, 'race', 1, 1, '', '[\"EP\"]', 'Multi Select race and or race category that describes patient race', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'financial_review', '5', 'Financial Review Date', 4, 2, 1, 10, 20, '', 1, 1, '', 'D', 'Financial Review Date', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'family_size', '5', 'Family Size', 4, 2, 1, 20, 63, '', 1, 1, '', '', 'Family Size', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'monthly_income', '5', 'Monthly Income', 5, 2, 1, 20, 63, '', 1, 1, '', '', 'Monthly Income', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'homeless', '5', 'Homeless, etc.', 6, 2, 1, 20, 63, '', 1, 1, '', '', 'Homeless or similar?', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'interpretter', '5', 'Interpreter', 7, 2, 1, 20, 63, '', 1, 1, '', '', 'Interpreter needed?', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'migrantseasonal', '5', 'Migrant/Seasonal', 8, 2, 1, 20, 63, '', 1, 1, '', '', 'Migrant or seasonal worker?', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'contrastart', '5', 'Contraceptives Start',9,4,0,10,10,'',1,1,'','','Date contraceptive services initially provided', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'referral_source', '5', 'Referral Source',10, 26, 1, 0, 0, 'refsource', 1, 1, '', '[\"EP\"]', 'How did they hear about us', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'vfc', '5', 'VFC', 12, 1, 1, 20, 0, 'eligibility', 1, 1, '', '', 'Eligibility status for Vaccine for Children supplied vaccine', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'religion', '5', 'Religion', 13, 1, 1, 0, 0, 'religious_affiliation', 1, 1, '', '[\"EP\"]', 'Patient Religion', 0);
+INSERT INTO `layout_options` (`form_id`, `field_id`, `group_id`, `title`, `seq`, `data_type`, `uor`, `fld_length`, `max_length`, `list_id`, `titlecols`, `datacols`, `default_value`, `edit_options`, `description`, `fld_rows`, `list_backup_id`, `source`, `conditions`, `validation`, `codes`) VALUES ('DEM','nationality_country','5','Nationality',4,43,1,0,0,'nationality_with_country',1,1,'','','Patient Nationality. Type to search.',0,'','F','','','');
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'financial_review', '5', 'Financial Review Date', 5, 2, 1, 10, 20, '', 1, 1, '', 'D', 'Financial Review Date', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'family_size', '5', 'Family Size', 6, 2, 1, 20, 63, '', 1, 1, '', '', 'Family Size', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'monthly_income', '5', 'Monthly Income', 7, 2, 1, 20, 63, '', 1, 1, '', '', 'Monthly Income', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'homeless', '5', 'Homeless, etc.', 8, 2, 1, 20, 63, '', 1, 1, '', '', 'Homeless or similar?', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'interpretter', '5', 'Interpreter', 9, 2, 1, 20, 63, '', 1, 1, '', '', 'Interpreter needed?', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'migrantseasonal', '5', 'Migrant/Seasonal', 10, 2, 1, 20, 63, '', 1, 1, '', '', 'Migrant or seasonal worker?', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'contrastart', '5', 'Contraceptives Start',11,4,0,10,10,'',1,1,'','','Date contraceptive services initially provided', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'referral_source', '5', 'Referral Source',12, 26, 1, 0, 0, 'refsource', 1, 1, '', '[\"EP\"]', 'How did they hear about us', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'vfc', '5', 'VFC', 13, 1, 1, 20, 0, 'eligibility', 1, 1, '', '', 'Eligibility status for Vaccine for Children supplied vaccine', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'religion', '5', 'Religion', 14, 1, 1, 0, 0, 'religious_affiliation', 1, 1, '', '[\"EP\"]', 'Patient Religion', 0);
+--
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'deceased_date', '6', 'Date Deceased', 1, 4, 1, 20, 20, '', 1, 3, '', 'D', 'If person is deceased, then enter date of death.', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'deceased_reason', '6', 'Reason Deceased', 2, 2, 1, 30, 255, '', 1, 3, '', '', 'Reason for Death', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'usertext1', '6', 'User Defined Text 1', 3, 2, 0, 10, 63, '', 1, 1, '', '', 'User Defined', 0);
@@ -7524,6 +7558,7 @@ CREATE TABLE `patient_data` (
   `created_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that first created this record',
   `updated_by` BIGINT(20) DEFAULT NULL COMMENT 'users.id the user that last modified this record',
   `preferred_name` TINYTEXT,
+  `nationality_country` TINYTEXT,
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `id` (`id`)
@@ -9090,6 +9125,12 @@ CREATE TABLE `x12_partners` (
   `x12_sftp_port` varchar(255) DEFAULT NULL,
   `x12_sftp_local_dir` varchar(255) DEFAULT NULL,
   `x12_sftp_remote_dir` varchar(255) DEFAULT NULL,
+  `x12_token_endpoint` tinytext,
+  `x12_eligibility_endpoint` tinytext,
+  `x12_claim_status_endpoint` tinytext,
+  `x12_attachment_endpoint` tinytext,
+  `x12_client_id` tinytext,
+  `x12_client_secret` tinytext,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB;
 
@@ -13344,3 +13385,255 @@ CREATE TABLE recent_patients (
     patients TEXT,
     PRIMARY KEY (user_id)
 ) ENGINE=InnoDB;
+
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`, `subtype`, `edit_options`, `timestamp`) VALUES ('lists','nationality_with_country','Nationality',1,1,0,'',NULL,'',0,0,1,'',1,'2023-09-24 18:21:13');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'AF', 'Afghan', '10', '0', '0', '', 'Afghanistan', 'AFG:004');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'AX', 'Ålandish', '20', '0', '0', '', 'Åland Islands', 'ALA:248');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'AL', 'Albanian', '30', '0', '0', '', 'Albania', 'ALB:008');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'DZ', 'Algerian', '40', '0', '0', '', 'Algeria', 'DZA:012');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'US', 'American', '50', '0', '0', '', 'United States', 'USA:840');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'UM', 'American Islander', '60', '0', '0', '', 'United States Minor Outlying Islands', 'UMI:581');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'MP', 'American Mariana Islands', '70', '0', '0', '', 'Northern Mariana Islands', 'MNP:580');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'AS', 'American Samoan', '80', '0', '0', '', 'American Samoa', 'ASM:016');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'AD', 'Andorran', '90', '0', '0', '', 'Andorra', 'AND:020');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'AO', 'Angolan', '100', '0', '0', '', 'Angola', 'AGO:024');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'AI', 'Anguillian', '110', '0', '0', '', 'Anguilla', 'AIA:660');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'AQ', 'Antarctican', '120', '0', '0', '', 'Antarctica', 'ATA:010');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'AG', 'Antiguan, Barbudan', '130', '0', '0', '', 'Antigua and Barbuda', 'ATG:028');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'AR', 'Argentine', '140', '0', '0', '', 'Argentina', 'ARG:032');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'AM', 'Armenian', '150', '0', '0', '', 'Armenia', 'ARM:051');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'AW', 'Aruban', '160', '0', '0', '', 'Aruba', 'ABW:533');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'AU', 'Australian', '170', '0', '0', '', 'Australia', 'AUS:036');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'AT', 'Austrian', '180', '0', '0', '', 'Austria', 'AUT:040');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'AZ', 'Azerbaijani', '190', '0', '0', '', 'Azerbaijan', 'AZE:031');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'BS', 'Bahamian', '200', '0', '0', '', 'Bahamas', 'BHS:044');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'BH', 'Bahraini', '210', '0', '0', '', 'Bahrain', 'BHR:048');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'BD', 'Bangladeshi', '220', '0', '0', '', 'Bangladesh', 'BGD:050');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'BB', 'Barbadian', '230', '0', '0', '', 'Barbados', 'BRB:052');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'BY', 'Belarusian', '240', '0', '0', '', 'Belarus', 'BLR:112');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'BE', 'Belgian', '250', '0', '0', '', 'Belgium', 'BEL:056');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'BZ', 'Belizean', '260', '0', '0', '', 'Belize', 'BLZ:084');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'BJ', 'Beninese', '270', '0', '0', '', 'Benin', 'BEN:204');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'BM', 'Bermudian', '280', '0', '0', '', 'Bermuda', 'BMU:060');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'BT', 'Bhutanese', '290', '0', '0', '', 'Bhutan', 'BTN:064');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'BO', 'Bolivian', '300', '0', '0', '', 'Bolivia', 'BOL:068');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'BA', 'Bosnian, Herzegovinian', '310', '0', '0', '', 'Bosnia and Herzegovina', 'BIH:070');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'BR', 'Brazilian', '320', '0', '0', '', 'Brazil', 'BRA:076');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'GB', 'British', '330', '0', '0', '', 'United Kingdom', 'GBR:826');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'IO', 'British Indian', '1080', '0', '0', '', 'British Indian Ocean Territory', 'IOT:086');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'BN', 'Bruneian', '340', '0', '0', '', 'Brunei', 'BRN:096');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'BG', 'Bulgarian', '350', '0', '0', '', 'Bulgaria', 'BGR:100');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'BF', 'Burkinabe', '360', '0', '0', '', 'Burkina Faso', 'BFA:854');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'MM', 'Burmese', '370', '0', '0', '', 'Myanmar', 'MMR:104');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'BI', 'Burundian', '380', '0', '0', '', 'Burundi', 'BDI:108');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'KH', 'Cambodian', '390', '0', '0', '', 'Cambodia', 'KHM:116');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'CM', 'Cameroonian', '400', '0', '0', '', 'Cameroon', 'CMR:120');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'CA', 'Canadian', '410', '0', '0', '', 'Canada', 'CAN:124');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'CV', 'Cape Verdian', '420', '0', '0', '', 'Cape Verde', 'CPV:132');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'KY', 'Caymanian', '430', '0', '0', '', 'Cayman Islands', 'CYM:136');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'CF', 'Central African', '440', '0', '0', '', 'Central African Republic', 'CAF:140');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'TD', 'Chadian', '450', '0', '0', '', 'Chad', 'TCD:148');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'GG', 'Channel Islander Guernsey', '470', '0', '0', '', 'Guernsey', 'GGY:831');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'JE', 'Channel Islander Jersey', '460', '0', '0', '', 'Jersey', 'JEY:832');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'CL', 'Chilean', '480', '0', '0', '', 'Chile', 'CHL:152');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'CN', 'Chinese', '490', '0', '0', '', 'China', 'CHN:156');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'CX', 'Christmas Islander', '500', '0', '0', '', 'Christmas Island', 'CXR:162');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'CC', 'Cocos Islander', '510', '0', '0', '', 'Cocos (Keeling) Islands', 'CCK:166');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'CO', 'Colombian', '520', '0', '0', '', 'Colombia', 'COL:170');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'KM', 'Comoran', '530', '0', '0', '', 'Comoros', 'COM:174');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'CG', 'Congolese', '540', '0', '0', '', 'Republic of the Congo', 'COG:178');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'CK', 'Cook Islander', '550', '0', '0', '', 'Cook Islands', 'COK:184');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'CR', 'Costa Rican', '560', '0', '0', '', 'Costa Rica', 'CRI:188');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'HR', 'Croatian', '570', '0', '0', '', 'Croatia', 'HRV:191');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'CU', 'Cuban', '580', '0', '0', '', 'Cuba', 'CUB:192');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'CW', 'Curaçaoan', '590', '0', '0', '', 'Curaçao', 'CUW:531');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'CY', 'Cypriot', '600', '0', '0', '', 'Cyprus', 'CYP:196');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'CZ', 'Czech', '610', '0', '0', '', 'Czechia', 'CZE:203');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'DK', 'Danish', '620', '0', '0', '', 'Denmark', 'DNK:208');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'DJ', 'Djibouti', '630', '0', '0', '', 'Djibouti', 'DJI:262');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'DO', 'Dominican', '640', '0', '0', '', 'Dominican Republic', 'DOM:214');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'NL', 'Dutch', '660', '0', '0', '', 'Netherlands', 'NLD:528');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'BQ', 'Dutch Caribbean ', '650', '0', '0', '', 'Caribbean Netherlands', 'BES:535');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'TL', 'East Timorese', '670', '0', '0', '', 'Timor-Leste', 'TLS:626');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'EC', 'Ecuadorean', '680', '0', '0', '', 'Ecuador', 'ECU:218');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'EG', 'Egyptian', '690', '0', '0', '', 'Egypt', 'EGY:818');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'AE', 'Emirati', '700', '0', '0', '', 'United Arab Emirates', 'ARE:784');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'English', 'English', '710', '', '', '', 'England', '');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'GQ', 'Equatorial Guinean', '720', '0', '0', '', 'Equatorial Guinea', 'GNQ:226');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'ER', 'Eritrean', '730', '0', '0', '', 'Eritrea', 'ERI:232');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'EE', 'Estonian', '740', '0', '0', '', 'Estonia', 'EST:233');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'ET', 'Ethiopian', '750', '0', '0', '', 'Ethiopia', 'ETH:231');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'FK', 'Falkland Islander', '760', '0', '0', '', 'Falkland Islands', 'FLK:238');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'FO', 'Faroese', '770', '0', '0', '', 'Faroe Islands', 'FRO:234');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'FJ', 'Fijian', '780', '0', '0', '', 'Fiji', 'FJI:242');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'PH', 'Filipino', '790', '0', '0', '', 'Philippines', 'PHL:608');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'FI', 'Finnish', '800', '0', '0', '', 'Finland', 'FIN:246');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'FR', 'French', '820', '0', '0', '', 'France', 'FRA:250');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'PF', 'French Polynesian', '830', '0', '0', '', 'French Polynesia', 'PYF:258');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'TF', 'French Southern ', '810', '0', '0', '', 'French Southern and Antarctic Lands', 'ATF:260');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'GA', 'Gabonese', '840', '0', '0', '', 'Gabon', 'GAB:266');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'GM', 'Gambian', '850', '0', '0', '', 'Gambia', 'GMB:270');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'GE', 'Georgian', '860', '0', '0', '', 'Georgia', 'GEO:268');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'DE', 'German', '870', '0', '0', '', 'Germany', 'DEU:276');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'GH', 'Ghanaian', '880', '0', '0', '', 'Ghana', 'GHA:288');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'GI', 'Gibraltar', '890', '0', '0', '', 'Gibraltar', 'GIB:292');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'GR', 'Greek', '900', '0', '0', '', 'Greece', 'GRC:300');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'GL', 'Greenlandic', '910', '0', '0', '', 'Greenland', 'GRL:304');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'GD', 'Grenadian', '920', '0', '0', '', 'Grenada', 'GRD:308');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'GP', 'Guadeloupian', '930', '0', '0', '', 'Guadeloupe', 'GLP:312');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'GU', 'Guamanian', '940', '0', '0', '', 'Guam', 'GUM:316');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'GT', 'Guatemalan', '950', '0', '0', '', 'Guatemala', 'GTM:320');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'GF', 'Guianan', '960', '0', '0', '', 'French Guiana', 'GUF:254');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'GW', 'Guinea-Bissauan', '970', '0', '0', '', 'Guinea-Bissau', 'GNB:624');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'GN', 'Guinean', '980', '0', '0', '', 'Guinea', 'GIN:324');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'GY', 'Guyanese', '990', '0', '0', '', 'Guyana', 'GUY:328');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'HT', 'Haitian', '1000', '0', '0', '', 'Haiti', 'HTI:332');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'HM', 'Heard and McDonald Islander', '1010', '0', '0', '', 'Heard Island and McDonald Islands', 'HMD:334');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'HN', 'Honduran', '1020', '0', '0', '', 'Honduras', 'HND:340');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'HK', 'Hong Konger', '1030', '0', '0', '', 'Hong Kong', 'HKG:344');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'HU', 'Hungarian', '1040', '0', '0', '', 'Hungary', 'HUN:348');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'KI', 'I-Kiribati', '1050', '0', '0', '', 'Kiribati', 'KIR:296');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'IS', 'Icelander', '1060', '0', '0', '', 'Iceland', 'ISL:352');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'IN', 'Indian', '1070', '0', '0', '', 'India', 'IND:356');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'ID', 'Indonesian', '1090', '0', '0', '', 'Indonesia', 'IDN:360');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'IR', 'Iranian', '1100', '0', '0', '', 'Iran', 'IRN:364');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'IQ', 'Iraqi', '1110', '0', '0', '', 'Iraq', 'IRQ:368');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'IE', 'Irish', '1120', '0', '0', '', 'Ireland', 'IRL:372');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'IL', 'Israeli', '1130', '0', '0', '', 'Israel', 'ISR:376');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'IT', 'Italian', '1140', '0', '0', '', 'Italy', 'ITA:380');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'CI', 'Ivorian', '1150', '0', '0', '', 'Ivory Coast', 'CIV:384');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'JM', 'Jamaican', '1160', '0', '0', '', 'Jamaica', 'JAM:388');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'JP', 'Japanese', '1170', '0', '0', '', 'Japan', 'JPN:392');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'JO', 'Jordanian', '1180', '0', '0', '', 'Jordan', 'JOR:400');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'KZ', 'Kazakhstani', '1190', '0', '0', '', 'Kazakhstan', 'KAZ:398');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'KE', 'Kenyan', '1200', '0', '0', '', 'Kenya', 'KEN:404');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'KG', 'Kirghiz', '1210', '0', '0', '', 'Kyrgyzstan', 'KGZ:417');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'KN', 'Kittitian or Nevisian', '1220', '0', '0', '', 'Saint Kitts and Nevis', 'KNA:659');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'XK', 'Kosovar', '1230', '0', '0', '', 'Kosovo', 'UNK:');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'KW', 'Kuwaiti', '1240', '0', '0', '', 'Kuwait', 'KWT:414');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'LA', 'Laotian', '1250', '0', '0', '', 'Laos', 'LAO:418');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'LV', 'Latvian', '1260', '0', '0', '', 'Latvia', 'LVA:428');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'LB', 'Lebanese', '1270', '0', '0', '', 'Lebanon', 'LBN:422');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'LR', 'Liberian', '1280', '0', '0', '', 'Liberia', 'LBR:430');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'LY', 'Libyan', '1290', '0', '0', '', 'Libya', 'LBY:434');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'LI', 'Liechtensteiner', '1300', '0', '0', '', 'Liechtenstein', 'LIE:438');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'LT', 'Lithuanian', '1310', '0', '0', '', 'Lithuania', 'LTU:440');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'LU', 'Luxembourger', '1320', '0', '0', '', 'Luxembourg', 'LUX:442');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'MO', 'Macanese', '1330', '0', '0', '', 'Macau', 'MAC:446');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'MK', 'Macedonian', '1340', '0', '0', '', 'North Macedonia', 'MKD:807');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'YT', 'Mahoran', '1350', '0', '0', '', 'Mayotte', 'MYT:175');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'MG', 'Malagasy', '1360', '0', '0', '', 'Madagascar', 'MDG:450');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'MW', 'Malawian', '1370', '0', '0', '', 'Malawi', 'MWI:454');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'MY', 'Malaysian', '1380', '0', '0', '', 'Malaysia', 'MYS:458');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'MV', 'Maldivan', '1390', '0', '0', '', 'Maldives', 'MDV:462');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'ML', 'Malian', '1400', '0', '0', '', 'Mali', 'MLI:466');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'MT', 'Maltese', '1410', '0', '0', '', 'Malta', 'MLT:470');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'IM', 'Manx', '1420', '0', '0', '', 'Isle of Man', 'IMN:833');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'MH', 'Marshallese', '1430', '0', '0', '', 'Marshall Islands', 'MHL:584');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'MQ', 'Martinican', '1440', '0', '0', '', 'Martinique', 'MTQ:474');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'MR', 'Mauritanian', '1450', '0', '0', '', 'Mauritania', 'MRT:478');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'MU', 'Mauritian', '1460', '0', '0', '', 'Mauritius', 'MUS:480');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'MX', 'Mexican', '1470', '0', '0', '', 'Mexico', 'MEX:484');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'FM', 'Micronesian', '1480', '0', '0', '', 'Micronesia', 'FSM:583');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'MD', 'Moldovan', '1490', '0', '0', '', 'Moldova', 'MDA:498');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'MC', 'Monegasque', '1500', '0', '0', '', 'Monaco', 'MCO:492');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'MN', 'Mongolian', '1510', '0', '0', '', 'Mongolia', 'MNG:496');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'ME', 'Montenegrin', '1520', '0', '0', '', 'Montenegro', 'MNE:499');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'MS', 'Montserratian', '1530', '0', '0', '', 'Montserrat', 'MSR:500');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'MA', 'Moroccan', '1540', '0', '0', '', 'Morocco', 'MAR:504');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'LS', 'Mosotho', '1550', '0', '0', '', 'Lesotho', 'LSO:426');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'BW', 'Motswana', '1560', '0', '0', '', 'Botswana', 'BWA:072');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'MZ', 'Mozambican', '1570', '0', '0', '', 'Mozambique', 'MOZ:508');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'NA', 'Namibian', '1580', '0', '0', '', 'Namibia', 'NAM:516');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'NR', 'Nauruan', '1590', '0', '0', '', 'Nauru', 'NRU:520');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'NP', 'Nepalese', '1600', '0', '0', '', 'Nepal', 'NPL:524');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'NC', 'New Caledonian', '1610', '0', '0', '', 'New Caledonia', 'NCL:540');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'NZ', 'New Zealander', '1620', '0', '0', '', 'New Zealand', 'NZL:554');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'VU', 'Ni-Vanuatu', '1630', '0', '0', '', 'Vanuatu', 'VUT:548');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'NI', 'Nicaraguan', '1640', '0', '0', '', 'Nicaragua', 'NIC:558');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'NG', 'Nigerian', '1650', '0', '0', '', 'Nigeria', 'NGA:566');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'NE', 'Nigerien', '1660', '0', '0', '', 'Niger', 'NER:562');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'NU', 'Niuean', '1670', '0', '0', '', 'Niue', 'NIU:570');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'NF', 'Norfolk Islander', '1680', '0', '0', '', 'Norfolk Island', 'NFK:574');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'KP', 'North Korean', '1690', '0', '0', '', 'North Korea', 'PRK:408');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'NO', 'Norwegian', '1710', '0', '0', '', 'Norway', 'NOR:578');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'BV', 'Norwegian Bouvet', '1720', '0', '0', '', 'Bouvet Island', 'BVT:074');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'SJ', 'Norwegian Svalbard and Jan Mayen', '1700', '0', '0', '', 'Svalbard and Jan Mayen', 'SJM:744');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'OM', 'Omani', '1730', '0', '0', '', 'Oman', 'OMN:512');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'PK', 'Pakistani', '1740', '0', '0', '', 'Pakistan', 'PAK:586');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'PW', 'Palauan', '1750', '0', '0', '', 'Palau', 'PLW:585');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'PS', 'Palestinian', '1760', '0', '0', '', 'Palestine', 'PSE:275');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'PA', 'Panamanian', '1770', '0', '0', '', 'Panama', 'PAN:591');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'PG', 'Papua New Guinean', '1780', '0', '0', '', 'Papua New Guinea', 'PNG:598');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'PY', 'Paraguayan', '1790', '0', '0', '', 'Paraguay', 'PRY:600');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'PE', 'Peruvian', '1800', '0', '0', '', 'Peru', 'PER:604');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'PN', 'Pitcairn Islander', '1810', '0', '0', '', 'Pitcairn Islands', 'PCN:612');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'PL', 'Polish', '1820', '0', '0', '', 'Poland', 'POL:616');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'PT', 'Portuguese', '1830', '0', '0', '', 'Portugal', 'PRT:620');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'PR', 'Puerto Rican', '1840', '0', '0', '', 'Puerto Rico', 'PRI:630');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'QA', 'Qatari', '1850', '0', '0', '', 'Qatar', 'QAT:634');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'RE', 'Réunionese', '1860', '0', '0', '', 'Réunion', 'REU:638');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'RO', 'Romanian', '1870', '0', '0', '', 'Romania', 'ROU:642');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'RU', 'Russian', '1880', '0', '0', '', 'Russia', 'RUS:643');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'RW', 'Rwandan', '1890', '0', '0', '', 'Rwanda', 'RWA:646');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'EH', 'Sahrawi', '1900', '0', '0', '', 'Western Sahara', 'ESH:732');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'BL', 'Saint Barthélemy Islander', '1910', '0', '0', '', 'Saint Barthélemy', 'BLM:652');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'SH', 'Saint Helenian', '1920', '0', '0', '', 'Saint Helena, Ascension and Tristan da Cunha', 'SHN:654');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'LC', 'Saint Lucian', '1930', '0', '0', '', 'Saint Lucia', 'LCA:662');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'MF', 'Saint Martin Islander', '1940', '0', '0', '', 'Saint Martin', 'MAF:663');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'VC', 'Saint Vincentian', '1950', '0', '0', '', 'Saint Vincent and the Grenadines', 'VCT:670');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'PM', 'Saint-Pierrais, Miquelonnais', '1960', '0', '0', '', 'Saint Pierre and Miquelon', 'SPM:666');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'SV', 'Salvadoran', '1970', '0', '0', '', 'El Salvador', 'SLV:222');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'SM', 'Sammarinese', '1980', '0', '0', '', 'San Marino', 'SMR:674');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'WS', 'Samoan', '1990', '0', '0', '', 'Samoa', 'WSM:882');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'ST', 'Sao Tomean', '2000', '0', '0', '', 'São Tomé and Príncipe', 'STP:678');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'SA', 'Saudi Arabian', '2010', '0', '0', '', 'Saudi Arabia', 'SAU:682');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'Scottish', 'Scottish', '2020', '0', '0', '', 'Scotland', '');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'SN', 'Senegalese', '2030', '0', '0', '', 'Senegal', 'SEN:686');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'RS', 'Serbian', '2040', '0', '0', '', 'Serbia', 'SRB:688');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'SC', 'Seychellois', '2050', '0', '0', '', 'Seychelles', 'SYC:690');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'SL', 'Sierra Leonean', '2060', '0', '0', '', 'Sierra Leone', 'SLE:694');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'SG', 'Singaporean', '2070', '0', '0', '', 'Singapore', 'SGP:702');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'SK', 'Slovak', '2080', '0', '0', '', 'Slovakia', 'SVK:703');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'SI', 'Slovene', '2090', '0', '0', '', 'Slovenia', 'SVN:705');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'SB', 'Solomon Islander', '2100', '0', '0', '', 'Solomon Islands', 'SLB:090');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'SO', 'Somali', '2110', '0', '0', '', 'Somalia', 'SOM:706');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'ZA', 'South African', '2120', '0', '0', '', 'South Africa', 'ZAF:710');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'GS', 'South Georgian South Sandwich Islander', '2130', '0', '0', '', 'South Georgia', 'SGS:239');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'KR', 'South Korean', '2140', '0', '0', '', 'South Korea', 'KOR:410');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'SS', 'South Sudanese', '2150', '0', '0', '', 'South Sudan', 'SSD:728');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'ES', 'Spanish', '2160', '0', '0', '', 'Spain', 'ESP:724');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'LK', 'Sri Lankan', '2170', '0', '0', '', 'Sri Lanka', 'LKA:144');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'SX', 'St. Maartener', '2180', '0', '0', '', 'Sint Maarten', 'SXM:534');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'SD', 'Sudanese', '2190', '0', '0', '', 'Sudan', 'SDN:729');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'SR', 'Surinamer', '2200', '0', '0', '', 'Suriname', 'SUR:740');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'SZ', 'Swazi', '2210', '0', '0', '', 'Eswatini', 'SWZ:748');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'SE', 'Swedish', '2220', '0', '0', '', 'Sweden', 'SWE:752');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'CH', 'Swiss', '2230', '0', '0', '', 'Switzerland', 'CHE:756');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'SY', 'Syrian', '2240', '0', '0', '', 'Syria', 'SYR:760');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'TJ', 'Tadzhik', '2250', '0', '0', '', 'Tajikistan', 'TJK:762');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'TW', 'Taiwanese', '2260', '0', '0', '', 'Taiwan', 'TWN:158');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'TZ', 'Tanzanian', '2270', '0', '0', '', 'Tanzania', 'TZA:834');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'TH', 'Thai', '2280', '0', '0', '', 'Thailand', 'THA:764');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'TG', 'Togolese', '2290', '0', '0', '', 'Togo', 'TGO:768');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'TK', 'Tokelauan', '2300', '0', '0', '', 'Tokelau', 'TKL:772');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'TO', 'Tongan', '2310', '0', '0', '', 'Tonga', 'TON:776');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'TT', 'Trinidadian', '2320', '0', '0', '', 'Trinidad and Tobago', 'TTO:780');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'TN', 'Tunisian', '2330', '0', '0', '', 'Tunisia', 'TUN:788');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'TR', 'Turkish', '2340', '0', '0', '', 'Turkey', 'TUR:792');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'TM', 'Turkmen', '2350', '0', '0', '', 'Turkmenistan', 'TKM:795');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'TC', 'Turks and Caicos Islander', '2360', '0', '0', '', 'Turks and Caicos Islands', 'TCA:796');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'TV', 'Tuvaluan', '2370', '0', '0', '', 'Tuvalu', 'TUV:798');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'UG', 'Ugandan', '2380', '0', '0', '', 'Uganda', 'UGA:800');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'UA', 'Ukrainian', '2390', '0', '0', '', 'Ukraine', 'UKR:804');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'UY', 'Uruguayan', '2400', '0', '0', '', 'Uruguay', 'URY:858');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'UZ', 'Uzbekistani', '2410', '0', '0', '', 'Uzbekistan', 'UZB:860');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'VA', 'Vatican', '2420', '0', '0', '', 'Vatican City', 'VAT:336');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'VE', 'Venezuelan', '2430', '0', '0', '', 'Venezuela', 'VEN:862');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'VN', 'Vietnamese', '2440', '0', '0', '', 'Vietnam', 'VNM:704');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'VG', 'Virgin Islander British', '2450', '0', '0', '', 'British Virgin Islands', 'VGB:092');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'VI', 'Virgin Islander US', '2460', '0', '0', '', 'United States Virgin Islands', 'VIR:850');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'WF', 'Wallis and Futuna Islander', '2470', '0', '0', '', 'Wallis and Futuna', 'WLF:876');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'YE', 'Yemeni', '2480', '0', '0', '', 'Yemen', 'YEM:887');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'ZM', 'Zambian', '2490', '0', '0', '', 'Zambia', 'ZMB:894');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'ZW', 'Zimbabwean', '2500', '0', '0', '', 'Zimbabwe', 'ZWE:716');
