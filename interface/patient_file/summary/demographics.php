@@ -1067,7 +1067,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $id = 'allergy_ps_expand';
                         $viewArgs = [
                             'title' => xl('Allergies'),
-                            'card_container_class_list' => ['flex-fill', 'mx-1'],
+                            'card_container_class_list' => ['flex-fill', 'mx-1', 'card'],
                             'id' => $id,
                             'forceAlwaysOpen' => false,
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
@@ -1091,7 +1091,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $id = 'medical_problem_ps_expand';
                         $viewArgs = [
                             'title' => xl('Medical Problems'),
-                            'card_container_class_list' => ['flex-fill', 'mx-1'],
+                            'card_container_class_list' => ['flex-fill', 'mx-1', 'card'],
                             'id' => $id,
                             'forceAlwaysOpen' => false,
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
@@ -1113,7 +1113,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $id = 'medication_ps_expand';
                         $viewArgs = [
                             'title' => xl('Medications'),
-                            'card_container_class_list' => ['flex-fill', 'mx-1'],
+                            'card_container_class_list' => ['flex-fill', 'mx-1', 'card'],
                             'id' => $id,
                             'forceAlwaysOpen' => false,
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
@@ -1159,7 +1159,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $id = "prescriptions_ps_expand";
                         $viewArgs = [
                             'title' => xl("Prescriptions"),
-                            'card_container_class_list' => ['flex-fill', 'mx-1'],
+                            'card_container_class_list' => ['flex-fill', 'mx-1', 'card'],
                             'id' => $id,
                             'forceAlwaysOpen' => false,
                             'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
