@@ -441,9 +441,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     break;
                 case "Lab results":
                     $sqlstmt .= " left outer join procedure_order as po on po.patient_id = pd.pid
-                        left outer join procedure_order_code as pc on pc.procedure_order_id = po.procedure_order_id
                         left outer join procedure_report as pp on pp.procedure_order_id = po.procedure_order_id
-                        left outer join procedure_type as pt on pt.procedure_code = pc.procedure_code and pt.lab_id = po.lab_id
                         left outer join procedure_result as pr on pr.procedure_report_id = pp.procedure_report_id";
                     break;
                 case "Insurance Companies":
