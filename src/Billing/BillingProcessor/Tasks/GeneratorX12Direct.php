@@ -107,7 +107,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
                 }
             }
 
-            $batch = new BillingClaimBatch();
+            $batch = new BillingClaimBatch('.txt', $context);
             $filename = $batch->getBatFilename();
             $filename = str_replace('batch', 'batch-p' . $row['id'], $filename);
             $batch->setBatFilename($filename);

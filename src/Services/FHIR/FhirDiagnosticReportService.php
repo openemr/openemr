@@ -81,7 +81,7 @@ class FhirDiagnosticReportService extends FhirServiceBase implements IPatientCom
                     'LAB'
                 );
                 $fhirSearchResult = $service->getAll($fhirSearchParameters, $puuidBind);
-            } else if (isset($fhirSearchParameters['code'])) {
+            } elseif (isset($fhirSearchParameters['code'])) {
                 $service = $this->getServiceForCode(
                     new TokenSearchField('code', $fhirSearchParameters['code']),
                     ''

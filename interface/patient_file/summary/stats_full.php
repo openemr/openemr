@@ -58,6 +58,7 @@ $language = $tmp['language'];
 <script>
 
 // callback from add_edit_issue.php:
+// The close logic in add_edit_issue not working so dialog will do refresh
 function refreshIssue(issue, title) {
     top.restoreSession();
     window.location=window.location;
@@ -67,7 +68,15 @@ function dopclick(id, category) {
     top.restoreSession();
     category = (category == 0) ? '' : category;
     let dlg_url = 'add_edit_issue.php?issue=' + encodeURIComponent(id) + '&thistype=' + encodeURIComponent(category);
-    dlgopen(dlg_url, '_blank', 1280, 900, '', <?php echo xlj("Add/Edit Issue"); ?>);
+    // dlgopen will call top.restoreSession
+    dlgopen(dlg_url, '_blank', 1280, 900, '', <?php echo xlj("Add/Edit Issue"); ?>, {
+        allowDrag: false,
+        allowResize: true,
+        resolvePromiseOn: 'close',
+    }).then(() => {
+        top.restoreSession();
+        location.reload();
+    });
 }
 
 // Process click on number of encounters.
@@ -259,6 +268,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         <?php
                         // display issues
+                        $encount = 0;
                         while ($row = sqlFetchArray($pres)) :
                             $rowid = $row['id'];
 
@@ -309,12 +319,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 $click_class = '';
                             }
 
-                            $shortBegDate = trim(oeFormatShortDate($row['begdate']));
-                            $shortEndDate = trim(oeFormatShortDate($row['enddate']));
-                            $fullBegDate = trim(oeFormatDateTime($row['begdate']));
-                            $fullEndDate = trim(oeFormatDateTime($row['enddate']));
-                            $shortModDate = trim(oeFormatShortDate($row['modifydate']));
-                            $fullModDate = trim(oeFormatDateTime($row['modifydate']));
+                            $shortBegDate = trim(oeFormatShortDate($row['begdate']) ?? '');
+                            $shortEndDate = trim(oeFormatShortDate($row['enddate']) ?? '');
+                            $fullBegDate = trim(oeFormatDateTime($row['begdate']) ?? '');
+                            $fullEndDate = trim(oeFormatDateTime($row['enddate']) ?? '');
+                            $shortModDate = trim(oeFormatShortDate($row['modifydate']) ?? '');
+                            $fullModDate = trim(oeFormatDateTime($row['modifydate']) ?? '');
 
                             $outcome = ($row['outcome']) ?  generate_display_field(['data_type' => 1, 'list_id' => 'outcome'], $row['outcome']) : false;
                             ?>
@@ -328,7 +338,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <button type="button" class="btn btn-outline-text btn-sm collapsed" data-toggle="collapse" data-target="#details_<?php echo attr($row['id']); ?>" aria-expanded="false" aria-controls="details_<?php echo attr($row['id']); ?>"><span aria-hidden="true" class="fa fa-fw fa-chevron-right"></span></button>
                                         <button type="button" class="btn btn-outline-text btn-sm editenc" data-issue-id="<?php echo attr($row['id']); ?>"><span aria-hidden="true" class="fa fa-fw fa-link"></span></button>
                                     </div>
-                                    <a href="#" data-issue-id="<?php echo attr($row['id']); ?>" class="font-weight-bold issue_title" data-toggle="tooltip" data-placement="right" title="<?php echo text($diag . ": " . $codedesc); ?>">
+                                    <a href="#" data-issue-id="<?php echo attr($row['id']); ?>" class="font-weight-bold issue_title" data-toggle="tooltip" data-placement="right" title="<?php echo text(($diag ?? '') . ": " . ($codedesc ?? '')); ?>">
                                         <?php echo text($disptitle); ?>
                                     </a>&nbsp;(<?php echo $statusCompute; ?><?php echo (!$resolved && $outcome) ? ", $outcome" : ""; ?>)
                                     <?php

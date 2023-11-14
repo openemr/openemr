@@ -298,7 +298,7 @@ class FHIRMeta extends FHIRElement implements \JsonSerializable
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         if (isset($this->versionId)) {

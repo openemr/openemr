@@ -164,7 +164,7 @@ class FHIRElement implements \JsonSerializable
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = [];
         if (0 < count($this->extension)) {

@@ -94,7 +94,7 @@ class UtilsService
             if (class_exists($resourceClassCheck)) {
                 $parsed_url['resource'] = $resource;
                 $parsed_url['uuid'] = $uuid;
-            } else if (class_exists($idClassCheck)) {
+            } elseif (class_exists($idClassCheck)) {
                 $parsed_url['resource'] = $uuid; // root level resource at the end
             }
         }

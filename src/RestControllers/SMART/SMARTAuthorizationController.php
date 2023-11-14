@@ -20,9 +20,11 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
+use OpenEMR\Services\LogoService;
 use OpenEMR\Services\PatientService;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Twig\Environment;
 
 class SMARTAuthorizationController
@@ -55,6 +57,11 @@ class SMARTAuthorizationController
      */
     private $twig;
 
+    /**
+     * @var EventDispatcher
+     */
+    private $dispatcher;
+
     const PATIENT_SELECT_PATH = "/smart/patient-select";
 
     const PATIENT_SELECT_CONFIRM_ENDPOINT = "/smart/patient-select-confirm";
@@ -68,19 +75,22 @@ class SMARTAuthorizationController
 
     const EHR_SMART_LAUNCH_AUTOSUBMIT = "/smart/ehr-launch-autosubmit";
 
+    const SMART_STYLE_URL = "/smart/smart-style";
+
 
     /**
      * SMARTAuthorizationController constructor.
      * @param $authBaseFullURL
      * @param $smartFinalRedirectURL The URL that should be redirected to once all SMART authorizations are complete.
      */
-    public function __construct(LoggerInterface $logger, $authBaseFullURL, $smartFinalRedirectURL, $oauthTemplateDir, Environment $twig)
+    public function __construct(LoggerInterface $logger, $authBaseFullURL, $smartFinalRedirectURL, $oauthTemplateDir, Environment $twig, EventDispatcher $dispatcher)
     {
         $this->logger = $logger;
         $this->authBaseFullURL = $authBaseFullURL;
         $this->smartFinalRedirectURL = $smartFinalRedirectURL;
         $this->oauthTemplateDir = $oauthTemplateDir;
         $this->twig = $twig;
+        $this->dispatcher = $dispatcher;
     }
 
     /**
@@ -100,6 +110,9 @@ class SMARTAuthorizationController
             return true;
         }
         if (false !== stripos($end_point, self::EHR_SMART_LAUNCH_AUTOSUBMIT)) {
+            return true;
+        }
+        if (false !== stripos($end_point, self::SMART_STYLE_URL)) {
             return true;
         }
         return false;
@@ -128,6 +141,8 @@ class SMARTAuthorizationController
         } else if (false !== stripos($end_point, self::EHR_SMART_LAUNCH_AUTOSUBMIT)) {
             $this->ehrLaunchAutoSubmit();
             exit;
+        } else if (false !== stripos($end_point, self::SMART_STYLE_URL)) {
+            $this->smartAppStyles();
         } else {
             $this->logger->error("SMARTAuthorizationController->dispatchRoute() called with invalid route. verify isValidRoute configured properly", ['end_point' => $end_point]);
             http_response_code(404);
@@ -301,8 +316,7 @@ class SMARTAuthorizationController
     {
         $twig = $this->getTwig();
         $templatePageEvent = new TemplatePageEvent($pageName, [], $template, $templateVars);
-        $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
-        $updatedTemplatePageEvent = $dispatcher->dispatch($templatePageEvent);
+        $updatedTemplatePageEvent = $this->dispatcher->dispatch($templatePageEvent);
         $template = $updatedTemplatePageEvent->getTwigTemplate();
         $vars = $updatedTemplatePageEvent->getTwigVariables();
         // TODO: @adunsulag do we want to catch exceptions here?
@@ -311,6 +325,28 @@ class SMARTAuthorizationController
         } catch (\Exception $e) {
             $this->logger->errorLogCaller("caught exception rendering template", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             echo $twig->render("error/general_http_error.html.twig", ['statusCode' => 500]);
+            die();
+        }
+    }
+
+    private function renderTwigJson($pageName, $template, $templateVars, $defaultTemplate = null)
+    {
+        $twig = $this->getTwig();
+        $templatePageEvent = new TemplatePageEvent($pageName, [], $template, $templateVars);
+        $updatedTemplatePageEvent = $this->dispatcher->dispatch($templatePageEvent);
+        $template = $updatedTemplatePageEvent->getTwigTemplate();
+        $vars = $updatedTemplatePageEvent->getTwigVariables();
+        // TODO: @adunsulag do we want to catch exceptions here?
+        try {
+            $templates = [$template];
+            if (isset($defaultTemplate)) {
+                $templates[] = $defaultTemplate;
+            }
+            $resolvedTemplate = $twig->resolveTemplate($templates);
+            echo $resolvedTemplate->render($vars);
+        } catch (\Exception $e) {
+            $this->logger->errorLogCaller("caught exception rendering template", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            echo $twig->render("error/general_http_error.json.twig", ['statusCode' => 500]);
             die();
         }
     }
@@ -361,5 +397,22 @@ class SMARTAuthorizationController
             }
         }
         return $uri;
+    }
+
+    private function smartAppStyles()
+    {
+        $cssTheme = $GLOBALS['css_header'];
+        $parts = explode(".", $cssTheme);
+        $coreTheme = $parts[0] ?? "style_light";
+        $logoService = new LogoService();
+        // do we want to expose each of the logos?  These really need to be cached instead of hitting FS each time...
+        $primaryLogo = $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . $logoService->getLogo("core/login/primary");
+        $context = [
+            'logo' => [
+                'primary' => $primaryLogo
+            ]
+        ];
+        $defaultFile = "/api/smart/smart-style_light.json";
+        $this->renderTwigJson('oauth2/authorize/smart-style', "/api/smart/smart-" . $coreTheme . ".json", $context, $defaultFile);
     }
 }

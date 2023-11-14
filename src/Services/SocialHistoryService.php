@@ -188,7 +188,7 @@ class SocialHistoryService extends BaseService
     {
         // note the uuid here is the uuid_mapping table's uuid since each column in the table has its own distinct uuid
         // in the system.
-        return ['puuid', 'euuid', 'uuid', 'user_uuid'];
+        return ['puuid', 'uuid'];
     }
 
 

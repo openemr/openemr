@@ -384,6 +384,8 @@ function gen_hl7_order($orderid, &$out)
     $setid = 0;
     while ($pcrow = sqlFetchArray($pcres)) {
         // Observation Request.
+
+        $dl = '';
         $out .= "OBR" .
         $d1 . ++$setid .                              // Set ID
         $d1 . str_pad((string)$orderid, 4, "0", STR_PAD_LEFT) . // Placer Order Number
@@ -521,7 +523,7 @@ function send_hl7_order($ppid, $out)
         }
 
         // Connect to the server and write the file.
-        $sftp = new \phpseclib\Net\SFTP($remote_host);
+        $sftp = new \phpseclib3\Net\SFTP($remote_host);
         if (!$sftp->login($pprow['login'], $pprow['password'])) {
             return xl('Login to this remote host failed') . ": '$remote_host'";
         }

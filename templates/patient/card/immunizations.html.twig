@@ -9,7 +9,7 @@
 {% else %}
     {% for i in imx %}
         <div class="list-group-item d-flex w-100 p-1">
-            <a href="#" class="link" onclick="javascript:load_location()">{{ i.cvx_code_text }}</a>
+            <a href="#" class="link" onclick="javascript:load_location({{ i.url }})">{{ i.cvx_text }}</a>
         </div>
     {% endfor %}
 {% endif %}

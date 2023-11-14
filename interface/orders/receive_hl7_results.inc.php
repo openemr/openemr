@@ -28,7 +28,7 @@ require_once($GLOBALS['srcdir'] . "/pnotes.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use phpseclib\Net\SFTP;
+use phpseclib3\Net\SFTP;
 
 $rhl7_return = array();
 
@@ -1089,7 +1089,6 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     // Create order.
                     // Need to identify the ordering provider and, if possible, a recent encounter.
                     $datetime_report = rhl7DateTime($a[22]);
-                    $date_report = substr($datetime_report, 0, 10) . ' 00:00:00';
                     $encounter_id = 0;
                     $provider_id = 0;
                     $external_id = rhl7Text($a[3]) ?? null;
@@ -1098,7 +1097,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                         "SELECT encounter FROM form_encounter WHERE " .
                         "pid = ? AND date <= ? AND DATE_ADD(date, INTERVAL 30 DAY) > ? " .
                         "ORDER BY date DESC, encounter DESC LIMIT 1",
-                        array($patient_id, $date_report, $date_report)
+                        array($patient_id, $datetime_report, $datetime_report)
                     );
                     if (!empty($encrow)) {
                         $encounter_id = intval($encrow['encounter']);

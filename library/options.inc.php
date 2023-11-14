@@ -170,7 +170,7 @@ function generate_select_list(
 
     $selectEmptyName = xlt($empty_name);
     if ($empty_name) {
-        preg_match_all('/select2/m', $class, $matches, PREG_SET_ORDER, 0);
+        preg_match_all('/select2/m', ($class ?? ''), $matches, PREG_SET_ORDER, 0);
         if (array_key_exists('placeholder', $attributes) && count($matches) > 0) {
             // We have a placeholder attribute as well as a select2 class indicating there
             // should be provide a truley empty option.
@@ -2493,7 +2493,7 @@ function generate_display_field($frow, $currvalue)
           $s = htmlspecialchars(xl_list_label($lrow['title'] ?? ''), ENT_NOQUOTES);
         //if there is no matching value in the corresponding lists check backup list
         // only supported in data types 1,26,43,46
-        if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $$data_type == 43 || $data_type == 46)) {
+        if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $data_type == 43 || $data_type == 46)) {
               $lrow = sqlQuery("SELECT title FROM list_options " .
               "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$currvalue));
               $s = htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);

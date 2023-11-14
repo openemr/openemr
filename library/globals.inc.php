@@ -2010,11 +2010,11 @@ $GLOBALS_METADATA = array(
     ),
     // Insurance Tab
     'Insurance' => array(
-        'enable_oa' => array(
-            xl('Enable Office Ally Insurance Eligibility'),
+        'enable_eligibility_requests' => array(
+            xl('Enable Insurance Eligibility'),
             'bool',
             '0',
-            xl('Allow insurance eligibility checks using Office Ally')
+            xl('Allow insurance eligibility checks using an X12 Partner')
         ),
 
         'simplified_demographics' => array(
@@ -4235,6 +4235,13 @@ $GLOBALS_METADATA = array(
             getDefaultRenderListOptions(),
             RenderFormFieldHelper::SHOW_ALL,
             xl('How to display the sensitivity option'),
+        ],
+
+        'enc_in_collection' => [
+            xl('Show In Collection on Encounter Form'),
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::SHOW_ALL,
+            xl("How to display the 'In Collection' option. May be overriden by Hide Billing Widget setting"),
         ],
 
         'enc_enable_issues' => [

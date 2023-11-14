@@ -319,7 +319,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         if ($genderValue !== 'Unknown') {
             if ($genderValue === 'Male') {
                 $birthSex = 'M';
-            } else if ($genderValue === 'Female') {
+            } elseif ($genderValue === 'Female') {
                 $birthSex = 'F';
             }
         }
@@ -348,7 +348,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                 // @see https://www.hl7.org/fhir/us/core/ValueSet-omb-race-category.html
                 $code = "ASKU";
                 $display = xlt("Asked but no answer");
-            } else if (!empty($record)) {
+            } elseif (!empty($record)) {
                 $code = $record['notes'];
                 $display = $record['title'];
                 $system = FhirCodeSystemConstants::OID_RACE_AND_ETHNICITY;
@@ -540,7 +540,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                 $addressPeriod = UtilsService::getPeriodTimestamps($address->getPeriod());
                 if (empty($addressPeriod['end'])) {
                     $activeAddress = $address;
-                } else if (!empty($mostRecentPeriods['end']) && $addressPeriod['end'] > $mostRecentPeriods['end']) {
+                } elseif (!empty($mostRecentPeriods['end']) && $addressPeriod['end'] > $mostRecentPeriods['end']) {
                     // if our current period is more recent than our most recent address we want to grab that one
                     $mostRecentPeriods = $addressPeriod;
                     $activeAddress = $address;
@@ -563,7 +563,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                 $contactValue = (string)$contactPoint->getValue();
                 if ($systemValue === 'email') {
                     $data[$systemValue] = (string)$contactValue;
-                } else if ($systemValue == "phone") {
+                } elseif ($systemValue == "phone") {
                     $use = (string)$contactPoint->getUse() ?? "work";
                     $useMapping = ['mobile' => 'phone_cell', 'home' => 'phone_home', 'work' => 'phone_biz'];
                     if (isset($useMapping[$use])) {

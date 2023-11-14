@@ -26,10 +26,16 @@ require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\Services\QuestLabTransmitEvent;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 if (!$encounter) { // comes from globals.php
     die("Internal error: we do not seem to be in an encounter!");
 }
+/**
+ * @var EventDispatcher
+ */
+$ed = $GLOBALS['kernel']->getEventDispatcher();
 
 // Defaults for new orders.
 $provider_id = getProviderIdOfEncounter($encounter);
@@ -128,7 +134,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-    $ppid = (int)$_POST['form_lab_id'];
+    $ppid = (int)($_POST['form_lab_id'] ?? null);
     if (get_lab_name($ppid) === 'labcorp') {
         if (!empty($_POST['form_account_facility'])) {
             $location = sqlQueryNoLog("SELECT f.id, f.facility_code, f.name FROM facility as f " .
@@ -408,6 +414,9 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                 require_once(__DIR__ . "/../../procedure_tools/labcorp/ereq_form.php");
                 require_once(__DIR__ . "/../../procedure_tools/labcorp/gen_hl7_order.inc.php");
                 $alertmsg = gen_hl7_order($formid, $hl7, $reqStr);
+            } elseif ($gbl_lab === 'quest') {
+                require_once(__DIR__ . "/../../procedure_tools/quest/gen_hl7_order.inc.php");
+                $alertmsg = gen_hl7_order($formid, $hl7, $reqStr);
             } else { // Default lab. Add more labs here.
                 require_once(__DIR__ . "/../../orders/gen_hl7_order.inc.php");
                 $alertmsg = gen_hl7_order($formid, $hl7);
@@ -427,6 +436,12 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                         xlt("Order Successfully Sent") . "...\n" .
                         xlt("Order HL7 Content") .
                         ":\n" . $hl7 . "\n";
+                    if ($gbl_lab === 'quest') {
+                        $order_log .= xlt("Transmitting order to Quest");
+                        $ed->dispatch(new QuestLabTransmitEvent($hl7), QuestLabTransmitEvent::EVENT_LAB_TRANSMIT, 10);
+                        $ed->dispatch(new QuestLabTransmitEvent($pid), QuestLabTransmitEvent::EVENT_LAB_POST_ORDER_LOAD, 10);
+                    }
+
                     if ($_POST['form_order_psc']) {
                         if ($gbl_lab === 'labcorp') {
                             $order_log .= "\n" . date('Y-m-d H:i') . " " .
@@ -456,6 +471,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                 file_put_contents($log_file, $order_log);
             }
         }
+
         unset($_POST['bn_xmit']);
     }
     unset($_POST['bn_save']);
@@ -967,11 +983,13 @@ if (!empty($row['lab_id'])) {
             let acctid = <?php echo js_escape($gbl_client_acct); ?>;
             let order = f.id.value;
             let patient = <?php echo js_escape($patient['lname'] . ', ' . $patient['fname'] . ' ' . $patient['mname']); ?>;
+            let dob = <?php echo js_escape($patient['DOB']); ?>;
             let pid = <?php echo js_escape($patient['pid']);  ?>;
             let url = top.webroot_url + "/interface/procedure_tools/libs/labs_ajax.php";
             // this escapes above
             let uri = "?action=print_labels&count=" + encodeURIComponent(count) + "&order=" + encodeURIComponent(order) + "&pid=" + encodeURIComponent(pid) +
                 "&acctid=" + encodeURIComponent(acctid) + "&patient=" + encodeURIComponent(patient) + "&specimen=" + encodeURIComponent(tarray) +
+                "&dob=" + encodeURIComponent(dob) +
                 "&csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
 
             // retrieve the labels

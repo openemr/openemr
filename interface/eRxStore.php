@@ -22,7 +22,12 @@ class eRxStore
      */
     public static function sanitizeNumber($value)
     {
-        return preg_replace('/[^-0-9.]/', '', $value);
+        $sanitized = '';
+        if ($value !== null) {
+            $sanitized = preg_replace('/[^-0-9.]/', '', $value);
+        }
+
+        return $sanitized;
     }
 
     /**
@@ -160,7 +165,7 @@ class eRxStore
     public function getPatientDiagnosisByPatientId($patientId)
     {
         return sqlStatement(
-            'SELECT diagnosis, begdate, title, date
+            'SELECT diagnosis, begdate, enddate, title, date
             FROM lists
             WHERE `type` = \'medical_problem\'
                 AND pid = ?

@@ -96,7 +96,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
      */
     public function setup(array $context)
     {
-        $this->batch = new BillingClaimBatch('.txt');
+        $this->batch = new BillingClaimBatch('.txt', $context);
     }
 
     /**

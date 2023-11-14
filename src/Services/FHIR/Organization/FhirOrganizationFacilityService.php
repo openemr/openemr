@@ -254,7 +254,7 @@ class FhirOrganizationFacilityService extends FhirServiceBase
                 $addressPeriod = UtilsService::getPeriodTimestamps($address->getPeriod());
                 if (empty($addressPeriod['end'])) {
                     $activeAddress = $address;
-                } else if (!empty($mostRecentPeriods['end']) && $addressPeriod['end'] > $mostRecentPeriods['end']) {
+                } elseif (!empty($mostRecentPeriods['end']) && $addressPeriod['end'] > $mostRecentPeriods['end']) {
                     // if our current period is more recent than our most recent address we want to grab that one
                     $mostRecentPeriods = $addressPeriod;
                     $activeAddress = $address;
