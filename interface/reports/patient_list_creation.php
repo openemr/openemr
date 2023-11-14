@@ -45,7 +45,8 @@ $search_options = array
     "Communication"       => xl("Communication"),
     "Insurance Companies" => xl("Insurance Companies"),
     "Encounters"          => xl("Encounters"),
-    "Observations"        => xl("Observations")
+    "Observations"        => xl("Observations"),
+    "Procedures"          => xl("Procedures")
 );
 
 $comarr = array
@@ -421,6 +422,11 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     $sqlstmt .= ", obs.date AS obs_date, obs.code AS obs_code, obs.observation AS obs_comments, obs.description AS obs_description,
                         REPLACE(obs.ob_type, '_', ' ') AS obs_type, obs.ob_value AS obs_value, obs.ob_unit AS obs_units";
                     break;
+                case "Procedures":
+                    $sqlstmt .= ", pr.date_collected AS pr_date, pr.procedure_order_id AS pr_order, pp.name AS pr_lab, pr.order_diagnosis AS pr_diagnosis,
+                        GROUP_CONCAT(prc.procedure_name SEPARATOR ', ') AS prc_procedures,
+                        GROUP_CONCAT(CASE WHEN prc.diagnoses <> '' THEN prc.diagnoses ELSE NULL END  SEPARATOR ';') AS prc_diagnoses";
+                    break;
             }
 
             //from
@@ -456,10 +462,15 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     $sqlstmt .= " left outer join form_observation as obs on pd.pid = obs.pid
                         left outer join users as u on obs.user = u.username";
                     break;
+                case "Procedures":
+                    $sqlstmt .= " left outer join procedure_order as pr on pd.pid = pr.patient_id
+                        left outer join procedure_providers as pp on pr.lab_id = pp.ppid
+                        left outer join procedure_order_code as prc on pr.procedure_order_id = prc.procedure_order_id";
+                    break;
             }
 
             //WHERE Conditions started
-            $whr_stmt = "where 1=1";
+            $whr_stmt = " where 1=1";
             switch ($srch_option) {
                 case "Medications":
                 case "Allergies":
@@ -488,6 +499,10 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     break;
                 case "Observations":
                     $whr_stmt .= " AND obs.date >= ? AND obs.date < DATE_ADD(?, INTERVAL 1 DAY) AND obs.date <= ?";
+                    array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
+                    break;
+                case "Procedures":
+                    $whr_stmt .= " AND pr.date_collected >= ? AND pr.date_collected < DATE_ADD(?, INTERVAL 1 DAY) AND pr.date_collected <= ?";
                     array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
                     break;
             }
@@ -576,6 +591,9 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                 case "Observations":
                     $sort = array("obs_date", "patient_name", "patient_id", "patient_age", "patient_sex", "patient_ethnic", "users_provider", "obs_code", "obs_description", "obs_type", "obs_comments", "obs_value", "obs_units");
                     break;
+                case "Procedures":
+                    $sort = array("pr_date", "pr_order", "patient_name", "patient_id", "patient_age", "patient_sex", "patient_ethnic", "users_provider", "pr_lab", "pr_diagnosis", "prc_procedures", "prc_diagnoses");
+                    break;
                 case "Demographics":
                     $sort = array("patient_date", "patient_name", "patient_id", "patient_age", "patient_sex", "patient_race", "patient_ethnic", "users_provider");
                     break;
@@ -630,6 +648,9 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                 case "Observations":
                     $odrstmt = " ORDER BY obs_date asc, obs_code asc, obs_type asc, obs_units asc, obs_value asc, obs_comments asc";
                     break;
+                case "Procedures":
+                    $odrstmt = " ORDER BY pr_date asc, pr_order asc";
+                    break;
             }
 
             if (!empty($_POST['sortby']) && !empty($_POST['sortorder'])) {
@@ -642,7 +663,11 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                 }
             }
 
-            $sqlstmt .= " " . $whr_stmt . " " . $odrstmt;
+            $sqlstmt .= $whr_stmt;
+            if ($srch_option == "Procedures") {
+                $sqlstmt .= " GROUP BY pr_order";
+            }
+            $sqlstmt .= $odrstmt;
             //echo $sqlstmt."<hr>";
             $result = sqlStatement($sqlstmt, $sqlBindArray);
             //print_r($result);
@@ -721,6 +746,18 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                         $patInfoArr['observation_value'] = $row['obs_value'];
                         $patInfoArr['observation_units'] = $row['obs_units'];
                         $patInfoArr['observation_comments'] = $row['obs_comments'];
+                    } elseif ($srch_option == "Procedures") {
+                        $patInfoArr['procedure_date'] = $row['pr_date'];
+                        $patInfoArr['procedure_order'] = $row['pr_order'];
+                        $patInfoArr['patient_name'] = $row['patient_name'];
+                        $patInfoArr['patient_age'] = $row['patient_age'];
+                        $patInfoArr['patient_sex'] = $row['patient_sex'];
+                        $patInfoArr['patient_ethnic'] = $row['patient_ethnic'];
+                        $patInfoArr['users_provider'] = $row['users_provider'];
+                        $patInfoArr['procedure_lab'] = $row['pr_lab'];
+                        $patInfoArr['procedure_diagnosis'] = $row['pr_diagnosis'];
+                        $patInfoArr['procedure_code_procedures'] = $row['prc_procedures'];
+                        $patInfoArr['procedure_code_diagnoses'] = $row['prc_diagnoses'];
                     } elseif ($srch_option == "Demographics") {
                         $patInfoArr['patient_date'] = $row['patient_date'];
                         $patInfoArr['patient_name'] = $row['patient_name'];
@@ -906,6 +943,37 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                                     <td ><?php echo text($patDetailVal['observation_value']);?></td>
                                     <td ><?php echo text($patDetailVal['observation_units']);?></td>
                                     <td ><?php echo text($patDetailVal['observation_comments']);?></td>
+                               </tr>
+                        <?php }
+                    } elseif ($srch_option == "Procedures") { ?>
+                        <tr style="font-size:15px;">
+                            <td><strong><?php echo xlt('Collection Date'); ?></strong><?php echo $sortlink[0]; ?></td>
+                            <td><strong><?php echo xlt('Procedure Order'); ?></strong><?php echo $sortlink[1]; ?></td>
+                            <td><strong><?php echo xlt('Patient Name'); ?></strong><?php echo $sortlink[2]; ?></td>
+                            <td><strong><?php echo xlt('PID');?></strong><?php echo $sortlink[3]; ?></td>
+                            <td><strong><?php echo xlt('Age');?></strong><?php echo $sortlink[4]; ?></td>
+                            <td><strong><?php echo xlt('Gender');?></strong><?php echo $sortlink[5]; ?></td>
+                            <td><strong><?php echo xlt('Ethnicity');?></strong><?php echo $sortlink[6]; ?></td>
+                            <td><strong><?php echo xlt('Procedure Provider');?></strong><?php echo $sortlink[7]; ?></td>
+                            <td><strong><?php echo xlt('Lab');?></strong><?php echo $sortlink[8]; ?></td>
+                            <td><strong><?php echo xlt('Primary Diagnosis');?></strong><?php echo $sortlink[9]; ?></td>
+                            <td><strong><?php echo xlt('Procedures');?></strong></td>
+                            <td><strong><?php echo xlt('Diagnosis Codes');?></strong></td>
+                        </tr>
+                        <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
+                                <tr bgcolor = "#CCCCCC" >
+                                    <td> <?php echo text(oeFormatDateTime($patDetailVal['procedure_date'], "global", true));?>&nbsp;</td>
+                                    <td ><?php echo text($patDetailVal['procedure_order']); ?></td>
+                                    <td ><?php echo text($patDetailVal['patient_name']); ?></td>
+                                    <td ><?php echo text($patDetailVal['patient_id']); ?></td>
+                                    <td ><?php echo text($patDetailVal['patient_age']);?></td>
+                                    <td ><?php echo text($patDetailVal['patient_sex']);?></td>
+                                    <td ><?php echo text($patDetailVal['patient_ethnic']);?></td>
+                                    <td ><?php echo text($patDetailVal['users_provider']);?></td>
+                                    <td ><?php echo text($patDetailVal['procedure_lab']);?></td>
+                                    <td ><?php echo text($patDetailVal['procedure_diagnosis']);?></td>
+                                    <td ><?php echo text($patDetailVal['procedure_code_procedures']);?></td>
+                                    <td ><?php echo text(implode(", ", explode(";", $patDetailVal['procedure_code_diagnoses'])));?></td>
                                </tr>
                         <?php }
                     } elseif ($srch_option == "Demographics") { ?>
