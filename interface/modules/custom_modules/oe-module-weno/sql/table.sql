@@ -81,7 +81,7 @@ VALUES ('WenoExchangePharmacies', 'Weno Exchange Pharmacy', '0', '0', current_ti
 
 #IfNotRow background_services name WenoExchange
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) 
-VALUES ('WenoExchange', 'Weno Prescription Log', '0', '0', current_timestamp(), '1440', 'downloadWenoPrescriptionLog', '/weno_log_sync.php', '100');
+VALUES ('WenoExchange', 'Weno Prescription Log', '0', '0', current_timestamp(), '30', 'downloadWenoPrescriptionLog', '/weno_log_sync.php', '100');
 #EndIf
 
 #IfRow globals name weno_provider_password
