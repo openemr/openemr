@@ -142,7 +142,17 @@ function getLanguagesList(): array
     $langList = [];
 
     while ($row = sqlFetchArray($res)) {
-        $langList[] = $row;
+        if (!$GLOBALS['allow_debug_language'] && $row['lang_description'] == 'dummy') {
+            continue; // skip the dummy language
+        }
+
+        if ($GLOBALS['language_menu_showall']) {
+            $langList[] = $row;
+        } else {
+            if (in_array($row['lang_description'], $GLOBALS['language_menu_show'])) {
+                $langList[] = $row;
+            }
+        }
     }
 
     return $langList;
