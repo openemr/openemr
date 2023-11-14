@@ -17,7 +17,7 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("../drugs/drugs.inc.php");
-require_once("$srcdir/payment_jav.inc.php");
+// require_once("$srcdir/payment_jav.inc.php"); - Unused, removed to allow for CSV export
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -77,7 +77,16 @@ $form_service_codes = trim($_POST["form_service_codes"] ?? '');
 $form_immunization = trim($_POST["form_immunization"] ?? '');
 $communication = trim($_POST["communication"] ?? '');
 $insurance_company = trim($_POST["insurance_companies"] ?? '');
-?>
+
+$csv = !empty($_POST['form_csvexport']) && $_POST['form_csvexport'] == true;
+if ($csv) {
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Content-Type: application/force-download");
+    header("Content-Disposition: attachment; filename=patient_list_custom.csv");
+    header("Content-Description: File Transfer");
+} else { ?>
 <html>
     <head>
 
@@ -261,6 +270,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
         </div>
         <form name='theform' id='theform' method='post' action='patient_list_creation.php' onSubmit="return Form_Validate();">
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
             <div id="report_parameters">
                 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
                 <table>
@@ -351,12 +361,15 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                                 <td>
                                     <div class="text-center">
                                         <div class="btn-group" role="group">
-                                            <a href='#' class='btn btn-secondary btn-save' onclick='submitForm();'>
+                                            <a href='#' class='btn btn-secondary btn-save' onclick="$('#form_csvexport').val(''); submitForm();">
                                                 <?php echo xlt('Submit'); ?>
                                             </a>
                                             <?php if (isset($_POST['form_refresh'])) {?>
                                                 <a href='#' class='btn btn-secondary btn-print' onclick="printForm()">
                                                     <?php echo xlt('Print'); ?>
+                                                </a>
+                                                <a href='#' class='btn btn-secondary btn-transmit' onclick="$('#form_csvexport').attr('value', 'true'); submitForm();">
+                                                    <?php echo xlt('Export to CSV'); ?>
                                                 </a>
                                             <?php }?>
                                         </div>
@@ -372,7 +385,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                 </table>
             </div>
         <!-- end of parameters -->
-        <?php
+        <?php }
 
         // SQL scripts for the various searches
         $sqlBindArray = array();
@@ -652,7 +665,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
             $img_id = 1.2;
             $k = 1.3;
 
-            if (sqlNumRows($result) > 0) {
+            if (sqlNumRows($result) > 0 || $csv) {
                 $patArr = array();
 
                 $patDataArr = array();
@@ -734,7 +747,11 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     }
                     $patFinalDataArr[] = $patInfoArr;
                 }
-                ?>
+                if (sqlNumRows($result) == 0) {
+                    $patFinalDataArr = []; // Allow CSV file export to go ahead without data
+                }
+
+                if (!$csv) { ?>
 
                 <br />
 
@@ -749,8 +766,9 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
 
                     <table class='table' width='90%' align="center" cellpadding="5" cellspacing="0" style="font-family: Tahoma;" border="0">
 
-                    <?php
-                    if ($srch_option == "Medications" || $srch_option == "Allergies" || $srch_option == "Problems") { ?>
+                    <?php }
+                    if ($srch_option == "Medications" || $srch_option == "Allergies" || $srch_option == "Problems") {
+                        if (!$csv) { ?>
                         <tr style="font-size:15px;">
                             <td width="15%" class="font-weight-bold"><?php echo xlt('Diagnosis Date'); ?><?php echo $sortlink[0]; ?></td>
                             <td width="15%" class="font-weight-bold"><?php echo xlt('Diagnosis'); ?><?php echo $sortlink[1]; ?></td>
@@ -762,7 +780,20 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                             <td width="10%" class="font-weight-bold"><?php echo xlt('Ethnicity');?></td>
                             <td colspan='4' class="font-weight-bold"><?php echo xlt('Provider');?></td>
                         </tr>
-                        <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
+                        <?php } else {
+                            // CSV headers:
+                            echo csvEscape(xlt('Diagnosis Date')) . ",";
+                            echo csvEscape(xlt('Diagnosis')) . ",";
+                            echo csvEscape(xlt('Diagnosis Name')) . ",";
+                            echo csvEscape(xlt('Patient Name')) . ",";
+                            echo csvEscape(xlt('PID')) . ",";
+                            echo csvEscape(xlt('Age')) . ",";
+                            echo csvEscape(xlt('Gender')) . ",";
+                            echo csvEscape(xlt('Ethnicity')) . ",";
+                            echo csvEscape(xlt('Provider')) . "\n";
+                        }
+                        foreach ($patFinalDataArr as $patKey => $patDetailVal) {
+                            if (!$csv) { ?>
                                 <tr bgcolor="#CCCCCC" style="font-size:15px;">
                                     <td ><?php echo text(oeFormatDateTime($patDetailVal['lists_date'], "global", true)); ?></td>
                                     <td ><?php echo text($patDetailVal['lists_diagnosis']); ?></td>
@@ -774,8 +805,20 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                                     <td ><?php echo text($patDetailVal['patient_ethnic']);?></td>
                                     <td colspan='4'><?php echo text($patDetailVal['users_provider']);?></td>
                                 </tr>
-                        <?php	}
-                    } elseif ($srch_option == "Lab results") { ?>
+                            <?php } else {
+                                echo csvEscape($patDetailVal['lists_date']) . ",";
+                                echo csvEscape($patDetailVal['lists_diagnosis']) . ",";
+                                echo csvEscape($patDetailVal['lists_title']) . ",";
+                                echo csvEscape($patDetailVal['patient_name']) . ",";
+                                echo csvEscape($patDetailVal['patient_id']) . ",";
+                                echo csvEscape($patDetailVal['patient_age']) . ",";
+                                echo csvEscape($patDetailVal['patient_sex']) . ",";
+                                echo csvEscape($patDetailVal['patient_ethnic']) . ",";
+                                echo csvEscape($patDetailVal['users_provider']) . "\n";
+                            }
+                        }
+                    } elseif ($srch_option == "Lab results") {
+                        if (!$csv) { ?>
                         <tr bgcolor="#C3FDB8" align= "left" >
                             <td width="15%"><strong><?php echo xlt('Date'); ?><?php echo $sortlink[0]; ?></strong></td>
                             <td width="15%"><strong><?php echo xlt('Facility');?><?php echo $sortlink[1]; ?></strong></td>
@@ -787,8 +830,20 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                             <td width="5%"><strong><?php echo xlt('Document ID');?></strong></td>
                             <td width="5%"><strong><?php echo xlt('PID');?></strong></td>
                         </tr>
-                        <?php
-                        foreach ($patFinalDataArr as $patKey => $labResInsideArr) {?>
+                        <?php } else {
+                            // CSV headers:
+                            echo csvEscape(xlt('Date')) . ",";
+                            echo csvEscape(xlt('Facility')) . ",";
+                            echo csvEscape(xlt('Unit')) . ",";
+                            echo csvEscape(xlt('Result')) . ",";
+                            echo csvEscape(xlt('Range')) . ",";
+                            echo csvEscape(xlt('Abnormal')) . ",";
+                            echo csvEscape(xlt('Comments')) . ",";
+                            echo csvEscape(xlt('Document ID')) . ",";
+                            echo csvEscape(xlt('PID')) . "\n";
+                        }
+                        foreach ($patFinalDataArr as $patKey => $labResInsideArr) {
+                            if (!$csv) { ?>
                                 <tr bgcolor="#CCCCCC">
                                     <td> <?php echo text(oeFormatDateTime($labResInsideArr['procedure_result_date'], "global", true));?>&nbsp;</td>
                                     <td> <?php echo text($labResInsideArr['procedure_result_facility'], ENT_NOQUOTES); ?>&nbsp;</td>
@@ -800,9 +855,20 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                                     <td> <?php echo text($labResInsideArr['procedure_result_document_id']); ?>&nbsp;</td>
                                     <td colspan="3"> <?php echo text($labResInsideArr['patient_id']); ?>&nbsp;</td>
                                </tr>
-                                        <?php
+                            <?php } else {
+                                echo csvEscape($labResInsideArr['procedure_result_date']) . ",";
+                                echo csvEscape($labResInsideArr['procedure_result_facility']) . ",";
+                                echo csvEscape($labResInsideArr['procedure_result_units']) . ",";
+                                echo csvEscape($labResInsideArr['procedure_result_result']) . ",";
+                                echo csvEscape($labResInsideArr['procedure_result_range']) . ",";
+                                echo csvEscape($labResInsideArr['procedure_result_abnormal']) . ",";
+                                echo csvEscape($labResInsideArr['procedure_result_comments']) . ",";
+                                echo csvEscape($labResInsideArr['procedure_result_document_id']) . ",";
+                                echo csvEscape($labResInsideArr['patient_id']) . "\n";
+                            }
                         }
-                    } elseif ($srch_option == "Communication") { ?>
+                    } elseif ($srch_option == "Communication") {
+                        if (!$csv) { ?>
                         <tr style="font-size:15px;">
                             <td width="15%"><strong><?php echo xlt('Date'); ?></strong><?php echo $sortlink[0]; ?></td>
                             <td width="20%"><strong><?php echo xlt('Patient Name'); ?></strong><?php echo $sortlink[1]; ?></td>
@@ -813,7 +879,20 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                             <td width="15%"><strong><?php echo xlt('Provider');?></strong><?php echo $sortlink[6]; ?></td>
                             <td ><strong><?php echo xlt('Allowed') . " " . xlt('Communication');?></strong><?php echo $sortlink[7]; ?></td>
                         </tr>
-                        <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
+                        <?php } else {
+                            // CSV headers:
+                            echo csvEscape(xlt('Date')) . ",";
+                            echo csvEscape(xlt('Patient Name')) . ",";
+                            echo csvEscape(xlt('PID')) . ",";
+                            echo csvEscape(xlt('Age')) . ",";
+                            echo csvEscape(xlt('Gender')) . ",";
+                            echo csvEscape(xlt('Ethnicity')) . ",";
+                            echo csvEscape(xlt('Provider')) . ",";
+                            echo csvEscape(xlt('Document ID')) . ",";
+                            echo csvEscape(xlt('Allowed') . " " . xlt('Communication')) . "\n";
+                        }
+                        foreach ($patFinalDataArr as $patKey => $patDetailVal) {
+                            if (!$csv) { ?>
                                 <tr bgcolor = "#CCCCCC" >
                                     <td ><?php echo ($patDetailVal['patient_date'] != '') ? text(oeFormatDateTime($patDetailVal['patient_date'], "global", true)) : ""; ?></td>
                                     <td ><?php echo text($patDetailVal['patient_name']); ?></td>
@@ -824,8 +903,19 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                                     <td ><?php echo text($patDetailVal['users_provider']);?></td>
                                     <td ><?php echo text($patDetailVal['communications']);?></td>
                                </tr>
-                        <?php }
-                    } elseif ($srch_option == "Insurance Companies") { ?>
+                            <?php } else {
+                                echo csvEscape($patDetailVal['patient_date']) . ",";
+                                echo csvEscape($patDetailVal['patient_name']) . ",";
+                                echo csvEscape($patDetailVal['patient_id']) . ",";
+                                echo csvEscape($patDetailVal['patient_age']) . ",";
+                                echo csvEscape($patDetailVal['patient_sex']) . ",";
+                                echo csvEscape($patDetailVal['patient_ethnic']) . ",";
+                                echo csvEscape($patDetailVal['users_provider']) . ",";
+                                echo csvEscape($patDetailVal['communications']) . "\n";
+                            }
+                        }
+                    } elseif ($srch_option == "Insurance Companies") {
+                        if (!$csv) { ?>
                         <tr style="font-size:15px;">
                             <td width="15%"><strong><?php echo xlt('Date'); ?></strong><?php echo $sortlink[0]; ?></td>
                             <td width="20%"><strong><?php echo xlt('Patient Name'); ?></strong><?php echo $sortlink[1]; ?></td>
@@ -836,7 +926,19 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                             <td width="15%"><strong><?php echo xlt('Provider');?></strong><?php echo $sortlink[6]; ?></td>
                             <td ><strong><?php echo xlt('Insurance Companies');?></strong><?php echo $sortlink[7]; ?></td>
                         </tr>
-                        <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
+                        <?php } else {
+                            // CSV headers:
+                            echo csvEscape(xlt('Date')) . ",";
+                            echo csvEscape(xlt('Patient Name')) . ",";
+                            echo csvEscape(xlt('PID')) . ",";
+                            echo csvEscape(xlt('Age')) . ",";
+                            echo csvEscape(xlt('Gender')) . ",";
+                            echo csvEscape(xlt('Ethnicity')) . ",";
+                            echo csvEscape(xlt('Provider')) . ",";
+                            echo csvEscape(xlt('Insurance Companies')) . "\n";
+                        }
+                        foreach ($patFinalDataArr as $patKey => $patDetailVal) {
+                            if (!$csv) { ?>
                                 <tr bgcolor = "#CCCCCC" >
                                     <td ><?php echo ($patDetailVal['patient_date'] != '') ? text(oeFormatDateTime($patDetailVal['patient_date'], "global", true)) : ""; ?></td>
                                     <td ><?php echo text($patDetailVal['patient_name']); ?></td>
@@ -847,8 +949,19 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                                     <td ><?php echo text($patDetailVal['users_provider']);?></td>
                                     <td ><?php echo text($patDetailVal['insurance_companies']);?></td>
                                </tr>
-                        <?php }
-                    } elseif ($srch_option == "Encounters") { ?>
+                            <?php } else {
+                                echo csvEscape($patDetailVal['patient_date']) . ",";
+                                echo csvEscape($patDetailVal['patient_name']) . ",";
+                                echo csvEscape($patDetailVal['patient_id']) . ",";
+                                echo csvEscape($patDetailVal['patient_age']) . ",";
+                                echo csvEscape($patDetailVal['patient_sex']) . ",";
+                                echo csvEscape($patDetailVal['patient_ethnic']) . ",";
+                                echo csvEscape($patDetailVal['users_provider']) . ",";
+                                echo csvEscape($patDetailVal['insurance_companies']) . "\n";
+                            }
+                        }
+                    } elseif ($srch_option == "Encounters") {
+                        if (!$csv) { ?>
                         <tr style="font-size:15px;">
                             <td><strong><?php echo xlt('Encounter Date'); ?></strong><?php echo $sortlink[0]; ?></td>
                             <td><strong><?php echo xlt('Patient Name'); ?></strong><?php echo $sortlink[1]; ?></td>
@@ -862,7 +975,22 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                             <td><strong><?php echo xlt('Facility');?></strong><?php echo $sortlink[9]; ?></td>
                             <td><strong><?php echo xlt('Discharge Disposition');?></strong><?php echo $sortlink[10]; ?></td>
                         </tr>
-                        <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
+                        <?php } else {
+                            // CSV headers:
+                            echo csvEscape(xlt('Encounter Date')) . ",";
+                            echo csvEscape(xlt('Patient Name')) . ",";
+                            echo csvEscape(xlt('PID')) . ",";
+                            echo csvEscape(xlt('Age')) . ",";
+                            echo csvEscape(xlt('Gender')) . ",";
+                            echo csvEscape(xlt('Ethnicity')) . ",";
+                            echo csvEscape(xlt('Encounter Provider')) . ",";
+                            echo csvEscape(xlt('Encounter tyoe')) . ",";
+                            echo csvEscape(xlt('Reason')) . ",";
+                            echo csvEscape(xlt('Facility')) . ",";
+                            echo csvEscape(xlt('Discharge Disposition')) . "\n";
+                        }
+                        foreach ($patFinalDataArr as $patKey => $patDetailVal) {
+                            if (!$csv) { ?>
                                 <tr bgcolor = "#CCCCCC" >
                                     <td> <?php echo text(oeFormatDateTime($patDetailVal['encounter_date'], "global", true));?>&nbsp;</td>
                                     <td ><?php echo text($patDetailVal['patient_name']); ?></td>
@@ -876,8 +1004,22 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                                     <td ><?php echo text($patDetailVal['encounter_facility']);?></td>
                                     <td ><?php echo text($patDetailVal['encounter_discharge']);?></td>
                                </tr>
-                        <?php }
-                    } elseif ($srch_option == "Observations") { ?>
+                            <?php } else {
+                                echo csvEscape($patDetailVal['encounter_date']) . ",";
+                                echo csvEscape($patDetailVal['patient_name']) . ",";
+                                echo csvEscape($patDetailVal['patient_id']) . ",";
+                                echo csvEscape($patDetailVal['patient_age']) . ",";
+                                echo csvEscape($patDetailVal['patient_sex']) . ",";
+                                echo csvEscape($patDetailVal['patient_ethnic']) . ",";
+                                echo csvEscape($patDetailVal['users_provider']) . ",";
+                                echo csvEscape($patDetailVal['encounter_type']) . ",";
+                                echo csvEscape($patDetailVal['encounter_reason']) . ",";
+                                echo csvEscape($patDetailVal['encounter_facility']) . ",";
+                                echo csvEscape($patDetailVal['encounter_discharge']) . "\n";
+                            }
+                        }
+                    } elseif ($srch_option == "Observations") {
+                        if (!$csv) { ?>
                         <tr style="font-size:15px;">
                             <td><strong><?php echo xlt('Observation') . " " . xlt('Date'); ?></strong><?php echo $sortlink[0]; ?></td>
                             <td><strong><?php echo xlt('Patient Name'); ?></strong><?php echo $sortlink[1]; ?></td>
@@ -893,7 +1035,24 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                             <td><strong><?php echo xlt('Units');?></strong><?php echo $sortlink[11]; ?></td>
                             <td><strong><?php echo xlt('Comments');?></strong><?php echo $sortlink[12]; ?></td>
                         </tr>
-                        <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
+                        <?php } else {
+                            // CSV headers:
+                            echo csvEscape(xlt('Observation') . " " . xlt('Date')) . ",";
+                            echo csvEscape(xlt('Patient Name')) . ",";
+                            echo csvEscape(xlt('PID')) . ",";
+                            echo csvEscape(xlt('Age')) . ",";
+                            echo csvEscape(xlt('Gender')) . ",";
+                            echo csvEscape(xlt('Ethnicity')) . ",";
+                            echo csvEscape(xlt('Observation') . " " . xlt('Provider')) . ",";
+                            echo csvEscape(xlt('Code')) . ",";
+                            echo csvEscape(xlt('Description')) . ",";
+                            echo csvEscape(xlt('Type')) . ",";
+                            echo csvEscape(xlt('Value')) . ",";
+                            echo csvEscape(xlt('Units')) . ",";
+                            echo csvEscape(xlt('Comments')) . "\n";
+                        }
+                        foreach ($patFinalDataArr as $patKey => $patDetailVal) {
+                            if (!$csv) { ?>
                                 <tr bgcolor = "#CCCCCC" >
                                     <td> <?php echo text(oeFormatDateTime($patDetailVal['observation_date'], "global", true));?>&nbsp;</td>
                                     <td ><?php echo text($patDetailVal['patient_name']); ?></td>
@@ -909,8 +1068,25 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                                     <td ><?php echo text($patDetailVal['observation_units']);?></td>
                                     <td ><?php echo text($patDetailVal['observation_comments']);?></td>
                                </tr>
+                            <?php } else {
+                                echo csvEscape($patDetailVal['observation_date']) . ",";
+                                echo csvEscape($patDetailVal['patient_name']) . ",";
+                                echo csvEscape($patDetailVal['patient_id']) . ",";
+                                echo csvEscape($patDetailVal['patient_age']) . ",";
+                                echo csvEscape($patDetailVal['patient_sex']) . ",";
+                                echo csvEscape($patDetailVal['patient_ethnic']) . ",";
+                                echo csvEscape($patDetailVal['users_provider']) . ",";
+                                echo csvEscape($patDetailVal['observation_code']) . ",";
+                                echo csvEscape($patDetailVal['observation_description']) . ",";
+                                echo csvEscape($patDetailVal['observation_type']) . ",";
+                                echo csvEscape($patDetailVal['observation_value']) . ",";
+                                echo csvEscape($patDetailVal['observation_units']) . ",";
+                                echo csvEscape($patDetailVal['observation_comments']) . "\n";
+                            }
+                        }
                         <?php }
-                    } elseif ($srch_option == "Demographics") { ?>
+                    } elseif ($srch_option == "Demographics") {
+                        if (!$csv) { ?>
                         <tr style="font-size:15px;">
                             <td width="15%"><strong><?php echo xlt('Date'); ?></strong><?php echo $sortlink[0]; ?></td>
                             <td width="20%"><strong><?php echo xlt('Patient Name'); ?></strong><?php echo $sortlink[1]; ?></td>
@@ -921,23 +1097,46 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                             <td width="20%"><strong><?php echo xlt('Race');?></strong><?php echo $sortlink[6]; ?></td>
                             <td colspan=5><strong><?php echo xlt('Provider');?></strong><?php echo $sortlink[7]; ?></td>
                         </tr>
-                            <?php foreach ($patFinalDataArr as $patKey => $patDetailVal) { ?>
-                                <tr bgcolor = "#CCCCCC" style="font-size:15px;">
-                                    <td ><?php echo ($patDetailVal['patient_date'] != '') ? text(oeFormatDateTime($patDetailVal['patient_date'], "global", true)) : ""; ?></td>
-                                    <td ><?php echo text($patDetailVal['patient_name']); ?></td>
-                                    <td ><?php echo text($patDetailVal['patient_id']); ?></td>
-                                    <td ><?php echo text($patDetailVal['patient_age']);?></td>
-                                    <td ><?php echo text($patDetailVal['patient_sex']);?></td>
-                                    <td ><?php echo text($patDetailVal['patient_ethnic']);?></td>
-                                    <td ><?php echo generate_display_field(array('data_type' => '36','list_id' => 'race'), $patDetailVal['patient_race']); ?></td>
-                                    <td colspan=5><?php echo text($patDetailVal['users_provider']);?></td>
-                                </tr>
-                            <?php }
-                    } ?>
+                        <?php } else {
+                            // CSV headers:
+                            echo csvEscape(xlt('Date')) . ",";
+                            echo csvEscape(xlt('Patient Name')) . ",";
+                            echo csvEscape(xlt('PID')) . ",";
+                            echo csvEscape(xlt('Age')) . ",";
+                            echo csvEscape(xlt('Gender')) . ",";
+                            echo csvEscape(xlt('Ethnicity')) . ",";
+                            echo csvEscape(xlt('Race')) . ",";
+                            echo csvEscape(xlt('Provider')) . "\n";
+                        }
+                        foreach ($patFinalDataArr as $patKey => $patDetailVal) {
+                            if (!$csv) { ?>
+                            <tr bgcolor = "#CCCCCC" style="font-size:15px;">
+                                <td ><?php echo ($patDetailVal['patient_date'] != '') ? text(oeFormatDateTime($patDetailVal['patient_date'], "global", true)) : ""; ?></td>
+                                <td ><?php echo text($patDetailVal['patient_name']); ?></td>
+                                <td ><?php echo text($patDetailVal['patient_id']); ?></td>
+                                <td ><?php echo text($patDetailVal['patient_age']);?></td>
+                                <td ><?php echo text($patDetailVal['patient_sex']);?></td>
+                                <td ><?php echo text($patDetailVal['patient_ethnic']);?></td>
+                                <td ><?php echo generate_display_field(array('data_type' => '36','list_id' => 'race'), $patDetailVal['patient_race']); ?></td>
+                                <td colspan=5><?php echo text($patDetailVal['users_provider']);?></td>
+                            </tr>
+                            <?php } else {
+                                echo csvEscape($patDetailVal['patient_date']) . ",";
+                                echo csvEscape($patDetailVal['patient_name']) . ",";
+                                echo csvEscape($patDetailVal['patient_id']) . ",";
+                                echo csvEscape($patDetailVal['patient_age']) . ",";
+                                echo csvEscape($patDetailVal['patient_sex']) . ",";
+                                echo csvEscape($patDetailVal['patient_ethnic']) . ",";
+                                echo csvEscape($patDetailVal['patient_race']) . ",";
+                                echo csvEscape($patDetailVal['users_provider']) . "\n";
+                            }
+                        }
+                    }
+                    if (!$csv) { ?>
 
                     </table>
                      <!-- Main table ends -->
-                <?php
+                <?php }
             } else {//End if $result?>
                     <table>
                         <tr>
@@ -946,15 +1145,16 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     </table>
                 <?php
             }
-            ?>
+            if (!$csv) { ?>
                 </div>
 
-            <?php
+            <?php }
         } else {//End if form_refresh
             ?><div class='text'> <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?> </div><?php
         }
-        ?>
+        if (!$csv) { ?>
         </form>
 
     </body>
 </html>
+<?php } ?>
