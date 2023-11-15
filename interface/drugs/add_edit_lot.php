@@ -348,7 +348,7 @@ if (!empty($_POST['form_save'])) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $form_quantity = $_POST['form_quantity'] + 0;
+    $form_quantity = is_numeric($_POST['form_quantity']) ? intval($_POST['form_quantity']) : 0;
     $form_cost = sprintf('%0.2f', $_POST['form_cost']);
     // $form_source_lot = $_POST['form_source_lot'] + 0;
 
