@@ -424,7 +424,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     break;
                 case "Procedures":
                     $sqlstmt .= ", pr.date_ordered AS pr_order_date, pr.date_collected AS pr_collect_date, pr.procedure_order_id AS pr_order, pr.order_status AS pr_status, pp.name AS pr_lab,
-                        pr.order_diagnosis AS pr_diagnosis, prc.procedure_name as prc_procedure, REPLACE(prc.diagnoses, ';', ', ') AS prc_diagnoses";
+                        CONCAT(pr.order_diagnosis, ' ', prtc.code_text_short) AS pr_diagnosis, prc.procedure_name as prc_procedure, REPLACE(prc.diagnoses, ';', ', ') AS prc_diagnoses";
                     break;
             }
 
@@ -464,7 +464,9 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                 case "Procedures":
                     $sqlstmt .= " left outer join procedure_order as pr on pd.pid = pr.patient_id
                         left outer join procedure_providers as pp on pr.lab_id = pp.ppid
-                        left outer join procedure_order_code as prc on pr.procedure_order_id = prc.procedure_order_id";
+                        left outer join procedure_order_code as prc on pr.procedure_order_id = prc.procedure_order_id
+                        left outer join code_types as prt on SUBSTRING_INDEX(pr.order_diagnosis, ':', 1) = prt.ct_key
+                        left outer join codes as prtc on SUBSTRING_INDEX(pr.order_diagnosis, ':', -1) = prtc.code AND prt.ct_id = prtc.code_type";
                     break;
             }
 
