@@ -414,8 +414,8 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     $sqlstmt .= ", id.type AS ins_type, id.provider AS ins_provider, ic.name as ins_name";
                     break;
                 case "Encounters":
-                    $sqlstmt .= ", enc.date AS enc_date, enc.reason AS enc_reason, enc.facility AS enc_facility,
-                        enc.encounter_type_description AS enc_type, REPLACE(enc.discharge_disposition, '-', ' ') AS enc_discharge";
+                    $sqlstmt .= ", enc.date AS enc_date, enc.reason AS enc_reason, enc.facility AS enc_facility, enc.encounter_type_description AS enc_type,
+                        REPLACE(enc.discharge_disposition, '-', ' ') AS enc_discharge";
                     break;
                 case "Observations":
                     $sqlstmt .= ", obs.date AS obs_date, obs.code AS obs_code, obs.observation AS obs_comments, obs.description AS obs_description,
@@ -467,17 +467,15 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
                     break;
                 case "Problems":
-                    $whr_stmt .= " AND li.title != '' ";
-                    $whr_stmt .= " AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND li.date <= ?";
+                    $whr_stmt .= " AND li.title != '' AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND li.date <= ?";
                     array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
                     break;
                 case "Lab results":
-                    $whr_stmt .= " AND pr.date >= ? AND pr.date < DATE_ADD(?, INTERVAL 1 DAY) AND pr.date <= ?";
-                    $whr_stmt .= " AND (pr.result != '') ";
+                    $whr_stmt .= " AND pr.date >= ? AND pr.date < DATE_ADD(?, INTERVAL 1 DAY) AND pr.date <= ? AND pr.result != ''";
                     array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
                     break;
                 case "Communication":
-                    $whr_stmt .= " AND (pd.hipaa_allowsms = 'YES' OR pd.hipaa_voice = 'YES' OR pd.hipaa_mail  = 'YES' OR pd.hipaa_allowemail  = 'YES') ";
+                    $whr_stmt .= " AND (pd.hipaa_allowsms = 'YES' OR pd.hipaa_voice = 'YES' OR pd.hipaa_mail  = 'YES' OR pd.hipaa_allowemail  = 'YES')";
                     break;
                 case "Insurance Companies":
                     $whr_stmt .= " AND id.type = 'primary' AND ic.name != ''";
@@ -490,6 +488,11 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     $whr_stmt .= " AND obs.date >= ? AND obs.date < DATE_ADD(?, INTERVAL 1 DAY) AND obs.date <= ?";
                     array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
                     break;
+            }
+            // If a report uses a custom date condition, add it to this array to stop the default being used
+            if (!in_array($srch_option, ["Medications", "Allergies", "Problems", "Encounters", "Observations"])) {
+                $whr_stmt .= " AND pd.date >= ? AND pd.date < DATE_ADD(?, INTERVAL 1 DAY) AND pd.date <= ?";
+                array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
             }
 
             if (strlen($patient_id) != 0) {
