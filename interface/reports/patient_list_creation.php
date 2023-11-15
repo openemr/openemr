@@ -551,11 +551,11 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                         "users_provider" => array("heading" => "Provider",     "width" => "5%")
                     )
                 ),
-                "MAP" => array( // Diagnosis Check - Medications, Allergies, Problems
+                "DIAGNOSIS_CHECK" => array( // Medications, Allergies, Problems
                     "cols" => array(
                         "lists_date"      => array("heading" => "Diagnosis Date", "width" => "15%"),
                         "lists_diagnosis" => array("heading" => "Diagnosis",      "width" => "15%"),
-                        "lists_title"     => array("heading" => "Diagnosis Name", "width" => "15%"),
+                        "lists_title"     => array(                               "width" => "15%"), // Heading assigned below
                         "patient_name"    => array("heading" => "Patient Name",   "width" => "15%"),
                         "patient_id"      => array("heading" => "PID",            "width" => "5%"),
                         "patient_age"     => array("heading" => "Age",            "width" => "5%"),
@@ -638,7 +638,15 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                 )
             );
             if (in_array($srch_option, ["Medications", "Allergies", "Problems"])) {
-                $srch_option = "MAP";
+                switch ($srch_option) {
+                    case "Medications":
+                        $report_options_arr["DIAGNOSIS_CHECK"]["cols"]["lists_title"]["heading"] = "Medication"; break;
+                    case "Allergies":
+                        $report_options_arr["DIAGNOSIS_CHECK"]["cols"]["lists_title"]["heading"] = "Allergy"; break;
+                    case "Problems":
+                        $report_options_arr["DIAGNOSIS_CHECK"]["cols"]["lists_title"]["heading"] = "Problem"; break;
+                }
+                $srch_option = "DIAGNOSIS_CHECK";
             }
 
             // Sorting By filter fields
@@ -649,7 +657,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
             $sort = array_keys($report_options_arr[$srch_option]["cols"]);
             if ($sortby == "") {
                 switch ($srch_option) {
-                    case "MAP":
+                    case "DIAGNOSIS_CHECK":
                         $sortby = $sort[1]; break;
                     /* case "Lab results":
                         //$odrstmt = " result_result"; break; */
@@ -688,7 +696,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
             }
 
             switch ($srch_option) {
-                case "MAP":
+                case "DIAGNOSIS_CHECK":
                     $odrstmt = " ORDER BY lists_date asc"; break;
                 case "Lab results":
                     $odrstmt = " ORDER BY result_date asc"; break;
