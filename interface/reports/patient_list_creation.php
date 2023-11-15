@@ -563,9 +563,10 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                         "patient_ethnic" => array("heading" => "Ethnicity",    "width" => "10%"),
                         "patient_race"   => array("heading" => "Race",         "width" => "20%"),
                         "users_provider" => array("heading" => "Provider",     "width" => "5%")
-                    )
+                    ),
+                    "acl" => ["patients", "demo"]
                 ),
-                "DIAGNOSIS_CHECK" => array( // Medications, Allergies, Problems
+                "Diagnoses" => array( // Diagnosis Check - Medications, Allergies, Problems
                     "cols" => array(
                         "lists_date"      => array("heading" => "Diagnosis Date", "width" => "15%"),
                         "lists_diagnosis" => array("heading" => "Diagnosis",      "width" => "15%"),
@@ -577,7 +578,8 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                         "patient_ethnic"  => array("heading" => "Ethnicity",      "width" => "10%"),
                         "users_provider"  => array("heading" => "Provider",       "width" => 4)
                     ),
-                    "sort_cols" => 3
+                    "sort_cols" => 3,
+                    "acl" => ["patients", "med"]
                 ),
                 "Lab results" => array(
                     "cols" => array(
@@ -591,7 +593,8 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                         "result_document_id" => array("heading" => "Document ID", "width" => "5%"),
                         "patient_id"         => array("heading" => "PID",         "width" => "5%")
                     ),
-                    "sort_cols" => 6
+                    "sort_cols" => 6,
+                    "acl" => ["patients", "lab"]
                 ),
                 "Communication" => array(
                     "cols" => array(
@@ -603,7 +606,8 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                         "patient_ethnic" => array("heading" => "Ethnicity",    "width" => "10%"),
                         "users_provider" => array("heading" => "Provider",     "width" => "15%"),
                         "communications" => array("heading" => "Communication")
-                    )
+                    ),
+                    "acl" => ["patients", "med"]
                 ),
                 "Insurance Companies" => array(
                     "cols" => array(
@@ -615,7 +619,8 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                         "patient_ethnic" => array("heading" => "Ethnicity",    "width" => "10%"),
                         "users_provider" => array("heading" => "Provider",     "width" => "15%"),
                         "ins_name"       => array("heading" => "Insurance Companies")
-                    )
+                    ),
+                    "acl" => ["patients", "med"]
                 ),
                 "Encounters" => array(
                     "cols" => array(
@@ -630,7 +635,8 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                         "enc_reason"     => array("heading" => "Reason"),
                         "enc_facility"   => array("heading" => "Facility"),
                         "enc_discharge"  => array("heading" => "Discharge Disposition")
-                    )
+                    ),
+                    "acl" => ["encounters", "relaxed"]
                 ),
                 "Observations" => array(
                     "cols" => array(
@@ -648,7 +654,8 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                         "obs_units"       => array("heading" => "Units"),
                         "obs_comments"    => array("heading" => "Comments")
                     ),
-                    "sort_cols" => -1
+                    "sort_cols" => -1,
+                    "acl" => ["encounters", "coding_a"]
                 ),
                 "Procedures" => array(
                     "cols" => array(
@@ -664,19 +671,25 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                         "prc_procedure"   => array("heading" => "Procedure Test"),
                         "prc_diagnoses"   => array("heading" => "Diagnosis Codes")
                     ),
-                    "sort_cols" => -2
+                    "sort_cols" => -2,
+                    "acl" => ["encounters", "coding_a"]
                 )
             );
             if (in_array($srch_option, ["Medications", "Allergies", "Problems"])) {
                 switch ($srch_option) {
                     case "Medications":
-                        $report_options_arr["DIAGNOSIS_CHECK"]["cols"]["lists_title"]["heading"] = "Medication"; break;
+                        $report_options_arr["Diagnoses"]["cols"]["lists_title"]["heading"] = "Medication"; break;
                     case "Allergies":
-                        $report_options_arr["DIAGNOSIS_CHECK"]["cols"]["lists_title"]["heading"] = "Allergy"; break;
+                        $report_options_arr["Diagnoses"]["cols"]["lists_title"]["heading"] = "Allergy"; break;
                     case "Problems":
-                        $report_options_arr["DIAGNOSIS_CHECK"]["cols"]["lists_title"]["heading"] = "Problem"; break;
+                        $report_options_arr["Diagnoses"]["cols"]["lists_title"]["heading"] = "Problem"; break;
                 }
-                $srch_option = "DIAGNOSIS_CHECK";
+                $srch_option = "Diagnoses";
+            }
+
+            if (!AclMain::aclCheckCore($report_options_arr[$srch_option]["acl"][0], $report_options_arr[$srch_option]["acl"][1])) {
+                echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient List Creation") . " (" . xl($srch_option) . ")"]);
+                exit;
             }
 
             // Sorting By filter fields
@@ -687,7 +700,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
             $sort = array_keys($report_options_arr[$srch_option]["cols"]);
             if ($sortby == "") {
                 switch ($srch_option) {
-                    case "DIAGNOSIS_CHECK":
+                    case "Diagnoses":
                         $sortby = $sort[1]; break;
                     /* case "Lab results":
                         //$odrstmt = " result_result"; break; */
@@ -726,7 +739,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
             }
 
             switch ($srch_option) {
-                case "DIAGNOSIS_CHECK":
+                case "Diagnoses":
                     $odrstmt = " ORDER BY lists_date asc"; break;
                 case "Lab results":
                     $odrstmt = " ORDER BY result_date asc"; break;
