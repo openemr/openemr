@@ -505,7 +505,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     break;
             }
             // If a report uses a custom date condition, add it to this array to stop the default being used
-            if (!in_array($srch_option, ["Medications", "Allergies", "Problems", "Encounters", "Observations"])) {
+            if (!in_array($srch_option, ["Medications", "Allergies", "Problems", "Encounters", "Observations", "Procedures"])) {
                 $whr_stmt .= " AND pd.date >= ? AND pd.date < DATE_ADD(?, INTERVAL 1 DAY) AND pd.date <= ?";
                 array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
             }
