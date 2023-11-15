@@ -1085,7 +1085,6 @@ if ($csv) {
                                 echo csvEscape($patDetailVal['observation_comments']) . "\n";
                             }
                         }
-                        <?php }
                     } elseif ($srch_option == "Demographics") {
                         if (!$csv) { ?>
                         <tr style="font-size:15px;">
