@@ -423,10 +423,8 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                         REPLACE(obs.ob_type, '_', ' ') AS obs_type, obs.ob_value AS obs_value, obs.ob_unit AS obs_units";
                     break;
                 case "Procedures":
-                    $sqlstmt .= ", pr.date_ordered AS pr_order_date, pr.date_collected AS pr_collect_date,
-                        pr.procedure_order_id AS pr_order, pp.name AS pr_lab, pr.order_diagnosis AS pr_diagnosis,
-                        GROUP_CONCAT(prc.procedure_name SEPARATOR ', ') AS prc_procedures,
-                        GROUP_CONCAT(CASE WHEN prc.diagnoses <> '' THEN prc.diagnoses ELSE NULL END  SEPARATOR ';') AS prc_diagnoses";
+                    $sqlstmt .= ", pr.date_ordered AS pr_order_date, pr.date_collected AS pr_collect_date, pr.procedure_order_id AS pr_order, pr.order_status AS pr_status, pp.name AS pr_lab,
+                        pr.order_diagnosis AS pr_diagnosis, prc.procedure_name as prc_procedure, REPLACE(prc.diagnoses, ';', ', ') AS prc_diagnoses";
                     break;
             }
 
@@ -659,13 +657,11 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                         "pr_order"        => array("heading" => "Procedure Order"),
                         "patient_name"    => array("heading" => "Patient Name"),
                         "patient_id"      => array("heading" => "PID"),
-                        "patient_age"     => array("heading" => "Age"),
-                        "patient_sex"     => array("heading" => "Gender"),
-                        "patient_ethnic"  => array("heading" => "Ethnicity"),
                         "users_provider"  => array("heading" => "Procedure Provider"),
+                        "pr_status"       => array("heading" => "Order Status"),
                         "pr_lab"          => array("heading" => "Lab"),
                         "pr_diagnosis"    => array("heading" => "Primary Diagnosis"),
-                        "prc_procedures"  => array("heading" => "Procedures"),
+                        "prc_procedure"   => array("heading" => "Procedure Test"),
                         "prc_diagnoses"   => array("heading" => "Diagnosis Codes")
                     ),
                     "sort_cols" => -2
@@ -758,11 +754,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                 }
             }
 
-            $sqlstmt .= $whr_stmt;
-            if ($srch_option == "Procedures") {
-                $sqlstmt .= " GROUP BY pr_order";
-            }
-            $sqlstmt .= $odrstmt;
+            $sqlstmt .= $whr_stmt . $odrstmt;
             //echo $sqlstmt."<hr>";
             $result = sqlStatement($sqlstmt, $sqlBindArray);
             //print_r($result);
