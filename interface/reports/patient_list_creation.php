@@ -388,8 +388,8 @@ if ($csv) {
         <!-- end of parameters -->
 <?php }
 
-        // SQL scripts for the various searches
-        $sqlBindArray = array();
+// SQL scripts for the various searches
+$sqlBindArray = array();
 if (!empty($_POST['form_refresh'])) {
     $sqlstmt = "select
                 pd.date as patient_date,
@@ -802,27 +802,26 @@ if (!empty($_POST['form_refresh'])) {
         }
         foreach (array_keys($report_options_arr[$srch_option]["cols"]) as $report_col_key => $report_col) {
             if (!$csv) {
-                            echo '<td ';
+                echo '<td ';
                 if (isset($report_options_arr[$srch_option]["cols"][$report_col]["width"])) {
                     $width = $report_options_arr[$srch_option]["cols"][$report_col]["width"];
                     if (str_contains($width, '%')) {
-                                    echo 'width="' . $width . '" ';
+                        echo 'width="' . $width . '" ';
                     } else {
-                                            echo 'colspan="' . $width . '" ';
+                        echo 'colspan="' . $width . '" ';
                     }
                 }
-                            echo 'class="font-weight-bold">' . xlt($report_options_arr[$srch_option]["cols"][$report_col]["heading"]);
+                echo 'class="font-weight-bold">' . xlt($report_options_arr[$srch_option]["cols"][$report_col]["heading"]);
                 if (isset($report_options_arr[$srch_option]["sort_cols"]) && $report_options_arr[$srch_option]["sort_cols"] != 0) {
-                    if (($report_options_arr[$srch_option]["sort_cols"] == "all")
-                        || ($report_options_arr[$srch_option]["sort_cols"] > 0 && $report_col_key < $report_options_arr[$srch_option]["sort_cols"])
+                    if (($report_options_arr[$srch_option]["sort_cols"] > 0 && $report_col_key < $report_options_arr[$srch_option]["sort_cols"])
                         || ($report_options_arr[$srch_option]["sort_cols"] < 0 && $report_col_key < $report_options_arr[$srch_option]["sort_cols"] + count($report_options_arr[$srch_option]["cols"]))
                     ) {
-                                echo $sortlink[$report_col_key];
+                        echo $sortlink[$report_col_key];
                     }
                 }
-                            echo '</td>';
+                echo '</td>';
             } else {
-                            echo csvEscape(xlt($report_options_arr[$srch_option]["cols"][$report_col]["heading"]));
+                echo csvEscape(xlt($report_options_arr[$srch_option]["cols"][$report_col]["heading"]));
                 if ($report_col_key < count($report_options_arr[$srch_option]["cols"]) - 1) {
                     echo ",";
                 } else {
@@ -830,10 +829,12 @@ if (!empty($_POST['form_refresh'])) {
                 }
             }
         }
-        if (!$csv) { echo '</tr>';
+        if (!$csv) {
+            echo '</tr>';
         }
         foreach ($report_data_arr as $report_data_key => $report_data) {
-            if (!$csv) { echo '<tr bgcolor="#CCCCCC" style="font-size:15px;">';
+            if (!$csv) {
+                echo '<tr bgcolor="#CCCCCC" style="font-size:15px;">';
             }
             foreach ($report_data as $report_value_key => $report_value) {
                 if (!$csv) {
@@ -844,10 +845,10 @@ if (!empty($_POST['form_refresh'])) {
                     case "patient_date":
                     case "encounter_date":
                     case "observation_date":
-                                echo ($report_value != '') ? text(oeFormatDateTime($report_value, "global", true)) : '';
+                        echo ($report_value != '') ? text(oeFormatDateTime($report_value, "global", true)) : '';
                         break;
                     case "patient_race":
-                                        echo generate_display_field(array('data_type' => '36','list_id' => 'race'), $report_value);
+                        echo generate_display_field(array('data_type' => '36','list_id' => 'race'), $report_value);
                         break;
                     case "result_units":
                         echo generate_display_field(array('data_type' => '1', 'list_id' => 'proc_unit'), $report_value) . '&nbsp;';
@@ -865,14 +866,15 @@ if (!empty($_POST['form_refresh'])) {
                     }
                 }
             }
-            if (!$csv) { echo '</tr>';
+            if (!$csv) {
+                echo '</tr>';
             }
         }
 
         if (!$csv) { ?>
 
-                    </table>
-                     <!-- Main table ends -->
+                </table>
+                <!-- Main table ends -->
         <?php }
 
     } else {//End if $result?>
