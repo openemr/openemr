@@ -395,7 +395,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
             case "Problems":
                 $sqlstmt .= ",li.date AS lists_date,
                         li.diagnosis AS lists_diagnosis,
-                        li.title AS lists_title"; 
+                        li.title AS lists_title";
                 break;
             case "Lab results":
                 $sqlstmt .= ",pr.date AS result_date,
@@ -405,22 +405,22 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                         pr.range AS result_range,
                         pr.abnormal AS result_abnormal,
                         pr.comments AS result_comments,
-                        pr.document_id AS result_document_id"; 
+                        pr.document_id AS result_document_id";
                 break;
             case "Communication":
                 $sqlstmt .= ",REPLACE(REPLACE(concat_ws(', ', IF(pd.hipaa_allowemail = 'YES', 'Email', 'NO'), IF(pd.hipaa_allowsms = 'YES', 'SMS', 'NO'),
-                        IF(pd.hipaa_mail = 'YES', 'Mail Message', 'NO') , IF(pd.hipaa_voice = 'YES', 'Voice Message', 'NO') ), ', NO', ''), 'NO,', '') as communications"; 
+                        IF(pd.hipaa_mail = 'YES', 'Mail Message', 'NO') , IF(pd.hipaa_voice = 'YES', 'Voice Message', 'NO') ), ', NO', ''), 'NO,', '') as communications";
                 break;
             case "Insurance Companies":
-                $sqlstmt .= ", id.type AS ins_type, id.provider AS ins_provider, ic.name as ins_name"; 
+                $sqlstmt .= ", id.type AS ins_type, id.provider AS ins_provider, ic.name as ins_name";
                 break;
             case "Encounters":
                 $sqlstmt .= ", enc.date AS enc_date, enc.reason AS enc_reason, enc.facility AS enc_facility, enc.encounter_type_description AS enc_type,
-                        REPLACE(enc.discharge_disposition, '-', ' ') AS enc_discharge"; 
+                        REPLACE(enc.discharge_disposition, '-', ' ') AS enc_discharge";
                 break;
             case "Observations":
                 $sqlstmt .= ", obs.date AS obs_date, obs.code AS obs_code, obs.observation AS obs_comments, obs.description AS obs_description,
-                        REPLACE(obs.ob_type, '_', ' ') AS obs_type, obs.ob_value AS obs_value, obs.ob_unit AS obs_units"; 
+                        REPLACE(obs.ob_type, '_', ' ') AS obs_type, obs.ob_value AS obs_value, obs.ob_unit AS obs_units";
                 break;
             }
 
@@ -432,30 +432,30 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
             //JOINS
             switch ($srch_option) {
             case "Problems":
-                $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND li.type='medical_problem')"; 
+                $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND li.type='medical_problem')";
                 break;
             case "Medications":
-                $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND (li.type='medication')) "; 
+                $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND (li.type='medication')) ";
                 break;
             case "Allergies":
-                $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND (li.type='allergy')) "; 
+                $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND (li.type='allergy')) ";
                 break;
             case "Lab results":
                 $sqlstmt .= " left outer join procedure_order as po on po.patient_id = pd.pid
                         left outer join procedure_report as pp on pp.procedure_order_id = po.procedure_order_id
-                        left outer join procedure_result as pr on pr.procedure_report_id = pp.procedure_report_id"; 
+                        left outer join procedure_result as pr on pr.procedure_report_id = pp.procedure_report_id";
                 break;
             case "Insurance Companies":
                 $sqlstmt .= " left outer join insurance_data as id on id.pid = pd.pid
-                        left outer join insurance_companies as ic on ic.id = id.provider"; 
+                        left outer join insurance_companies as ic on ic.id = id.provider";
                 break;
             case "Encounters":
                 $sqlstmt .= " left outer join form_encounter as enc on pd.pid = enc.pid
-                        left outer join users as u on enc.provider_id = u.id"; 
+                        left outer join users as u on enc.provider_id = u.id";
                 break;
             case "Observations":
                 $sqlstmt .= " left outer join form_observation as obs on pd.pid = obs.pid
-                        left outer join users as u on obs.user = u.username"; 
+                        left outer join users as u on obs.user = u.username";
                 break;
             }
 
@@ -648,13 +648,13 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
             if (in_array($srch_option, ["Medications", "Allergies", "Problems"])) {
                 switch ($srch_option) {
                 case "Medications":
-                    $report_options_arr["Diagnoses"]["cols"]["lists_title"]["heading"] = "Medication"; 
+                    $report_options_arr["Diagnoses"]["cols"]["lists_title"]["heading"] = "Medication";
                     break;
                 case "Allergies":
-                    $report_options_arr["Diagnoses"]["cols"]["lists_title"]["heading"] = "Allergy"; 
+                    $report_options_arr["Diagnoses"]["cols"]["lists_title"]["heading"] = "Allergy";
                     break;
                 case "Problems":
-                    $report_options_arr["Diagnoses"]["cols"]["lists_title"]["heading"] = "Problem"; 
+                    $report_options_arr["Diagnoses"]["cols"]["lists_title"]["heading"] = "Problem";
                     break;
                 }
                 $srch_option = "Diagnoses";
@@ -674,7 +674,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
             if ($sortby == "") {
                 switch ($srch_option) {
                 case "Diagnoses":
-                    $sortby = $sort[1]; 
+                    $sortby = $sort[1];
                     break;
                 /* case "Lab results":
                     //$odrstmt = " result_result";
@@ -717,25 +717,25 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
 
             switch ($srch_option) {
             case "Diagnoses":
-                $odrstmt = " ORDER BY lists_date asc"; 
+                $odrstmt = " ORDER BY lists_date asc";
                 break;
             case "Lab results":
-                $odrstmt = " ORDER BY result_date asc"; 
+                $odrstmt = " ORDER BY result_date asc";
                 break;
             case "Communication":
-                $odrstmt = " ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) asc, communications asc"; 
+                $odrstmt = " ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) asc, communications asc";
                 break;
             case "Demographics":
-                $odrstmt = " ORDER BY patient_date asc"; 
+                $odrstmt = " ORDER BY patient_date asc";
                 break;
             case "Insurance Companies":
-                $odrstmt = " ORDER BY ins_provider asc"; 
+                $odrstmt = " ORDER BY ins_provider asc";
                 break;
             case "Encounters":
-                $odrstmt = " ORDER BY enc_date asc, enc_type asc, enc_reason asc, enc_discharge asc"; 
+                $odrstmt = " ORDER BY enc_date asc, enc_type asc, enc_reason asc, enc_discharge asc";
                 break;
             case "Observations":
-                $odrstmt = " ORDER BY obs_date asc, obs_code asc, obs_type asc, obs_units asc, obs_value asc, obs_comments asc"; 
+                $odrstmt = " ORDER BY obs_date asc, obs_code asc, obs_type asc, obs_units asc, obs_value asc, obs_comments asc";
                 break;
             }
 
@@ -796,8 +796,8 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                             }
                             echo 'class="font-weight-bold">' . xlt($report_options_arr[$srch_option]["cols"][$report_col]["heading"]);
                             if (isset($report_options_arr[$srch_option]["sort_cols"]) && $report_options_arr[$srch_option]["sort_cols"] != 0) {
-                                if (($report_options_arr[$srch_option]["sort_cols"] == "all") 
-                                    || ($report_options_arr[$srch_option]["sort_cols"] > 0 && $report_col_key < $report_options_arr[$srch_option]["sort_cols"]) 
+                                if (($report_options_arr[$srch_option]["sort_cols"] == "all")
+                                    || ($report_options_arr[$srch_option]["sort_cols"] > 0 && $report_col_key < $report_options_arr[$srch_option]["sort_cols"])
                                     || ($report_options_arr[$srch_option]["sort_cols"] < 0 && $report_col_key < $report_options_arr[$srch_option]["sort_cols"] + count($report_options_arr[$srch_option]["cols"]))
                                 ) {
                                     echo $sortlink[$report_col_key];
@@ -816,13 +816,13 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                                 case "patient_date":
                                 case "encounter_date":
                                 case "observation_date":
-                                    echo ($report_value != '') ? text(oeFormatDateTime($report_value, "global", true)) : ''; 
+                                    echo ($report_value != '') ? text(oeFormatDateTime($report_value, "global", true)) : '';
                                     break;
                                 case "patient_race":
-                                    echo generate_display_field(array('data_type' => '36','list_id' => 'race'), $report_value); 
+                                    echo generate_display_field(array('data_type' => '36','list_id' => 'race'), $report_value);
                                     break;
                                 case "result_units":
-                                    echo generate_display_field(array('data_type' => '1', 'list_id' => 'proc_unit'), $report_value) . '&nbsp;'; 
+                                    echo generate_display_field(array('data_type' => '1', 'list_id' => 'proc_unit'), $report_value) . '&nbsp;';
                                     break;
                                 default:
                                     echo text($report_value);
