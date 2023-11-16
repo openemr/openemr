@@ -84,7 +84,8 @@
             "php": "8.1"
         },
         "allow-plugins": {
-            "openemr/oe-module-installer-plugin": true
+            "openemr/oe-module-installer-plugin": true,
+            "php-http/discovery": false
         }
     },
     "require-dev": {
