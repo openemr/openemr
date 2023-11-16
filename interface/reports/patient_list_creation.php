@@ -800,8 +800,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                                 isset($report_options_arr[$srch_option]["sort_cols"]) && $report_options_arr[$srch_option]["sort_cols"] != 0
                             ) {
                                 if (
-                                    ($report_options_arr[$srch_option]["sort_cols"] == "all")
-                                    || ($report_options_arr[$srch_option]["sort_cols"] > 0 && $report_col_key < $report_options_arr[$srch_option]["sort_cols"])
+                                    ($report_options_arr[$srch_option]["sort_cols"] > 0 && $report_col_key < $report_options_arr[$srch_option]["sort_cols"])
                                     || ($report_options_arr[$srch_option]["sort_cols"] < 0 && $report_col_key < $report_options_arr[$srch_option]["sort_cols"] + count($report_options_arr[$srch_option]["cols"]))
                                 ) {
                                     echo $sortlink[$report_col_key];
