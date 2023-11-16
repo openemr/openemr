@@ -3,6 +3,7 @@
 /**
  * This report lists all the demographics, allergies, problems, medications and
  * lab results along with race, ethnicity, insurance company and provider for those items
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -13,11 +14,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("../drugs/drugs.inc.php");
-require_once("$srcdir/payment_jav.inc.php");
+require_once "../globals.php";
+require_once "$srcdir/patient.inc.php";
+require_once "$srcdir/options.inc.php";
+require_once "../drugs/drugs.inc.php";
+require_once "$srcdir/payment_jav.inc.php";
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -194,7 +195,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     <?php $datetimepicker_timepicker = true; ?>
                     <?php $datetimepicker_showseconds = true; ?>
                     <?php $datetimepicker_formatInput = true; ?>
-                    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                    <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });
@@ -390,42 +391,42 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
 
             $srch_option = $_POST['srch_option'];
             switch ($srch_option) {
-                case "Medications":
-                case "Allergies":
-                case "Problems":
-                    $sqlstmt .= ",li.date AS lists_date,
-                        li.diagnosis AS lists_diagnosis,
-                        li.title AS lists_title";
-                    break;
-                case "Lab results":
-                    $sqlstmt .= ",pr.date AS result_date,
-                        pr.facility AS result_facility,
-                        pr.units AS result_units,
-                        pr.result AS result_result,
-                        pr.range AS result_range,
-                        pr.abnormal AS result_abnormal,
-                        pr.comments AS result_comments,
-                        pr.document_id AS result_document_id";
-                    break;
-                case "Communication":
-                    $sqlstmt .= ",REPLACE(REPLACE(concat_ws(', ', IF(pd.hipaa_allowemail = 'YES', 'Email', 'NO'), IF(pd.hipaa_allowsms = 'YES', 'SMS', 'NO'),
-                        IF(pd.hipaa_mail = 'YES', 'Mail Message', 'NO') , IF(pd.hipaa_voice = 'YES', 'Voice Message', 'NO') ), ', NO', ''), 'NO,', '') as communications";
-                    break;
-                case "Insurance Companies":
-                    $sqlstmt .= ", id.type AS ins_type, id.provider AS ins_provider, ic.name as ins_name";
-                    break;
-                case "Encounters":
-                    $sqlstmt .= ", enc.date AS enc_date, enc.reason AS enc_reason, enc.facility AS enc_facility, enc.encounter_type_description AS enc_type,
-                        REPLACE(enc.discharge_disposition, '-', ' ') AS enc_discharge";
-                    break;
-                case "Observations":
-                    $sqlstmt .= ", obs.date AS obs_date, obs.code AS obs_code, obs.observation AS obs_comments, obs.description AS obs_description,
-                        REPLACE(obs.ob_type, '_', ' ') AS obs_type, obs.ob_value AS obs_value, obs.ob_unit AS obs_units";
-                    break;
-                case "Procedures":
-                    $sqlstmt .= ", pr.date_ordered AS pr_order_date, pr.date_collected AS pr_collect_date, pr.procedure_order_id AS pr_order, pr.order_status AS pr_status, pp.name AS pr_lab,
-                        CONCAT(pr.order_diagnosis, ' ', prtc.code_text_short) AS pr_diagnosis, prc.procedure_name as prc_procedure, REPLACE(prc.diagnoses, ';', ', ') AS prc_diagnoses";
-                    break;
+            case "Medications":
+            case "Allergies":
+            case "Problems":
+                $sqlstmt .= ",li.date AS lists_date,
+                    li.diagnosis AS lists_diagnosis,
+                    li.title AS lists_title";
+                break;
+            case "Lab results":
+                $sqlstmt .= ",pr.date AS result_date,
+                    pr.facility AS result_facility,
+                    pr.units AS result_units,
+                    pr.result AS result_result,
+                    pr.range AS result_range,
+                    pr.abnormal AS result_abnormal,
+                    pr.comments AS result_comments,
+                    pr.document_id AS result_document_id";
+                break;
+            case "Communication":
+                $sqlstmt .= ",REPLACE(REPLACE(concat_ws(', ', IF(pd.hipaa_allowemail = 'YES', 'Email', 'NO'), IF(pd.hipaa_allowsms = 'YES', 'SMS', 'NO'),
+                    IF(pd.hipaa_mail = 'YES', 'Mail Message', 'NO') , IF(pd.hipaa_voice = 'YES', 'Voice Message', 'NO') ), ', NO', ''), 'NO,', '') as communications";
+                break;
+            case "Insurance Companies":
+                $sqlstmt .= ", id.type AS ins_type, id.provider AS ins_provider, ic.name as ins_name";
+                break;
+            case "Encounters":
+                $sqlstmt .= ", enc.date AS enc_date, enc.reason AS enc_reason, enc.facility AS enc_facility, enc.encounter_type_description AS enc_type,
+                    REPLACE(enc.discharge_disposition, '-', ' ') AS enc_discharge";
+                break;
+            case "Observations":
+                $sqlstmt .= ", obs.date AS obs_date, obs.code AS obs_code, obs.observation AS obs_comments, obs.description AS obs_description,
+                    REPLACE(obs.ob_type, '_', ' ') AS obs_type, obs.ob_value AS obs_value, obs.ob_unit AS obs_units";
+                break;
+            case "Procedures":
+                $sqlstmt .= ", pr.date_ordered AS pr_order_date, pr.date_collected AS pr_collect_date, pr.procedure_order_id AS pr_order, pr.order_status AS pr_status, pp.name AS pr_lab,
+                    CONCAT(pr.order_diagnosis, ' ', prtc.code_text_short) AS pr_diagnosis, prc.procedure_name as prc_procedure, REPLACE(prc.diagnoses, ';', ', ') AS prc_diagnoses";
+                break;
             }
 
             //from
@@ -435,75 +436,75 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
             }
             //JOINS
             switch ($srch_option) {
-                case "Problems":
-                    $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND li.type='medical_problem')";
-                    break;
-                case "Medications":
-                    $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND (li.type='medication')) ";
-                    break;
-                case "Allergies":
-                    $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND (li.type='allergy')) ";
-                    break;
-                case "Lab results":
-                    $sqlstmt .= " left outer join procedure_order as po on po.patient_id = pd.pid
-                        left outer join procedure_report as pp on pp.procedure_order_id = po.procedure_order_id
-                        left outer join procedure_result as pr on pr.procedure_report_id = pp.procedure_report_id";
-                    break;
-                case "Insurance Companies":
-                    $sqlstmt .= " left outer join insurance_data as id on id.pid = pd.pid
+            case "Problems":
+                $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND li.type='medical_problem')";
+                break;
+            case "Medications":
+                $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND (li.type='medication')) ";
+                break;
+            case "Allergies":
+                $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND (li.type='allergy')) ";
+                break;
+            case "Lab results":
+                $sqlstmt .= " left outer join procedure_order as po on po.patient_id = pd.pid
+                    left outer join procedure_report as pp on pp.procedure_order_id = po.procedure_order_id
+                    left outer join procedure_result as pr on pr.procedure_report_id = pp.procedure_report_id";
+                break;
+            case "Insurance Companies":
+                $sqlstmt .= " left outer join insurance_data as id on id.pid = pd.pid
                         left outer join insurance_companies as ic on ic.id = id.provider";
-                    break;
-                case "Encounters":
-                    $sqlstmt .= " left outer join form_encounter as enc on pd.pid = enc.pid
-                        left outer join users as u on enc.provider_id = u.id";
-                    break;
-                case "Observations":
-                    $sqlstmt .= " left outer join form_observation as obs on pd.pid = obs.pid
-                        left outer join users as u on obs.user = u.username";
-                    break;
-                case "Procedures":
-                    $sqlstmt .= " left outer join procedure_order as pr on pd.pid = pr.patient_id
-                        left outer join procedure_providers as pp on pr.lab_id = pp.ppid
-                        left outer join procedure_order_code as prc on pr.procedure_order_id = prc.procedure_order_id
-                        left outer join code_types as prt on SUBSTRING_INDEX(pr.order_diagnosis, ':', 1) = prt.ct_key
-                        left outer join codes as prtc on SUBSTRING_INDEX(pr.order_diagnosis, ':', -1) = prtc.code AND prt.ct_id = prtc.code_type";
-                    break;
+                break;
+            case "Encounters":
+                $sqlstmt .= " left outer join form_encounter as enc on pd.pid = enc.pid
+                    left outer join users as u on enc.provider_id = u.id";
+                break;
+            case "Observations":
+                $sqlstmt .= " left outer join form_observation as obs on pd.pid = obs.pid
+                    left outer join users as u on obs.user = u.username";
+                break;
+            case "Procedures":
+                $sqlstmt .= " left outer join procedure_order as pr on pd.pid = pr.patient_id
+                    left outer join procedure_providers as pp on pr.lab_id = pp.ppid
+                    left outer join procedure_order_code as prc on pr.procedure_order_id = prc.procedure_order_id
+                    left outer join code_types as prt on SUBSTRING_INDEX(pr.order_diagnosis, ':', 1) = prt.ct_key
+                    left outer join codes as prtc on SUBSTRING_INDEX(pr.order_diagnosis, ':', -1) = prtc.code AND prt.ct_id = prtc.code_type";
+                break;
             }
 
             //WHERE Conditions started
             $whr_stmt = " where 1=1";
             switch ($srch_option) {
-                case "Medications":
-                case "Allergies":
-                    $whr_stmt .= " AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND li.date <= ?";
-                    array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
-                    break;
-                case "Problems":
-                    $whr_stmt .= " AND li.title != '' AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND li.date <= ?";
-                    array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
-                    break;
-                case "Lab results":
-                    $whr_stmt .= " AND pr.date >= ? AND pr.date < DATE_ADD(?, INTERVAL 1 DAY) AND pr.date <= ? AND pr.result != ''";
-                    array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
-                    break;
-                case "Communication":
-                    $whr_stmt .= " AND (pd.hipaa_allowsms = 'YES' OR pd.hipaa_voice = 'YES' OR pd.hipaa_mail  = 'YES' OR pd.hipaa_allowemail  = 'YES')";
-                    break;
-                case "Insurance Companies":
-                    $whr_stmt .= " AND id.type = 'primary' AND ic.name != ''";
-                    break;
-                case "Encounters":
-                    $whr_stmt .= " AND enc.date >= ? AND enc.date < DATE_ADD(?, INTERVAL 1 DAY) AND enc.date <= ?";
-                    array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
-                    break;
-                case "Observations":
-                    $whr_stmt .= " AND obs.date >= ? AND obs.date < DATE_ADD(?, INTERVAL 1 DAY) AND obs.date <= ?";
-                    array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
-                    break;
-                case "Procedures":
-                    $whr_stmt .= " AND pr.date_ordered >= ? AND pr.date_ordered < DATE_ADD(?, INTERVAL 1 DAY) AND pr.date_ordered <= ?";
-                    array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
-                    break;
+            case "Medications":
+            case "Allergies":
+                $whr_stmt .= " AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND li.date <= ?";
+                array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
+                break;
+            case "Problems":
+                $whr_stmt .= " AND li.title != '' AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND li.date <= ?";
+                array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
+                break;
+            case "Lab results":
+                $whr_stmt .= " AND pr.date >= ? AND pr.date < DATE_ADD(?, INTERVAL 1 DAY) AND pr.date <= ? AND pr.result != ''";
+                array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
+                break;
+            case "Communication":
+                $whr_stmt .= " AND (pd.hipaa_allowsms = 'YES' OR pd.hipaa_voice = 'YES' OR pd.hipaa_mail  = 'YES' OR pd.hipaa_allowemail  = 'YES')";
+                break;
+            case "Insurance Companies":
+                $whr_stmt .= " AND id.type = 'primary' AND ic.name != ''";
+                break;
+            case "Encounters":
+                $whr_stmt .= " AND enc.date >= ? AND enc.date < DATE_ADD(?, INTERVAL 1 DAY) AND enc.date <= ?";
+                array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
+                break;
+            case "Observations":
+                $whr_stmt .= " AND obs.date >= ? AND obs.date < DATE_ADD(?, INTERVAL 1 DAY) AND obs.date <= ?";
+                array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
+                break;
+            case "Procedures":
+                $whr_stmt .= " AND pr.date_ordered >= ? AND pr.date_ordered < DATE_ADD(?, INTERVAL 1 DAY) AND pr.date_ordered <= ?";
+                array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
+                break;
             }
             // If a report uses a custom date condition, add it to this array to stop the default being used
             if (!in_array($srch_option, ["Medications", "Allergies", "Problems", "Encounters", "Observations", "Procedures"])) {
@@ -679,12 +680,15 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
             );
             if (in_array($srch_option, ["Medications", "Allergies", "Problems"])) {
                 switch ($srch_option) {
-                    case "Medications":
-                        $report_options_arr["Diagnoses"]["cols"]["lists_title"]["heading"] = "Medication"; break;
-                    case "Allergies":
-                        $report_options_arr["Diagnoses"]["cols"]["lists_title"]["heading"] = "Allergy"; break;
-                    case "Problems":
-                        $report_options_arr["Diagnoses"]["cols"]["lists_title"]["heading"] = "Problem"; break;
+                case "Medications":
+                    $report_options_arr["Diagnoses"]["cols"]["lists_title"]["heading"] = "Medication";
+                    break;
+                case "Allergies":
+                    $report_options_arr["Diagnoses"]["cols"]["lists_title"]["heading"] = "Allergy";
+                    break;
+                case "Problems":
+                    $report_options_arr["Diagnoses"]["cols"]["lists_title"]["heading"] = "Problem";
+                    break;
                 }
                 $srch_option = "Diagnoses";
             }
@@ -702,20 +706,24 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
             $sort = array_keys($report_options_arr[$srch_option]["cols"]);
             if ($sortby == "") {
                 switch ($srch_option) {
-                    case "Diagnoses":
-                        $sortby = $sort[1]; break;
-                    /* case "Lab results":
-                        //$odrstmt = " result_result"; break; */
-                    case "Communication":
-                        //$commsort = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(','))";
-                        $sortby = $sort[6]; break;
-                        //$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
-                    case "Insurance Companies":
-                        //$commsort = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(','))";
-                        $sortby = $sort[7]; break;
-                        //$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
-                    default:
-                        $sortby = $sort[0];
+                case "Diagnoses":
+                    $sortby = $sort[1];
+                    break;
+                /* case "Lab results":
+                    //$odrstmt = " result_result";
+                    break; */
+                case "Communication":
+                    //$commsort = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(','))";
+                    $sortby = $sort[6];
+                    //$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
+                    break;
+                case "Insurance Companies":
+                    //$commsort = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(','))";
+                    $sortby = $sort[7];
+                    //$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
+                    break;
+                default:
+                    $sortby = $sort[0];
                 }
             }
 
@@ -730,33 +738,41 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
             for ($i = 0; $i < count($sort); $i++) {
                 if ($sortby == $sort[$i]) {
                     switch ($sortorder) {
-                        case "asc":
-                            $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sortby) . ",'desc');\" ><img src='" .  $GLOBALS['images_static_relative'] . "/sortup.gif' border='0' alt=\"" . xla('Sort Up') . "\"></a>";
-                            break;
-                        case "desc":
-                            $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('" . attr_js($sortby) . "','asc');\" onclick=\"top.restoreSession()\"><img src='" . $GLOBALS['images_static_relative'] . "/sortdown.gif' border='0' alt=\"" . xla('Sort Down') . "\"></a>";
-                            break;
+                    case "asc":
+                        $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sortby) . ",'desc');\" ><img src='" .  $GLOBALS['images_static_relative'] . "/sortup.gif' border='0' alt=\"" . xla('Sort Up') . "\"></a>";
+                        break;
+                    case "desc":
+                        $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('" . attr_js($sortby) . "','asc');\" onclick=\"top.restoreSession()\"><img src='" . $GLOBALS['images_static_relative'] . "/sortdown.gif' border='0' alt=\"" . xla('Sort Down') . "\"></a>";
+                        break;
                     } break;
                 }
             }
 
             switch ($srch_option) {
-                case "Diagnoses":
-                    $odrstmt = " ORDER BY lists_date asc"; break;
-                case "Lab results":
-                    $odrstmt = " ORDER BY result_date asc"; break;
-                case "Communication":
-                    $odrstmt = " ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) asc, communications asc"; break;
-                case "Demographics":
-                    $odrstmt = " ORDER BY patient_date asc"; break;
-                case "Insurance Companies":
-                    $odrstmt = " ORDER BY ins_provider asc"; break;
-                case "Encounters":
-                    $odrstmt = " ORDER BY enc_date asc, enc_type asc, enc_reason asc, enc_discharge asc"; break;
-                case "Observations":
-                    $odrstmt = " ORDER BY obs_date asc, obs_code asc, obs_type asc, obs_units asc, obs_value asc, obs_comments asc"; break;
-                case "Procedures":
-                    $odrstmt = " ORDER BY pr_order_date asc, pr_collect_date asc, pr_order asc"; break;
+            case "Diagnoses":
+                $odrstmt = " ORDER BY lists_date asc";
+                break;
+            case "Lab results":
+                $odrstmt = " ORDER BY result_date asc";
+                break;
+            case "Communication":
+                $odrstmt = " ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) asc, communications asc";
+                break;
+            case "Demographics":
+                $odrstmt = " ORDER BY patient_date asc";
+                break;
+            case "Insurance Companies":
+                $odrstmt = " ORDER BY ins_provider asc";
+                break;
+            case "Encounters":
+                $odrstmt = " ORDER BY enc_date asc, enc_type asc, enc_reason asc, enc_discharge asc";
+                break;
+            case "Observations":
+                $odrstmt = " ORDER BY obs_date asc, obs_code asc, obs_type asc, obs_units asc, obs_value asc, obs_comments asc";
+                break;
+            case "Procedures":
+                $odrstmt = " ORDER BY pr_order_date asc, pr_collect_date asc, pr_order asc";
+                break;
             }
 
             if (!empty($_POST['sortby']) && !empty($_POST['sortorder'])) {
@@ -804,47 +820,51 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
 
                     <table class='table' width='90%' align="center" cellpadding="5" cellspacing="0" style="font-family: Tahoma;" border="0">
                         <?php echo '<tr ' . (($srch_option == "Lab results") ? 'bgcolor="#C3FDB8" align="left" ' : '') . 'style="font-size:15px;">';
-                            foreach (array_keys($report_options_arr[$srch_option]["cols"]) as $report_col_key => $report_col) {
-                                echo '<td ';
-                                if (isset($report_options_arr[$srch_option]["cols"][$report_col]["width"])) {
-                                    $width = $report_options_arr[$srch_option]["cols"][$report_col]["width"];
-                                    if (str_contains($width, '%')) {
-                                        echo 'width="' . $width . '" ';
-                                    } else {
-                                        echo 'colspan="' . $width . '" ';
-                                    }
+                        foreach (array_keys($report_options_arr[$srch_option]["cols"]) as $report_col_key => $report_col) {
+                            echo '<td ';
+                            if (isset($report_options_arr[$srch_option]["cols"][$report_col]["width"])) {
+                                $width = $report_options_arr[$srch_option]["cols"][$report_col]["width"];
+                                if (str_contains($width, '%')) {
+                                    echo 'width="' . $width . '" ';
+                                } else {
+                                    echo 'colspan="' . $width . '" ';
                                 }
-                                echo 'class="font-weight-bold">' . xlt($report_options_arr[$srch_option]["cols"][$report_col]["heading"]);
-                                if (isset($report_options_arr[$srch_option]["sort_cols"]) && $report_options_arr[$srch_option]["sort_cols"] != 0) {
-                                    if (($report_options_arr[$srch_option]["sort_cols"] == "all") ||
-                                        ($report_options_arr[$srch_option]["sort_cols"] > 0 && $report_col_key < $report_options_arr[$srch_option]["sort_cols"]) ||
-                                        ($report_options_arr[$srch_option]["sort_cols"] < 0 && $report_col_key < $report_options_arr[$srch_option]["sort_cols"] + count($report_options_arr[$srch_option]["cols"]))) {
-                                        echo $sortlink[$report_col_key];
-                                    }
-                                }
-                                echo '</td>';
                             }
+                            echo 'class="font-weight-bold">' . xlt($report_options_arr[$srch_option]["cols"][$report_col]["heading"]);
+                            if (isset($report_options_arr[$srch_option]["sort_cols"]) && $report_options_arr[$srch_option]["sort_cols"] != 0) {
+                                if (($report_options_arr[$srch_option]["sort_cols"] == "all")
+                                    || ($report_options_arr[$srch_option]["sort_cols"] > 0 && $report_col_key < $report_options_arr[$srch_option]["sort_cols"])
+                                    || ($report_options_arr[$srch_option]["sort_cols"] < 0 && $report_col_key < $report_options_arr[$srch_option]["sort_cols"] + count($report_options_arr[$srch_option]["cols"]))
+                                ) {
+                                    echo $sortlink[$report_col_key];
+                                }
+                            }
+                            echo '</td>';
+                        }
                         echo '</tr>';
                         foreach ($report_data_arr as $report_data_key => $report_data) {
                             echo '<tr bgcolor="#CCCCCC" style="font-size:15px;">';
-                                foreach ($report_data as $report_value_key => $report_value) {
-                                    $report_col = array_keys($report_options_arr[$srch_option]["cols"])[$report_value_key];
-                                    echo '<td>';
-                                    switch ($report_col) {
-                                        case "lists_date":
-                                        case "patient_date":
-                                        case "encounter_date":
-                                        case "observation_date":
-                                            echo ($report_value != '') ? text(oeFormatDateTime($report_value, "global", true)) : ''; break;
-                                        case "patient_race":
-                                            echo generate_display_field(array('data_type' => '36','list_id' => 'race'), $report_value); break;
-                                        case "result_units":
-                                            echo generate_display_field(array('data_type' => '1', 'list_id' => 'proc_unit'), $report_value) . '&nbsp;'; break;
-                                        default:
-                                            echo text($report_value);
-                                    }
-                                    echo '</td>';
+                            foreach ($report_data as $report_value_key => $report_value) {
+                                $report_col = array_keys($report_options_arr[$srch_option]["cols"])[$report_value_key];
+                                echo '<td>';
+                                switch ($report_col) {
+                                case "lists_date":
+                                case "patient_date":
+                                case "encounter_date":
+                                case "observation_date":
+                                    echo ($report_value != '') ? text(oeFormatDateTime($report_value, "global", true)) : '';
+                                    break;
+                                case "patient_race":
+                                    echo generate_display_field(array('data_type' => '36','list_id' => 'race'), $report_value);
+                                    break;
+                                case "result_units":
+                                    echo generate_display_field(array('data_type' => '1', 'list_id' => 'proc_unit'), $report_value) . '&nbsp;';
+                                    break;
+                                default:
+                                    echo text($report_value);
                                 }
+                                echo '</td>';
+                            }
                             echo '</tr>';
                         } ?>
                     </table>
