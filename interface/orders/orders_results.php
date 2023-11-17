@@ -27,7 +27,7 @@ $form_batch = empty($_GET['batch']) ? 0 : 1;
 $form_review = empty($_GET['review']) ? 0 : 1;
 
 // Check authorization.
-$thisauth = AclMain::aclCheckCore('patients', 'lab');
+$thisauth = AclMain::aclCheckCore('patients', 'sign');
 if (!$thisauth) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Procedure Results")]);
     exit;
