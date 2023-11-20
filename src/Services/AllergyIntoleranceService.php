@@ -131,8 +131,8 @@ class AllergyIntoleranceService extends BaseService
             // only add to processing result if unique
             if (!in_array($row['uuid'], $temp_uuid_array)) {
                 $processingResult->addData($row);
+                array_push($temp_uuid_array, $row['uuid']);
             }
-            array_push($temp_uuid_array, $row['uuid']);
         }
         return $processingResult;
     }
