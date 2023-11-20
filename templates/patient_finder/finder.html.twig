@@ -46,8 +46,7 @@
                                     {% for p in rp %}
                                         <tr>
                                             {% for h in headers %}
-                                                {# Very hacky, we need a consistent manner to properly format dates far upstream #}
-                                                {% set value = (h.option_id == "DOB") ? p[h.option_id]|date() : p[h.option_id] %}
+                                                {% set value = p[h.option_id] %}
                                                 <td>
                                                     <a href="#" data-pid="{{ p.pid|attr }}">{{ value|text }}</a>
                                                 </td>
