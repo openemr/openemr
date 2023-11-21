@@ -1031,9 +1031,6 @@ class PatientService extends BaseService
         $query = "SELECT option_id FROM list_options WHERE list_id = 'recent_patient_columns' and activity = '1'";
         $res = sqlStatement($query);
         $cols = ['pid'];
-        while ($row = sqlFetchArray($res)) {
-            $cols[] = $row['option_id'];
-        }
 
         // Trim down the incoming patient array to just the whitelisted columns
         foreach ($patient as $k => $v) {
