@@ -388,8 +388,7 @@ $loading = "";
 <body>
 <?php
 
-function rp()
-{
+function rp() {
     $sql = "SELECT option_id, title FROM list_options WHERE list_id = 'recent_patient_columns' AND activity = '1' ORDER BY seq ASC";
     $res = sqlStatement($sql);
     $headers = [];
@@ -398,7 +397,35 @@ function rp()
     }
     $patientService = new PatientService();
     $rp = $patientService->getRecentPatientList();
-    return ['headers' => $headers, 'rp' => $rp];
+    // Build SQL statement to pull desired columns from patient_data table...
+    $pd_sql = "SELECT id as pid, ";
+    $i = 0;
+    foreach($headers as $k => $v) {
+        if ($i > 0) {
+            $pd_sql = $pd_sql . ', ';
+        }
+        // TODO:  check if column is date or datetime -- if so, format them...
+        // according to $GLOBAL date_display_format and time_display_format...
+        $pd_sql = $pd_sql . $v['option_id'];
+        $i = $i + 1;
+    }
+    $pd_sql = $pd_sql . " FROM patient_data WHERE id IN (";
+    $i = 0;
+    foreach($rp as $k => $v) {
+        if ($i > 0) {
+            $pd_sql = $pd_sql . ", ";
+        }
+        $pd_sql = $pd_sql . $v['pid'];
+        $i = $i + 1;
+    }
+    $pd_sql = $pd_sql . ")";
+    // Execute the SQL...
+    $pd_res = sqlStatement($pd_sql);
+    $pd_data = [];
+    while($row = sqlFetchArray($pd_res)) {
+        $pd_data[] = $row;
+    }
+    return ['headers' => $headers, 'rp' => $pd_data];
 }
 
 $rp = rp();
