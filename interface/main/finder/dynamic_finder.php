@@ -409,21 +409,10 @@ function rp() {
         $pd_sql = $pd_sql . $v['option_id'];
         $i = $i + 1;
     }
-    $pd_sql = $pd_sql . " FROM patient_data WHERE id IN (";
-    $i = 0;
-    foreach($rp as $k => $v) {
-        if ($i > 0) {
-            $pd_sql = $pd_sql . ", ";
-        }
-        $pd_sql = $pd_sql . $v['pid'];
-        $i = $i + 1;
-    }
-    $pd_sql = $pd_sql . ")";
-    // Execute the SQL...
-    $pd_res = sqlStatement($pd_sql);
+    $pd_sql = $pd_sql . " FROM patient_data WHERE id = ?";
     $pd_data = [];
-    while($row = sqlFetchArray($pd_res)) {
-        $pd_data[] = $row;
+    foreach($rp as $k => $v) {
+        $pd_data[] = sqlQuery($pd_sql, $v['pid']);
     }
     return ['headers' => $headers, 'rp' => $pd_data];
 }
