@@ -398,18 +398,14 @@ function rp() {
     $patientService = new PatientService();
     $rp = $patientService->getRecentPatientList();
     // Build SQL statement to pull desired columns from patient_data table...
-    $pd_sql = "SELECT id as pid, ";
-    $i = 0;
+    $pd_sql = "SELECT id as pid";
     foreach($headers as $k => $v) {
-        if ($i > 0) {
-            $pd_sql = $pd_sql . ', ';
-        }
+        $pd_sql .= ', ';
         // TODO:  check if column is date or datetime -- if so, format them...
         // according to $GLOBAL date_display_format and time_display_format...
-        $pd_sql = $pd_sql . $v['option_id'];
-        $i = $i + 1;
+        $pd_sql .= $v['option_id'];
     }
-    $pd_sql = $pd_sql . " FROM patient_data WHERE id = ?";
+    $pd_sql .= " FROM patient_data WHERE id = ?";
     $pd_data = [];
     foreach($rp as $k => $v) {
         $pd_data[] = sqlQuery($pd_sql, $v['pid']);
