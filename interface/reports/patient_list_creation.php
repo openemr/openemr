@@ -47,6 +47,7 @@ $search_options = array
     "Insurance Companies" => xl("Insurance Companies"),
     "Encounters"          => xl("Encounters"),
     "Observations"        => xl("Observations"),
+    "Procedures"          => xl("Procedures"),
     "Lab results"         => xl("Lab Results")
 );
 
@@ -204,7 +205,7 @@ if ($csv) {
                     <?php $datetimepicker_timepicker = true; ?>
                     <?php $datetimepicker_showseconds = true; ?>
                     <?php $datetimepicker_formatInput = true; ?>
-                    <?php include $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                    <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });
@@ -316,7 +317,7 @@ if ($csv) {
                                     <select class="form-control" name="insurance_companies" id="insurance_companies" title="<?php echo xlt('Select Insurance Company'); ?>">
                                         <option> <?php echo xlt('All'); ?></option>
                                         <?php foreach ($insarr as $ins_id => $ins_co) { ?>
-                                            <option <?php echo (!empty($_POST['insurance_companies']) && ($_POST['insurance_companies'] == $ins_co)) ? 'selected' : ''; ?> value="<?php echo attr($ins_co); ?>"><?php echo text($ins_co); ?></option>
+                                            <option <?php echo (!empty($_POST['insurance_companies']) && ($_POST['insurance_companies'] == $ins_id)) ? 'selected' : ''; ?> value="<?php echo $ins_id; ?>"><?php echo text($ins_co); ?></option>
                                         <?php } ?>
                                     </select>
                                     </select>
@@ -398,8 +399,8 @@ if (!empty($_POST['form_refresh'])) {
                 pd.pid AS patient_id,
                 DATE_FORMAT(FROM_DAYS(DATEDIFF('" . date('Y-m-d H:i:s') . "',pd.dob)), '%Y')+0 AS patient_age,
                 pd.sex AS patient_sex,
-                pd.race AS patient_race,
-                REPLACE(TRIM('|' FROM pd.ethnicity), '|', ', ') AS patient_ethnic,
+                TRIM('|' FROM pd.race) AS patient_race,
+                TRIM('|' FROM pd.ethnicity) AS patient_ethnic,
                 concat(u.lname, ', ', u.fname)  AS users_provider";
 
     $srch_option = $_POST['srch_option'];
@@ -407,38 +408,42 @@ if (!empty($_POST['form_refresh'])) {
         case "Medications":
         case "Allergies":
         case "Problems":
-            $sqlstmt .= ",li.date AS lists_date,
-                            li.diagnosis AS lists_diagnosis,
-                            li.title AS lists_title";
+            $sqlstmt .= ", li.date AS other_date,
+                    REPLACE(li.diagnosis, ';', ', ') AS lists_diagnosis,
+                    li.title AS lists_title";
             break;
         case "Lab results":
-            $sqlstmt .= ",pr.date AS result_date,
-                            pr.facility AS result_facility,
-                            pr.units AS result_units,
-                            pr.result AS result_result,
-                            pr.range AS result_range,
-                            pr.abnormal AS result_abnormal,
-                            pr.comments AS result_comments,
-                            pr.document_id AS result_document_id";
+            $sqlstmt .= ", pr.date AS other_date,
+                    pr.facility AS result_facility,
+                    pr.units AS result_units,
+                    pr.result AS result_result,
+                    pr.range AS result_range,
+                    pr.abnormal AS result_abnormal,
+                    pr.comments AS result_comments,
+                    pr.document_id AS result_document_id";
             break;
         case "Communication":
-            $sqlstmt .= ",REPLACE(REPLACE(concat_ws(', ', IF(pd.hipaa_allowemail = 'YES', 'Email', 'NO'), IF(pd.hipaa_allowsms = 'YES', 'SMS', 'NO'),
-                            IF(pd.hipaa_mail = 'YES', 'Mail Message', 'NO') , IF(pd.hipaa_voice = 'YES', 'Voice Message', 'NO') ), ', NO', ''), 'NO,', '') as communications";
+            $sqlstmt .= ", REPLACE(REPLACE(concat_ws(', ', IF(pd.hipaa_allowemail = 'YES', 'Email', 'NO'), IF(pd.hipaa_allowsms = 'YES', 'SMS', 'NO'),
+                    IF(pd.hipaa_mail = 'YES', 'Mail Message', 'NO') , IF(pd.hipaa_voice = 'YES', 'Voice Message', 'NO') ), ', NO', ''), 'NO,', '') as communications";
             break;
         case "Insurance Companies":
             $sqlstmt .= ", id.type AS ins_type, id.provider AS ins_provider, ic.name as ins_name";
             break;
         case "Encounters":
-            $sqlstmt .= ", enc.date AS enc_date, enc.reason AS enc_reason, enc.facility AS enc_facility, enc.encounter_type_description AS enc_type,
-                            REPLACE(enc.discharge_disposition, '-', ' ') AS enc_discharge";
+            $sqlstmt .= ", enc.date AS other_date, enc.reason AS enc_reason, enc.facility AS enc_facility, enc.encounter_type_description AS enc_type,
+                    enc.discharge_disposition AS enc_discharge";
             break;
         case "Observations":
-            $sqlstmt .= ", obs.date AS obs_date, obs.code AS obs_code, obs.observation AS obs_comments, obs.description AS obs_description,
-                            REPLACE(obs.ob_type, '_', ' ') AS obs_type, obs.ob_value AS obs_value, obs.ob_unit AS obs_units";
+            $sqlstmt .= ", obs.date AS other_date, obs.code AS obs_code, obs.observation AS obs_comments, obs.description AS obs_description,
+                    obs.ob_type AS obs_type, obs.ob_value AS obs_value, obs.ob_unit AS obs_units";
             break;
         case "Prescriptions":
-            $sqlstmt .= ", rx.drug AS rx_drug, CONCAT(rx.size, rxl_unit.title) AS rx_medicine_units, CONCAT(rx.dosage, ' in ', rxl_form.title, ' ', rxl_interval.title) AS rx_directions,
-                    rx.quantity AS rx_quantity, rx.refills AS rx_refills, rx.date_added AS rx_filled";
+            $sqlstmt .= ", rx.date_added AS other_date, rx.drug AS rx_drug, CONCAT(rx.size, rxl_unit.title) AS rx_medicine_units, CONCAT(rx.dosage, ' in ', rxl_form.title, ' ', rxl_interval.title) AS rx_directions,
+                    rx.quantity AS rx_quantity, rx.refills AS rx_refills";
+            break;
+        case "Procedures":
+            $sqlstmt .= ", pr.date_ordered AS other_date, pr.order_status AS pr_status, pp.name AS pr_lab,
+                pr.order_diagnosis AS pr_diagnosis, prc.procedure_name as prc_procedure, prc.diagnoses AS prc_diagnoses";
             break;
     }
 
@@ -460,20 +465,20 @@ if (!empty($_POST['form_refresh'])) {
             break;
         case "Lab results":
             $sqlstmt .= " left outer join procedure_order as po on po.patient_id = pd.pid
-                            left outer join procedure_report as pp on pp.procedure_order_id = po.procedure_order_id
-                            left outer join procedure_result as pr on pr.procedure_report_id = pp.procedure_report_id";
+                left outer join procedure_report as pp on pp.procedure_order_id = po.procedure_order_id
+                left outer join procedure_result as pr on pr.procedure_report_id = pp.procedure_report_id";
             break;
         case "Insurance Companies":
             $sqlstmt .= " left outer join insurance_data as id on id.pid = pd.pid
-                            left outer join insurance_companies as ic on ic.id = id.provider";
+                    left outer join insurance_companies as ic on ic.id = id.provider";
             break;
         case "Encounters":
             $sqlstmt .= " left outer join form_encounter as enc on pd.pid = enc.pid
-                            left outer join users as u on enc.provider_id = u.id";
+                left outer join users as u on enc.provider_id = u.id";
             break;
         case "Observations":
             $sqlstmt .= " left outer join form_observation as obs on pd.pid = obs.pid
-                            left outer join users as u on obs.user = u.username";
+                left outer join users as u on obs.user = u.username";
             break;
         case "Prescriptions":
             $sqlstmt .= " left outer join prescriptions as rx on pd.pid = rx.patient_id
@@ -482,10 +487,15 @@ if (!empty($_POST['form_refresh'])) {
                     left outer join (SELECT option_id, title FROM list_options WHERE list_id = 'drug_interval') as rxl_interval on rx.interval = rxl_interval.option_id
                     left outer join users as u on rx.provider_id = u.id";
             break;
+        case "Procedures":
+            $sqlstmt .= " left outer join procedure_order as pr on pd.pid = pr.patient_id
+                left outer join procedure_providers as pp on pr.lab_id = pp.ppid
+                left outer join procedure_order_code as prc on pr.procedure_order_id = prc.procedure_order_id";
+            break;
     }
 
     //WHERE Conditions started
-    $whr_stmt = "where 1=1";
+    $whr_stmt = " where 1=1";
     switch ($srch_option) {
         case "Medications":
         case "Allergies":
@@ -501,10 +511,14 @@ if (!empty($_POST['form_refresh'])) {
             array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
             break;
         case "Communication":
-            $whr_stmt .= " AND (pd.hipaa_allowsms = 'YES' OR pd.hipaa_voice = 'YES' OR pd.hipaa_mail  = 'YES' OR pd.hipaa_allowemail  = 'YES')";
+            $whr_stmt .= " AND (pd.hipaa_allowsms = 'YES' OR pd.hipaa_voice = 'YES' OR pd.hipaa_mail  = 'YES' OR pd.hipaa_allowemail  = 'YES')
+                AND pd.date >= ? AND pd.date < DATE_ADD(?, INTERVAL 1 DAY) AND pd.date <= ?";
+            array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
             break;
         case "Insurance Companies":
-            $whr_stmt .= " AND id.type = 'primary' AND ic.name != ''";
+            $whr_stmt .= " AND id.type = 'primary' AND ic.name != ''
+                AND pd.date >= ? AND pd.date < DATE_ADD(?, INTERVAL 1 DAY) AND pd.date <= ?";
+            array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
             break;
         case "Encounters":
             $whr_stmt .= " AND enc.date >= ? AND enc.date < DATE_ADD(?, INTERVAL 1 DAY) AND enc.date <= ?";
@@ -518,11 +532,14 @@ if (!empty($_POST['form_refresh'])) {
             $whr_stmt .= " AND rx.date_added >= ? AND rx.date_added < DATE_ADD(?, INTERVAL 1 DAY) AND rx.date_added <= ?";
             array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
             break;
-    }
-    // If a report uses a custom date condition, add it to this array to stop the default being used
-    if (!in_array($srch_option, ["Medications", "Allergies", "Problems", "Encounters", "Observations", "Prescriptions"])) {
-        $whr_stmt .= " AND pd.date >= ? AND pd.date < DATE_ADD(?, INTERVAL 1 DAY) AND pd.date <= ?";
-        array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
+        case "Procedures":
+            $whr_stmt .= " AND pr.date_ordered >= ? AND pr.date_ordered < DATE_ADD(?, INTERVAL 1 DAY) AND pr.date_ordered <= ?";
+            array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
+            break;
+        default:
+            $whr_stmt .= " AND pd.date >= ? AND pd.date < DATE_ADD(?, INTERVAL 1 DAY) AND pd.date <= ?";
+            array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
+            break;
     }
 
     if (strlen($patient_id) != 0) {
@@ -563,7 +580,7 @@ if (!empty($_POST['form_refresh'])) {
     }
 
     if ($srch_option == "Insurance Companies" && strlen($insurance_company) > 0 && $insurance_company != "All") {
-        $whr_stmt .= " AND ic.name = ?";
+        $whr_stmt .= " AND id.provider = ?";
         array_push($sqlBindArray, $insurance_company);
     }
 
@@ -571,123 +588,135 @@ if (!empty($_POST['form_refresh'])) {
     $report_options_arr = array(
         "Demographics" => array(
             "cols" => array(
-                "patient_date"   => array("heading" => "Date",         "width" => "15%"),
-                "patient_name"   => array("heading" => "Patient Name", "width" => "20%"),
-                "patient_id"     => array("heading" => "PID",          "width" => "5%"),
-                "patient_age"    => array("heading" => "Age",          "width" => "5%"),
-                "patient_sex"    => array("heading" => "Gender",       "width" => "10%"),
+                "patient_date"   => array("heading" => "Date Created", "width" => "nowrap"),
+                "patient_name"   => array("heading" => "Patient Name", "width" => "10%"),
+                "patient_id"     => array("heading" => "PID",          "width" => "nowrap"),
+                "patient_age"    => array("heading" => "Age",          "width" => "nowrap"),
+                "patient_sex"    => array("heading" => "Gender",       "width" => "nowrap"),
                 "patient_ethnic" => array("heading" => "Ethnicity",    "width" => "10%"),
-                "patient_race"   => array("heading" => "Race",         "width" => "20%"),
-                "users_provider" => array("heading" => "Provider",     "width" => "5%")
+                "patient_race"   => array("heading" => "Race",         "width" => "10%"),
+                "users_provider" => array("heading" => "Provider",     "width" => "10%")
             ),
             "acl" => ["patients", "demo"]
         ),
         "Diagnoses" => array( // Diagnosis Check - Medications, Allergies, Problems
             "cols" => array(
-                "lists_date"      => array("heading" => "Diagnosis Date", "width" => "15%"),
-                "lists_diagnosis" => array("heading" => "Diagnosis",      "width" => "15%"),
-                "lists_title"     => array(                               "width" => "15%"), // Heading assigned below
-                "patient_name"    => array("heading" => "Patient Name",   "width" => "15%"),
-                "patient_id"      => array("heading" => "PID",            "width" => "5%"),
-                "patient_age"     => array("heading" => "Age",            "width" => "5%"),
-                "patient_sex"     => array("heading" => "Gender",         "width" => "10%"),
+                "other_date"      => array("heading" => "Diagnosis Date", "width" => "nowrap"),
+                "patient_name"    => array("heading" => "Patient Name",   "width" => "10%"),
+                "patient_id"      => array("heading" => "PID",            "width" => "nowrap"),
+                "patient_age"     => array("heading" => "Age",            "width" => "nowrap"),
+                "patient_sex"     => array("heading" => "Gender",         "width" => "nowrap"),
                 "patient_ethnic"  => array("heading" => "Ethnicity",      "width" => "10%"),
-                "users_provider"  => array("heading" => "Provider",       "width" => 4)
+                "users_provider"  => array("heading" => "Provider",       "width" => "10%"),
+                "lists_diagnosis" => array("heading" => "Diagnosis",      "width" => "15%"),
+                "lists_title"     => array(                               "width" => "15%") // Heading assigned below
             ),
             "sort_cols" => 3,
             "acl" => ["patients", "med"]
         ),
-        "Lab results" => array(
+        "Prescriptions" => array(
             "cols" => array(
-                "result_date"        => array("heading" => "Date",        "width" => "15%"),
-                "result_facility"    => array("heading" => "Facility",    "width" => "15%"),
-                "result_units"       => array("heading" => "Unit",        "width" => "10%"),
-                "result_result"      => array("heading" => "Result",      "width" => "10%"),
-                "result_range"       => array("heading" => "Range",       "width" => "10%"),
-                "result_abnormal"    => array("heading" => "Abnormal",    "width" => "10%"),
-                "result_comments"    => array("heading" => "Comments"),
-                "result_document_id" => array("heading" => "Document ID", "width" => "5%"),
-                "patient_id"         => array("heading" => "PID",         "width" => "5%")
+                "other_date"        => array("heading" => "Filled",         "width" => "10%"),
+                "patient_name"      => array("heading" => "Patient Name",   "width" => "10%"),
+                "patient_id"        => array("heading" => "PID",            "width" => "nowrap"),
+                "patient_age"       => array("heading" => "Age",            "width" => "nowrap"),
+                "patient_sex"       => array("heading" => "Gender",         "width" => "nowrap"),
+                "rx_drug"           => array("heading" => "Drug",           "width" => "20%"),
+                "rx_medicine_units" => array("heading" => "Units",          "width" => "nowrap"),
+                "rx_directions"     => array("heading" => "Directions",     "width" => "10%"),
+                "rx_quantity"       => array("heading" => "Quantity",       "width" => "nowrap"),
+                "rx_refills"        => array("heading" => "Refills",        "width" => "nowrap")
             ),
-            "sort_cols" => 6,
-            "acl" => ["patients", "lab"]
+            "acl" => ["patients", "rx"]
         ),
         "Communication" => array(
             "cols" => array(
-                "patient_date"   => array("heading" => "Date",         "width" => "15%"),
-                "patient_name"   => array("heading" => "Patient Name", "width" => "20%"),
-                "patient_id"     => array("heading" => "PID",          "width" => "5%"),
-                "patient_age"    => array("heading" => "Age",          "width" => "5%"),
-                "patient_sex"    => array("heading" => "Gender",       "width" => "10%"),
-                "patient_ethnic" => array("heading" => "Ethnicity",    "width" => "10%"),
-                "users_provider" => array("heading" => "Provider",     "width" => "15%"),
-                "communications" => array("heading" => "Communication")
+                "patient_date"   => array("heading" => "Date Created",  "width" => "nowrap"),
+                "patient_name"   => array("heading" => "Patient Name",  "width" => "10%"),
+                "patient_id"     => array("heading" => "PID",           "width" => "nowrap"),
+                "patient_age"    => array("heading" => "Age",           "width" => "nowrap"),
+                "patient_sex"    => array("heading" => "Gender",        "width" => "nowrap"),
+                "patient_ethnic" => array("heading" => "Ethnicity",     "width" => "10%"),
+                "users_provider" => array("heading" => "Provider",      "width" => "10%"),
+                "communications" => array("heading" => "Communication", "width" => "15%")
             ),
             "acl" => ["patients", "med"]
         ),
         "Insurance Companies" => array(
             "cols" => array(
-                "patient_date"   => array("heading" => "Date",         "width" => "15%"),
-                "patient_name"   => array("heading" => "Patient Name", "width" => "20%"),
-                "patient_id"     => array("heading" => "PID",          "width" => "5%"),
-                "patient_age"    => array("heading" => "Age",          "width" => "5%"),
-                "patient_sex"    => array("heading" => "Gender",       "width" => "10%"),
-                "patient_ethnic" => array("heading" => "Ethnicity",    "width" => "10%"),
-                "users_provider" => array("heading" => "Provider",     "width" => "15%"),
-                "ins_name"       => array("heading" => "Insurance Companies")
+                "patient_date"   => array("heading" => "Date Created",       "width" => "nowrap"),
+                "patient_name"   => array("heading" => "Patient Name",       "width" => "10%"),
+                "patient_id"     => array("heading" => "PID",                "width" => "nowrap"),
+                "patient_age"    => array("heading" => "Age",                "width" => "nowrap"),
+                "patient_sex"    => array("heading" => "Gender",             "width" => "nowrap"),
+                "patient_ethnic" => array("heading" => "Ethnicity",          "width" => "10%"),
+                "users_provider" => array("heading" => "Insurance Provider", "width" => "10%"),
+                "ins_name"       => array("heading" => "Primary Insurance",  "width" => "10%")
             ),
             "acl" => ["patients", "med"]
         ),
         "Encounters" => array(
             "cols" => array(
-                "enc_date"       => array("heading" => "Encounter Date"),
-                "patient_name"   => array("heading" => "Patient Name"),
-                "patient_id"     => array("heading" => "PID"),
-                "patient_age"    => array("heading" => "Age"),
-                "patient_sex"    => array("heading" => "Gender"),
-                "patient_ethnic" => array("heading" => "Ethnicity"),
-                "users_provider" => array("heading" => "Provider"),
-                "enc_type"       => array("heading" => "Encounter type"),
-                "enc_reason"     => array("heading" => "Reason"),
-                "enc_facility"   => array("heading" => "Facility"),
-                "enc_discharge"  => array("heading" => "Discharge Disposition")
+                "other_date"     => array("heading" => "Encounter Date",        "width" => "nowrap"),
+                "patient_name"   => array("heading" => "Patient Name",          "width" => "10%"),
+                "patient_id"     => array("heading" => "PID",                   "width" => "nowrap"),
+                "patient_age"    => array("heading" => "Age",                   "width" => "nowrap"),
+                "patient_sex"    => array("heading" => "Gender",                "width" => "nowrap"),
+                "users_provider" => array("heading" => "Provider",              "width" => "10%"),
+                "enc_type"       => array("heading" => "Encounter type",        "width" => "20%"),
+                "enc_reason"     => array("heading" => "Reason",                "width" => "15%"),
+                "enc_facility"   => array("heading" => "Facility",              "width" => "10%"),
+                "enc_discharge"  => array("heading" => "Discharge Disposition", "width" => "10%")
             ),
             "acl" => ["encounters", "relaxed"]
         ),
         "Observations" => array(
             "cols" => array(
-                "obs_date"        => array("heading" => "Date"),
-                "patient_name"    => array("heading" => "Patient Name"),
-                "patient_id"      => array("heading" => "PID"),
-                "patient_age"     => array("heading" => "Age"),
-                "patient_sex"     => array("heading" => "Gender"),
-                "patient_ethnic"  => array("heading" => "Ethnicity"),
-                "users_provider"  => array("heading" => "Provider"),
-                "obs_code"        => array("heading" => "Code"),
-                "obs_description" => array("heading" => "Description"),
-                "obs_type"        => array("heading" => "Type"),
-                "obs_value"       => array("heading" => "Value"),
-                "obs_units"       => array("heading" => "Units"),
-                "obs_comments"    => array("heading" => "Comments")
+                "other_date"      => array("heading" => "Date",         "width" => "nowrap"),
+                "patient_name"    => array("heading" => "Patient Name", "width" => "10%"),
+                "patient_id"      => array("heading" => "PID",          "width" => "nowrap"),
+                "patient_age"     => array("heading" => "Age",          "width" => "nowrap"),
+                "patient_sex"     => array("heading" => "Gender",       "width" => "nowrap"),
+                "users_provider"  => array("heading" => "Provider",     "width" => "10%"),
+                "obs_code"        => array("heading" => "Code",         "width" => "nowrap"),
+                "obs_description" => array("heading" => "Description",  "width" => "15%"),
+                "obs_type"        => array("heading" => "Type",         "width" => "10%"),
+                "obs_value"       => array("heading" => "Value",        "width" => "nowrap"),
+                "obs_units"       => array("heading" => "Units",        "width" => "nowrap"),
+                "obs_comments"    => array("heading" => "Comments",     "width" => "20%")
             ),
             "sort_cols" => -1,
             "acl" => ["encounters", "coding_a"]
         ),
-        "Prescriptions" => array(
+        "Lab results" => array(
             "cols" => array(
-                "rx_filled"         => array("heading" => "Filled"),
-                "patient_name"      => array("heading" => "Patient Name"),
-                "patient_id"        => array("heading" => "PID"),
-                "patient_age"       => array("heading" => "Age"),
-                "patient_sex"       => array("heading" => "Gender"),
-                "patient_ethnic"    => array("heading" => "Ethnicity"),
-                "rx_drug"           => array("heading" => "Drug"),
-                "rx_medicine_units" => array("heading" => "Medicine Units"),
-                "rx_directions"     => array("heading" => "Directions"),
-                "rx_quantity"       => array("heading" => "Quantity"),
-                "rx_refills"        => array("heading" => "Refills")
+                "other_date"         => array("heading" => "Date",        "width" => "nowrap"),
+                "result_facility"    => array("heading" => "Facility",    "width" => "10%"),
+                "result_units"       => array("heading" => "Unit",        "width" => "nowrap"),
+                "result_result"      => array("heading" => "Result",      "width" => "5%"),
+                "result_range"       => array("heading" => "Range",       "width" => "5%"),
+                "result_abnormal"    => array("heading" => "Abnormal",    "width" => "nowrap"),
+                "result_comments"    => array("heading" => "Comments",    "width" => "20%"),
+                "result_document_id" => array("heading" => "Document ID", "width" => "nowrap"),
+                "patient_id"         => array("heading" => "PID",         "width" => "nowrap")
             ),
-            "acl" => ["patients", "rx"]
+            "sort_cols" => 6,
+            "acl" => ["patients", "lab"]
+        ),
+        "Procedures" => array(
+            "cols" => array(
+                "other_date"      => array("heading" => "Order Date",         "width" => "nowrap"),
+                "patient_name"    => array("heading" => "Patient Name",       "width" => "10%"),
+                "patient_id"      => array("heading" => "PID",                "width" => "nowrap"),
+                "users_provider"  => array("heading" => "Procedure Provider", "width" => "10%"),
+                "pr_lab"          => array("heading" => "Lab",                "width" => "10%"),
+                "pr_status"       => array("heading" => "Status",             "width" => "nowrap"),
+                "pr_diagnosis"    => array("heading" => "Primary Diagnosis",  "width" => "15%"),
+                "prc_procedure"   => array("heading" => "Procedure Test",     "width" => "10%"),
+                "prc_diagnoses"   => array("heading" => "Diagnosis Codes",    "width" => "20%")
+            ),
+            "sort_cols" => -2,
+            "acl" => ["encounters", "coding_a"]
         )
     );
     if (in_array($srch_option, ["Medications", "Allergies", "Problems"])) {
@@ -763,10 +792,9 @@ if (!empty($_POST['form_refresh'])) {
 
     switch ($srch_option) {
         case "Diagnoses":
-            $odrstmt = " ORDER BY lists_date asc";
-            break;
         case "Lab results":
-            $odrstmt = " ORDER BY result_date asc";
+        case "Procedures":
+            $odrstmt = " ORDER BY other_date asc";
             break;
         case "Communication":
             $odrstmt = " ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) asc, communications asc";
@@ -778,13 +806,13 @@ if (!empty($_POST['form_refresh'])) {
             $odrstmt = " ORDER BY ins_provider asc";
             break;
         case "Encounters":
-            $odrstmt = " ORDER BY enc_date asc, enc_type asc, enc_reason asc, enc_discharge asc";
+            $odrstmt = " ORDER BY other_date asc, enc_type asc, enc_reason asc, enc_discharge asc";
             break;
         case "Observations":
-            $odrstmt = " ORDER BY obs_date asc, obs_code asc, obs_type asc, obs_units asc, obs_value asc, obs_comments asc";
+            $odrstmt = " ORDER BY other_date asc, obs_code asc, obs_type asc, obs_units asc, obs_value asc, obs_comments asc";
             break;
         case "Prescriptions":
-            $odrstmt = " ORDER BY rx_filled asc, rx_quantity asc, rx_refills asc";
+            $odrstmt = " ORDER BY other_date asc, rx_quantity asc, rx_refills asc";
             break;
     }
 
@@ -798,7 +826,7 @@ if (!empty($_POST['form_refresh'])) {
         }
     }
 
-    $sqlstmt .= " " . $whr_stmt . " " . $odrstmt;
+    $sqlstmt .= $whr_stmt . $odrstmt;
     //echo $sqlstmt."<hr>";
     $result = sqlStatement($sqlstmt, $sqlBindArray);
     //print_r($result);
@@ -833,7 +861,6 @@ if (!empty($_POST['form_refresh'])) {
                     </table>
 
                     <table class='table' width='90%' align="center" cellpadding="5" cellspacing="0" style="font-family: Tahoma;" border="0">
-
                         <?php echo '<tr ' . (($srch_option == "Lab results") ? 'bgcolor="#C3FDB8" align="left" ' : '') . 'style="font-size:15px;">';
         }
         foreach (array_keys($report_options_arr[$srch_option]["cols"]) as $report_col_key => $report_col) {
@@ -843,6 +870,8 @@ if (!empty($_POST['form_refresh'])) {
                     $width = $report_options_arr[$srch_option]["cols"][$report_col]["width"];
                     if (str_contains($width, '%')) {
                         echo 'width="' . $width . '" ';
+                    } else if ($width == 'nowrap') {
+                        echo 'width="1%" style="white-space: nowrap;" ';
                     } else {
                         echo 'colspan="' . $width . '" ';
                     }
@@ -880,19 +909,49 @@ if (!empty($_POST['form_refresh'])) {
             foreach ($report_data as $report_value_key => $report_value) {
                 if (!$csv) {
                     $report_col = array_keys($report_options_arr[$srch_option]["cols"])[$report_value_key];
-                    echo '<td>';
+                    $width = isset($report_options_arr[$srch_option]["cols"][$report_col]["width"]) ? $report_options_arr[$srch_option]["cols"][$report_col]["width"] : '';
+                    if ($width != 'nowrap') {
+                        echo '<td>';
+                    } else {
+                        echo '<td style="white-space: nowrap;">';
+                    }
                     switch ($report_col) {
-                        case "lists_date":
                         case "patient_date":
-                        case "encounter_date":
-                        case "observation_date":
+                        case "other_date":
                             echo ($report_value != '') ? text(oeFormatDateTime($report_value, "global", true)) : '';
                             break;
                         case "patient_race":
-                            echo generate_display_field(array('data_type' => '36','list_id' => 'race'), $report_value);
+                            echo generate_display_field(array('data_type' => '36', 'list_id' => 'race'), $report_value);
+                            break;
+                        case "patient_ethnic":
+                            echo generate_display_field(array('data_type' => '36', 'list_id' => 'ethnicity'), $report_value);
                             break;
                         case "result_units":
                             echo generate_display_field(array('data_type' => '1', 'list_id' => 'proc_unit'), $report_value) . '&nbsp;';
+                            break;
+                        case "enc_discharge":
+                            echo generate_display_field(array('data_type' => '1', 'list_id' => 'discharge-disposition'), $report_value);
+                            break;
+                        case "obs_type":
+                            echo generate_display_field(array('data_type' => '1', 'list_id' => 'Observation_Types'), $report_value);
+                            break;
+                        case "result_abnormal":
+                            echo generate_display_field(array('data_type' => '1', 'list_id' => 'proc_res_abnormal'), $report_value);
+                            break;
+                        case "pr_status":
+                            echo generate_display_field(array('data_type' => '1', 'list_id' => 'ord_status'), $report_value);
+                            break;
+                        case "pr_diagnosis":
+                            echo text(getCodeDescription($report_value));
+                            break;
+                        case "prc_diagnoses":
+                            if ($report_value != '') {
+                                echo '<ul style="margin: 0; padding: 0;">';
+                                foreach (explode(';', $report_value) as $code_index => $code) {
+                                    echo '<li>' . text(getCodeDescription($code)) . '</li>';
+                                }
+                                echo '</ul>';
+                            }
                             break;
                         default:
                             echo text($report_value);
@@ -925,15 +984,15 @@ if (!empty($_POST['form_refresh'])) {
                         </tr>
                     </table>
                 <?php
-    }
-    if (!$csv) { ?>
+            }
+            ?>
                 </div>
 
-    <?php }
-} else {//End if form_refresh
-    ?><div class='text'> <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?> </div><?php
-}
-if (!$csv) { ?>
+            <?php
+        } else {//End if form_refresh
+            ?><div class='text'> <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?> </div><?php
+        }
+        ?>
         </form>
 
     </body>
