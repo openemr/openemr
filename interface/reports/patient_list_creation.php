@@ -981,59 +981,68 @@ if (!empty($_POST['form_refresh'])) {
                 echo '<tr bgcolor="#CCCCCC" style="font-size:15px;">';
             }
             foreach ($report_data as $report_value_key => $report_value) {
+                $report_col = array_keys($report_options_arr[$srch_option]["cols"])[$report_value_key];
+                $report_value_print = NULL;
+                switch ($report_col) {
+                    case "patient_date":
+                    case "other_date":
+                        $report_value_print = ($report_value != '') ? text(oeFormatDateTime($report_value, "global", true)) : '';
+                        break;
+                    case "patient_race":
+                        $report_value_print = generate_display_field(array('data_type' => '36', 'list_id' => 'race'), $report_value);
+                        break;
+                    case "patient_ethnic":
+                        $report_value_print = generate_display_field(array('data_type' => '36', 'list_id' => 'ethnicity'), $report_value);
+                        break;
+                    case "result_units":
+                        $report_value_print = generate_display_field(array('data_type' => '1', 'list_id' => 'proc_unit'), $report_value) . '&nbsp;';
+                        break;
+                    case "enc_discharge":
+                        $report_value_print = generate_display_field(array('data_type' => '1', 'list_id' => 'discharge-disposition'), $report_value);
+                        break;
+                    case "obs_type":
+                        $report_value_print = generate_display_field(array('data_type' => '1', 'list_id' => 'Observation_Types'), $report_value);
+                        break;
+                    case "result_abnormal":
+                        $report_value_print = generate_display_field(array('data_type' => '1', 'list_id' => 'proc_res_abnormal'), $report_value);
+                        break;
+                    case "pr_status":
+                        $report_value_print = generate_display_field(array('data_type' => '1', 'list_id' => 'ord_status'), $report_value);
+                        break;
+                    // Procedure diagnoses can be hovered over to reveal their codes
+                    case "pr_diagnosis":
+                        if (!$csv) {
+                            $report_value_print = '<abbr title="' . text($report_value) . '">' . text(getCodeDescription($report_value)) . '</abbr>';
+                        } else {
+                            $report_value_print = $report_value;
+                        }
+                        break;
+                    case "prc_diagnoses":
+                        if (!$csv) {
+                            if ($report_value != '') {
+                                $report_value_print = '<ul style="margin: 0; padding: 0;">';
+                                foreach (explode(';', $report_value) as $code_index => $code) {
+                                    $report_value_print .= '<li><abbr title="' . text($code) . '">' . text(getCodeDescription($code)) . '</abbr></li>';
+                                }
+                                $report_value_print .= '</ul>';
+                            }
+                        } else {
+                            $report_value_print = $report_value;
+                        }
+                        break;
+                    default:
+                        $report_value_print = text($report_value);
+                }
                 if (!$csv) {
-                    $report_col = array_keys($report_options_arr[$srch_option]["cols"])[$report_value_key];
                     $width = isset($report_options_arr[$srch_option]["cols"][$report_col]["width"]) ? $report_options_arr[$srch_option]["cols"][$report_col]["width"] : '';
                     if ($width != 'nowrap') {
                         echo '<td>';
                     } else {
                         echo '<td style="white-space: nowrap;">';
                     }
-                    switch ($report_col) {
-                        case "patient_date":
-                        case "other_date":
-                            echo ($report_value != '') ? text(oeFormatDateTime($report_value, "global", true)) : '';
-                            break;
-                        case "patient_race":
-                            echo generate_display_field(array('data_type' => '36', 'list_id' => 'race'), $report_value);
-                            break;
-                        case "patient_ethnic":
-                            echo generate_display_field(array('data_type' => '36', 'list_id' => 'ethnicity'), $report_value);
-                            break;
-                        case "result_units":
-                            echo generate_display_field(array('data_type' => '1', 'list_id' => 'proc_unit'), $report_value) . '&nbsp;';
-                            break;
-                        case "enc_discharge":
-                            echo generate_display_field(array('data_type' => '1', 'list_id' => 'discharge-disposition'), $report_value);
-                            break;
-                        case "obs_type":
-                            echo generate_display_field(array('data_type' => '1', 'list_id' => 'Observation_Types'), $report_value);
-                            break;
-                        case "result_abnormal":
-                            echo generate_display_field(array('data_type' => '1', 'list_id' => 'proc_res_abnormal'), $report_value);
-                            break;
-                        case "pr_status":
-                            echo generate_display_field(array('data_type' => '1', 'list_id' => 'ord_status'), $report_value);
-                            break;
-                        // Procedure diagnoses can be hovered over to reveal their codes
-                        case "pr_diagnosis":
-                            echo '<abbr title="' . text($report_value) . '">' . text(getCodeDescription($report_value)) . '</abbr>';
-                            break;
-                        case "prc_diagnoses":
-                            if ($report_value != '') {
-                                echo '<ul style="margin: 0; padding: 0;">';
-                                foreach (explode(';', $report_value) as $code_index => $code) {
-                                    echo '<li><abbr title="' . text($code) . '">' . text(getCodeDescription($code)) . '</abbr></li>';
-                                }
-                                echo '</ul>';
-                            }
-                            break;
-                        default:
-                            echo text($report_value);
-                    }
-                    echo '</td>';
+                    echo $report_value_print . '</td>';
                 } else {
-                    echo csvEscape($report_value);
+                    echo csvEscape($report_value_print);
                     if ($report_value_key < count($report_options_arr[$srch_option]["cols"]) - 1) {
                         echo ",";
                     } else {
