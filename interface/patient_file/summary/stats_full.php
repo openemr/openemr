@@ -58,6 +58,7 @@ $language = $tmp['language'];
 <script>
 
 // callback from add_edit_issue.php:
+// The close logic in add_edit_issue not working so dialog will do refresh
 function refreshIssue(issue, title) {
     top.restoreSession();
     window.location=window.location;
@@ -67,7 +68,15 @@ function dopclick(id, category) {
     top.restoreSession();
     category = (category == 0) ? '' : category;
     let dlg_url = 'add_edit_issue.php?issue=' + encodeURIComponent(id) + '&thistype=' + encodeURIComponent(category);
-    dlgopen(dlg_url, '_blank', 1280, 900, '', <?php echo xlj("Add/Edit Issue"); ?>);
+    // dlgopen will call top.restoreSession
+    dlgopen(dlg_url, '_blank', 1280, 900, '', <?php echo xlj("Add/Edit Issue"); ?>, {
+        allowDrag: false,
+        allowResize: true,
+        resolvePromiseOn: 'close',
+    }).then(() => {
+        top.restoreSession();
+        location.reload();
+    });
 }
 
 // Process click on number of encounters.

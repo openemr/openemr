@@ -80,7 +80,7 @@ class JsonWebKeySet implements Key
      */
     public function getJSONWebKey($kid, $alg)
     {
-        $this->logger->debug("Attempting to find web key for kid & alg", ['kid' => $kid, 'alg' => $alg]);
+        $this->logger->debug("JsonWebKeySet::getJSONWebKey() Attempting to find web key for kid & alg", ['kid' => $kid, 'alg' => $alg]);
         foreach ($this->jwks as $key) {
             if ($key->kty === 'RSA') {
                 if (!isset($kid) || $key->kid === $kid) {

@@ -83,8 +83,8 @@ $colors: (
 /* Above adds overrides to allow regular CSS coloring */
 
 $font-family-sans-serif: "Lato", "Helvetica", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !default;
-$font-size-base: 0.875rem;
-$rfs-base-value: 0.875rem;
+$font-size-base: 1rem;
+$rfs-base-value: 1rem;
 $font-family-base: $font-family-sans-serif;
 
 $displays: none, inline, inline-block, block, table, table-row, table-cell, flex, inline-flex, initial, inherit;
