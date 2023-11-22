@@ -429,8 +429,8 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                             rx.quantity AS rx_quantity, rx.refills AS rx_refills";
                     break;
                 case "Procedures":
-                    $sqlstmt .= ", pr.date_ordered AS other_date, pr.date_collected AS collect_date, pr.procedure_order_id AS pr_order, pr.order_status AS pr_status, pp.name AS pr_lab,
-                        CONCAT(pr.order_diagnosis, ' ', prtc.code_text_short) AS pr_diagnosis, prc.procedure_name as prc_procedure, REPLACE(prc.diagnoses, ';', ', ') AS prc_diagnoses";
+                    $sqlstmt .= ", pr.date_ordered AS other_date, pr.order_status AS pr_status, pp.name AS pr_lab,
+                        pr.order_diagnosis AS pr_diagnosis, prc.procedure_name as prc_procedure, prc.diagnoses AS prc_diagnoses";
                     break;
             }
 
@@ -477,9 +477,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                 case "Procedures":
                     $sqlstmt .= " left outer join procedure_order as pr on pd.pid = pr.patient_id
                         left outer join procedure_providers as pp on pr.lab_id = pp.ppid
-                        left outer join procedure_order_code as prc on pr.procedure_order_id = prc.procedure_order_id
-                        left outer join code_types as prt on SUBSTRING_INDEX(pr.order_diagnosis, ':', 1) = prt.ct_key
-                        left outer join codes as prtc on SUBSTRING_INDEX(pr.order_diagnosis, ':', -1) = prtc.code AND prt.ct_id = prtc.code_type";
+                        left outer join procedure_order_code as prc on pr.procedure_order_id = prc.procedure_order_id";
                     break;
             }
 
@@ -694,17 +692,15 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                 ),
                 "Procedures" => array(
                     "cols" => array(
-                        "pr_order_date"   => array("heading" => "Order Date"),
-                        "pr_collect_date" => array("heading" => "Collection Date"),
-                        "pr_order"        => array("heading" => "Procedure Order"),
-                        "patient_name"    => array("heading" => "Patient Name"),
-                        "patient_id"      => array("heading" => "PID"),
-                        "users_provider"  => array("heading" => "Procedure Provider"),
-                        "pr_status"       => array("heading" => "Order Status"),
-                        "pr_lab"          => array("heading" => "Lab"),
-                        "pr_diagnosis"    => array("heading" => "Primary Diagnosis"),
-                        "prc_procedure"   => array("heading" => "Procedure Test"),
-                        "prc_diagnoses"   => array("heading" => "Diagnosis Codes")
+                        "other_date"      => array("heading" => "Order Date",         "width" => "nowrap"),
+                        "patient_name"    => array("heading" => "Patient Name",       "width" => "10%"),
+                        "patient_id"      => array("heading" => "PID",                "width" => "nowrap"),
+                        "users_provider"  => array("heading" => "Procedure Provider", "width" => "10%"),
+                        "pr_lab"          => array("heading" => "Lab",                "width" => "10%"),
+                        "pr_status"       => array("heading" => "Status",             "width" => "nowrap"),
+                        "pr_diagnosis"    => array("heading" => "Primary Diagnosis",  "width" => "15%"),
+                        "prc_procedure"   => array("heading" => "Procedure Test",     "width" => "10%"),
+                        "prc_diagnoses"   => array("heading" => "Diagnosis Codes",    "width" => "20%")
                     ),
                     "sort_cols" => -2,
                     "acl" => ["encounters", "coding_a"]
@@ -784,6 +780,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
             switch ($srch_option) {
                 case "Diagnoses":
                 case "Lab results":
+                case "Procedures":
                     $odrstmt = " ORDER BY other_date asc";
                     break;
                 case "Communication":
@@ -803,9 +800,6 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     break;
                 case "Prescriptions":
                     $odrstmt = " ORDER BY other_date asc, rx_quantity asc, rx_refills asc";
-                    break;
-                case "Procedures":
-                    $odrstmt = " ORDER BY other_date asc, collect_date asc, pr_order asc";
                     break;
             }
 
@@ -895,7 +889,6 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                                 switch ($report_col) {
                                     case "patient_date":
                                     case "other_date":
-                                    case "collect_date":
                                         echo ($report_value != '') ? text(oeFormatDateTime($report_value, "global", true)) : '';
                                         break;
                                     case "patient_race":
@@ -915,6 +908,21 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                                         break;
                                     case "result_abnormal":
                                         echo generate_display_field(array('data_type' => '1', 'list_id' => 'proc_res_abnormal'), $report_value);
+                                        break;
+                                    case "pr_status":
+                                        echo generate_display_field(array('data_type' => '1', 'list_id' => 'ord_status'), $report_value);
+                                        break;
+                                    case "pr_diagnosis":
+                                        echo text(getCodeDescription($report_value));
+                                        break;
+                                    case "prc_diagnoses":
+                                        if ($report_value != '') {
+                                            echo '<ul style="margin: 0; padding: 0;">';
+                                            foreach (explode(';', $report_value) as $code_index => $code) {
+                                                echo '<li>' . text(getCodeDescription($code)) . '</li>';
+                                            }
+                                            echo '</ul>';
+                                        }
                                         break;
                                     default:
                                         echo text($report_value);
