@@ -123,7 +123,7 @@ if ($csv) {
                         return false;
                     }
                 }
-                $("#processing").show();
+                // $("#processing").show(); - Remains after CSV file is downloaded, removed temporarily
                 return true;
             }
         </script>
