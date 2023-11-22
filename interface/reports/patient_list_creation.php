@@ -306,7 +306,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                                     <select class="form-control" name="insurance_companies" id="insurance_companies" title="<?php echo xlt('Select Insurance Company'); ?>">
                                         <option> <?php echo xlt('All'); ?></option>
                                         <?php foreach ($insarr as $ins_id => $ins_co) { ?>
-                                            <option <?php echo (!empty($_POST['insurance_companies']) && ($_POST['insurance_companies'] == $ins_co)) ? 'selected' : ''; ?> value="<?php echo attr($ins_co); ?>"><?php echo text($ins_co); ?></option>
+                                            <option <?php echo (!empty($_POST['insurance_companies']) && ($_POST['insurance_companies'] == $ins_id)) ? 'selected' : ''; ?> value="<?php echo $ins_id; ?>"><?php echo text($ins_co); ?></option>
                                         <?php } ?>
                                     </select>
                                     </select>
@@ -548,7 +548,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
             }
 
             if ($srch_option == "Insurance Companies" && strlen($insurance_company) > 0 && $insurance_company != "All") {
-                $whr_stmt .= " AND ic.name = ?";
+                $whr_stmt .= " AND id.provider = ?";
                 array_push($sqlBindArray, $insurance_company);
             }
 
