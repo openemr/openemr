@@ -39,15 +39,16 @@ if (!empty($_POST)) {
 $search_options = array
 (
     "Demographics"        => xl("Demographics"),
+    "Allergies"           => xl("Allergies"),
     "Problems"            => xl("Problems"),
     "Medications"         => xl("Medications"),
-    "Allergies"           => xl("Allergies"),
-    "Lab results"         => xl("Lab Results"),
+    "Prescriptions"       => xl("Prescriptions"),
     "Communication"       => xl("Communication"),
     "Insurance Companies" => xl("Insurance Companies"),
     "Encounters"          => xl("Encounters"),
     "Observations"        => xl("Observations"),
-    "Procedures"          => xl("Procedures")
+    "Procedures"          => xl("Procedures"),
+    "Lab results"         => xl("Lab Results")
 );
 
 $comarr = array
@@ -423,6 +424,10 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     $sqlstmt .= ", obs.date AS obs_date, obs.code AS obs_code, obs.observation AS obs_comments, obs.description AS obs_description,
                         REPLACE(obs.ob_type, '_', ' ') AS obs_type, obs.ob_value AS obs_value, obs.ob_unit AS obs_units";
                     break;
+                case "Prescriptions":
+                    $sqlstmt .= ", rx.drug AS rx_drug, CONCAT(rx.size, rxl_unit.title) AS rx_medicine_units, CONCAT(rx.dosage, ' in ', rxl_form.title, ' ', rxl_interval.title) AS rx_directions,
+                            rx.quantity AS rx_quantity, rx.refills AS rx_refills, rx.date_added AS rx_filled";
+                    break;
                 case "Procedures":
                     $sqlstmt .= ", pr.date_ordered AS pr_order_date, pr.date_collected AS pr_collect_date, pr.procedure_order_id AS pr_order, pr.order_status AS pr_status, pp.name AS pr_lab,
                         CONCAT(pr.order_diagnosis, ' ', prtc.code_text_short) AS pr_diagnosis, prc.procedure_name as prc_procedure, REPLACE(prc.diagnoses, ';', ', ') AS prc_diagnoses";
@@ -431,7 +436,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
 
             //from
             $sqlstmt .= " from patient_data as pd";
-            if ($srch_option != "Encounters" && $srch_option != "Observations") {
+            if ($srch_option != "Encounters" && $srch_option != "Observations" && $srch_option != "Prescriptions") {
                 $sqlstmt .= " left outer join users as u on u.id = pd.providerid";
             }
             //JOINS
@@ -461,6 +466,13 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                 case "Observations":
                     $sqlstmt .= " left outer join form_observation as obs on pd.pid = obs.pid
                         left outer join users as u on obs.user = u.username";
+                    break;
+                case "Prescriptions":
+                    $sqlstmt .= " left outer join prescriptions as rx on pd.pid = rx.patient_id
+                            left outer join (SELECT option_id, title FROM list_options WHERE list_id = 'drug_units') as rxl_unit on rx.unit = rxl_unit.option_id
+                            left outer join (SELECT option_id, title FROM list_options WHERE list_id = 'drug_form') as rxl_form on rx.form = rxl_form.option_id
+                            left outer join (SELECT option_id, title FROM list_options WHERE list_id = 'drug_interval') as rxl_interval on rx.interval = rxl_interval.option_id
+                            left outer join users as u on rx.provider_id = u.id";
                     break;
                 case "Procedures":
                     $sqlstmt .= " left outer join procedure_order as pr on pd.pid = pr.patient_id
@@ -501,13 +513,17 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     $whr_stmt .= " AND obs.date >= ? AND obs.date < DATE_ADD(?, INTERVAL 1 DAY) AND obs.date <= ?";
                     array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
                     break;
+                case "Prescriptions":
+                    $whr_stmt .= " AND rx.date_added >= ? AND rx.date_added < DATE_ADD(?, INTERVAL 1 DAY) AND rx.date_added <= ?";
+                    array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
+                    break;
                 case "Procedures":
                     $whr_stmt .= " AND pr.date_ordered >= ? AND pr.date_ordered < DATE_ADD(?, INTERVAL 1 DAY) AND pr.date_ordered <= ?";
                     array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
                     break;
             }
             // If a report uses a custom date condition, add it to this array to stop the default being used
-            if (!in_array($srch_option, ["Medications", "Allergies", "Problems", "Encounters", "Observations", "Procedures"])) {
+            if (!in_array($srch_option, ["Medications", "Allergies", "Problems", "Encounters", "Observations", "Prescriptions", "Procedures"])) {
                 $whr_stmt .= " AND pd.date >= ? AND pd.date < DATE_ADD(?, INTERVAL 1 DAY) AND pd.date <= ?";
                 array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
             }
@@ -660,6 +676,22 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     "sort_cols" => -1,
                     "acl" => ["encounters", "coding_a"]
                 ),
+                "Prescriptions" => array(
+                    "cols" => array(
+                        "rx_filled"         => array("heading" => "Filled"),
+                        "patient_name"      => array("heading" => "Patient Name"),
+                        "patient_id"        => array("heading" => "PID"),
+                        "patient_age"       => array("heading" => "Age"),
+                        "patient_sex"       => array("heading" => "Gender"),
+                        "patient_ethnic"    => array("heading" => "Ethnicity"),
+                        "rx_drug"           => array("heading" => "Drug"),
+                        "rx_medicine_units" => array("heading" => "Medicine Units"),
+                        "rx_directions"     => array("heading" => "Directions"),
+                        "rx_quantity"       => array("heading" => "Quantity"),
+                        "rx_refills"        => array("heading" => "Refills")
+                    ),
+                    "acl" => ["patients", "rx"]
+                ),
                 "Procedures" => array(
                     "cols" => array(
                         "pr_order_date"   => array("heading" => "Order Date"),
@@ -771,6 +803,9 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                 case "Observations":
                     $odrstmt = " ORDER BY obs_date asc, obs_code asc, obs_type asc, obs_units asc, obs_value asc, obs_comments asc";
                     break;
+                case "Prescriptions":
+                    $odrstmt = " ORDER BY rx_filled asc, rx_quantity asc, rx_refills asc";
+                    break;
                 case "Procedures":
                     $odrstmt = " ORDER BY pr_order_date asc, pr_collect_date asc, pr_order asc";
                     break;
@@ -832,15 +867,17 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                                 }
                             }
                             echo 'class="font-weight-bold">' . xlt($report_options_arr[$srch_option]["cols"][$report_col]["heading"]);
-                            if (
-                                isset($report_options_arr[$srch_option]["sort_cols"]) && $report_options_arr[$srch_option]["sort_cols"] != 0
-                            ) {
-                                if (
-                                    ($report_options_arr[$srch_option]["sort_cols"] > 0 && $report_col_key < $report_options_arr[$srch_option]["sort_cols"])
-                                    || ($report_options_arr[$srch_option]["sort_cols"] < 0 && $report_col_key < $report_options_arr[$srch_option]["sort_cols"] + count($report_options_arr[$srch_option]["cols"]))
-                                ) {
-                                    echo $sortlink[$report_col_key];
+                            if (isset($report_options_arr[$srch_option]["sort_cols"])) {
+                                if ($report_options_arr[$srch_option]["sort_cols"] != 0) {
+                                    if (
+                                        ($report_options_arr[$srch_option]["sort_cols"] > 0 && $report_col_key < $report_options_arr[$srch_option]["sort_cols"])
+                                        || ($report_options_arr[$srch_option]["sort_cols"] < 0 && $report_col_key < $report_options_arr[$srch_option]["sort_cols"] + count($report_options_arr[$srch_option]["cols"]))
+                                    ) {
+                                        echo $sortlink[$report_col_key];
+                                    }
                                 }
+                            } else {
+                                echo $sortlink[$report_col_key];
                             }
                             echo '</td>';
                         }
@@ -858,7 +895,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                                         echo ($report_value != '') ? text(oeFormatDateTime($report_value, "global", true)) : '';
                                         break;
                                     case "patient_race":
-                                        echo generate_display_field(array('data_type' => '36','list_id' => 'race'), $report_value);
+                                        echo generate_display_field(array('data_type' => '36', 'list_id' => 'race'), $report_value);
                                         break;
                                     case "result_units":
                                         echo generate_display_field(array('data_type' => '1', 'list_id' => 'proc_unit'), $report_value) . '&nbsp;';
