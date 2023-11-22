@@ -989,10 +989,10 @@ if (!empty($_POST['form_refresh'])) {
                 </div>
 
             <?php
-        } else {//End if form_refresh
+} else {//End if form_refresh
             ?><div class='text'> <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?> </div><?php
-        }
-        ?>
+}
+if (!$csv) { ?>
         </form>
 
     </body>
