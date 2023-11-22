@@ -388,7 +388,8 @@ $loading = "";
 <body>
 <?php
 
-function rp() {
+function rp()
+{
     $sql = "SELECT option_id, title FROM list_options WHERE list_id = 'recent_patient_columns' AND activity = '1' ORDER BY seq ASC";
     $res = sqlStatement($sql);
     $headers = [];
@@ -406,8 +407,8 @@ function rp() {
     }
     $date_cols = [];
     $datetime_cols = [];
-    foreach($pd_dtCols as $k => $v) {
-        if($v['data_type'] == "datetime") {
+    foreach ($pd_dtCols as $k => $v) {
+        if ($v['data_type'] == "datetime") {
             $datetime_cols[] = $v['column_name'];
         } else if ($v['data_type'] == "date") {
             $date_cols[] = $v['column_name'];
@@ -415,30 +416,30 @@ function rp() {
     }
     // Build SQL statement to pull desired columns from patient_data table...
     $pd_sql = "SELECT id as pid";
-    foreach($headers as $k => $v) {
+    foreach ($headers as $k => $v) {
         $pd_sql .= ', ';
         $col_name = $v['option_id'];
         $dt_format = '';
-        if(in_array($col_name, $date_cols) || in_array($col_name, $datetime_cols)) {
+        if (in_array($col_name, $date_cols) || in_array($col_name, $datetime_cols)) {
             switch ($GLOBALS['date_display_format']) {
-              case 0: // mysql YYYY-MM-DD format
-                $dt_format = "'%Y-%m-%d";
-                break;
-              case 1: // MM/DD/YYYY format
-                $dt_format = "'%m/%d/%Y";
-                break;
-              case 2: // DD/MM/YYYY format
-                $dt_format = "'%d/%m/%Y";
-                break;
+                case 0: // mysql YYYY-MM-DD format
+                    $dt_format = "'%Y-%m-%d";
+                    break;
+                case 1: // MM/DD/YYYY format
+                    $dt_format = "'%m/%d/%Y";
+                    break;
+                case 2: // DD/MM/YYYY format
+                    $dt_format = "'%d/%m/%Y";
+                    break;
             }
-            if(in_array($col_name, $datetime_cols)) {
+            if (in_array($col_name, $datetime_cols)) {
                 switch ($GLOBALS['time_display_format']) {
-                  case 0: // 24 Hr fmt
-                    $dt_format .= " %T";
-                    break;
-                  case 1: // AM PM fmt
-                    $dt_format .= " %r";
-                    break;
+                    case 0: // 24 Hr fmt
+                        $dt_format .= " %T";
+                        break;
+                    case 1: // AM PM fmt
+                        $dt_format .= " %r";
+                        break;
                 }
             }
             $dt_format .= "'";  // Don't forget the closing '!
@@ -449,7 +450,7 @@ function rp() {
     }
     $pd_sql .= " FROM patient_data WHERE id = ?";
     $pd_data = [];
-    foreach($rp as $k => $v) {
+    foreach ($rp as $k => $v) {
         $pd_data[] = sqlQuery($pd_sql, $v['pid']);
     }
     return ['headers' => $headers, 'rp' => $pd_data];
