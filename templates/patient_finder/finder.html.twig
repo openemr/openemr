@@ -44,11 +44,15 @@
                                 </thead>
                                 <tbody>
                                     {% for p in rp %}
-                                        <tr>
+                                        <tr class="clickable-row" style="cursor:pointer;" data-pid="{{ p.pid|attr }}">
                                             {% for h in headers %}
                                                 {% set value = p[h.option_id] %}
                                                 <td>
-                                                    <a href="#" data-pid="{{ p.pid|attr }}">{{ value|text }}</a>
+                                                    {% if loop.first %}
+                                                        <a href="#">{{ value|text }}</a>
+                                                    {% else %}
+                                                        {{ value|text }}
+                                                    {% endif %}
                                                 </td>
                                             {% endfor %}
                                         </tr>
