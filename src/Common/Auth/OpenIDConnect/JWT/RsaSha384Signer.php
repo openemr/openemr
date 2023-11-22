@@ -103,7 +103,7 @@ class RsaSha384Signer implements Signer
 
         if ($key instanceof JsonWebKeySet) {
             $kid = $this->headers['kid'] ?? null;
-            $this->logger->debug("RsaSha384Signer->verify() attempting to retrieve jwk");
+            $this->logger->debug("RsaSha384Signer->verify() attempting to retrieve jwk", ['kid' => $kid]);
             $jwk = $key->getJSONWebKey($kid, $this->algorithmId());
         } else {
             $key = $key instanceof Key ? $key->contents() : $key;

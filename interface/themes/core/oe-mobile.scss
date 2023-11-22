@@ -10,7 +10,7 @@
   /*Dashboard navbar styling for tablets*/
   @media only screen and (max-width: 1024px) {
     .navbar-nav {
-      @include font-size("0.875rem");
+      @include font-size("1rem");
     }
 
     .nav > li > a {
