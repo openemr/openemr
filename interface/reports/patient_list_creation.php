@@ -59,8 +59,14 @@ $comarr = array
     "allow_email" => xl("Allow Email")
 );
 
-// get array of all insurance companies from function in patient.inc.php
+// Get array of all insurance companies from function in patient.inc.php
 $insarr = getInsuranceProvidersExtra();
+// Get array of all encounter types
+$encarr = [];
+$rez = sqlStatement('SELECT option_id, title FROM list_options WHERE list_id = "encounter-types" ORDER BY seq ASC');
+for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
+    $encarr[$row['option_id']] = $row['title'];
+}
 
 $_POST['form_details'] = true;
 
@@ -78,8 +84,14 @@ $form_diagnosis = trim($_POST["form_diagnosis"] ?? '');
 $form_lab_results = trim($_POST["form_lab_results"] ?? '');
 $form_service_codes = trim($_POST["form_service_codes"] ?? '');
 $form_immunization = trim($_POST["form_immunization"] ?? '');
+
+// Variables related to specific search options
+$prescription_drug = trim($_POST["prescription_drug"] ?? '');
 $communication = trim($_POST["communication"] ?? '');
 $insurance_company = trim($_POST["insurance_companies"] ?? '');
+$encounter_type = trim($_POST["encounter_type"] ?? '');
+$observation_description = trim($_POST["observation_description"] ?? '');
+$procedure_diagnosis = trim($_POST["procedure_diagnosis"] ?? '');
 ?>
 <html>
     <head>
@@ -184,13 +196,26 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     }
                 });
 
-                <?php if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "Communication")) { ?>
+                <?php // Show inputs related to specific search options
+                if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "Prescriptions")) { ?>
+                    $('#rx_drug').show();
+                <?php }
+                if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "Communication")) { ?>
                     $('#com_pref').show();
-                <?php } ?>
-
-                <?php if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "Insurance Companies")) { ?>
+                <?php }
+                if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "Insurance Companies")) { ?>
                     $('#ins_co').show();
-                <?php } ?>
+                <?php }
+                if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "Encounters")) { ?>
+                    $('#enc_type').show();
+                <?php }
+                if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "Observations")) { ?>
+                    $('#obs_desc').show();
+                <?php }
+                if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "Procedures")) { ?>
+                    $('#pr_diag').show();
+                <?php }
+                ?>
 
                 $('.datetimepicker').datetimepicker({
                     <?php $datetimepicker_timepicker = true; ?>
@@ -210,21 +235,49 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                 $('#sortby').val('');
                 $('#sortorder').val('');
 
-                if(elem.value == 'Communication') {
+                // Reset and show/hide inputs related to specific search options
+                if (elem.value == 'Prescriptions') {
+                    $('#prescription_drug').val('');
+                    $('#rx_drug').show();
+                } else {
+                    $('#prescription_drug').val('');
+                    $('#rx_drug').hide();
+                }
+                if (elem.value == 'Communication') {
                     $('#communication').val('');
                     $('#com_pref').show();
                 } else {
                     $('#communication').val('');
                     $('#com_pref').hide();
                 }
-
-                if(elem.value == 'Insurance Companies') {
+                if (elem.value == 'Insurance Companies') {
                     $('#insurance_companies').val('');
                     $('#ins_co').show();
                 } else {
                     $('#insurance_companies').val('');
                     $('#ins_co').hide();
-                    }
+                }
+                if (elem.value == 'Encounters') {
+                    $('#encounter_type').val('');
+                    $('#enc_type').show();
+                } else {
+                    $('#encounter_type').val('');
+                    $('#enc_type').hide();
+                }
+                if (elem.value == 'Observations') {
+                    $('#observation_description').val('');
+                    $('#obs_desc').show();
+                } else {
+                    $('#observation_description').val('');
+                    $('#obs_desc').hide();
+                }
+                if (elem.value == 'Procedures') {
+                    $('#procedure_diagnosis').val('');
+                    $('#pr_diag').show();
+                } else {
+                    $('#procedure_diagnosis').val('');
+                    $('#pr_diag').hide();
+                }
             }
 
         </script>
@@ -290,30 +343,43 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                                     <?php ?>
                                 </td>
 
-                                <td >
+                                <td colspan="3">
+                                    <!-- Inputs for specific search options -->
+                                    <span id="rx_drug" style="display: none">
+                                        <input class="form-control" name="prescription_drug" id="prescription_drug" placeholder="<?php echo xlt('Drug'); ?>"<?php echo !empty($_POST['prescription_drug']) ? ' value="' . $_POST['prescription_drug'] . '"' : '' ?>/>
+                                    </span>
                                     <span id="com_pref" style="display: none">
-                                    <select class="form-control" name="communication" id="communication" title="<?php echo xlt('Select Communication Preferences'); ?>">
-                                        <option> <?php echo xlt('All'); ?></option>
-                                        <option value="allow_sms" <?php echo ($communication == "allow_sms") ? "selected" : ""; ?>><?php echo xlt('Allow SMS'); ?></option>
-                                        <option value="allow_voice" <?php echo ($communication == "allow_voice") ? "selected" : ""; ?>><?php echo xlt('Allow Voice Message'); ?></option>
-                                        <option value="allow_mail" <?php echo ($communication == "allow_mail") ? "selected" : ""; ?>><?php echo xlt('Allow Mail Message'); ?></option>
-                                        <option value="allow_email" <?php echo ($communication == "allow_email") ? "selected" : ""; ?>><?php echo xlt('Allow Email'); ?></option>
-                                    </select>
+                                        <select class="form-control" name="communication" id="communication" title="<?php echo xlt('Select Communication Preferences'); ?>">
+                                            <option> <?php echo xlt('All'); ?></option>
+                                            <option value="allow_sms" <?php echo ($communication == "allow_sms") ? "selected" : ""; ?>><?php echo xlt('Allow SMS'); ?></option>
+                                            <option value="allow_voice" <?php echo ($communication == "allow_voice") ? "selected" : ""; ?>><?php echo xlt('Allow Voice Message'); ?></option>
+                                            <option value="allow_mail" <?php echo ($communication == "allow_mail") ? "selected" : ""; ?>><?php echo xlt('Allow Mail Message'); ?></option>
+                                            <option value="allow_email" <?php echo ($communication == "allow_email") ? "selected" : ""; ?>><?php echo xlt('Allow Email'); ?></option>
+                                        </select>
                                     </span>
-                                </td>
-
-                                <td >
                                     <span id="ins_co" style="display: none">
-                                    <select class="form-control" name="insurance_companies" id="insurance_companies" title="<?php echo xlt('Select Insurance Company'); ?>">
-                                        <option> <?php echo xlt('All'); ?></option>
-                                        <?php foreach ($insarr as $ins_id => $ins_co) { ?>
-                                            <option <?php echo (!empty($_POST['insurance_companies']) && ($_POST['insurance_companies'] == $ins_id)) ? 'selected' : ''; ?> value="<?php echo $ins_id; ?>"><?php echo text($ins_co); ?></option>
-                                        <?php } ?>
-                                    </select>
-                                    </select>
+                                        <select class="form-control" name="insurance_companies" id="insurance_companies" title="<?php echo xlt('Select Insurance Company'); ?>">
+                                            <option> <?php echo xlt('All'); ?></option>
+                                            <?php foreach ($insarr as $ins_id => $ins_co) { ?>
+                                                <option <?php echo (!empty($_POST['insurance_companies']) && ($_POST['insurance_companies'] == $ins_id)) ? 'selected' : ''; ?> value="<?php echo $ins_id; ?>"><?php echo text($ins_co); ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </span>
+                                    <span id="enc_type" style="display: none">
+                                        <select class="form-control" name="encounter_type" id="encounter_type">
+                                            <option> <?php echo xlt('All'); ?></option>
+                                            <?php foreach ($encarr as $enc_id => $enc_t) { ?>
+                                                <option <?php echo (!empty($_POST['encounter_type']) && ($_POST['encounter_type'] == $enc_id)) ? 'selected' : ''; ?> value="<?php echo $enc_id; ?>"><?php echo text($enc_t); ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </span>
+                                    <span id="obs_desc" style="display: none">
+                                        <input class="form-control" name="observation_description" id="observation_description" placeholder="<?php echo xlt('Code') . '/' . xlt('Description'); ?>"<?php echo !empty($_POST['observation_description']) ? ' value="' . $_POST['observation_description'] . '"' : '' ?>/>
+                                    </span>
+                                    <span id="pr_diag" style="display: none">
+                                        <input class="form-control" name="procedure_diagnosis" id="procedure_diagnosis" placeholder="<?php echo xlt('Diagnosis Code'); ?>"<?php echo !empty($_POST['procedure_diagnosis']) ? ' value="' . $_POST['procedure_diagnosis'] . '"' : '' ?>/>
                                     </span>
                                 </td>
-
                             </tr>
                             <tr>
                                 <td class='col-form-label'><?php echo xlt('Patient ID'); ?>:</td>
@@ -321,22 +387,13 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                                 <td class='col-form-label'><?php echo xlt('Age Range'); ?>:</td>
 
                                 <td>
-                                <table>
-                                <tr>
-                                <td class='col-form-label'>
-                                <?php echo xlt('From'); ?>:
-                                </td>
-                                <td>
-                                <input name='age_from' class="numeric_only form-control" type='text' id="age_from" value="<?php echo attr($age_from); ?>" size='3' maxlength='3' />
-                                </td>
-                                <td class='col-form-label'>
-                                <?php echo xlt('To{{range}}'); ?>:
-                                </td>
-                                <td>
-                                <input name='age_to' class="numeric_only form-control" type='text' id="age_to" value="<?php echo attr($age_to); ?>" size='3' maxlength='3' />
-                                </td>
-                                </tr>
-                                </table>
+                                    <table>
+                                        <tr>
+                                            <td><input name='age_from' class="numeric_only form-control" type='text' id="age_from" value="<?php echo attr($age_from); ?>" size='3' maxlength='3'/></td>
+                                            <td class='col-form-label'>&#8212;</td>
+                                            <td><input name='age_to' class="numeric_only form-control" type='text' id="age_to" value="<?php echo attr($age_to); ?>" size='3' maxlength='3'/></td>
+                                        </tr>
+                                    </table>
                                 </td>
 
                                 <td class='col-form-label'><?php echo xlt('Gender'); ?>:</td>
@@ -434,12 +491,12 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     break;
             }
 
-            //from
+            // FROMs
             $sqlstmt .= " from patient_data as pd";
             if ($srch_option != "Encounters" && $srch_option != "Observations" && $srch_option != "Prescriptions") {
                 $sqlstmt .= " left outer join users as u on u.id = pd.providerid";
             }
-            //JOINS
+            // JOINs
             switch ($srch_option) {
                 case "Problems":
                     $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND li.type='medical_problem')";
@@ -481,7 +538,7 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     break;
             }
 
-            //WHERE Conditions started
+            // WHERE Conditions started
             $whr_stmt = " where 1=1";
             switch ($srch_option) {
                 case "Medications":
@@ -554,6 +611,11 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                 array_push($sqlBindArray, $sql_ethnicity);
             }
 
+            // WHERE conditions based on specific search options
+            if ($srch_option == "Prescriptions" && strlen($prescription_drug) > 0) {
+                $whr_stmt .= " AND rx.drug LIKE ?";
+                array_push($sqlBindArray, '%' . $prescription_drug . '%');
+            }
             if ($srch_option == "Communication" && strlen($communication) > 0) {
                 if ($communication == "allow_sms") {
                     $whr_stmt .= " AND pd.hipaa_allowsms = 'YES' ";
@@ -565,10 +627,21 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                     $whr_stmt .= " AND pd.hipaa_allowemail  = 'YES' ";
                 }
             }
-
             if ($srch_option == "Insurance Companies" && strlen($insurance_company) > 0 && $insurance_company != "All") {
                 $whr_stmt .= " AND id.provider = ?";
                 array_push($sqlBindArray, $insurance_company);
+            }
+            if ($srch_option == "Encounters" && strlen($encounter_type) > 0 && $encounter_type != "All") {
+                $whr_stmt .= " AND enc.encounter_type_code = ?";
+                array_push($sqlBindArray, $encounter_type);
+            }
+            if ($srch_option == "Observations" && strlen($observation_description) > 0) {
+                $whr_stmt .= " AND (obs.code LIKE ? OR obs.description LIKE ?)";
+                array_push($sqlBindArray, '%' . $observation_description . '%', '%' . $observation_description . '%');
+            }
+            if ($srch_option == "Procedures" && strlen($procedure_diagnosis) > 0) {
+                $whr_stmt .= " AND (pr.order_diagnosis LIKE ? OR prc.diagnoses LIKE ?)";
+                array_push($sqlBindArray, '%' . $procedure_diagnosis . '%', '%' . $procedure_diagnosis . '%');
             }
 
             // Controls the columns displayed, their headings and widths, and how many columns are sorted from the left
@@ -912,14 +985,15 @@ $insurance_company = trim($_POST["insurance_companies"] ?? '');
                                     case "pr_status":
                                         echo generate_display_field(array('data_type' => '1', 'list_id' => 'ord_status'), $report_value);
                                         break;
+                                    // Procedure diagnoses can be hovered over to reveal their codes
                                     case "pr_diagnosis":
-                                        echo text(getCodeDescription($report_value));
+                                        echo '<abbr title="' . text($report_value) . '">' . text(getCodeDescription($report_value)) . '</abbr>';
                                         break;
                                     case "prc_diagnoses":
                                         if ($report_value != '') {
                                             echo '<ul style="margin: 0; padding: 0;">';
                                             foreach (explode(';', $report_value) as $code_index => $code) {
-                                                echo '<li>' . text(getCodeDescription($code)) . '</li>';
+                                                echo '<li><abbr title="' . text($code) . '">' . text(getCodeDescription($code)) . '</abbr></li>';
                                             }
                                             echo '</ul>';
                                         }
