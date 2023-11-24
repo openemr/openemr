@@ -415,7 +415,7 @@ function rp()
         }
     }
     // Build SQL statement to pull desired columns from patient_data table...
-    $pd_sql = "SELECT id as pid";
+    $pd_sql = "SELECT pid";
     foreach ($headers as $k => $v) {
         $pd_sql .= ', ';
         $col_name = $v['option_id'];
@@ -448,7 +448,7 @@ function rp()
             $pd_sql .= $col_name;
         }
     }
-    $pd_sql .= " FROM patient_data WHERE id = ?";
+    $pd_sql .= " FROM patient_data WHERE pid = ?";
     $pd_data = [];
     foreach ($rp as $k => $v) {
         $pd_data[] = sqlQuery($pd_sql, $v['pid']);
