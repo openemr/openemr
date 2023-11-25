@@ -399,7 +399,7 @@ function rp()
     $patientService = new PatientService();
     $rp = $patientService->getRecentPatientList();
     // Get a list of the columns in patient_data that are either date or datetime:
-    $sql_dtCols = "select column_name, data_type from information_schema.columns where table_schema = DATABASE() and TABLE_NAME = 'patient_data' and (data_type = 'datetime' OR data_type = 'date')";
+    $sql_dtCols = "SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = DATABASE() AND TABLE_NAME = 'patient_data' AND (data_type = 'datetime' OR data_type = 'date')";
     $res_dtCols = sqlStatement($sql_dtCols);
     $pd_dtCols = [];
     while ($row = sqlFetchArray($res_dtCols)) {
