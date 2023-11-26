@@ -38,17 +38,21 @@
                                 <thead class="thead-light">
                                     <tr>
                                         {% for h in headers %}
-                                            <th scope="col">{{ h.title|text }}</th>
+                                            <th scope="col">{{ h.title|xlListLabel }}</th>
                                         {% endfor %}
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for p in rp %}
-                                        <tr>
+                                        <tr class="clickable-row" style="cursor:pointer;" data-pid="{{ p.pid|attr }}">
                                             {% for h in headers %}
                                                 {% set value = p[h.option_id] %}
                                                 <td>
-                                                    <a href="#" data-pid="{{ p.pid|attr }}">{{ value|text }}</a>
+                                                    {% if loop.first %}
+                                                        <a href="#">{{ value|text }}</a>
+                                                    {% else %}
+                                                        {{ value|text }}
+                                                    {% endif %}
                                                 </td>
                                             {% endfor %}
                                         </tr>
