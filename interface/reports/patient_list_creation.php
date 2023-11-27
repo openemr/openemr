@@ -38,17 +38,17 @@ if (!empty($_POST)) {
 
 $search_options = array
 (
-    "Demographics"        => xl("Demographics"),
-    "Allergies"           => xl("Allergies"),
-    "Problems"            => xl("Problems"),
-    "Medications"         => xl("Medications"),
-    "Prescriptions"       => xl("Prescriptions"),
-    "Communication"       => xl("Communication"),
-    "Insurance Companies" => xl("Insurance Companies"),
-    "Encounters"          => xl("Encounters"),
-    "Observations"        => xl("Observations"),
-    "Procedures"          => xl("Procedures"),
-    "Lab results"         => xl("Lab Results")
+    "Demographics",
+    "Allergies",
+    "Problems",
+    "Medications",
+    "Prescriptions",
+    "Communication",
+    "Insurance Companies",
+    "Encounters",
+    "Observations",
+    "Procedures",
+    "Lab Results"
 );
 
 $comarr = array
@@ -74,6 +74,7 @@ $sql_date_from = (!empty($_POST['date_from'])) ? DateTimeToYYYYMMDDHHMMSS($_POST
 $sql_date_to = (!empty($_POST['date_to'])) ? DateTimeToYYYYMMDDHHMMSS($_POST['date_to']) : date('Y-m-d H:i:s');
 
 $patient_id = trim($_POST["patient_id"] ?? '');
+$provider_name = trim($_POST["provider_name"] ?? '');
 $age_from = $_POST["age_from"] ?? '';
 $age_to = $_POST["age_to"] ?? '';
 $sql_gender = $_POST["gender"] ?? '';
@@ -346,9 +347,9 @@ if ($csv) {
                                 <td class='col-form-label'>
                                     <select class="form-control" name="srch_option" id="srch_option"
                                         onchange="srch_option_change(this)">
-                                        <?php foreach ($search_options as $skey => $svalue) { ?>
+                                        <?php foreach ($search_options as $skey) { ?>
                                             <option <?php echo (!empty($_POST['srch_option']) && ($_POST['srch_option'] == $skey)) ? 'selected' : ''; ?>
-                                            value="<?php echo attr($skey); ?>"><?php echo text($svalue); ?></option>
+                                            value="<?php echo attr($skey); ?>"><?php echo text(xl($skey)); ?></option>
                                         <?php } ?>
                                     </select>
                                     <?php ?>
@@ -412,6 +413,10 @@ if ($csv) {
                                 <td class='col-form-label'><?php echo xlt('Ethnicity'); ?>:</td>
                                 <td colspan="2"><?php echo generate_select_list('ethnicity', 'ethnicity', $sql_ethnicity, 'Select Ethnicity', 'Unassigned', '', ''); ?></td>
                             </tr>
+                            <tr>
+                                <td class='col-form-label'><?php echo xlt('Name of Provider'); ?>:</td>
+                                <td><input name='provider_name' class="form-control" type='text' id="provider_name" title='<?php echo xla('Firstname Lastname'); ?>' value='<?php echo attr($provider_name); ?>' size='10' /></td>
+                            </tr>
 
                         </table>
 
@@ -452,14 +457,14 @@ if ($csv) {
 $sqlBindArray = array();
 if (!empty($_POST['form_refresh'])) {
     $sqlstmt = "select
-                pd.date as patient_date,
-                concat(pd.lname, ', ', pd.fname) AS patient_name,
-                pd.pid AS patient_id,
-                DATE_FORMAT(FROM_DAYS(DATEDIFF('" . date('Y-m-d H:i:s') . "',pd.dob)), '%Y')+0 AS patient_age,
-                pd.sex AS patient_sex,
-                TRIM('|' FROM pd.race) AS patient_race,
-                TRIM('|' FROM pd.ethnicity) AS patient_ethnic,
-                concat(u.lname, ', ', u.fname)  AS users_provider";
+        pd.date as patient_date,
+        concat(pd.lname, ', ', pd.fname) AS patient_name,
+        pd.pid AS patient_id,
+        DATE_FORMAT(FROM_DAYS(DATEDIFF('" . date('Y-m-d H:i:s') . "',pd.dob)), '%Y')+0 AS patient_age,
+        pd.sex AS patient_sex,
+        TRIM('|' FROM pd.race) AS patient_race,
+        TRIM('|' FROM pd.ethnicity) AS patient_ethnic,
+        concat(u.lname, ', ', u.fname) AS users_provider";
 
     $srch_option = $_POST['srch_option'];
     switch ($srch_option) {
@@ -470,9 +475,10 @@ if (!empty($_POST['form_refresh'])) {
                     REPLACE(li.diagnosis, ';', ', ') AS lists_diagnosis,
                     li.title AS lists_title";
             break;
-        case "Lab results":
+        case "Lab Results":
             $sqlstmt .= ", pr.date AS other_date,
                     pr.facility AS result_facility,
+                    pr.result_text AS result_description,
                     pr.units AS result_units,
                     pr.result AS result_result,
                     pr.range AS result_range,
@@ -505,12 +511,11 @@ if (!empty($_POST['form_refresh'])) {
             break;
     }
 
-    // FROMs
     $sqlstmt .= " from patient_data as pd";
+    // JOINs
     if ($srch_option != "Encounters" && $srch_option != "Observations" && $srch_option != "Prescriptions") {
         $sqlstmt .= " left outer join users as u on u.id = pd.providerid";
     }
-    // JOINs
     switch ($srch_option) {
         case "Problems":
             $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND li.type='medical_problem')";
@@ -521,7 +526,7 @@ if (!empty($_POST['form_refresh'])) {
         case "Allergies":
             $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND (li.type='allergy')) ";
             break;
-        case "Lab results":
+        case "Lab Results":
             $sqlstmt .= " left outer join procedure_order as po on po.patient_id = pd.pid
                 left outer join procedure_report as pp on pp.procedure_order_id = po.procedure_order_id
                 left outer join procedure_result as pr on pr.procedure_report_id = pp.procedure_report_id";
@@ -552,7 +557,7 @@ if (!empty($_POST['form_refresh'])) {
             break;
     }
 
-    // WHERE Conditions started
+    // WHERE conditions started
     $whr_stmt = " where 1=1";
     switch ($srch_option) {
         case "Medications":
@@ -564,7 +569,7 @@ if (!empty($_POST['form_refresh'])) {
             $whr_stmt .= " AND li.title != '' AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND li.date <= ?";
             array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
             break;
-        case "Lab results":
+        case "Lab Results":
             $whr_stmt .= " AND pr.date >= ? AND pr.date < DATE_ADD(?, INTERVAL 1 DAY) AND pr.date <= ? AND pr.result != ''";
             array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
             break;
@@ -600,32 +605,33 @@ if (!empty($_POST['form_refresh'])) {
             break;
     }
 
+    // WHERE conditions based on persistent inputs
     if (strlen($patient_id) != 0) {
-        $whr_stmt .= "   and pd.pid = ?";
+        $whr_stmt .= " and pd.pid = ?";
         array_push($sqlBindArray, $patient_id);
     }
-
+    if (strlen($provider_name) != 0) {
+        $whr_stmt .= " and CONCAT(u.fname, ' ', u.lname) LIKE ?";
+        array_push($sqlBindArray, '%' . $provider_name . '%');
+    }
     if (strlen($age_from) != 0) {
-        $whr_stmt .= "   and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 >= ?";
+        $whr_stmt .= " and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 >= ?";
         array_push($sqlBindArray, $age_from);
     }
-
     if (strlen($age_to) != 0) {
-        $whr_stmt .= "   and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 <= ?";
+        $whr_stmt .= " and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 <= ?";
         array_push($sqlBindArray, $age_to);
     }
-
     if (strlen($sql_gender) != 0) {
-        $whr_stmt .= "   and pd.sex = ?";
+        $whr_stmt .= " and pd.sex = ?";
         array_push($sqlBindArray, $sql_gender);
     }
-
     if (strlen($sql_ethnicity) != 0) {
-        $whr_stmt .= "   and pd.ethnicity = ?";
+        $whr_stmt .= " and pd.ethnicity = ?";
         array_push($sqlBindArray, $sql_ethnicity);
     }
 
-    // WHERE conditions based on specific search options
+    // WHERE conditions based on inputs arising from specific search options
     if ($srch_option == "Prescriptions" && strlen($prescription_drug) > 0) {
         $whr_stmt .= " AND rx.drug LIKE ?";
         array_push($sqlBindArray, '%' . $prescription_drug . '%');
@@ -762,21 +768,6 @@ if (!empty($_POST['form_refresh'])) {
             "sort_cols" => -1,
             "acl" => ["encounters", "coding_a"]
         ),
-        "Lab results" => array(
-            "cols" => array(
-                "other_date"         => array("heading" => "Date",        "width" => "nowrap"),
-                "result_facility"    => array("heading" => "Facility",    "width" => "10%"),
-                "result_units"       => array("heading" => "Unit",        "width" => "nowrap"),
-                "result_result"      => array("heading" => "Result",      "width" => "5%"),
-                "result_range"       => array("heading" => "Range",       "width" => "5%"),
-                "result_abnormal"    => array("heading" => "Abnormal",    "width" => "nowrap"),
-                "result_comments"    => array("heading" => "Comments",    "width" => "20%"),
-                "result_document_id" => array("heading" => "Document ID", "width" => "nowrap"),
-                "patient_id"         => array("heading" => "PID",         "width" => "nowrap")
-            ),
-            "sort_cols" => 6,
-            "acl" => ["patients", "lab"]
-        ),
         "Procedures" => array(
             "cols" => array(
                 "other_date"      => array("heading" => "Order Date",         "width" => "nowrap"),
@@ -791,6 +782,22 @@ if (!empty($_POST['form_refresh'])) {
             ),
             "sort_cols" => -2,
             "acl" => ["encounters", "coding_a"]
+        ),
+        "Lab Results" => array(
+            "cols" => array(
+                "other_date"         => array("heading" => "Date",           "width" => "nowrap"),
+                "result_facility"    => array("heading" => "Facility",       "width" => "10%"),
+                "result_description" => array("heading" => "Procedure Test", "width" => "10%"),
+                "result_result"      => array("heading" => "Result",         "width" => "5%"),
+                "result_units"       => array("heading" => "Unit",           "width" => "nowrap"),
+                "result_range"       => array("heading" => "Range",          "width" => "5%"),
+                "result_abnormal"    => array("heading" => "Abnormal",       "width" => "nowrap"),
+                "result_comments"    => array("heading" => "Comments",       "width" => "20%"),
+                "result_document_id" => array("heading" => "Document ID",    "width" => "nowrap"),
+                "patient_id"         => array("heading" => "PID",            "width" => "nowrap")
+            ),
+            "sort_cols" => 6,
+            "acl" => ["patients", "lab"]
         )
     );
     if (in_array($srch_option, ["Medications", "Allergies", "Problems"])) {
@@ -824,7 +831,7 @@ if (!empty($_POST['form_refresh'])) {
             case "Diagnoses":
                 $sortby = $sort[1];
                 break;
-            /* case "Lab results":
+            /* case "Lab Results":
                 //$odrstmt = " result_result";
                 break; */
             case "Communication":
@@ -866,7 +873,6 @@ if (!empty($_POST['form_refresh'])) {
 
     switch ($srch_option) {
         case "Diagnoses":
-        case "Lab results":
         case "Procedures":
             $odrstmt = " ORDER BY other_date asc";
             break;
@@ -887,6 +893,9 @@ if (!empty($_POST['form_refresh'])) {
             break;
         case "Prescriptions":
             $odrstmt = " ORDER BY other_date asc, rx_quantity asc, rx_refills asc";
+            break;
+        case "Lab Results":
+            $odrstmt = " ORDER BY other_date asc, result_description asc";
             break;
     }
 
@@ -935,7 +944,7 @@ if (!empty($_POST['form_refresh'])) {
                     </table>
 
                     <table class='table' width='90%' align="center" cellpadding="5" cellspacing="0" style="font-family: Tahoma;" border="0">
-                        <?php echo '<tr ' . (($srch_option == "Lab results") ? 'bgcolor="#C3FDB8" align="left" ' : '') . 'style="font-size:15px;">';
+                        <?php echo '<tr ' . (($srch_option == "Lab Results") ? 'bgcolor="#C3FDB8" align="left" ' : '') . 'style="font-size:15px;">';
         }
         foreach (array_keys($report_options_arr[$srch_option]["cols"]) as $report_col_key => $report_col) {
             if (!$csv) {
@@ -1011,16 +1020,10 @@ if (!empty($_POST['form_refresh'])) {
                         break;
                     // Procedure diagnoses can be hovered over to reveal their codes
                     case "pr_diagnosis":
-                        if (!$csv) {
-                            $report_value_print = '<abbr title="' . text($report_value) . '">' . text(getCodeDescription($report_value)) . '</abbr>';
-                        } else {
-                            $report_value_print = $report_value;
-                        }
-                        break;
                     case "prc_diagnoses":
                         if (!$csv) {
                             if ($report_value != '') {
-                                $report_value_print = '<ul style="margin: 0; padding: 0;">';
+                                $report_value_print = '<ul style="margin: 0; padding-left: 0.5em;">';
                                 foreach (explode(';', $report_value) as $code_index => $code) {
                                     $report_value_print .= '<li><abbr title="' . text($code) . '">' . text(getCodeDescription($code)) . '</abbr></li>';
                                 }
@@ -1068,11 +1071,11 @@ if (!empty($_POST['form_refresh'])) {
                         </tr>
                     </table>
                 <?php
-            }
-            if (!$csv) { ?>
+    }
+    if (!$csv) { ?>
                 </div>
 
-            <?php }
+    <?php }
 } else {//End if form_refresh
             ?><div class='text'> <?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?> </div><?php
 }
