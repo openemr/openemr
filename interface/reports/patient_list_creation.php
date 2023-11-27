@@ -991,11 +991,9 @@ $procedure_diagnosis = trim($_POST["procedure_diagnosis"] ?? '');
                                         break;
                                     // Procedure diagnoses can be hovered over to reveal their codes
                                     case "pr_diagnosis":
-                                        echo '<abbr title="' . text($report_value) . '">' . text(getCodeDescription($report_value)) . '</abbr>';
-                                        break;
                                     case "prc_diagnoses":
                                         if ($report_value != '') {
-                                            echo '<ul style="margin: 0; padding: 0;">';
+                                            echo '<ul style="margin: 0; padding-left: 0.5em;">';
                                             foreach (explode(';', $report_value) as $code_index => $code) {
                                                 echo '<li><abbr title="' . text($code) . '">' . text(getCodeDescription($code)) . '</abbr></li>';
                                             }
