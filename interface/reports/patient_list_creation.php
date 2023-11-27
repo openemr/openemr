@@ -74,6 +74,7 @@ $sql_date_from = (!empty($_POST['date_from'])) ? DateTimeToYYYYMMDDHHMMSS($_POST
 $sql_date_to = (!empty($_POST['date_to'])) ? DateTimeToYYYYMMDDHHMMSS($_POST['date_to']) : date('Y-m-d H:i:s');
 
 $patient_id = trim($_POST["patient_id"] ?? '');
+$provider_name = trim($_POST["provider_name"] ?? '');
 $age_from = $_POST["age_from"] ?? '';
 $age_to = $_POST["age_to"] ?? '';
 $sql_gender = $_POST["gender"] ?? '';
@@ -401,6 +402,10 @@ $procedure_diagnosis = trim($_POST["procedure_diagnosis"] ?? '');
                                 <td class='col-form-label'><?php echo xlt('Ethnicity'); ?>:</td>
                                 <td colspan="2"><?php echo generate_select_list('ethnicity', 'ethnicity', $sql_ethnicity, 'Select Ethnicity', 'Unassigned', '', ''); ?></td>
                             </tr>
+                            <tr>
+                                <td class='col-form-label'><?php echo xlt('Name of Provider'); ?>:</td>
+                                <td><input name='provider_name' class="form-control" type='text' id="provider_name" title='<?php echo xla('Firstname Lastname'); ?>' value='<?php echo attr($provider_name); ?>' size='10' /></td>
+                            </tr>
 
                         </table>
 
@@ -445,7 +450,7 @@ $procedure_diagnosis = trim($_POST["procedure_diagnosis"] ?? '');
                 pd.sex AS patient_sex,
                 TRIM('|' FROM pd.race) AS patient_race,
                 TRIM('|' FROM pd.ethnicity) AS patient_ethnic,
-                concat(u.lname, ', ', u.fname)  AS users_provider";
+                concat(u.lname, ', ', u.fname) AS users_provider";
 
             $srch_option = $_POST['srch_option'];
             switch ($srch_option) {
@@ -492,12 +497,11 @@ $procedure_diagnosis = trim($_POST["procedure_diagnosis"] ?? '');
                     break;
             }
 
-            // FROMs
             $sqlstmt .= " from patient_data as pd";
+            // JOINs
             if ($srch_option != "Encounters" && $srch_option != "Observations" && $srch_option != "Prescriptions") {
                 $sqlstmt .= " left outer join users as u on u.id = pd.providerid";
             }
-            // JOINs
             switch ($srch_option) {
                 case "Problems":
                     $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND li.type='medical_problem')";
@@ -539,7 +543,7 @@ $procedure_diagnosis = trim($_POST["procedure_diagnosis"] ?? '');
                     break;
             }
 
-            // WHERE Conditions started
+            // WHERE conditions started
             $whr_stmt = " where 1=1";
             switch ($srch_option) {
                 case "Medications":
@@ -587,32 +591,33 @@ $procedure_diagnosis = trim($_POST["procedure_diagnosis"] ?? '');
                     break;
             }
 
+            // WHERE conditions based on persistent inputs
             if (strlen($patient_id) != 0) {
-                $whr_stmt .= "   and pd.pid = ?";
+                $whr_stmt .= " and pd.pid = ?";
                 array_push($sqlBindArray, $patient_id);
             }
-
+            if (strlen($provider_name) != 0) {
+                $whr_stmt .= " and CONCAT(u.fname, ' ', u.lname) LIKE ?";
+                array_push($sqlBindArray, '%' . $provider_name . '%');
+            }
             if (strlen($age_from) != 0) {
-                $whr_stmt .= "   and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 >= ?";
+                $whr_stmt .= " and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 >= ?";
                 array_push($sqlBindArray, $age_from);
             }
-
             if (strlen($age_to) != 0) {
-                $whr_stmt .= "   and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 <= ?";
+                $whr_stmt .= " and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 <= ?";
                 array_push($sqlBindArray, $age_to);
             }
-
             if (strlen($sql_gender) != 0) {
-                $whr_stmt .= "   and pd.sex = ?";
+                $whr_stmt .= " and pd.sex = ?";
                 array_push($sqlBindArray, $sql_gender);
             }
-
             if (strlen($sql_ethnicity) != 0) {
-                $whr_stmt .= "   and pd.ethnicity = ?";
+                $whr_stmt .= " and pd.ethnicity = ?";
                 array_push($sqlBindArray, $sql_ethnicity);
             }
 
-            // WHERE conditions based on specific search options
+            // WHERE conditions based on inputs arising from specific search options
             if ($srch_option == "Prescriptions" && strlen($prescription_drug) > 0) {
                 $whr_stmt .= " AND rx.drug LIKE ?";
                 array_push($sqlBindArray, '%' . $prescription_drug . '%');
