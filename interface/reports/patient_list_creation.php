@@ -74,7 +74,7 @@ $sql_date_from = (!empty($_POST['date_from'])) ? DateTimeToYYYYMMDDHHMMSS($_POST
 $sql_date_to = (!empty($_POST['date_to'])) ? DateTimeToYYYYMMDDHHMMSS($_POST['date_to']) : date('Y-m-d H:i:s');
 
 $patient_id = trim($_POST["patient_id"] ?? '');
-$provider_name = trim($_POST["provider_name"] ?? '');
+$provider_id = isset($_POST['form_provider']) ? $_POST['form_provider'] : '';
 $age_from = $_POST["age_from"] ?? '';
 $age_to = $_POST["age_to"] ?? '';
 $sql_gender = $_POST["gender"] ?? '';
@@ -223,7 +223,7 @@ if ($csv) {
                 if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "Observations")) { ?>
                     $('#obs_desc').show();
                 <?php }
-                if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "Procedures")) { ?>
+                if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "Procedures" || $_POST['srch_option'] == "Lab Results")) { ?>
                     $('#pr_diag').show();
                 <?php }
                 ?>
@@ -248,42 +248,36 @@ if ($csv) {
 
                 // Reset and show/hide inputs related to specific search options
                 if (elem.value == 'Prescriptions') {
-                    $('#prescription_drug').val('');
                     $('#rx_drug').show();
                 } else {
                     $('#prescription_drug').val('');
                     $('#rx_drug').hide();
                 }
                 if (elem.value == 'Communication') {
-                    $('#communication').val('');
                     $('#com_pref').show();
                 } else {
                     $('#communication').val('');
                     $('#com_pref').hide();
                 }
                 if (elem.value == 'Insurance Companies') {
-                    $('#insurance_companies').val('');
                     $('#ins_co').show();
                 } else {
                     $('#insurance_companies').val('');
                     $('#ins_co').hide();
                 }
                 if (elem.value == 'Encounters') {
-                    $('#encounter_type').val('');
                     $('#enc_type').show();
                 } else {
                     $('#encounter_type').val('');
                     $('#enc_type').hide();
                 }
                 if (elem.value == 'Observations') {
-                    $('#observation_description').val('');
                     $('#obs_desc').show();
                 } else {
                     $('#observation_description').val('');
                     $('#obs_desc').hide();
                 }
-                if (elem.value == 'Procedures') {
-                    $('#procedure_diagnosis').val('');
+                if (elem.value == 'Procedures' || elem.value == 'Lab Results') {
                     $('#pr_diag').show();
                 } else {
                     $('#procedure_diagnosis').val('');
@@ -352,7 +346,7 @@ if ($csv) {
                                         <td colspan="3">
                                             <!-- Inputs for specific search options -->
                                             <span id="rx_drug" style="display: none">
-                                                <input class="form-control" name="prescription_drug" id="prescription_drug" placeholder="<?php echo xlt('Drug'); ?>"<?php echo !empty($_POST['prescription_drug']) ? ' value="' . $_POST['prescription_drug'] . '"' : '' ?>/>
+                                                <input class="form-control" name="prescription_drug" id="prescription_drug" title="<?php echo xla('(% matches any string, _ matches any character)'); ?>" placeholder="<?php echo xlt('Drug'); ?>"<?php echo !empty($_POST['prescription_drug']) ? ' value="' . $_POST['prescription_drug'] . '"' : '' ?>/>
                                             </span>
                                             <span id="com_pref" style="display: none">
                                                 <select class="form-control" name="communication" id="communication" title="<?php echo xlt('Select Communication Preferences'); ?>">
@@ -380,10 +374,10 @@ if ($csv) {
                                                 </select>
                                             </span>
                                             <span id="obs_desc" style="display: none">
-                                                <input class="form-control" name="observation_description" id="observation_description" placeholder="<?php echo xlt('Code') . '/' . xlt('Description'); ?>"<?php echo !empty($_POST['observation_description']) ? ' value="' . $_POST['observation_description'] . '"' : '' ?>/>
+                                                <input class="form-control" name="observation_description" id="observation_description" title="<?php echo xla('(% matches any string, _ matches any character)'); ?>" placeholder="<?php echo xlt('Code') . '/' . xlt('Description'); ?>"<?php echo !empty($_POST['observation_description']) ? ' value="' . $_POST['observation_description'] . '"' : '' ?>/>
                                             </span>
                                             <span id="pr_diag" style="display: none">
-                                                <input class="form-control" name="procedure_diagnosis" id="procedure_diagnosis" placeholder="<?php echo xlt('Diagnosis Code'); ?>"<?php echo !empty($_POST['procedure_diagnosis']) ? ' value="' . $_POST['procedure_diagnosis'] . '"' : '' ?>/>
+                                                <input class="form-control" name="procedure_diagnosis" id="procedure_diagnosis" title="<?php echo xla('(% matches any string, _ matches any character)'); ?>" placeholder="<?php echo xlt('Diagnosis Code'); ?>"<?php echo !empty($_POST['procedure_diagnosis']) ? ' value="' . $_POST['procedure_diagnosis'] . '"' : '' ?>/>
                                             </span>
                                         </td>
                                     </tr>
@@ -407,8 +401,8 @@ if ($csv) {
                                         <td colspan="2"><?php echo generate_select_list('ethnicity', 'ethnicity', $sql_ethnicity, 'Select Ethnicity', 'Unassigned', '', ''); ?></td>
                                     </tr>
                                     <tr>
-                                        <td class='col-form-label'><?php echo xlt('Name of Provider'); ?>:</td>
-                                        <td><input name='provider_name' class="form-control" type='text' id="provider_name" title='<?php echo xla('Firstname Lastname'); ?>' value='<?php echo attr($provider_name); ?>' size='10' /></td>
+                                        <td class='col-form-label'><?php echo xlt('Provider'); ?>:</td>
+                                        <td><?php generate_form_field(array('data_type' => 10, 'field_id' => 'provider', 'empty_title' => 'All'), $provider_id); ?></td>
                                     </tr>
                                 </table>
                             </div>
@@ -462,17 +456,6 @@ if (!empty($_POST['form_refresh'])) {
                     REPLACE(li.diagnosis, ';', ', ') AS lists_diagnosis,
                     li.title AS lists_title";
             break;
-        case "Lab Results":
-            $sqlstmt .= ", pr.date AS other_date,
-                    pr.facility AS result_facility,
-                    pr.result_text AS result_description,
-                    pr.units AS result_units,
-                    pr.result AS result_result,
-                    pr.range AS result_range,
-                    pr.abnormal AS result_abnormal,
-                    pr.comments AS result_comments,
-                    pr.document_id AS result_document_id";
-            break;
         case "Communication":
             $sqlstmt .= ", REPLACE(REPLACE(concat_ws(', ', IF(pd.hipaa_allowemail = 'YES', 'Email', 'NO'), IF(pd.hipaa_allowsms = 'YES', 'SMS', 'NO'),
                     IF(pd.hipaa_mail = 'YES', 'Mail Message', 'NO') , IF(pd.hipaa_voice = 'YES', 'Voice Message', 'NO') ), ', NO', ''), 'NO,', '') as communications";
@@ -481,20 +464,47 @@ if (!empty($_POST['form_refresh'])) {
             $sqlstmt .= ", id.type AS ins_type, id.provider AS ins_provider, ic.name as ins_name";
             break;
         case "Encounters":
-            $sqlstmt .= ", enc.date AS other_date, enc.reason AS enc_reason, enc.facility AS enc_facility, enc.encounter_type_description AS enc_type,
+            $sqlstmt .= ", enc.date AS other_date,
+                    enc.reason AS enc_reason,
+                    enc.facility AS enc_facility,
+                    enc.encounter_type_description AS enc_type,
                     enc.discharge_disposition AS enc_discharge";
             break;
         case "Observations":
-            $sqlstmt .= ", obs.date AS other_date, obs.code AS obs_code, obs.observation AS obs_comments, obs.description AS obs_description,
-                    obs.ob_type AS obs_type, obs.ob_value AS obs_value, obs.ob_unit AS obs_units";
+            $sqlstmt .= ", obs.date AS other_date,
+                    obs.code AS obs_code,
+                    obs.observation AS obs_comments,
+                    obs.description AS obs_description,
+                    obs.ob_type AS obs_type,
+                    obs.ob_value AS obs_value,
+                    obs.ob_unit AS obs_units";
             break;
         case "Prescriptions":
-            $sqlstmt .= ", rx.date_added AS other_date, rx.drug AS rx_drug, CONCAT(rx.size, rxl_unit.title) AS rx_medicine_units, CONCAT(rx.dosage, ' in ', rxl_form.title, ' ', rxl_interval.title) AS rx_directions,
-                    rx.quantity AS rx_quantity, rx.refills AS rx_refills";
+            $sqlstmt .= ", rx.date_added AS other_date,
+                    rx.drug AS rx_drug,
+                    CONCAT(rx.size, rxl_unit.title) AS rx_medicine_units,
+                    CONCAT(rx.dosage, ' in ', rxl_form.title, ' ', rxl_interval.title) AS rx_directions,
+                    rx.quantity AS rx_quantity,
+                    rx.refills AS rx_refills";
             break;
         case "Procedures":
-            $sqlstmt .= ", pr.date_ordered AS other_date, pr.order_status AS pr_status, pp.name AS pr_lab,
-                pr.order_diagnosis AS pr_diagnosis, prc.procedure_name as prc_procedure, prc.diagnoses AS prc_diagnoses";
+            $sqlstmt .= ", pr_ord.date_ordered AS other_date,
+                    pr_ord.order_status AS pr_status,
+                    pr_prov.name AS pr_lab,
+                    pr_ord.order_diagnosis AS pr_diagnosis,
+                    pr_code.procedure_name as prc_procedure,
+                    pr_code.diagnoses AS prc_diagnoses";
+            break;
+        case "Lab Results":
+            $sqlstmt .= ", pr_res.date AS other_date,
+                    pr_res.facility AS result_facility,
+                    pr_res.result_text AS result_description,
+                    pr_res.units AS result_units,
+                    pr_res.result AS result_result,
+                    pr_res.range AS result_range,
+                    pr_res.abnormal AS result_abnormal,
+                    pr_res.comments AS result_comments,
+                    pr_res.document_id AS result_document_id";
             break;
     }
 
@@ -512,11 +522,6 @@ if (!empty($_POST['form_refresh'])) {
             break;
         case "Allergies":
             $sqlstmt .= " left outer join lists as li on (li.pid  = pd.pid AND (li.type='allergy')) ";
-            break;
-        case "Lab Results":
-            $sqlstmt .= " left outer join procedure_order as po on po.patient_id = pd.pid
-                left outer join procedure_report as pp on pp.procedure_order_id = po.procedure_order_id
-                left outer join procedure_result as pr on pr.procedure_report_id = pp.procedure_report_id";
             break;
         case "Insurance Companies":
             $sqlstmt .= " left outer join insurance_data as id on id.pid = pd.pid
@@ -538,9 +543,15 @@ if (!empty($_POST['form_refresh'])) {
                     left outer join users as u on rx.provider_id = u.id";
             break;
         case "Procedures":
-            $sqlstmt .= " left outer join procedure_order as pr on pd.pid = pr.patient_id
-                left outer join procedure_providers as pp on pr.lab_id = pp.ppid
-                left outer join procedure_order_code as prc on pr.procedure_order_id = prc.procedure_order_id";
+            $sqlstmt .= " left outer join procedure_order as pr_ord on pr_ord.patient_id = pd.pid
+                left outer join procedure_providers as pr_prov on pr_prov.ppid = pr_ord.lab_id
+                left outer join procedure_order_code as pr_code on pr_code.procedure_order_id = pr_ord.procedure_order_id";
+            break;
+        case "Lab Results":
+            $sqlstmt .= " left outer join procedure_order as pr_ord on pr_ord.patient_id = pd.pid
+                left outer join procedure_report as pr_rep on pr_rep.procedure_order_id = pr_ord.procedure_order_id
+                left outer join procedure_order_code as pr_code on pr_code.procedure_order_id = pr_rep.procedure_order_id AND pr_code.procedure_order_seq = pr_rep.procedure_order_seq
+                left outer join procedure_result as pr_res on pr_res.procedure_report_id = pr_rep.procedure_report_id";
             break;
     }
 
@@ -554,10 +565,6 @@ if (!empty($_POST['form_refresh'])) {
             break;
         case "Problems":
             $whr_stmt .= " AND li.title != '' AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND li.date <= ?";
-            array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
-            break;
-        case "Lab Results":
-            $whr_stmt .= " AND pr.date >= ? AND pr.date < DATE_ADD(?, INTERVAL 1 DAY) AND pr.date <= ? AND pr.result != ''";
             array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
             break;
         case "Communication":
@@ -583,7 +590,11 @@ if (!empty($_POST['form_refresh'])) {
             array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
             break;
         case "Procedures":
-            $whr_stmt .= " AND pr.date_ordered >= ? AND pr.date_ordered < DATE_ADD(?, INTERVAL 1 DAY) AND pr.date_ordered <= ?";
+            $whr_stmt .= " AND pr_ord.date_ordered >= ? AND pr_ord.date_ordered < DATE_ADD(?, INTERVAL 1 DAY) AND pr_ord.date_ordered <= ?";
+            array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
+            break;
+        case "Lab Results":
+            $whr_stmt .= " AND pr_res.date >= ? AND pr_res.date < DATE_ADD(?, INTERVAL 1 DAY) AND pr_res.date <= ? AND pr_res.result != ''";
             array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
             break;
         default:
@@ -597,9 +608,9 @@ if (!empty($_POST['form_refresh'])) {
         $whr_stmt .= " and pd.pid = ?";
         array_push($sqlBindArray, $patient_id);
     }
-    if (strlen($provider_name) != 0) {
-        $whr_stmt .= " and CONCAT(u.fname, ' ', u.lname) LIKE ?";
-        array_push($sqlBindArray, '%' . $provider_name . '%');
+    if (strlen($provider_id) != 0) {
+        $whr_stmt .= " and u.id = ?";
+        array_push($sqlBindArray, $provider_id);
     }
     if (strlen($age_from) != 0) {
         $whr_stmt .= " and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 >= ?";
@@ -621,7 +632,7 @@ if (!empty($_POST['form_refresh'])) {
     // WHERE conditions based on inputs arising from specific search options
     if ($srch_option == "Prescriptions" && strlen($prescription_drug) > 0) {
         $whr_stmt .= " AND rx.drug LIKE ?";
-        array_push($sqlBindArray, '%' . $prescription_drug . '%');
+        array_push($sqlBindArray, $prescription_drug);
     }
     if ($srch_option == "Communication" && strlen($communication) > 0) {
         if ($communication == "allow_sms") {
@@ -644,11 +655,11 @@ if (!empty($_POST['form_refresh'])) {
     }
     if ($srch_option == "Observations" && strlen($observation_description) > 0) {
         $whr_stmt .= " AND (obs.code LIKE ? OR obs.description LIKE ?)";
-        array_push($sqlBindArray, '%' . $observation_description . '%', '%' . $observation_description . '%');
+        array_push($sqlBindArray, $observation_description, $observation_description);
     }
-    if ($srch_option == "Procedures" && strlen($procedure_diagnosis) > 0) {
-        $whr_stmt .= " AND (pr.order_diagnosis LIKE ? OR prc.diagnoses LIKE ?)";
-        array_push($sqlBindArray, '%' . $procedure_diagnosis . '%', '%' . $procedure_diagnosis . '%');
+    if (($srch_option == "Procedures" || $srch_option == "Lab Results") && strlen($procedure_diagnosis) > 0) {
+        $whr_stmt .= " AND (pr_ord.order_diagnosis LIKE ? OR pr_code.diagnoses LIKE ?)";
+        array_push($sqlBindArray, $procedure_diagnosis, $procedure_diagnosis);
     }
 
     // Controls the columns displayed, their headings and widths, and how many columns are sorted from the left
@@ -1051,9 +1062,10 @@ if (!empty($_POST['form_refresh'])) {
         <?php }
     } else { // End if $result ?>
                 <table>
-                    <tr>
-                        <td class="text">&nbsp;&nbsp;<?php echo xlt('No records found.'); ?></td>
-                    </tr>
+                    <tr><td class="text"><?php echo xlt('No records found.'); ?></td></tr>
+        <?php if (isset($prescription_drug) || isset($observation_description) || isset($procedure_diagnosis)) { ?>
+                    <tr><td class="text"><?php echo xlt('(% matches any string, _ matches any character)'); ?></td></tr>
+        <?php } ?>
                 </table>
     <?php }
     if (!$csv) { ?>
