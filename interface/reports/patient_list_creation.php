@@ -40,7 +40,7 @@ if (!empty($_POST)) {
     }
 }
 
-$search_options = array(
+$search_options = [
     "Demographics",
     "Allergies",
     "Problems",
@@ -52,7 +52,7 @@ $search_options = array(
     "Observations",
     "Procedures",
     "Lab Results"
-);
+];
 
 $comarr = array(
     "allow_sms"   => xl("Allow SMS"),
@@ -64,7 +64,7 @@ $comarr = array(
 // Get array of all insurance companies from function in patient.inc.php
 $insarr = getInsuranceProvidersExtra();
 // Get array of all encounter types
-$encarr = array();
+$encarr = [];
 $rez = sqlStatement('SELECT option_id, title FROM list_options WHERE list_id = "encounter-types" ORDER BY seq ASC');
 for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
     $encarr[$row['option_id']] = $row['title'];
@@ -435,7 +435,7 @@ if ($csv) {
 <?php }
 
 // SQL scripts for the various searches
-$sqlBindArray = array();
+$sqlBindArray = [];
 if (!empty($_POST['form_refresh'])) {
     $sqlstmt = "select
         pd.date as patient_date,
@@ -917,10 +917,10 @@ if (!empty($_POST['form_refresh'])) {
 
     if (sqlNumRows($result) > 0 || $csv) {
         $smoke_codes_arr = getSmokeCodes();
-        $report_data_arr = array();
-        $patient_arr = array();
+        $report_data_arr = [];
+        $patient_arr = [];
         while ($row = sqlFetchArray($result)) {
-            $report_data = array();
+            $report_data = [];
             foreach (array_keys($report_options_arr[$srch_option]["cols"]) as $report_item_name_key => $report_item_name) {
                 array_push($report_data, $row[$report_item_name]);
             }
