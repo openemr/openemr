@@ -1,16 +1,21 @@
 <?php
 
 /**
- * This report lists all the demographics, allergies, problems, medications and
- * lab results along with race, ethnicity, insurance company and provider for those items
+ * This report lists a broad range of summarised data per patient, including
+ * demographics, allergies, medical problems, medications, prescriptions,
+ * communication preferences, insurance companies, encounters, observations,
+ * procedures and lab results. Common columns include a patient's creation date,
+ * name, ID, age, gender, ethnicity and provider.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Jack Stringer <jack5answers@gmail.com>
  * @copyright Copyright (c) 2014 Ensoftek, Inc
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2023 Jack Stringer <jack5answers@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -18,7 +23,6 @@ require_once "../globals.php";
 require_once "$srcdir/patient.inc.php";
 require_once "$srcdir/options.inc.php";
 require_once "../drugs/drugs.inc.php";
-// require_once "$srcdir/payment_jav.inc.php"; - Unused, removed to allow for CSV export
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -36,8 +40,7 @@ if (!empty($_POST)) {
     }
 }
 
-$search_options = array
-(
+$search_options = array(
     "Demographics",
     "Allergies",
     "Problems",
@@ -51,8 +54,7 @@ $search_options = array
     "Lab Results"
 );
 
-$comarr = array
-(
+$comarr = array(
     "allow_sms"   => xl("Allow SMS"),
     "allow_voice" => xl("Allow Voice Message"),
     "allow_mail"  => xl("Allow Mail Message"),
@@ -62,7 +64,7 @@ $comarr = array
 // Get array of all insurance companies from function in patient.inc.php
 $insarr = getInsuranceProvidersExtra();
 // Get array of all encounter types
-$encarr = [];
+$encarr = array();
 $rez = sqlStatement('SELECT option_id, title FROM list_options WHERE list_id = "encounter-types" ORDER BY seq ASC');
 for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
     $encarr[$row['option_id']] = $row['title'];
@@ -102,11 +104,9 @@ if ($csv) {
     header("Content-Type: application/force-download");
     header("Content-Disposition: attachment; filename=patient_list_custom.csv");
     header("Content-Description: File Transfer");
-} else {
-?>
+} else { ?>
 <html>
     <head>
-
         <title>
             <?php echo xlt('Patient List Creation'); ?>
         </title>
@@ -917,10 +917,10 @@ if (!empty($_POST['form_refresh'])) {
 
     if (sqlNumRows($result) > 0 || $csv) {
         $smoke_codes_arr = getSmokeCodes();
-        $report_data_arr = [];
-        $patient_arr = [];
+        $report_data_arr = array();
+        $patient_arr = array();
         while ($row = sqlFetchArray($result)) {
-            $report_data = [];
+            $report_data = array();
             foreach (array_keys($report_options_arr[$srch_option]["cols"]) as $report_item_name_key => $report_item_name) {
                 array_push($report_data, $row[$report_item_name]);
             }
@@ -988,7 +988,7 @@ if (!empty($_POST['form_refresh'])) {
             <?php }
             foreach ($report_data as $report_value_key => $report_value) {
                 $report_col = array_keys($report_options_arr[$srch_option]["cols"])[$report_value_key];
-                $report_value_print = NULL;
+                $report_value_print = null;
                 switch ($report_col) {
                     case "patient_date":
                     case "other_date":
@@ -1056,7 +1056,6 @@ if (!empty($_POST['form_refresh'])) {
         }
 
         if (!$csv) { ?>
-
                 </table>
                 <!-- Main table ends -->
         <?php }
