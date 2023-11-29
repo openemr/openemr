@@ -40,9 +40,6 @@ if ($patientid < 0) {
 // True if to display as a form to complete, false to display as information.
 $isform = empty($_REQUEST['isform']) ? 0 : 1;
 
-// Html2pdf fails to generate checked checkboxes properly, so write plain HTML
-// if we are doing a patient-specific complete form.
-// TODO - now use mPDF, so should test if still need this fix
 $PDF_OUTPUT = ($patientid && $isform) ? false : true;
 
 if ($PDF_OUTPUT) {
@@ -366,7 +363,7 @@ if (strlen($last_group) > 0) {
 if ($PDF_OUTPUT) {
     $content = getContent();
     $pdf->writeHTML($content);
-    $pdf->Output('Demographics_form.pdf', 'I'); // D = Download, I = Inline
+    $pdf->Output('Demographics_form.pdf', 'D'); // D = Download, I = Inline
 } else {
     ?>
 <!-- This should really be in the onload handler but that seems to be unreliable and can crash Firefox 3. -->
