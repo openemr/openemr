@@ -174,8 +174,7 @@ if ($csv) {
 
                 $('#date_error').css("display", "none");
 
-                if (diff < 0) //negative
-                {
+                if (diff < 0) { // Negative
                     $('#date_error').css("display", "inline");
                 } else {
                     $("#form_refresh").attr("value","true");
@@ -184,9 +183,8 @@ if ($csv) {
                 }
             }
 
-            //sorting changes
-            function sortingCols(sort_by,sort_order)
-            {
+            // Sorting changes
+            function sortingCols(sort_by,sort_order) {
                 $("#sortby").val(sort_by);
                 $("#sortorder").val(sort_order);
                 $("#form_refresh").attr("value","true");
@@ -196,12 +194,10 @@ if ($csv) {
             $(function () {
                 $(".numeric_only").keydown(function(event) {
                     // Allow only backspace and delete
-                    if ( event.keyCode == 46 || event.keyCode == 8 ) {
+                    if (event.keyCode == 46 || event.keyCode == 8) {
                         // let it happen, don't do anything
-                    }
-                    else {
-                        if(!((event.keyCode >= 96 && event.keyCode <= 105) || (event.keyCode >= 48 && event.keyCode <= 57)))
-                        {
+                    } else {
+                        if (!((event.keyCode >= 96 && event.keyCode <= 105) || (event.keyCode >= 48 && event.keyCode <= 57))) {
                             event.preventDefault();
                         }
                     }
@@ -238,8 +234,8 @@ if ($csv) {
             });
 
             function printForm() {
-                 var win = top.printLogPrint ? top : opener.top;
-                 win.printLogPrint(window);
+                var win = top.printLogPrint ? top : opener.top;
+                win.printLogPrint(window);
             }
 
             function srch_option_change(elem) {
@@ -307,7 +303,7 @@ if ($csv) {
                 } else {
                     echo "(" . xlt('All') . ")";
                 }
-            }  ?></span>
+            } ?></span>
             <span style="margin-left:5px;"><strong><?php echo xlt('Option'); ?>:</strong>&nbsp;<?php echo text($_POST['srch_option'] ?? '');
             if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "Insurance Companies") && ($_POST['insurance_companies'] != "")) {
                 if (isset($insarr[$_POST['insurance_companies']])) {
@@ -315,7 +311,7 @@ if ($csv) {
                 } else {
                     echo "(" . xlt('All') . ")";
                 }
-            }  ?></span>
+            } ?></span>
             </p>
         </div>
         <form name='theform' id='theform' method='post' action='patient_list_creation.php' onSubmit="return Form_Validate();">
@@ -325,7 +321,7 @@ if ($csv) {
                 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
                 <table>
                     <tr>
-                        <td width='640px'>
+                        <td style='min-width: 860px'>
                             <div class="cancel-float" style='float: left'>
                                 <table class='text'>
                                     <tr>
@@ -334,7 +330,7 @@ if ($csv) {
                                         <td class='col-form-label'><?php echo xlt('To{{range}}'); ?>: </td>
                                         <td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_to, 0, true)); ?>'></td>
                                         <td class='col-form-label'><?php echo xlt('Option'); ?>: </td>
-                                        <td class='col-form-label'>
+                                        <td>
                                             <select class="form-control" name="srch_option" id="srch_option"
                                                 onchange="srch_option_change(this)">
                                                 <?php foreach ($search_options as $skey) { ?>
@@ -343,7 +339,7 @@ if ($csv) {
                                                 <?php } ?>
                                             </select>
                                         </td>
-                                        <td colspan="3">
+                                        <td colspan="2">
                                             <!-- Inputs for specific search options -->
                                             <span id="rx_drug" style="display: none">
                                                 <input class="form-control" name="prescription_drug" id="prescription_drug" title="<?php echo xla('(% matches any string, _ matches any character)'); ?>" placeholder="<?php echo xlt('Drug'); ?>"<?php echo !empty($_POST['prescription_drug']) ? ' value="' . $_POST['prescription_drug'] . '"' : '' ?>/>
@@ -396,9 +392,9 @@ if ($csv) {
                                             </table>
                                         </td>
                                         <td class='col-form-label'><?php echo xlt('Gender'); ?>:</td>
-                                        <td colspan="2"><?php echo generate_select_list('gender', 'sex', $sql_gender, 'Select Gender', 'Unassigned', '', ''); ?></td>
+                                        <td><?php echo generate_select_list('gender', 'sex', $sql_gender, 'Select Gender', 'Unassigned', '', ''); ?></td>
                                         <td class='col-form-label'><?php echo xlt('Ethnicity'); ?>:</td>
-                                        <td colspan="2"><?php echo generate_select_list('ethnicity', 'ethnicity', $sql_ethnicity, 'Select Ethnicity', 'Unassigned', '', ''); ?></td>
+                                        <td><?php echo generate_select_list('ethnicity', 'ethnicity', $sql_ethnicity, 'Select Ethnicity', 'Unassigned', '', ''); ?></td>
                                     </tr>
                                     <tr>
                                         <td class='col-form-label'><?php echo xlt('Provider'); ?>:</td>
@@ -408,26 +404,19 @@ if ($csv) {
                             </div>
                         </td>
 
-                        <td class='h-100' valign='middle' width="175">
-                            <table class='w-100 h-100' style='border-left: 1px solid;'>
-                                <tr>
-                                    <td>
-                                        <div class="text-center">
-                                            <div class="btn-group" role="group">
-                                                <a href='#' class='btn btn-secondary btn-save' onclick="$('#form_csvexport').val(''); submitForm();"><?php echo xlt('Submit'); ?></a>
-                                                <?php if (isset($_POST['form_refresh'])) {?>
-                                                    <a href='#' class='btn btn-secondary btn-print' onclick="printForm()"><?php echo xlt('Print'); ?></a>
-                                                    <a href='#' class='btn btn-secondary btn-transmit' onclick="$('#form_csvexport').attr('value', 'true'); submitForm();"><?php echo xlt('Export to CSV'); ?></a>
-                                                <?php } ?>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <!-- <td>
-                                        <div id='processing' style='display:none;' ><img src='../pic/ajax-loader.gif'/></div>
-                                    </td> -->
-                                </tr>
-                            </table>
+                        <td class='h-100' valign='middle' width='175px' style='border-left: 1px solid;'>
+                            <div class="text-center">
+                                <div class="btn-group-vertical" role="group">
+                                    <a href='#' class='btn btn-secondary btn-save' onclick="$('#form_csvexport').val(''); submitForm();"><?php echo xlt('Submit'); ?></a>
+                                    <?php if (isset($_POST['form_refresh'])) {?>
+                                        <a href='#' class='btn btn-secondary btn-transmit' onclick="$('#form_csvexport').attr('value', 'true'); submitForm();"><?php echo xlt('Export to CSV'); ?></a>
+                                        <a href='#' class='btn btn-secondary btn-print' onclick="printForm()"><?php echo xlt('Print'); ?></a>
+                                    <?php } ?>
+                                </div>
+                            </div>
                         </td>
+
+                        <!-- <div id='processing' style='display:none;' ><img src='../pic/ajax-loader.gif'/></div> - HTML requires modification to re-insert this -->
                     </tr>
                 </table>
             </div>
@@ -940,7 +929,7 @@ if (!empty($_POST['form_refresh'])) {
                 </table>
 
                 <table class='table' width='90%' align="center" cellpadding="5" cellspacing="0" style="font-family: Tahoma;" border="0">
-                    <tr <?php echo ($srch_option == "Lab Results") ? 'bgcolor="#C3FDB8" align="left" ' : ''; ?>style="font-size:15px;">
+                    <tr class="bg-light" style="font-size:15px;">
         <?php }
         foreach (array_keys($report_options_arr[$srch_option]["cols"]) as $report_col_key => $report_col) {
             if (!$csv) {
@@ -984,7 +973,7 @@ if (!empty($_POST['form_refresh'])) {
 
         foreach ($report_data_arr as $report_data_key => $report_data) {
             if (!$csv) { ?>
-                    <tr bgcolor="#CCCCCC" style="font-size:15px;">
+                    <tr style="font-size:15px;">
             <?php }
             foreach ($report_data as $report_value_key => $report_value) {
                 $report_col = array_keys($report_options_arr[$srch_option]["cols"])[$report_value_key];
