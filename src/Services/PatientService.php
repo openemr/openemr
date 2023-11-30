@@ -1031,9 +1031,6 @@ class PatientService extends BaseService
         $query = "SELECT option_id FROM list_options WHERE list_id = 'recent_patient_columns' and activity = '1'";
         $res = sqlStatement($query);
         $cols = ['pid'];
-        while ($row = sqlFetchArray($res)) {
-            $cols[] = $row['option_id'];
-        }
 
         // Trim down the incoming patient array to just the whitelisted columns
         foreach ($patient as $k => $v) {
@@ -1069,6 +1066,13 @@ class PatientService extends BaseService
         $currUser = ($user_id > 0) ? ['id' => $user_id] : $user->getCurrentlyLoggedInUser();
         $sql = "SELECT patients FROM recent_patients WHERE user_id = ?";
         $res = sqlQuery($sql, [$currUser['id']]);
-        return ($res) ? unserialize($res['patients']) : [];
+        // original code:  return ($res) ? unserialize($res['patients']) : [];
+        // We only want the pid value so we can fetch the data from patient_data...
+        //
+        $pids = [];
+        foreach (($res) ? unserialize($res['patients']) : [] as $k => $v) {
+            $pids[]['pid'] = $v['pid'];
+        }
+        return($pids);
     }
 }

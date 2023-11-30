@@ -5081,8 +5081,6 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
     $OS_time_values = "'" . implode("','", $OS_time_values) . "'";
 
     ?> <p style="font-weight:bold;"> <?php echo xlt('Glaucoma Zone'); ?>:</p>
-        <br />
-        <br />
        <span class="closeButton fas fa-times" id="Close_IOP" name="Close_IOP"></span>
         <div id="GFS_table" name="GFS_table" class="table-responsive borderShadow" style="position:relative;display:table;float:left;margin-top:10px;padding:15px;text-align:left;vertical-align:center;width:30%;">
             <table class="GFS_table">
@@ -5134,7 +5132,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     <td class="GFS_title" style="text-align:center;"><?php echo $meds_here; ?></td>
                     <?php
                     if ($FAILED_drugs ?? null) {
-                        echo '<td><span class="right toggleme" id="toggle_drugs"><i class="fa fa-toggle-down"></i></span></td>';
+                        echo '<td><span class="right toggleme" id="toggle_drugs"><i class="fa-regular fa-square-caret-down"></i></span></td>';
                     } ?>
                 </tr>
                 <?php
@@ -5175,7 +5173,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     <td colspan="3" class="GFS_title"><?php echo xlt('Visual Fields'); ?>:
                     <?php
                     if ($old_VFs ?? null) {
-                        echo '<td><span class="top right" id="toggle_VFs"><i class="fa fa-toggle-down"></i></span></td>';
+                        echo '<td><span class="top right" id="toggle_VFs"><i class="fa-regular fa-square-caret-down"></i></span></td>';
                     }
                     ?>
                 </tr>
@@ -5211,7 +5209,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                         }
 
                         if ($old_OCTs ?? null) {
-                            echo '<td><span class="top right " id="toggle_OCTs"><i class="fa fa-toggle-down"></i></span></td>';
+                            echo '<td><span class="top right " id="toggle_OCTs"><i class="fa-regular fa-square-caret-down"></i></span></td>';
                         }
 
                         echo "</tr>";
@@ -5257,7 +5255,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     }
 
                     if ($hideme) {
-                        echo '<td><span class="top right" id="toggle_gonios"><i class="fa fa-toggle-down"></i></span></td>';
+                        echo '<td><span class="top right" id="toggle_gonios"><i class="fa-regular fa-square-caret-down"></i></span></td>';
                     }
                     ?>
                 </tr>
@@ -5297,7 +5295,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     <td class="GFS_title_1" id="GFS_cups" name="GFS_cups" title="<?php echo xla('Click this to display/hide additional tests'); ?>"style="position:relative;"><?php echo xlt('Optic Discs'); ?>:
                     <?php
                     if ($hideme) {
-                        $plus = '<td><span class="top right" id="toggle_cups"><i class="fa fa-toggle-down"></i></span></td>';
+                        $plus = '<td><span class="top right" id="toggle_cups"><i class="fa-regular fa-square-caret-down"></i></span></td>';
                     }
 
                     if ($count > '0') {
@@ -5735,14 +5733,14 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                 </script>
                 <?php
             } else {
-                echo "<div style='text-align:left;padding-left:20px;'><h4>The Glaucoma Flow Sheet graphically displays:
+                echo "<div style='text-align:left;padding-left:20px;'><span>The Glaucoma Flow Sheet graphically displays:
                 <ul>
                 <li> IOP measurements</li>
                 <li> Target IOPs </li>
                 <li> related tests (OCT/VF/Gonio)</li>
                 <li> diurnal IOP curve</li>
                 </ul>
-                The graphs are not generated on the initial visit...</h4></div>";
+                The graphs are not generated on the initial visit...</span></div>";
             } ?>
         </div>
     </div>
