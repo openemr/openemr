@@ -398,7 +398,62 @@ function rp()
     }
     $patientService = new PatientService();
     $rp = $patientService->getRecentPatientList();
-    return ['headers' => $headers, 'rp' => $rp];
+    // Get a list of the columns in patient_data that are either date or datetime:
+    $sql_dtCols = "SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = DATABASE() AND TABLE_NAME = 'patient_data' AND (data_type = 'datetime' OR data_type = 'date')";
+    $res_dtCols = sqlStatement($sql_dtCols);
+    $pd_dtCols = [];
+    while ($row = sqlFetchArray($res_dtCols)) {
+        $pd_dtCols[] = $row;
+    }
+    $date_cols = [];
+    $datetime_cols = [];
+    foreach ($pd_dtCols as $k => $v) {
+        if ($v['data_type'] == "datetime") {
+            $datetime_cols[] = $v['column_name'];
+        } else if ($v['data_type'] == "date") {
+            $date_cols[] = $v['column_name'];
+        }
+    }
+    // Build SQL statement to pull desired columns from patient_data table...
+    $pd_sql = "SELECT pid";
+    foreach ($headers as $k => $v) {
+        $pd_sql .= ', ';
+        $col_name = $v['option_id'];
+        $dt_format = '';
+        if (in_array($col_name, $date_cols) || in_array($col_name, $datetime_cols)) {
+            switch ($GLOBALS['date_display_format']) {
+                case 0: // mysql YYYY-MM-DD format
+                    $dt_format = "'%Y-%m-%d";
+                    break;
+                case 1: // MM/DD/YYYY format
+                    $dt_format = "'%m/%d/%Y";
+                    break;
+                case 2: // DD/MM/YYYY format
+                    $dt_format = "'%d/%m/%Y";
+                    break;
+            }
+            if (in_array($col_name, $datetime_cols)) {
+                switch ($GLOBALS['time_display_format']) {
+                    case 0: // 24 Hr fmt
+                        $dt_format .= " %T";
+                        break;
+                    case 1: // AM PM fmt
+                        $dt_format .= " %r";
+                        break;
+                }
+            }
+            $dt_format .= "'";  // Don't forget the closing '!
+            $pd_sql .= "DATE_FORMAT(" . $col_name . ", " . $dt_format . ") AS " . $col_name;
+        } else {
+            $pd_sql .= $col_name;
+        }
+    }
+    $pd_sql .= " FROM patient_data WHERE pid = ?";
+    $pd_data = [];
+    foreach ($rp as $k => $v) {
+        $pd_data[] = sqlQuery($pd_sql, $v['pid']);
+    }
+    return ['headers' => $headers, 'rp' => $pd_data];
 }
 
 $rp = rp();
