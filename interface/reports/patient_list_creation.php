@@ -269,21 +269,21 @@ if ($csv) {
                     $('#rx_drug').hide();
                 }
                 if (elem.value == 'Communication') {
-                    $('#communication').val('<?php echo xlt('All'); ?>');
+                    $('#communication').val(<?php echo xlj('All'); ?>);
                     $('#com_pref').show();
                 } else {
                     $('#communication').val('');
                     $('#com_pref').hide();
                 }
                 if (elem.value == 'Insurance Companies') {
-                    $('#insurance_companies').val('<?php echo xlt('All'); ?>');
+                    $('#insurance_companies').val(<?php echo xlj('All'); ?>);
                     $('#ins_co').show();
                 } else {
                     $('#insurance_companies').val('');
                     $('#ins_co').hide();
                 }
                 if (elem.value == 'Encounters') {
-                    $('#encounter_type').val('<?php echo xlt('All'); ?>');
+                    $('#encounter_type').val(<?php echo xlj('All'); ?>);
                     $('#enc_type').show();
                 } else {
                     $('#encounter_type').val('');
@@ -358,7 +358,7 @@ if ($csv) {
                                         <td colspan="2">
                                             <!-- Inputs for specific search options -->
                                             <span id="rx_drug" style="display: none">
-                                                <input class="form-control wildcard_field" name="prescription_drug" id="prescription_drug" title="<?php echo xla('(% matches any string, _ matches any character)'); ?>" placeholder="<?php echo xlt('Drug'); ?>"<?php echo !empty($_POST['prescription_drug']) ? ' value="' . $_POST['prescription_drug'] . '"' : '' ?>/>
+                                                <input class="form-control wildcard_field" name="prescription_drug" id="prescription_drug" title="<?php echo xla('(% matches any string, _ matches any character)'); ?>" placeholder="<?php echo xla('Drug'); ?>"<?php echo !empty($_POST['prescription_drug']) ? ' value="' . attr($_POST['prescription_drug']) . '"' : '' ?>/>
                                             </span>
                                             <span id="com_pref" style="display: none">
                                                 <select class="form-control" name="communication" id="communication" title="<?php echo xlt('Select Communication Preferences'); ?>">
@@ -373,7 +373,7 @@ if ($csv) {
                                                 <select class="form-control" name="insurance_companies" id="insurance_companies" title="<?php echo xlt('Select Insurance Company'); ?>">
                                                     <option><?php echo xlt('All'); ?></option>
                                                     <?php foreach ($insarr as $ins_id => $ins_co) { ?>
-                                                        <option <?php echo (!empty($_POST['insurance_companies']) && ($_POST['insurance_companies'] == $ins_id)) ? 'selected' : ''; ?> value="<?php echo $ins_id; ?>"><?php echo text($ins_co); ?></option>
+                                                        <option <?php echo (!empty($_POST['insurance_companies']) && ($_POST['insurance_companies'] == $ins_id)) ? 'selected' : ''; ?> value="<?php echo attr($ins_id); ?>"><?php echo text($ins_co); ?></option>
                                                     <?php } ?>
                                                 </select>
                                             </span>
@@ -381,15 +381,15 @@ if ($csv) {
                                                 <select class="form-control" name="encounter_type" id="encounter_type">
                                                     <option><?php echo xlt('All'); ?></option>
                                                     <?php foreach ($encarr as $enc_id => $enc_t) { ?>
-                                                        <option <?php echo (!empty($_POST['encounter_type']) && ($_POST['encounter_type'] == $enc_id)) ? 'selected' : ''; ?> value="<?php echo $enc_id; ?>"><?php echo text($enc_t); ?></option>
+                                                        <option <?php echo (!empty($_POST['encounter_type']) && ($_POST['encounter_type'] == $enc_id)) ? 'selected' : ''; ?> value="<?php echo attr($enc_id); ?>"><?php echo text($enc_t); ?></option>
                                                     <?php } ?>
                                                 </select>
                                             </span>
                                             <span id="obs_desc" style="display: none">
-                                                <input class="form-control wildcard_field" name="observation_description" id="observation_description" title="<?php echo xla('(% matches any string, _ matches any character)'); ?>" placeholder="<?php echo xlt('Code') . '/' . xlt('Description'); ?>"<?php echo !empty($_POST['observation_description']) ? ' value="' . $_POST['observation_description'] . '"' : '' ?>/>
+                                                <input class="form-control wildcard_field" name="observation_description" id="observation_description" title="<?php echo xla('(% matches any string, _ matches any character)'); ?>" placeholder="<?php echo xla('Code') . '/' . xla('Description'); ?>"<?php echo !empty($_POST['observation_description']) ? ' value="' . attr($_POST['observation_description']) . '"' : '' ?>/>
                                             </span>
                                             <span id="pr_diag" style="display: none">
-                                                <input class="form-control wildcard_field" name="procedure_diagnosis" id="procedure_diagnosis" title="<?php echo xla('(% matches any string, _ matches any character)'); ?>" placeholder="<?php echo xlt('Diagnosis Code'); ?>"<?php echo !empty($_POST['procedure_diagnosis']) ? ' value="' . $_POST['procedure_diagnosis'] . '"' : '' ?>/>
+                                                <input class="form-control wildcard_field" name="procedure_diagnosis" id="procedure_diagnosis" title="<?php echo xla('(% matches any string, _ matches any character)'); ?>" placeholder="<?php echo xla('Diagnosis Code'); ?>"<?php echo !empty($_POST['procedure_diagnosis']) ? ' value="' . attr($_POST['procedure_diagnosis']) . '"' : '' ?>/>
                                             </span>
                                         </td>
                                     </tr>
@@ -958,11 +958,11 @@ if (!empty($_POST['form_refresh'])) {
                 if (isset($report_options_arr[$srch_option]["cols"][$report_col]["width"])) {
                     $width = $report_options_arr[$srch_option]["cols"][$report_col]["width"];
                     if (str_contains($width, '%')) {
-                        echo 'width="' . $width . '" ';
+                        echo 'width="' . attr($width) . '" ';
                     } else if ($width == 'nowrap') {
                         echo 'width="1%" style="white-space: nowrap;" ';
                     } else {
-                        echo 'colspan="' . $width . '" ';
+                        echo 'colspan="' . attr($width) . '" ';
                     }
                 }
                 echo 'class="font-weight-bold">' . xlt($report_options_arr[$srch_option]["cols"][$report_col]["heading"]);
@@ -980,7 +980,7 @@ if (!empty($_POST['form_refresh'])) {
                 }
                 echo '</td>';
             } else {
-                echo csvEscape(xlt($report_options_arr[$srch_option]["cols"][$report_col]["heading"]));
+                echo csvEscape($report_options_arr[$srch_option]["cols"][$report_col]["heading"]);
                 if ($report_col_key < count($report_options_arr[$srch_option]["cols"]) - 1) {
                     echo ",";
                 } else {
@@ -1032,7 +1032,7 @@ if (!empty($_POST['form_refresh'])) {
                             if ($report_value != '') {
                                 $report_value_print = '<ul style="margin: 0; padding-left: 0.5em;">';
                                 foreach (explode(';', $report_value) as $code_index => $code) {
-                                    $report_value_print .= '<li><abbr title="' . text($code) . '">' . text(getCodeDescription($code)) . '</abbr></li>';
+                                    $report_value_print .= '<li><abbr title="' . attr($code) . '">' . text(getCodeDescription($code)) . '</abbr></li>';
                                 }
                                 $report_value_print .= '</ul>';
                             }
