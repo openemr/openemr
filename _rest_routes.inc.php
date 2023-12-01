@@ -82,6 +82,7 @@
  *              "system/PractitionerRole.read": "Read all practitioner role resources in the system (api:fhir)",
  *              "system/Procedure.read": "Read all procedure resources in the system (api:fhir)",
  *              "system/Provenance.read": "Read all provenance resources in the system (api:fhir)",
+ *              "system/ValueSet.read": "Read all valueSet resources in the system (api:fhir)",
  *              "user/AllergyIntolerance.read": "Read all allergy intolerance resources the user has access to (api:fhir)",
  *              "user/Binary.read" : "Read all binary documents the user has access to (api:fhir)",
  *              "user/CarePlan.read": "Read all care plan resources the user has access to (api:fhir)",
@@ -109,6 +110,7 @@
  *              "user/PractitionerRole.read": "Read all practitioner role resources the user has access to (api:fhir)",
  *              "user/Procedure.read": "Read all procedure resources the user has access to (api:fhir)",
  *              "user/Provenance.read": "Read all provenance resources the user has access to (api:fhir)",
+ *              "user/ValueSet.read": "Read all valueSet resources the user has access to (api:fhir)",
  *              "api:oemr": "Standard OpenEMR API",
  *              "user/allergy.read": "Read allergies the user has access to (api:oemr)",
  *              "user/allergy.write": "Write allergies the user has access to for (api:oemr)",
@@ -7480,6 +7482,7 @@ use OpenEMR\RestControllers\FHIR\FhirPractitionerRoleRestController;
 use OpenEMR\RestControllers\FHIR\FhirPractitionerRestController;
 use OpenEMR\RestControllers\FHIR\FhirProcedureRestController;
 use OpenEMR\RestControllers\FHIR\FhirProvenanceRestController;
+use OpenEMR\RestControllers\FHIR\FhirValueSetRestController;
 use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationExportRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDocRefRestController;
@@ -12915,6 +12918,156 @@ RestConfig::$FHIR_ROUTE_MAP = array(
             RestConfig::authorization_check("admin", "super");
             $return = (new FhirProvenanceRestController($request))->getAll($request->getQueryParams());
         }
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/ValueSet",
+     *      description="Returns a list of ValueSet resources.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="_id",
+     *          in="query",
+     *          description="The uuid for the ValueSet resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/ValueSet"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/ValueSet" => function (HttpRestRequest $request) {
+        RestConfig::authorization_check("admin", "super");
+        $return = (new FhirValueSetRestController())->getAll($request->getQueryParams());
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/ValueSet/{uuid}",
+     *      description="Returns a single ValueSet resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the ValueSet resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "resourceType": "ValueSet",
+     *                      "id": "appointment-type",
+     *                      "compose": {
+     *                          "include": [
+     *                              {
+     *                                  "concept": [
+     *                                      {
+     *                                          "code": "no_show",
+     *                                          "display": "No Show"
+     *                                      },
+     *                                      {
+     *                                          "code": "office_visit",
+     *                                          "display": "Office Visit"
+     *                                      },
+     *                                      {
+     *                                          "code": "established_patient",
+     *                                          "display": "Established Patient"
+     *                                      },
+     *                                      {
+     *                                          "code": "new_patient",
+     *                                          "display": "New Patient"
+     *                                      },
+     *                                      {
+     *                                          "code": "health_and_behavioral_assessment",
+     *                                          "display": "Health and Behavioral Assessment"
+     *                                      },
+     *                                      {
+     *                                          "code": "preventive_care_services",
+     *                                          "display": "Preventive Care Services"
+     *                                      },
+     *                                      {
+     *                                          "code": "ophthalmological_services",
+     *                                          "display": "Ophthalmological Services"
+     *                                      }
+     *                                  ]
+     *                              }
+     *                          ]
+     *                      },
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/ValueSet/:uuid" => function ($uuid, HttpRestRequest $request) {
+        RestConfig::authorization_check("admin", "super");
+        $return = (new FhirValueSetRestController())->getOne($uuid);
         RestConfig::apiLog($return);
         return $return;
     },

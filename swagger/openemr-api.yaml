@@ -6586,6 +6586,41 @@ paths:
       security:
         -
           openemr_auth: []
+  /fhir/ValueSet:
+    get:
+      tags:
+        - fhir
+      description: 'Returns a list of ValueSet resources.'
+      parameters:
+        -
+          name: _id
+          in: query
+          description: 'The uuid for the ValueSet resource.'
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  meta: { lastUpdated: '2021-09-14T09:13:51' }
+                  resourceType: Bundle
+                  type: collection
+                  total: 0
+                  link: [{ relation: self, url: 'https://localhost:9300/apis/default/fhir/ValueSet' }]
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
   /fhir/metadata:
     get:
       tags:
@@ -7791,6 +7826,7 @@ components:
             system/PractitionerRole.read: 'Read all practitioner role resources in the system (api:fhir)'
             system/Procedure.read: 'Read all procedure resources in the system (api:fhir)'
             system/Provenance.read: 'Read all provenance resources in the system (api:fhir)'
+            system/ValueSet.read: 'Read all valueSet resources in the system (api:fhir)'
             user/AllergyIntolerance.read: 'Read all allergy intolerance resources the user has access to (api:fhir)'
             user/Binary.read: 'Read all binary documents the user has access to (api:fhir)'
             user/CarePlan.read: 'Read all care plan resources the user has access to (api:fhir)'
@@ -7818,6 +7854,7 @@ components:
             user/PractitionerRole.read: 'Read all practitioner role resources the user has access to (api:fhir)'
             user/Procedure.read: 'Read all procedure resources the user has access to (api:fhir)'
             user/Provenance.read: 'Read all provenance resources the user has access to (api:fhir)'
+            user/ValueSet.read: 'Read all valueSet resources the user has access to (api:fhir)'
             'api:oemr': 'Standard OpenEMR API'
             user/allergy.read: 'Read allergies the user has access to (api:oemr)'
             user/allergy.write: 'Write allergies the user has access to for (api:oemr)'

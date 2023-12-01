@@ -65,6 +65,17 @@ class ListService
         return $records;
     }
 
+    public function getListIds()
+    {
+        $sql = "SELECT DISTINCT list_id FROM list_options ORDER BY list_id";
+        $records = QueryUtils::fetchRecords($sql, $lists, false);
+        $listIds = [];
+        foreach ($records as $record) {
+            array_push($listIds, $record[ "list_id" ]);
+        }
+        return $listIds;
+    }
+
     public function getOptionsByListName($list_name, $search = array())
     {
         $sql = "SELECT * FROM list_options WHERE list_id = ? ";
