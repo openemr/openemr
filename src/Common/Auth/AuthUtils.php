@@ -450,6 +450,7 @@ class AuthUtils
                 $this->incrementIpLoginFailedCounter($ip['ip_string']);
             }
             EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user password is expired");
+            error_log($username . ": " . $ip['ip_string'] . ". user password is expired");
             $this->clearFromMemory($password);
             return false;
         }
@@ -998,7 +999,7 @@ class AuthUtils
 
     private function checkPasswordNotExpired($user)
     {
-        if (($GLOBALS['password_expiration_days'] == 0) || self::useActiveDirectory($user)) {
+        if ((empty($GLOBALS['password_expiration_days'] ?? 0)) || self::useActiveDirectory($user)) {
             // skip the check if turned off or using active directory for login
             return true;
         }
@@ -1007,6 +1008,7 @@ class AuthUtils
             $current_date = date("Y-m-d");
             $expiredPlusGraceTime = date("Y-m-d", strtotime($query['last_update_password'] . "+" . ((int)$GLOBALS['password_expiration_days'] + (int)$GLOBALS['password_grace_time']) . " days"));
             if (strtotime($current_date) > strtotime($expiredPlusGraceTime)) {
+                error_log("OpenEMR Notice: Password is expired. User: " . $user);
                 return false;
             }
         } else {
