@@ -267,6 +267,6 @@ $event = $ed->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);
 
 try {
     echo $t->render($event->getTwigTemplate(), $event->getTwigVariables());
-} catch (LoaderError|RuntimeError|SyntaxError $e) {
+} catch (LoaderError | RuntimeError | SyntaxError $e) {
     echo "<p style='font-size:24px; color: red;'>" . text($e->getMessage()) . '</p>';
 }
