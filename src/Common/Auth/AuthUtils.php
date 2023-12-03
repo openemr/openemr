@@ -106,6 +106,11 @@ class AuthUtils
                 privStatement("UPDATE `globals` SET `gl_value` = ? WHERE `gl_name` = 'hidden_auth_dummy_hash'", [$this->dummyHash]);
             }
         }
+        if ($GLOBALS['password_expiration_days'] === '') {
+            $GLOBALS['password_expiration_days'] = 0;
+            sqlQuery("UPDATE `globals` SET `gl_value` = ? WHERE `globals`.`gl_name` = 'password_expiration_days' AND `globals`.`gl_index` = '0' ", ['0']);
+            error_log("Blank global password_expiration_days updated to 0");
+        }
     }
 
     /**
@@ -1008,7 +1013,7 @@ class AuthUtils
             $current_date = date("Y-m-d");
             $expiredPlusGraceTime = date("Y-m-d", strtotime($query['last_update_password'] . "+" . ((int)$GLOBALS['password_expiration_days'] + (int)$GLOBALS['password_grace_time']) . " days"));
             if (strtotime($current_date) > strtotime($expiredPlusGraceTime)) {
-                error_log("OpenEMR Notice: Password is expired. User: " . $user);
+                error_log("OpenEMR Notice: Password is expired and outside of grace period. User: " . $user);
                 return false;
             }
         } else {
