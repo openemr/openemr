@@ -20,8 +20,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
+require_once "../globals.php";
+require_once "$srcdir/patient.inc.php";
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -62,26 +62,30 @@ function getEndInventory($product_id = 0, $warehouse_id = '~')
         $prodcond = "AND di.drug_id = '" . add_escape_custom($product_id) . "'";
     }
 
-  // Get sum of current inventory quantities + destructions done after the
-  // report end date (which is effectively a type of transaction).
-    $eirow = sqlQuery("SELECT sum(di.on_hand) AS on_hand " .
-    "FROM drug_inventory AS di WHERE " .
-    "( di.destroy_date IS NULL OR di.destroy_date > ? ) " .
-    "$prodcond $whidcond", array($form_to_date));
+    // Get sum of current inventory quantities + destructions done after the
+    // report end date (which is effectively a type of transaction).
+    $eirow = sqlQuery(
+        "SELECT SUM(di.on_hand) AS on_hand FROM drug_inventory AS di "
+        . "WHERE (di.destroy_date IS NULL OR di.destroy_date > ?) "
+        . "$prodcond $whidcond",
+        array($form_to_date)
+    );
 
-  // Get sum of sales/adjustments/purchases after the report end date.
-    $sarow = sqlQuery("SELECT sum(ds.quantity) AS quantity " .
-    "FROM drug_sales AS ds, drug_inventory AS di WHERE " .
-    "ds.sale_date > ? AND " .
-    "di.inventory_id = ds.inventory_id " .
-    "$prodcond $whidcond", array($form_to_date));
+    // Get sum of sales/adjustments/purchases after the report end date.
+    $sarow = sqlQuery(
+        "SELECT SUM(ds.quantity) AS quantity FROM drug_sales AS ds, drug_inventory AS di "
+        . "WHERE ds.sale_date > ? AND di.inventory_id = ds.inventory_id "
+        . "$prodcond $whidcond",
+        array($form_to_date)
+    );
 
-  // Get sum of transfers out after the report end date.
-    $xfrow = sqlQuery("SELECT sum(ds.quantity) AS quantity " .
-    "FROM drug_sales AS ds, drug_inventory AS di WHERE " .
-    "ds.sale_date > ? AND " .
-    "di.inventory_id = ds.xfer_inventory_id " .
-    "$prodcond $whidcond", array($form_to_date));
+    // Get sum of transfers out after the report end date.
+    $xfrow = sqlQuery(
+        "SELECT SUM(ds.quantity) AS quantity FROM drug_sales AS ds, drug_inventory AS di "
+        . "WHERE ds.sale_date > ? AND di.inventory_id = ds.xfer_inventory_id "
+        . "$prodcond $whidcond",
+        array($form_to_date)
+    );
 
     return $eirow['on_hand'] + $sarow['quantity'] - $xfrow['quantity'];
 }
@@ -101,21 +105,21 @@ function thisLineItem(
     global $warehouse, $product, $secqtys, $priqtys, $grandqtys;
     global $whleft, $prodleft; // left 2 columns, blank where repeated
     global $last_warehouse_id, $last_product_id, $product_first;
-    global $form_action;
+    global $form_action, $form_details;
 
     $invnumber = empty($irnumber) ? ($patient_id ? "$patient_id.$encounter_id" : "") : $irnumber;
 
-  // Product name for this detail line item.
+    // Product name for this detail line item.
     if (empty($rowprod)) {
         $rowprod = 'Unnamed Product';
     }
 
-  // Warehouse name for this line item.
+    // Warehouse name for this line item.
     if (empty($rowwh)) {
         $rowwh = 'None';
     }
 
-  // If new warehouse or product...
+    // If new warehouse or product...
     if ($warehouse_id != $last_warehouse_id || $product_id != $last_product_id) {
         // If there was anything to total...
         if (($product_first && $last_warehouse_id != '~') || (!$product_first && $last_product_id)) {
@@ -124,7 +128,7 @@ function thisLineItem(
             // Print second-column totals.
             if ($form_action == 'export') {
                 // Export:
-                if (! $_POST['form_details']) {
+                if (!$form_details) {
                     if ($product_first) {
                         echo csvEscape($product);
                         echo ',' . csvEscape($warehouse);
@@ -153,7 +157,7 @@ function thisLineItem(
                     </td>
                     <td class="detail" colspan='3'>
                         <?php
-                        if ($_POST['form_details']) {
+                        if ($form_details) {
                             echo xlt('Total for') . ' ';
                         }
                         echo text($warehouse); ?>
@@ -165,7 +169,7 @@ function thisLineItem(
                     </td>
                     <td class="detail" colspan='3'>
                         <?php
-                        if ($_POST['form_details']) {
+                        if ($form_details) {
                             echo xlt('Total for') . ' ';
                         }
                         echo text($product); ?>
@@ -209,12 +213,12 @@ function thisLineItem(
 
     // If first column is changing, time for its totals.
     if (
-        ($product_first && $product_id != $last_product_id) ||
-        (!$product_first && $warehouse_id != $last_warehouse_id)
+        ($product_first && $product_id != $last_product_id) 
+        || (!$product_first && $warehouse_id != $last_warehouse_id)
     ) {
         if (
-            ($product_first && $last_product_id) ||
-            (!$product_first && $last_warehouse_id != '~')
+            ($product_first && $last_product_id) 
+            || (!$product_first && $last_warehouse_id != '~')
         ) {
             $priei = $product_first ? getEndInventory($last_product_id) :
               getEndInventory(0, $last_warehouse_id);
@@ -267,7 +271,11 @@ function thisLineItem(
     }
 
     // Detail line.
-    if ($_POST['form_details'] && $product_id && ($qtys[0] + $qtys[1] + $qtys[2] + $qtys[3] + $qtys[4])) {
+    if (
+        $form_details
+        && $product_id
+        && ($qtys[0] + $qtys[1] + $qtys[2] + $qtys[3] + $qtys[4])
+    ) {
         if ($form_action == 'export') {
             if ($product_first) {
                 echo csvEscape($product);
@@ -351,11 +359,12 @@ if (! AclMain::aclCheckCore('acct', 'rep')) {
 }
 
 // this is "" or "submit" or "export".
-$form_action = $_POST['form_action'];
+$form_action = isset($_POST['form_action']) ? $_POST['form_action'] : null;
 
 $form_from_date = (isset($_POST['form_from_date'])) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-m-d');
-$form_to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
-$form_product  = $_POST['form_product'];
+$form_to_date = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');
+$form_product = isset($_POST['form_product']) ? $_POST['form_product'] : null;
+$form_details = isset($_POST['form_details']) && $_POST['form_details'] ? true : false;
 
 if ($form_action == 'export') {
     header("Pragma: public");
@@ -364,7 +373,7 @@ if ($form_action == 'export') {
     header("Content-Type: application/force-download");
     header("Content-Disposition: attachment; filename=inventory_activity.csv");
     header("Content-Description: File Transfer");
-  // CSV headers:
+    // CSV headers:
     if ($product_first) {
         echo csvEscape(xl('Product')) . ',';
         echo csvEscape(xl('Warehouse')) . ',';
@@ -373,7 +382,7 @@ if ($form_action == 'export') {
         echo csvEscape(xl('Product')) . ',';
     }
 
-    if ($_POST['form_details']) {
+    if ($form_details) {
         echo csvEscape(xl('Date')) . ',';
         echo csvEscape(xl('Invoice')) . ',';
         echo csvEscape(xl('Sales')) . ',';
@@ -433,7 +442,7 @@ table.mymaintable td, table.mymaintable th {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php include $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -496,8 +505,7 @@ table.mymaintable td, table.mymaintable th {
      </td>
      <td nowrap>
     <?php
-// Build a drop-down list of products.
-//
+    // Build a drop-down list of products.
     $query = "SELECT drug_id, name FROM drugs ORDER BY name, drug_id";
     $pres = sqlStatement($query);
     echo "      <select name='form_product'>\n";
@@ -519,7 +527,7 @@ table.mymaintable td, table.mymaintable th {
         <?php echo xlt('Details'); ?>:
      </td>
      <td colspan='3' nowrap>
-      <input type='checkbox' name='form_details' value='1'<?php echo ($_POST['form_details']) ? " checked" : "";?> />
+      <input type='checkbox' name='form_details' value='1'<?php echo $form_details ? " checked" : "";?> />
      </td>
     </tr>
    </table>
@@ -538,7 +546,7 @@ table.mymaintable td, table.mymaintable th {
       <a href='#' class='btn btn-primary' onclick='mysubmit("export")' style='margin-left:1em'>
        <span><?php echo xlt('CSV Export'); ?></span>
       </a>
-<?php } ?>
+    <?php } ?>
      </td>
     </tr>
    </table>
@@ -555,7 +563,7 @@ table.mymaintable td, table.mymaintable th {
   <td class="dehead">
         <?php echo text($product_first ? xl('Product') : xl('Warehouse')); ?>
   </td>
-        <?php if ($_POST['form_details']) { ?>
+        <?php if ($form_details) { ?>
   <td class="dehead">
             <?php echo text($product_first ? xl('Warehouse') : xl('Product')); ?>
   </td>
@@ -565,11 +573,11 @@ table.mymaintable td, table.mymaintable th {
   <td class="dehead">
             <?php echo xlt('Invoice'); ?>
   </td>
-<?php } else { ?>
+        <?php } else { ?>
   <td class="dehead" colspan="3">
             <?php echo text($product_first ? xl('Warehouse') : xl('Product')); ?>
   </td>
-<?php } ?>
+        <?php } ?>
   <td class="dehead" align="right" width="8%">
         <?php echo xlt('Start'); ?>
   </td>
@@ -652,7 +660,8 @@ if ($form_action) { // if submit or export
         if ($row['inventory_id'] != $last_inventory_id) {
             $last_inventory_id = $row['inventory_id'];
             if (
-                !empty($row['destroy_date']) && $row['on_hand'] != 0
+                !empty($row['destroy_date'])
+                && $row['on_hand'] != 0
                 && $row['destroy_date'] <= $form_to_date
             ) {
                 thisLineItem(
