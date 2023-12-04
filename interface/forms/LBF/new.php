@@ -15,7 +15,7 @@
  */
 
 // since need this class before autoloader, need to manually include it and then set it in line below with use command
-require_once(__DIR__ . "/../../../src/Common/Forms/CoreFormToPortalUtility.php");
+require_once __DIR__ . "/../../../src/Common/Forms/CoreFormToPortalUtility.php";
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 
 // block of code to securely support use by the patient portal
@@ -24,13 +24,13 @@ if ($patientPortalSession) {
     $ignoreAuth_onsite_portal = true;
 }
 
-require_once("../../globals.php");
-require_once("$srcdir/api.inc.php");
-require_once("$srcdir/forms.inc.php");
-require_once("$srcdir/options.inc.php");
-require_once("$srcdir/patient.inc.php");
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
-require_once("$srcdir/FeeSheetHtml.class.php");
+require_once "../../globals.php";
+require_once "$srcdir/api.inc.php";
+require_once "$srcdir/forms.inc.php";
+require_once "$srcdir/options.inc.php";
+require_once "$srcdir/patient.inc.php";
+require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
+require_once "$srcdir/FeeSheetHtml.class.php";
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -57,7 +57,7 @@ function end_cell()
 
 function end_row()
 {
-    global $cell_count, $CPR, $historical_ids, $USING_BOOTSTRAP;
+    global $cell_count, $CPR, $historical_ids, $USING_BOOTSTRAP, $BS_COL_CLASS;
     end_cell();
     if ($USING_BOOTSTRAP) {
         if ($cell_count > 0 && $cell_count < $CPR) {
@@ -128,8 +128,7 @@ $visitid = (int)(empty($_GET['visitid']) ? $encounter : $_GET['visitid']);
 // If necessary get the encounter from the forms table entry for this form.
 if ($formid && !$visitid && $is_core) {
     $frow = sqlQuery(
-        "SELECT pid, encounter FROM forms WHERE " .
-        "form_id = ? AND formdir = ? AND deleted = 0",
+        "SELECT pid, encounter FROM forms WHERE form_id = ? AND formdir = ? AND deleted = 0",
         array($formid, $formname)
     );
     $visitid = (int)$frow['encounter'];
@@ -203,27 +202,28 @@ if (isset($LBF_SERVICES_SECTION) || isset($LBF_PRODUCTS_SECTION) || isset($LBF_D
 if (!$from_trend_form) {
     $fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/" . check_file_dir_name($formname) . ".plugin.php";
     if (file_exists($fname)) {
-        include_once($fname);
+        include_once $fname;
     }
 }
 
 // If Save was clicked, save the info.
 //
 if (
-    !empty($_POST['bn_save']) ||
-    !empty($_POST['bn_save_print']) ||
-    !empty($_POST['bn_save_continue']) ||
-    !empty($_POST['bn_save_checkout']) ||
-    !empty($_POST['bn_save_close'])
+    !empty($_POST['bn_save'])
+    || !empty($_POST['bn_save_print'])
+    || !empty($_POST['bn_save_continue'])
+    || !empty($_POST['bn_save_checkout'])
+    || !empty($_POST['bn_save_close'])
 ) {
     $newid = 0;
     if (!$formid) {
         // Creating a new form. Get the new form_id by inserting and deleting a dummy row.
         // This is necessary to create the form instance even if it has no native data.
-        $newid = sqlInsert("INSERT INTO lbf_data " .
-            "( field_id, field_value ) VALUES ( '', '' )");
-        sqlStatement("DELETE FROM lbf_data WHERE form_id = ? AND " .
-            "field_id = ''", array($newid));
+        $newid = sqlInsert("INSERT INTO lbf_data (field_id, field_value) VALUES ('', '')");
+        sqlStatement(
+            "DELETE FROM lbf_data WHERE form_id = ? AND field_id = ''",
+            array($newid)
+        );
         addForm($visitid, $formtitle, $newid, $formname, $pid, $userauthorized);
     }
 
@@ -247,10 +247,12 @@ if (
 
     $newhistorydata = array();
     $sets = "";
-    $fres = sqlStatement("SELECT * FROM layout_options " .
-        "WHERE form_id = ? AND uor > 0 AND field_id != '' AND " .
-        "edit_options != 'H' AND edit_options NOT LIKE '%0%' " .
-        "ORDER BY group_id, seq", array($formname));
+    $fres = sqlStatement(
+        "SELECT * FROM layout_options "
+        . "WHERE form_id = ? AND uor > 0 AND field_id != '' AND edit_options != 'H' AND edit_options NOT LIKE '%0%' "
+        . "ORDER BY group_id, seq",
+        array($formname)
+    );
     while ($frow = sqlFetchArray($fres)) {
         $field_id = $frow['field_id'];
         $data_type = $frow['data_type'];
@@ -421,7 +423,7 @@ if (
 
     </style>
 
-    <?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
+    <?php require_once "{$GLOBALS['srcdir']}/options.js.php"; ?>
 
     <!-- LiterallyCanvas support -->
     <?php echo lbf_canvas_head(); ?>
@@ -453,7 +455,7 @@ if (
 
             $(".select-dropdown").select2({
                 theme: "bootstrap4",
-                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/select2.js.php'; ?>
             });
             if (typeof error !== 'undefined') {
                 if (error) {
@@ -493,7 +495,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker').datetimepicker({
@@ -502,7 +504,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datepicker-past').datetimepicker({
@@ -511,7 +513,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker-past').datetimepicker({
@@ -520,7 +522,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datepicker-future').datetimepicker({
@@ -529,7 +531,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker-future').datetimepicker({
@@ -538,7 +540,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -695,7 +697,7 @@ if (
 
         <?php
         if (isset($fs)) {
-        // jsLineItemValidation() function for the fee sheet stuff.
+            // jsLineItemValidation() function for the fee sheet stuff.
             echo $fs->jsLineItemValidation('form_fs_bill', 'form_fs_prod');
             ?>
 
@@ -887,7 +889,8 @@ if (
 </head>
 
 <body class="body_top"<?php if ($from_issue_form) {
-    echo " style='background-color:var(--white)'"; } ?>>
+    echo " style='background-color:var(--white)'"; 
+} ?>>
     <!-- Set as a container until xl breakpoint then make fluid. -->
     <div class="container-xl">
         <?php
@@ -907,12 +910,12 @@ if (
                 $portalres = false;
 
                 if (!$from_trend_form) {
-                    $enrow = sqlQuery("SELECT p.fname, p.mname, p.lname, p.cmsportal_login, " .
-                        "fe.date FROM " .
-                        "form_encounter AS fe, forms AS f, patient_data AS p WHERE " .
-                        "p.pid = ? AND f.pid = p.pid AND f.encounter = ? AND " .
-                        "f.formdir = 'newpatient' AND f.deleted = 0 AND " .
-                        "fe.id = f.form_id LIMIT 1", array($pid, $visitid)); ?>
+                    $enrow = sqlQuery(
+                        "SELECT p.fname, p.mname, p.lname, p.cmsportal_login, fe.date "
+                        . "FROM form_encounter AS fe, forms AS f, patient_data AS p "
+                        . "WHERE p.pid = ? AND f.pid = p.pid AND f.encounter = ? AND f.formdir = 'newpatient' AND f.deleted = 0 AND fe.id = f.form_id LIMIT 1",
+                        array($pid, $visitid)
+                    ); ?>
                     <div class="row">
                         <div class="col-12">
                             <h3>
@@ -925,8 +928,7 @@ if (
                             </h3>
                             <?php
                             $firow = sqlQuery(
-                                "SELECT issue_id, provider_id FROM forms WHERE " .
-                                "formdir = ? AND form_id = ? AND deleted = 0",
+                                "SELECT issue_id, provider_id FROM forms WHERE formdir = ? AND form_id = ? AND deleted = 0",
                                 array($formname, $formid)
                             );
                             $form_issue_id = empty($firow['issue_id']) ? 0 : intval($firow['issue_id']);
@@ -979,9 +981,10 @@ if (
 
                 $TOPCPR = empty($grparr['']['grp_columns']) ? 4 : $grparr['']['grp_columns'];
 
-                $fres = sqlStatement("SELECT * FROM layout_options " .
-                    "WHERE form_id = ? AND uor > 0 " .
-                    "ORDER BY group_id, seq", array($formname));
+                $fres = sqlStatement(
+                    "SELECT * FROM layout_options WHERE form_id = ? AND uor > 0 ORDER BY group_id, seq",
+                    array($formname)
+                );
                 $cell_count = 0;
                 $item_count = 0;
                 // $display_style = 'block';
@@ -1070,13 +1073,11 @@ if (
                                 // Even if the form already exists for this visit it may have a readonly value that only
                                 // exists in a previous visit and was created from a different form.
                                 $tmp = sqlQuery(
-                                    "SELECT sa.field_value FROM form_encounter AS e1 " .
-                                    "JOIN form_encounter AS e2 ON " .
-                                    "e2.pid = e1.pid AND (e2.date < e1.date OR (e2.date = e1.date AND e2.encounter <= e1.encounter)) " .
-                                    "JOIN shared_attributes AS sa ON " .
-                                    "sa.pid = e2.pid AND sa.encounter = e2.encounter AND sa.field_id = ?" .
-                                    "WHERE e1.pid = ? AND e1.encounter = ? " .
-                                    "ORDER BY e2.date DESC, e2.encounter DESC LIMIT 1",
+                                    "SELECT sa.field_value FROM form_encounter AS e1 "
+                                    . "JOIN form_encounter AS e2 ON e2.pid = e1.pid AND (e2.date < e1.date OR (e2.date = e1.date AND e2.encounter <= e1.encounter)) "
+                                    . "JOIN shared_attributes AS sa ON sa.pid = e2.pid AND sa.encounter = e2.encounter AND sa.field_id = ?"
+                                    . "WHERE e1.pid = ? AND e1.encounter = ? "
+                                    . "ORDER BY e2.date DESC, e2.encounter DESC LIMIT 1",
                                     array($field_id, $pid, $visitid)
                                 );
                                 if (isset($tmp['field_value'])) {
@@ -1175,13 +1176,9 @@ if (
 
                                 echo "&nbsp;</td>\n";
                                 $hres = sqlStatement(
-                                    "SELECT f.form_id, fe.date " .
-                                    "FROM forms AS f, form_encounter AS fe WHERE " .
-                                    "f.pid = ? AND f.formdir = ? AND " .
-                                    "f.form_id != ? AND f.deleted = 0 AND " .
-                                    "fe.pid = f.pid AND fe.encounter = f.encounter " .
-                                    "ORDER BY fe.date DESC, f.encounter DESC, f.date DESC " .
-                                    "LIMIT ?",
+                                    "SELECT f.form_id, fe.date FROM forms AS f, form_encounter AS fe "
+                                    . "WHERE f.pid = ? AND f.formdir = ? AND f.form_id != ? AND f.deleted = 0 AND fe.pid = f.pid AND fe.encounter = f.encounter "
+                                    . "ORDER BY fe.date DESC, f.encounter DESC, f.date DESC LIMIT ?",
                                     array($pid, $formname, $formid, $formhistory)
                                 );
                                 // For some readings like vitals there may be multiple forms per encounter.
@@ -1526,8 +1523,7 @@ if (
                             }
                             list($codetype, $code) = explode(':', $codestring);
                             $crow = sqlQuery(
-                                "SELECT name FROM drugs WHERE " .
-                                "drug_id = ? ORDER BY drug_id LIMIT 1",
+                                "SELECT name FROM drugs WHERE drug_id = ? ORDER BY drug_id LIMIT 1",
                                 array($code)
                             );
                             $title = empty($crow['name']) ? $code : xl_list_label($crow['name']);
