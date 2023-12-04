@@ -888,9 +888,7 @@ if (
     </script>
 </head>
 
-<body class="body_top"<?php if ($from_issue_form) {
-    echo " style='background-color:var(--white)'"; 
-} ?>>
+<body class="body_top"<?php echo($from_issue_form ? " style='background-color:var(--white)'" : ""); ?>>
     <!-- Set as a container until xl breakpoint then make fluid. -->
     <div class="container-xl">
         <?php
