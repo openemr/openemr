@@ -159,7 +159,8 @@ function get_document_by_catg($pid, $doc_catg, $limit = 1)
             "SELECT d.id, d.date, d.url "
             . "FROM documents AS d, categories_to_documents AS cd, categories AS c "
             . "WHERE d.foreign_id = ? AND cd.document_id = d.id AND c.id = cd.category_id AND c.name LIKE ? "
-            . "ORDER BY d.date DESC LIMIT " . escape_limit($limit), array($pid, $doc_catg)
+            . "ORDER BY d.date DESC LIMIT " . escape_limit($limit),
+            array($pid, $doc_catg)
         );
     }
     while ($result = sqlFetchArray($query)) {
@@ -1047,7 +1048,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     function filterActiveIssues(array $i): array
                     {
                         return array_filter(
-                            $i, function ($_i) {
+                            $i,
+                            function ($_i) {
                                 return ($_i['outcome'] != 1) && (empty($_i['enddate']) || (strtotime($_i['enddate']) > strtotime('now')));
                             }
                         );
@@ -1201,8 +1203,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <?php
                     if ($deceased > 0) {
                         echo $twig->getTwig()->render(
-                            'patient/partials/deceased.html.twig', [
-                            'deceasedDays' => deceasedDays($deceased),
+                            'patient/partials/deceased.html.twig',
+                            [
+                                'deceasedDays' => deceasedDays($deceased),
                             ]
                         );
                     }
@@ -1650,9 +1653,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     if ($GLOBALS['erx_enable']) {
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('demographics'), CardRenderEvent::EVENT_HANDLE);
                         echo $twig->getTwig()->render(
-                            'patient/partials/erx.html.twig', [
-                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
-                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
+                            'patient/partials/erx.html.twig',
+                            [
+                                'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                                'appendedInjection' => $dispatchResult->getAppendedInjection(),
                             ]
                         );
                     }
@@ -1795,52 +1799,48 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         if ($events) {
                             $selectNum = 0;
                             $apptNumber = count($events);
-                            //
+
                             if ($apptNumber <= $apptNum2) {
                                 $extraApptDate = '';
-                                //
                             } elseif ($mode1 && $apptNumber == $apptNum2 + 1) {
                                 $extraApptDate = $events[$apptNumber - 1]['pc_eventDate'];
                                 array_pop($events);
                                 --$apptNumber;
                                 $selectNum = 1;
-                                //
                             } elseif ($apptNumber == $apptNum2 + 6) {
                                 $extraApptDate = $events[$apptNumber - 1]['pc_eventDate'];
                                 array_pop($events);
                                 --$apptNumber;
                                 $selectNum = 2;
-                                //
                             } else { // mode 2 - $apptNum2 < $apptNumber < $apptNum2 + 6
                                 $extraApptDate = '';
                                 $selectNum = 2;
-                                //
                             }
 
                             $limitApptIndx = $apptNum2 - 1;
                             $limitApptDate = $events[$limitApptIndx]['pc_eventDate'] ?? '';
 
                             switch ($selectNum) {
-                            case 2:
-                                $lastApptIndx = $apptNumber - 1;
-                                $thisNumber = $lastApptIndx - $limitApptIndx;
-                                for ($i = 1; $i <= $thisNumber; ++$i) {
-                                    if ($events[$limitApptIndx + $i]['pc_eventDate'] != $limitApptDate) {
-                                        $extraApptDate = $events[$limitApptIndx + $i]['pc_eventDate'];
-                                        $events = array_slice($events, 0, $limitApptIndx + $i);
-                                        break;
+                                case 2:
+                                    $lastApptIndx = $apptNumber - 1;
+                                    $thisNumber = $lastApptIndx - $limitApptIndx;
+                                    for ($i = 1; $i <= $thisNumber; ++$i) {
+                                        if ($events[$limitApptIndx + $i]['pc_eventDate'] != $limitApptDate) {
+                                            $extraApptDate = $events[$limitApptIndx + $i]['pc_eventDate'];
+                                            $events = array_slice($events, 0, $limitApptIndx + $i);
+                                            break;
+                                        }
                                     }
-                                }
-                                // Break in the loop to improve performance
-                            case 1:
-                                $firstApptIndx = 0;
-                                for ($i = 1; $i <= $limitApptIndx; ++$i) {
-                                    if ($events[$limitApptIndx - $i]['pc_eventDate'] != $limitApptDate) {
-                                        $firstApptIndx = $apptNum2 - $i;
-                                        break;
+                                    // Break in the loop to improve performance
+                                case 1:
+                                    $firstApptIndx = 0;
+                                    for ($i = 1; $i <= $limitApptIndx; ++$i) {
+                                        if ($events[$limitApptIndx - $i]['pc_eventDate'] != $limitApptDate) {
+                                            $firstApptIndx = $apptNum2 - $i;
+                                            break;
+                                        }
                                     }
-                                }
-                                // Break in the loop to improve performance
+                                    // Break in the loop to improve performance
                             }
 
                             if ($extraApptDate) {
@@ -1930,14 +1930,15 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             $id = "recall_ps_expand";
                             $dispatchResult = $ed->dispatch(new CardRenderEvent('recall'), CardRenderEvent::EVENT_HANDLE);
                             echo $twig->getTwig()->render(
-                                'patient/card/recall.html.twig', [
-                                'title' => xl('Recall'),
-                                'id' => $id,
-                                'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
-                                'recalls' => $recallArr,
-                                'recallsAvailable' => ($count < 1 && empty($count2)) ? false : true,
-                                'prependedInjection' => $dispatchResult->getPrependedInjection(),
-                                'appendedInjection' => $dispatchResult->getAppendedInjection(),
+                                'patient/card/recall.html.twig',
+                                [
+                                    'title' => xl('Recall'),
+                                    'id' => $id,
+                                    'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                                    'recalls' => $recallArr,
+                                    'recallsAvailable' => ($count < 1 && empty($count2)) ? false : true,
+                                    'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                                    'appendedInjection' => $dispatchResult->getAppendedInjection(),
                                 ]
                             );
                         }
@@ -2018,25 +2019,26 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $id = "appointments_ps_expand";
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('appointment'), CardRenderEvent::EVENT_HANDLE);
                         echo $twig->getTwig()->render(
-                            'patient/card/appointments.html.twig', [
-                            'title' => xl("Appointments"),
-                            'id' => $id,
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
-                            'btnLabel' => "Add",
-                            'btnLink' => "return newEvt()",
-                            'linkMethod' => "javascript",
-                            'appts' => $appts,
-                            'recurrAppts' => $recurr,
-                            'pastAppts' => $past_appts,
-                            'displayAppts' => $displayAppts,
-                            'displayRecurrAppts' => $displayRecurrAppts,
-                            'displayPastAppts' => $displayPastAppts,
-                            'extraApptDate' => $extraApptDate,
-                            'therapyGroupCategories' => $therapyGroupCategories,
-                            'auth' => $resNotNull && (AclMain::aclCheckCore('patients', 'appt', '', 'write') || AclMain::aclCheckCore('patients', 'appt', '', 'addonly')),
-                            'resNotNull' => $resNotNull,
-                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
-                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
+                            'patient/card/appointments.html.twig',
+                            [
+                                'title' => xl("Appointments"),
+                                'id' => $id,
+                                'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                                'btnLabel' => "Add",
+                                'btnLink' => "return newEvt()",
+                                'linkMethod' => "javascript",
+                                'appts' => $appts,
+                                'recurrAppts' => $recurr,
+                                'pastAppts' => $past_appts,
+                                'displayAppts' => $displayAppts,
+                                'displayRecurrAppts' => $displayRecurrAppts,
+                                'displayPastAppts' => $displayPastAppts,
+                                'extraApptDate' => $extraApptDate,
+                                'therapyGroupCategories' => $therapyGroupCategories,
+                                'auth' => $resNotNull && (AclMain::aclCheckCore('patients', 'appt', '', 'write') || AclMain::aclCheckCore('patients', 'appt', '', 'addonly')),
+                                'resNotNull' => $resNotNull,
+                                'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                                'appendedInjection' => $dispatchResult->getAppendedInjection(),
                             ]
                         );
                     }
@@ -2054,25 +2056,27 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $id = "track_anything_ps_expand";
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('track_anything'), CardRenderEvent::EVENT_HANDLE);
                         echo $twig->getTwig()->render(
-                            'patient/card/loader.html.twig', [
-                            'title' => xl("Tracks"),
-                            'id' => $id,
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
-                            'btnLink' => "../../forms/track_anything/create.php",
-                            'linkMethod' => "html",
-                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
-                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
+                            'patient/card/loader.html.twig',
+                            [
+                                'title' => xl("Tracks"),
+                                'id' => $id,
+                                'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+                                'btnLink' => "../../forms/track_anything/create.php",
+                                'linkMethod' => "html",
+                                'prependedInjection' => $dispatchResult->getPrependedInjection(),
+                                'appendedInjection' => $dispatchResult->getAppendedInjection(),
                             ]
                         );
                     }  // end track_anything
 
                     if ($thisauth) {
                         echo $twig->getTwig()->render(
-                            'patient/partials/delete.html.twig', [
-                            'isAdmin' => AclMain::aclCheckCore('admin', 'super'),
-                            'allowPatientDelete' => $GLOBALS['allow_pat_delete'],
-                            'csrf' => CsrfUtils::collectCsrfToken(),
-                            'pid' => $pid
+                            'patient/partials/delete.html.twig',
+                            [
+                                'isAdmin' => AclMain::aclCheckCore('admin', 'super'),
+                                'allowPatientDelete' => $GLOBALS['allow_pat_delete'],
+                                'csrf' => CsrfUtils::collectCsrfToken(),
+                                'pid' => $pid
                             ]
                         );
                     }
