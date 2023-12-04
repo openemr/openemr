@@ -13011,9 +13011,9 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *                      "resourceType": "ValueSet",
      *                      "id": "appointment-type",
      *                      "compose": {
-     *                          "include": [
+     *                          "include": {
      *                              {
-     *                                  "concept": [
+     *                                  "concept": {
      *                                      {
      *                                          "code": "no_show",
      *                                          "display": "No Show"
@@ -13042,10 +13042,10 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *                                          "code": "ophthalmological_services",
      *                                          "display": "Ophthalmological Services"
      *                                      }
-     *                                  ]
+     *                                  }
      *                              }
-     *                          ]
-     *                      },
+     *                          }
+     *                      }
      *                  }
      *              )
      *          )

@@ -6621,6 +6621,41 @@ paths:
       security:
         -
           openemr_auth: []
+  '/fhir/ValueSet/{uuid}':
+    get:
+      tags:
+        - fhir
+      description: 'Returns a single ValueSet resource.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid for the ValueSet resource.'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'Standard Response'
+          content:
+            application/json:
+              schema:
+                properties:
+                  'json object': { description: 'FHIR Json object.', type: object }
+                type: object
+                example:
+                  resourceType: ValueSet
+                  id: appointment-type
+                  compose: { include: [{ concept: [{ code: no_show, display: 'No Show' }, { code: office_visit, display: 'Office Visit' }, { code: established_patient, display: 'Established Patient' }, { code: new_patient, display: 'New Patient' }, { code: health_and_behavioral_assessment, display: 'Health and Behavioral Assessment' }, { code: preventive_care_services, display: 'Preventive Care Services' }, { code: ophthalmological_services, display: 'Ophthalmological Services' }] }] }
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '404':
+          $ref: '#/components/responses/uuidnotfound'
+      security:
+        -
+          openemr_auth: []
   /fhir/metadata:
     get:
       tags:
