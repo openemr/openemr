@@ -585,15 +585,14 @@ if ($csv) {
 // SQL scripts for the various searches
 $sqlBindArray = [];
 if (!empty($_POST['form_refresh'])) {
-    $sqlstmt = "select
-        pd.date as patient_date,
-        concat(pd.lname, ', ', pd.fname) AS patient_name,
-        pd.pid AS patient_id,
-        DATE_FORMAT(FROM_DAYS(DATEDIFF('" . date('Y-m-d H:i:s') . "',pd.dob)), '%Y')+0 AS patient_age,
-        pd.sex AS patient_sex,
-        TRIM('|' FROM pd.race) AS patient_race,
-        TRIM('|' FROM pd.ethnicity) AS patient_ethnic,
-        concat(u.lname, ', ', u.fname) AS users_provider";
+    $sqlstmt = "SELECT pd.date AS patient_date, " .
+        "CONCAT(pd.lname, ', ', pd.fname) AS patient_name, " .
+        "pd.pid AS patient_id, " .
+        "DATE_FORMAT(FROM_DAYS(DATEDIFF('" . date('Y-m-d H:i:s') . "',pd.dob)), '%Y')+0 AS patient_age, " .
+        "pd.sex AS patient_sex, " .
+        "TRIM('|' FROM pd.race) AS patient_race, " .
+        "TRIM('|' FROM pd.ethnicity) AS patient_ethnic, " .
+        "CONCAT(u.lname, ', ', u.fname) AS users_provider";
 
     $srch_option = $_POST['srch_option'];
 
@@ -609,71 +608,69 @@ if (!empty($_POST['form_refresh'])) {
 
     switch ($srch_option_pointer) {
         case "diagnosis_check":
-            $sqlstmt .= ", li.date AS other_date,
-                    li.diagnosis AS pr_diagnosis,
-                    li.title AS lists_title";
+            $sqlstmt .= ", li.date AS other_date, li.diagnosis AS pr_diagnosis, li.title AS lists_title";
             break;
         case "comms":
-            $sqlstmt .= ", REPLACE(REPLACE(concat_ws(', ', IF(pd.hipaa_allowemail = 'YES', 'Email', 'NO'), IF(pd.hipaa_allowsms = 'YES', 'SMS', 'NO'),
-                    IF(pd.hipaa_mail = 'YES', 'Mail Message', 'NO') , IF(pd.hipaa_voice = 'YES', 'Voice Message', 'NO') ), ', NO', ''), 'NO,', '') as communications";
+            $sqlstmt .= ", REPLACE(REPLACE(concat_ws(', ', IF(pd.hipaa_allowemail = 'YES', 'Email', 'NO'), IF(pd.hipaa_allowsms = 'YES', 'SMS', 'NO'), "
+                    . "IF(pd.hipaa_mail = 'YES', 'Mail Message', 'NO') , IF(pd.hipaa_voice = 'YES', 'Voice Message', 'NO') ), ', NO', ''), 'NO,', '') AS communications";
             break;
         case "insurers":
-            $sqlstmt .= ", id.type AS ins_type, id.provider AS ins_provider, ic.name as ins_name";
+            $sqlstmt .= ", id.type AS ins_type, id.provider AS ins_provider, ic.name AS ins_name";
             break;
         case "encounts":
-            $sqlstmt .= ", enc.date AS other_date,
-                    enc.reason AS enc_reason,
-                    enc.facility AS enc_facility,
-                    enc.encounter_type_description AS enc_type,
-                    enc.discharge_disposition AS enc_discharge";
+            $sqlstmt .= ", enc.date AS other_date, "
+                    . "enc.reason AS enc_reason, "
+                    . "enc.facility AS enc_facility, "
+                    . "enc.encounter_type_description AS enc_type, "
+                    . "enc.discharge_disposition AS enc_discharge";
             break;
         case "observs":
-            $sqlstmt .= ", obs.date AS other_date,
-                    obs.code AS obs_code,
-                    obs.observation AS obs_comments,
-                    obs.description AS obs_description,
-                    obs.ob_type AS obs_type,
-                    obs.ob_value AS obs_value,
-                    obs.ob_unit AS obs_units";
+            $sqlstmt .= ", obs.date AS other_date, "
+                    . "obs.code AS obs_code, "
+                    . "obs.observation AS obs_comments, "
+                    . "obs.description AS obs_description, "
+                    . "obs.ob_type AS obs_type, "
+                    . "obs.ob_value AS obs_value, "
+                    . "obs.ob_unit AS obs_units";
             break;
         case "prescripts":
-            $sqlstmt .= ", rx.date_added AS other_date,
-                    rx.drug AS rx_drug,
-                    CONCAT(rx.size, rxl_unit.title) AS rx_medicine_units,
-                    CONCAT(rx.dosage, ' in ', rxl_form.title, ' ', rxl_interval.title) AS rx_directions,
-                    rx.quantity AS rx_quantity,
-                    rx.refills AS rx_refills";
+            $sqlstmt .= ", rx.date_added AS other_date, "
+                    . "rx.drug AS rx_drug, "
+                    . "CONCAT(rx.size, rxl_unit.title) AS rx_medicine_units, "
+                    . "CONCAT(rx.dosage, ' in ', rxl_form.title, ' ', rxl_interval.title) AS rx_directions, "
+                    . "rx.quantity AS rx_quantity, "
+                    . "rx.refills AS rx_refills";
             break;
         case "procs":
-            $sqlstmt .= ", pr_ord.date_ordered AS other_date,
-                    pr_ord.order_status AS pr_status,
-                    pr_prov.name AS pr_lab,
-                    pr_ord.order_diagnosis AS pr_diagnosis,
-                    pr_code.procedure_name as prc_procedure,
-                    pr_code.diagnoses AS prc_diagnoses";
+            $sqlstmt .= ", pr_ord.date_ordered AS other_date, "
+                    . "pr_ord.order_status AS pr_status, "
+                    . "pr_prov.name AS pr_lab, "
+                    . "pr_ord.order_diagnosis AS pr_diagnosis, "
+                    . "pr_code.procedure_name as prc_procedure, "
+                    . "pr_code.diagnoses AS prc_diagnoses";
             break;
         case "results":
-            $sqlstmt .= ", pr_res.date AS other_date,
-                    pr_res.facility AS result_facility,
-                    pr_res.result_text AS result_description,
-                    pr_res.units AS result_units,
-                    pr_res.result AS result_result,
-                    pr_res.range AS result_range,
-                    pr_res.abnormal AS result_abnormal,
-                    pr_res.comments AS result_comments,
-                    pr_res.document_id AS result_document_id";
+            $sqlstmt .= ", pr_res.date AS other_date, "
+                    . "pr_res.facility AS result_facility, "
+                    . "pr_res.result_text AS result_description, "
+                    . "pr_res.units AS result_units, "
+                    . "pr_res.result AS result_result, "
+                    . "pr_res.range AS result_range, "
+                    . "pr_res.abnormal AS result_abnormal, "
+                    . "pr_res.comments AS result_comments, "
+                    . "pr_res.document_id AS result_document_id";
             break;
     }
 
     $sqlstmt .= " from patient_data as pd";
     // JOINs
     if ($srch_option != "encounts" && $srch_option != "observs" && $srch_option != "prescripts") {
-        $sqlstmt .= " left outer join users as u on u.id = pd.providerid";
+        $sqlstmt .= " LEFT OUTER JOIN users AS u ON u.id = pd.providerid";
     }
     switch ($srch_option_pointer) {
         case "diagnosis_check":
             // Set both the type of list item to look for and the name of the related column
-            $sqlstmt .= " left outer join lists as li on li.pid = pd.pid AND li.type = '";
+            $sqlstmt .= " LEFT OUTER JOIN lists AS li ON li.pid = pd.pid AND li.type = '";
             if ($srch_option == "allergs") {
                 $sqlstmt .= "allergy";
                 $search_options[$srch_option]["cols"]["lists_title"]["heading"] = xl("Allergy");
@@ -687,39 +684,39 @@ if (!empty($_POST['form_refresh'])) {
             $sqlstmt .= "'";
             break;
         case "insurers":
-            $sqlstmt .= " left outer join insurance_data as id on id.pid = pd.pid
-                    left outer join insurance_companies as ic on ic.id = id.provider";
+            $sqlstmt .= " LEFT OUTER JOIN insurance_data AS id ON id.pid = pd.pid "
+                    . "LEFT OUTER JOIN insurance_companies AS ic ON ic.id = id.provider";
             break;
         case "encounts":
-            $sqlstmt .= " left outer join form_encounter as enc on pd.pid = enc.pid
-                left outer join users as u on enc.provider_id = u.id";
+            $sqlstmt .= " LEFT OUTER JOIN form_encounter AS enc ON pd.pid = enc.pid "
+                . "LEFT OUTER JOIN users AS u ON enc.provider_id = u.id";
             break;
         case "observs":
-            $sqlstmt .= " left outer join form_observation as obs on pd.pid = obs.pid
-                left outer join users as u on obs.user = u.username";
+            $sqlstmt .= " LEFT OUTER JOIN form_observation AS obs ON pd.pid = obs.pid "
+                . "LEFT OUTER JOIN users AS u ON obs.user = u.username";
             break;
         case "prescripts":
-            $sqlstmt .= " left outer join prescriptions as rx on pd.pid = rx.patient_id
-                    left outer join (SELECT option_id, title FROM list_options WHERE list_id = 'drug_units') as rxl_unit on rx.unit = rxl_unit.option_id
-                    left outer join (SELECT option_id, title FROM list_options WHERE list_id = 'drug_form') as rxl_form on rx.form = rxl_form.option_id
-                    left outer join (SELECT option_id, title FROM list_options WHERE list_id = 'drug_interval') as rxl_interval on rx.interval = rxl_interval.option_id
-                    left outer join users as u on rx.provider_id = u.id";
+            $sqlstmt .= " LEFT OUTER JOIN prescriptions AS rx ON pd.pid = rx.patient_id "
+                    . "LEFT OUTER JOIN (SELECT option_id, title FROM list_options WHERE list_id = 'drug_units') AS rxl_unit ON rx.unit = rxl_unit.option_id "
+                    . "LEFT OUTER JOIN (SELECT option_id, title FROM list_options WHERE list_id = 'drug_form') AS rxl_form ON rx.form = rxl_form.option_id "
+                    . "LEFT OUTER JOIN (SELECT option_id, title FROM list_options WHERE list_id = 'drug_interval') AS rxl_interval ON rx.interval = rxl_interval.option_id "
+                    . "LEFT OUTER JOIN users AS u ON rx.provider_id = u.id";
             break;
         case "procs":
-            $sqlstmt .= " left outer join procedure_order as pr_ord on pr_ord.patient_id = pd.pid
-                left outer join procedure_providers as pr_prov on pr_prov.ppid = pr_ord.lab_id
-                left outer join procedure_order_code as pr_code on pr_code.procedure_order_id = pr_ord.procedure_order_id";
+            $sqlstmt .= " LEFT OUTER JOIN procedure_order AS pr_ord ON pr_ord.patient_id = pd.pid "
+                . "LEFT OUTER JOIN procedure_providers AS pr_prov ON pr_prov.ppid = pr_ord.lab_id "
+                . "LEFT OUTER JOIN procedure_order_code AS pr_code ON pr_code.procedure_order_id = pr_ord.procedure_order_id";
             break;
         case "results":
-            $sqlstmt .= " left outer join procedure_order as pr_ord on pr_ord.patient_id = pd.pid
-                left outer join procedure_report as pr_rep on pr_rep.procedure_order_id = pr_ord.procedure_order_id
-                left outer join procedure_order_code as pr_code on pr_code.procedure_order_id = pr_rep.procedure_order_id AND pr_code.procedure_order_seq = pr_rep.procedure_order_seq
-                left outer join procedure_result as pr_res on pr_res.procedure_report_id = pr_rep.procedure_report_id";
+            $sqlstmt .= " LEFT OUTER JOIN procedure_order AS pr_ord ON pr_ord.patient_id = pd.pid "
+                . "LEFT OUTER JOIN procedure_report AS pr_rep ON pr_rep.procedure_order_id = pr_ord.procedure_order_id "
+                . "LEFT OUTER JOIN procedure_order_code AS pr_code ON pr_code.procedure_order_id = pr_rep.procedure_order_id AND pr_code.procedure_order_seq = pr_rep.procedure_order_seq "
+                . "LEFT OUTER JOIN procedure_result AS pr_res ON pr_res.procedure_report_id = pr_rep.procedure_report_id";
             break;
     }
 
     // WHERE conditions started
-    $whr_stmt = " where 1=1";
+    $whr_stmt = " WHERE 1";
     switch ($srch_option_pointer) {
         case "diagnosis_check":
             if ($srch_option == "probs") {
@@ -733,13 +730,12 @@ if (!empty($_POST['form_refresh'])) {
             array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
             break;
         case "comms":
-            $whr_stmt .= " AND (pd.hipaa_allowsms = 'YES' OR pd.hipaa_voice = 'YES' OR pd.hipaa_mail  = 'YES' OR pd.hipaa_allowemail  = 'YES')
-                AND pd.date >= ? AND pd.date < DATE_ADD(?, INTERVAL 1 DAY) AND pd.date <= ?";
+            $whr_stmt .= " AND (pd.hipaa_allowsms = 'YES' OR pd.hipaa_voice = 'YES' OR pd.hipaa_mail  = 'YES' OR pd.hipaa_allowemail  = 'YES') "
+                . "AND pd.date >= ? AND pd.date < DATE_ADD(?, INTERVAL 1 DAY) AND pd.date <= ?";
             array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
             break;
         case "insurers":
-            $whr_stmt .= " AND id.type = 'primary' AND ic.name != ''
-                AND pd.date >= ? AND pd.date < DATE_ADD(?, INTERVAL 1 DAY) AND pd.date <= ?";
+            $whr_stmt .= " AND id.type = 'primary' AND ic.name != '' AND pd.date >= ? AND pd.date < DATE_ADD(?, INTERVAL 1 DAY) AND pd.date <= ?";
             array_push($sqlBindArray, $sql_date_from, $sql_date_to, date("Y-m-d H:i:s"));
             break;
         case "encounts":
@@ -766,27 +762,27 @@ if (!empty($_POST['form_refresh'])) {
 
     // WHERE conditions based on persistent inputs
     if (strlen($patient_id) != 0) {
-        $whr_stmt .= " and pd.pid = ?";
+        $whr_stmt .= " AND pd.pid = ?";
         array_push($sqlBindArray, $patient_id);
     }
     if (strlen($provider_id) != 0) {
-        $whr_stmt .= " and u.id = ?";
+        $whr_stmt .= " AND u.id = ?";
         array_push($sqlBindArray, $provider_id);
     }
     if (strlen($age_from) != 0) {
-        $whr_stmt .= " and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 >= ?";
+        $whr_stmt .= " AND DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 >= ?";
         array_push($sqlBindArray, $age_from);
     }
     if (strlen($age_to) != 0) {
-        $whr_stmt .= " and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 <= ?";
+        $whr_stmt .= " AND DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 <= ?";
         array_push($sqlBindArray, $age_to);
     }
     if (strlen($sql_gender) != 0) {
-        $whr_stmt .= " and pd.sex = ?";
+        $whr_stmt .= " AND pd.sex = ?";
         array_push($sqlBindArray, $sql_gender);
     }
     if (strlen($sql_ethnicity) != 0) {
-        $whr_stmt .= " and pd.ethnicity = ?";
+        $whr_stmt .= " AND pd.ethnicity = ?";
         array_push($sqlBindArray, $sql_ethnicity);
     }
 
@@ -887,34 +883,34 @@ if (!empty($_POST['form_refresh'])) {
     switch ($srch_option_pointer) {
         case "diagnosis_check":
         case "procs":
-            $odrstmt = " ORDER BY other_date asc";
+            $odrstmt = " ORDER BY other_date";
             break;
         case "comms":
-            $odrstmt = " ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) asc, communications asc";
+            $odrstmt = " ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')), communications";
             break;
         case "demos":
-            $odrstmt = " ORDER BY patient_date asc";
+            $odrstmt = " ORDER BY patient_date";
             break;
         case "insurers":
-            $odrstmt = " ORDER BY ins_provider asc";
+            $odrstmt = " ORDER BY ins_provider";
             break;
         case "encounts":
-            $odrstmt = " ORDER BY other_date asc, enc_type asc, enc_reason asc, enc_discharge asc";
+            $odrstmt = " ORDER BY other_date, enc_type, enc_reason, enc_discharge";
             break;
         case "observs":
-            $odrstmt = " ORDER BY other_date asc, obs_code asc, obs_type asc, obs_units asc, obs_value asc, obs_comments asc";
+            $odrstmt = " ORDER BY other_date, obs_code, obs_type, obs_units, obs_value, obs_comments";
             break;
         case "prescripts":
-            $odrstmt = " ORDER BY other_date asc, rx_quantity asc, rx_refills asc";
+            $odrstmt = " ORDER BY other_date, rx_quantity, rx_refills";
             break;
         case "results":
-            $odrstmt = " ORDER BY other_date asc, result_description asc";
+            $odrstmt = " ORDER BY other_date, result_description";
             break;
     }
 
     if (!empty($_POST['sortby']) && !empty($_POST['sortorder'])) {
         if ($_POST['sortby'] == "communications") {
-            $odrstmt = " ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) " . escape_sort_order($_POST['sortorder']) . ", communications " . escape_sort_order($_POST['sortorder']);
+            $odrstmt = " ORDER BY ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', ''))) / LENGTH(',')) " . escape_sort_order($_POST['sortorder']) . ", communications " . escape_sort_order($_POST['sortorder']);
         } elseif ($_POST['sortby'] == "insurance_companies") {
             $odrstmt = " ORDER BY ins_provider " . escape_sort_order($_POST['sortorder']);
         } else {
