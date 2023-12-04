@@ -22,17 +22,17 @@
 // TODO: Replace tables with BS4 grid classes for GSoC
 
 
-require_once('../globals.php');
-require_once($GLOBALS['srcdir'] . '/patient.inc.php');
-require_once($GLOBALS['srcdir'] . '/options.inc.php');
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+require_once '../globals.php';
+require_once $GLOBALS['srcdir'] . '/patient.inc.php';
+require_once $GLOBALS['srcdir'] . '/options.inc.php';
+require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
 // This determines if a particular procedure code corresponds to receipts
 // for the "Clinic" column as opposed to receipts for the practitioner.  Each
 // practice will have its own policies in this regard, so you'll probably
 // have to customize this function.  If you use the "fee sheet" encounter
 // form then the code below may work for you.
 //
-require_once('../forms/fee_sheet/codes.php');
+require_once '../forms/fee_sheet/codes.php';
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -122,7 +122,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -420,33 +420,31 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             }
 
                             /************************************************************/
-                            //
+
                             $res = sqlStatement($query, $sqlBindArray);
                             while ($row = sqlFetchArray($res)) {
                                 $trans_id = $row['trans_id'];
                                 $thedate = substr($row['date'], 0, 10);
                                 $patient_id = $row['pid'];
                                 $encounter_id = $row['encounter'];
-                            //
+
                                 if (!empty($ids_to_skip[$trans_id])) {
                                     continue;
                                 }
 
-                            //
-                            // If a diagnosis code was given then skip any invoices without
-                            // that diagnosis.
+                                // If a diagnosis code was given then skip any invoices without that diagnosis.
                                 if ($form_dx_code && $form_dx_codetype) {
-                                    $tmp = sqlQuery("SELECT count(*) AS count FROM billing WHERE " .
-                                    "pid = ? AND encounter = ? AND " .
-                                    "code_type = ? AND code LIKE ? AND " .
-                                    "activity = 1", array($patient_id,$encounter_id,$form_dx_codetype,$form_dx_code));
+                                    $tmp = sqlQuery(
+                                        "SELECT count(*) AS count FROM billing " .
+                                        "WHERE pid = ? AND encounter = ? AND code_type = ? AND code LIKE ? AND activity = 1",
+                                        array($patient_id, $encounter_id, $form_dx_codetype, $form_dx_code)
+                                    );
                                     if (empty($tmp['count'])) {
                                         $ids_to_skip[$trans_id] = 1;
                                         continue;
                                     }
                                 }
 
-                            //
                                 $key = sprintf(
                                     "%08u%s%08u%08u%06u",
                                     $row['docid'],
@@ -561,10 +559,11 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             // If a diagnosis code was given then skip any invoices without
                             // that diagnosis.
                             if ($form_dx_code && $form_dx_codetype) {
-                                $tmp = sqlQuery("SELECT count(*) AS count FROM billing WHERE " .
-                                "pid = ? AND encounter = ? AND " .
-                                "code_type = ? AND code LIKE ? AND " .
-                                "activity = 1", array($patient_id,$encounter_id,$form_dx_codetype,$form_dx_code));
+                                $tmp = sqlQuery(
+                                    "SELECT count(*) AS count FROM billing " .
+                                    "WHERE pid = ? AND encounter = ? AND code_type = ? AND code LIKE ? AND activity = 1",
+                                    array($patient_id, $encounter_id, $form_dx_codetype, $form_dx_code)
+                                );
                                 if (empty($tmp['count'])) {
                                     $ids_to_skip[$trans_id] = 1;
                                     continue;
@@ -600,11 +599,10 @@ $form_facility   = $_POST['form_facility'] ?? null;
                         $docid = 0;
 
                         foreach ($arows as $row) {
-                        // Get insurance company name
+                            // Get insurance company name
                             $insconame = '';
                             if ($form_proc_codefull  && $row['project_id']) {
-                                $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE " .
-                                "id = ?", array($row['project_id']));
+                                $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE id = ?", array($row['project_id']));
                                 $insconame = $tmp['name'];
                             }
 
@@ -616,7 +614,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                                 $amount1 -= $row['amount'];
                             }
 
-                        // if ($docid != $row['employee_id']) {
+                            // if ($docid != $row['employee_id']) {
                             if ($docid != $row['docid']) {
                                 if ($docid) {
                                     // Print doc totals.
@@ -633,7 +631,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                 <td align="right">
                                         <?php echo text(FormatMoney::getBucks($doctotal2)) ?>
                 </td>
-                    <?php } ?>
+                                    <?php } ?>
                 </tr>
                                     <?php
                                 }
@@ -662,14 +660,16 @@ $form_facility   = $_POST['form_facility'] ?? null;
                 <td class="detail">
                                     <?php echo empty($row['irnumber']) ? text($row['invnumber']) : text($row['irnumber']); ?>
                 </td>
-                    <?php } ?>
+                                <?php } ?>
                                 <?php
                                 if ($form_proc_code && $form_proc_codetype) {
                                         echo "  <td class='detail' align='right'>";
                                         list($patient_id, $encounter_id) = explode(".", $row['invnumber']);
-                                        $tmp = sqlQuery("SELECT SUM(fee) AS sum FROM billing WHERE " .
-                                            "pid = ? AND encounter = ? AND " .
-                                            "code_type = ? AND code = ? AND activity = 1", array($patient_id,$encounter_id,$form_proc_codetype,$form_proc_code));
+                                        $tmp = sqlQuery(
+                                            "SELECT SUM(fee) AS sum FROM billing " .
+                                            "WHERE pid = ? AND encounter = ? AND code_type = ? AND code = ? AND activity = 1",
+                                            array($patient_id, $encounter_id, $form_proc_codetype, $form_proc_code)
+                                        );
                                         echo text(FormatMoney::getBucks($tmp['sum']));
                                         echo "  </td>\n";
                                 }
@@ -679,12 +679,12 @@ $form_facility   = $_POST['form_facility'] ?? null;
                     <td class="detail">
                                         <?php echo text($insconame) ?>
                     </td>
-                                    <?php } ?>
+                                <?php } ?>
                                 <?php if ($form_procedures) { ?>
                 <td class="detail">
                                     <?php echo text($row['memo']) ?>
                 </td>
-                            <?php } ?>
+                                <?php } ?>
                 <td class="detail" align="right">
                                 <?php echo text(FormatMoney::getBucks($amount1)) ?>
                 </td>
@@ -692,7 +692,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                 <td class="detail" align="right">
                                     <?php echo text(FormatMoney::getBucks($amount2)) ?>
                 </td>
-                            <?php } ?>
+                                <?php } ?>
                 </tr>
                                 <?php
                             } // end details
@@ -716,9 +716,11 @@ $form_facility   = $_POST['form_facility'] ?? null;
                 </td>
                         <?php if ($form_procedures) { ?>
                 <td align="right">
-                            <?php echo text(FormatMoney::getBucks($doctotal2)) ?>
+                            <?php if (isset($doctotal2)) {
+                                echo text(FormatMoney::getBucks($doctotal2));
+                            } ?>
                 </td>
-                <?php } ?>
+                        <?php } ?>
                 </tr>
 
                 <!-- TODO: Replace bgcolor with BS4 !-->
@@ -731,12 +733,14 @@ $form_facility   = $_POST['form_facility'] ?? null;
                 </td>
                         <?php if ($form_procedures) { ?>
                 <td align="right">
-                            <?php echo text(FormatMoney::getBucks($grandtotal2)) ?>
+                            <?php if (isset($grandtotal2)) {
+                                echo text(FormatMoney::getBucks($grandtotal2));
+                            } ?>
                 </td>
-                <?php } ?>
+                        <?php } ?>
                 </tr>
-                        <?php $report_from_date = oeFormatShortDate($form_from_date)  ;
-                        $report_to_date = oeFormatShortDate($form_to_date)  ;
+                        <?php $report_from_date = oeFormatShortDate($form_from_date);
+                        $report_to_date = oeFormatShortDate($form_to_date);
                         ?>
                 <div align='right'><span class='title'><?php echo xlt('Report Date') . ' '; ?><?php echo text($report_from_date);?> - <?php echo text($report_to_date);?></span></div>
 
