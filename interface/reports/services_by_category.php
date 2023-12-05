@@ -240,7 +240,7 @@ if (!empty($_POST['form_refresh'])) {
         }
 
         $pres = sqlStatement(
-            "SELECT p.pr_price FROM list_options AS lo " . 
+            "SELECT p.pr_price FROM list_options AS lo " .
             "LEFT OUTER JOIN prices AS p ON p.pr_id = ? AND p.pr_selector = '' AND p.pr_level = lo.option_id " .
             "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq",
             array($row['id'])
