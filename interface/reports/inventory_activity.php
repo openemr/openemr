@@ -213,11 +213,11 @@ function thisLineItem(
 
     // If first column is changing, time for its totals.
     if (
-        ($product_first && $product_id != $last_product_id) 
+        ($product_first && $product_id != $last_product_id)
         || (!$product_first && $warehouse_id != $last_warehouse_id)
     ) {
         if (
-            ($product_first && $last_product_id) 
+            ($product_first && $last_product_id)
             || (!$product_first && $last_warehouse_id != '~')
         ) {
             $priei = $product_first ? getEndInventory($last_product_id) :
