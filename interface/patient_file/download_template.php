@@ -106,7 +106,7 @@ function getIssues($type)
 // Top level function for scanning and replacement of a file's contents.
 function doSubs($s)
 {
-    global $ptrow, $hisrow, $enrow, $nextLocation, $keyLocation, $keyLength;
+    global $ptrow, $hisrow, $enrow, $nextLocation, $keyLocation, $keyLength, $vitalsrow;
     global $groupLevel, $groupCount, $itemSeparator, $pid, $encounter;
 
     $nextLocation = 0;
@@ -166,6 +166,31 @@ function doSubs($s)
             $s = keyReplace($s, dataFixup($ptphone, xl('Phone')));
         } elseif (keySearch($s, '{PatientDOB}')) {
             $s = keyReplace($s, dataFixup(oeFormatShortDate($ptrow['DOB']), xl('Birth Date')));
+        } elseif (keySearch($s, '{PatientAge}')) {
+            // Calculate patient age
+            $dob = strtotime($ptrow['DOB']); // Convert date of birth to timestamp
+            $dos = strtotime(substr($enrow['date'], 0, 10)); // Convert current visit date to timestamp
+    
+            if ($dob !== false && $dos !== false) {
+                $age = date_diff(date_create('@' . $dob), date_create('@' . $dos))->y; // Calculate age
+                $s = keyReplace($s, dataFixup($age, xl('Age')));
+            }
+        } elseif (keySearch($s, '{PatientWeight}')) {
+            if (isset($vitalsrow['weight'])) {
+                $weight = intval($vitalsrow['weight']);
+                $s = keyReplace($s, dataFixup($weight, xl('Weight')));
+            }
+        } elseif (keySearch($s, '{PatientHeight}')) {
+            if (isset($vitalsrow['height'])) {
+                $heightInInches = $vitalsrow['height'];
+                $heightInMeters = $heightInInches * 0.0254;
+                $s = keyReplace($s, dataFixup($heightInMeters, xl('Height')));
+            }
+        } elseif (keySearch($s, '{PatientBMI}')) {
+            if (isset($vitalsrow['BMI'])) {
+                $bmi = $vitalsrow['BMI'];
+                $s = keyReplace($s, dataFixup($bmi, xl('BMI')));
+            }
         } elseif (keySearch($s, '{PatientSex}')) {
             $s = keyReplace($s, dataFixup(getListItemTitle('sex', $ptrow['sex']), xl('Sex')));
         } elseif (keySearch($s, '{DOS}')) {
@@ -322,7 +347,7 @@ function doSubs($s)
             }
 
             $s = keyReplace($s, dataFixup($data, $title));
-        }
+        }      
     } // End if { character found.
 
     return $s;
@@ -337,6 +362,12 @@ $ptrow = sqlQuery("SELECT pd.*, " .
 
 $hisrow = sqlQuery("SELECT * FROM history_data WHERE pid = ? " .
   "ORDER BY date DESC LIMIT 1", array($pid));
+
+$vitalsEncounter = $encounter + 1;
+//Get vitals from latest encounter
+$vitalsrow = sqlQuery("SELECT * FROM form_vitals AS FORM_VITALS " .
+    "LEFT JOIN forms AS FORMS ON FORM_VITALS.id = FORMS.form_id AND FORMS.pid = FORM_VITALS.pid AND FORMS.formdir LIKE 'vitals' " .
+    "WHERE FORM_VITALS.pid = ? AND FORM_VITALS.id = ? AND FORMS.deleted != '1' ", array($pid, $vitalsEncounter));
 
 $enrow = array();
 
@@ -355,7 +386,9 @@ $fname = tempnam($GLOBALS['temporary_files_dir'], 'OED');
 
 // Get mime type in a way that works with old and new PHP releases.
 $mimetype = 'application/octet-stream';
-$ext = strtolower(array_pop(explode('.', $filename)));
+$filenameParts = explode('.', $filename);
+$ext = strtolower(array_pop($filenameParts));
+
 if ('dotx' == $ext) {
     // PHP does not seem to recognize this type.
     $mimetype = 'application/msword';
