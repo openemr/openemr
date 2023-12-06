@@ -148,7 +148,7 @@ if (!empty($_POST['bn_upload'])) {
         // Cannot close ZIP object if not initialised, catch and do nothing
         try {
             $zipin->close();
-        } catch (ValueError $e) { 
+        } catch (ValueError $e) {
         }
 
         echo "<p class='text-success'>" . xlt('LOAD SUCCESSFUL. Codes inserted') . ": " . text($inscount) . ", " . xlt('replaced') . ": " . text($repcount) . "</p>\n";
