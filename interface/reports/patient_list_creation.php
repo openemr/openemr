@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This report lists a broad range of summarised data per patient, including
  * demographics, allergies, medical problems, medications, prescriptions,
@@ -243,7 +244,6 @@ if ($csv) {
     header("Content-Type: application/force-download");
     header("Content-Disposition: attachment; filename=patient_list_custom.csv");
     header("Content-Description: File Transfer");
-
 } else { ?>
 <html>
     <head>
@@ -1059,7 +1059,6 @@ if (!empty($_POST['form_refresh'])) {
         if (!$csv) { ?>
                 </table> <!-- Main table ends -->
         <?php }
-
     } else { // End if $result, there are no results ?>
                 <table>
                     <tr><td class="text"><?php echo xlt('No records found.'); ?></td></tr>
@@ -1071,7 +1070,6 @@ if (!empty($_POST['form_refresh'])) {
     if (!$csv) { ?>
             </div>
     <?php }
-
 } else { // End if form_refresh, the form has not been submitted yet ?>
             <div class='text'><?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?></div>
 <?php }
