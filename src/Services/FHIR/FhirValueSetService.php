@@ -34,8 +34,6 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
 
-    // use MappedServiceCodeTrait;  // ??
-
     /**
      * @var AppointmentService
      */
@@ -103,7 +101,7 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
     protected function loadSearchParameters()
     {
         return [
-        '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('uuid', ServiceField::TYPE_UUID)]),
+            '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('id', ServiceField::TYPE_STRING)]),
         ];
     }
 
@@ -116,30 +114,35 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
     {
         $fhirSearchResult = new ProcessingResult();
         try {
-              // Start with postcalendar_categories as appointment-type
-              $calendarCategories = $this->appointmentService->getCalendarCategories($fhirSearchParameters);
-              $valueSet = new FHIRValueSet();
-              $valueSet->setId('appointment-type');
-              $compose = new FHIRValueSetCompose();
-              $include = new FHIRValueSetInclude();
-            foreach ($calendarCategories as $category) {
-                if ($category["pc_cattype"] != 0) {
-                    continue; // only cat_type==0
+            if (!isset($fhirSearchParameters[ '_id' ]) || $fhirSearchParameters[ '_id' ] == 'appointment-type') {
+                // Start with postcalendar_categories as appointment-type
+                $calendarCategories = $this->appointmentService->getCalendarCategories();
+                $valueSet = new FHIRValueSet();
+                $valueSet->setId('appointment-type');
+                $compose = new FHIRValueSetCompose();
+                $include = new FHIRValueSetInclude();
+                foreach ($calendarCategories as $category) {
+                    if ($category["pc_cattype"] != 0) {
+                        continue; // only cat_type==0
+                    }
+                    $concept = new FHIRValueSetConcept();
+                    $code = new FHIRCode();
+                    $code->setValue($category[ "pc_constant_id"]);
+                    $concept->setCode($code);
+                    $concept->setDisplay($category[ "pc_catname" ]);
+                    $include->addConcept($concept);
                 }
-                $concept = new FHIRValueSetConcept();
-                $code = new FHIRCode();
-                $code->setValue($category[ "pc_constant_id"]);
-                $concept->setCode($code);
-                $concept->setDisplay($category[ "pc_catname" ]);
-                $include->addConcept($concept);
+                $compose->addInclude($include);
+                $valueSet->setCompose($compose);
+                $fhirSearchResult->addData($valueSet);
             }
-              $compose->addInclude($include);
-              $valueSet->setCompose($compose);
-              $fhirSearchResult->addData($valueSet);
 
               // Now the same for list_options selected in $listNames
               $list_ids = $this->listOptionService->getListIds();
             foreach ($list_ids as $listName) {
+                if (isset($fhirSearchParameters[ '_id' ]) && $fhirSearchParameters[ '_id' ] != $listName) {
+                    continue;
+                }
                 $options = $this->listOptionService->getOptionsByListName($listName); // does not return title
                 if (count($options) == 0) {
                     continue;
@@ -161,7 +164,7 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
                     $fhirSearchResult->addData($valueSet);
             }
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error("FhirDocumentReferenceService->getAll() exception thrown", ['message' => $exception->getMessage(),
+            (new SystemLogger())->errorLogCaller("search exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
