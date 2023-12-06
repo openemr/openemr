@@ -106,7 +106,7 @@ function getIssues($type)
 // Top level function for scanning and replacement of a file's contents.
 function doSubs($s)
 {
-    global $ptrow, $hisrow, $enrow, $nextLocation, $keyLocation, $keyLength, $vitalsrow;
+    global $ptrow, $hisrow, $enrow, $nextLocation, $keyLocation, $keyLength, $vitalsrow, $providerEncounterrow;
     global $groupLevel, $groupCount, $itemSeparator, $pid, $encounter;
 
     $nextLocation = 0;
@@ -190,6 +190,16 @@ function doSubs($s)
             if (isset($vitalsrow['BMI'])) {
                 $bmi = $vitalsrow['BMI'];
                 $s = keyReplace($s, dataFixup($bmi, xl('BMI')));
+            }
+        } elseif (keySearch($s, '{EncounterProviderName}')) {
+            if (isset($providerEncounterrow['fname'])) {
+                $providerFullName = $providerEncounterrow['fname'] . ' ' . $providerEncounterrow['lname'];
+                $s = keyReplace($s, dataFixup($providerFullName, xl('Provider Full Name')));
+            }
+        } elseif (keySearch($s, '{EncounterProviderSpecialty}')) {
+            if (isset($providerEncounterrow['specialty'])) {
+                $providerSpecialty = $providerEncounterrow['specialty'];
+                $s = keyReplace($s, dataFixup($providerSpecialty, xl('Specialty')));
             }
         } elseif (keySearch($s, '{PatientSex}')) {
             $s = keyReplace($s, dataFixup(getListItemTitle('sex', $ptrow['sex']), xl('Sex')));
@@ -368,6 +378,10 @@ $vitalsEncounter = $encounter + 1;
 $vitalsrow = sqlQuery("SELECT * FROM form_vitals AS FORM_VITALS " .
     "LEFT JOIN forms AS FORMS ON FORM_VITALS.id = FORMS.form_id AND FORMS.pid = FORM_VITALS.pid AND FORMS.formdir LIKE 'vitals' " .
     "WHERE FORM_VITALS.pid = ? AND FORM_VITALS.id = ? AND FORMS.deleted != '1' ", array($pid, $vitalsEncounter));
+
+$providerEncounterrow = sqlQuery("SELECT u.fname, u.lname, u.specialty " .
+    "FROM users u JOIN form_encounter fe ON u.id = fe.provider_id " .
+    "WHERE fe.encounter = ?", array($encounter));
 
 $enrow = array();
 
