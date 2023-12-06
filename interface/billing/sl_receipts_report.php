@@ -625,11 +625,11 @@ $form_facility   = $_POST['form_facility'] ?? null;
                                     <?php echo xlt('Totals for ') . text($docname) ?>
                 </td>
                 <td align="right">
-                                    <?php echo text(FormatMoney::getBucks($doctotal1 ?? 0, return_zero: true)) ?>
+                                    <?php echo text(FormatMoney::getBucks($doctotal1 ?? 0, true)) ?>
                 </td>
                                     <?php if ($form_procedures) { ?>
                 <td align="right">
-                                        <?php echo text(FormatMoney::getBucks($doctotal2 ?? 0, return_zero: true)) ?>
+                                        <?php echo text(FormatMoney::getBucks($doctotal2 ?? 0, true)) ?>
                 </td>
                                     <?php } ?>
                 </tr>
@@ -670,7 +670,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                                             "WHERE pid = ? AND encounter = ? AND code_type = ? AND code = ? AND activity = 1",
                                             array($patient_id, $encounter_id, $form_proc_codetype, $form_proc_code)
                                         );
-                                        echo text(FormatMoney::getBucks($tmp['sum'] ?? 0, return_zero: true)) . "</td>\n";
+                                        echo text(FormatMoney::getBucks($tmp['sum'] ?? 0, true)) . "</td>\n";
                                 }
                                 ?>
                                 <?php
@@ -685,11 +685,11 @@ $form_facility   = $_POST['form_facility'] ?? null;
                 </td>
                                 <?php } ?>
                 <td class="detail" align="right">
-                                <?php echo text(FormatMoney::getBucks($amount1 ?? 0, return_zero: true)) ?>
+                                <?php echo text(FormatMoney::getBucks($amount1 ?? 0, true)) ?>
                 </td>
                                 <?php if ($form_procedures) { ?>
                 <td class="detail" align="right">
-                                    <?php echo text(FormatMoney::getBucks($amount2 ?? 0, return_zero: true)) ?>
+                                    <?php echo text(FormatMoney::getBucks($amount2 ?? 0, true)) ?>
                 </td>
                                 <?php } ?>
                 </tr>
@@ -711,11 +711,11 @@ $form_facility   = $_POST['form_facility'] ?? null;
                         <?php echo xlt('Totals for ') . text($docname ?? '') ?>
                 </td>
                 <td align="right">
-                        <?php echo text(FormatMoney::getBucks($doctotal1 ?? 0, return_zero: true)); ?>
+                        <?php echo text(FormatMoney::getBucks($doctotal1 ?? 0, true)); ?>
                 </td>
                         <?php if ($form_procedures) { ?>
                 <td align="right">
-                            <?php echo text(FormatMoney::getBucks($doctotal2 ?? 0, return_zero: true)); ?>
+                            <?php echo text(FormatMoney::getBucks($doctotal2 ?? 0, true)); ?>
                 </td>
                         <?php } ?>
                 </tr>
@@ -726,11 +726,11 @@ $form_facility   = $_POST['form_facility'] ?? null;
                         <?php echo xlt('Grand Totals') ?>
                 </td>
                 <td align="right">
-                        <?php echo text(FormatMoney::getBucks($grandtotal1 ?? 0, return_zero: true)); ?>
+                        <?php echo text(FormatMoney::getBucks($grandtotal1 ?? 0, true)); ?>
                 </td>
                         <?php if ($form_procedures) { ?>
                 <td align="right">
-                            <?php echo text(FormatMoney::getBucks($grandtotal2 ?? 0, return_zero: true)); ?>
+                            <?php echo text(FormatMoney::getBucks($grandtotal2 ?? 0, true)); ?>
                 </td>
                         <?php } ?>
                 </tr>
