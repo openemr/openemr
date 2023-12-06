@@ -87,6 +87,7 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
 
 
     const USCGI_PROFILE_URI = 'http://hl7.org/fhir/StructureDefinition/shareablevalueset';
+    const APPOINTMENT_TYPE = 'appointment-type';
 
     public function __construct()
     {
@@ -114,11 +115,20 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
     {
         $fhirSearchResult = new ProcessingResult();
         try {
-            if (!isset($fhirSearchParameters[ '_id' ]) || $fhirSearchParameters[ '_id' ] == 'appointment-type') {
-                // Start with postcalendar_categories as appointment-type
+            if (
+                !isset($fhirSearchParameters[ '_id' ])
+                // could be array (AND) or comma-delimited string value (OR)
+                // check array first but should only be len 1 ("AND", becuase cannot be 2 simultaneous)
+                || ( is_array($fhirSearchParameters[ '_id' ])
+                   && count($fhirSearchParameters[ '_id' ]) == 1
+                   && $fhirSearchParameters[ '_id' ][ 0 ] == self::APPOINTMENT_TYPE )
+                // and string which could be comma-delimiter OR of exploded values
+                || ( !is_array($fhirSearchParameters[ '_id' ])
+                   && in_array(self::APPOINTMENT_TYPE, explode(",", $fhirSearchParameters[ '_id' ])) )
+            ) {
                 $calendarCategories = $this->appointmentService->getCalendarCategories();
                 $valueSet = new FHIRValueSet();
-                $valueSet->setId('appointment-type');
+                $valueSet->setId(self::APPOINTMENT_TYPE);
                 $compose = new FHIRValueSetCompose();
                 $include = new FHIRValueSetInclude();
                 foreach ($calendarCategories as $category) {
@@ -140,7 +150,17 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
               // Now the same for list_options selected in $listNames
               $list_ids = $this->listOptionService->getListIds();
             foreach ($list_ids as $listName) {
-                if (isset($fhirSearchParameters[ '_id' ]) && $fhirSearchParameters[ '_id' ] != $listName) {
+                if (
+                    isset($fhirSearchParameters[ '_id' ])
+                    // could be array (AND) or comma-delimited string value (OR)
+                    // check array first but should only be len 1 ("AND", becuase cannot be 2 simultaneous)
+                    && ( ( is_array($fhirSearchParameters[ '_id' ])
+                         && count($fhirSearchParameters[ '_id' ]) == 1
+                         && $fhirSearchParameters[ '_id' ][ 0 ] == $listName )
+                         // and string which could be comma-delimiter OR of exploded values
+                         || ( !is_array($fhirSearchParameters[ '_id' ])
+                              && !in_array($listName, explode(",", $fhirSearchParameters[ '_id' ])) ) )
+                ) {
                     continue;
                 }
                 $options = $this->listOptionService->getOptionsByListName($listName); // does not return title
