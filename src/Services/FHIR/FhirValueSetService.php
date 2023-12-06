@@ -156,7 +156,7 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
                     // check array first but should only be len 1 ("AND", becuase cannot be 2 simultaneous)
                     && ( ( is_array($fhirSearchParameters[ '_id' ])
                          && count($fhirSearchParameters[ '_id' ]) == 1
-                         && $fhirSearchParameters[ '_id' ][ 0 ] == $listName )
+                         && $fhirSearchParameters[ '_id' ][ 0 ] != $listName )
                          // and string which could be comma-delimiter OR of exploded values
                          || ( !is_array($fhirSearchParameters[ '_id' ])
                               && !in_array($listName, explode(",", $fhirSearchParameters[ '_id' ])) ) )
