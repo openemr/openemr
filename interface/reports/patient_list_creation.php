@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This report lists a broad range of summarised data per patient, including
  * demographics, allergies, medical problems, medications, prescriptions,
@@ -30,14 +29,13 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient List Creation")]);
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()
+        ->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient List Creation") ]);
     exit;
 }
 
-if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
+if (!empty($_POST) && !CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    CsrfUtils::csrfNotVerified();
 }
 
 // Controls the columns displayed, their headings and widths, and how many columns are sorted from the left
@@ -198,27 +196,24 @@ $search_options = array(
     )
 );
 
+// Arrays of options for inputs related to specific search options
 $comarr = array(
     "allow_sms"   => xl("Allow SMS"),
     "allow_voice" => xl("Allow Voice Message"),
     "allow_mail"  => xl("Allow Mail Message"),
     "allow_email" => xl("Allow Email")
 );
-
-// Get array of all insurance companies from function in patient.inc.php
-$insarr = getInsuranceProvidersExtra();
-// Get array of all encounter types
+$insarr = getInsuranceProvidersExtra(); // All insurance companies from function in patient.inc.php
+// All encounter types
 $encarr = [];
-$rez = sqlStatement('SELECT option_id, title FROM list_options WHERE list_id = "encounter-types" ORDER BY seq ASC');
-for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
+$encarr_from_db = sqlStatement('SELECT option_id, title FROM list_options WHERE list_id = "encounter-types" ORDER BY seq ASC');
+for ($iter = 0; $row = sqlFetchArray($encarr_from_db); $iter++) {
     $encarr[$row['option_id']] = $row['title'];
 }
 
-$_POST['form_details'] = true;
-
+// POST inputs
 $sql_date_from = (!empty($_POST['date_from'])) ? DateTimeToYYYYMMDDHHMMSS($_POST['date_from']) : date('Y-01-01 H:i:s');
 $sql_date_to = (!empty($_POST['date_to'])) ? DateTimeToYYYYMMDDHHMMSS($_POST['date_to']) : date('Y-m-d H:i:s');
-
 $patient_id = trim($_POST["patient_id"] ?? '');
 $provider_id = isset($_POST['form_provider']) ? $_POST['form_provider'] : '';
 $age_from = $_POST["age_from"] ?? '';
@@ -231,8 +226,7 @@ $form_diagnosis = trim($_POST["form_diagnosis"] ?? '');
 $form_lab_results = trim($_POST["form_lab_results"] ?? '');
 $form_service_codes = trim($_POST["form_service_codes"] ?? '');
 $form_immunization = trim($_POST["form_immunization"] ?? '');
-
-// Variables related to specific search options
+// Inputs related to specific search options
 $prescription_drug = trim($_POST["prescription_drug"] ?? '');
 $communication = trim($_POST["communication"] ?? '');
 $insurance_company = trim($_POST["insurance_companies"] ?? '');
@@ -240,6 +234,7 @@ $encounter_type = trim($_POST["encounter_type"] ?? '');
 $observation_description = trim($_POST["observation_description"] ?? '');
 $procedure_diagnosis = trim($_POST["procedure_diagnosis"] ?? '');
 
+// Add CSV file headers if Export to CSV is selected
 $csv = !empty($_POST['form_csvexport']) && $_POST['form_csvexport'] == true;
 if ($csv) {
     header("Pragma: public");
@@ -248,6 +243,7 @@ if ($csv) {
     header("Content-Type: application/force-download");
     header("Content-Disposition: attachment; filename=patient_list_custom.csv");
     header("Content-Description: File Transfer");
+
 } else { ?>
 <html>
     <head>
@@ -257,24 +253,8 @@ if ($csv) {
 
         <?php Header::setupHeader(['datetime-picker', 'report-helper']); ?>
 
-        <script>
-            function Form_Validate() {
-                var d = document.forms[0];
-                FromDate = d.date_from.value;
-                ToDate = d.date_to.value;
-                if ((FromDate.length > 0) && (ToDate.length > 0)) {
-                    if (Date.parse(FromDate) > Date.parse(ToDate)) {
-                        alert(<?php echo xlj('To date must be later than From date!'); ?>);
-                        return false;
-                    }
-                }
-                // $("#processing").show(); - Remains after CSV file is downloaded, removed temporarily
-                return true;
-            }
-        </script>
-
         <style>
-            /* specifically include & exclude from printing */
+            /* Specifically include & exclude from printing */
             @media print {
                 #report_parameters {
                     visibility: hidden;
@@ -292,8 +272,7 @@ if ($csv) {
                     display: none;
                 }
             }
-
-            /* specifically exclude some from the screen */
+            /* Specifically exclude some from the screen */
             @media screen {
                 #report_parameters_daterange {
                     visibility: hidden;
@@ -301,7 +280,20 @@ if ($csv) {
                 }
             }
         </style>
+
         <script>
+            function Form_Validate() {
+                var d = document.forms[0];
+                FromDate = d.date_from.value;
+                ToDate = d.date_to.value;
+                if (FromDate.length > 0 && ToDate.length > 0 && Date.parse(FromDate) > Date.parse(ToDate)) {
+                    alert(<?php echo xlj('To date must be later than From date!'); ?>);
+                    return false;
+                }
+                // $("#processing").show(); - Remains after CSV file is downloaded, removed temporarily
+                return true;
+            }
+
             function submitForm() {
                 var d_from = new String($('#date_from').val());
                 var d_to = new String($('#date_to').val());
@@ -328,18 +320,18 @@ if ($csv) {
             }
 
             // Sorting changes
-            function sortingCols(sort_by,sort_order) {
+            function sortingCols(sort_by, sort_order) {
                 $("#sortby").val(sort_by);
                 $("#sortorder").val(sort_order);
-                $("#form_refresh").attr("value","true");
+                $("#form_refresh").attr("value", "true");
                 $("#theform").submit();
             }
 
+            // jQuery functions
             $(function () {
                 $(".numeric_only").keydown(function(event) {
                     // Allow only backspace and delete
-                    if (event.keyCode == 46 || event.keyCode == 8) {
-                        // let it happen, don't do anything
+                    if (event.keyCode == 46 || event.keyCode == 8) { // Let it happen, don't do anything
                     } else {
                         if (!((event.keyCode >= 96 && event.keyCode <= 105) || (event.keyCode >= 48 && event.keyCode <= 57))) {
                             event.preventDefault();
@@ -368,15 +360,15 @@ if ($csv) {
                 <?php }
                 if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "observs")) { ?>
                     $('#obs_desc').show();
-                <?php }
-                ?>
+                <?php } ?>
 
                 $('.datetimepicker').datetimepicker({
-                    <?php $datetimepicker_timepicker = true; ?>
-                    <?php $datetimepicker_showseconds = true; ?>
-                    <?php $datetimepicker_formatInput = true; ?>
-                    <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
-                    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+                    <?php
+                    $datetimepicker_timepicker = true;
+                    $datetimepicker_showseconds = true;
+                    $datetimepicker_formatInput = true;
+                    include $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php';
+                    // Add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
 
                 // Automatically add wildcards to applicable inputs if they are empty
@@ -440,7 +432,6 @@ if ($csv) {
                     $('#obs_desc').hide();
                 }
             }
-
         </script>
     </head>
 
@@ -451,8 +442,8 @@ if ($csv) {
 
         <div id="report_parameters_daterange">
             <p>
-            <?php echo "<span style='margin-left:5px;'><strong>" . xlt('Date Range') . ":</strong>&nbsp;" . text(oeFormatDateTime($sql_date_from, "global", true)) .
-              " &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatDateTime($sql_date_to, "global", true)) . "</span>"; ?>
+            <?php echo "<span style='margin-left:5px;'><strong>" . xlt('Date Range') . ":</strong>&nbsp;" . text(oeFormatDateTime($sql_date_from, "global", true))
+                . " &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatDateTime($sql_date_to, "global", true)) . "</span>"; ?>
             <span style="margin-left:5px;"><strong><?php echo xlt('Option'); ?>:</strong>&nbsp;<?php echo text($_POST['srch_option'] ?? '');
             if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "comms") && ($_POST['communication'] != "")) {
                 if (isset($comarr[$_POST['communication']])) {
@@ -472,7 +463,7 @@ if ($csv) {
             </p>
         </div>
         <form name='theform' id='theform' method='post' action='patient_list_creation.php' onSubmit="return Form_Validate();">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"/>
             <input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
             <div id="report_parameters">
                 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
@@ -567,7 +558,7 @@ if ($csv) {
                             <div class="text-center">
                                 <div class="btn-group-vertical" role="group">
                                     <a href='#' class='btn btn-secondary btn-save' onclick="$('#form_csvexport').val(''); submitForm();"><?php echo xlt('Submit'); ?></a>
-                                    <?php if (isset($_POST['form_refresh'])) {?>
+                                    <?php if (isset($_POST['form_refresh'])) { ?>
                                         <a href='#' class='btn btn-secondary btn-transmit' onclick="$('#form_csvexport').attr('value', 'true'); submitForm();"><?php echo xlt('Export to CSV'); ?></a>
                                         <a href='#' class='btn btn-secondary btn-print' onclick="printForm()"><?php echo xlt('Print'); ?></a>
                                     <?php } ?>
@@ -585,14 +576,14 @@ if ($csv) {
 // SQL scripts for the various searches
 $sqlBindArray = [];
 if (!empty($_POST['form_refresh'])) {
-    $sqlstmt = "SELECT pd.date AS patient_date, " .
-        "CONCAT(pd.lname, ', ', pd.fname) AS patient_name, " .
-        "pd.pid AS patient_id, " .
-        "DATE_FORMAT(FROM_DAYS(DATEDIFF('" . date('Y-m-d H:i:s') . "',pd.dob)), '%Y')+0 AS patient_age, " .
-        "pd.sex AS patient_sex, " .
-        "TRIM('|' FROM pd.race) AS patient_race, " .
-        "TRIM('|' FROM pd.ethnicity) AS patient_ethnic, " .
-        "CONCAT(u.lname, ', ', u.fname) AS users_provider";
+    $sqlstmt = "SELECT pd.date AS patient_date, "
+        . "CONCAT(pd.lname, ', ', pd.fname) AS patient_name, "
+        . "pd.pid AS patient_id, "
+        . "DATE_FORMAT(FROM_DAYS(DATEDIFF('" . date('Y-m-d H:i:s') . "',pd.dob)), '%Y')+0 AS patient_age, "
+        . "pd.sex AS patient_sex, "
+        . "TRIM('|' FROM pd.race) AS patient_race, "
+        . "TRIM('|' FROM pd.ethnicity) AS patient_ethnic, "
+        . "CONCAT(u.lname, ', ', u.fname) AS users_provider";
 
     $srch_option = $_POST['srch_option'];
 
@@ -782,8 +773,8 @@ if (!empty($_POST['form_refresh'])) {
         array_push($sqlBindArray, $sql_gender);
     }
     if (strlen($sql_ethnicity) != 0) {
-        $whr_stmt .= " AND pd.ethnicity = ?";
-        array_push($sqlBindArray, $sql_ethnicity);
+        $whr_stmt .= " AND pd.ethnicity LIKE ?";
+        array_push($sqlBindArray, '%|' . $sql_ethnicity . '%');
     }
 
     // WHERE conditions based on inputs arising from specific search options
@@ -825,7 +816,8 @@ if (!empty($_POST['form_refresh'])) {
     }
 
     if (!AclMain::aclCheckCore($search_options[$srch_option]["acl"][0], $search_options[$srch_option]["acl"][1])) {
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient List Creation") . " (" . $search_options[$srch_option]["title"] . ")"]);
+        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()
+            ->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient List Creation") . " (" . $search_options[$srch_option]["title"] . ")"]);
         exit;
     }
 
@@ -841,17 +833,17 @@ if (!empty($_POST['form_refresh'])) {
                 $sortby = $sort[1];
                 break;
             /* case "results":
-                //$odrstmt = " result_result";
+                // $odrstmt = " result_result";
                 break; */
             case "comms":
-                //$commsort = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(','))";
+                // $commsort = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(','))";
                 $sortby = $sort[6];
-                //$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
+                // $odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
                 break;
             case "insurers":
-                //$commsort = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(','))";
+                // $commsort = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(','))";
                 $sortby = $sort[7];
-                //$odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
+                // $odrstmt = " ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', '')))/LENGTH(',')) , communications";
                 break;
             default:
                 $sortby = $sort[0];
@@ -919,10 +911,9 @@ if (!empty($_POST['form_refresh'])) {
     }
 
     $sqlstmt .= $whr_stmt . $odrstmt;
-    //echo $sqlstmt."<hr>";
     $result = sqlStatement($sqlstmt, $sqlBindArray);
-    //print_r($result);
-    $row_id = 1.1;//given to each row to identify and toggle
+
+    $row_id = 1.1; // Given to each row to identify and toggle
     $img_id = 1.2;
     $k = 1.3;
 
@@ -939,22 +930,23 @@ if (!empty($_POST['form_refresh'])) {
             array_push($patient_arr, $row["patient_id"]);
         }
 
-        if (!$csv) { ?>
+        if (!$csv) { // Draw table if displaying in HTML ?>
             <br />
             <input type="hidden" name="sortby" id="sortby" value="<?php echo attr($sortby); ?>" />
             <input type="hidden" name="sortorder" id="sortorder" value="<?php echo attr($sortorder); ?>" />
             <div id="report_results">
                 <table>
                     <tr>
-                        <td class="text"><strong><?php echo xlt('Total Number of Patients')?>:</strong>&nbsp;<span id="total_patients"><?php echo text(count(array_unique($patient_arr))); ?></span></td>
+                        <td class="text"><strong><?php echo xlt('Total Number of Patients') ?>:</strong>&nbsp;<span id="total_patients"><?php echo text(count(array_unique($patient_arr))); ?></span></td>
                     </tr>
                 </table>
 
                 <table class='table' width='90%' align="center" cellpadding="5" cellspacing="0" style="font-family: Tahoma;" border="0">
                     <tr class="bg-light" style="font-size:15px;">
         <?php }
+
         foreach (array_keys($search_options[$srch_option]["cols"]) as $report_col_key => $report_col) {
-            if (!$csv) {
+            if (!$csv) { // Display column as HTML
                 echo '<td ';
                 if (isset($search_options[$srch_option]["cols"][$report_col]["width"])) {
                     $width = $search_options[$srch_option]["cols"][$report_col]["width"];
@@ -980,7 +972,7 @@ if (!empty($_POST['form_refresh'])) {
                     echo $sortlink[$report_col_key];
                 }
                 echo '</td>';
-            } else {
+            } else { // Print column as CSV
                 echo csvEscape($search_options[$srch_option]["cols"][$report_col]["heading"]);
                 if ($report_col_key < count($search_options[$srch_option]["cols"]) - 1) {
                     echo ",";
@@ -1000,7 +992,7 @@ if (!empty($_POST['form_refresh'])) {
             foreach ($report_data as $report_value_key => $report_value) {
                 $report_col = array_keys($search_options[$srch_option]["cols"])[$report_value_key];
                 $report_value_print = null;
-                switch ($report_col) {
+                switch ($report_col) { // Convert column data into readable format if necessary
                     case "patient_date":
                     case "other_date":
                         $report_value_print = ($report_value != '') ? text(oeFormatDateTime($report_value, "global", true)) : '';
@@ -1029,14 +1021,12 @@ if (!empty($_POST['form_refresh'])) {
                     // Procedure diagnoses can be hovered over to reveal their codes
                     case "pr_diagnosis":
                     case "prc_diagnoses":
-                        if (!$csv) {
-                            if ($report_value != '') {
-                                $report_value_print = '<ul style="margin: 0; padding-left: 0.5em;">';
-                                foreach (explode(';', $report_value) as $code_index => $code) {
-                                    $report_value_print .= '<li><abbr title="' . attr($code) . '">' . text(getCodeDescription($code)) . '</abbr></li>';
-                                }
-                                $report_value_print .= '</ul>';
+                        if (!$csv && $report_value != '') {
+                            $report_value_print = '<ul style="margin: 0; padding-left: 0.5em;">';
+                            foreach (explode(';', $report_value) as $code_index => $code) {
+                                $report_value_print .= '<li><abbr title="' . attr($code) . '">' . text(getCodeDescription($code)) . '</abbr></li>';
                             }
+                            $report_value_print .= '</ul>';
                         } else {
                             $report_value_print = $report_value;
                         }
@@ -1044,7 +1034,8 @@ if (!empty($_POST['form_refresh'])) {
                     default:
                         $report_value_print = text($report_value);
                 }
-                if (!$csv) {
+
+                if (!$csv) { // Display column as HTML
                     $width = isset($search_options[$srch_option]["cols"][$report_col]["width"]) ? $search_options[$srch_option]["cols"][$report_col]["width"] : '';
                     if ($width != 'nowrap') {
                         echo '<td>';
@@ -1052,7 +1043,7 @@ if (!empty($_POST['form_refresh'])) {
                         echo '<td style="white-space: nowrap;">';
                     }
                     echo $report_value_print . '</td>';
-                } else {
+                } else { // Print column as CSV
                     echo csvEscape($report_value_print);
                     if ($report_value_key < count($search_options[$srch_option]["cols"]) - 1) {
                         echo ",";
@@ -1065,12 +1056,11 @@ if (!empty($_POST['form_refresh'])) {
                     </tr>
             <?php }
         }
-
         if (!$csv) { ?>
-                </table>
-                <!-- Main table ends -->
+                </table> <!-- Main table ends -->
         <?php }
-    } else { // End if $result ?>
+
+    } else { // End if $result, there are no results ?>
                 <table>
                     <tr><td class="text"><?php echo xlt('No records found.'); ?></td></tr>
         <?php if (isset($prescription_drug) || isset($observation_description) || isset($procedure_diagnosis)) { ?>
@@ -1081,12 +1071,12 @@ if (!empty($_POST['form_refresh'])) {
     if (!$csv) { ?>
             </div>
     <?php }
-} else { // End if form_refresh ?>
+
+} else { // End if form_refresh, the form has not been submitted yet ?>
             <div class='text'><?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?></div>
 <?php }
 if (!$csv) { ?>
         </form>
-
     </body>
 </html>
 <?php } ?>
