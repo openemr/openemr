@@ -51,3 +51,7 @@
 #IfRow2D list_options list_id recent_patient_columns option_id dob
 UPDATE list_options SET option_id='DOB' WHERE list_id='recent_patient_columns' AND option_id='dob';
 #EndIf
+
+#IfMissingColumn form_encounter last_update
+ALTER TABLE `form_encounter` ADD `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+#EndIf

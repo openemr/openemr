@@ -172,6 +172,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);
         $patientResource->setId($id);
+        $patientResource->setDeceasedBoolean($dataRecord[ 'deceasedDate' ] != null);
 
         $this->parseOpenEMRPatientSummaryText($patientResource, $dataRecord);
         $this->parseOpenEMRPatientName($patientResource, $dataRecord);
