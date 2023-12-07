@@ -193,11 +193,12 @@ $communication = trim($_POST["communication"] ?? '');
             });
 
             $('.datetimepicker').datetimepicker({
-                <?php $datetimepicker_timepicker = true; ?>
-                <?php $datetimepicker_showseconds = true; ?>
-                <?php $datetimepicker_formatInput = true; ?>
-                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
-                <?php // Can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+                <?php
+                $datetimepicker_timepicker = true;
+                $datetimepicker_showseconds = true;
+                $datetimepicker_formatInput = true;
+                require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php';
+                // Can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
     </script>
