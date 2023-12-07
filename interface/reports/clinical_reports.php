@@ -107,13 +107,13 @@ $communication = trim($_POST["communication"] ?? '');
             f.value = s;
         }
 
-        //This invokes the find-code popup.
+        // This invokes the find-code popup.
         function sel_diagnosis(e) {
             current_sel_name = e.name;
             dlgopen('../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr_url(collect_codetypes("diagnosis", "csv")); ?>', '_blank', 500, 400);
         }
 
-        //This invokes the find-code popup.
+        // This invokes the find-code popup.
         function sel_procedure(e) {
             current_sel_name = e.name;
             dlgopen('../patient_file/encounter/find_code_popup.php?codetype=<?php echo attr_url(collect_codetypes("procedure", "csv")); ?>', '_blank', 500, 400);
@@ -175,7 +175,7 @@ $communication = trim($_POST["communication"] ?? '');
 
             $('#date_error').css("display", "none");
 
-            if (diff < 0) { //negative
+            if (diff < 0) { // Negative
                 $('#date_error').css("display", "inline");
             } else {
                 $("#form_refresh").attr("value","true");
@@ -184,11 +184,9 @@ $communication = trim($_POST["communication"] ?? '');
         }
 
         $(function () {
-            $(".numeric_only").keydown(function(event) {
-                //alert(event.keyCode);
-                // Allow only backspace and delete
-                if (event.keyCode == 46 || event.keyCode == 8) {
-                    // let it happen, don't do anything
+            $(".numeric_only").keydown(function(event) { // Allow only backspace and delete
+                // alert(event.keyCode);
+                if (event.keyCode == 46 || event.keyCode == 8) { // Let it happen, don't do anything
                 } else if (!((event.keyCode >= 96 && event.keyCode <= 105) || (event.keyCode >= 48 && event.keyCode <= 57))) {
                     event.preventDefault();
                 }
@@ -199,7 +197,7 @@ $communication = trim($_POST["communication"] ?? '');
                 <?php $datetimepicker_showseconds = true; ?>
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
-                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+                <?php // Can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
     </script>
@@ -432,7 +430,7 @@ if (!empty($_POST['form_refresh'])) {
                 . "imm.note as notes";
     }
 
-    //from
+    // FROMs
     $sqlstmt .= " from patient_data as pd left outer join users as u on u.id = pd.providerid "
             . "left outer join facility as f on f.id = u.facility_id";
 
@@ -451,7 +449,7 @@ if (!empty($_POST['form_refresh'])) {
         }
     }
 
-    //Immunization added in clinical report
+    // Immunization added in clinical report
     if (strlen($form_immunization) != 0) {
         $sqlstmt .= " LEFT OUTER JOIN immunizations as imm ON imm.patient_id = pd.pid "
                 . "LEFT OUTER JOIN codes as immc ON imm.cvx_code = immc.id ";
@@ -473,7 +471,7 @@ if (!empty($_POST['form_refresh'])) {
                 . "left outer join codes as c on c.code = b.code";
     }
 
-    //where
+    // WHEREs
     $whr_stmt = " where 1";
     if (!empty($form_diagnosis)) {
         $whr_stmt .= " AND li.date >= ? AND li.date < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(li.date) <= ?";
@@ -571,7 +569,7 @@ if (!empty($_POST['form_refresh'])) {
         array_push($sqlBindArray, '%' . $form_diagnosis . '%');
     }
 
-    //communication preferences added in clinical report
+    // Communication preferences added in clinical report
     if (strlen($communication) > 0 || !empty($_POST['communication_check'])) {
         if ($communication == "allow_sms") {
             $whr_stmt .= " AND pd.hipaa_allowsms = 'YES' ";
@@ -586,13 +584,13 @@ if (!empty($_POST['form_refresh'])) {
         }
     }
 
-    //Immunization where condition for full text or short text
+    // Immunization where condition for full text or short text
     if (strlen($form_immunization) > 0) {
         $whr_stmt .= " AND (immc.code_text LIKE ? OR immc.code_text_short LIKE ?)";
         array_push($sqlBindArray, '%' . $form_immunization . '%', '%' . $form_immunization . '%');
     }
 
-    // order by
+    // ORDER BYs
     if (!empty($_POST['form_pt_name'])) {
         $odrstmt = $odrstmt . ", patient_name";
     }
@@ -638,12 +636,12 @@ if (!empty($_POST['form_refresh'])) {
 
     $result = sqlStatement($sqlstmt, $sqlBindArray);
 
-    $row_id = 1.1; //given to each row to identify and toggle
+    $row_id = 1.1; // Given to each row to identify and toggle
     $img_id = 1.2;
     $k = 1.3;
 
     if (sqlNumRows($result) > 0) {
-        //Added on 6-jun-2k14(regarding displaying smoking code descriptions)
+        // Added on 6-jun-2k14(regarding displaying smoking code descriptions)
         $smoke_codes_arr = getSmokeCodes(); ?>
 
     <br/>
@@ -658,11 +656,14 @@ if (!empty($_POST['form_refresh'])) {
                 <td>&nbsp;</td>
                 <td align="center">
                     <span onclick="javascript:Toggle_trGrpHeader2(<?php echo attr($row_id) . ',' . attr($img_id); ?>);">
-                        <img src="../pic/blue-down-arrow.gif" id="<?php echo attr($img_id); $img_id++; ?>" title="<?php echo xla('Click here to view patient details'); ?>"/>
+                        <img <?php echo 'src="../pic/blue-down-arrow.gif" id="' . attr($img_id) . '" title="' . xla('Click here to view patient details') . '"'; ?>/>
                     </span>
                 </td>
             </tr>
-            <table width="100%" align="center" id="<?php echo attr($row_id); $row_id++; ?>" class="border1" style="display:none; font-size:13px;" cellpadding=5>
+            <table width="100%" align="center" id="<?php echo attr($row_id); ?>" class="border1" style="display:none; font-size:13px;" cellpadding=5>
+            <?php
+            $img_id++;
+            $row_id++; ?>
                 <tr bgcolor="#C3FDB8" align="left">
                     <td width="15%"><strong><?php echo xlt('Patient Name'); ?></strong></td>
                     <td width="5%"><strong><?php echo xlt('PID'); ?></strong></td>
@@ -815,11 +816,11 @@ if (!empty($_POST['form_refresh'])) {
                     $tmp_d = explode('|', $row['history_data_recreational_drugs']);
                     $his_tobac =  generate_display_field(array('data_type' => '1','list_id' => 'smoking_status'), $tmp_t[3]);
 
-                    //Added on 6-jun-2k14(regarding displaying smoking code descriptions)
+                    // Added on 6-jun-2k14(regarding displaying smoking code descriptions)
                     if (!empty($smoke_codes_arr[$tmp_t[3]])) {
                         $his_tobac .= " ( " . text($smoke_codes_arr[$tmp_t[3]]) . " )";
                     }
-                    
+
                     $res = xl('No history recorded');
                     if ($tmp_a[1] == "currentalcohol") {
                         $res = xl('Current Alcohol');
@@ -833,7 +834,7 @@ if (!empty($_POST['form_refresh'])) {
                     if ($tmp_a[1] == "not_applicablealcohol") {
                         $res = xl('N/A');
                     }
-                    
+
                     $resd = xl('No history recorded');
                     if ($tmp_d[1] == "currentrecreational_drugs") {
                         $resd = xl('Current Recreational Drugs');
@@ -902,21 +903,23 @@ if (!empty($_POST['form_refresh'])) {
                     <td><?php echo text(oeFormatDateTime($row['imm_date'])); ?>&nbsp;</td>
                     <td><?php echo text($row['cvx_code']); ?>&nbsp;</td>
                     <td><?php echo text($row['imm_code_short']) . " (" . text($row['imm_code']) . ")"; ?>&nbsp;</td>
-                    <td><?php if ($row["amount_administered"] > 0) {
-                        echo text($row["amount_administered"]) . " " . generate_display_field(array('data_type' => '1','list_id' => 'drug_units'), $row['amount_administered_unit']);
-                    } else {
-                        echo "&nbsp;";
-                    } ?></td>
+                    <td>
+                <?php if ($row["amount_administered"] > 0) {
+                    echo text($row["amount_administered"]) . " " . generate_display_field(array('data_type' => '1','list_id' => 'drug_units'), $row['amount_administered_unit']);
+                } else {
+                    echo "&nbsp;";
+                } ?>
+                    </td>
                     <td><?php echo generate_display_field(array('data_type' => '1','list_id' => 'proc_body_site'), $row['administration_site']); ?></td>
                     <td colspan="7"><?php echo text($row['notes']); ?></td>
                 </tr>
                 <?php } ?>
                 <!-- Immunization Report End-->
             </table>
-        <?php } //while loop end ?>
-        </table><!-- Main table ends -->
-    <?php } //End if $result
-} else { //End if form_refresh ?>
+        <?php } // While loop end ?>
+        </table> <!-- Main table ends -->
+    <?php } // End if $result
+} else { // End if form_refresh ?>
     <div class='text'><?php echo xlt('Please input search criteria above, and click Submit to view results.'); ?></div>
 <?php } ?>
 </form>
