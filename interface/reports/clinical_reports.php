@@ -352,8 +352,8 @@ Search options include diagnosis, procedure, prescription, medical history, and 
         </tr></table>
     </div>
 <!-- end of parameters -->
-<?php
-// SQL scripts for the various searches
+
+<?php // SQL scripts for the various searches
 $sqlBindArray = array();
 if (!empty($_POST['form_refresh'])) {
     $sqlstmt = "select concat(pd.fname, ' ', pd.lname) AS patient_name, "
@@ -417,7 +417,6 @@ if (!empty($_POST['form_refresh'])) {
 
     if ($type == 'Service Codes') {
         $sqlstmt .= ", c.code as code, c.code_text as code_text, fe.encounter as encounter, b.date as date";
-        // $mh_stmt = $mh_stmt . ",code,code_text,encounter,date";
     }
 
     if (strlen($form_immunization) > 0) {
@@ -497,6 +496,9 @@ if (!empty($_POST['form_refresh'])) {
     if ($type == 'Procedure') {
         $whr_stmt .= " AND po.date_ordered >= ? AND po.date_ordered < DATE_ADD(?, INTERVAL 1 DAY) AND DATE(po.date_ordered) <= ?";
         array_push($sqlBindArray, substr($sql_date_from, 0, 10), substr($sql_date_to, 0, 10), date("Y-m-d"));
+        if (strlen($form_lab_results) != 0 || !empty($_POST['lab_results'])) {
+            $whr_stmt .= " AND pt.procedure_type = 'res'";
+        }
     }
 
     if ($type == "Service Codes") {
@@ -509,7 +511,6 @@ if (!empty($_POST['form_refresh'])) {
         if (empty($form_lab_results)) {
             $form_lab_results = "%";
         }
-
         array_push($sqlBindArray, $form_lab_results);
     }
 
@@ -592,36 +593,36 @@ if (!empty($_POST['form_refresh'])) {
     }
 
     // ORDER BYs
+    $odrstmt = "";
     if (!empty($_POST['form_pt_name'])) {
-        $odrstmt = $odrstmt . ", patient_name";
+        $odrstmt .= ", patient_name";
     }
 
     if (!empty($_POST['form_pt_age'])) {
-        $odrstmt = $odrstmt . ", patient_age";
+        $odrstmt .= ", patient_age";
     }
 
     if (!empty($form_diagnosis)) {
-        $odrstmt = $odrstmt . ", lists_diagnosis";
+        $odrstmt .= ", lists_diagnosis";
     } elseif ((!empty($_POST['form_diagnosis_allergy'])) || (!empty($_POST['form_diagnosis_medprb']))) {
-        $odrstmt = $odrstmt . ", lists_title";
+        $odrstmt .= ", lists_title";
     }
 
     if ((!empty($_POST['form_drug'])) || (strlen($form_drug_name) > 0)) {
-        $odrstmt = $odrstmt . ", r.drug";
+        $odrstmt .= ", r.drug";
     }
 
     if ((!empty($_POST['ndc_no'])) && (strlen($form_drug_name) > 0)) {
-        $odrstmt = $odrstmt . ", d.ndc_number";
+        $odrstmt .= ", d.ndc_number";
     }
 
     if ((!empty($_POST['lab_results'])) || (strlen($form_lab_results) > 0)) {
-        $odrstmt = $odrstmt . ", procedure_result_result";
+        $odrstmt .= ", procedure_result_result";
     }
 
     if (strlen($communication) > 0 || !empty($_POST['communication_check'])) {
-        $odrstmt = $odrstmt . ", ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', ''))) / LENGTH(',')), communications";
+        $odrstmt .= ", ROUND((LENGTH(communications) - LENGTH(REPLACE(communications, ',', ''))) / LENGTH(',')), communications";
     }
-
 
     if (empty($odrstmt)) {
         $odrstmt = " ORDER BY patient_id";
@@ -630,7 +631,7 @@ if (!empty($_POST['form_refresh'])) {
     }
 
     if ($type == 'Medical History') {
-        $sqlstmt = "select * from (" . $sqlstmt . " " . $whr_stmt . " " . $odrstmt . ", history_data_date desc) group by patient_id";
+        $sqlstmt = "select * from (" . $sqlstmt . " " . $whr_stmt . " " . $odrstmt . ", history_data_date desc) a group by patient_id";
     } else {
         $sqlstmt .= " " . $whr_stmt . " " . $odrstmt;
     }
@@ -644,10 +645,8 @@ if (!empty($_POST['form_refresh'])) {
     if (sqlNumRows($result) > 0) {
         // Added on 6-jun-2k14(regarding displaying smoking code descriptions)
         $smoke_codes_arr = getSmokeCodes(); ?>
-
     <br/>
     <div id = "report_results">
-
         <?php $pidarr = array();
         while ($row = sqlFetchArray($result)) { ?>
         <table class='border-0' width='90%' align="center" cellpadding="5" cellspacing="0" style="font-family: tahoma;">
@@ -778,6 +777,8 @@ if (!empty($_POST['form_refresh'])) {
                     if (!empty($row['procedure_type_standard_code'])) {
                         $procedure_type_standard_code_arr = explode(':', $row['procedure_type_standard_code']);
                         $procedure_type_standard_code = $procedure_type_standard_code_arr[1];
+                    } else {
+                        $procedure_type_standard_code = $row['procedure_type_standard_code'];
                     } ?>
                 <tr bgcolor="#C3FDB8" align= "left">
                     <td colspan=12><strong><?php echo "#" . xlt('Procedure Report'); ?><strong></td>
@@ -905,11 +906,11 @@ if (!empty($_POST['form_refresh'])) {
                     <td><?php echo text($row['cvx_code']); ?>&nbsp;</td>
                     <td><?php echo text($row['imm_code_short']) . " (" . text($row['imm_code']) . ")"; ?>&nbsp;</td>
                     <td>
-                <?php if ($row["amount_administered"] > 0) {
-                    echo text($row["amount_administered"]) . " " . generate_display_field(array('data_type' => '1','list_id' => 'drug_units'), $row['amount_administered_unit']);
-                } else {
-                    echo "&nbsp;";
-                } ?>
+                    <?php if ($row["amount_administered"] > 0) {
+                        echo text($row["amount_administered"]) . " " . generate_display_field(array('data_type' => '1','list_id' => 'drug_units'), $row['amount_administered_unit']);
+                    } else {
+                        echo "&nbsp;";
+                    } ?>
                     </td>
                     <td><?php echo generate_display_field(array('data_type' => '1','list_id' => 'proc_body_site'), $row['administration_site']); ?></td>
                     <td colspan="7"><?php echo text($row['notes']); ?></td>
