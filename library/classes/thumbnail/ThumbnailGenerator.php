@@ -89,7 +89,7 @@ class ThumbnailGenerator
             // Write error to log if failed
             if (!$new_file) {
                 $this->error_log($row['url']);
-                $feedback['sum_failed'] ++;
+                $feedback['sum_failed']++;
                 $feedback['failed'][] = $row['url'];
                 continue;
             }
@@ -97,7 +97,7 @@ class ThumbnailGenerator
             $sql = "UPDATE documents SET thumb_url = ? WHERE id = ?";
             $update = sqlStatement($sql, array($new_file, $row['id']));
             if ($update) {
-                $feedback['sum_success'] ++;
+                $feedback['sum_success']++;
                 $feedback['success'][] = $row['url'];
             }
         }
