@@ -223,6 +223,11 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                         <td width="250"><?php dropdown_facility($facility, 'facility', false); ?></td>
                         <td class='col-form-label' width="100"><?php echo xlt('From'); ?>: </td>
                         <td><input type='text' class='datetimepicker form-control' name='date_from' id="date_from" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_from, 0, true)); ?>'></td>
+                        <td></td>
+                        <td><div class="form-check form-check-inline" style="float: right;">
+                            <input type='checkbox' class='form-check-input' id='form_start_expanded' name='form_start_expanded'<?php echo !empty($_POST['form_start_expanded']) ? ' checked' : ''; ?>/>
+                            <label class='form-check-label' for='form_start_expanded'><?php echo xlt('Expand All'); ?>&nbsp;</label>
+                        </div></td>
                     </tr>
                     <tr>
                         <td class='col-form-label'><?php echo xlt('Patient ID'); ?>:</td>
@@ -293,46 +298,38 @@ Search options include diagnosis, procedure, prescription, medical history, and 
                         <!-- Sort by Start -->
                         <td class='col-form-label' width='63'><?php echo xlt('Sort By'); ?>:</td>
                         <td><table><tr>
-                            <td><input type='checkbox' class='form-control' name='form_pt_name'<?php
-                            if (!empty($_POST['form_pt_name'])) {
-                                echo ' checked';
-                            } ?>></td>
-                            <td class='col-form-label'><?php echo xlt('Patient Name'); ?>&nbsp;</td>
-                            <td><input type='checkbox' class='form-control' name='form_pt_age'<?php
-                            if (!empty($_POST['form_pt_age'])) {
-                                echo ' checked';
-                            } ?>></td>
-                            <td class='col-form-label'><?php echo xlt('Age'); ?>&nbsp;</td>
-                            <td><input type='checkbox' class='form-control' name='form_diagnosis_allergy'<?php
-                            if (!empty($_POST['form_diagnosis_allergy'])) {
-                                echo ' checked';
-                            } ?>></td>
-                            <td class='col-form-label'><?php echo xlt('Allergies'); ?>&nbsp;</td>
-                            <td><input type='checkbox' class='form-control' name='form_diagnosis_medprb'<?php
-                            if (!empty($_POST['form_diagnosis_medprb'])) {
-                                echo ' checked';
-                            } ?>></td>
-                            <td class='col-form-label'><?php echo xlt('Medical Problems'); ?>&nbsp;</td>
-                            <td><input type='checkbox' class='form-control' name='form_drug'<?php
-                            if (!empty($_POST['form_drug'])) {
-                                echo ' checked';
-                            } ?>></td>
-                            <td class='col-form-label'><?php echo xlt('Drug'); ?>&nbsp;</td>
-                            <td><input type='checkbox' class='form-control' name='ndc_no'<?php
-                            if (!empty($_POST['ndc_no'])) {
-                                echo ' checked';
-                            } ?>></td>
-                            <td class='col-form-label'><?php echo xlt('NDC Number'); ?>&nbsp;</td>
-                            <td><input type='checkbox' class='form-control' name='lab_results'<?php
-                            if (!empty($_POST['lab_results'])) {
-                                echo ' checked';
-                            } ?>></td>
-                            <td class='col-form-label'><?php echo xlt('Lab Results'); ?>&nbsp;</td>
-                            <td><input type='checkbox' class='form-control' name='communication_check'<?php
-                            if (!empty($_POST['communication_check'])) {
-                                echo ' checked';
-                            } ?>></td>
-                            <td class='col-form-label'><?php echo xlt('Communication'); ?></td>
+                            <td><div class="form-check form-check-inline">
+                                <input type='checkbox' class='form-check-input' id='form_pt_name' name='form_pt_name'<?php echo !empty($_POST['form_pt_name']) ? ' checked' : ''; ?>/>
+                                <label class='form-check-label' for='form_pt_name'><?php echo xlt('Patient Name'); ?>&nbsp;</label>
+                            </div></td>
+                            <td><div class="form-check form-check-inline">
+                                <input type='checkbox' class='form-check-input' id='form_pt_age' name='form_pt_age'<?php echo !empty($_POST['form_pt_age']) ? ' checked' : ''; ?>/>
+                                <label class='form-check-label' for='form_pt_age'><?php echo xlt('Age'); ?>&nbsp;</label>
+                            </div></td>
+                            <td><div class="form-check form-check-inline">
+                                <input type='checkbox' class='form-check-input' id='form_diagnosis_allergy' name='form_diagnosis_allergy'<?php echo !empty($_POST['form_diagnosis_allergy']) ? ' checked' : ''; ?>/>
+                                <label class='form-check-label' for='form_diagnosis_allergy'><?php echo xlt('Allergies'); ?>&nbsp;</label>
+                            </div></td>
+                            <td><div class="form-check form-check-inline">
+                                <input type='checkbox' class='form-check-input' id='form_diagnosis_medprb' name='form_diagnosis_medprb'<?php echo !empty($_POST['form_diagnosis_medprb']) ? ' checked' : ''; ?>/>
+                                <label class='form-check-label' for='form_diagnosis_medprb'><?php echo xlt('Medical Problems'); ?>&nbsp;</label>
+                            </div></td>
+                            <td><div class="form-check form-check-inline">
+                                <input type='checkbox' class='form-check-input' id='form_drug' name='form_drug'<?php echo !empty($_POST['form_drug']) ? ' checked' : ''; ?>/>
+                                <label class='form-check-label' for='form_drug'><?php echo xlt('Drug'); ?>&nbsp;</label>
+                            </div></td>
+                            <td><div class="form-check form-check-inline">
+                                <input type='checkbox' class='form-check-input' id='ndc_no' name='ndc_no'<?php echo !empty($_POST['ndc_no']) ? ' checked' : ''; ?>/>
+                                <label class='form-check-label' for='ndc_no'><?php echo xlt('NDC Number'); ?>&nbsp;</label>
+                            </div></td>
+                            <td><div class="form-check form-check-inline">
+                                <input type='checkbox' class='form-check-input' id='lab_results' name='lab_results'<?php echo !empty($_POST['lab_results']) ? ' checked' : ''; ?>/>
+                                <label class='form-check-label' for='lab_results'><?php echo xlt('Lab Results'); ?>&nbsp;</label>
+                            </div></td>
+                            <td><div class="form-check form-check-inline">
+                                <input type='checkbox' class='form-check-input' id='communication_check' name='communication_check'<?php echo !empty($_POST['communication_check']) ? ' checked' : ''; ?>/>
+                                <label class='form-check-label' for='communication_check'><?php echo xlt('Communication'); ?>&nbsp;</label>
+                            </div></td>
                         </tr></table></td>
                         <!-- Sort by ends -->
                     </tr>
@@ -660,7 +657,7 @@ if (!empty($_POST['form_refresh'])) {
                     </span>
                 </td>
             </tr>
-            <table width="100%" align="center" id="<?php echo attr($row_id); ?>" class="border1" style="display:none; font-size:13px;" cellpadding=5>
+            <table width="100%" align="center" class="border1" <?php echo 'id="' . attr($row_id) . '" style="' . (empty($_POST['form_start_expanded']) ? 'display: none; ' : '') . 'font-size: 13px;"'; ?> cellpadding=5>
             <?php
             $img_id++;
             $row_id++; ?>
