@@ -170,7 +170,7 @@ $mode = $_REQUEST['mode'] ?? null;
                                 <?php echo xlt("Replace Tags") ?>: <?php echo text("***NAME***, ***PROVIDER***, ***DATE***, ***STARTTIME***, ***ENDTIME***, ***ORG***"); ?>
                             </span>
                             <textarea id="form_message" type="text" rows="3" name="smsmessage" class="form-control"
-                                required="required" value='<?php echo attr($c['smsMessage']) ?>'><?php echo text($c['smsMessage']) ?></textarea>
+                                value='<?php echo attr($c['smsMessage']) ?>'><?php echo text($c['smsMessage']) ?></textarea>
                         </div>
                     <?php } ?>
                     <div>
