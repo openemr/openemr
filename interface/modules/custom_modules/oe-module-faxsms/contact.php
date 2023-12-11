@@ -39,6 +39,7 @@ $default_message = '';
 $interface_pid = null;
 $file_mime = '';
 $recipient_phone = '';
+$file_name = '';
 if (empty($isSMS)) {
 // fax contact form
     $interface_pid = $clientApp->getRequest('pid');
@@ -57,8 +58,6 @@ if (empty($isSMS)) {
     $portal_url = $GLOBALS['portal_onsite_two_address'];
     $details = json_decode($clientApp->getRequest('details', ''), true);
     $recipient_phone = $clientApp->getRequest('recipient', $details['phone'] ?? '');
-// TODO need flag for message origin maybe later
-// $default_message = xlt("The following document") . ": " . text($doc_name) . " " . xlt("is available to be completed at") . " " . text($portal_url);
     $pid = $interface_pid;
 }
 
@@ -82,7 +81,6 @@ if (empty($isSMS)) {
                     setpatient(pid);
                 }
                 $(".smsExclude").addClass("d-none");
-                //$(".show-detail").removeClass("d-none");
             }
             if (isForward) {
                 $(".forwardExclude").addClass("d-none");
