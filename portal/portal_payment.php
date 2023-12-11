@@ -53,8 +53,8 @@ use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 $cryptoGen = new CryptoGen();
 
 $appsql = new ApplicationTable();
-$pid = isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $pid;
-$pid = $_REQUEST['hidden_patient_code'] > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
+$pid = $_REQUEST['pid'] ?? $pid;
+$pid = ($_REQUEST['hidden_patient_code'] ?? null) > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
 $recid = isset($_REQUEST['recid']) ? (int) $_REQUEST['recid'] : 0;
 $adminUser = '';
 $portalPatient = '';
@@ -63,7 +63,7 @@ $query = "SELECT pao.portal_username as recip_id, Concat_Ws(' ', patient_data.fn
     "LEFT JOIN patient_access_onsite pao ON pao.pid = patient_data.pid " .
     "WHERE patient_data.pid = ? AND pao.portal_pwd_status = 1";
 $portalPatient = sqlQueryNoLog($query, $pid);
-if ($_SESSION['authUserID']) {
+if ($_SESSION['authUserID'] ?? '') {
     $query = "SELECT users.username as recip_id, users.authorized as dash, CONCAT(users.fname,' ',users.lname) as username  " .
         "FROM users WHERE id = ?";
     $adminUser = sqlQueryNoLog($query, $_SESSION['authUserID']);
@@ -180,7 +180,7 @@ $patdata = sqlQuery("SELECT " . "p.fname, p.mname, p.lname, p.postal_code, p.pub
 $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Save button was clicked...
-if ($_POST['form_save']) {
+if ($_POST['form_save'] ?? '') {
     $form_pid = $_POST['form_pid'];
     $form_method = trim($_POST['form_method']);
     $form_source = trim($_POST['form_source']);
@@ -389,8 +389,8 @@ if ($_POST['form_save']) {
     }//if ($_POST['form_upay'])
 }//if ($_POST['form_save'])
 
-if ($_POST['form_save'] || $_REQUEST['receipt']) {
-    if ($_REQUEST['receipt']) {
+if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
+    if (($_REQUEST['receipt'] ?? null)) {
         $form_pid = $_GET['patient'];
         $timestamp = decorateString('....-..-.. ..:..:..', $_GET['time']);
     }
@@ -1098,17 +1098,15 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                     );
                 }
 
-                if ($brow['code_type'] === 'COPAY') {
-                // $encs[$key]['payments'] -= $brow['fee'];
-                } else {
+                if ($brow['code_type'] !== 'COPAY') {
                     $encs[$key]['charges'] += $brow['fee'];
                     // Add taxes.
                     $sql_array = array();
                     $query = "SELECT taxrates FROM codes WHERE " . "code_type = ? AND " . "code = ? AND ";
-                    array_push($sql_array, $code_types[$brow['code_type']]['id'], $brow['code']);
-                    if ($brow['modifier']) {
+                    array_push($sql_array, $code_types[$brow['code_type']]['id'] ?? '', $brow['code'] ?? '');
+                    if ($brow['modifier'] ?? '') {
                         $query .= "modifier = ?";
-                        array_push($sql_array, $brow['modifier']);
+                        $sql_array[] = $brow['modifier'] ?? '';
                     } else {
                         $query .= "(modifier IS NULL OR modifier = '')";
                     }
@@ -1239,26 +1237,26 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
         }
         ?>
         <div class="card-body">
-            <span class="font-weight-bold"><?php echo xlt('Card Name'); ?>: </span><span id="cn"><?php echo text($ccdata["cc_type"]) ?></span><br />
-            <span class="font-weight-bold"><?php echo xlt('Name on Card'); ?>: </span><span id="nc"><?php echo text($ccdata["cardHolderName"]) ?></span>
-            <span class="font-weight-bold"><?php echo xlt('Card Holder Zip'); ?>: </span><span id="czip"><?php echo text($ccdata["zip"]) ?></span><br />
+            <span class="font-weight-bold"><?php echo xlt('Card Name'); ?>: </span><span id="cn"><?php echo text($ccdata["cc_type"] ?? '') ?></span><br />
+            <span class="font-weight-bold"><?php echo xlt('Name on Card'); ?>: </span><span id="nc"><?php echo text($ccdata["cardHolderName"] ?? '') ?></span>
+            <span class="font-weight-bold"><?php echo xlt('Card Holder Zip'); ?>: </span><span id="czip"><?php echo text($ccdata["zip"] ?? '') ?></span><br />
             <span class="font-weight-bold"><?php echo xlt('Card Number'); ?>: </span><span id="ccn">
         <?php
         if (isset($_SESSION['authUserID']) || isset($ccdata["transId"])) {
             echo text($ccdata["cardNumber"]) . "</span><br />";
-        } else {
+        } elseif (strlen($ccdata["cardNumber"] ?? '') > 4) {
             echo "**********  " . text(substr($ccdata["cardNumber"], -4)) . "</span><br />";
         }
         ?>
         <?php
         if (!isset($ccdata["transId"])) { ?>
-                <span class="font-weight-bold"><?php echo xlt('Exp Date'); ?>:  </span><span id="ed"><?php echo text($ccdata["month"]) . "/" . text($ccdata["year"]) ?></span>
-                <span class="font-weight-bold"><?php echo xlt('CVV'); ?>:  </span><span id="cvvpin"><?php echo text($ccdata["cardCode"]) ?></span><br />
+                <span class="font-weight-bold"><?php echo xlt('Exp Date'); ?>:  </span><span id="ed"><?php echo text($ccdata["month"] ?? '') . "/" . text($ccdata["year"] ?? '') ?></span>
+                <span class="font-weight-bold"><?php echo xlt('CVV'); ?>:  </span><span id="cvvpin"><?php echo text($ccdata["cardCode"] ?? '') ?></span><br />
         <?php } else { ?>
-                <span class="font-weight-bold"><?php echo xlt('Transaction Id'); ?>:  </span><span id="ed"><?php echo text($ccdata["transId"]) . "/" . text($ccdata["year"]) ?></span>
-                <span class="font-weight-bold"><?php echo xlt('Authorization'); ?>:  </span><span id="cvvpin"><?php echo text($ccdata["authCode"]) ?></span><br />
+                <span class="font-weight-bold"><?php echo xlt('Transaction Id'); ?>:  </span><span id="ed"><?php echo text($ccdata["transId"] ?? '') . "/" . text($ccdata["year"]) ?></span>
+                <span class="font-weight-bold"><?php echo xlt('Authorization'); ?>:  </span><span id="cvvpin"><?php echo text($ccdata["authCode"] ?? '') ?></span><br />
         <?php } ?>
-        <span class="font-weight-bold"><?php echo xlt('Charge Total'); ?>:  </span><span id="ct"><?php echo text($invdata["form_paytotal"]) ?></span><br />
+        <span class="font-weight-bold"><?php echo xlt('Charge Total'); ?>:  </span><span id="ct"><?php echo text($invdata["form_paytotal"] ?? '') ?></span><br />
         </div>
         </div>
         </div>

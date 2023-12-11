@@ -57,4 +57,4 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 }
 
 $ignoreAuth_onsite_portal = true; // ignore the standard authentication for a regular OpenEMR user
-require_once(dirname(__file__) . './../interface/globals.php');
+require_once(__DIR__ . '/../interface/globals.php');
