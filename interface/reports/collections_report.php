@@ -77,6 +77,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         $form_cb_phone    = false;
         $form_cb_city     = false;
         $form_cb_ins1     = false;
+        $form_cb_groupnum = false;
         $form_cb_referrer = false;
         $form_cb_idays    = false;
         $form_cb_err      = false;
@@ -89,6 +90,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         $form_cb_phone    = (!empty($_POST['form_cb_phone']))    ? true : false;
         $form_cb_city     = (!empty($_POST['form_cb_city']))     ? true : false;
         $form_cb_ins1     = (!empty($_POST['form_cb_ins1']))     ? true : false;
+        $form_cb_groupnum = (!empty($_POST['form_cb_groupnum'])) ? true : false;
         $form_cb_referrer = (!empty($_POST['form_cb_referrer'])) ? true : false;
         $form_cb_idays    = (!empty($_POST['form_cb_idays']))    ? true : false;
         $form_cb_err      = (!empty($_POST['form_cb_err']))      ? true : false;
@@ -102,6 +104,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
     $form_cb_phone    = true;
     $form_cb_city     = false;
     $form_cb_ins1     = true;
+    $form_sb_groupnum = true;
     $form_cb_referrer = false;
     $form_cb_idays    = true;
     $form_cb_err      = false;
@@ -148,6 +151,10 @@ if ($form_cb_city) {
 }
 
 if ($form_cb_ins1) {
+    ++$initial_colspan;
+}
+
+if ($form_cb_groupnum) {
     ++$initial_colspan;
 }
 
@@ -306,6 +313,12 @@ function getInsName($payerid)
 {
     $tmp = sqlQuery("SELECT name FROM insurance_companies WHERE id = ? ", array($payerid));
     return $tmp['name'];
+}
+
+function getGrpNumb($pid)
+{
+    $tmp = sqlQuery("SELECT group_number FROM insurance_data WHERE pid = ? AND type = 'primary'", array($pid));
+    return $tmp['group_number']
 }
 
 $ins_co_name = '';
@@ -511,6 +524,10 @@ if (!empty($_POST['form_csvexport'])) {
                         <td>
                            <label><input type='checkbox' name='form_cb_err'<?php echo ($form_cb_err) ? ' checked' : ''; ?>>
                             <?php echo xlt('Errors') ?></label>
+                        </td>
+                        <td>
+                           <label><input type='checkbox' name='form_cb_groupnum'<?php echo ($form_cb_groupnum) ? ' checked' : ''; ?>>
+                            <?php echo xlt('Group Number') ?></label>
                         </td>
                     </tr>
                 </table>
@@ -860,6 +877,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
 
         // Also get the primary insurance company name whenever there is one.
         $row['ins1'] = '';
+        //$row['groupnum'] = '';
         if ($insposition == 1) {
             $row['ins1'] = $insname;
         } else {
@@ -872,7 +890,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
 
             if (!empty($payerids)) {
                 $row['ins1'] = getInsName($payerids[0]);
+                //$row['groupnum'] = getGrpNumber($patient_id);
             }
+            
         }
 
         // This computes the invoice's total original charges and adjustments,
@@ -1044,6 +1064,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         <?php if ($form_cb_ins1 || $form_payer_id) { ?>
     <th>&nbsp;<?php echo xlt('Primary Ins')?></th>
     <?php } ?>
+        <?php if ($form_cb_groupnum) { ?>
+    <th>&nbsp;<?php echo xlt('Group Number')?></th>
+    <?php } ?>
         <?php if ($form_provider) { ?>
     <th>&nbsp;<?php echo xlt('Provider')?></th>
     <?php } ?>
@@ -1192,6 +1215,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
                 if ($form_cb_ins1 || $form_payer_id) {
                     echo "  <td class='detail'>&nbsp;" . text($row['ins1']) . "</td>\n";
                 }
+
+                //if ($form_cb_groupnum) {
+                  //  echo " <td class='detail'>&nbsp;" . text($row['groupnum']) . "</td>\n";
+                //}
 
                 if ($form_provider) {
                     echo "  <td class='detail'>&nbsp;" . text($provider_name) . "</td>\n";
