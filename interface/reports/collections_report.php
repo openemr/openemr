@@ -318,7 +318,7 @@ function getInsName($payerid)
 function getGrpNumb($pid)
 {
     $tmp = sqlQuery("SELECT group_number FROM insurance_data WHERE pid = ? AND type = 'primary'", array($pid));
-    return $tmp['group_number']
+    return $tmp['group_number'];
 }
 
 $ins_co_name = '';
@@ -877,9 +877,10 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
 
         // Also get the primary insurance company name whenever there is one.
         $row['ins1'] = '';
-        //$row['groupnum'] = '';
+        $row['groupnum'] = '';
         if ($insposition == 1) {
             $row['ins1'] = $insname;
+            $row['groupnum'] = getGrpNumb($patient_id);
         } else {
             if (empty($payerids)) {
                 $tmp = SLEOB::arGetPayerID($patient_id, $svcdate, 1);
@@ -890,7 +891,6 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
 
             if (!empty($payerids)) {
                 $row['ins1'] = getInsName($payerids[0]);
-                //$row['groupnum'] = getGrpNumber($patient_id);
             }
             
         }
@@ -1216,9 +1216,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
                     echo "  <td class='detail'>&nbsp;" . text($row['ins1']) . "</td>\n";
                 }
 
-                //if ($form_cb_groupnum) {
-                  //  echo " <td class='detail'>&nbsp;" . text($row['groupnum']) . "</td>\n";
-                //}
+                if ($form_cb_groupnum) {
+                    echo " <td class='detail'>&nbsp;" . text($row['groupnum']) . "</td>\n";
+                }
 
                 if ($form_provider) {
                     echo "  <td class='detail'>&nbsp;" . text($provider_name) . "</td>\n";
