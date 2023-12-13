@@ -1057,7 +1057,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         <?php if ($form_cb_policy) { ?>
     <th>&nbsp;<?php echo xlt('Policy')?></th>
     <?php } ?>
-    <?php if ($form_cb_group_number) { ?>
+        <?php if ($form_cb_group_number) { ?>
     <th>&nbsp;<?php echo xlt('Group Number')?></th>
     <?php } ?>
         <?php if ($form_cb_phone) { ?>
