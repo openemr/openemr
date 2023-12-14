@@ -42,10 +42,10 @@ class EtherFaxActions extends AppDispatch
         $this->credentials = $this->getCredentials();
         $this->client = new EtherFaxClient();
         $this->client->setCredentials(
-            $this->credentials['account'],
-            $this->credentials['username'],
-            $this->credentials['password'],
-            $this->credentials['appKey']
+            $this->credentials['account'] ?? '',
+            $this->credentials['username'] ?? '',
+            $this->credentials['password'] ?? '',
+            $this->credentials['appKey'] ?? ''
         );
         $this->portalUrl = "https://clients.connect.etherfax.net/Account/Login";
         parent::__construct();
@@ -58,9 +58,9 @@ class EtherFaxActions extends AppDispatch
     {
         $credentials = appDispatch::getSetup();
 
-        $this->sid = $credentials['username'];
-        $this->appKey = $credentials['appKey'];
-        $this->appSecret = $credentials['appSecret'];
+        $this->sid = $credentials['username'] ?? '';
+        $this->appKey = $credentials['appKey'] ?? '';
+        $this->appSecret = $credentials['appSecret'] ?? '';
         $this->serverUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ?
                 "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
         $this->uriDir = $this->serverUrl . $this->uriDir;
