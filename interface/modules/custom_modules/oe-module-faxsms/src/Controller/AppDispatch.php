@@ -464,7 +464,11 @@ abstract class AppDispatch
             $credentials = $credentials['credentials'];
         }
 
-        return json_decode($this->crypto->decryptStandard($credentials), true);
+        $decode = json_decode($this->crypto->decryptStandard($credentials), true);
+        if (empty($decode['smsMessage'])) {
+            $decode['smsMessage'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
+        }
+        return $decode;
     }
 
     /**

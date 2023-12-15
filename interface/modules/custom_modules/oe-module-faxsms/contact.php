@@ -24,16 +24,22 @@ if (!$clientApp->verifyAcl()) {
     die("<h3>" . xlt("Not Authorised!") . "</h3>");
 }
 $logged_in = $clientApp->authenticate();
-$isEmail = $clientApp->getRequest('isEmail', 0);
-$isSMS = $clientApp->getRequest('isSMS', 0);
+$isSMS = $clientApp->getRequest('isSMS', false);
+$isEmail = $clientApp->getRequest('isEmail', false);
 $isForward = $isFax = 0;
 $isForward = ($clientApp->getRequest('mode', '') == 'forward') ? 1 : 0;
 $isFax = ($serviceType == 'fax') ? 1 : 0;
+
 $isSMTP = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
+
+$isOnetime = $clientApp->getRequest('isOnetime', false);
+$service = $clientApp::getServiceType();
+
 $default_message = '';
 $interface_pid = null;
 $file_mime = '';
 $recipient_phone = '';
+$file_name = '';
 if (empty($isSMS)) {
 // fax contact form
     $interface_pid = $clientApp->getRequest('pid');
@@ -52,14 +58,8 @@ if (empty($isSMS)) {
     $portal_url = $GLOBALS['portal_onsite_two_address'];
     $details = json_decode($clientApp->getRequest('details', ''), true);
     $recipient_phone = $clientApp->getRequest('recipient', $details['phone'] ?? '');
-// TODO need flag for message origin maybe later
-// $default_message = xlt("The following document") . ": " . text($doc_name) . " " . xlt("is available to be completed at") . " " . text($portal_url);
     $pid = $interface_pid;
 }
-$isOnetime = $clientApp->getRequest('isOnetime', false);
-$isEmail = $clientApp->getRequest('isEmail', false);
-
-$service = $clientApp::getServiceType();
 
 ?>
 <!DOCTYPE html>
@@ -81,8 +81,6 @@ $service = $clientApp::getServiceType();
                     setpatient(pid);
                 }
                 $(".smsExclude").addClass("d-none");
-            } else {
-                //$(".faxExclude").addClass("d-none");
             }
             if (isForward) {
                 $(".forwardExclude").addClass("d-none");
@@ -228,15 +226,15 @@ $service = $clientApp::getServiceType();
     <div class="container-fluid">
         <form class="form" id="contact-form" method="post" action="contact.php" role="form">
             <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('contact-form')); ?>" />
-            <input type="hidden" id="form_file" name="file" value='<?php echo attr($the_file); ?>'>
-            <input type="hidden" id="form_docid" name="docid" value='<?php echo attr($the_docid); ?>'>
-            <input type="hidden" id="form_isContent" name="isContent" value='<?php echo attr($isContent); ?>'>
-            <input type="hidden" id="form_isDocuments" name="isDocuments" value='<?php echo attr($isDoc); ?>'>
-            <input type="hidden" id="form_isQueue" name="isQueue" value='<?php echo attr($isQueue); ?>'>
-            <input type="hidden" id="form_isSMS" name="isSMS" value='<?php echo attr($isSMS); ?>'>
-            <input type="hidden" id="form_mime" name="mime" value='<?php echo attr($file_mime); ?>'>
-            <input type="hidden" id="form_file" name="templateName" value='<?php echo attr($template_name); ?>'>
-            <input type="hidden" id="form_details" name="details" value='<?php echo attr_js($details); ?>'>
+            <input type="hidden" id="form_file" name="file" value='<?php echo attr($the_file ?? ''); ?>'>
+            <input type="hidden" id="form_docid" name="docid" value='<?php echo attr($the_docid ?? ''); ?>'>
+            <input type="hidden" id="form_isContent" name="isContent" value='<?php echo attr($isContent ?? ''); ?>'>
+            <input type="hidden" id="form_isDocuments" name="isDocuments" value='<?php echo attr($isDoc ?? ''); ?>'>
+            <input type="hidden" id="form_isQueue" name="isQueue" value='<?php echo attr($isQueue ?? ''); ?>'>
+            <input type="hidden" id="form_isSMS" name="isSMS" value='<?php echo attr($isSMS ?? ''); ?>'>
+            <input type="hidden" id="form_mime" name="mime" value='<?php echo attr($file_mime ?? ''); ?>'>
+            <input type="hidden" id="form_file" name="templateName" value='<?php echo attr($template_name ?? ''); ?>'>
+            <input type="hidden" id="form_details" name="details" value='<?php echo attr_js($details ?? ''); ?>'>
             <div class="messages"></div>
             <div class="row">
                 <div class="col-md-12">
@@ -246,7 +244,7 @@ $service = $clientApp::getServiceType();
                             placeholder="<?php echo xla('If Applicable for charting.') ?>"
                             value="<?php echo attr($interface_pid ?? 0) ?>" />
                     </div>
-                    <div class="form-group show-detail smsExclude faxExclude">
+                    <div class="form-group show-detail">
                         <label for="form_name"><?php echo xlt('Name') ?></label>
                         <input id="form_name" type="text" name="name" class="form-control"
                             placeholder="<?php echo xla('Not Required') ?>"
@@ -277,11 +275,11 @@ $service = $clientApp::getServiceType();
                                 value="" <?php echo(!$isForward ? 'required' : ''); ?> />
                         </div>
                         <?php if ($service == "1" || !empty($isSMS) || $isForward || $isEmail) { ?>
-                            <div class="form-group">
-                                <label for="form_message"><?php echo xlt('Message') ?></label>
-                                <textarea id="form_message" name="comments" class="form-control" placeholder="
+                        <div class="form-group">
+                            <label for="form_message"><?php echo xlt('Message') ?></label>
+                            <textarea id="form_message" name="comments" class="form-control" placeholder="
                             <?php echo xla('Add a note to recipient.'); ?>" rows="6"><?php echo $default_message; ?></textarea>
-                            </div>
+                        </div>
                         <?php } ?>
                         <div>
                             <span class="text-center forwardExclude smsExclude"><strong><?php echo xlt('Sending File') . ': ' ?></strong><?php echo text($file_name) ?></span>
