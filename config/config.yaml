@@ -244,3 +244,6 @@ assets:
     u2f_api:
         basePath: '%webroot%/library/js/'
         script: u2f-api.js
+    select2-translated:
+        basePath: '%webroot%/library/js/'
+        script: select2-translated.js

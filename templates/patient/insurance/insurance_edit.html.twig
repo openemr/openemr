@@ -1,0 +1,658 @@
+<html>
+<head>
+    <title>{% block title %}{{ "Insurance Edit"|xlt }}{% endblock %}</title>
+    {{ setupHeader(['datetime-picker','common','select2', 'erx', 'select2-translated']) }}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    {% block scripts %}
+    {% endblock %}
+</head>
+<body class="body_top">
+{% block preContent %}{% endblock %}
+{% block content %}
+    {# generateFormField({'data_type': state_data_type, 'field_id': 'subscriber_employer_state'
+                        , 'list_id': state_list, 'fld_length': '15', max_length: '63', smallform: 'true'} #}
+{% set dataTypeSelectList = 1 %}
+{% set dataTypeText = 2 %}
+
+{# Note that date fields are handled in javascript because we are building a template instead of handling it all via php  #}
+{# Note that empty_title: 'SKIP' is a hack in the function to skip a title... terrible but is the existing code unfortunately in generate_form_field. #}
+{% set fields = {
+    left: [{
+        name: "Plan Name"|xl
+        ,required: true
+        ,data_type: dataTypeText
+        ,field_id: "plan_name"
+        ,fld_length: 20
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1"
+    }
+    ,{
+        name: "Effective Date"|xl
+        ,required: true
+        ,data_type: dataTypeText
+        ,field_id: "date"
+        ,fld_length: 16
+        ,max_length: 60
+        ,smallform: 'true'
+        ,classNames: "datepicker mb-1"
+    },{
+        name: "Effective Date End"|xl
+        ,required: true
+        ,data_type: dataTypeText
+        ,field_id: "date_end"
+        ,fld_length: 16
+        ,max_length: 60
+        ,smallform: 'true'
+        ,classNames: "datepicker mb-1"
+    }, {
+        name: "Policy Number"|xl
+        ,required: true
+        ,data_type: dataTypeText
+        ,field_id: "policy_number"
+        ,fld_length: 16
+        ,max_length: 60
+        ,smallform: 'true'
+        ,classNames: "js-policykeyup mb-1"
+    }, {
+        name: "Group Number"|xl
+        ,required: true
+        ,data_type: dataTypeText
+        ,field_id: "group_number"
+        ,fld_length: 16
+        ,max_length: 60
+        ,smallform: 'true'
+        ,classNames: "js-policykeyup mb-1"
+    },{
+        name: "Subscriber Employer (SE)"|xl
+        ,required: true
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_employer"
+        ,fld_length: 25
+        ,max_length: 60
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1"
+        ,skip: include_employers
+        ,description: 'if unemployed enter Student'|xl ~','~'PT Student, or leave blank'|xl
+    },{
+        name: "SE Address"|xl
+        ,required: true
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_employer_street"
+        ,fld_length: 25
+        ,max_length: 60
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1"
+        ,skip: include_employers
+    },{
+        name: "SE Address Line 2"|xl
+        ,required: true
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_employer_street_line_2"
+        ,fld_length: 25
+        ,max_length: 60
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1"
+        ,skip: include_employers
+    },{
+        name: "SE City"|xl
+        ,required: true
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_employer_city"
+        ,fld_length: 15
+        ,max_length: 60
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1"
+        ,skip: include_employers
+    },{
+        name: "SE State"|xl
+        ,required: true
+        ,data_type: state_data_type
+        ,field_id: "subscriber_employer_state"
+        ,fld_length: 15
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1"
+        ,list_id: state_list
+        ,skip: include_employers and useStateTerminology
+    }, {
+        name: "SE Locality"|xl
+        ,required: true
+        ,data_type: state_data_type
+        ,field_id: "subscriber_employer_state"
+        ,fld_length: 15
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1"
+        ,list_id: state_list
+        ,skip: include_employers and not useStateTerminology
+    }, {
+        name: "SE Zip Code"|xl
+        ,required: true
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_employer_postal_code"
+        ,fld_length: 15
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1"
+        ,skip: include_employers and useStateTerminology
+    }, {
+        name: "SE Postal Code"|xl
+        ,required: true
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_employer_postal_code"
+        ,fld_length: 15
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1"
+        ,skip: include_employers and not useStateTerminology
+    }, {
+        name: "SE Country"|xl
+        ,required: true
+        ,data_type: country_data_type
+        ,field_id: "subscriber_employer_country"
+        ,fld_length: 10
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1"
+        ,list_id: country_list
+        ,skip: include_employers
+    }]
+    ,right: [{
+        name: "Subscriber"|xl
+        ,required: true
+        ,compound: [{
+            data_type: dataTypeText
+            ,field_id: "subscriber_fname"
+            ,fld_length: 10
+            ,max_length: 60
+            ,smallform: 'true'
+            ,classNames: "js-capitalize-me mb-1"
+        }, {
+            data_type: dataTypeText
+            ,field_id: "subscriber_mname"
+            ,fld_length: 10
+            ,max_length: 60
+            ,smallform: 'true'
+            ,classNames: "js-capitalize-me mb-1"
+        }, {
+            data_type: dataTypeText
+            ,field_id: "subscriber_lname"
+            ,fld_length: 10
+            ,max_length: 60
+            ,smallform: 'true'
+            ,classNames: "js-capitalize-me mb-1"
+        }]
+    }, {
+        name: "D.O.B."|xl
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_DOB"
+        ,fld_length: 11
+        ,max_length: 60
+        ,smallform: 'true'
+        ,classNames: "datepicker mb-1"
+    }, {
+        name: "Sex"|xl
+        ,data_type: dataTypeSelectList
+        ,field_id: "subscriber_sex"
+        ,list_id: 'sex'
+        ,smallform: 'true'
+        ,classNames: "mb-1"
+    }, {
+        name: "S.S."|xl
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_ss"
+        ,fld_length: 11
+        ,smallform: 'true'
+        ,classNames: "mb-1"
+    }, {
+        name: "Subscriber Address"|xl
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_street"
+        ,fld_length: 20
+        ,smallform: 'true'
+        ,classNames: "mb-1 js-capitalize-me"
+        ,required: true
+    }, {
+        name: "Address Line 2"|xl
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_street_line_2"
+        ,fld_length: 20
+        ,smallform: 'true'
+        ,classNames: "mb-1 js-capitalize-me"
+        ,required: true
+    },{
+        name: "City"|xl
+        ,required: true
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_city"
+        ,fld_length: 15
+        ,max_length: 60
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1"
+    },{
+        name: "State"|xl
+        ,required: true
+        ,data_type: state_data_type
+        ,field_id: "subscriber_state"
+        ,fld_length: 15
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1"
+        ,list_id: state_list
+        ,skip: useStateTerminology
+    }, {
+        name: "Locality"|xl
+        ,required: true
+        ,data_type: state_data_type
+        ,field_id: "subscriber_state"
+        ,fld_length: 15
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1"
+        ,list_id: state_list
+        ,skip: not useStateTerminology
+    }, {
+        name: "Zip Code"|xl
+        ,required: true
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_postal_code"
+        ,fld_length: 15
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1"
+        ,skip: useStateTerminology
+    }, {
+        name: "Postal Code"|xl
+        ,required: true
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_postal_code"
+        ,fld_length: 15
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1"
+        ,skip: not useStateTerminology
+    }, {
+        name: "Country"|xl
+        ,required: true
+        ,data_type: country_data_type
+        ,field_id: "subscriber_country"
+        ,fld_length: 10
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1"
+        ,list_id: country_list
+    }, {
+        name: "Subsciber Phone"|xl
+        ,required: false
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_phone"
+        ,fld_length: 20
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "mb-1"
+    }, {
+        name: "CoPay"|xl
+        ,required: false
+        ,data_type: dataTypeText
+        ,field_id: "copay"
+        ,fld_length: 6
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "mb-1"
+    }, {
+        name: "Accept Assignment"|xl
+        ,required: true
+        ,data_type: dataTypeSelectList
+        ,field_id: "accept_assignment"
+        ,list_id: 'yesno'
+        ,smallform: 'true'
+        ,classNames: "mb-1"
+        ,empty_title: 'SKIP'
+    }]
+}
+%}
+    <div class="container-xl">
+        {# TODO: @adunsulag note that the form with id DEM here has a number of hard-coded styles which is where the insurance form gets its layout from. look at changing this. #}
+        <form id="DEM">
+    <template id="insurance-edit-template">
+        <div class="col-md-6"><!-- start left column -->
+
+            <div class="form-row"><!-- start nested row -->
+                <div class="col-md-3 label_custom pb-3">
+                    <span class='required'>{{ "Provider"|xlt }}</span>
+                </div>
+                <div class="col-md-9">
+                    {# TODO: @adunsulag fix hard coded width here #}
+                    <select name="provider" class="form-control form-control-sm sel2 mb-1" style="width: 250px;">
+                        <option value="">{{ 'Unassigned'|xlt }}</option>
+                    </select>
+                    <a class="medium_modal btn btn-primary" href="../../practice/ins_search.php?ins=" role="button">{{ 'Search/Add/Edit'|xlt  }}</a>
+                </div>
+            </div>
+            {% for fieldRow in fields.left %}
+                {% if fieldRow.skip is not defined or fieldRow.skip %}
+                    <div class="form-row"><!-- start nested row -->
+                        <div class="col-md-3 pb-1 label_custom">
+                            <span class='{%if fieldRow.required is defined and fieldRow.required %}required{% endif %}'>{{ fieldRow.name|text }}</span>
+                        </div>
+                        <div class="col-md-9">
+                            {{ generateFormField(fieldRow, '') }}
+                            {% if fieldRow.description %}
+                                <span class='small mb-1'><br />{{ fieldRow.description|text }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div><!-- end left column -->
+        <div class="col-md-6"><!-- start right column -->
+
+            <div class="form-row"><!-- start nested row -->
+                <div class="col-md-3 pb-1 label_custom">
+                    <span class='required'>{{ 'Relationship'|xlt }}:</span>
+                </div>
+                <div class="col-md-9">
+                    {{ generateFormField({data_type: 1, field_id: 'subscriber_relationship', 'list_id': 'sub_relation'
+                        , 'empty_title': ' ', classNames: 'mb-1', smallform: 'true'}, '') }}
+                </div>
+                {# TODO: @adunsulag browsenum needs to be looked at with what this field means #}
+                <a href="javascript:popUp('browse.php?browsenum=1')" class='text'>({{ "Browse"|xlt }})</a>
+            </div>
+            {% for fieldRow in fields.right %}
+                {% if fieldRow.skip is not defined or fieldRow.skip %}
+                    <div class="form-row"><!-- start nested row -->
+                        <div class="col-md-3 pb-1 label_custom">
+                            <span class='{%if fieldRow.required is defined and fieldRow.required %}required{% endif %}'>{{ fieldRow.name|text }}</span>
+                        </div>
+                        <div class="col-md-9">
+                            {% if fieldRow.compound is defined %}
+                                {% for compoundField in fieldRow.compound %}
+                                    {{ generateFormField(compoundField, '') }}
+                                {% endfor %}
+                            {% else %}
+                                {{ generateFormField(fieldRow, '') }}
+                            {% endif %}
+                            {% if fieldRow.description %}
+                                <span class='small mb-1'><br />{{ fieldRow.description|text }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+            {# We don't use generate_form_field because there currently isn't a way to generate a select drop down with an already existing static array #}
+            <div class="form-row">
+                <div class="col-md-3 pb-1 label_custom">
+                    <span>{{ 'Secondary Medicare Type'|xlt }}:</span>
+                </div>
+                <div class="col-md-9">
+                    <select class='form-control form-control-sm mb-1 sel2' name='policy_type'>
+                        {% for key,value in policy_types %}
+                                    <option value ={{ key|attr }}>{{ value|text }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div><!-- end right column -->
+    </template>
+
+    <div class="section-header">
+        <span class="text font-weight-bold">{{ "Insurance"|xlt }}</span>
+    </div>
+    <div id="INSURANCE" class="insuranceEditContainer">
+        <ul class="tabNav">
+            {% for instype in insuranceTypes %}
+                <li class="{% if instype == activeType %}current{% endif %}"><a href="#">{{ instype|text|capitalize }}</a></li>
+            {% endfor %}
+        </ul>
+
+        <div class="tabContainer">
+            {% for instype in insuranceTypes %}
+                {# Need a drop down select with each grouped insurance (by type) #}
+                <div class="tab {% if instype == activeType %}current{% endif %} h-auto w-auto">
+                    <div class="form-row mb-2"><!-- start nested row -->
+                        <div class="col-md-6">
+                            <div class="form-row">
+                                <div class="col-md-3 label_custom pb-3">
+                                    <span class='required'>{{ "Selected Policy"|xlt }}</span>
+                                </div>
+                                <div class="col-md-9">
+                                    <select id="insurance-type-{{ instype|attr }}" class="form-control form-control-sm sel2 mb-1" data-type="{{ instype|attr }}" class="d-none">
+                                    </select>
+                                    <input type="button" value="{{ 'New Policy'|xla }}" class="btn btn-sm btn-secondary" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row" id="insurance-info-type-{{ instype|attr }}">
+                        <div class="alert alert-info">
+                            <h3>{{ "Loading insurance information."|xlt }} <i class="wait fa fa-cog fa-spin ml-2"></i></h3>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <script>
+        // need to hit the server endpoint to grab the patient insurances for the given pid
+        // then I need to popualate the twig template with the data
+        (function() {
+            var csrfToken = {{ csrfTokenRaw('api')|json_encode() }};
+            var url = {{ webroot|json_encode() }} + '/apis/' + {{ session.site_id|json_encode() }} + '/api/patient/' + {{ puuid|json_encode() }} + '/insurance';
+            var types = {{ insuranceTypes|json_encode() }};
+            var insurancesByType = {};
+            var selectedInsurance = null;
+            var insuranceProviderList = {{ insuranceProviderList|json_encode() }};
+            function apiRequest(url) {
+                let headers = {
+                    'apicsrftoken': csrfToken
+                };
+                return window.fetch(url,
+                    {
+                        method: 'GET'
+                        ,redirect: 'manual'
+                        ,headers: headers
+                    })
+                    .then(result => result.json());
+
+            }
+            function populateSelectDropdowns() {
+                types.forEach(type => {
+                    let select = document.getElementById('insurance-type-' + type);
+                    if (select) {
+                        let insurances = insurancesByType[type];
+                        insurances.forEach(insurance => {
+                            let option = document.createElement('option');
+                            option.value = insurance.id;
+                            option.innerText = insurance.plan_name + " - " + window.top.xl("Effective Date") + ": " + insurance.date;
+                            if (insurance.hasOwnProperty('end_date') && insurance.end_date !== null) {
+                                option.innerText += " - " + window.top.xl("End Date") + ": " + insurance.end_date;
+                            }
+                            select.appendChild(option);
+                        });
+                        select.addEventListener("change", function() {
+                            let selectedId = this.value;
+                            let type = this.dataset.type;
+                            let selectedInsurance = insurancesByType[type].find(insurance => insurance.id == selectedId);
+                            populateInsuranceInformationForSelectedInsurance(selectedInsurance);
+                        });
+                        select.classList.remove("d-none");
+                    }
+                });
+            }
+
+            function populateInsuranceInformationForSelectedInsurance(selectedInsurance) {
+                console.log(selectedInsurance);
+                if (selectedInsurance) {
+                    let type = selectedInsurance.type;
+                    let insuranceInfoContainer = document.getElementById('insurance-info-type-' + type);
+                    if (insuranceInfoContainer) {
+                        insuranceInfoContainer.innerHTML = '';
+                        let template = document.getElementById('insurance-edit-template');
+                        if (template) {
+                            let clone = document.importNode(template.content, true);
+                            insuranceInfoContainer.appendChild(clone); // note clone nodes are now empty at this point
+                            populateInsuranceProviderListForNode(insuranceInfoContainer, insuranceProviderList);
+
+                            let keys = Object.keys(selectedInsurance);
+                            keys.forEach(key => {
+                                let value = selectedInsurance[key];
+                                let updatedValue = convertValueForInsuranceKey(key, value);
+                                let input = insuranceInfoContainer.querySelector('[name="form_' + key + '"]');
+                                if (!input) {
+                                    console.info("Failed to find insurance info input for key: " + key);
+                                    return;
+                                }
+                                // clear out the id field as we don't use it
+                                input.removeAttribute('id');
+                                if (input.nodeName != "SELECT") {
+                                    input.value = updatedValue;
+                                } else {
+                                    let option = input.querySelector('[value="' + updatedValue + '"]');
+                                    if (option) {
+                                        option.selected = true;
+                                    } else {
+                                        console.error("Failed to find select option value for key: " + key + " value: " + value);
+                                    }
+                                }
+                            });
+
+                            let insuranceInfoType = insuranceInfoContainer.querySelector('.insurance-info-type');
+                            if (insuranceInfoType) {
+                                // note use of innerText here to prevent XSS, DO NOT USE innerHTML
+                                insuranceInfoType.innerText = type;
+                            }
+
+                            // setup the event listeners for the capitalize me fields
+                            insuranceInfoContainer.querySelectorAll('.js-capitalize-me').forEach(input => {
+                                input.addEventListener('change', capitalizeMe);
+                            });
+
+                            // setup the event listeners for the policykeyup fields
+                            if (typeof window.policykeyup == 'function') {
+                                // comes from common.js
+                                insuranceInfoContainer.querySelectorAll('.js-policykeyup').forEach(input => {
+                                    // need to bind up the input to the function argument due to the way the function is written
+                                    input.addEventListener('keyup', function() {
+                                        window.policykeyup(this); // this is the input element
+                                    });
+                                });
+                            }
+
+                            // setup the event listeners for the date picker fields
+
+                            // setup the bootstrap select fields
+                            select2Translated("#" + insuranceInfoContainer.id + " .sel2");
+                        }
+                    }
+                }
+            }
+
+            function convertValueForInsuranceKey(key, value) {
+                if (key == 'accept_assignment') {
+                    if (value == 'FALSE') {
+                        value = 'NO';
+                    } else {
+                        // default should go to yes
+                        value = 'YES';
+                    }
+                }
+                return value;
+            }
+
+            // This capitalizes the first letter of each word in the passed input
+            // element.  It also strips out extraneous spaces.
+            function capitalizeMe(event) {
+                let elem = event.target;
+                if (!elem) {
+                    console.error("Failed to find element for capitalizeMe");
+                    return;
+                }
+                var a = elem.value.split(' ');
+                var s = '';
+                for(var i = 0; i < a.length; ++i) {
+                    if (a[i].length > 0) {
+                        if (s.length > 0) s += ' ';
+                        s += a[i].charAt(0).toUpperCase() + a[i].substring(1);
+                    }
+                }
+                elem.value = s;
+            }
+
+            function populateInsuranceProviderListForNode(node, insuranceProviderList) {
+                let select = node.querySelector('[name="provider"]');
+                if (select) {
+                    let ids = Object.keys(insuranceProviderList);
+                    // need to sort the names but retain the ids
+                    ids.sort((a, b) => {
+                        let nameA = insuranceProviderList[a];
+                        let nameB = insuranceProviderList[b];
+                        return nameA < nameB ? -1 : 1;
+                    });
+                    ids.forEach(providerId => {
+                        let option = document.createElement('option');
+                        option.value = providerId;
+                        // name of the insurance provider is in the list
+                        option.innerText = insuranceProviderList[providerId];
+                        select.appendChild(option);
+                    });
+                }
+            }
+
+            function init() {
+                let headers = {
+                    'apicsrftoken': this.__apiCSRFToken
+                };
+
+                apiRequest(url)
+                    .then(resultData => {
+                        let selectedInsurance = null;
+                        if (resultData.data) {
+                            // need to sort through the data and populate the three categories
+                            resultData.data.forEach(insurance => {
+                                // TODO: @adunsulag do we want to create a model object for this?
+                                // would allow us to maintain some consistency over the code... but reduces flexibility
+                                selectedInsurance = insurance;
+                                if (insurancesByType[insurance.type]) {
+                                    insurancesByType[insurance.type].push(insurance);
+                                } else {
+                                    insurancesByType[insurance.type] = [insurance];
+                                }
+                            });
+                            types.forEach(t => {
+                                if (!insurancesByType[t]) {
+                                    insurancesByType[t] = [];
+                                }
+                                insurancesByType[t].sort((a, b) => {
+                                    // end date is the most current one
+                                    if (!a.hasOwnProperty('end_date') || a === null) {
+                                        return -1;
+                                    }
+                                    return a.date < b.date ? 1 : -1;
+                                });
+                            })
+
+                            if (insurancesByType[types[0]].length > 0) {
+                                selectedInsurance = insurancesByType[types[0]][0];
+                            }
+
+                            populateSelectDropdowns();
+                            if (selectedInsurance) {
+                                populateInsuranceInformationForSelectedInsurance(selectedInsurance);
+                            } else {
+                                // TODO: @adunsulag need to figure out what happens if we have no insurance for the patient...
+                            }
+                            // do a default for now
+                        }
+
+                    })
+            }
+            window.addEventListener("DOMContentLoaded", init);
+        })(window);
+    </script>
+{% endblock %}
+{% block postContent %}{% endblock %}
+        </form>
+    </div>
+</body>
+</html>

@@ -12,8 +12,8 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\Services\InsuranceService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\InsuranceService;
 
 class InsuranceRestController
 {
@@ -26,14 +26,19 @@ class InsuranceRestController
 
     public function getAll($pid)
     {
-        $serviceResult = $this->insuranceService->getAll($pid);
-        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+        $serviceResult = $this->insuranceService->getAll(['pid' => $pid]);
+        return RestControllerHelper::handleProcessingResult($serviceResult, null, 200);
     }
 
     public function getOne($pid, $type)
     {
-        $serviceResult = $this->insuranceService->getOneByPid($pid, $type);
-        return RestControllerHelper::responseHandler($serviceResult, null, 200);
+
+        $processingResult = $this->insuranceService->getOneByPid($pid, $type);
+        if (!$processingResult->hasErrors() && count($processingResult->getData()) == 0) {
+            return RestControllerHelper::handleProcessingResult($processingResult, 404);
+        }
+
+        return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 
     public function put($pid, $type, $data)

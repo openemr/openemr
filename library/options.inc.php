@@ -569,6 +569,14 @@ function generate_form_field($frow, $currvalue)
         $smallform = ' form-control-sm';
     }
 
+    // historically we've used smallform to append classes if the value is NOT true
+    // to make it EXPLICIT what we are doing and to aid maintainability we are supporting
+    // an actual 'classNames' attribute for assigning arbitrary CSS classes to data entry fields
+    $classesToAppend = $frow['classNames'] ?? '';
+    if (!empty($classesToAppend)) {
+        $smallform = isset($smallform) ? $smallform . ' ' . $classesToAppend : $classesToAppend;
+    }
+
     // escaped variables to use in html
     $field_id_esc = htmlspecialchars($field_id, ENT_QUOTES);
     $list_id_esc = htmlspecialchars(($list_id ?? ''), ENT_QUOTES);
