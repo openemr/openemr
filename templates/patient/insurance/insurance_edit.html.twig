@@ -313,8 +313,58 @@
 }
 %}
     <div class="container-xl">
+        <div class="row">
+            <div class="col-12">
+                <h2>{{ "Edit Current Insurance"|xlt }}</h2>
+            </div>
+            <div class="col-12">
+                <div class="btn-group">
+                    <input type="button" class="btn btn-primary" value="{{ 'Save'|xlt }}" />
+                    <input type="button" class="btn btn-secondary" value="{{ 'Cancel'|xlt }}" />
+                </div>
+                <hr />
+            </div>
+        </div>
         {# TODO: @adunsulag note that the form with id DEM here has a number of hard-coded styles which is where the insurance form gets its layout from. look at changing this. #}
         <form id="DEM">
+    <div class="section-header">
+        <span class="text font-weight-bold">{{ "Insurance"|xlt }}</span>
+    </div>
+    <div id="INSURANCE" class="insuranceEditContainer">
+        <ul class="tabNav">
+            {% for instype in insuranceTypes %}
+                <li class="{% if instype == activeType %}current{% endif %} nav-link-insurance-type-container"><a href="#" class="nav-link-insurance-type" data-type="{{ instype|attr }}">{{ instype|text|capitalize }}</a></li>
+            {% endfor %}
+        </ul>
+
+        <div class="tabContainer">
+            {% for instype in insuranceTypes %}
+                {# Need a drop down select with each grouped insurance (by type) #}
+                <div data-type="{{ instype|attr }}" class="tab {% if instype == activeType %}current{% endif %} h-auto w-auto">
+                    <div class="form-row mb-2"><!-- start nested row -->
+                        <div class="col-md-6">
+                            <div class="form-row">
+                                <div class="col-md-3 label_custom pb-3">
+                                    <span class='required'>{{ "Selected Policy"|xlt }}</span>
+                                </div>
+                                <div class="col-md-9">
+                                    <select id="insurance-type-{{ instype|attr }}" class="form-control form-control-sm sel2 mb-1" data-type="{{ instype|attr }}" class="d-none">
+                                    </select>
+                                    <input type="button" value="{{ 'New Policy'|xla }}" class="btn btn-sm btn-secondary" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row" id="insurance-info-type-{{ instype|attr }}">
+                        <div class="alert alert-info">
+                            <h3>{{ "Loading insurance information."|xlt }} <i class="wait fa fa-cog fa-spin ml-2"></i></h3>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {# Insurance Edit Template #}
     <template id="insurance-edit-template">
         <div class="col-md-6"><!-- start left column -->
 
@@ -388,51 +438,13 @@
                 <div class="col-md-9">
                     <select class='form-control form-control-sm mb-1 sel2' name='policy_type'>
                         {% for key,value in policy_types %}
-                                    <option value ={{ key|attr }}>{{ value|text }}</option>
+                            <option value ={{ key|attr }}>{{ value|text }}</option>
                         {% endfor %}
                     </select>
                 </div>
             </div>
         </div><!-- end right column -->
     </template>
-
-    <div class="section-header">
-        <span class="text font-weight-bold">{{ "Insurance"|xlt }}</span>
-    </div>
-    <div id="INSURANCE" class="insuranceEditContainer">
-        <ul class="tabNav">
-            {% for instype in insuranceTypes %}
-                <li class="{% if instype == activeType %}current{% endif %}"><a href="#">{{ instype|text|capitalize }}</a></li>
-            {% endfor %}
-        </ul>
-
-        <div class="tabContainer">
-            {% for instype in insuranceTypes %}
-                {# Need a drop down select with each grouped insurance (by type) #}
-                <div class="tab {% if instype == activeType %}current{% endif %} h-auto w-auto">
-                    <div class="form-row mb-2"><!-- start nested row -->
-                        <div class="col-md-6">
-                            <div class="form-row">
-                                <div class="col-md-3 label_custom pb-3">
-                                    <span class='required'>{{ "Selected Policy"|xlt }}</span>
-                                </div>
-                                <div class="col-md-9">
-                                    <select id="insurance-type-{{ instype|attr }}" class="form-control form-control-sm sel2 mb-1" data-type="{{ instype|attr }}" class="d-none">
-                                    </select>
-                                    <input type="button" value="{{ 'New Policy'|xla }}" class="btn btn-sm btn-secondary" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-row" id="insurance-info-type-{{ instype|attr }}">
-                        <div class="alert alert-info">
-                            <h3>{{ "Loading insurance information."|xlt }} <i class="wait fa fa-cog fa-spin ml-2"></i></h3>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    </div>
     <script>
         // need to hit the server endpoint to grab the patient insurances for the given pid
         // then I need to popualate the twig template with the data
@@ -635,7 +647,7 @@
                             if (insurancesByType[types[0]].length > 0) {
                                 selectedInsurance = insurancesByType[types[0]][0];
                             }
-
+                            setupInsuranceTypeNavigation();
                             populateSelectDropdowns();
                             if (selectedInsurance) {
                                 populateInsuranceInformationForSelectedInsurance(selectedInsurance);
@@ -646,6 +658,48 @@
                         }
 
                     })
+            }
+
+            function setupInsuranceTypeNavigation() {
+                // grab nav-link-insurance-type elements and setup click handlers for them
+                // when the user clicks on one of them we need to hide all the tabs and show the one they clicked on
+                // we also should populate the insurance information for the first insurance in the list for that insurance type
+                let navLinks = document.querySelectorAll('.nav-link-insurance-type');
+                if (navLinks) {
+                    navLinks.forEach(link => {
+                        link.addEventListener('click', function(evt) {
+                            // need to remove the current class from all of the links and mark the clicked link as current
+                            document.querySelectorAll('.nav-link-insurance-type').forEach(l => {
+                                l.closest('.nav-link-insurance-type-container').classList.remove('current');
+                            });
+                            evt.target.closest('.nav-link-insurance-type-container').classList.add('current');
+
+                            // cancel the evt so we don't navigate to a new page
+                            evt.preventDefault();
+                            evt.stopPropagation();
+                            let type = this.dataset.type;
+                            let tabContainer = document.querySelector('.tabContainer');
+                            if (tabContainer) {
+                                let tabs = tabContainer.querySelectorAll('.tab');
+                                if (tabs) {
+                                    tabs.forEach(tab => {
+                                        if (tab.dataset.type == type) {
+                                            tab.classList.add('current');
+                                        } else {
+                                            tab.classList.remove('current');
+                                        }
+                                    });
+                                }
+                            }
+                            let insurances = insurancesByType[type];
+                            if (insurances && insurances.length > 0) {
+                                populateInsuranceInformationForSelectedInsurance(insurances[0]);
+                            } else {
+                                // TODO: @adunsulag need to figure out what happens if we have no insurance for the patient...
+                            }
+                        });
+                    });
+                }
             }
             window.addEventListener("DOMContentLoaded", init);
         })(window);
