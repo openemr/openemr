@@ -78,7 +78,9 @@ class LogImportBuild
                     $idate = $year . '-' . $month . '-' . $day;
                     $ida = preg_replace('/T/', ' ', $line[0]);
                     $p = $line[1] ?? null;
-                    $pid = filter_var($p, FILTER_SANITIZE_NUMBER_INT);
+                    $pid_and_encounter = explode(":", $p);
+                    $pid = intval($pid_and_encounter[0]);
+                    $encounter = intval($pid_and_encounter[1]);
                     $r = $line[22] ?? null;
                     $refills = filter_var($r, FILTER_SANITIZE_NUMBER_INT);
 
@@ -89,6 +91,7 @@ class LogImportBuild
                     $insertdata['active'] = $active;
                     $insertdata['date_added'] = $ida;
                     $insertdata['patient_id'] = $pid;
+                    $insertdata['encounter'] = $encounter;
                     $drug = isset($line[11]) ? str_replace('"', '', $line[11]) : null;
                     $insertdata['drug'] = $drug;
                     $insertdata['quantity'] = $line[18] ?? null;

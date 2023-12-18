@@ -28,6 +28,7 @@ class TransmitProperties
     private $ncpdp;
     private $cryptoGen;
     private $pharmacy;
+    private $encounter;
 
     /**
      * AdminProperties constructor.
@@ -44,6 +45,7 @@ class TransmitProperties
               $this->pharmacy = $this->getPharmacy();
                $this->payload = $this->createJsonObject();
             $this->subscriber = $this->getSubscriber();
+            $this->encounter = $this->getEncounter();
     }
 
     /**
@@ -68,7 +70,7 @@ class TransmitProperties
         $wenObj['LocationID'] = $this->locid['weno_id'];
         $wenObj['TestPatient'] = $mode;
         $wenObj['PatientType'] = 'Human';
-        $wenObj['OrgPatientID'] = $this->patient['pid'];
+        $wenObj['OrgPatientID'] = $this->patient['pid'] . ":" . $this->encounter;
         $wenObj['LastName'] = $this->patient['lname'];
 
         $wenObj['FirstName'] = $this->patient['fname'];
@@ -306,5 +308,13 @@ class TransmitProperties
             "alternate" => $data['alternate_ncpdp']
         );
         return $response;
+    }
+
+    private function getEncounter(){
+        if(!$_SESSION['encounter']) {
+            die("Please select an encounter to coninue");
+        }
+
+        return $_SESSION['encounter'];
     }
 }
