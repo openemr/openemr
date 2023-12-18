@@ -38,7 +38,6 @@ class LogDataInsert
         try {
             sqlInsert($sql, [
                 $insertdata['active'],
-                $insertdata['date_added'],
                 $insertdata['patient_id'],
                 $insertdata['drug'],
                 $insertdata['encounter'],
