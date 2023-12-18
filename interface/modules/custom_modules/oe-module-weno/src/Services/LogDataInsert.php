@@ -23,7 +23,7 @@ class LogDataInsert
     {
         $sql = "INSERT INTO prescriptions SET ";
         $sql .= "active = ?, ";
-        $sql .= "date_added = ?, ";
+        $sql .= "date_added = NOW(), ";
         $sql .= "patient_id = ?, ";
         $sql .= "drug = ?, ";
         $sql .= "encounter = ?, ";
