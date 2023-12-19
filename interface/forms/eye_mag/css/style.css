@@ -2177,7 +2177,7 @@ View.php
   float: left;
   min-height: 1.05in;
   padding: 0.02in;
-  width: 2.2in;
+  width: 2.5in;
 }
 
 #tabs {
@@ -2230,7 +2230,7 @@ View.php
 #Visions_B > input {
   height: 0.19in;
   margin: 2px;
-  width: 0.35in;
+  width: 0.5in;
 }
 
 #Visions_A,
