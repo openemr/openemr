@@ -9,7 +9,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Shiqiang Tao <StrongTSQ@gmail.com>
  * @author    Ben Marte <benmarte@gmail.com>
- * @copyright Copyright (c) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019-2021 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Shiqiang Tao <StrongTSQ@gmail.com>
  * @copyright Copyright (c) 2021 Ben Marte <benmarte@gmail.com>
@@ -27,6 +27,9 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Events\PatientPortal\RenderEvent;
 use OpenEMR\Events\PatientPortal\AppointmentFilterEvent;
 use OpenEMR\Services\LogoService;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 if (isset($_SESSION['register']) && $_SESSION['register'] === true) {
     require_once(__DIR__ . '/../src/Common/Session/SessionUtil.php');
@@ -289,45 +292,52 @@ function buildNav($newcnt, $pid, $result)
     return $navItems;
 }
 
+// Build our navigation
 $navMenu = buildNav($newcnt, $pid, $result);
 
+// Render Home Page
 $twig = (new TwigContainer('', $GLOBALS['kernel']))->getTwig();
-echo $twig->render('portal/home.html.twig', [
-    'user' => $user,
-    'whereto' => $_SESSION['whereto'] ?? null ?: ($whereto ?? '#quickstart-card'),
-    'result' => $result,
-    'msgs' => $msgs,
-    'msgcnt' => $msgcnt,
-    'newcnt' => $newcnt,
-    'menuLogo' => $logoService->getLogo('portal/menu/primary'),
-    'allow_portal_appointments' => $GLOBALS['allow_portal_appointments'],
-    'web_root' => $GLOBALS['web_root'],
-    'payment_gateway' => $GLOBALS['payment_gateway'],
-    'gateway_mode_production' => $GLOBALS['gateway_mode_production'],
-    'portal_two_payments' => $GLOBALS['portal_two_payments'],
-    'allow_portal_chat' => $GLOBALS['allow_portal_chat'],
-    'portal_onsite_document_download' => $GLOBALS['portal_onsite_document_download'],
-    'portal_two_ledger' => $GLOBALS['portal_two_ledger'],
-    'images_static_relative' => $GLOBALS['images_static_relative'],
-    'youHave' => xl('You have'),
-    'navMenu' => $navMenu,
-    'primaryMenuLogoHeight' => $GLOBALS['portal_primary_menu_logo_height'] ?? '30',
-    'pagetitle' => xl('Home') . ' | ' . $GLOBALS['openemr_name'] . ' ' . xl('Portal'),
-    'messagesURL' => $messagesURL,
-    'patientID' => $pid,
-    'patientName' => $_SESSION['ptName'] ?? null,
-    'csrfUtils' => CsrfUtils::collectCsrfToken(),
-    'isEasyPro' => $isEasyPro,
-    'appointments' => $appointments,
-    'appts' => $appts,
-    'appointmentLimit' => $apptLimit,
-    'appointmentCount' => $count ?? null,
-    'displayLimitLabel' => xl('Display limit reached'),
-    'site_id' => $_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'), // one way or another, we will have a site_id.
-    'portal_timeout' => $GLOBALS['portal_timeout'] ?? 1800, // timeout is in seconds
-    'language_defs' => $language_defs,
-    'eventNames' => [
-        'sectionRenderPost' => RenderEvent::EVENT_SECTION_RENDER_POST,
-        'scriptsRenderPre' => RenderEvent::EVENT_SCRIPTS_RENDER_PRE
-    ]
-]);
+try {
+    echo $twig->render('portal/home.html.twig', [
+        'user' => $user,
+        'whereto' => $_SESSION['whereto'] ?? null ?: ($whereto ?? '#quickstart-card'),
+        'result' => $result,
+        'msgs' => $msgs,
+        'msgcnt' => $msgcnt,
+        'newcnt' => $newcnt,
+        'menuLogo' => $logoService->getLogo('portal/menu/primary'),
+        'allow_portal_appointments' => $GLOBALS['allow_portal_appointments'],
+        'web_root' => $GLOBALS['web_root'],
+        'payment_gateway' => $GLOBALS['payment_gateway'],
+        'gateway_mode_production' => $GLOBALS['gateway_mode_production'],
+        'portal_two_payments' => $GLOBALS['portal_two_payments'],
+        'allow_portal_chat' => $GLOBALS['allow_portal_chat'],
+        'portal_onsite_document_download' => $GLOBALS['portal_onsite_document_download'],
+        'portal_two_ledger' => $GLOBALS['portal_two_ledger'],
+        'images_static_relative' => $GLOBALS['images_static_relative'],
+        'youHave' => xl('You have'),
+        'navMenu' => $navMenu,
+        'primaryMenuLogoHeight' => $GLOBALS['portal_primary_menu_logo_height'] ?? '30',
+        'pagetitle' => xl('Home') . ' | ' . $GLOBALS['openemr_name'] . ' ' . xl('Portal'),
+        'messagesURL' => $messagesURL,
+        'patientID' => $pid,
+        'patientName' => $_SESSION['ptName'] ?? null,
+        'csrfUtils' => CsrfUtils::collectCsrfToken(),
+        'isEasyPro' => $isEasyPro,
+        'appointments' => $appointments,
+        'appts' => $appts,
+        'appointmentLimit' => $apptLimit,
+        'appointmentCount' => $count ?? null,
+        'displayLimitLabel' => xl('Display limit reached'),
+        'site_id' => $_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'), // one way or another, we will have a site_id.
+        'portal_timeout' => $GLOBALS['portal_timeout'] ?? 1800, // timeout is in seconds
+        'language_defs' => $language_defs,
+        'eventNames' => [
+            'sectionRenderPost' => RenderEvent::EVENT_SECTION_RENDER_POST,
+            'scriptsRenderPre' => RenderEvent::EVENT_SCRIPTS_RENDER_PRE
+        ]
+    ]);
+} catch (LoaderError|RuntimeError|SyntaxError $e) {
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    die(text($e->getMessage()));
+}

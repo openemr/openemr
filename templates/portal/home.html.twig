@@ -52,8 +52,10 @@
         });
 
         function persist(where, portalInit = false) {
-            if (where[0] !== '#') {
-                return;
+            if (where[0]) {
+                if (where[0] !== '#') {
+                    return;
+                }
             }
             whereto = where;
             fetch('lib/persist.php', {
@@ -159,7 +161,7 @@
                 $("#pro").load("./get_pro.php", {}, function () {});
             {% endif %}
 
-            //$("#quickstart-div").load("./quickstart_page.php", {}, function () {});
+            $("#quickstart-div").load("./quickstart_page.php", {}, function () {});
 
             $(".generateDoc_download").click(function () {
                 $("#doc_form").submit();
@@ -407,10 +409,10 @@
             <strong>{{ 'Working!' | xlt }}</strong>
             {{ 'Please wait...' | xlt }}</div>
         
-        {#<div class="card collapse overflow-auto" data-parent="#cardgroup" id="quickstart-card">
+        <div class="card collapse overflow-auto" data-parent="#cardgroup" id="quickstart-card">
             <header class="card-header bg-primary text-light">{{ 'Home' | xlt }}</header>
             <div id="quickstart-div" class="card-body"></div>
-        </div>#}
+        </div>
 
         <div class="collapse overflow-auto" data-parent="#cardgroup" id="lists">
             <div class="card">
@@ -541,13 +543,13 @@
             </div>
         {% endif %}
 
-        <div class="collapse" data-parent="#cardgroup" id="quickstart-card">
+        {#<div class="collapse" data-parent="#cardgroup" id="quickstart-card">
             <div class="card">
                 <div id="app-quickstart" class="card-body p-1">
                     <iframe src="{{ web_root | attr }}/portal/quickstart_page.php" class="w-100 vh-100 border-0"></iframe>
                 </div>
             </div>
-        </div>
+        </div>#}
 
         {{ fireEvent(eventNames.sectionRenderPost) }}
 

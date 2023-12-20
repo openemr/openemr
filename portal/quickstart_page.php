@@ -17,24 +17,15 @@ $title = xlt("My Quickstarts");
 $current_theme = sqlQuery("SELECT `setting_value` FROM `patient_settings` WHERE setting_patient = ? AND `setting_label` = ?", array($pid, 'portal_theme'))['setting_value'] ?? '';
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
 
 ?>
-<!DOCTYPE html>
-<!-- Language grabbed by PDF var that has the correct format !-->
-<html lang="<?php echo $GLOBALS['pdf_language']; ?>">
 <head>
     <title><?php echo($title); ?></title>
     <meta name="description" content="Patient Portal" />
     <meta name="author" content="Dashboard | sjpadgett@gmail.com" />
     <?php
-    Header::setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker']);
     echo "<script>var cpid='" . attr($cpid ?? $pid) . "';var cuser='" . attr($cuser ?? 'portal-user') . "';var webRoot='" . $GLOBALS['web_root'] . "';</script>";
     ?>
-    <link href="<?php echo $GLOBALS['web_root']; ?>/portal/sign/css/signer_modal.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" rel="stylesheet">
-    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signature_pad.umd.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
-    <script src="<?php echo $GLOBALS['web_root']; ?>/portal/sign/assets/signer_api.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
-
     <script>
         $(function () {
             let ele = parent.document.getElementById('topNav');
@@ -61,12 +52,12 @@ use OpenEMR\Core\Header;
                         'setting_patient': pid,
                         'setting_label': label,
                         'setting_value': setting
-                    })
+                    });
             });
         }
     </script>
 </head>
-<body class="pt-2">
+<div class="pt-2">
     <!-- About Dialog -->
     <div class="modal fade" id="formdialog" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog bg-light">
@@ -162,15 +153,16 @@ use OpenEMR\Core\Header;
                                 </div>
                             </div>
                             <div class="col">
-                                <div class="form-group form-check">
-                                    <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                                    <label class="form-check-label" for="exampleCheck1"><?php echo xlt('Auto Save Documents') . " (Coming soon)" ?></label>
+                                <div class="form-check-inline">
+                                    <label class="form-check-label" for="exampleCheck1">
+                                        <input type="checkbox" class="form-check-input" id="exampleCheck1"><?php echo xlt('Auto Save Documents') . " (Coming soon)" ?>
+                                    </label>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
         </div>
     </div>
-</body>
-</html>
+</div>

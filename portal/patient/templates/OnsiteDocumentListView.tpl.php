@@ -527,7 +527,7 @@ $templateService = new DocumentTemplateService();
         </nav>
         <div class="d-flex flex-row justify-content-center">
             <!-- Pending documents left menu Deprecated and removed 01/13/22 -->
-            <div class="clearfix" id="topnav">
+            <div class="clearfix" id="topNav">
                 <div id="collectionAlert"></div>
             </div>
             <!-- Right editor container -->
