@@ -81,7 +81,6 @@ $apptLimit = 30;
 $appts = fetchNextXAppts($current_date2, $pid, $apptLimit);
 
 $appointments = array();
-
 if ($appts) {
     $stringCM = '(' . xl('Comments field entry present') . ')';
     $stringR = '(' . xl('Recurring appointment') . ')';
@@ -121,6 +120,29 @@ if ($appts) {
     }
 }
 
+$current_theme = sqlQuery("SELECT `setting_value` FROM `patient_settings` WHERE setting_patient = ? AND `setting_label` = ?", array($pid, 'portal_theme'))['setting_value'] ?? '';
+function collectStyles(): array
+{
+    global $webserver_root;
+    $theme_dir = "$webserver_root/public/themes";
+    $dh = opendir($theme_dir);
+    $styleArray = array();
+    while (false !== ($tfname = readdir($dh))) {
+        if (
+            $tfname == 'style_blue.css' ||
+            $tfname == 'style_pdf.css' ||
+            !preg_match("/^" . 'style_' . ".*\.css$/", $tfname)
+        ) {
+            continue;
+        }
+        $styleDisplayName = str_replace("_", " ", substr($tfname, 6));
+        $styleDisplayName = ucfirst(str_replace(".css", "", $styleDisplayName));
+        $styleArray[$tfname] = $styleDisplayName;
+    }
+    asort($styleArray);
+    closedir($dh);
+    return $styleArray;
+}
 function buildNav($newcnt, $pid, $result)
 {
     $navItems = [
@@ -134,7 +156,7 @@ function buildNav($newcnt, $pid, $result)
                 [
                     'url' => '#quickstart-card',
                     'id' => 'quickstart_id',
-                    'label' => xl('My Quick Start'),
+                    'label' => xl('My Dashboard'),
                     'icon' => 'fa-tasks',
                     'dataToggle' => 'collapse',
                 ],
@@ -162,7 +184,7 @@ function buildNav($newcnt, $pid, $result)
                 ],*/
                 [
                     'url' => '#lists',
-                    'label' => xl('My Dashboard'),
+                    'label' => xl('My Health'),
                     'icon' => 'fa-list',
                     'dataToggle' => 'collapse'
                 ],
@@ -291,10 +313,10 @@ function buildNav($newcnt, $pid, $result)
 
     return $navItems;
 }
-
+// Available Themes
+$styleArray = collectStyles();
 // Build our navigation
 $navMenu = buildNav($newcnt, $pid, $result);
-
 // Render Home Page
 $twig = (new TwigContainer('', $GLOBALS['kernel']))->getTwig();
 try {
@@ -332,12 +354,14 @@ try {
         'site_id' => $_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'), // one way or another, we will have a site_id.
         'portal_timeout' => $GLOBALS['portal_timeout'] ?? 1800, // timeout is in seconds
         'language_defs' => $language_defs,
+        'current_theme' => $current_theme,
+        'styleArray' => $styleArray,
         'eventNames' => [
             'sectionRenderPost' => RenderEvent::EVENT_SECTION_RENDER_POST,
             'scriptsRenderPre' => RenderEvent::EVENT_SCRIPTS_RENDER_PRE
         ]
     ]);
-} catch (LoaderError|RuntimeError|SyntaxError $e) {
+} catch (LoaderError | RuntimeError | SyntaxError $e) {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     die(text($e->getMessage()));
 }
