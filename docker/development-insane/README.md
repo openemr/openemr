@@ -61,12 +61,14 @@ options to choose from:
 - http://localhost:8103 (with Nginx and PHP-FPM 8.1)
 - http://localhost:8104 (with Nginx and PHP-FPM 8.2)
 - http://localhost:8105 (with Nginx and PHP-FPM 8.3)
+- http://localhost:8106 (with Nginx and PHP-FPM 8.4)
 - http://localhost:8150 (with Nginx and PHP-FPM 7.3 with redis)
 - http://localhost:8151 (with Nginx and PHP-FPM 7.4 with redis)
 - http://localhost:8152 (with Nginx and PHP-FPM 8.0 with redis)
 - http://localhost:8153 (with Nginx and PHP-FPM 8.1 with redis)
 - http://localhost:8154 (with Nginx and PHP-FPM 8.2 with redis)
 - http://localhost:8155 (with Nginx and PHP-FPM 8.3 with redis)
+- http://localhost:8156 (with Nginx and PHP-FPM 8.4 with redis)
 - https://localhost:9080 with SSL and Alpine 3.12 (with Apache and PHP 7.3)
 - https://localhost:9081 with SSL and Alpine 3.15 (with Apache and PHP 7.4)
 - https://localhost:9082 with SSL and Alpine 3.15 (with Apache and PHP 8.0)
@@ -85,12 +87,14 @@ options to choose from:
 - https://localhost:9103 with SSL (with Nginx and PHP-FPM 8.1)
 - https://localhost:9104 with SSL (with Nginx and PHP-FPM 8.2)
 - https://localhost:9105 with SSL (with Nginx and PHP-FPM 8.3)
+- https://localhost:9106 with SSL (with Nginx and PHP-FPM 8.4)
 - https://localhost:9150 with SSL (with Nginx and PHP-FPM 7.3 with redis)
 - https://localhost:9151 with SSL (with Nginx and PHP-FPM 7.4 with redis)
 - https://localhost:9152 with SSL (with Nginx and PHP-FPM 8.0 with redis)
 - https://localhost:9153 with SSL (with Nginx and PHP-FPM 8.1 with redis)
 - https://localhost:9154 with SSL (with Nginx and PHP-FPM 8.2 with redis)
 - https://localhost:9155 with SSL (with Nginx and PHP-FPM 8.3 with redis)
+- https://localhost:9156 with SSL (with Nginx and PHP-FPM 8.3 with redis)
 
 **Step 4.** Setup up OpenEMR. The first time you run OpenEMR (and whenever you clear and replace your
 synchronized openemr directory and restart the development docker). On the main
@@ -124,12 +128,14 @@ docker pull openemr/openemr:flex-3.17
 docker pull openemr/openemr:flex-3.15
 docker pull openemr/openemr:flex-3.15-8
 docker pull openemr/openemr:flex-3.12
+docker pull openemr/dev-php-fpm:8.4
 docker pull openemr/dev-php-fpm:8.3
 docker pull openemr/dev-php-fpm:8.2
 docker pull openemr/dev-php-fpm:8.1
 docker pull openemr/dev-php-fpm:8.0
 docker pull openemr/dev-php-fpm:7.4
 docker pull openemr/dev-php-fpm:7.3
+docker pull openemr/dev-php-fpm:8.4-redis
 docker pull openemr/dev-php-fpm:8.3-redis
 docker pull openemr/dev-php-fpm:8.2-redis
 docker pull openemr/dev-php-fpm:8.1-redis
