@@ -197,7 +197,6 @@ jobs:
           build_test_common
         if: ${{ success() || failure() }}
 
-
   build_apache_83_112:
     name: PHP 8.3 - Apache - MariaDB 11.2 (short term release)
     runs-on: ubuntu-22.04
@@ -290,7 +289,6 @@ jobs:
           source ci/ciLibrary.source
           build_test_common
         if: ${{ success() || failure() }}
-
 
   build_apache_83_111:
     name: PHP 8.3 - Apache - MariaDB 11.1 (short term release)
