@@ -38,7 +38,7 @@ Navigate to: openemr/ccdaservice and run the following from an elevated PowerShe
 - `npm install --global --omit=dev windows-build-tools` (Recommended) Though compiling libxmljs is no longer required, if for some reason your environment doesn't have download  compiled libxmljs2 binary available then npm will try to compile.
 - `npm install --omit=dev`
 ### Use
-* CCDA service must be enabled in OpenEMR's menu Globals->Connectors.
+* CCDA service must be enabled in OpenEMR's menu Admin->Config->Connectors->Enable C-CDA Service.
 * This service will automatically start on demand when required by OpenEMR.
 ### Developing
 * Note that these scripts run in strict mode so javascript will hold you very much accountable with how objects and variables are handled.

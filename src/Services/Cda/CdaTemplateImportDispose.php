@@ -26,6 +26,7 @@ require_once __DIR__ . '/../../../library/forms.inc.php';
 class CdaTemplateImportDispose
 {
     protected $codeService;
+    protected $userauthorized;
 
     public function __construct()
     {
