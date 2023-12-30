@@ -138,11 +138,11 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                 ['state', 'contact_address_state']
             ),
 
-            'email' => new FhirSearchParameterDefinition('email', SearchFieldType::TOKEN, ['email']),
+            'email' => new FhirSearchParameterDefinition('email', SearchFieldType::TOKEN, ['email','email_direct']),
             'family' => new FhirSearchParameterDefinition('family', SearchFieldType::STRING, ['lname']),
             'given' => new FhirSearchParameterDefinition('given', SearchFieldType::STRING, ['fname', 'mname']),
             'phone' => new FhirSearchParameterDefinition('phone', SearchFieldType::TOKEN, ['phone_home', 'phone_biz', 'phone_cell']),
-            'telecom' => new FhirSearchParameterDefinition('telecom', SearchFieldType::TOKEN, ['email', 'phone_home', 'phone_biz', 'phone_cell']),
+            'telecom' => new FhirSearchParameterDefinition('telecom', SearchFieldType::TOKEN, ['email','email_direct', 'phone_home', 'phone_biz', 'phone_cell']),
             '_lastUpdated' => new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['date']),
             'generalPractitioner' => new FhirSearchParameterDefinition('generalPractitioner', SearchFieldType::REFERENCE, ['provider_uuid'])
         ];
@@ -307,6 +307,13 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
         if (!empty($dataRecord['email'])) {
             $patientResource->addTelecom($this->createContactPoint('email', $dataRecord['email'], 'home'));
+        }
+        if (!empty($dataRecord['email_direct'])) {
+            $patientResource->addTelecom($this->createContactPoint('email', $dataRecord['email_direct'], 'mobile'));
+            // "mobile" per spec:
+            //    "A telecommunication device that moves and stays with its owner.
+            //    May have characteristics of all other use codes, suitable for urgent matters,
+            //    not the first choice for routine business."
         }
     }
 
@@ -563,7 +570,13 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
                 $systemValue = (string)$contactPoint->getSystem() ?? "contact_other";
                 $contactValue = (string)$contactPoint->getValue();
                 if ($systemValue === 'email') {
-                    $data[$systemValue] = (string)$contactValue;
+                    $use = (string)$contactPoint->getUse() ?? "home";
+                    $useMapping = ['mobile' => 'email_direct'];
+                    if (isset($useMapping[$use])) {
+                        $data[$useMapping[$use]] = $contactValue;
+                    } else {
+                        $data[$systemValue] = (string)$contactValue;
+                    }
                 } elseif ($systemValue == "phone") {
                     $use = (string)$contactPoint->getUse() ?? "work";
                     $useMapping = ['mobile' => 'phone_cell', 'home' => 'phone_home', 'work' => 'phone_biz'];

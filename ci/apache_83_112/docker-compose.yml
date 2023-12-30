@@ -3,13 +3,13 @@ version: '3.1'
 services:
   mysql:
     restart: always
-    image: mariadb:10.10
-    command: ['mysqld','--character-set-server=utf8mb4']
+    image: mariadb:11.2
+    command: ['mariadbd','--character-set-server=utf8mb4']
     environment:
       MYSQL_ROOT_PASSWORD: root
   openemr:
     restart: always
-    image: openemr/openemr:flex-3.18
+    image: openemr/openemr:flex-3.19
     ports:
     - 80:80
     - 443:443

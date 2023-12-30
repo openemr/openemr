@@ -33,7 +33,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
         die("<h3>" . xlt("Not Authorised!") . "</h3>");
     }
     Header::setupHeader(['opener', 'datetime-picker']);
-    echo "<script>const pid=" . js_escape($pid) . ";const portalUrl=" . js_escape($clientApp->portalUrl) .
+    echo "<script>const pid=" . js_escape($pid) . ";const portalUrl=" . js_escape($clientApp->portalUrl ?? '') .
         ";const currentService=" . js_escape($service) . ";const serviceType=" . js_escape($serviceType) . "</script>";
     ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.js"></script>
