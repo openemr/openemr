@@ -39,7 +39,6 @@ if (isset($_GET['id'])) {//clicked edit form
 } else {//In case didn't click 'edit' but an attendance form already exists (can't have 2 attendance forms for same encounter)
     $result = get_form_id_of_existing_attendance_form($encounter, $therapy_group);
     $form_id = $result['form_id'];
-
 }
 
 

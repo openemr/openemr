@@ -191,7 +191,8 @@ function if_to_create_for_patient($status)
     return $to_create;
 }
 
-function getAttendanceStatus($status) {
+function getAttendanceStatus($status)
+{
     $sql = 'SELECT title FROM list_options WHERE list_id = \'attendstat\' AND option_id = ?';
     $result = sqlQuery($sql, array($status));
     return $result['title'];

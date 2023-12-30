@@ -15,7 +15,7 @@
 require_once(__DIR__ . "/../../globals.php");
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 require_once("{$GLOBALS['srcdir']}/group.inc.php");
-require_once ("functions.php");
+require_once("functions.php");
 function group_attendance_report($pid, $encounter, $cols, $id)
 {
 
@@ -49,17 +49,18 @@ function group_attendance_report($pid, $encounter, $cols, $id)
             </tr>
             <?php
             if ($participants) {
-              foreach ($participants as $participant) {
-                  $name = $participant['lname'] . ', ' . $participant['fname'];
-                  $attnStatus = getAttendanceStatus($participant['meeting_patient_status'])
-                  ?>
-                  <tr>
-                      <td><span class='text'><?php echo text($name); ?></span></td>
-                      <td><span class='text'><?php echo text($attnStatus); ?></span></td>
-                      <td width="65%"><span class='text'><?php echo text($participant['meeting_patient_comment']); ?></span></td>
-                  </tr>
-                  <?php
-              }
+                foreach ($participants as $participant) {
+                    $name = $participant['lname'] . ', ' . $participant['fname'];
+                    $attnStatus = getAttendanceStatus($participant['meeting_patient_status'])
+                    ?>
+                    <tr>
+                        <td><span class='text'><?php echo text($name); ?></span></td>
+                        <td><span class='text'><?php echo text($attnStatus); ?></span></td>
+                        <td width="65%"><span
+                                class='text'><?php echo text($participant['meeting_patient_comment']); ?></span></td>
+                    </tr>
+                    <?php
+                }
             } else {
                 ?>
                 <tr>
