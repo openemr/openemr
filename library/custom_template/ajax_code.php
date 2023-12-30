@@ -80,14 +80,15 @@ if ($Source == "add_template") {
     $newid = sqlInsert("INSERT INTO customlists (cl_list_id,cl_list_type,cl_list_item_long,cl_order,cl_creator) VALUES (?,?,?,?,?)", array($templateid, 4, $content, $order, $_SESSION['authUserID']));
     sqlStatement("UPDATE template_users SET tu_template_id=? WHERE tu_template_id=? AND tu_user_id=?", array($newid, $item, $_SESSION['authUserID']));
 } elseif ($Source == 'item_show') {
-    $sql = "SELECT * FROM customlists WHERE cl_list_id=? AND cl_list_type=4 AND cl_deleted=0";
+    $list_id = substr($_REQUEST['list_id'], -1);
+    $sql = "SELECT * FROM customlists WHERE cl_list_id=? AND cl_list_type=3 AND cl_deleted=0";
     $res = sqlStatement($sql, array($list_id));
     $selcat = sqlQuery("SELECT * FROM customlists WHERE cl_list_slno=? AND cl_list_type=3 AND cl_deleted=0", array($list_id));
     $selcont = sqlQuery("SELECT * FROM customlists WHERE cl_list_slno=? AND cl_list_type=2 AND cl_deleted=0", array($selcat['cl_list_id']));
     $cnt = sqlNumRows($res);
     if ($cnt) {
         echo "<table width='100%'>";
-        echo "<tr class='text'><th colspan=2  style='background-color:var(--white)'>" . htmlspecialchars(xl('Preview of'), " " . $selcat['cl_list_item_long'] . "(" . $selcont['cl_list_item_long'] . ")", ENT_QUOTES) . "</th></tr>";
+        echo "<tr class='text'><th colspan=2  style='background-color:var(--white)'>" . htmlspecialchars(xl('Preview of') . " " . $selcat['cl_list_item_long'] . "(" . $selcont['cl_list_item_long'] . ")", ENT_QUOTES) . "</th></tr>";
         $i = 0;
         while ($row = sqlFetchArray($res)) {
             $i++;

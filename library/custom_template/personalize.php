@@ -157,8 +157,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                                 alert("fail");
                             }
                         });
-                    }
-                    else {
+                    } else {
                         total_clients = form.elements[selectFrom].length;
                         opt = new Option(form.elements[selectedList].options[total_selected].text, form.elements[selectedList].options[total_selected].value);
                         form.elements[selectFrom].options[total_clients] = opt;
@@ -167,7 +166,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                 }
             }
             jsub_sortNow(form.elements[selectFrom]);
-            if (msg != '') {
+            if (msg !== '') {
                 if (confirm("<?php echo addslashes(xl('The following categories will be removed from your category List'));?> \n" + msg + "\n <?php echo addslashes(xl('Do you want to continue?'));?>")) {
                     remove_selected(form, selectedList);
                 }
@@ -197,7 +196,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
 
         function all_deselected(selectedList) {
             top.restoreSession();
-            var total_selected = document.getElementById(selectedList).length - 1;
+            let total_selected = document.getElementById(selectedList).length - 1;
             for (total_selected; total_selected >= 0; total_selected--) {
                 document.getElementById(selectedList).options[total_selected].selected = false;
             }
@@ -205,7 +204,9 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
 
         function jsub_selected(form, selectFrom, selectedList) {
             top.restoreSession();
-            var total_selected = form.elements[selectedList].length - 1;
+            let total_selected = form.elements[selectedList].length - 1;
+            let total_clients;
+            let opt;
             for (total_selected; total_selected >= 0; total_selected--) {
                 if (form.elements[selectedList].options[total_selected].selected) {
                     total_clients = form.elements[selectFrom].length;
@@ -220,9 +221,9 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
 
         function display_category_item(form, selectedList) {
             top.restoreSession();
-            var len = 0;
-            var selectedval = '';
-            var total_selected = form.elements[selectedList].length - 1;
+            let len = 0;
+            let selectedval = '';
+            let total_selected = form.elements[selectedList].length - 1;
             for (total_selected; total_selected >= 0; total_selected--) {
                 if (form.elements[selectedList].options[total_selected].selected) {
                     selectedval = form.elements[selectedList].options[total_selected].value;
@@ -232,7 +233,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             if (len > 1) {
                 document.getElementById('itemdiv').style.display = 'none';
             }
-            else if (len == 1) {
+            else if (len === 1) {
                 document.getElementById('itemdiv').style.display = '';
                 $.ajax({
                     type: "POST",

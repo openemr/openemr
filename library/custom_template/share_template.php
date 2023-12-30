@@ -40,11 +40,11 @@ $list_id = $_REQUEST['list_id'];
         <script>
         function add_template(){
                 top.restoreSession();
-                len = document.getElementById('provider').options.length;
-                sel_len=0;
-                val="";
-                for(i=0;i<len;i++){
-                   if(document.getElementById('provider').options[i].selected==true){
+            const len = document.getElementById('provider').options.length;
+            let sel_len = 0;
+            let val = "";
+            for(let i=0; i<len; i++){
+                   if(document.getElementById('provider').options[i].selected===true){
                     sel_len++;
                     val+=document.getElementById('provider').options[i].value+"|";
                    }
@@ -87,6 +87,7 @@ $list_id = $_REQUEST['list_id'];
                             $query = "SELECT id, lname, fname FROM users WHERE authorized = 1 AND username != '' " .
                                     "AND active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) ORDER BY lname, fname";
                             $res = sqlStatement($query);
+                            $sel = '';
                             $sel_query = "SELECT tu_user_id FROM template_users WHERE tu_template_id=?";
                             $row_sel = sqlQuery($sel_query, array($list_id));
                             while ($row = sqlFetchArray($res)) {
