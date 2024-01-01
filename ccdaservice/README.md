@@ -19,26 +19,26 @@ To ensure the lastest libraries are installed, node version changes or the packa
 
 
 ## Ubuntu Setup
-* Latest version tested is node v18.13.0
+* Latest version tested is node v20.10.0
 
 If node is not already installed then do the following(Research the required installation for your environment):
 - `cd ~`
 - `apt-get remove --purge nodejs npm` // Ensures clean install and will allow chance to clean up.
-- `curl -sL https://deb.nodesource.com/setup_18.x | sudo -E bash -`
+- `curl -sL https://deb.nodesource.com/setup_20.x | sudo -E bash -`
 - `sudo apt-get install -y nodejs`
 
 Navigate to: openemr/ccdaservice and run the following to install requires dependencies.
 - `sudo npm install --omit=dev`
 ## Windows Setup
 * Download and install nodejs for your Windows version.
-  - Latest version tested is node v18.13.0
+  - Latest version tested is node v20.10.0
 * Ensure system variable NODE_PATH is set i.e. `%USERPROFILE%\AppData\Roaming\npm\node_modules`.
 
 Navigate to: openemr/ccdaservice and run the following from an elevated PowerShell or CMD.exe (run as Administrator):
 - `npm install --global --omit=dev windows-build-tools` (Recommended) Though compiling libxmljs is no longer required, if for some reason your environment doesn't have download  compiled libxmljs2 binary available then npm will try to compile.
 - `npm install --omit=dev`
 ### Use
-* CCDA service must be enabled in OpenEMR's menu Globals->Connectors.
+* CCDA service must be enabled in OpenEMR's menu Admin->Config->Connectors->Enable C-CDA Service.
 * This service will automatically start on demand when required by OpenEMR.
 ### Developing
 * Note that these scripts run in strict mode so javascript will hold you very much accountable with how objects and variables are handled.

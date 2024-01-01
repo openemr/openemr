@@ -49,11 +49,11 @@ class CcdaServiceDocumentRequestor
                         error_log("Failed to close pipehandle for ccdaservice");
                     }
                 } else {
-                    $command = 'nodejs';
+                    $command = 'node';
                     if (!$system->command_exists($command)) {
-                        if ($system->command_exists('node')) {
-                            // older or custom Ubuntu systems that have node rather than nodejs command
-                            $command = 'node';
+                        if ($system->command_exists('nodejs')) {
+                            // older or custom Ubuntu systems that have nodejs rather than node command
+                            $command = 'nodejs';
                         } else {
                             error_log("Node is not installed on the system.  Connection failed");
                             throw new CcdaServiceConnectionException('Connection Failed.');
