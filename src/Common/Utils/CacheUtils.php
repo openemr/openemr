@@ -14,6 +14,9 @@ namespace OpenEMR\Common\Utils;
 
 class CacheUtils
 {
+    public static function getAssetCacheParamRaw() {
+        return $GLOBALS['v_js_includes'];
+    }
     /**
      * Returns the asset cache param that is used to bust the cache when the javascript versions change on the frontend.
      * @return string

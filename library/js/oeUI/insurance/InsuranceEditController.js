@@ -1,0 +1,100 @@
+import { EditPolicyScreenController } from "./EditPolicyScreenController.js";
+import { NewPolicyScreenController } from "./NewPolicyScreenController.js";
+import { InsurancePolicyService } from "./InsurancePolicyService.js";
+export class InsuranceEditController {
+    currentScreen = null;
+
+    /**
+     *
+     * @type EditPolicyScreenController
+     * @private
+     */
+    __editPolicyScreen = null;
+
+    /**
+     *
+     * @type NewPolicyScreenController
+     * @private
+     */
+    __newPolicyScreen = null;
+
+    /**
+     *
+     * @type InsurancePolicyService
+     * @private
+     */
+    __insurancePolicyService = null;
+
+    constructor(csrfToken, apiURL, insuranceProviderList, types, puuid) {
+        this.__insurancePolicyService = new InsurancePolicyService(csrfToken, apiURL, insuranceProviderList, types, puuid);
+    }
+
+    init() {
+        this.__insurancePolicyService.loadInsurancesByType()
+        .then(() => {
+            this.turnOffLoading();
+            this.setupControlButtons();
+            this.setupEditScreen();
+            // this.setupNewPolicyScreen()
+        })
+        .catch(error => {
+            // TODO: @adunsulag what to do here if we fail?
+            console.error(error);
+        });
+    }
+
+    turnOffLoading() {
+        let loading = document.querySelector(".container-loading");
+        loading.classList.add("d-none");
+        let loadedContainer = document.querySelector(".container-loaded");
+        loadedContainer.classList.remove("d-none");
+    }
+
+    setupEditScreen() {
+        this.__editPolicyScreen = new EditPolicyScreenController(this.__insurancePolicyService);
+        this.__editPolicyScreen.setup();
+        this.currentScreen = this.__editPolicyScreen;
+        this.toggleScreenControlButtons(true);
+    }
+
+    hideEditScreen() {
+        this.__editPolicyScreen.hide();
+    }
+    showEditScreen() {
+        this.__editPolicyScreen.show();
+        this.currentScreen = this.__editPolicyScreen;
+        this.toggleScreenControlButtons(true);
+    }
+
+    setupControlButtons() {
+        let btnAddPolicy = document.querySelector(".btn-add-policy");
+        btnAddPolicy.addEventListener("click", () => {
+            this.__editPolicyScreen.hide();
+            this.setupNewPolicyScreen();
+        });
+        let btnEditReturn = document.querySelector(".btn-edit-return");
+        btnEditReturn.addEventListener("click", () => {
+            this.__newPolicyScreen.hide();
+            this.showEditScreen();
+        });
+    }
+
+    toggleScreenControlButtons(inEdit) {
+        let btnAddPolicy = document.querySelector(".btn-add-policy");
+        let btnEditReturn = document.querySelector(".btn-edit-return");
+        if (inEdit) {
+            btnAddPolicy.classList.remove("d-none");
+            btnEditReturn.classList.add("d-none");
+        } else {
+            btnAddPolicy.classList.add("d-none");
+            btnEditReturn.classList.remove("d-none");
+        }
+    }
+
+    setupNewPolicyScreen() {
+        this.__newPolicyScreen = new NewPolicyScreenController(this.__insurancePolicyService);
+        this.__newPolicyScreen.setup();
+        this.currentScreen = this.__newPolicyScreen;
+        this.toggleScreenControlButtons(false);
+    }
+}

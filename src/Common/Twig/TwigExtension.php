@@ -228,6 +228,12 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     return LayoutsUtils::getListItemTitle($list, $option);
                 }
             )
+            ,new TwigFunction(
+                'getAssetCacheParamRaw',
+                function () {
+                    return CacheUtils::getAssetCacheParamRaw();
+                }
+            )
         ];
     }
 

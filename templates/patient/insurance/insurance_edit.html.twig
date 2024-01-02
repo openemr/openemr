@@ -312,15 +312,21 @@
     }]
 }
 %}
-    <div class="container-xl">
+    <div class="container-xl container-loading">
+        <div class="alert alert-info">
+            <h3>{{ "Loading..."|xlt }} <i class="wait fa fa-cog fa-spin ml-2"></i></h3>
+        </div>
+    </div>
+    <div class="container-xl container-loaded d-none">
         <div class="row">
             <div class="col-12">
                 <h2>{{ "Edit Current Insurance"|xlt }}</h2>
             </div>
             <div class="col-12">
-                <div class="btn-group">
-                    <input type="button" class="btn btn-primary" value="{{ 'Save'|xlt }}" />
-                    <input type="button" class="btn btn-secondary" value="{{ 'Cancel'|xlt }}" />
+                <div class="btn-group text-align-right">
+                    <input type="button" class="btn btn-primary btn-add-policy" value="{{ 'Add New Policy'|xlt }}" />
+                    <input type="button" class="btn btn-danger d-none btn-edit-return" value="{{ 'Return to Edit Screen'|xlt }}" />
+                    <a href="./demographics.php" class="btn btn-secondary"><i class="fa fa-back"></i>{{ 'Back to Patient'|xlt }}</a>
                 </div>
                 <hr />
             </div>
@@ -330,7 +336,86 @@
     <div class="section-header">
         <span class="text font-weight-bold">{{ "Insurance"|xlt }}</span>
     </div>
-    <div id="INSURANCE" class="insuranceEditContainer">
+    <div id="new-policy-screen" class="insuranceNewSettingsContainer d-none">
+        {# two radio button options, copy from existing policy and create blank policy #}
+        {# copy from existing policy should have a select list below it #}
+        {#  #}
+        <div class="form-row mb-2">
+            <div class="col-md-6">
+                {# Need to have radio group of the insurance types ie, Primary, secondary, tertiary #}
+                <div class="form-row">
+                    <div class="col-md-3">
+                        <label>{{ "Insurance Type"|xlt }}</label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="radio-group">
+                            {% for instype in insuranceTypes %}
+                                <input id="new-insurance-type-{{ instype|attr }}" {% if instype == activeType%}checked="checked"{% endif %} type="radio" name="newInsuranceType" value="{{ instype|attr }}" /><label for="new-insurance-type-{{ instype|attr }}">{{ instype|capitalize|text }}</label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-row mb-2">
+            <div class="col-md-6 text-align-right">
+                <div class="radio-group">
+                    <input id="createOptionBlank" checked="checked" type="radio" name="createOption" value="blank" /><label for="createOptionBlank">{{ "Create blank policy"|xlt }}</label>
+                    <input id="createOptionCopy" type="radio" name="createOption" value="copy" /><label for="createOptionCopy">{{ "Copy from existing policy"|xlt }}</label>
+                </div>
+            </div>
+        </div>
+        <div class="form-row mb-2 d-none new-policy-copy-row">
+            <div class="col-md-6">
+                <div class="form-row">
+                    <div class="col-md-3">
+                        <label>{{ "Policy to copy"|xlt }}</label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="alert alert-warning new-policy-list-empty d-none">
+                            {{ "No policy exists for this insurance type" }}
+                        </div>
+                        <select class="form-control form-control-sm sel2 mb-1 new-policy-copy-list" class="d-none">
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-row mb-2 new-policy-set-end-date-row d-none">
+            <div class="col-md-6">
+                <div class="form-row">
+                    <div class="col-md-12">
+                        <input id="setEndDateCheckbox" type="checkbox" name="setEndDate" class="form-control mb-1" />
+                        <label for="setEndDateCheckbox">{{ "Update current insurance with new effective end date" }}</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-row mb-2 new-policy-effective-end-date-row d-none">
+            <div class="form-row">
+                <div class="col-md-3">
+                    <label>{{ "End Date"|xlt }}</label>
+                </div>
+                <div class="col-md-9">
+                    <input type="textbox" name="endDate" class="date-picker new-policy-effective-end-date form-control mb-1" />
+                </div>
+            </div>
+        </div>
+        <div class="form-row mb-2 new-policy-error-row d-none">
+            <div class="alert alert-danger">
+                <p class="new-policy-error-message new-policy-error-message-copy-empty-policy d-none">{{ "There are no policies for this insurance type to copy from"|xlt }}</p>
+                <p class="new-policy-error-message new-policy-error-message-effective-end-date-empty d-none">{{ "There are no policies for this insurance type to copy from"|xlt }}</p>
+            </div>
+        </div>
+        <div class="form-row mb-2 new-policy-effective-end-date-row">
+            <div class="form-row">
+                <div class="col-md-3">
+                    <input type="button" class="btn btn-action btn-new-policy-next btn-primary" value="{{ "Next"|xlt }}" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="edit-policy-screen" class="insuranceEditContainer d-none">
         <ul class="tabNav">
             {% for instype in insuranceTypes %}
                 <li class="{% if instype == activeType %}current{% endif %} nav-link-insurance-type-container"><a href="#" class="nav-link-insurance-type" data-type="{{ instype|attr }}">{{ instype|text|capitalize }}</a></li>
@@ -342,15 +427,29 @@
                 {# Need a drop down select with each grouped insurance (by type) #}
                 <div data-type="{{ instype|attr }}" class="tab {% if instype == activeType %}current{% endif %} h-auto w-auto">
                     <div class="form-row mb-2"><!-- start nested row -->
+                        <div class="col-md-6 text-align-right">
+                            <div class="btn-group">
+                                <input type="button" value="{{ 'Save Policy'|xla }}" class="btn btn-primary" />
+                            </div>
+
+                        </div>
                         <div class="col-md-6">
-                            <div class="form-row">
+                            <div class="form-row insurance-type-selector-row-{{ instype|attr }}">
                                 <div class="col-md-3 label_custom pb-3">
                                     <span class='required'>{{ "Selected Policy"|xlt }}</span>
                                 </div>
                                 <div class="col-md-9">
                                     <select id="insurance-type-{{ instype|attr }}" class="form-control form-control-sm sel2 mb-1" data-type="{{ instype|attr }}" class="d-none">
                                     </select>
-                                    <input type="button" value="{{ 'New Policy'|xla }}" class="btn btn-sm btn-secondary" />
+
+                                </div>
+                            </div>
+                            <div class="form-row mb-2 insurance-type-no-policies insurance-type-no-policies-{{ instype|attr }} d-none">
+                                <div class="col-12">
+                                    <div class="alert alert-info">
+                                        <p>{{ "No insurance policies for this insurance type were found."|xlt }}</p>
+                                        <p>{{ "You can add a new policy to this patient for this insurance type by filling out the form below and pressing the save button."|xlt }}</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -445,264 +544,42 @@
             </div>
         </div><!-- end right column -->
     </template>
-    <script>
+    <script type="module">
+        // import { InsuranceEditController } from webroot + '/library/js/oeUI/insurance/InsuranceEditController.js';
         // need to hit the server endpoint to grab the patient insurances for the given pid
         // then I need to popualate the twig template with the data
-        (function() {
-            var csrfToken = {{ csrfTokenRaw('api')|json_encode() }};
-            var url = {{ webroot|json_encode() }} + '/apis/' + {{ session.site_id|json_encode() }} + '/api/patient/' + {{ puuid|json_encode() }} + '/insurance';
-            var types = {{ insuranceTypes|json_encode() }};
-            var insurancesByType = {};
-            var selectedInsurance = null;
-            var insuranceProviderList = {{ insuranceProviderList|json_encode() }};
-            function apiRequest(url) {
-                let headers = {
-                    'apicsrftoken': csrfToken
-                };
-                return window.fetch(url,
-                    {
-                        method: 'GET'
-                        ,redirect: 'manual'
-                        ,headers: headers
-                    })
-                    .then(result => result.json());
+        let csrfToken = {{ csrfTokenRaw('api')|json_encode() }};
+        let puuid = {{ puuid|json_encode() }};
+        let url = {{ webroot|json_encode() }} + '/apis/' + {{ session.site_id|json_encode() }} + '/api/';
+        let types = {{ insuranceTypes|json_encode() }};
+        let insuranceProviderList = {{ insuranceProviderList|json_encode() }};
 
-            }
-            function populateSelectDropdowns() {
-                types.forEach(type => {
-                    let select = document.getElementById('insurance-type-' + type);
-                    if (select) {
-                        let insurances = insurancesByType[type];
-                        insurances.forEach(insurance => {
-                            let option = document.createElement('option');
-                            option.value = insurance.id;
-                            option.innerText = insurance.plan_name + " - " + window.top.xl("Effective Date") + ": " + insurance.date;
-                            if (insurance.hasOwnProperty('end_date') && insurance.end_date !== null) {
-                                option.innerText += " - " + window.top.xl("End Date") + ": " + insurance.end_date;
-                            }
-                            select.appendChild(option);
-                        });
-                        select.addEventListener("change", function() {
-                            let selectedId = this.value;
-                            let type = this.dataset.type;
-                            let selectedInsurance = insurancesByType[type].find(insurance => insurance.id == selectedId);
-                            populateInsuranceInformationForSelectedInsurance(selectedInsurance);
-                        });
-                        select.classList.remove("d-none");
-                    }
+        window.addEventListener("DOMContentLoaded", function() {
+            // due to our dynamic nature we need to do a dynamic import of the controller
+            {# TODO: @adunsulag check with @brady.miller to find out if there is a need to escape the cache param here due to the global v_include #}
+            import({{ webroot|json_encode }} + "/library/js/oeUI/insurance/InsuranceEditController.js?v=" + {{ getAssetCacheParamRaw()|json_encode() }})
+                .then(result => {
+                    /**
+                     * @typedef InsuranceEditControllerModule
+                     * @type {object}
+                     * @property {InsuranceEditController} InsuranceEditController
+                     */
+                    /**
+                     * This is a dynamic module import due to the way we construct our import urls.  We do a custom type definition
+                     * so we can get intellisense support.  You can see the type definition above in order to jump to the definition
+                     * of the file.
+                     * @type {InsuranceEditControllerModule}
+                     */
+                    let moduleResult = result;
+                    let insuranceEditController = new result.InsuranceEditController(csrfToken, url, insuranceProviderList, types, puuid);
+                    insuranceEditController.init();
+                })
+                .catch(err => {
+                    // not much we can do here...
+                    // TODO: @adunsulag do we notify the end user the whole system is down?
+                    console.log(err);
                 });
-            }
-
-            function populateInsuranceInformationForSelectedInsurance(selectedInsurance) {
-                console.log(selectedInsurance);
-                if (selectedInsurance) {
-                    let type = selectedInsurance.type;
-                    let insuranceInfoContainer = document.getElementById('insurance-info-type-' + type);
-                    if (insuranceInfoContainer) {
-                        insuranceInfoContainer.innerHTML = '';
-                        let template = document.getElementById('insurance-edit-template');
-                        if (template) {
-                            let clone = document.importNode(template.content, true);
-                            insuranceInfoContainer.appendChild(clone); // note clone nodes are now empty at this point
-                            populateInsuranceProviderListForNode(insuranceInfoContainer, insuranceProviderList);
-
-                            let keys = Object.keys(selectedInsurance);
-                            keys.forEach(key => {
-                                let value = selectedInsurance[key];
-                                let updatedValue = convertValueForInsuranceKey(key, value);
-                                let input = insuranceInfoContainer.querySelector('[name="form_' + key + '"]');
-                                if (!input) {
-                                    console.info("Failed to find insurance info input for key: " + key);
-                                    return;
-                                }
-                                // clear out the id field as we don't use it
-                                input.removeAttribute('id');
-                                if (input.nodeName != "SELECT") {
-                                    input.value = updatedValue;
-                                } else {
-                                    let option = input.querySelector('[value="' + updatedValue + '"]');
-                                    if (option) {
-                                        option.selected = true;
-                                    } else {
-                                        console.error("Failed to find select option value for key: " + key + " value: " + value);
-                                    }
-                                }
-                            });
-
-                            let insuranceInfoType = insuranceInfoContainer.querySelector('.insurance-info-type');
-                            if (insuranceInfoType) {
-                                // note use of innerText here to prevent XSS, DO NOT USE innerHTML
-                                insuranceInfoType.innerText = type;
-                            }
-
-                            // setup the event listeners for the capitalize me fields
-                            insuranceInfoContainer.querySelectorAll('.js-capitalize-me').forEach(input => {
-                                input.addEventListener('change', capitalizeMe);
-                            });
-
-                            // setup the event listeners for the policykeyup fields
-                            if (typeof window.policykeyup == 'function') {
-                                // comes from common.js
-                                insuranceInfoContainer.querySelectorAll('.js-policykeyup').forEach(input => {
-                                    // need to bind up the input to the function argument due to the way the function is written
-                                    input.addEventListener('keyup', function() {
-                                        window.policykeyup(this); // this is the input element
-                                    });
-                                });
-                            }
-
-                            // setup the event listeners for the date picker fields
-
-                            // setup the bootstrap select fields
-                            select2Translated("#" + insuranceInfoContainer.id + " .sel2");
-                        }
-                    }
-                }
-            }
-
-            function convertValueForInsuranceKey(key, value) {
-                if (key == 'accept_assignment') {
-                    if (value == 'FALSE') {
-                        value = 'NO';
-                    } else {
-                        // default should go to yes
-                        value = 'YES';
-                    }
-                }
-                return value;
-            }
-
-            // This capitalizes the first letter of each word in the passed input
-            // element.  It also strips out extraneous spaces.
-            function capitalizeMe(event) {
-                let elem = event.target;
-                if (!elem) {
-                    console.error("Failed to find element for capitalizeMe");
-                    return;
-                }
-                var a = elem.value.split(' ');
-                var s = '';
-                for(var i = 0; i < a.length; ++i) {
-                    if (a[i].length > 0) {
-                        if (s.length > 0) s += ' ';
-                        s += a[i].charAt(0).toUpperCase() + a[i].substring(1);
-                    }
-                }
-                elem.value = s;
-            }
-
-            function populateInsuranceProviderListForNode(node, insuranceProviderList) {
-                let select = node.querySelector('[name="provider"]');
-                if (select) {
-                    let ids = Object.keys(insuranceProviderList);
-                    // need to sort the names but retain the ids
-                    ids.sort((a, b) => {
-                        let nameA = insuranceProviderList[a];
-                        let nameB = insuranceProviderList[b];
-                        return nameA < nameB ? -1 : 1;
-                    });
-                    ids.forEach(providerId => {
-                        let option = document.createElement('option');
-                        option.value = providerId;
-                        // name of the insurance provider is in the list
-                        option.innerText = insuranceProviderList[providerId];
-                        select.appendChild(option);
-                    });
-                }
-            }
-
-            function init() {
-                let headers = {
-                    'apicsrftoken': this.__apiCSRFToken
-                };
-
-                apiRequest(url)
-                    .then(resultData => {
-                        let selectedInsurance = null;
-                        if (resultData.data) {
-                            // need to sort through the data and populate the three categories
-                            resultData.data.forEach(insurance => {
-                                // TODO: @adunsulag do we want to create a model object for this?
-                                // would allow us to maintain some consistency over the code... but reduces flexibility
-                                selectedInsurance = insurance;
-                                if (insurancesByType[insurance.type]) {
-                                    insurancesByType[insurance.type].push(insurance);
-                                } else {
-                                    insurancesByType[insurance.type] = [insurance];
-                                }
-                            });
-                            types.forEach(t => {
-                                if (!insurancesByType[t]) {
-                                    insurancesByType[t] = [];
-                                }
-                                insurancesByType[t].sort((a, b) => {
-                                    // end date is the most current one
-                                    if (!a.hasOwnProperty('end_date') || a === null) {
-                                        return -1;
-                                    }
-                                    return a.date < b.date ? 1 : -1;
-                                });
-                            })
-
-                            if (insurancesByType[types[0]].length > 0) {
-                                selectedInsurance = insurancesByType[types[0]][0];
-                            }
-                            setupInsuranceTypeNavigation();
-                            populateSelectDropdowns();
-                            if (selectedInsurance) {
-                                populateInsuranceInformationForSelectedInsurance(selectedInsurance);
-                            } else {
-                                // TODO: @adunsulag need to figure out what happens if we have no insurance for the patient...
-                            }
-                            // do a default for now
-                        }
-
-                    })
-            }
-
-            function setupInsuranceTypeNavigation() {
-                // grab nav-link-insurance-type elements and setup click handlers for them
-                // when the user clicks on one of them we need to hide all the tabs and show the one they clicked on
-                // we also should populate the insurance information for the first insurance in the list for that insurance type
-                let navLinks = document.querySelectorAll('.nav-link-insurance-type');
-                if (navLinks) {
-                    navLinks.forEach(link => {
-                        link.addEventListener('click', function(evt) {
-                            // need to remove the current class from all of the links and mark the clicked link as current
-                            document.querySelectorAll('.nav-link-insurance-type').forEach(l => {
-                                l.closest('.nav-link-insurance-type-container').classList.remove('current');
-                            });
-                            evt.target.closest('.nav-link-insurance-type-container').classList.add('current');
-
-                            // cancel the evt so we don't navigate to a new page
-                            evt.preventDefault();
-                            evt.stopPropagation();
-                            let type = this.dataset.type;
-                            let tabContainer = document.querySelector('.tabContainer');
-                            if (tabContainer) {
-                                let tabs = tabContainer.querySelectorAll('.tab');
-                                if (tabs) {
-                                    tabs.forEach(tab => {
-                                        if (tab.dataset.type == type) {
-                                            tab.classList.add('current');
-                                        } else {
-                                            tab.classList.remove('current');
-                                        }
-                                    });
-                                }
-                            }
-                            let insurances = insurancesByType[type];
-                            if (insurances && insurances.length > 0) {
-                                populateInsuranceInformationForSelectedInsurance(insurances[0]);
-                            } else {
-                                // TODO: @adunsulag need to figure out what happens if we have no insurance for the patient...
-                            }
-                        });
-                    });
-                }
-            }
-            window.addEventListener("DOMContentLoaded", init);
-        })(window);
+        });
     </script>
 {% endblock %}
 {% block postContent %}{% endblock %}
