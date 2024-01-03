@@ -1,7 +1,7 @@
 import { EditPolicyScreenController } from "./EditPolicyScreenController.js";
 import { NewPolicyScreenController } from "./NewPolicyScreenController.js";
 import { InsurancePolicyService } from "./InsurancePolicyService.js";
-export class InsuranceEditController {
+export class InsuranceEditMainController {
     currentScreen = null;
 
     /**
@@ -93,8 +93,17 @@ export class InsuranceEditController {
 
     setupNewPolicyScreen() {
         this.__newPolicyScreen = new NewPolicyScreenController(this.__insurancePolicyService);
-        this.__newPolicyScreen.setup();
+        //we will pass in a callback to the new policy screen to call when the user clicks next
+        // the callback will receive the new data and then we will call the edit screen
+        // if we are updating the last policy effective date we need to update that policy and then call the edit screen
+        this.__newPolicyScreen.setup(this.handleNewPolicyScreenNext.bind(this));
         this.currentScreen = this.__newPolicyScreen;
         this.toggleScreenControlButtons(false);
+    }
+
+    handleNewPolicyScreenNext(newPolicyData) {
+        this.__newPolicyScreen.hide();
+        this.__editPolicyScreen.setupNewPolicyEdit(newPolicyData);
+        this.showEditScreen();
     }
 }

@@ -13,6 +13,14 @@ export class EditPolicyScreenController
     __screenName = 'edit-policy-screen';
 
     /**
+     * @type {InsurancePolicyService}
+     * @private
+     */
+    __insurancePolicyService = null;
+
+    __selectedInsuranceTypeTab = null;
+
+    /**
      *
      * @param insurancePolicyService InsurancePolicyService
      */
@@ -20,25 +28,35 @@ export class EditPolicyScreenController
         this.__insuranceProviderList = insurancePolicyService.getInsuranceProvidersList();
         this.__types = insurancePolicyService.getInsuranceCategories();
         this.__insurancesByType = insurancePolicyService.getInsurancesByType();
+        this.__insurancePolicyService = insurancePolicyService;
     }
+
+    /**
+     *
+     * @param InsurancePolicyModel newPolicyData
+     */
+    setupNewPolicyEdit(newPolicyData) {
+        this.selectedInsurance = newPolicyData;
+        this.__insurancesByType = this.__insurancePolicyService.getInsurancesByType();
+        this.setup();
+    }
+
     setup() {
-        let policyScreen = document.getElementById("edit-policy-screen");
-        policyScreen.classList.remove("d-none");
+        this.show();
         this.setupInsuranceTypeNavigation();
         this.populateSelectDropdowns();
         // this is where we would populate the most current insurance
         this.setupInitialInsurance();
+        this.render();
     }
     setupInitialInsurance() {
-        let defaultType = this.__types[0];
-        let insurances = this.__insurancesByType[defaultType];
-        this.selectedInsurance = insurances[0] || null;
-        if (this.selectedInsurance && this.selectedInsurance.id) {
-            this.populateInsuranceInformationForSelectedInsurance(this.selectedInsurance);
-        } else {
-            // TODO: @adunsulag need to figure out what happens if we have no insurance for the patient...
+        if (this.selectedInsurance === null) {
+            let defaultType = this.__types[0];
+            this.__selectedInsuranceTypeTab = defaultType;
+            let insurances = this.__insurancesByType[defaultType];
+            this.selectedInsurance = insurances[0] || null;
         }
-        // do a default for now
+
     }
     hide() {
         this.toggleDisplay(false);
@@ -92,52 +110,87 @@ export class EditPolicyScreenController
                     evt.preventDefault();
                     evt.stopPropagation();
 
-                    // need to remove the current class from all of the links and mark the clicked link as current
-                    document.querySelectorAll('.nav-link-insurance-type').forEach(l => {
-                        l.closest('.nav-link-insurance-type-container').classList.remove('current');
-                    });
-                    evt.target.closest('.nav-link-insurance-type-container').classList.add('current');
-
-                    // need to hide all of the insurance-type-no-policies elements and show the one for the selected type
-                    document.querySelectorAll('.insurance-type-no-policies').forEach(el => {
-                        el.classList.add('d-none');
-                    });
-                    let type = evt.target.dataset.type;
-                    let noPolicies = document.querySelector('.insurance-type-no-policies-' + type);
-                    let typeHasNoExistingPolicy = this.__insurancesByType[type].find(insurance => insurance.id != null) === undefined;
-                    let selectorRow = document.querySelector('.insurance-type-selector-row-' + type);
-                    if (noPolicies && typeHasNoExistingPolicy) {
-                        noPolicies.classList.remove('d-none');
-                        // grab the selector row .insurance-type-selector-row-<type> and hide it
-
-                        if (selectorRow) {
-                            selectorRow.classList.add('d-none');
-                        }
-                    } else {
-                        selectorRow.classList.remove("d-none");
-                    }
-
-                    let tabContainer = document.querySelector('.tabContainer');
-                    if (tabContainer) {
-                        let tabs = tabContainer.querySelectorAll('.tab');
-                        if (tabs) {
-                            tabs.forEach(tab => {
-                                if (tab.dataset.type == type) {
-                                    tab.classList.add('current');
-                                } else {
-                                    tab.classList.remove('current');
-                                }
-                            });
-                        }
-                    }
-                    let insurances = this.__insurancesByType[type];
-                    if (insurances && insurances.length > 0) {
-                        this.populateInsuranceInformationForSelectedInsurance(insurances[0]);
-                    } else {
-                        // TODO: @adunsulag need to figure out what happens if we have no insurance for the patient...
-                    }
+                    // clear out any selected insurance so we go with whatever the default is.
+                    this.selectedInsurance = null;
+                    this.__selectedInsuranceTypeTab = evt.target.dataset.type;
+                    this.render();
                 });
             });
+        }
+    }
+
+    render() {
+        let type = this.__selectedInsuranceTypeTab;
+        let selectedInsuranceTypeAnchor = document.querySelector('.nav-link-insurance-type[data-type="' + type + '"]');
+        let selectedInsuranceTypeTab = selectedInsuranceTypeAnchor.closest('.nav-link-insurance-type-container');
+        // need to remove the current class from all of the links and mark the clicked link as current
+        document.querySelectorAll('.nav-link-insurance-type').forEach(l => {
+            l.closest('.nav-link-insurance-type-container').classList.remove('current');
+        });
+        selectedInsuranceTypeTab.classList.add('current');
+
+        // need to hide all of the insurance-type-no-policies elements and show the one for the selected type
+        document.querySelectorAll('.insurance-type-no-policies').forEach(el => {
+            el.classList.add('d-none');
+        });
+
+        let noPolicies = document.querySelector('.insurance-type-no-policies-' + type);
+        let typeHasNoExistingPolicy = this.__insurancesByType[type].find(insurance => insurance.id != null) === undefined;
+        let selectorRow = document.querySelector('.insurance-type-selector-row-' + type);
+        if (noPolicies && typeHasNoExistingPolicy) {
+            noPolicies.classList.remove('d-none');
+            // grab the selector row .insurance-type-selector-row-<type> and hide it
+
+            if (selectorRow) {
+                selectorRow.classList.add('d-none');
+            }
+        } else {
+            selectorRow.classList.remove("d-none");
+        }
+
+        let tabContainer = document.querySelector('.tabContainer');
+        if (tabContainer) {
+            let tabs = tabContainer.querySelectorAll('.tab');
+            if (tabs) {
+                tabs.forEach(tab => {
+                    if (tab.dataset.type == type) {
+                        tab.classList.add('current');
+                    } else {
+                        tab.classList.remove('current');
+                    }
+                });
+            }
+        }
+        let insurances = this.__insurancesByType[type];
+        if (insurances && insurances.length > 0) {
+            this.populateInsuranceInformationForSelectedInsurance(insurances[0]);
+        } else {
+            // TODO: @adunsulag need to figure out what happens if we have no insurance for the patient...
+        }
+
+        let select = document.getElementById('insurance-type-' + type);
+        if (select) {
+            // let's empty out the select
+            select.innerHTML = "";
+            let insurances = this.__insurancesByType[type];
+            insurances.forEach(insurance => {
+                let option = document.createElement('option');
+                option.value = insurance.id === null ? "" : insurance.id;
+                option.innerText = insurance.toString();
+                if (insurance.hasOwnProperty('end_date') && insurance.end_date !== null) {
+                    option.innerText += " - " + window.top.xl("End Date") + ": " + insurance.end_date;
+                }
+                select.appendChild(option);
+            });
+            // set our default selected if we have an initially selected insurance we are editing
+            if (this.selectedInsurance) {
+                let selectedOptionInsuranceId = this.selectedInsurance.id === null ? "" : this.selectedInsurance.id;
+                let option = select.querySelector('[value="' + selectedOptionInsuranceId + '"]');
+                if (option) {
+                    option.selected = true;
+                }
+            }
+            select.classList.remove("d-none");
         }
     }
 
@@ -145,23 +198,15 @@ export class EditPolicyScreenController
         this.__types.forEach(type => {
             let select = document.getElementById('insurance-type-' + type);
             if (select) {
-                let insurances = this.__insurancesByType[type];
-                insurances.forEach(insurance => {
-                    let option = document.createElement('option');
-                    option.value = insurance.id;
-                    option.innerText = insurance.plan_name + " - " + window.top.xl("Effective Date") + ": " + insurance.date;
-                    if (insurance.hasOwnProperty('end_date') && insurance.end_date !== null) {
-                        option.innerText += " - " + window.top.xl("End Date") + ": " + insurance.end_date;
-                    }
-                    select.appendChild(option);
-                });
                 select.addEventListener("change", (evt) => {
                     let selectedId = evt.target.value;
                     let type = evt.target.dataset.type;
-                    let selectedInsurance = this.__insurancesByType[type].find(insurance => insurance.id == selectedId);
-                    this.populateInsuranceInformationForSelectedInsurance(selectedInsurance);
+                    if (!selectedId) {
+                        selectedId = null; // so we can find the blank policy
+                    }
+                    this.selectedInsurance = this.__insurancesByType[type].find(insurance => insurance.id == selectedId);
+                    this.render();
                 });
-                select.classList.remove("d-none");
             }
         });
     }

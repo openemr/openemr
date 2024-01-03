@@ -41,6 +41,12 @@ export class InsurancePolicyModel {
         // need to handle validation errors here.
     }
 
+    clone() {
+        let newPolicy = new InsurancePolicyModel();
+        newPolicy.populate(this);
+        return newPolicy;
+    }
+
     isCurrentPolicy() {
         return this.id !== null && this.date_end === null;
     }
@@ -50,5 +56,31 @@ export class InsurancePolicyModel {
             // TODO: if we need to do any validation we could do that here
             Object.assign(this, pojo);
         }
+    }
+    setEffectiveEndDate(date) {
+        this.date_end = date;
+    }
+
+    setId(id) {
+        this.id = id;
+    }
+
+    setUuid(uuid) {
+        this.uuid = uuid;
+    }
+
+    toString() {
+        let names = [this.plan_name || "", " "];
+        if (this.date) {
+            names.push(this.date);
+        } else {
+            names.push(window.top.xl("No start date"));
+        }
+        if (this.date_end) {
+            names.push(" - " + this.date_end);
+        } else {
+            names.push(" - " + window.top.xl("Current"));
+        }
+        return names.join("");
     }
 }

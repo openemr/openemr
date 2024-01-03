@@ -81,4 +81,57 @@ export class InsurancePolicyService
                 return this.insurancesByType;
             });
     }
+
+    copyPolicyFromExistingPolicy(policyId) {
+        let copyPolicy = this.getInsuranceByPolicyId(policyId);
+        let newPolicy = copyPolicy.clone();
+        newPolicy.setId(null);
+        newPolicy.setEffectiveEndDate(null);
+        newPolicy.setUuid(null);
+        return newPolicy;
+    }
+
+    getInsuranceByPolicyId(policyId) {
+        let foundInsurance = null;
+        this.__types.forEach(t => {
+            this.insurancesByType[t].forEach(ins => {
+                if (ins.id === policyId) {
+                    foundInsurance = ins;
+                }
+            });
+        });
+        return foundInsurance;
+    }
+    createNewPolicy(type) {
+        let newPolicy = new InsurancePolicyModel();
+        newPolicy.type = type;
+        return newPolicy;
+    }
+
+    createInMemoryPolicy(type, copyPolicyId) {
+        let newPolicy = this.createNewPolicy(type);
+        if (copyPolicyId) {
+            newPolicy = this.copyPolicyFromExistingPolicy(copyPolicyId);
+        }
+
+        // store in our system
+        this.storePolicyInMemory(newPolicy);
+
+        return newPolicy;
+    }
+
+    storePolicyInMemory(policy) {
+        if (!this.insurancesByType[policy.type]) {
+            this.insurancesByType[policy.type] = [];
+        }
+        let index = this.insurancesByType[policy.type].findIndex(ins => ins.id === policy.id);
+        if (index === -1) {
+            // have new policies stored at the beginning so they show up on top.
+            this.insurancesByType[policy.type].unshift(policy);
+        }
+        else {
+            // replace the existing policy in memory
+            this.insurancesByType[policy.type][index] = policy;
+        }
+    }
 }

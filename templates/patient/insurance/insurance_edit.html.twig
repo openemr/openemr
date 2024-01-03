@@ -392,6 +392,15 @@
             </div>
         </div>
         <div class="form-row mb-2 new-policy-effective-end-date-row d-none">
+            <div class="col-md-6">
+                <div class="form-row">
+                    <div class="col-md-12">
+                        <p>{{ "Policy to update:" }} <span class="effective-end-date-policy-label"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-row mb-2 new-policy-effective-end-date-row d-none">
             <div class="form-row">
                 <div class="col-md-3">
                     <label>{{ "End Date"|xlt }}</label>
@@ -407,7 +416,7 @@
                 <p class="new-policy-error-message new-policy-error-message-effective-end-date-empty d-none">{{ "There are no policies for this insurance type to copy from"|xlt }}</p>
             </div>
         </div>
-        <div class="form-row mb-2 new-policy-effective-end-date-row">
+        <div class="form-row mb-2">
             <div class="form-row">
                 <div class="col-md-3">
                     <input type="button" class="btn btn-action btn-new-policy-next btn-primary" value="{{ "Next"|xlt }}" />
@@ -557,21 +566,21 @@
         window.addEventListener("DOMContentLoaded", function() {
             // due to our dynamic nature we need to do a dynamic import of the controller
             {# TODO: @adunsulag check with @brady.miller to find out if there is a need to escape the cache param here due to the global v_include #}
-            import({{ webroot|json_encode }} + "/library/js/oeUI/insurance/InsuranceEditController.js?v=" + {{ getAssetCacheParamRaw()|json_encode() }})
+            import({{ webroot|json_encode }} + "/library/js/oeUI/insurance/InsuranceEditMainController.js?v=" + {{ getAssetCacheParamRaw()|json_encode() }})
                 .then(result => {
                     /**
-                     * @typedef InsuranceEditControllerModule
+                     * @typedef InsuranceEditMainControllerModule
                      * @type {object}
-                     * @property {InsuranceEditController} InsuranceEditController
+                     * @property {InsuranceEditMainController} InsuranceEditMainController
                      */
                     /**
                      * This is a dynamic module import due to the way we construct our import urls.  We do a custom type definition
                      * so we can get intellisense support.  You can see the type definition above in order to jump to the definition
                      * of the file.
-                     * @type {InsuranceEditControllerModule}
+                     * @type {InsuranceEditMainControllerModule}
                      */
                     let moduleResult = result;
-                    let insuranceEditController = new result.InsuranceEditController(csrfToken, url, insuranceProviderList, types, puuid);
+                    let insuranceEditController = new result.InsuranceEditMainController(csrfToken, url, insuranceProviderList, types, puuid);
                     insuranceEditController.init();
                 })
                 .catch(err => {

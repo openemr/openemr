@@ -6,18 +6,52 @@ export class NewPolicyScreenController
     __insurancesByType = {};
     __screenName = "new-policy-screen";
 
+    /**
+     *
+     * @type {boolean}
+     * @private
+     */
     __isCopyPolicy = false;
+    /**
+     *
+     * @type {null|number}
+     * @private
+     */
     __copyPolicyId = null;
+    /**
+     *
+     * @type {boolean}
+     * @private
+     */
     __setEffectiveEndDate = false;
 
+    /**
+     *
+     * @type {null|string}
+     * @private
+     */
+
     __selectedInsuranceType = null;
+
+    /**
+     *
+     * @type {string}
+     * @private
+     */
     __effectiveEndDate = (new Date()).toISOString().substring(0, 10); // grab the first 10 digits
+
+    /**
+     * @type {InsurancePolicyService}
+     * @private
+     */
+    __insurancePolicyService = null;
 
     /**
      *
      * @param insurancePolicyService InsurancePolicyService
      */
     constructor(insurancePolicyService) {
+        this.__insurancePolicyService = insurancePolicyService;
         this.__types = insurancePolicyService.getInsuranceCategories();
         this.__insurancesByType = insurancePolicyService.getInsurancesByType();
         this.__isCopyPolicy = false;
@@ -25,7 +59,7 @@ export class NewPolicyScreenController
         this.__copyPolicyId = null;
     }
 
-    setup() {
+    setup(nextButtonCallback) {
         let newPolicyScreen = document.getElementById("new-policy-screen");
         newPolicyScreen.classList.remove("d-none");
 
@@ -39,14 +73,36 @@ export class NewPolicyScreenController
             this.refreshNewPolicyScreen(event);
         });
         this.refreshNewPolicyScreen({});
+
+        document.querySelector('.btn-new-policy-next').addEventListener('click', () => {
+            this.handleNextButtonPress(nextButtonCallback);
+        });
+    }
+
+    handleNextButtonPress(nextButtonCallback) {
+        this.updateEffectiveEndDate();
+        let data = this.getDataForNewPolicy();
+        let newPolicy = this.getNewPolicy(data.copyPolicyId, data.isCopyPolicy, data.type, data.endDate);
+        nextButtonCallback(newPolicy);
+    }
+
+    getNewPolicy(copyPolicyId, isCopyPolicy, type, endDate) {
+        let newPolicy = null;
+        if (!isCopyPolicy) {
+            copyPolicyId = null;
+        }
+        return this.__insurancePolicyService.createInMemoryPolicy(type, copyPolicyId);
     }
 
     toggleSetEffectiveEndDateRow(display) {
-        let setEndDateRow = document.querySelector(".new-policy-set-end-date-row");
+        let setEndDateRow = document.querySelectorAll(".new-policy-set-end-date-row");
         if (display) {
-            setEndDateRow.classList.remove("d-none");
+            setEndDateRow.forEach(r => r.classList.remove("d-none"));
         } else {
-            setEndDateRow.classList.add("d-none");
+            setEndDateRow.forEach(r => r.classList.add("d-none"));
+            // turning it off will also turn off the check list.
+            this.__setEffectiveEndDate = false;
+            document.getElementById('setEndDateCheckbox').checked = false;
         }
     }
 
@@ -116,7 +172,7 @@ export class NewPolicyScreenController
 
             let copyNode = document.querySelector(".new-policy-copy-list");
             if (copyNode && copyNode.value) {
-                this.__copyPolicyId = copyNode.value;
+                this.__copyPolicyId = +copyNode.value;
             } else {
                 this.__copyPolicyId = null;
             }
@@ -126,15 +182,24 @@ export class NewPolicyScreenController
         this.toggleSetEffectiveEndDateRow(this.shouldDisplayEffectiveEndDate());
 
 
-        let effectiveEndDateRow = document.querySelector(".new-policy-effective-end-date-row");
+        let effectiveEndDateRows = document.querySelectorAll(".new-policy-effective-end-date-row");
         if (this.__setEffectiveEndDate) {
-            effectiveEndDateRow.classList.remove("d-none");
+            effectiveEndDateRows.forEach(r => r.classList.remove("d-none"));
             let effectiveEndDateInput = document.querySelector(".new-policy-effective-end-date");
             effectiveEndDateInput.value = this.__effectiveEndDate;
         } else {
-            effectiveEndDateRow.classList.add("d-none");
+            effectiveEndDateRows.forEach(r => r.classList.add("d-none"));
         }
-        console.log(this.getDataForNewPolicy());
+        let policyCopyName = document.querySelector(".effective-end-date-policy-label");
+        if (policyCopyName) {
+            let policyName = window.top.xl("Policy Number missing");
+            let policy = this.__insurancePolicyService.getInsuranceByPolicyId(this.__copyPolicyId);
+            if (policy) {
+                policyName = policy.toString();
+            }
+            policyCopyName.innerText = policyName;
+        }
+
         if (this.isValid()) {
             this.toggleNextButton(true);
         } else {
@@ -189,7 +254,7 @@ export class NewPolicyScreenController
             insurances.forEach(insurance => {
                 let option = document.createElement('option');
                 option.value = insurance.id;
-                option.innerText = insurance.plan_name + " - " + window.top.xl("Effective Date") + ": " + insurance.date;
+                option.innerText = insurance.toString();
                 if (insurance.hasOwnProperty('end_date') && insurance.end_date !== null) {
                     option.innerText += " - " + window.top.xl("End Date") + ": " + insurance.end_date;
                 }
