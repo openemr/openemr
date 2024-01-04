@@ -114,9 +114,15 @@ class AppointmentService extends BaseService
         });
 
         return $validator->validate($appointment);
+        return $validator->validate($appointment);
     }
 
-    public function search($search, $isAndCondition = true)
+    public function searchAllWithPatient($search, $isAndCondition = true)
+    {
+        return $this->search($search, $isAndCondition, true);
+    }
+
+    public function search($search, $isAndCondition = true, $onlyWithPatient = false)
     {
         $sql = "SELECT pce.pc_eid,
                        pce.pc_uuid,
@@ -176,6 +182,16 @@ class AppointmentService extends BaseService
                        LEFT JOIN users as providers ON pce.pc_aid = providers.id";
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+
+        // filter pce without a patient if $onlyWithPatient is set
+        if ($onlyWithPatient) {
+            $fragment = $whereClause->getFragment();
+            if (strlen($fragment) > 0) {
+                $whereClause->setFragment($fragment . " AND pce.pc_pid != ''");
+            } else {
+                $whereClause->setFragment(" WHERE pce.pc_pid != ''");
+            }
+        }
 
         $sql .= $whereClause->getFragment();
         $sqlBindArray = $whereClause->getBoundValues();
