@@ -8,6 +8,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
+use OpenEMR\Services\PractitionerService;
 use OpenEMR\Services\UserService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -36,13 +37,15 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
     use FhirBulkExportDomainResourceTrait;
 
     /**
-     * @var PractitionerService
+     * @var PractitionerService/UserService
      */
+    private $practitionerService;
     private $userService;
 
     public function __construct()
     {
         parent::__construct();
+        $this->practitionerService = new PractitionerService();
         $this->userService = new UserService();
     }
 
@@ -265,7 +268,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
             $username .= $openEmrRecord['fname'] ?? '';
             $openEmrRecord['username'] = uniqid($username);
         }
-        return $this->userService->insert($openEmrRecord);
+        return $this->practitionerService->insert($openEmrRecord);
     }
 
 
@@ -278,7 +281,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
      */
     public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
     {
-        $processingResult = $this->userService->update($fhirResourceId, $updatedOpenEMRRecord);
+        $processingResult = $this->practitionerService->update($fhirResourceId, $updatedOpenEMRRecord);
         return $processingResult;
     }
 
