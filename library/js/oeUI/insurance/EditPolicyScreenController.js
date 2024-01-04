@@ -37,6 +37,7 @@ export class EditPolicyScreenController
      */
     setupNewPolicyEdit(newPolicyData) {
         this.selectedInsurance = newPolicyData;
+        this.__selectedInsuranceTypeTab = newPolicyData.type;
         this.__insurancesByType = this.__insurancePolicyService.getInsurancesByType();
         this.setup();
     }

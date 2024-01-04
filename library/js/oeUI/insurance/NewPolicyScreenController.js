@@ -46,6 +46,8 @@ export class NewPolicyScreenController
      */
     __insurancePolicyService = null;
 
+    __boundEvents = [];
+
     /**
      *
      * @param insurancePolicyService InsurancePolicyService
@@ -57,26 +59,79 @@ export class NewPolicyScreenController
         this.__isCopyPolicy = false;
         this.__setEffectiveEndDate = false;
         this.__copyPolicyId = null;
+        this.__selectedInsuranceType = this.__types[0];
     }
 
     setup(nextButtonCallback) {
-        let newPolicyScreen = document.getElementById("new-policy-screen");
-        newPolicyScreen.classList.remove("d-none");
-
+        this.show();
         // grab the newInsuranceType radio value
-        document.querySelectorAll('input[name="newInsuranceType"],input[name="createOption"]').forEach(radio => {
-            radio.addEventListener('click', (event) => this.refreshNewPolicyScreen(event));
+        document.querySelectorAll('input[name="newInsuranceType"]').forEach(radio => {
+            this.addEvent(radio, 'click', (event) => {
+                this.updateInsuranceType(event);
+                this.render();
+            });
         });
 
-        document.getElementById("setEndDateCheckbox").addEventListener('click', (event) => {
+        document.querySelectorAll('input[name="createOption"]').forEach(radio => {
+            this.addEvent(radio, 'click', (event) => {
+                this.updateCreateOption(event);
+                this.render();
+            });
+        });
+
+        let setEndDateCheckbox =
+        document.getElementById("setEndDateCheckbox");
+        this.addEvent(setEndDateCheckbox, 'click', (event) => {
             this.toggleEffectiveEndDate(event);
-            this.refreshNewPolicyScreen(event);
+            this.render(event);
         });
-        this.refreshNewPolicyScreen({});
-
-        document.querySelector('.btn-new-policy-next').addEventListener('click', () => {
+        let nextButtonNode = document.querySelector('.btn-new-policy-next');
+        this.addEvent(nextButtonNode, 'click', () => {
             this.handleNextButtonPress(nextButtonCallback);
         });
+
+        let effectiveEndDate = document.querySelector(".new-policy-effective-end-date");
+        this.addEvent(effectiveEndDate, 'input', (event) => {
+            this.__effectiveEndDate = event.target.value.trim(); // TODO: do we want to parse this as a date?
+        });
+        this.render();
+    }
+
+    updateCreateOption() {
+        let createOption = document.querySelector('input[name="createOption"]:checked').value;
+        if (createOption === 'copy') {
+            this.__isCopyPolicy = true;
+            this.setCopyPolicyToFirstPolicy();
+        } else {
+            this.__isCopyPolicy = false;
+            this.__copyPolicyId = null;
+        }
+    }
+    setCopyPolicyToFirstPolicy() {
+        if (this.__isCopyPolicy) {
+            let insurances = this.__insurancesByType[this.__selectedInsuranceType]
+                .filter(insurance => insurance.id !== null);
+            this.__copyPolicyId = insurances.length > 0 ? insurances[0].id : null;
+        } else {
+            this.__copyPolicyId = null;
+        }
+    }
+
+    updateInsuranceType(event) {
+        this.__selectedInsuranceType = event.target.value;
+        this.setCopyPolicyToFirstPolicy();
+    }
+
+    addEvent(node, event, callback) {
+        node.addEventListener(event, callback);
+        this.__boundEvents.push({node: node, event: event, callback: callback});
+    }
+
+    clearEvents() {
+        this.__boundEvents.forEach(event => {
+            event.node.removeEventListener(event.event, event.callback);
+        });
+        this.__boundEvents = [];
     }
 
     handleNextButtonPress(nextButtonCallback) {
@@ -86,8 +141,7 @@ export class NewPolicyScreenController
         nextButtonCallback(newPolicy);
     }
 
-    getNewPolicy(copyPolicyId, isCopyPolicy, type, endDate) {
-        let newPolicy = null;
+    getNewPolicy(copyPolicyId, isCopyPolicy, type) {
         if (!isCopyPolicy) {
             copyPolicyId = null;
         }
@@ -100,7 +154,7 @@ export class NewPolicyScreenController
             setEndDateRow.forEach(r => r.classList.remove("d-none"));
         } else {
             setEndDateRow.forEach(r => r.classList.add("d-none"));
-            // turning it off will also turn off the check list.
+            // turning it off will also turn off the checklist.
             this.__setEffectiveEndDate = false;
             document.getElementById('setEndDateCheckbox').checked = false;
         }
@@ -137,47 +191,40 @@ export class NewPolicyScreenController
     }
 
     getDataForNewPolicy() {
-        let data = {
+        return {
             type: this.__selectedInsuranceType
             ,endDate: this.__effectiveEndDate
             ,setEndDate: this.__setEffectiveEndDate
             ,copyPolicyId: this.__copyPolicyId
             ,isCopyPolicy: this.__isCopyPolicy
         };
-        return data;
     }
 
     toggleEffectiveEndDate(event) {
         this.__setEffectiveEndDate = event.target.checked;
     }
 
-    refreshNewPolicyScreen(event) {
-        let newInsuranceType = document.querySelector('input[name="newInsuranceType"]:checked').value;
-
-        // grab the radio selected value for the createOption and if it is 'blank' then
-        let createOption = document.querySelector('input[name="createOption"]:checked').value;
-
+    render() {
+        // set our selected insurance type
+        document.getElementById('new-insurance-type-' + this.__selectedInsuranceType).checked = true;
+        document.getElementById('setEndDateCheckbox').checked = this.__setEffectiveEndDate;
         let copyPolicyRow = document.querySelector(".new-policy-copy-row");
-        this.__isCopyPolicy = createOption === 'copy';
         if (!this.__isCopyPolicy) {
-            this.__isCopyPolicy = false;
-            this.__copyPolicyId = null;
+            document.getElementById('createOptionBlank').checked = true;
             copyPolicyRow.classList.add("d-none");
             // display the blank-policy form
             // using the newInsuranceType.value grab the select with name
         } else {
+            document.getElementById('createOptionCopy').checked = true;
             // show the copy policy row
             copyPolicyRow.classList.remove("d-none");
-            this.createCopyPolicyDropdown(newInsuranceType);
+            this.createCopyPolicyDropdown(this.__selectedInsuranceType);
 
-            let copyNode = document.querySelector(".new-policy-copy-list");
-            if (copyNode && copyNode.value) {
-                this.__copyPolicyId = +copyNode.value;
-            } else {
-                this.__copyPolicyId = null;
+            if (this.__copyPolicyId) {
+                // let copyOptionNode = document.querySelector(".new-policy-copy-list option[value='" + this.__copyPolicyId + "']");
+                document.querySelector(".new-policy-copy-list").value = this.__copyPolicyId;
             }
         }
-        this.__selectedInsuranceType = newInsuranceType;
 
         this.toggleSetEffectiveEndDateRow(this.shouldDisplayEffectiveEndDate());
 
@@ -239,7 +286,8 @@ export class NewPolicyScreenController
     }
 
     createCopyPolicyDropdown(newInsuranceType) {
-        let insurances = this.__insurancesByType[newInsuranceType].filter(insurance => insurance.id !== null);
+        let insurancesByType = this.__insurancesByType[newInsuranceType] || [];
+        let insurances = insurancesByType.filter(insurance => insurance.id !== null);
         let emptyPolicyList = document.querySelector(".new-policy-list-empty");
         let select = document.querySelector(".new-policy-copy-list");
 
@@ -247,7 +295,6 @@ export class NewPolicyScreenController
         if (insurances.length === 0) {
             emptyPolicyList.classList.remove("d-none");
             select.classList.add("d-none");
-            this.__copyPolicyId = null;
         } else {
             emptyPolicyList.classList.add("d-none");
             select.classList.remove("d-none");
@@ -263,13 +310,15 @@ export class NewPolicyScreenController
                 }
                 select.appendChild(option);
             });
-            this.__copyPolicyId = insurances[0].id;
         }
     }
 
     destroy() {
+        // reset our radio buttons
+        this.hide();
         // cleanup all events and remove the dialog from the screen.  Reload the insurance
         // edit screen.
+        this.clearEvents();
     }
 
     hide() {

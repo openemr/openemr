@@ -74,7 +74,8 @@ export class InsuranceEditMainController {
         });
         let btnEditReturn = document.querySelector(".btn-edit-return");
         btnEditReturn.addEventListener("click", () => {
-            this.__newPolicyScreen.hide();
+            this.__newPolicyScreen.destroy();
+            this.__newPolicyScreen = null;
             this.showEditScreen();
         });
     }
@@ -102,7 +103,8 @@ export class InsuranceEditMainController {
     }
 
     handleNewPolicyScreenNext(newPolicyData) {
-        this.__newPolicyScreen.hide();
+        this.__newPolicyScreen.destroy();
+        this.__newPolicyScreen = null;
         this.__editPolicyScreen.setupNewPolicyEdit(newPolicyData);
         this.showEditScreen();
     }
