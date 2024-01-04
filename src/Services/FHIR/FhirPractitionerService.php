@@ -8,7 +8,7 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
-use OpenEMR\Services\PractitionerService;
+use OpenEMR\Services\UserService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
@@ -38,12 +38,12 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
     /**
      * @var PractitionerService
      */
-    private $practitionerService;
+    private $userService;
 
     public function __construct()
     {
         parent::__construct();
-        $this->practitionerService = new PractitionerService();
+        $this->userService = new UserService();
     }
 
     /**
@@ -67,7 +67,6 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
             'name' => new FhirSearchParameterDefinition('name', SearchFieldType::STRING, ["title", "fname", "mname", "lname"])
         ];
     }
-
 
     /**
      * Parses an OpenEMR practitioner record, returning the equivalent FHIR Practitioner Resource
@@ -266,7 +265,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
             $username .= $openEmrRecord['fname'] ?? '';
             $openEmrRecord['username'] = uniqid($username);
         }
-        return $this->practitionerService->insert($openEmrRecord);
+        return $this->userService->insert($openEmrRecord);
     }
 
 
@@ -279,7 +278,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
      */
     public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
     {
-        $processingResult = $this->practitionerService->update($fhirResourceId, $updatedOpenEMRRecord);
+        $processingResult = $this->userService->update($fhirResourceId, $updatedOpenEMRRecord);
         return $processingResult;
     }
 
@@ -292,7 +291,7 @@ class FhirPractitionerService extends FhirServiceBase implements IFhirExportable
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
-        return $this->practitionerService->getAll($openEMRSearchParameters, true);
+        return $this->userService->search($openEMRSearchParameters);
     }
     public function createProvenanceResource($dataRecord = array(), $encode = false)
     {
