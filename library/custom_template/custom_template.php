@@ -132,7 +132,7 @@ if (empty($isNN) && empty($rowContext)) {
         $(".iframe_medium").on('click', function (e) {
             e.preventDefault();
             e.stopPropagation();
-            dlgopen('', '', 725, 500, '', '', {
+            dlgopen('', '', 725, 575, '', '', {
                 buttons: [
                     {text: '<?php echo xla('Close'); ?>', close: true, style: 'secondary btn-sm'}
                 ],
