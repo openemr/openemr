@@ -358,7 +358,9 @@ try {
         'styleArray' => $styleArray,
         'eventNames' => [
             'sectionRenderPost' => RenderEvent::EVENT_SECTION_RENDER_POST,
-            'scriptsRenderPre' => RenderEvent::EVENT_SCRIPTS_RENDER_PRE
+            'scriptsRenderPre' => RenderEvent::EVENT_SCRIPTS_RENDER_PRE,
+            'dashboardInjectCard' => RenderEvent::EVENT_DASHBOARD_INJECT_CARD,
+            'dashboardRenderScripts' => RenderEvent::EVENT_DASHBOARD_RENDER_SCRIPTS
         ]
     ]);
 } catch (LoaderError | RuntimeError | SyntaxError $e) {
