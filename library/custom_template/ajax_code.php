@@ -115,7 +115,7 @@ if ($Source == "add_template") {
     echo "<select multiple name='topersonalizeditem[]' id='topersonalizeditem' size='6' style='width:220px' onchange='display_item()'>";
     $resTemplates = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=4 AND cl_deleted=0 AND cl_list_id IN (?) ORDER BY cl_list_item_long", [$val]);
     while ($rowTemplates = sqlFetchArray($resTemplates)) {
-        echo "<option value='" . attr($rowTemplates['cl_list_slno']) . "'>" . attr($rowTemplates['cl_list_item_long']) . "</option>";
+        echo "<option value='" . attr($rowTemplates['cl_list_slno']) . "'>" . text($rowTemplates['cl_list_item_long']) . "</option>";
     }
     echo "</select>";
     $Source = "add_template";
@@ -164,8 +164,8 @@ if ($Source != "add_template") {
         echo "<div style='display:inline' id='" . attr($row['cl_list_slno']) . "' onclick=\"moveOptions_11(" . attr_js($row['cl_list_slno']) . ", 'textarea1');\">" . text($row['cl_list_item_long']) . "</div>";
         if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
             echo "<img src='" . $GLOBALS['images_static_relative'] . "/deleteBtn.png' onclick=\"delete_item(" . attr_js($row['cl_list_slno']) . ")>";
-            echo "<div id='update_item" . attr($row['cl_list_slno']) . "' style='display:none'><textarea name='update_item_txt" . text($row['cl_list_slno']) . "' id='update_item_txt" . attr($row['cl_list_slno']) . "' class='w-100'>" . text($row['cl_list_item_long']) . "</textarea><br />";
-            echo "<input type='button' name='update' onclick=update_item('" . $row['cl_list_slno'] . "') value='" . xla('Update') . "'><input type='button' name='cancel' value='" . xlt('Cancel') . "' onclick=cancel_item(" . attr_js($row['cl_list_slno']) . ")></div>";
+            echo "<div id='update_item" . attr($row['cl_list_slno']) . "' style='display:none'><textarea name='update_item_txt" . attr($row['cl_list_slno']) . "' id='update_item_txt" . attr($row['cl_list_slno']) . "' class='w-100'>" . text($row['cl_list_item_long']) . "</textarea><br />";
+            echo "<input type='button' name='update' onclick=update_item(" . attr_js($row['cl_list_slno']) . ") value='" . xla('Update') . "'><input type='button' name='cancel' value='" . xla('Cancel') . "' onclick=cancel_item(" . attr_js($row['cl_list_slno']) . ")></div>";
         }
         echo "</span></li>";
     }
@@ -173,6 +173,6 @@ if ($Source != "add_template") {
         echo "<li class='bg-dark text-light' style='cursor:pointer'><span class='bg-dark text-light' onclick='add_item()'>" . xlt('Click to add new components');
         echo "</span><div id='new_item' style='display:none' class='w-100'>";
         echo "<textarea name='item' id='item' class='w-100 bg-dark text-light'></textarea><br />";
-        echo "<input type='button' name='save' value='" . xla('Save') . "' onclick='save_item()'><input type='button' name='cancel' value='" . xla('Cancel') . "' onclick=cancel_item('" . attr_js($row['cl_list_slno'] ?? '') . "')></div></li>";
+        echo "<input type='button' name='save' value='" . xla('Save') . "' onclick='save_item()'><input type='button' name='cancel' value='" . xla('Cancel') . "' onclick=cancel_item(" . attr_js($row['cl_list_slno'] ?? '') . ")></div></li>";
     }
 }
