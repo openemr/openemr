@@ -50,7 +50,7 @@ if ($Source == "add_template") {
             sqlStatement("INSERT INTO template_users (tu_user_id,tu_template_id) VALUES (?,?)", array($_SESSION['authUserID'], $newid));
         }
         echo "<select name='template' id='template' onchange='TemplateSentence(this.value)' style='width:180px'>";
-        echo "<option value=''>" . xlt('Select category') . "</option>";
+        echo "<option value=''>" . xla('Select category') . "</option>";
         $resTemplates = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE
                                      tu.tu_user_id=? AND c.cl_list_type=3 AND cl_list_id=? AND cl_deleted=0 ORDER BY tu.tu_template_order,
                                      c.cl_list_item_long", array($_SESSION['authUserID'], $list_id));
