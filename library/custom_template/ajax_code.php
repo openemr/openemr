@@ -157,7 +157,7 @@ if ($Source != "add_template") {
     $i = 0;
     while ($row = sqlFetchArray($res)) {
         $i++;
-        echo "<li class='bg-dark text-light' id='clorder_" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "' style='cursor:pointer'><span>";
+        echo "<li class='bg-dark text-light' id='clorder_" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "' style='cursor:pointer'><span class='bg-dark text-light'>";
         if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
             echo "<img src='" . $GLOBALS['images_static_relative'] . "/b_edit.png' onclick=update_item_div('" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "')>";
         }
@@ -170,9 +170,9 @@ if ($Source != "add_template") {
         echo "</span></li>";
     }
     if (AclMain::aclCheckCore('nationnotes', 'nn_configure') && $templateid) {
-        echo "<li style='cursor:pointer'><span onclick='add_item()'>" . htmlspecialchars(xl('Click to add new components'), ENT_QUOTES);
+        echo "<li class='bg-dark text-light' style='cursor:pointer'><span class='bg-dark text-light' onclick='add_item()'>" . htmlspecialchars(xl('Click to add new components'), ENT_QUOTES);
         echo "</span><div id='new_item' style='display:none' class='w-100'>";
-        echo "<textarea name='item' id='item' class='w-100'></textarea><br />";
+        echo "<textarea name='item' id='item' class='w-100 bg-dark text-light'></textarea><br />";
         echo "<input type='button' name='save' value='" . htmlspecialchars(xl('Save'), ENT_QUOTES) . "' onclick='save_item()'><input type='button' name='cancel' value='" . htmlspecialchars(xl('Cancel'), ENT_QUOTES) . "' onclick=cancel_item('" . attr_js($row['cl_list_slno'] ?? '') . "')></div></li>";
     }
 }
