@@ -31,12 +31,12 @@ require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 
-$templateid = $_REQUEST['templateid'];
-$Source = $_REQUEST['source'];
-$list_id = $_REQUEST['list_id'];
-$item = $_REQUEST['item'];
-$multi = $_REQUEST['multi'];
-$content = $_REQUEST['content'];
+$templateid = $_REQUEST['templateid'] ?? '';
+$Source = $_REQUEST['source'] ?? '';
+$list_id = $_REQUEST['list_id'] ?? '';
+$item = $_REQUEST['item'] ?? '';
+$multi = $_REQUEST['multi'] ?? '';
+$content = $_REQUEST['content'] ?? '';
 
 if ($Source == "add_template") {
     $arr = explode("|", $multi);
@@ -86,18 +86,17 @@ if ($Source == "add_template") {
     $selcont = sqlQuery("SELECT * FROM customlists WHERE cl_list_slno=? AND cl_list_type=2 AND cl_deleted=0", array($selcat['cl_list_id']));
     $cnt = sqlNumRows($res);
     if ($cnt) {
-        echo "<table width='100%'>";
-        echo "<tr class='text'><th colspan=2  style='background-color:var(--white)'>" . htmlspecialchars(xl('Preview of'), " " . $selcat['cl_list_item_long'] . "(" . $selcont['cl_list_item_long'] . ")", ENT_QUOTES) . "</th></tr>";
+        echo "<table class='table table-dark table-striped table-sm'>";
+        echo "<tr class='text bg-dark text-light'><th colspan=2 class='text bg-dark text-light'>" . text(xl('Preview of') . " " . $selcat['cl_list_item_long'] . "(" . $selcont['cl_list_item_long'] . ")") . "</th></tr>";
         $i = 0;
         while ($row = sqlFetchArray($res)) {
             $i++;
-            $class = ($class == 'reportTableOddRow') ? 'reportTableEvenRow' : 'reportTableOddRow';
-            echo "<tr class='text'><td style='background-color:var(--white)'>" . $i . "</td><td style='background-color:#ffffff'>" . htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES) . "</td></tr>";
+            echo "<tr class='text'><td class='bg-dark text-light'>" . text($i) . "</td><td>" . htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES) . "</td></tr>";
         }
         echo "</table>";
     } else {
         echo "<table width='100%'>";
-        echo "<tr class='text'><th colspan=2  style='background-color:var(--white)'>" . htmlspecialchars(xl('No items under selected category'), ENT_QUOTES) . "</th></tr>";
+        echo "<tr class='text bg-dark text-light'><th colspan=2>" . htmlspecialchars(xl('No items under selected category'), ENT_QUOTES) . "</th></tr>";
         echo "</table>";
     }
     $Source = "add_template";
@@ -158,7 +157,7 @@ if ($Source != "add_template") {
     $i = 0;
     while ($row = sqlFetchArray($res)) {
         $i++;
-        echo "<li id='clorder_" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "' style='cursor:pointer'><span>";
+        echo "<li class='bg-dark text-light' id='clorder_" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "' style='cursor:pointer'><span>";
         if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
             echo "<img src='" . $GLOBALS['images_static_relative'] . "/b_edit.png' onclick=update_item_div('" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "')>";
         }
@@ -174,6 +173,6 @@ if ($Source != "add_template") {
         echo "<li style='cursor:pointer'><span onclick='add_item()'>" . htmlspecialchars(xl('Click to add new components'), ENT_QUOTES);
         echo "</span><div id='new_item' style='display:none' class='w-100'>";
         echo "<textarea name='item' id='item' class='w-100'></textarea><br />";
-        echo "<input type='button' name='save' value='" . htmlspecialchars(xl('Save'), ENT_QUOTES) . "' onclick='save_item()'><input type='button' name='cancel' value='" . htmlspecialchars(xl('Cancel'), ENT_QUOTES) . "' onclick=cancel_item('" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "')></div></li>";
+        echo "<input type='button' name='save' value='" . htmlspecialchars(xl('Save'), ENT_QUOTES) . "' onclick='save_item()'><input type='button' name='cancel' value='" . htmlspecialchars(xl('Cancel'), ENT_QUOTES) . "' onclick=cancel_item('" . attr_js($row['cl_list_slno'] ?? '') . "')></div></li>";
     }
 }
