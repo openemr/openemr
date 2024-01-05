@@ -71,7 +71,7 @@ var page = {
         // make the rows clickable ('rendered' is a custom event, not a standard backbone event)
         this.collectionView.on('rendered', function () {
             if (page.isDashboard) {
-                $("#topnav").hide();
+                $("#topNav").hide();
             }
             // attach click handler to the table rows for editing
             $('table.collection tbody tr').click(function (e) {
@@ -100,7 +100,7 @@ var page = {
             });
             $('.template-item').unbind().on('click', function (e) {
                 if (!isModule) {
-                    $("#topnav").hide();
+                    $("#topNav").hide();
                     parent.document.getElementById('topNav').classList.add('collapse');
                 }
             });
@@ -673,7 +673,7 @@ var page = {
         page.encounterFormId = 0;
         page.encounterFormName = '';
         if (page.currentName !== 'Help') {
-            $("#topnav").hide();
+            $("#topNav").hide();
         }
         if (page.currentName === templateName && page.currentName && !page.isNewDoc) {
             // update form for any submits.(downloads and prints)
