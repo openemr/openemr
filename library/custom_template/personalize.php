@@ -300,7 +300,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                         $context_sql = "SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0";
                         $context_res = sqlStatement($context_sql);
                         while ($context_row = sqlFetchArray($context_res)) {
-                            echo "<option value='" . text($context_row['cl_list_slno']) . "' ";
+                            echo "<option value='" . attr($context_row['cl_list_slno']) . "' ";
                             echo ($filter_context == $context_row['cl_list_slno']) ? 'selected' : '';
                             echo ">" . text($context_row['cl_list_item_long']) . "</option>";
                         }
@@ -315,7 +315,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                         $user_sql = "SELECT DISTINCT(tu.tu_user_id),u.fname,u.lname FROM template_users AS tu LEFT OUTER JOIN users AS u ON tu.tu_user_id=u.id WHERE tu.tu_user_id!=?";
                         $user_res = sqlStatement($user_sql, array($_SESSION['authUserID']));
                         while ($user_row = sqlFetchArray($user_res)) {
-                            echo "<option value='" . text($user_row['tu_user_id']) . "' ";
+                            echo "<option value='" . attr($user_row['tu_user_id']) . "' ";
                             echo ($filter_users == $user_row['tu_user_id']) ? 'selected' : '';
                             echo ">" . text($user_row['fname'] . " " . $user_row['lname']) . "</option>";
                         }
@@ -388,7 +388,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                                 $context = sqlQuery("SELECT * FROM users WHERE id=?", array($rowTemplates['tu_user_id']));
                                 $cntxt .= $context['username'] . "->";
                             }
-                            echo "<option value='" . text($rowTemplates['cl_list_slno'] . "|" . $rowTemplates['tu_user_id']) . "'>" . text($cntxt . $rowTemplates['cl_list_item_long']) . "</option>";
+                            echo "<option value='" . attr($rowTemplates['cl_list_slno'] . "|" . $rowTemplates['tu_user_id']) . "'>" . text($cntxt . $rowTemplates['cl_list_item_long']) . "</option>";
                         }
                         $sqlorphan = "SELECT * FROM customlists WHERE cl_list_type=3 AND cl_deleted=0 AND cl_list_slno" .
                             " NOT IN (SELECT DISTINCT tu_template_id FROM template_users) " . $where . " ORDER BY cl_list_id,cl_list_item_long";
@@ -401,7 +401,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                                 $context = sqlQuery("SELECT * FROM customlists WHERE cl_list_slno=?", array($roworphan['cl_list_id']));
                                 $cntxt .= $context['cl_list_item_long'] . "->";
                             }
-                            echo "<option value='" . text($roworphan['cl_list_slno'] . "|") . "'>" . text($cntxt . $roworphan['cl_list_item_long']) . "</option>";
+                            echo "<option value='" . attr($roworphan['cl_list_slno'] . "|") . "'>" . text($cntxt . $roworphan['cl_list_item_long']) . "</option>";
                         }
                         ?>
                     </select>
@@ -426,7 +426,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                                 $context = sqlQuery("SELECT * FROM customlists WHERE cl_list_slno=?", array($rowTemplates['cl_list_id']));
                                 $cntxt .= $context['cl_list_item_long'] . "->";
                             }
-                            echo "<option value='" . text($rowTemplates['cl_list_slno'] . "|" . $rowTemplates['tu_user_id']) . "'>" . text($cntxt . $rowTemplates['cl_list_item_long']) . "</option>";
+                            echo "<option value='" . attr($rowTemplates['cl_list_slno'] . "|" . $rowTemplates['tu_user_id']) . "'>" . text($cntxt . $rowTemplates['cl_list_item_long']) . "</option>";
                         }
                         ?>
                     </select>

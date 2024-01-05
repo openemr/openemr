@@ -466,7 +466,7 @@ if (
                 e.stopPropagation();
                 let url = $(this).attr('href');
                 url = encodeURI(url);
-                dlgopen('', '', 950, 550, '', '', {
+                dlgopen('', '', 950, 650, '', '', {
                     buttons: [
                         {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
                     ],
