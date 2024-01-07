@@ -195,7 +195,7 @@ class InstallerController extends AbstractActionController
     private function callModuleAfterAction($action, $modId, $dirModule, $currentStatus): mixed
     {
         $modPath = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "custom_modules/" . $dirModule;
-        $moduleClassPath = $modPath . '/ModuleManagerAfterActions.php';
+        $moduleClassPath = $modPath . '/ModuleManagerActionListener.php';
         $action = trim($action);
         if (!file_exists($moduleClassPath)) {
             return $currentStatus;
@@ -652,7 +652,7 @@ class InstallerController extends AbstractActionController
      */
     public function EnableModule($modId = '')
     {
-        $resp = $this->getInstallerTable()->updateRegistered($modId, "mod_active=0");
+        $resp = $this->getInstallerTable()->updateRegistered($modId, "mod_active=1");
         if ($resp['status'] == 'failure' && $resp['code'] == '200') {
             $status = $resp['value'];
         } else {
@@ -669,7 +669,7 @@ class InstallerController extends AbstractActionController
      */
     public function DisableModule($modId = '')
     {
-        $resp = $this->getInstallerTable()->updateRegistered($modId, "mod_active=1");
+        $resp = $this->getInstallerTable()->updateRegistered($modId, "mod_active=0");
         if ($resp['status'] == 'failure' && $resp['code'] == '200') {
             $plural = "Module";
             if (count($resp['value'] ?? []) > 1) {
@@ -809,9 +809,9 @@ class InstallerController extends AbstractActionController
             } elseif ($moduleAction === "upgrade_acl") {
                 $div = $this->UpgradeModuleACL($moduleId);
             } elseif ($moduleAction === "enable") {
-                $div = $this->DisableModule($moduleId);
-            } elseif ($moduleAction === "disable") {
                 $div = $this->EnableModule($moduleId);
+            } elseif ($moduleAction === "disable") {
+                $div = $this->DisableModule($moduleId);
             } elseif ($moduleAction === "install") {
                 $div = $this->InstallModule($moduleId);
             } elseif ($moduleAction === "unregister") {

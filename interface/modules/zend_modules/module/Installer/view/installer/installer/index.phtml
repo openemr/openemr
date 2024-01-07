@@ -129,10 +129,10 @@ $coreModules = $this->coreModules ?? [];
                                         <a href="javascript:void(0)" class="link_submit install" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','install');" title="<?php echo $listener->z_xla('Click Here to Install This module'); ?>"><input type='button' class='activate' value="<?php echo $listener->z_xla('Install'); ?>" /></a>
                                         <?php
                                     } elseif ($moduleResult->modActive == 1) { ?>
-                                        <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','enable');" title="<?php echo $listener->z_xla('Click Here to Disable This module'); ?>"><input type='button' class='deactivate' value="<?php echo $listener->z_xla('Disable'); ?>" /></a>
+                                        <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','disable');" title="<?php echo $listener->z_xla('Click Here to Disable This module'); ?>"><input type='button' class='deactivate' value="<?php echo $listener->z_xla('Disable'); ?>" /></a>
                                     <?php } elseif ($moduleResult->modName != 'Acl') {
                                         ?>
-                                        <a href="javascript:void(0)" class="link_submit inactive" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','disable');" title="<?php echo $listener->z_xla('Click Here to Enable This module'); ?>"><input type='button' class='activate' value="<?php echo $listener->z_xla('Enable'); ?>" /></a>
+                                        <a href="javascript:void(0)" class="link_submit inactive" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','enable');" title="<?php echo $listener->z_xla('Click Here to Enable This module'); ?>"><input type='button' class='activate' value="<?php echo $listener->z_xla('Enable'); ?>" /></a>
                                         <?php
                                     } ?>
                                     <?php
