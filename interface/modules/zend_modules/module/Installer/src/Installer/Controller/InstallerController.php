@@ -201,7 +201,7 @@ class InstallerController extends AbstractActionController
             return $currentStatus;
         }
         require_once($moduleClassPath);
-        $className = 'ModuleManagerAfterActions';
+        $className = 'ModuleManagerActionListener';
         $methodName = trim($action);
         if (class_exists($className)) {
             if (method_exists($className, 'moduleManagerAction')) {
