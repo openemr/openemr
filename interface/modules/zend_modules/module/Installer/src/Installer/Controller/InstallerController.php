@@ -135,6 +135,10 @@ class InstallerController extends AbstractActionController
         $request = $this->getRequest();
         $status = $this->listenerObject->z_xlt("Failure");
         if ($request->isPost()) {
+            $modId = $request->getPost('modId') ?? null;
+            $registryEntry = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
+            $dirModule = $registryEntry->modDirectory;
+            $modType = $registryEntry->type;
             if ($request->getPost('modAction') == "enable") {
                 $status = $this->EnableModule($request->getPost('modId'));
             } elseif ($request->getPost('modAction') == "disable") {
@@ -168,6 +172,10 @@ class InstallerController extends AbstractActionController
             } elseif ($request->getPost('modAction') == "unregister") {
                 $status = $this->UnregisterModule($request->getPost('modId'));
             }
+            // cleanup action.
+            if ($modType == InstModuleTable::MODULE_TYPE_CUSTOM) {
+                $status = $this->callModuleAfterAction($request->getPost('modAction'), $modId, $dirModule, $status);
+            }
         }
         $output = "";
         if (!empty($div) && is_array($div)) {
@@ -178,10 +186,39 @@ class InstallerController extends AbstractActionController
     }
 
     /**
+     * @param $action
+     * @param $modId
+     * @param $dirModule
+     * @param $currentStatus
+     * @return mixed
+     */
+    private function callModuleAfterAction($action, $modId, $dirModule, $currentStatus): mixed
+    {
+        $modPath = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "custom_modules/" . $dirModule;
+        $moduleClassPath = $modPath . '/ModuleManagerAfterActions.php';
+        $action = trim($action);
+        if (!file_exists($moduleClassPath)) {
+            return $currentStatus;
+        }
+        require_once($moduleClassPath);
+        $className = 'ModuleManagerAfterActions';
+        $methodName = trim($action);
+        if (class_exists($className)) {
+            if (method_exists($className, 'moduleManagerAction')) {
+                return call_user_func([$className, 'moduleManagerAction'], $methodName, $modId);
+            } else {
+                return $currentStatus;
+            }
+        } else {
+            return $currentStatus;
+        }
+    }
+
+    /**
      * @param $version
      * @return int|string
      */
-    function upgradeAclFromVersion($ACL_UPGRADE, $version)
+    private function upgradeAclFromVersion($ACL_UPGRADE, $version)
     {
         $toVersion = '';
         foreach ($ACL_UPGRADE as $toVersion => $function) {
