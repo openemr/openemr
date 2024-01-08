@@ -168,7 +168,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             }
             jsub_sortNow(form.elements[selectFrom]);
             if (msg != '') {
-                if (confirm("<?php echo xlt('The following categories will be removed from your category List');?> \n" + xlj(msg) + "\n <?php echo xlt('Do you want to continue?');?>")) {
+                if (confirm(<?php echo xlj('The following categories will be removed from your category List');?> + "\n" + msg + "\n"  + <?php echo xlj('Do you want to continue?');?>)) {
                     remove_selected(form, selectedList);
                 }
             }
