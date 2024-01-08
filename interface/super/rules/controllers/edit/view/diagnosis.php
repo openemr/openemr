@@ -20,8 +20,14 @@
     <?php } else { ?>
         <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rules.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
     <?php } ?>
-    <script src="../../../library/dialog.js?v=<?php echo $v_js_includes; ?>"></script>
-    <script>
+	
+	<!-- ? php error_log($GLOBALS['v_js_includes']); ? -->
+	
+    <!--script src="../../../library/dialog.js?v=< ? php echo $v_js_includes; ? >"></script-->
+	<script src="../../../library/dialog.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+	<!--script src="../../../library/dialog.js"></script-->
+    
+	<script>
         // This invokes the find-code popup.
         function sel_diagnosis() {
             dlgopen('../../patient_file/encounter/find_code_popup.php', '_blank', 500, 400);

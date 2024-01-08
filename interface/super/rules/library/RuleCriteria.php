@@ -52,7 +52,9 @@ abstract class RuleCriteria
 
     function getCharacteristics()
     {
-        $characteristics = $this->optional ? xl("Optional") : xl("Required");
+        //$characteristics = $this->optional ? xl("Optional") : xl("Required");
+		// HR: reverse this to match logic behavior
+		$characteristics = $this->optional ? xl("Required") : xl("Optional");
         $characteristics .= " ";
         $characteristics .= $this->inclusion ? xl("Inclusion") : xl("Exclusion");
 
