@@ -272,7 +272,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                 <div id="PRIORS_EXT_left_1">
                     <table>
                         <?php
-                            list($imaging,$episode) = display($pid, $encounter, "EXT");
+                            list($imaging,$episode) = display($pid, $encounter ?? '', "EXT");
                             echo $episode;
                         ?>
                     </table>
@@ -333,7 +333,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                     </table>
                 </div>
 
-            <?php ($EXT_VIEW == 1) ? ($display_EXT_view = "wide_textarea") : ($display_EXT_view = "narrow_textarea");?>
+            <?php ($EXT_VIEW ?? '' == 1) ? ($display_EXT_view = "wide_textarea") : ($display_EXT_view = "narrow_textarea");?>
             <?php ($display_EXT_view == "wide_textarea") ? ($marker = "fa-minus-square-o") : ($marker = "fa-plus-square-o");?>
             <div id="PRIOR_EXT_text_list" name="PRIOR_EXT_text_list" class="borderShadow PRIORS <?php echo attr($display_EXT_view); ?>" >
                 <span class="top_right fa <?php echo attr($marker); ?>" name="PRIOR_EXT_text_view" id="PRIOR_EXT_text_view"></span>
@@ -394,7 +394,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         <div class="text_clinical" id="PRIORS_ANTSEG_left_1">
             <table>
                 <?php
-                    list($imaging,$episode) = display($pid, $encounter, "ANTSEG");
+                    list($imaging,$episode) = display($pid, $encounter ?? '', "ANTSEG");
                     echo $episode;
                 ?>
             </table>
@@ -468,7 +468,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                         </td>
                         <td>
                             <input disabled type="checkbox" class="dil_drug" id="PRIORS_Neo10" name="PRIORS_NEO10" value="Neosynephrine 10%"  <?php
-                            if ($NEO10 == 'Neosynephrine 10%') {
+                            if ($NEO10 ?? '' == 'Neosynephrine 10%') {
                                 echo "checked='checked'";
                             } ?> />
                             <label for="Neo10" class="input-helper input-helper--checkbox"><?php echo text('Neo 10%'); ?></label>
@@ -495,7 +495,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                 </tr>
             </table>
         </div>
-        <?php ($ANTSEG_VIEW == '1') ? ($display_ANTSEG_view = "wide_textarea") : ($display_ANTSEG_view = "narrow_textarea");?>
+        <?php ($ANTSEG_VIEW ?? '' == '1') ? ($display_ANTSEG_view = "wide_textarea") : ($display_ANTSEG_view = "narrow_textarea");?>
         <?php ($display_ANTSEG_view == "wide_textarea") ? ($marker = "fa-minus-square-o") : ($marker = "fa-plus-square-o");?>
         <div id="PRIOR_ANTSEG_text_list"  name="PRIOR_ANTSEG_text_list" class="borderShadow PRIORS <?php echo attr($display_ANTSEG_view); ?>" >
                 <span class="top_right fa <?php echo attr($marker); ?>" name="PRIOR_ANTSEG_text_view" id="PRIOR_ANTSEG_text_view"></span>
@@ -555,7 +555,7 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
         <div id="PRIORS_RETINA_left_1" class="text_clinical">
             <table>
                 <?php
-                list($imaging,$episode) = display($pid, $encounter, "POSTSEG");
+                list($imaging,$episode) = display($pid, $encounter ?? '', "POSTSEG");
                 echo $episode;
                 ?>
             </table>
@@ -589,13 +589,13 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
             <br />
             <table>
                 <?php
-                list($imaging,$episode) = display($pid, $encounter, "NEURO");
+                list($imaging,$episode) = display($pid, $encounter ?? '', "NEURO");
                 echo $episode;
                 ?>
             </table>
         </div>
 
-        <?php ($RETINA_VIEW == 1) ? ($display_RETINA_view = "wide_textarea") : ($display_RETINA_view = "narrow_textarea");?>
+        <?php ($RETINA_VIEW ?? '' == 1) ? ($display_RETINA_view = "wide_textarea") : ($display_RETINA_view = "narrow_textarea");?>
         <?php ($display_RETINA_view == "wide_textarea") ? ($marker = "fa-minus-square-o") : ($marker = "fa-plus-square-o");?>
         <div>
             <div id="PRIOR_RETINA_text_list" name="PRIOR_RETINA_text_list" class="borderShadow PRIORS <?php echo attr($display_RETINA_view); ?>">
@@ -1142,47 +1142,47 @@ margin: 2px 0 2px 2px;">
                         <div class="divCell">&nbsp;</div>
                     </div>
                     <div class="divRow">
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRSO_4; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRSO_4 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_4_3" id="PRIOR_MOTILITY_RS_4_3">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_4_1" id="PRIOR_MOTILITY_RS_4_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_4" id="PRIOR_MOTILITY_RS_4"><?php echo $PRIOR_MOTILITY_RS_4; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RS_4" id="PRIOR_MOTILITY_RS_4"><?php echo $PRIOR_MOTILITY_RS_4 ?? ''; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_4_2" id="PRIOR_MOTILITY_RS_4_2">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_4_4" id="PRIOR_MOTILITY_RS_4_4">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLSO_4; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLSO_4 ?? ''; ?></div>
                     </div>
                     <div class="divRow">
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRSO_3; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRSO_3 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_3_1" id="PRIOR_MOTILITY_RS_3_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_3" id="PRIOR_MOTILITY_RS_3"><?php echo $PRIOR_MOTILITY_RS_3; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RS_3" id="PRIOR_MOTILITY_RS_3"><?php echo $PRIOR_MOTILITY_RS_3 ?? ''; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_3_2" id="PRIOR_MOTILITY_RS_3_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLSO_3; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLSO_3 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                     </div>
                     <div class="divRow">
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRSO_2; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRSO_2 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_2_1" id="PRIOR_MOTILITY_RS_2_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_2" id="PRIOR_MOTILITY_RS_2"><?php echo $PRIOR_MOTILITY_RS_2; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RS_2" id="PRIOR_MOTILITY_RS_2"><?php echo $PRIOR_MOTILITY_RS_2 ?? ''; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_2_2" id="PRIOR_MOTILITY_RS_2_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLSO_2; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLSO_2 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                     </div>
@@ -1190,13 +1190,13 @@ margin: 2px 0 2px 2px;">
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRSO_1; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRSO_1 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_1_1" id="PRIOR_MOTILITY_RS_1_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RS_1" id="PRIOR_MOTILITY_RS_1"><?php echo $PRIOR_MOTILITY_RS_1; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RS_1" id="PRIOR_MOTILITY_RS_1"><?php echo $PRIOR_MOTILITY_RS_1 ?? ''; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RS_1_2" id="PRIOR_MOTILITY_RS_1_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLSO_1; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLSO_1 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
@@ -1218,17 +1218,17 @@ margin: 2px 0 2px 2px;">
                     </div>
                     <div class="divMiddleRow">
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RR_4" id="PRIOR_MOTILITY_RR_4"><?php echo $PRIOR_MOTILITY_RR_4; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RR_3" id="PRIOR_MOTILITY_RR_3"><?php echo $PRIOR_MOTILITY_RR_3; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RR_2" id="PRIOR_MOTILITY_RR_2"><?php echo $PRIOR_MOTILITY_RR_2; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RR_1" id="PRIOR_MOTILITY_RR_1"><?php echo $PRIOR_MOTILITY_RR_1; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RR_4" id="PRIOR_MOTILITY_RR_4"><?php echo $PRIOR_MOTILITY_RR_4 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RR_3" id="PRIOR_MOTILITY_RR_3"><?php echo $PRIOR_MOTILITY_RR_3 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RR_2" id="PRIOR_MOTILITY_RR_2"><?php echo $PRIOR_MOTILITY_RR_2 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RR_1" id="PRIOR_MOTILITY_RR_1"><?php echo $PRIOR_MOTILITY_RR_1 ?? ''; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RR_0" id="PRIOR_MOTILITY_RR_0">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_R0" id="PRIOR_MOTILITY_R0">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RL_0" id="PRIOR_MOTILITY_RL_0">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RL_1" id="PRIOR_MOTILITY_RL_1"><?php echo $PRIOR_MOTILITY_RL_1; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RL_2" id="PRIOR_MOTILITY_RL_2"><?php echo $PRIOR_MOTILITY_RL_2; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RL_3" id="PRIOR_MOTILITY_RL_3"><?php echo $PRIOR_MOTILITY_RL_3; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RL_4" id="PRIOR_MOTILITY_RL_4"><?php echo $PRIOR_MOTILITY_RL_4; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RL_1" id="PRIOR_MOTILITY_RL_1"><?php echo $PRIOR_MOTILITY_RL_1 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RL_2" id="PRIOR_MOTILITY_RL_2"><?php echo $PRIOR_MOTILITY_RL_2 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RL_3" id="PRIOR_MOTILITY_RL_3"><?php echo $PRIOR_MOTILITY_RL_3 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RL_4" id="PRIOR_MOTILITY_RL_4"><?php echo $PRIOR_MOTILITY_RL_4 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                     </div>
                     <div class="divRow">
@@ -1250,13 +1250,13 @@ margin: 2px 0 2px 2px;">
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRIO_1; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRIO_1 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_1_1" id="PRIOR_MOTILITY_RI_1_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_RI_1" name="PRIOR_MOTILITY_RI_1"><?php echo $PRIOR_MOTILITY_RI_1; ?></div>
+                        <div class="divCell" id="PRIOR_MOTILITY_RI_1" name="PRIOR_MOTILITY_RI_1"><?php echo $PRIOR_MOTILITY_RI_1 ?? ''; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_1_2" id="PRIOR_MOTILITY_RI_1_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLIO_1; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLIO_1 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
@@ -1264,47 +1264,47 @@ margin: 2px 0 2px 2px;">
                     <div class="divRow">
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRIO_2; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRIO_2 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_2_1" id="PRIOR_MOTILITY_RI_2_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_RI_2" name="PRIOR_MOTILITY_RI_2"><?php echo $PRIOR_MOTILITY_RI_2; ?></div>
+                        <div class="divCell" id="PRIOR_MOTILITY_RI_2" name="PRIOR_MOTILITY_RI_2"><?php echo $PRIOR_MOTILITY_RI_2 ?? ''; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_2_2" id="PRIOR_MOTILITY_RI_2_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLIO_2; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLIO_2 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                     </div>
                     <div class="divRow">
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRIO_3; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRIO_3 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_3_5" id="PRIOR_MOTILITY_RI_3_5">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_3_3" id="PRIOR_MOTILITY_RI_3_3">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_3_1" id="PRIOR_MOTILITY_RI_3_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_RI_3" name="PRIOR_MOTILITY_RI_3"><?php echo $PRIOR_MOTILITY_RI_3; ?></div>
+                        <div class="divCell" id="PRIOR_MOTILITY_RI_3" name="PRIOR_MOTILITY_RI_3"><?php echo $PRIOR_MOTILITY_RI_3 ?? ''; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_3_2" id="PRIOR_MOTILITY_RI_3_2">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_3_4" id="PRIOR_MOTILITY_RI_3_4">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_3_6" id="PRIOR_MOTILITY_RI_3_6">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLIO_3; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLIO_3 ?? ''; ?></div>
                         <div class="divCell"></div>
                     </div>
                     <div class="divRow">
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRIO_4; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RRIO_4 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_4_5" id="PRIOR_MOTILITY_RI_4_5">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_4_3" id="PRIOR_MOTILITY_RI_4_3">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_4_1" id="PRIOR_MOTILITY_RI_4_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_RI_4" name="PRIOR_MOTILITY_RI_4"><?php echo $PRIOR_MOTILITY_RI_4; ?></div>
+                        <div class="divCell" id="PRIOR_MOTILITY_RI_4" name="PRIOR_MOTILITY_RI_4"><?php echo $PRIOR_MOTILITY_RI_4 ?? ''; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_4_2" id="PRIOR_MOTILITY_RI_4_2">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_4_4" id="PRIOR_MOTILITY_RI_4_4">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RI_4_6" id="PRIOR_MOTILITY_RI_4_6">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLIO_4; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_RLIO_4 ?? ''; ?></div>
                     </div>
                     <div class="divRow">
                         <div class="divCell">&nbsp;</div>
@@ -1315,47 +1315,47 @@ margin: 2px 0 2px 2px;">
                         <div class="divCell">&nbsp;</div>
                     </div>
                     <div class="divRow">
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LRSO_4; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LRSO_4 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_4_3" id="PRIOR_MOTILITY_LS_4_3">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_4_1" id="PRIOR_MOTILITY_LS_4_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_4" id="PRIOR_MOTILITY_LS_4"><?php echo $PRIOR_MOTILITY_LS_4; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LS_4" id="PRIOR_MOTILITY_LS_4"><?php echo $PRIOR_MOTILITY_LS_4 ?? ''; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_4_2" id="PRIOR_MOTILITY_LS_4_2">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_4_4" id="PRIOR_MOTILITY_LS_4_4">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LLSO_4; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LLSO_4 ?? ''; ?></div>
                     </div>
                     <div class="divRow">
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LRSO_3; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LRSO_3 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_3_1" id="PRIOR_MOTILITY_LS_3_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_3" id="PRIOR_MOTILITY_LS_3"><?php echo $PRIOR_MOTILITY_LS_3; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LS_3" id="PRIOR_MOTILITY_LS_3"><?php echo $PRIOR_MOTILITY_LS_3 ?? ''; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_3_2" id="PRIOR_MOTILITY_LS_3_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LLSO_3; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LLSO_3 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                     </div>
                     <div class="divRow">
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LRSO_2; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LRSO_2 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_2_1" id="PRIOR_MOTILITY_LS_2_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_2" id="PRIOR_MOTILITY_LS_2"><?php echo $PRIOR_MOTILITY_LS_2; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LS_2" id="PRIOR_MOTILITY_LS_2"><?php echo $PRIOR_MOTILITY_LS_2 ?? ''; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_2_2" id="PRIOR_MOTILITY_LS_2_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LLSO_2; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LLSO_2 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                     </div>
@@ -1363,13 +1363,13 @@ margin: 2px 0 2px 2px;">
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LRSO_1; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LRSO_1 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_1_1" id="PRIOR_MOTILITY_LS_1_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LS_1" id="PRIOR_MOTILITY_LS_1"><?php echo $PRIOR_MOTILITY_LS_1; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LS_1" id="PRIOR_MOTILITY_LS_1"><?php echo $PRIOR_MOTILITY_LS_1 ?? ''; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LS_1_2" id="PRIOR_MOTILITY_LS_1_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LLSO_1; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LLSO_1 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
@@ -1391,17 +1391,17 @@ margin: 2px 0 2px 2px;">
                     </div>
                     <div class="divMiddleRow">
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_4" id="PRIOR_MOTILITY_LR_4"><?php echo $PRIOR_MOTILITY_LR_4; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_3" id="PRIOR_MOTILITY_LR_3"><?php echo $PRIOR_MOTILITY_LR_3; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_2" id="PRIOR_MOTILITY_LR_2"><?php echo $PRIOR_MOTILITY_LR_2; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LR_1" id="PRIOR_MOTILITY_LR_1"><?php echo $PRIOR_MOTILITY_LR_1; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LR_4" id="PRIOR_MOTILITY_LR_4"><?php echo $PRIOR_MOTILITY_LR_4 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LR_3" id="PRIOR_MOTILITY_LR_3"><?php echo $PRIOR_MOTILITY_LR_3 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LR_2" id="PRIOR_MOTILITY_LR_2"><?php echo $PRIOR_MOTILITY_LR_2 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LR_1" id="PRIOR_MOTILITY_LR_1"><?php echo $PRIOR_MOTILITY_LR_1 ?? ''; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LR_0" id="PRIOR_MOTILITY_LR_0">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_L0" id="PRIOR_MOTILITY_L0">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LL_0" id="PRIOR_MOTILITY_LL_0">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_1" id="PRIOR_MOTILITY_LL_1"><?php echo $PRIOR_MOTILITY_LL_1; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_2" id="PRIOR_MOTILITY_LL_2"><?php echo $PRIOR_MOTILITY_LL_2; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_3" id="PRIOR_MOTILITY_LL_3"><?php echo $PRIOR_MOTILITY_LL_3; ?></div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LL_4" id="PRIOR_MOTILITY_LL_4"><?php echo $PRIOR_MOTILITY_LL_4; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LL_1" id="PRIOR_MOTILITY_LL_1"><?php echo $PRIOR_MOTILITY_LL_1 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LL_2" id="PRIOR_MOTILITY_LL_2"><?php echo $PRIOR_MOTILITY_LL_2 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LL_3" id="PRIOR_MOTILITY_LL_3"><?php echo $PRIOR_MOTILITY_LL_3 ?? ''; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LL_4" id="PRIOR_MOTILITY_LL_4"><?php echo $PRIOR_MOTILITY_LL_4 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                     </div>
                     <div class="divRow">
@@ -1423,13 +1423,13 @@ margin: 2px 0 2px 2px;">
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LR_4_3" id="PRIOR_MOTILITY_LR_4_3">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LR_3_3" id="PRIOR_MOTILITY_LR_3_3">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_RO_I_2" id="PRIOR_MOTILITY_RO_I_2"><?php echo $PRIOR_MOTILITY_LRIO_1; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RO_I_2" id="PRIOR_MOTILITY_RO_I_2"><?php echo $PRIOR_MOTILITY_LRIO_1 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_LI_1" name="PRIOR_MOTILITY_LI_1"><?php echo $PRIOR_MOTILITY_LI_1; ?></div>
+                        <div class="divCell" id="PRIOR_MOTILITY_LI_1" name="PRIOR_MOTILITY_LI_1"><?php echo $PRIOR_MOTILITY_LI_1 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LO_I_2" id="PRIOR_MOTILITY_LO_I_2"><?php echo $PRIOR_MOTILITY_LLIO_1; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LO_I_2" id="PRIOR_MOTILITY_LO_I_2"><?php echo $PRIOR_MOTILITY_LLIO_1 ?? ''; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LL_3_4" id="PRIOR_MOTILITY_LL_3_4">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LL_4_4" id="PRIOR_MOTILITY_LL_4_4">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
@@ -1437,48 +1437,48 @@ margin: 2px 0 2px 2px;">
                     <div class="divRow">
                         <div class="divCell" name="PRIOR_MOTILITY_RO_I_3_1" id="PRIOR_MOTILITY_RO_I_3_1">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_RO_I_3" id="PRIOR_MOTILITY_RO_I_3">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LRIO_2; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LRIO_2 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_2_1" id="PRIOR_MOTILITY_LI_2_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_LI_2" name="PRIOR_MOTILITY_LI_2"><?php echo $PRIOR_MOTILITY_LI_2; ?></div>
+                        <div class="divCell" id="PRIOR_MOTILITY_LI_2" name="PRIOR_MOTILITY_LI_2"><?php echo $PRIOR_MOTILITY_LI_2 ?? ''; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_2_2" id="PRIOR_MOTILITY_LI_2_2">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LLIO_2; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LLIO_2 ?? ''; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LO_I_2" id="PRIOR_MOTILITY_RO_I_2">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LO_I_3_1" id="PRIOR_MOTILITY_LO_I_3_1">&nbsp;</div>
                         </div>
                     <div class="divRow">
                         <div class="divCell" name="PRIOR_MOTILITY_LO_I_3" id="PRIOR_MOTILITY_RO_I_3">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LRIO_3; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LRIO_3 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_3_5" id="PRIOR_MOTILITY_LI_3_5">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_3_3" id="PRIOR_MOTILITY_LI_3_3">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_3_1" id="PRIOR_MOTILITY_LI_3_1">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LI_3"   id="PRIOR_MOTILITY_LI_3"><?php echo $PRIOR_MOTILITY_LI_3; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LI_3"   id="PRIOR_MOTILITY_LI_3"><?php echo $PRIOR_MOTILITY_LI_3 ?? ''; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_3_2" id="PRIOR_MOTILITY_LI_3_2">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_3_4" id="PRIOR_MOTILITY_LI_3_4">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_3_6" id="PRIOR_MOTILITY_LI_3_6">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LLIO_3; ?></div>
+                        <div class="divCell"><?php echo $PRIOR_MOTILITY_LLIO_3 ?? ''; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LO_I_3" id="PRIOR_MOTILITY_LO_I_3">&nbsp;</div>
 
                     </div>
                     <div class="divRow">
-                        <div class="divCell" name="PRIOR_MOTILITY_RO_I_4" id="PRIOR_MOTILITY_RO_I_4"><?php echo $PRIOR_MOTILITY_LRIO_4; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_RO_I_4" id="PRIOR_MOTILITY_RO_I_4"><?php echo $PRIOR_MOTILITY_LRIO_4 ?? ''; ?></div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_4_5" id="PRIOR_MOTILITY_LI_4_5">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_4_3" id="PRIOR_MOTILITY_LI_4_3">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_4_1" id="PRIOR_MOTILITY_LI_4_1">&nbsp;</div>
-                        <div class="divCell" id="PRIOR_MOTILITY_LI_4" name="PRIOR_MOTILITY_LI_4"><?php echo $PRIOR_MOTILITY_LI_4; ?></div>
+                        <div class="divCell" id="PRIOR_MOTILITY_LI_4" name="PRIOR_MOTILITY_LI_4"><?php echo $PRIOR_MOTILITY_LI_4 ?? ''; ?></div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_4_2" id="PRIOR_MOTILITY_LI_4_2">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_4_4" id="PRIOR_MOTILITY_LI_4_4">&nbsp;</div>
                         <div class="divCell" name="PRIOR_MOTILITY_LI_4_6" id="PRIOR_MOTILITY_LI_4_6">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
                         <div class="divCell">&nbsp;</div>
-                        <div class="divCell" name="PRIOR_MOTILITY_LO_I_4" id="PRIOR_MOTILITY_LO_I_4"><?php echo $PRIOR_MOTILITY_LLIO_4; ?></div>
+                        <div class="divCell" name="PRIOR_MOTILITY_LO_I_4" id="PRIOR_MOTILITY_LO_I_4"><?php echo $PRIOR_MOTILITY_LLIO_4 ?? ''; ?></div>
                     </div>
                     <div class="divRow"><div class="divCell">&nbsp;</div>
                     </div>
@@ -1491,7 +1491,7 @@ margin: 2px 0 2px 2px;">
             <br />
             <textarea disabled id="PRIOR_NEURO_COMMENTS" name="PRIOR_NEURO_COMMENTS"><?php echo text($NEURO_COMMENTS); ?></textarea>
         </div>
-        <input type="hidden" name="PRIOR_PREFS_ACT_SHOW"  id="PRIOR_PREFS_ACT_SHOW" value="<?php echo attr($ACT_SHOW); ?>">
+        <input type="hidden" name="PRIOR_PREFS_ACT_SHOW"  id="PRIOR_PREFS_ACT_SHOW" value="<?php echo attr($ACT_SHOW ?? ''); ?>">
 
         <script>
             $("#PRIOR_ACTTRIGGER").mouseover(function() {
@@ -5730,6 +5730,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
                     var myLine = new Chart(ctx1, config_byday);
                     var myLine2 = new Chart(ctx2, config_byhour);
+                    
                 </script>
                 <?php
             } else {
