@@ -5309,7 +5309,6 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
 
             </table>
         </div>
-        <script type="module" src="<?php echo $GLOBALS['assets_static_relative'] ?>/chart.js/dist/chart.js"></script>
         <div style="position:relative;float:right; margin: 0px 5px;text-align:center;width:60%;">
             <?php
             if ($priors) {
