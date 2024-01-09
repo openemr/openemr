@@ -1050,6 +1050,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                     $temp_track_pass = 1;
                 }
 
+				$passFilter = null;
+				
                 foreach ($target_dates as $dateFocus) {
                     //Skip if date is set to SKIP
                     if ($dateFocus == "SKIP") {
@@ -1072,13 +1074,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                     // Check if pass filter
                     //$passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateFocus);
 					/* 
-						HR: change: do not consider dates when processing filters
-					 	Dates should be considered only for targets
-					 	Note: this test testing of filters should be moved above 
-					 		foreach ($target_dates as $dateFocus)
-						since, with the filter not affected by dates, the
-						filter result will be the same for all $target_dates 
-						items. Thus 2 of 3 tests on filter are unnecessary
+						HR: changed behavior of test_filter(), and will pass it $dateTarget instead of $dateFocus. Will also call test_filter() only once, not for each $dateFoucs value
 						
 						test_filter() was returning
 							false if an inclusion filter does not succeed
@@ -1103,7 +1099,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
 						
 						-- Same ideas apply to analysis of targets as well as filters
 					*/
-                    $passFilter = test_filter($rowPatient['pid'], $rowRule['id'], null);
+					if ($dateCounter == 1) // only do once, for $dateTarget (which is generally "today")
+						$passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateTarget);
 					
 					error_log1($rowRule['id'], 'cr passFilter: ' . $passFilter);
 					
@@ -1258,6 +1255,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         $temp_track_pass = 1;
                     }
 
+					$passFilter = null;
+
                     foreach ($target_dates as $dateFocus) {
                         //Skip if date is set to SKIP
                         if ($dateFocus == "SKIP") {
@@ -1276,9 +1275,9 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
 
                         // Check if pass filter
                         //$passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateFocus);
-						// HR: change: do not consider dates when processing filters
-						// Dates should be considered only for targets
-						$passFilter = test_filter($rowPatient['pid'], $rowRule['id'], null); // don't want to pass a timestamp for filter processing
+						// HR: change: pass $dateTarget, not $dateFocus to test_filter, and call only once
+						if ($dateCounter == 1)
+							$passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateTarget); // as above, 
 					
                         if ($passFilter === "EXCLUDED") {
                             $passFilter = false;
@@ -1632,9 +1631,7 @@ function buildPatientArrayPrimaryProviderBillingFacility($start, $batchSize, $on
 function test_filter($patient_id, $rule, $dateTarget)
 {
 	/*	
-		HR: I don't know why $dateTarget should be valued with one of the three target interval boundaries when processing filters
-		I will ensure this function is called with $dateTarget null, causing $dateTarget to be set to now()
-		The "filter" for a given rule can contain multiple filter items, with each having an inclusion/exclusion flag
+		HR:	The "filter" for a given rule can contain multiple filter items, with each having an inclusion/exclusion flag
 		and a required/optional flag
 		The various filter evaluation "check" functions below will evaluate all filter items in a filter
 	*/
@@ -1814,7 +1811,6 @@ function test_filter($patient_id, $rule, $dateTarget)
 	
 	// HR: split out conditions to facilitate logging
     if ((!empty($filter)) ) {
-		//if (!lists_check($patient_id, $filter, $dateTarget, $rule)) {
 		$lc = lists_check($patient_id, $filter, $dateTarget, $rule);
 		if ($lc === false) {
 			error_log1($rule,'tf lists filter at least one required filter did not pass');
@@ -3050,17 +3046,6 @@ function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget, $ru
  * (1) If value ends with **, operators ne/eq are replaced by (NOT)LIKE operators
  *
  */
-/*
-   HR: removed evaluaing list items against $dateTarget.
-   List items are evaluated only for filters, not targets, and should be time-independent patient attributes.
-   If there really is a need to evaluate list items against *some* date range,
-   a single date range should be specified, one that likely extends to today.
-   The evaluation should not be using the three target intervals.
-   Having a list item be deemed to be present for some, but not all, target intervals
-   does not seem to serve any purpose. And if the "due" interval is something like
-   T-14 months to T-2 months, and the list item was entered at T-1 month
-   it does not make sense that the list item is deemed to be not found
-*/
 function exist_lists_item($patient_id, $type, $value, $dateTarget, $rule = '')
 {
 
@@ -3093,10 +3078,9 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget, $rule = '')
             "WHERE `type`=? " .
             "AND `pid`=? " .
             "AND `title` $sqloper " .
-            "", array($type,$patient_id,$code/*,$dateTarget,$dateTarget,$dateTarget*/));
+			"AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
+            "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,$code,$dateTarget,$dateTarget,$dateTarget));
 			
-			//"AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
-            //"AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )
 			
             if (!empty($response)) {
                 return true;
@@ -3107,18 +3091,15 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget, $rule = '')
             "WHERE `type`=? " .
             "AND `pid`=? " .
             "AND `diagnosis` LIKE ? " .
-            "" .
-            "", array($type,$patient_id,"%" . $code_type . ":" . $code . "%"/*,$dateTarget,$dateTarget,$dateTarget*/));
-			
-			// AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) 
-			// AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )
+			"AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
+            "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,"%" . $code_type . ":" . $code . "%",$dateTarget,$dateTarget,$dateTarget));
 			
 			error_log1($rule,"SELECT * FROM `lists` " .
 				"WHERE `type`=? " .
 				"AND `pid`=? " .
-				"AND `diagnosis` LIKE ? " . "");
-				/*"AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
-				"AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )");*/
+				"AND `diagnosis` LIKE ? " .
+				"AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
+				"AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )");
 			
             if (!empty($response)) {
                 return true;
@@ -3140,12 +3121,11 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget, $rule = '')
         "WHERE `type`=? " .
         "AND `pid`=? " .
         "AND `title` $sqloper " .
-        "", array($type,$patient_id,$value/*,$dateTarget,$dateTarget,$dateTarget*/));
+        "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
+        "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,$value,$dateTarget,$dateTarget,$dateTarget));
         if (!empty($response)) {
             return true;
         }
-		//AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
-        //"AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )
 
         if ($type == 'medication') { // Special case needed for medication as it need to be looked into current medications (prescriptions table) from ccda import
               $response = sqlQueryCdrEngine("SELECT * FROM `prescriptions` where `patient_id` = ? and `drug` $sqloper", array($patient_id,$value/*,$dateTarget*/));
