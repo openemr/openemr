@@ -28,6 +28,7 @@ use OpenEMR\Services\FacilityService;
 // without clogging up error log
 function error_log1($r = '', $s = '')
 {
+    return; // comment this out to enable logging to php error log. Specify, in the next line, the id of the rule to be logged
     if ($r == 'rule_81' || $r == '*any*') {
         error_log($s);
     }
