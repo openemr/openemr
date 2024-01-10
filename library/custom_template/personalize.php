@@ -168,7 +168,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
             }
             jsub_sortNow(form.elements[selectFrom]);
             if (msg != '') {
-                if (confirm("<?php echo addslashes(xl('The following categories will be removed from your category List'));?> \n" + msg + "\n <?php echo addslashes(xl('Do you want to continue?'));?>")) {
+                if (confirm(<?php echo xlj('The following categories will be removed from your category List');?> + "\n" + msg + "\n"  + <?php echo xlj('Do you want to continue?');?>)) {
                     remove_selected(form, selectedList);
                 }
             }
@@ -290,12 +290,12 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
 <body class="body_top">
     <form name="myform" method="post" onsubmit="top.restoreSession();">
         <div class="container-fluid">
-            <h3><?php echo text(xl('Filter')); ?></h3>
+            <h3><?php echo xlt('Filter'); ?></h3>
             <div class="row">
-                <label class="col-form-label col-sm-1"><?php echo text(xl('Context')); ?></label>
+                <label class="col-form-label col-sm-1"><?php echo xlt('Context'); ?></label>
                 <div class="col-sm-5">
                     <select name='filter_context' class="form-control" id='filter_context' onchange='javascript:document.myform.submit();'>
-                        <option value=''><?php echo text(xl('Select a Context')); ?></option>
+                        <option value=''><?php echo xlt('Select a Context'); ?></option>
                         <?php
                         $context_sql = "SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0";
                         $context_res = sqlStatement($context_sql);
@@ -307,10 +307,10 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                         ?>
                     </select>
                 </div>
-                <label class="col-form-label col-sm-1"><?php echo text(xl('Users')); ?></label>
+                <label class="col-form-label col-sm-1"><?php echo xlt('Users'); ?></label>
                 <div class="col-sm-5">
                     <select name='filter_users' class="form-control" id='filter_users' onchange='javascript:document.myform.submit();'>
-                        <option value=''><?php echo text(xl('Select a User')); ?></option>
+                        <option value=''><?php echo xlt('Select a User'); ?></option>
                         <?php
                         $user_sql = "SELECT DISTINCT(tu.tu_user_id),u.fname,u.lname FROM template_users AS tu LEFT OUTER JOIN users AS u ON tu.tu_user_id=u.id WHERE tu.tu_user_id!=?";
                         $user_res = sqlStatement($user_sql, array($_SESSION['authUserID']));
@@ -323,38 +323,38 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                     </select>
                 </div>
                 <div class="col-12 my-2 text-center">
-                    <a href="#" class="btn btn-primary" onclick="top.restoreSession();personalize_save()"><?php echo text(xl('Save')); ?></a>
+                    <a href="#" class="btn btn-primary" onclick="top.restoreSession();personalize_save()"><?php echo xlt('Save'); ?></a>
                     <?php
                     if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
                         ?>
-                        <a href="delete_category.php" id="share_link" class="iframe_medium btn btn-primary" onclick="top.restoreSession();"><?php echo text(xl('Delete Category')); ?></a>
+                        <a href="delete_category.php" id="share_link" class="iframe_medium btn btn-primary" onclick="top.restoreSession();"><?php echo xlt('Delete Category'); ?></a>
                         <?php
                     }
                     ?>
                     <?php
                     if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
                         ?>
-                        <a href="add_template.php?list_id=<?php echo attr($_REQUEST['list_id']); ?>" onclick="top.restoreSession();" class="iframe_small btn btn-primary" title="<?php echo text(xl('Add Category')); ?>"><?php echo text(xl('Add Category')); ?></a>
+                        <a href="add_template.php?list_id=<?php echo attr($_REQUEST['list_id']); ?>" onclick="top.restoreSession();" class="iframe_small btn btn-primary" title="<?php echo xla('Add Category'); ?>"><?php echo xlt('Add Category'); ?></a>
                         <?php
                     }
                     ?>
                     <?php
                     if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
                         ?>
-                        <a href="add_context.php" class="iframe_medium btn btn-primary" onclick="top.restoreSession();" title="<?php echo text(xl('Add Context')); ?>"><?php echo text(xl('Add Context')); ?></a>
+                        <a href="add_context.php" class="iframe_medium btn btn-primary" onclick="top.restoreSession();" title="<?php echo xla('Add Context'); ?>"><?php echo xlt('Add Context'); ?></a>
                         <?php
                     }
                     ?>
                 </div>
                 <div class="col-sm-5 text">
-                    <?php echo text(xl('Available categories')); ?>
+                    <?php echo xlt('Available categories'); ?>
                 </div>
                 <div class="col-sm-2">
                     &nbsp;
                 </div>
                 <div class="col-sm-5 text">
                     <?php $user = sqlQuery("SELECT * FROM users WHERE id=?", array($_SESSION['authUserID'])); ?>
-                    <?php echo text(xl('Categories for') . " " . $user['fname'] . " " . $user['lname']); ?>
+                    <?php echo xlt('Categories for') . " " . text($user['fname']) . " " . text($user['lname']); ?>
                 </div>
                 <div class="col-sm-5">
                     <select multiple name="topersonalized[]" class="form-control" id="topersonalized" size="6" onchange="display_category_item(document.myform,'topersonalized');">
@@ -395,7 +395,7 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                         if (empty($where)) {
                             $resorphan = sqlStatement($sqlorphan);
                         }
-                        while ($roworphan = sqlFetchArray($resorphan)) {
+                        while ($roworphan = sqlFetchArray($resorphan ?? '')) {
                             $cntxt = '';
                             if (!$filter_context ?? null) {
                                 $context = sqlQuery("SELECT * FROM customlists WHERE cl_list_slno=?", array($roworphan['cl_list_id']));
@@ -416,10 +416,11 @@ if (isset($_REQUEST['submitform']) && $_REQUEST['submitform'] == 'save') {
                         <?php
                         $where = '';
                         if ($filter_context ?? null) {
-                            $where .= " AND cl_list_id='" . $filter_context . "'";
+                            $where .= " AND cl_list_id = ?";
+                            $sqlbind = array($filter_context);
                         }
-                        $sql = "SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE tu.tu_user_id=? AND c.cl_list_type=3 AND cl_deleted=0 " . $where .  "ORDER BY c.cl_list_item_long";
-                        $resTemplates = sqlStatement($sql, array($_SESSION['authUserID']));
+                        $sql = "SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE tu.tu_user_id=? AND c.cl_list_type=3 AND cl_deleted=0 " . $where .  " ORDER BY c.cl_list_item_long";
+                        $resTemplates = sqlStatement($sql, array_merge(array($_SESSION['authUserID']), $sqlbind ?? []));
                         while ($rowTemplates = sqlFetchArray($resTemplates)) {
                             $cntxt = '';
                             if (!$filter_context ?? null) {
