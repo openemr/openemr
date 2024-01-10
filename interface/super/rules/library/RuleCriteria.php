@@ -92,23 +92,23 @@ abstract class RuleCriteria
     protected function decodeComparator($comparator)
     {
         switch ($comparator) {
-        case "eq":
-            return "";
+            case "eq":
+                return "";
                 break;
-        case "ne":
-            return "!=";
+            case "ne":
+                return "!=";
                 break;
-        case "gt":
-            return ">";
+            case "gt":
+                return ">";
                 break;
-        case "lt":
-            return "<";
+            case "lt":
+                return "<";
                 break;
-        case "ge":
-            return ">=";
+            case "ge":
+                return ">=";
                 break;
-        case "le":
-            return "<=";
+            case "le":
+                return "<=";
                 break;
         }
 
