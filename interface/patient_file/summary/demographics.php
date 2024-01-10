@@ -1347,7 +1347,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 if ($row['type'] == $prior_ins_type && empty($row['date_end'])) {
                                     $row['date_end'] = $prior_effective_date;
                                 }
-                                
+
                                 $insArr[] = $row;
                                 $prior_ins_type = $row['type'];
                                 $prior_effective_date = $row['date'];

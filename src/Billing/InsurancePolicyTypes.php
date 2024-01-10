@@ -1,4 +1,5 @@
 <?php
+
 /**
  * OpenEMR Insurance Policy Types - OpenEMR specific insurance policy types.
  * This class provides a list of insurance policy types that are used in the 837p standard.
