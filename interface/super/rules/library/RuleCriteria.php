@@ -16,12 +16,14 @@ abstract class RuleCriteria
 {
     /**
      * if true, then criteria is optional; required otherwise
+     *
      * @var boolean
      */
     var $optional;
 
     /**
      * if true, then criteira is an inclusion; exclusion otherwise
+     *
      * @var boolean
      */
     var $inclusion = true;
@@ -38,6 +40,7 @@ abstract class RuleCriteria
 
     /**
      * uniquely identifies this criteria
+     *
      * @var string
      */
     var $guid;
@@ -53,8 +56,8 @@ abstract class RuleCriteria
     function getCharacteristics()
     {
         //$characteristics = $this->optional ? xl("Optional") : xl("Required");
-		// HR: reverse this to match logic behavior
-		$characteristics = $this->optional ? xl("Required") : xl("Optional");
+        // HR: reverse this to match logic behavior
+        $characteristics = $this->optional ? xl("Required") : xl("Optional");
         $characteristics .= " ";
         $characteristics .= $this->inclusion ? xl("Inclusion") : xl("Exclusion");
 
@@ -90,23 +93,23 @@ abstract class RuleCriteria
     protected function decodeComparator($comparator)
     {
         switch ($comparator) {
-            case "eq":
-                return "";
+        case "eq":
+            return "";
                 break;
-            case "ne":
-                return "!=";
+        case "ne":
+            return "!=";
                 break;
-            case "gt":
-                return ">";
+        case "gt":
+            return ">";
                 break;
-            case "lt":
-                return "<";
+        case "lt":
+            return "<";
                 break;
-            case "ge":
-                return ">=";
+        case "ge":
+            return ">=";
                 break;
-            case "le":
-                return "<=";
+        case "le":
+            return "<=";
                 break;
         }
 

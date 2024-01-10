@@ -81,9 +81,9 @@ If field's value is 1, logic treats as "required"
         <span class="left_col colhead req" data-field="fld_optional"><?php echo xlt('Optional'); ?></span>
         <span class="end_col">
             <input id="fld_optional" type="radio" name="fld_optional" class="field" value="no"
-					<?php echo !$criteria->optional ? "CHECKED" : ""?>> <?php echo xlt('Yes');?>
+                    <?php echo !$criteria->optional ? "CHECKED" : ""?>> <?php echo xlt('Yes');?>
             <input id="fld_optional" type="radio" name="fld_optional" class="field" value="yes"
-					<?php echo $criteria->optional ? "CHECKED" : ""?>> <?php echo xlt('No'); ?>
+                    <?php echo $criteria->optional ? "CHECKED" : ""?>> <?php echo xlt('No'); ?>
         </span>
     </p>
 
@@ -114,7 +114,7 @@ If field's value is 1, logic treats as "required"
 <!--                  -->
 <?php function timeunit_select($args)
 {
-    require_once($GLOBALS["srcdir"] . "/options.inc.php");
+    include_once $GLOBALS["srcdir"] . "/options.inc.php";
 
     return generate_select_list(
         $args['name'],
