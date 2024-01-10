@@ -1,3 +1,12 @@
+/**
+ * Insurance Policy Model
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2024 Discover and Change, Inc. <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 export class InsurancePolicyModel {
     id = null;
     insureruuid = null;
@@ -6,7 +15,8 @@ export class InsurancePolicyModel {
     type = "primary";
     uuid = null;
     provider = "";
-    accept_assignment = "TRUE";
+
+    accept_assignment = "yes";
     copay = "";
     // yes it doesn't work well if you're on the edge of a timezone for ISO but as a default its fine
     date = new Date().toISOString().slice(0,10); // grab YYYY-MM-DD
@@ -55,6 +65,12 @@ export class InsurancePolicyModel {
         if (typeof pojo === 'object') {
             // TODO: if we need to do any validation we could do that here
             Object.assign(this, pojo);
+            // server stores this as a TRUE/FALSE string which is... odd
+            if (pojo.accept_assignment == 'TRUE') {
+                this.accept_assignment = "yes";
+            } else {
+                this.accept_assignment = "no";
+            }
         }
     }
     setEffectiveEndDate(date) {
@@ -82,5 +98,5 @@ export class InsurancePolicyModel {
             names.push(" - " + window.top.xl("Current"));
         }
         return names.join("");
-    }
+    }s
 }

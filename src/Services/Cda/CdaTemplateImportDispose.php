@@ -16,6 +16,7 @@ use Application\Model\ApplicationTable;
 use Carecoordination\Model\CarecoordinationTable;
 use Document;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\InsuranceService;
@@ -2019,10 +2020,27 @@ class CdaTemplateImportDispose
         $data["provider"] = $ins_id;
         $data["date"] = $payer['low_date'] ?? null;
         $data["type"] = 'primary';
+        $data['pid'] = $pid;
         $data["plan_name"] = 'QRDA Payer';
         $data["policy_number"] = $payer['code'] ?? '1';
 
-        $id_data = $insuranceData->insert($pid, 'primary', $data);
+        if ($insuranceData->doesInsuranceTypeHaveEntry($pid, 'primary')) {
+            $insuranceEntry = $insuranceData->search(['type' => 'primary', 'pid' => $pid]);
+            if ($insuranceEntry->hasData()) {
+                $data['uuid'] = $insuranceEntry->getData()[0]['uuid'];
+                $id_data = $insuranceData->update($data);
+            }
+        } else {
+            $id_data = $insuranceData->insert($data);
+        }
+        if (!$id_data->isValid()) {
+            (new SystemLogger())->errorLogCaller(
+                'Error inserting insurance data',
+                [
+                    'internalErrors' => $id_data->getInternalErrors(), 'validationErrors' => $id_data->getValidationMessages()
+                ]
+            );
+        }
     }
 
     /**

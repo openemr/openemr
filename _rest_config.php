@@ -299,9 +299,9 @@ class RestConfig
         return null;
     }
 
-    public static function authorization_check($section, $value, $user = ''): void
+    public static function authorization_check($section, $value, $user = '', $aclPermission = ''): void
     {
-        $result = AclMain::aclCheckCore($section, $value, $user);
+        $result = AclMain::aclCheckCore($section, $value, $user, $aclPermission);
         if (!$result) {
             if (!self::$notRestCall) {
                 http_response_code(401);

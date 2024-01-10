@@ -1,7 +1,17 @@
 /**
+ * Handles the select2 plugin using OpenEMR translations.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2024 Discover and Change, Inc. <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+/**
  * Generates a jQuery select2 object with translated messages
  * @param selector
  * @param languageDirection
+ * @param params
  */
 function select2Translated(selector, languageDirection, params) {
     params = params || {};

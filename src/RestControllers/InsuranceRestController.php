@@ -12,8 +12,10 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\InsuranceService;
+use OpenEMR\Services\PatientService;
+use OpenEMR\Validators\ProcessingResult;
 
 class InsuranceRestController
 {
@@ -40,34 +42,52 @@ class InsuranceRestController
 
         return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
-
-    public function put($pid, $type, $data)
+    public function put($puuid, $insuranceUuid, $data)
     {
-        $data["type"] = $type;
-        $data["pid"] = $pid;
-        $validationResult = $this->insuranceService->validate($data);
+        $data['uuid'] = $insuranceUuid;
+        $data['type'] = $data['type'] ?? 'primary';
 
-        $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
-        if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult;
+        $processingResult = new ProcessingResult();
+        $validationMessages = ['puuid::INVALID_PUUID' => 'Patient uuid invalid'];
+        $processingResult->setValidationMessages($validationMessages);
+        if (!UuidRegistry::isValidStringUUID($puuid)) {
+            return RestControllerHelper::handleProcessingResult($processingResult, 200);
         }
+        $puuid = UuidRegistry::uuidToBytes($puuid);
+        $patientService = new PatientService();
+        $pid = $patientService->getPidByUuid($puuid);
+        if (empty($pid)) {
+            return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        }
+        $data['pid'] = $pid;
 
-        $serviceResult = $this->insuranceService->insert($pid, $type, $data);
-        return RestControllerHelper::responseHandler($serviceResult, $type, 200);
+        $updatedResults = $this->insuranceService->update($data);
+        return RestControllerHelper::handleProcessingResult($updatedResults, 200, false);
     }
 
-    public function post($pid, $type, $data)
+    public function post($puuid, $data)
     {
-        $data["type"] = $type;
-        $data["pid"] = $pid;
-        $validationResult = $this->insuranceService->validate($data);
+        $data['type'] = $data['type'] ?? 'primary';
 
-        $validationHandlerResult = RestControllerHelper::validationHandler($validationResult);
-        if (is_array($validationHandlerResult)) {
-            return $validationHandlerResult;
+        $patientService = new PatientService();
+        $pid = $patientService->getPidByUuid($puuid);
+        if (empty($pid)) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages(['puuid::INVALID_PUUID' => 'Patient uuid invalid']);
+            return RestControllerHelper::handleProcessingResult($processingResult, 200);
         }
 
-        $serviceResult = $this->insuranceService->insert($pid, $type, $data);
-        return RestControllerHelper::responseHandler($serviceResult, $type, 201);
+        $insertedResult = $this->insuranceService->insert($data);
+        if (!$insertedResult->isValid()) {
+            return RestControllerHelper::handleProcessingResult($insertedResult, 200, false);
+        } else if (empty($insertedResult->hasData())) {
+            $insertedResult = new ProcessingResult();
+            $insertedResult->addInternalError('Insurance Policy record not found after insert');
+            return RestControllerHelper::handleProcessingResult($insertedResult, 200);
+        }
+        $insertedUuid = $insertedResult->getData()[0]['uuid'];
+
+        $processingResult = $this->insuranceService->getOne($insertedUuid);
+        return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 }

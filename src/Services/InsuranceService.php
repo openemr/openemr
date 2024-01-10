@@ -1,14 +1,16 @@
 <?php
 
 /**
- * InsuranceService
+ * InsuranceService - Service class for patient insurance policy (coverage) data
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2024 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,7 +18,7 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\AddressService;
+use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\Search\{
     CompositeSearchField,
     DateSearchField,
@@ -29,15 +31,16 @@ use OpenEMR\Validators\{
     CoverageValidator,
     ProcessingResult,
 };
-use Particle\Validator\Validator;
 
 class InsuranceService extends BaseService
 {
     private const COVERAGE_TABLE = "insurance_data";
     private const PATIENT_TABLE = "patient_data";
     private const INSURANCE_TABLE = "insurance_companies";
+    /**
+     * @var CoverageValidator $coverageValidator
+     */
     private $coverageValidator;
-    private $addressService = null;
 
 
     /**
@@ -45,7 +48,8 @@ class InsuranceService extends BaseService
      */
     public function __construct()
     {
-        $this->addressService = new AddressService();
+        parent::__construct(self::COVERAGE_TABLE);
+        // TODO: we need to migrate the addresses in these tables into the Address table
         UuidRegistry::createMissingUuidsForTables([self::COVERAGE_TABLE, self::PATIENT_TABLE, self::INSURANCE_TABLE]);
         $this->coverageValidator = new CoverageValidator();
     }
@@ -57,40 +61,7 @@ class InsuranceService extends BaseService
 
     public function validate($data)
     {
-        $validator = new Validator();
-
-        $validator->required('pid')->numeric();
-        $validator->required('type')->inArray(array('primary', 'secondary', 'tertiary'));
-        $validator->required('provider')->numeric();
-        $validator->required('plan_name')->lengthBetween(2, 255);
-        $validator->required('policy_number')->lengthBetween(2, 255);
-        $validator->required('group_number')->lengthBetween(2, 255);
-        $validator->required('subscriber_lname')->lengthBetween(2, 255);
-        $validator->optional('subscriber_mname')->lengthBetween(2, 255);
-        $validator->required('subscriber_fname')->lengthBetween(2, 255);
-        $validator->required('subscriber_relationship')->lengthBetween(2, 255);
-        $validator->required('subscriber_ss')->lengthBetween(2, 255);
-        $validator->required('subscriber_DOB')->datetime('Y-m-d');
-        $validator->required('subscriber_street')->lengthBetween(2, 255);
-        $validator->required('subscriber_postal_code')->lengthBetween(2, 255);
-        $validator->required('subscriber_city')->lengthBetween(2, 255);
-        $validator->required('subscriber_state')->lengthBetween(2, 255);
-        $validator->required('subscriber_country')->lengthBetween(2, 255);
-        $validator->required('subscriber_phone')->lengthBetween(2, 255);
-        $validator->required('subscriber_sex')->lengthBetween(1, 25);
-        $validator->required('accept_assignment')->lengthBetween(1, 5);
-        $validator->required('policy_type')->lengthBetween(1, 25);
-        $validator->optional('subscriber_employer')->lengthBetween(2, 255);
-        $validator->optional('subscriber_employer_street')->lengthBetween(2, 255);
-        $validator->optional('subscriber_employer_postal_code')->lengthBetween(2, 255);
-        $validator->optional('subscriber_employer_state')->lengthBetween(2, 255);
-        $validator->optional('subscriber_employer_country')->lengthBetween(2, 255);
-        $validator->optional('subscriber_employer_city')->lengthBetween(2, 255);
-        $validator->optional('copay')->lengthBetween(2, 255);
-        $validator->optional('date')->datetime('Y-m-d');
-        $validator->optional('date_end')->datetime('Y-m-d');
-
-        return $validator->validate($data);
+        return $this->coverageValidator->validate($data);
     }
 
     public function getOneByPid($id, $type)
@@ -230,8 +201,15 @@ class InsuranceService extends BaseService
         return $this->getOne($pid, $type) !== false;
     }
 
-    public function update($pid, $type, $data)
+    public function update($data)
     {
+        $validationResult = $this->coverageValidator->validate($data, CoverageValidator::DATABASE_UPDATE_CONTEXT);
+        if (!$validationResult->isValid()) {
+            return $validationResult;
+        }
+
+        $processingResult = new ProcessingResult();
+
         $sql = " UPDATE insurance_data SET ";
         $sql .= "   provider=?,";
         $sql .= "   plan_name=?,";
@@ -260,10 +238,15 @@ class InsuranceService extends BaseService
         $sql .= "   subscriber_sex=?,";
         $sql .= "   accept_assignment=?,";
         $sql .= "   policy_type=?";
-        $sql .= "   WHERE pid=?";
-        $sql .= "     AND type=?";
+        $sql .= "   WHERE uuid = ? ";
 
-        return sqlStatement(
+        $serviceSaveEvent = new ServiceSaveEvent($this, $data);
+        $this->getEventDispatcher()->dispatch($serviceSaveEvent, ServiceSaveEvent::EVENT_PRE_SAVE);
+        $data = $serviceSaveEvent->getSaveData();
+        $uuid = UuidRegistry::uuidToBytes($data['uuid']);
+
+
+        $results = sqlStatement(
             $sql,
             array(
                 $data["provider"],
@@ -293,19 +276,30 @@ class InsuranceService extends BaseService
                 $data["subscriber_sex"],
                 $data["accept_assignment"],
                 $data["policy_type"],
-                $pid,
-                $type
+                $uuid
             )
         );
+        if ($results) {
+            $serviceSavePostEvent = new ServiceSaveEvent($this, $data);
+            $this->getEventDispatcher()->dispatch($serviceSavePostEvent, ServiceSaveEvent::EVENT_POST_SAVE);
+            $processingResult = $this->getOne($data['uuid']);
+        } else {
+            $processingResult->addProcessingError("error processing SQL Update");
+        }
+        return $processingResult;
     }
 
-    public function insert($pid, $type, $data)
+    public function insert($data): ProcessingResult
     {
-        if ($this->doesInsuranceTypeHaveEntry($pid, $type)) {
-            return $this->update($pid, $type, $data);
+        $validationResult = $this->coverageValidator->validate($data, CoverageValidator::DATABASE_INSERT_CONTEXT);
+        if (!$validationResult->isValid()) {
+            return $validationResult;
         }
 
+        $data['uuid'] = UuidRegistry::getRegistryForTable(self::COVERAGE_TABLE)->createUuid();
+
         $sql = " INSERT INTO insurance_data SET ";
+        $sql .= "   uuid=?,";
         $sql .= "   type=?,";
         $sql .= "   provider=?,";
         $sql .= "   plan_name=?,";
@@ -336,10 +330,15 @@ class InsuranceService extends BaseService
         $sql .= "   accept_assignment=?,";
         $sql .= "   policy_type=?";
 
-        return sqlInsert(
+        $serviceSaveEvent = new ServiceSaveEvent($this, $data);
+        $dispatchedEvent = $this->getEventDispatcher()->dispatch($serviceSaveEvent, ServiceSaveEvent::EVENT_PRE_SAVE);
+        $data = $dispatchedEvent->getSaveData();
+
+        $insuranceDataId = sqlInsert(
             $sql,
             array(
-                $type,
+                $data['uuid'],
+                $data['type'],
                 $data["provider"],
                 $data["plan_name"] ?? '',
                 $data["policy_number"] ?? '',
@@ -364,12 +363,27 @@ class InsuranceService extends BaseService
                 $data["subscriber_employer_city"] ?? '',
                 $data["copay"] ?? '',
                 $data["date"] ?? '',
-                $pid,
+                $data['pid'],
                 $data["subscriber_sex"] ?? '',
                 $data["accept_assignment"] ?? '',
                 $data["policy_type"] ?? ''
             )
         );
+        // I prefer exceptions... but we will try to match other service handler formats for consistency
+        $processingResult = new ProcessingResult();
+        if ($insuranceDataId) {
+            $data['id'] = $insuranceDataId;
+            $processingResult->addData([
+                'id' => $insuranceDataId
+                ,'uuid' => UuidRegistry::uuidToString($data['uuid'])
+            ]);
+            $this->getEventDispatcher()->dispatch($serviceSaveEvent, ServiceSaveEvent::EVENT_POST_SAVE);
+            $processingResult = $this->getOne($data['uuid']);
+        } else {
+            $processingResult->addProcessingError("error processing SQL Update");
+        }
+
+        return $processingResult;
     }
 
     /**

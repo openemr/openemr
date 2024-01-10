@@ -3148,7 +3148,7 @@ paths:
       security:
         -
           openemr_auth: []
-  '/api/patient/{pid}/insurance':
+  '/api/patient/{puuid}/insurance':
     get:
       tags:
         - standard
@@ -3157,7 +3157,7 @@ paths:
         -
           name: pid
           in: path
-          description: 'The pid for the patient.'
+          description: 'The uuid for the patient.'
           required: true
           schema:
             type: string
@@ -3171,52 +3171,15 @@ paths:
       security:
         -
           openemr_auth: []
-  '/api/patient/{pid}/insurance/{type}':
-    get:
+    post:
       tags:
         - standard
-      description: 'Retrieves a insurance (by type) for a patient'
+      description: 'Submits a new patient insurance.'
       parameters:
         -
-          name: pid
+          name: puuid
           in: path
-          description: 'The pid for the patient.'
-          required: true
-          schema:
-            type: string
-        -
-          name: type
-          in: path
-          description: 'The insurance type for the patient. (options are ''primary'', ''secondary'', or ''tertiary'')'
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          $ref: '#/components/responses/standard'
-        '400':
-          $ref: '#/components/responses/badrequest'
-        '401':
-          $ref: '#/components/responses/unauthorized'
-      security:
-        -
-          openemr_auth: []
-    put:
-      tags:
-        - standard
-      description: 'Edit a patient insurance (by type)'
-      parameters:
-        -
-          name: pid
-          in: path
-          description: 'The pid for the patient.'
-          required: true
-          schema:
-            type: string
-        -
-          name: type
-          in: path
-          description: 'The insurance type for the patient. (options are ''primary'', ''secondary'', or ''tertiary'')'
+          description: 'The uuid for the patient.'
           required: true
           schema:
             type: string
@@ -3236,15 +3199,16 @@ paths:
       security:
         -
           openemr_auth: []
-    post:
+  '/api/patient/{puuid}/insurance/{type}':
+    get:
       tags:
         - standard
-      description: 'Submits a new patient insurance (with type)'
+      description: 'Retrieves a insurance (by type) for a patient'
       parameters:
         -
-          name: pid
+          name: puuid
           in: path
-          description: 'The pid for the patient.'
+          description: 'The uuid for the patient.'
           required: true
           schema:
             type: string
@@ -3252,6 +3216,36 @@ paths:
           name: type
           in: path
           description: 'The insurance type for the patient. (options are ''primary'', ''secondary'', or ''tertiary'')'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
+  '/api/patient/{puuid}/insurance/{insuranceUuid}':
+    put:
+      tags:
+        - standard
+      description: 'Edit a specific patient insurance policy. Requires the patients/demo/write ACL to call. This method is the preferred method for updating a patient insurance policy. The {insuranceId} can be found by querying /api/patient/{pid}/insurance'
+      parameters:
+        -
+          name: puuid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: insuranceUuid
+          in: path
+          description: 'The insurance policy uuid for the patient.'
           required: true
           schema:
             type: string
@@ -7582,6 +7576,9 @@ components:
         policy_type:
           description: 'The policy_type of insurance.'
           type: string
+        type:
+          description: 'The type of OpenEMR insurance policy, ''primary'', ''secondary'', or ''tertiary''. If this field is missing it will default to ''primary''.'
+          type: string
       type: object
       example:
         provider: '33'
@@ -7611,6 +7608,7 @@ components:
         subscriber_sex: Female
         accept_assignment: 'TRUE'
         policy_type: a
+        type: primary
     api_message_request:
       description: 'Schema for the message request'
       required:

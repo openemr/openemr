@@ -22,6 +22,11 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
 
+// make sure permissions are checked before we allow this page to be accessed.
+if (!AclMain::aclCheckCore('patients', 'demo', '', 'write')) {
+    die(xlt('Updating demographics is not authorized.'));
+}
+
 // Session pid must be right or bad things can happen when demographics are saved!
 //
 $set_pid = $_GET["set_pid"] ?? ($_GET["pid"] ?? null);
@@ -94,7 +99,8 @@ $insurance_info[0]['active'] = true;
 // so if we have a state add button we are removing it here.
 $state_data_type = $GLOBALS['state_data_type'] === '26' ? '1' : $GLOBALS['state_data_type'];
 $country_data_type = $GLOBALS['country_data_type'] === '26' ? '1' : $GLOBALS['country_data_type'];
-echo $twig->render("patient/insurance/insurance_edit.html.twig",
+echo $twig->render(
+    "patient/insurance/insurance_edit.html.twig",
     [
         'insurance_information' => $insurance_info,
         'insuranceTypes' => $insurance_array,
@@ -112,7 +118,8 @@ echo $twig->render("patient/insurance/insurance_edit.html.twig",
         ,'country_list' => $GLOBALS['country_list']
         // policy_types is defined in patient.inc.php
         ,'policy_types' => $GLOBALS['policy_types']
-    ]);
+    ]
+);
 
 exit;
 ?>

@@ -1,3 +1,12 @@
+/**
+ * This class is responsible for rendering the patient edit insurance policy screen and handling the events for it.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2024 Discover and Change, Inc. <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 import {InsurancePolicyService} from "./InsurancePolicyService.js";
 
 export class EditPolicyScreenController
@@ -20,6 +29,8 @@ export class EditPolicyScreenController
 
     __selectedInsuranceTypeTab = null;
 
+    #boundEvents = [];
+
     /**
      *
      * @param insurancePolicyService InsurancePolicyService
@@ -29,6 +40,18 @@ export class EditPolicyScreenController
         this.__types = insurancePolicyService.getInsuranceCategories();
         this.__insurancesByType = insurancePolicyService.getInsurancesByType();
         this.__insurancePolicyService = insurancePolicyService;
+    }
+
+    addEvent(node, event, callback) {
+        node.addEventListener(event, callback);
+        this.#boundEvents.push({node: node, event: event, callback: callback});
+    }
+
+    clearEvents() {
+        this.#boundEvents.forEach(event => {
+            event.node.removeEventListener(event.event, event.callback);
+        });
+        this.#boundEvents = [];
     }
 
     /**
@@ -44,12 +67,96 @@ export class EditPolicyScreenController
 
     setup() {
         this.show();
-        this.setupInsuranceTypeNavigation();
-        this.populateSelectDropdowns();
+        this.#setupInsuranceTypeNavigation();
+        this.#setupSavePolicyButton();
+        this.#populateSelectDropdowns();
         // this is where we would populate the most current insurance
         this.setupInitialInsurance();
         this.render();
     }
+    #setupSavePolicyButton() {
+        // setup event listener for btn-save-policy to save the policy
+        let btnSavePolicy = document.querySelectorAll('.btn-save-policy');
+        if (btnSavePolicy) {
+            btnSavePolicy.forEach(b => b.addEventListener('click', (evt) => {
+                evt.preventDefault();
+                evt.stopPropagation();
+                this.savePolicy();
+            }));
+        }
+    }
+    #setupModelSyncBinding(selectedInsurance) {
+        let type = selectedInsurance.type;
+        let insuranceInfoContainer = document.getElementById('insurance-info-type-' + type);
+
+        let keys = Object.keys(selectedInsurance);
+        keys.forEach(key => {
+            let input = insuranceInfoContainer.querySelector('[name="form_' + key + '"]');
+            if (input) {
+                if (input.nodeName !== "SELECT") {
+                    this.addEvent(input, 'change', (evt) => {
+                        let input = evt.target;
+                        let key = input.name.replace('form_', '');
+                        let value = input.value;
+                        this.selectedInsurance[key] = value;
+                        this.render(); // re-render the screen to update the display
+                    });
+                } else {
+                    // capture the events for the select2 events and update the selectedInsurance
+                    $(input).on('select2:select', (evt) => {
+                    // this.addEvent(input, 'select2:select', (evt) => {
+                        let input = evt.target;
+                        let key = input.name.replace('form_', '');
+                        let value = input.value;
+                        this.selectedInsurance[key] = value;
+                        this.render(); // re-render the screen to update the display
+                    });
+                }
+            }
+        });
+
+        // setup the event listeners for the capitalize me fields
+        insuranceInfoContainer.querySelectorAll('.js-capitalize-me').forEach(input => {
+            this.addEvent(input, 'change', this.capitalizeMe);
+        });
+
+        // setup the event listeners for the policykeyup fields
+        if (typeof window.policykeyup == 'function') {
+            // comes from common.js
+            insuranceInfoContainer.querySelectorAll('.js-policykeyup').forEach(input => {
+                // need to bind up the input to the function argument due to the way the function is written
+                this.addEvent(input, 'keyup', function () {
+                    window.policykeyup(this); // this is the input element
+                });
+            });
+        }
+        // setup the event listeners for the date picker fields
+
+        // setup the bootstrap select fields
+        select2Translated("#" + insuranceInfoContainer.id + " .sel2", undefined, {
+            theme: "bootstrap4"
+            ,dropdownAutoWidth: true
+            ,width: "resolve"
+        });
+
+    }
+
+    savePolicy() {
+        // TODO: @adunsulag need to sync the form data with the selected insurance
+        // this.syncFormDataWithInsurance(this.selectedInsurance);
+        // TODO: @adunsulag need to validate the form
+        // need to grab the selected insurance and save it
+        this.__insurancePolicyService.saveInsurance(this.selectedInsurance)
+            .then(result => {
+                this.selectedInsurance = result;
+                this.__insurancesByType = insurancePolicyService.getInsurancesByType();
+            })
+            .catch(error => {
+                // TODO: @adunsulag what to do here if we fail?
+                console.error(error);
+            });
+    }
+
     setupInitialInsurance() {
         if (this.selectedInsurance === null) {
             let defaultType = this.__types[0];
@@ -78,8 +185,8 @@ export class EditPolicyScreenController
     }
 
 
-    populateInsuranceProviderListForNode(node, insuranceProviderList) {
-        let select = node.querySelector('[name="provider"]');
+    #populateInsuranceProviderListForNode(node, insuranceProviderList) {
+        let select = node.querySelector('[name="form_provider"]');
         if (select) {
             let ids = Object.keys(insuranceProviderList);
             // need to sort the names but retain the ids
@@ -99,7 +206,7 @@ export class EditPolicyScreenController
     }
 
 
-    setupInsuranceTypeNavigation() {
+    #setupInsuranceTypeNavigation() {
         // grab nav-link-insurance-type elements and setup click handlers for them
         // when the user clicks on one of them we need to hide all the tabs and show the one they clicked on
         // we also should populate the insurance information for the first insurance in the list for that insurance type
@@ -111,9 +218,12 @@ export class EditPolicyScreenController
                     evt.preventDefault();
                     evt.stopPropagation();
 
-                    // clear out any selected insurance so we go with whatever the default is.
-                    this.selectedInsurance = null;
                     this.__selectedInsuranceTypeTab = evt.target.dataset.type;
+                    // need to default to the top insurance in the list
+                    if (!this.__insurancesByType[this.__selectedInsuranceTypeTab].length) {
+                        console.error("Failed to find insurance for type: " + this.__selectedInsuranceTypeTab);
+                    }
+                    this.selectedInsurance = this.__insurancesByType[this.__selectedInsuranceTypeTab][0];
                     this.render();
                 });
             });
@@ -162,13 +272,6 @@ export class EditPolicyScreenController
                 });
             }
         }
-        let insurances = this.__insurancesByType[type];
-        if (insurances && insurances.length > 0) {
-            this.populateInsuranceInformationForSelectedInsurance(insurances[0]);
-        } else {
-            // TODO: @adunsulag need to figure out what happens if we have no insurance for the patient...
-        }
-
         let select = document.getElementById('insurance-type-' + type);
         if (select) {
             // let's empty out the select
@@ -183,7 +286,6 @@ export class EditPolicyScreenController
                 }
                 select.appendChild(option);
             });
-            // set our default selected if we have an initially selected insurance we are editing
             if (this.selectedInsurance) {
                 let selectedOptionInsuranceId = this.selectedInsurance.id === null ? "" : this.selectedInsurance.id;
                 let option = select.querySelector('[value="' + selectedOptionInsuranceId + '"]');
@@ -193,9 +295,19 @@ export class EditPolicyScreenController
             }
             select.classList.remove("d-none");
         }
+
+        let saveBtn = document.querySelector('.btn-save-policy');
+        // set our default selected if we have an initially selected insurance we are editing
+        if (this.selectedInsurance) {
+            this.#populateInsuranceInformationForSelectedInsurance(this.selectedInsurance);
+            saveBtn.disabled = false;
+        } else {
+            console.error("Failed to render selectedInsurance as none is set");
+            saveBtn.disabled = true;
+        }
     }
 
-    populateSelectDropdowns() {
+    #populateSelectDropdowns() {
         this.__types.forEach(type => {
             let select = document.getElementById('insurance-type-' + type);
             if (select) {
@@ -212,83 +324,53 @@ export class EditPolicyScreenController
         });
     }
 
-    populateInsuranceInformationForSelectedInsurance(selectedInsurance) {
+    #populateInsuranceInformationForSelectedInsurance(selectedInsurance) {
         console.log(selectedInsurance);
         if (selectedInsurance) {
             let type = selectedInsurance.type;
             let insuranceInfoContainer = document.getElementById('insurance-info-type-' + type);
             if (insuranceInfoContainer) {
+                this.clearEvents(); // clear any bound events that we've done here
                 insuranceInfoContainer.innerHTML = '';
                 let template = document.getElementById('insurance-edit-template');
-                if (template) {
-                    let clone = document.importNode(template.content, true);
-                    insuranceInfoContainer.appendChild(clone); // note clone nodes are now empty at this point
-                    this.populateInsuranceProviderListForNode(insuranceInfoContainer, this.__insuranceProviderList);
-
-                    let keys = Object.keys(selectedInsurance);
-                    keys.forEach(key => {
-                        let value = selectedInsurance[key];
-                        let updatedValue = this.convertValueForInsuranceKey(key, value);
-                        let input = insuranceInfoContainer.querySelector('[name="form_' + key + '"]');
-                        if (!input) {
-                            console.info("Failed to find insurance info input for key: " + key);
-                            return;
-                        }
-                        // clear out the id field as we don't use it
-                        input.removeAttribute('id');
-                        if (input.nodeName != "SELECT") {
-                            input.value = updatedValue;
-                        } else {
-                            let option = input.querySelector('[value="' + updatedValue + '"]');
-                            if (option) {
-                                option.selected = true;
-                            } else {
-                                console.error("Failed to find select option value for key: " + key + " value: " + value);
-                            }
-                        }
-                    });
-
-                    let insuranceInfoType = insuranceInfoContainer.querySelector('.insurance-info-type');
-                    if (insuranceInfoType) {
-                        // note use of innerText here to prevent XSS, DO NOT USE innerHTML
-                        insuranceInfoType.innerText = type;
-                    }
-
-                    // setup the event listeners for the capitalize me fields
-                    insuranceInfoContainer.querySelectorAll('.js-capitalize-me').forEach(input => {
-                        input.addEventListener('change', this.capitalizeMe);
-                    });
-
-                    // setup the event listeners for the policykeyup fields
-                    if (typeof window.policykeyup == 'function') {
-                        // comes from common.js
-                        insuranceInfoContainer.querySelectorAll('.js-policykeyup').forEach(input => {
-                            // need to bind up the input to the function argument due to the way the function is written
-                            input.addEventListener('keyup', function() {
-                                window.policykeyup(this); // this is the input element
-                            });
-                        });
-                    }
-
-                    // setup the event listeners for the date picker fields
-
-                    // setup the bootstrap select fields
-                    select2Translated("#" + insuranceInfoContainer.id + " .sel2");
+                if (!template) {
+                    throw new Error("Failed to find insurance edit template");
                 }
-            }
-        }
-    }
 
-    convertValueForInsuranceKey(key, value) {
-        if (key == 'accept_assignment') {
-            if (value == 'FALSE') {
-                value = 'NO';
-            } else {
-                // default should go to yes
-                value = 'YES';
+                let clone = document.importNode(template.content, true);
+                insuranceInfoContainer.appendChild(clone); // note clone nodes are now empty at this point
+                this.#populateInsuranceProviderListForNode(insuranceInfoContainer, this.__insuranceProviderList);
+
+                let keys = Object.keys(selectedInsurance);
+                keys.forEach(key => {
+                    let value = selectedInsurance[key];
+                    let input = insuranceInfoContainer.querySelector('[name="form_' + key + '"]');
+                    if (!input) {
+                        console.info("Failed to find insurance info input for key: " + key);
+                        return;
+                    }
+                    // clear out the id field as we don't use it
+                    input.removeAttribute('id');
+                    if (input.nodeName != "SELECT") {
+                        input.value = value;
+                    } else {
+                        let option = input.querySelector('[value="' + value + '"]');
+                        if (option) {
+                            option.selected = true;
+                        } else {
+                            console.error("Failed to find select option value for key: " + key + " value: " + value);
+                        }
+                    }
+                });
+
+                let insuranceInfoType = insuranceInfoContainer.querySelector('.insurance-info-type');
+                if (insuranceInfoType) {
+                    // note use of innerText here to prevent XSS, DO NOT USE innerHTML
+                    insuranceInfoType.innerText = type;
+                }
+                this.#setupModelSyncBinding(selectedInsurance);
             }
         }
-        return value;
     }
 
     // This capitalizes the first letter of each word in the passed input

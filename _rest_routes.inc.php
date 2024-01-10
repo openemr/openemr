@@ -6195,13 +6195,13 @@ RestConfig::$ROUTE_MAP = array(
 
     /**
      *  @OA\Get(
-     *      path="/api/patient/{pid}/insurance",
+     *      path="/api/patient/{puuid}/insurance",
      *      description="Retrieves all insurances for a patient",
      *      tags={"standard"},
      *      @OA\Parameter(
      *          name="pid",
      *          in="path",
-     *          description="The pid for the patient.",
+     *          description="The uuid for the patient.",
      *          required=true,
      *          @OA\Schema(
      *              type="string"
@@ -6222,21 +6222,21 @@ RestConfig::$ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /api/patient/:pid/insurance" => function ($pid) {
-        $return = (new InsuranceRestController())->getAll($pid);
+    "GET /api/patient/:puuid/insurance" => function ($puuid) {
+        $return = (new InsuranceRestController())->getAll($puuid);
         RestConfig::apiLog($return);
         return $return;
     },
 
     /**
      *  @OA\Get(
-     *      path="/api/patient/{pid}/insurance/{type}",
+     *      path="/api/patient/{puuid}/insurance/{type}",
      *      description="Retrieves a insurance (by type) for a patient",
      *      tags={"standard"},
      *      @OA\Parameter(
-     *          name="pid",
+     *          name="puuid",
      *          in="path",
-     *          description="The pid for the patient.",
+     *          description="The uuid for the patient.",
      *          required=true,
      *          @OA\Schema(
      *              type="string"
@@ -6266,8 +6266,8 @@ RestConfig::$ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /api/patient/:pid/insurance/:type" => function ($pid, $type) {
-        $return = (new InsuranceRestController())->getOne($pid, $type);
+    "GET /api/patient/:puuid/insurance/:type" => function ($puuid, $type) {
+        $return = (new InsuranceRestController())->getOne($puuid, $type);
         RestConfig::apiLog($return);
         return $return;
     },
@@ -6412,6 +6412,11 @@ RestConfig::$ROUTE_MAP = array(
      *          description="The policy_type of insurance.",
      *          type="string"
      *      ),
+     *      @OA\Property(
+     *          property="type",
+     *          description="The type of OpenEMR insurance policy, 'primary', 'secondary', or 'tertiary'. If this field is missing it will default to 'primary'.",
+     *          type="string"
+     *      ),
      *      required={"provider", "plan_name", "policy_number", "group_number", "subscriber_fname", "subscriber_lname", "subscriber_relationship", "subscriber_ss", "subscriber_DOB", "subscriber_street", "subscriber_postal_code", "subscriber_city", "subscriber_state", "subscriber_country", "subscriber_phone", "subscriber_sex", "accept_assignment", "policy_type"},
      *      example={
      *          "provider": "33",
@@ -6440,80 +6445,30 @@ RestConfig::$ROUTE_MAP = array(
      *          "date": "2018-10-15",
      *          "subscriber_sex": "Female",
      *          "accept_assignment": "TRUE",
-     *          "policy_type": "a"
+     *          "policy_type": "a",
+     *          "type": "primary"
      *      }
      *  )
      */
-    /**
-     *  @OA\Post(
-     *      path="/api/patient/{pid}/insurance/{type}",
-     *      description="Submits a new patient insurance (with type)",
-     *      tags={"standard"},
-     *      @OA\Parameter(
-     *          name="pid",
-     *          in="path",
-     *          description="The pid for the patient.",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string"
-     *          )
-     *      ),
-     *      @OA\Parameter(
-     *          name="type",
-     *          in="path",
-     *          description="The insurance type for the patient. (options are 'primary', 'secondary', or 'tertiary')",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string"
-     *          )
-     *      ),
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\MediaType(
-     *              mediaType="application/json",
-     *              @OA\Schema(ref="#/components/schemas/api_insurance_request")
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          ref="#/components/responses/standard"
-     *      ),
-     *      @OA\Response(
-     *          response="400",
-     *          ref="#/components/responses/badrequest"
-     *      ),
-     *      @OA\Response(
-     *          response="401",
-     *          ref="#/components/responses/unauthorized"
-     *      ),
-     *      security={{"openemr_auth":{}}}
-     *  )
-     */
-    "POST /api/patient/:pid/insurance/:type" => function ($pid, $type) {
-        $data = (array) (json_decode(file_get_contents("php://input")));
-        $return = (new InsuranceRestController())->post($pid, $type, $data);
-        RestConfig::apiLog($return, $data);
-        return $return;
-    },
 
     /**
      *  @OA\Put(
-     *      path="/api/patient/{pid}/insurance/{type}",
-     *      description="Edit a patient insurance (by type)",
+     *      path="/api/patient/{puuid}/insurance/{insuranceUuid}",
+     *      description="Edit a specific patient insurance policy. Requires the patients/demo/write ACL to call. This method is the preferred method for updating a patient insurance policy. The {insuranceId} can be found by querying /api/patient/{pid}/insurance",
      *      tags={"standard"},
      *      @OA\Parameter(
-     *          name="pid",
+     *          name="puuid",
      *          in="path",
-     *          description="The pid for the patient.",
+     *          description="The uuid for the patient.",
      *          required=true,
      *          @OA\Schema(
      *              type="string"
      *          )
      *      ),
      *      @OA\Parameter(
-     *          name="type",
+     *          name="insuranceUuid",
      *          in="path",
-     *          description="The insurance type for the patient. (options are 'primary', 'secondary', or 'tertiary')",
+     *          description="The insurance policy uuid for the patient.",
      *          required=true,
      *          @OA\Schema(
      *              type="string"
@@ -6541,13 +6496,58 @@ RestConfig::$ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "PUT /api/patient/:pid/insurance/:type" => function ($pid, $type) {
+    "PUT /api/patient/:puuid/insurance/:insuranceUuid" => function ($puuid, $insuranceUuid, HttpRestRequest $request) {
+        RestConfig::authorization_check("patients", "demo", '', 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
-        $return = (new InsuranceRestController())->put($pid, $type, $data);
+        $data['type'] = $type;
+        $return = (new InsuranceRestController())->put($puuid, $insuranceUuid, $data);
         RestConfig::apiLog($return, $data);
         return $return;
     },
 
+    /**
+     *  @OA\Post(
+     *      path="/api/patient/{puuid}/insurance",
+     *      description="Submits a new patient insurance.",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="puuid",
+     *          in="path",
+     *          description="The uuid for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(ref="#/components/schemas/api_insurance_request")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /api/patient/:puuid/insurance" => function ($puuid) {
+        RestConfig::authorization_check("patients", "demo", '', ['write','addonly']);
+        $data = (array) (json_decode(file_get_contents("php://input")));
+        $return = (new InsuranceRestController())->post($puuid, $data);
+        RestConfig::apiLog($return, $data);
+        return $return;
+    },
     /**
      * Schema for the message request
      *

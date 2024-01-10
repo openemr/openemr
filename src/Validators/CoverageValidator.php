@@ -2,6 +2,8 @@
 
 namespace OpenEMR\Validators;
 
+use OpenEMR\Billing\InsurancePolicyTypes;
+use Particle\Validator\Exception\InvalidValueException;
 use Particle\Validator\Validator;
 
 /**
@@ -15,21 +17,38 @@ use Particle\Validator\Validator;
  */
 class CoverageValidator extends BaseValidator
 {
+    protected function getInnerValidator(): Validator
+    {
+        return new OpenEMRParticleValidator();
+    }
+
     /**
      * Configures validations for the Insurance Coverage DB Insert and Update use-case.
      * The update use-case is comprised of the same fields as the insert use-case.
-     * The update use-case differs from the insert use-case in that fields other than uuid are not required.
+     * The update use-case differs from the insert use-case in that fields other than uuid & type are not required.
      */
     protected function configureValidator()
     {
         parent::configureValidator();
 
+
         // insert validations
         $this->validator->context(
             self::DATABASE_INSERT_CONTEXT,
             function (Validator $context) {
+                if (!$context instanceof OpenEMRParticleValidator) {
+                    throw new \RuntimeException("CoverageValidator requires an instance of OpenEMRParticleValidator");
+                }
                 $context->required('pid')->numeric();
-                $context->required('type')->inArray(array('primary', 'secondary', 'tertiary'));
+                $context->required('type')->inArray(array('primary', 'secondary', 'tertiary'))
+                    ->callback(function ($value) {
+                        if ($GLOBALS['insurance_only_one']) {
+                            if ($value !== 'primary') {
+                                throw new InvalidValueException("only primary insurance allowed with insurance_only_one global setting enabled", "INSURANCE_ONLY_ONE::INVALID_INSURANCE_TYPE");
+                            }
+                        }
+                        return true;
+                    });
                 $context->required('provider')->numeric();
                 $context->required('plan_name')->lengthBetween(2, 255);
                 $context->required('policy_number')->lengthBetween(2, 255);
@@ -37,26 +56,28 @@ class CoverageValidator extends BaseValidator
                 $context->required('subscriber_lname')->lengthBetween(2, 255);
                 $context->optional('subscriber_mname')->lengthBetween(2, 255);
                 $context->required('subscriber_fname')->lengthBetween(2, 255);
-                $context->required('subscriber_relationship')->lengthBetween(2, 255);
+                $context->required('subscriber_relationship')->listOption('sub_relation');
                 $context->required('subscriber_ss')->lengthBetween(2, 255);
                 $context->required('subscriber_DOB')->datetime('Y-m-d');
                 $context->required('subscriber_street')->lengthBetween(2, 255);
                 $context->required('subscriber_postal_code')->lengthBetween(2, 255);
                 $context->required('subscriber_city')->lengthBetween(2, 255);
-                $context->required('subscriber_state')->lengthBetween(2, 255);
-                $context->required('subscriber_country')->lengthBetween(2, 255);
+                $context->required('subscriber_state')->listOption($GLOBALS['state_list']);
+                $context->required('subscriber_country')->listOption($GLOBALS['country_list']);
                 $context->required('subscriber_phone')->lengthBetween(2, 255);
-                $context->required('subscriber_sex')->lengthBetween(1, 25);
-                $context->required('accept_assignment')->lengthBetween(1, 5);
-                $context->required('policy_type')->lengthBetween(1, 25);
+                $context->required('subscriber_sex')->listOption('sex');
+                $context->required('accept_assignment')->inArray(['TRUE', 'FALSE']);
+                // policy type has a Not Applicable(NA) option which is an empty string so we allow empty here
+                $context->required('policy_type')->allowEmpty(true)->inArray(InsurancePolicyTypes::POLICY_TYPES);
                 $context->optional('subscriber_employer')->lengthBetween(2, 255);
                 $context->optional('subscriber_employer_street')->lengthBetween(2, 255);
                 $context->optional('subscriber_employer_postal_code')->lengthBetween(2, 255);
-                $context->optional('subscriber_employer_state')->lengthBetween(2, 255);
-                $context->optional('subscriber_employer_country')->lengthBetween(2, 255);
+                $context->optional('subscriber_employer_state')->listOption($GLOBALS['state_list']);
+                $context->optional('subscriber_employer_country')->listOption($GLOBALS['country_list']);
                 $context->optional('subscriber_employer_city')->lengthBetween(2, 255);
                 $context->optional('copay')->lengthBetween(2, 255);
                 $context->optional('date')->datetime('Y-m-d');
+                $context->optional('date_end')->datetime('Y-m-d');
             }
         );
 
@@ -68,7 +89,9 @@ class CoverageValidator extends BaseValidator
                     self::DATABASE_INSERT_CONTEXT,
                     function ($rules) {
                         foreach ($rules as $key => $chain) {
-                            $chain->required(false);
+                            if ($key !== 'type') {
+                                $chain->required(false);
+                            }
                         }
                     }
                 );

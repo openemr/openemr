@@ -1,3 +1,12 @@
+/**
+ * New Policy Screen Controller - This is the controller for the patient new policy screen.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2024 Discover and Change, Inc. <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 import {InsurancePolicyService} from "./InsurancePolicyService.js";
 
 export class NewPolicyScreenController

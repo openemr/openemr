@@ -1,3 +1,13 @@
+/**
+ * Insurance Policy Service - This is the service that handles the communication with the server
+ * for the retrieval and saving of insurance policies for the patient.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2024 Discover and Change, Inc. <snielson@discoverandchange.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 import {InsurancePolicyModel} from "./InsurancePolicyModel.js";
 
 export class InsurancePolicyService
@@ -49,8 +59,6 @@ export class InsurancePolicyService
                     resultData.data.forEach(ins => {
                         let insurance = new InsurancePolicyModel();
                         insurance.populate(ins);
-                        // TODO: @adunsulag do we want to create a model object for this?
-                        // would allow us to maintain some consistency over the code... but reduces flexibility
                         selectedInsurance = insurance;
                         if (this.insurancesByType[insurance.type]) {
                             this.insurancesByType[insurance.type].push(insurance);
@@ -132,6 +140,81 @@ export class InsurancePolicyService
         else {
             // replace the existing policy in memory
             this.insurancesByType[policy.type][index] = policy;
+        }
+    }
+
+    #getDataForSave(insuranceObj) {
+        let data = Object.assign({}, insuranceObj);
+        // wierd way of how the server saves the data.
+        if (data.accept_assignment == 'yes') {
+            data.accept_assignment = "TRUE";
+        } else {
+            data.accept_assignment = "FALSE";
+        }
+        return data;
+    }
+
+    saveInsurance(insurancePolicy) {
+        if (!insurancePolicy.type) {
+            throw new Error("Cannot save insurance policy without a type");
+        }
+        let url = this.__apiURL + 'patient/' + this.__puuid + '/insurance';
+        let method = 'POST';
+
+        if (insurancePolicy.id) {
+            method = 'PUT';
+            url = url + '/' + insurancePolicy.uuid;
+        }
+        let headers = {
+            'apicsrftoken': this.__apiCSRFToken
+            ,'Content-Type': 'application/json'
+        };
+        let saveObj = this.#getDataForSave(insurancePolicy);
+        let body = JSON.stringify(saveObj);
+        return window.fetch(url,
+            {
+                method: method
+                ,redirect: 'manual'
+                ,headers: headers
+                ,body: body
+            })
+            .then(result => {
+                if (result.ok) {
+                    return result.json();
+                } else {
+                    return result.json().then(data => {
+                        // we should have caught all of the validation in the client side interface so log the error and throw
+                        console.error("Validation errors occurred. Error object", data);
+                        throw new Error("Failed to save insurance policy due to validation errors");
+                    });
+                }
+            })
+            .then(resultData => {
+                if (resultData.validationErrors && resultData.validationErrors.length > 0) {
+                    console.error(resultData.validationErrors);
+                    throw new Error("Failed to save insurance policy due to validation errors");
+                }
+                if (resultData.data) {
+                    let policy = new InsurancePolicyModel();
+                    policy.populate(resultData.data);
+                    this.#replacePolicyInMemory(insurancePolicy, policy);
+                    return policy;
+                } else {
+                    throw new Error("Failed to save insurance policy as no data came back");
+                }
+            });
+    }
+    getDataForSave() {
+
+    }
+    #replacePolicyInMemory(oldPolicy, newPolicy) {
+        // we replace the old policy with the new policy in memory
+        // if we don't find the old policy we just add the new policy to the list
+        let index = this.insurancesByType[oldPolicy.type].findIndex(ins => ins.id === oldPolicy.id);
+        if (index !== -1) {
+            this.insurancesByType[oldPolicy.type][index] = newPolicy;
+        } else {
+            this.insurancesByType[oldPolicy.type].push(newPolicy);
         }
     }
 }

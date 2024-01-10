@@ -112,7 +112,7 @@
         ,fld_length: 15
         ,max_length: 63
         ,smallform: 'true'
-        ,classNames: "js-capitalize-me mb-1"
+        ,classNames: "js-capitalize-me mb-1 sel2"
         ,list_id: state_list
         ,skip: include_employers and useStateTerminology
     }, {
@@ -123,7 +123,7 @@
         ,fld_length: 15
         ,max_length: 63
         ,smallform: 'true'
-        ,classNames: "js-capitalize-me mb-1"
+        ,classNames: "js-capitalize-me mb-1 sel2"
         ,list_id: state_list
         ,skip: include_employers and not useStateTerminology
     }, {
@@ -154,7 +154,7 @@
         ,fld_length: 10
         ,max_length: 63
         ,smallform: 'true'
-        ,classNames: "js-capitalize-me mb-1"
+        ,classNames: "js-capitalize-me mb-1 sel2"
         ,list_id: country_list
         ,skip: include_employers
     }]
@@ -197,7 +197,7 @@
         ,field_id: "subscriber_sex"
         ,list_id: 'sex'
         ,smallform: 'true'
-        ,classNames: "mb-1"
+        ,classNames: "mb-1 sel2"
     }, {
         name: "S.S."|xl
         ,data_type: dataTypeText
@@ -238,7 +238,7 @@
         ,fld_length: 15
         ,max_length: 63
         ,smallform: 'true'
-        ,classNames: "js-capitalize-me mb-1"
+        ,classNames: "js-capitalize-me mb-1 sel2"
         ,list_id: state_list
         ,skip: useStateTerminology
     }, {
@@ -249,7 +249,7 @@
         ,fld_length: 15
         ,max_length: 63
         ,smallform: 'true'
-        ,classNames: "js-capitalize-me mb-1"
+        ,classNames: "js-capitalize-me mb-1 sel2"
         ,list_id: state_list
         ,skip: not useStateTerminology
     }, {
@@ -280,7 +280,7 @@
         ,fld_length: 10
         ,max_length: 63
         ,smallform: 'true'
-        ,classNames: "js-capitalize-me mb-1"
+        ,classNames: "js-capitalize-me mb-1 sel2"
         ,list_id: country_list
     }, {
         name: "Subsciber Phone"|xl
@@ -307,7 +307,7 @@
         ,field_id: "accept_assignment"
         ,list_id: 'yesno'
         ,smallform: 'true'
-        ,classNames: "mb-1"
+        ,classNames: "mb-1 sel2"
         ,empty_title: 'SKIP'
     }]
 }
@@ -438,7 +438,7 @@
                     <div class="form-row mb-2"><!-- start nested row -->
                         <div class="col-md-6 text-align-right">
                             <div class="btn-group">
-                                <input type="button" value="{{ 'Save Policy'|xla }}" class="btn btn-primary" />
+                                <input type="button" value="{{ 'Save Policy'|xla }}" class="btn btn-primary btn-save-policy" />
                             </div>
 
                         </div>
@@ -482,7 +482,7 @@
                 </div>
                 <div class="col-md-9">
                     {# TODO: @adunsulag fix hard coded width here #}
-                    <select name="provider" class="form-control form-control-sm sel2 mb-1" style="width: 250px;">
+                    <select name="form_provider" class="form-control form-control-sm sel2 mb-1" style="width: 250px;">
                         <option value="">{{ 'Unassigned'|xlt }}</option>
                     </select>
                     <a class="medium_modal btn btn-primary" href="../../practice/ins_search.php?ins=" role="button">{{ 'Search/Add/Edit'|xlt  }}</a>
@@ -512,7 +512,7 @@
                 </div>
                 <div class="col-md-9">
                     {{ generateFormField({data_type: 1, field_id: 'subscriber_relationship', 'list_id': 'sub_relation'
-                        , 'empty_title': ' ', classNames: 'mb-1', smallform: 'true'}, '') }}
+                        , 'empty_title': ' ', classNames: 'mb-1 sel2', smallform: 'true'}, '') }}
                 </div>
                 {# TODO: @adunsulag browsenum needs to be looked at with what this field means #}
                 <a href="javascript:popUp('browse.php?browsenum=1')" class='text'>({{ "Browse"|xlt }})</a>
@@ -544,7 +544,7 @@
                     <span>{{ 'Secondary Medicare Type'|xlt }}:</span>
                 </div>
                 <div class="col-md-9">
-                    <select class='form-control form-control-sm mb-1 sel2' name='policy_type'>
+                    <select class='form-control form-control-sm mb-1 sel2' name='form_policy_type'>
                         {% for key,value in policy_types %}
                             <option value ={{ key|attr }}>{{ value|text }}</option>
                         {% endfor %}

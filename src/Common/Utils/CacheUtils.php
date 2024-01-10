@@ -14,7 +14,8 @@ namespace OpenEMR\Common\Utils;
 
 class CacheUtils
 {
-    public static function getAssetCacheParamRaw() {
+    public static function getAssetCacheParamRaw()
+    {
         return $GLOBALS['v_js_includes'];
     }
     /**

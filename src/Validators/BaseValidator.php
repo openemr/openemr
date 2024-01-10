@@ -39,9 +39,17 @@ abstract class BaseValidator
 
     public function __construct()
     {
-        $this->validator = new Validator();
+        $this->validator = $this->getInnerValidator();
         $this->supportedContexts = [];
         $this->configureValidator();
+    }
+
+    protected function getInnerValidator(): Validator
+    {
+        if (empty($this->validator)) {
+            $this->validator = new Validator();
+        }
+        return $this->validator;
     }
 
     /**

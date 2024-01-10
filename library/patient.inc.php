@@ -20,6 +20,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\SocialHistoryService;
+use OpenEMR\Billing\InsurancePolicyTypes;
 
 require_once(dirname(__FILE__) . "/dupscore.inc.php");
 
@@ -41,18 +42,7 @@ $PLAYER_FITCOLORS = array('#6677ff', '#00cc00', '#ffff00', '#ff3333', '#ff8800',
 // Hard-coding this array because its values and meanings are fixed by the 837p
 // standard and we don't want people messing with them.
 global $policy_types;
-$policy_types = array(
-  ''   => xl('N/A'),
-  '12' => xl('Working Aged Beneficiary or Spouse with Employer Group Health Plan'),
-  '13' => xl('End-Stage Renal Disease Beneficiary in MCP with Employer`s Group Plan'),
-  '14' => xl('No-fault Insurance including Auto is Primary'),
-  '15' => xl('Worker`s Compensation'),
-  '16' => xl('Public Health Service (PHS) or Other Federal Agency'),
-  '41' => xl('Black Lung'),
-  '42' => xl('Veteran`s Administration'),
-  '43' => xl('Disabled Beneficiary Under Age 65 with Large Group Health Plan (LGHP)'),
-  '47' => xl('Other Liability Insurance is Primary'),
-);
+$policy_types = InsurancePolicyTypes::getTranslatedPolicyTypes();
 
 /**
  * Get a patient's demographic data.
