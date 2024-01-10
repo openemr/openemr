@@ -91,6 +91,10 @@ $PDF_OUTPUT = ($formid && $isblankform) ? false : true;
 
 if ($PDF_OUTPUT) {
     $config_mpdf = Config_Mpdf::getConfigMpdf();
+    $config_mpdf['margin_top'] = $config_mpdf['margin_top'] * 1.5;
+    $config_mpdf['margin_bottom'] = $config_mpdf['margin_bottom'] * 1.5;
+    $config_mpdf['margin_header'] = $GLOBALS['pdf_top_margin'];
+    $config_mpdf['margin_footer'] =  $GLOBALS['pdf_bottom_margin'];
     $pdf = new mPDF($config_mpdf);
     $pdf->SetDisplayMode('real');
     if ($_SESSION['language_direction'] == 'rtl') {
