@@ -29,6 +29,7 @@ export class InsurancePolicyService
         let headers = {
             'apicsrftoken': this.__apiCSRFToken
         };
+        window.top.restoreSession();
         return window.fetch(url,
             {
                 method: 'GET'

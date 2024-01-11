@@ -47,6 +47,26 @@ export class InsurancePolicyModel {
     subscriber_street = "";
     subscriber_street_line_2 = null;
 
+    getSubscriberAddress() {
+        return {
+            street: this.subscriber_street || "",
+            street_line_2: this.subscriber_street_line_2 || "",
+            city: this.subscriber_city || "",
+            state: this.subscriber_state || "",
+            postal_code: this.subscriber_postal_code || ""
+        };
+    }
+
+    getEmployerAddress() {
+        return {
+            street: this.subscriber_employer_street || "",
+            street_line_2: this.subscriber_employer_street_line_2 || "",
+            city: this.subscriber_employer_city || "",
+            state: this.subscriber_employer_state || "",
+            postal_code: this.subscriber_employer_postal_code || ""
+        };
+    }
+
     validate() {
         // need to handle validation errors here.
     }

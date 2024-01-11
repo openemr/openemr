@@ -13,6 +13,9 @@ export class EditPolicyScreenController
 {
     __types = null;
 
+    /**
+     * @type {InsurancePolicyModel}
+     */
     selectedInsurance = null;
 
     __insuranceProviderList = null;
@@ -139,6 +142,49 @@ export class EditPolicyScreenController
             ,width: "resolve"
         });
 
+
+    }
+
+    #setupAddressValidation(selectedInsurance) {
+        let type = selectedInsurance.type;
+        let insuranceInfoContainer = document.getElementById('insurance-info-type-' + type);
+        if (!insuranceInfoContainer) {
+            throw new Error("Failed to find insurance info container for type: " + type);
+        }
+        // setup the js-verify-address fields
+        let template = document.getElementById('insurance-verify-address-template');
+        // we only bind the usps address verify events if the template is in the DOM (which it will be only if the event
+        // is included
+        if (template) {
+            insuranceInfoContainer.querySelectorAll('.js-verify-address').forEach(input => {
+                let clone = document.importNode(template.content, true);
+                input.parentNode.insertBefore(clone, input.nextSibling);
+                let topNode = input.parentNode;
+                let btn = topNode.querySelector('.btn');
+                btn.addEventListener('click', (evt) => {
+                    let address;
+                    if (input.name.match(/subscriber_employer/)) {
+                        address = this.selectedInsurance.getEmployerAddress();
+                    } else {
+                        address = this.selectedInsurance.getSubscriberAddress();
+                    }
+                    this.#verifyAddress(evt, address);
+                });
+            });
+        }
+    }
+
+    #verifyAddress(evt, address) {
+        window.top.restoreSession();
+        dlgopen('../../practice/address_verify.php?address1=' + encodeURIComponent(address.street) +
+            '&address2=' + encodeURIComponent(address.street_line_2) +
+            '&city=' + encodeURIComponent(address.city) +
+            '&state=' + encodeURIComponent(address.state) +
+            '&zip5=' + encodeURIComponent(address.postal_code.substring(0,5)) +
+            '&zip4=' + encodeURIComponent(address.postal_code.substring(5,9))
+            , '_blank', 400, 150, '', xl('Address Verify'));
+
+        return false;
     }
 
     savePolicy() {
@@ -369,6 +415,7 @@ export class EditPolicyScreenController
                     insuranceInfoType.innerText = type;
                 }
                 this.#setupModelSyncBinding(selectedInsurance);
+                this.#setupAddressValidation(selectedInsurance);
             }
         }
     }

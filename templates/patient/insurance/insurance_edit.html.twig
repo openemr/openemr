@@ -134,7 +134,7 @@
         ,fld_length: 15
         ,max_length: 63
         ,smallform: 'true'
-        ,classNames: "js-capitalize-me mb-1"
+        ,classNames: "js-capitalize-me mb-1 js-verify-address"
         ,skip: include_employers and useStateTerminology
     }, {
         name: "SE Postal Code"|xl
@@ -144,7 +144,7 @@
         ,fld_length: 15
         ,max_length: 63
         ,smallform: 'true'
-        ,classNames: "js-capitalize-me mb-1"
+        ,classNames: "js-capitalize-me mb-1 js-verify-address"
         ,skip: include_employers and not useStateTerminology
     }, {
         name: "SE Country"|xl
@@ -260,7 +260,7 @@
         ,fld_length: 15
         ,max_length: 63
         ,smallform: 'true'
-        ,classNames: "js-capitalize-me mb-1"
+        ,classNames: "js-capitalize-me mb-1 js-verify-address"
         ,skip: useStateTerminology
     }, {
         name: "Postal Code"|xl
@@ -270,7 +270,7 @@
         ,fld_length: 15
         ,max_length: 63
         ,smallform: 'true'
-        ,classNames: "js-capitalize-me mb-1"
+        ,classNames: "js-capitalize-me mb-1 js-verify-address"
         ,skip: not useStateTerminology
     }, {
         name: "Country"|xl
@@ -472,6 +472,11 @@
             {% endfor %}
         </div>
     </div>
+    {% if uspsVerifyAddress %}
+    <template id="insurance-verify-address-template">
+        <input type='button' class='btn btn-sm btn-secondary mb-1' value='{{ "Verify Address"|xla }}' />
+    </template>
+    {% endif %}
     {# Insurance Edit Template #}
     <template id="insurance-edit-template">
         <div class="col-md-6"><!-- start left column -->
