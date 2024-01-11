@@ -96,7 +96,10 @@ export class EditPolicyScreenController
         keys.forEach(key => {
             let input = insuranceInfoContainer.querySelector('[name="form_' + key + '"]');
             if (input) {
-                if (input.nodeName !== "SELECT") {
+                if (input.classList.contains("datepicker")) {
+                    return; // we don't want to do anything with datepickers as they are handled by the plugin
+                }
+                else if (input.nodeName !== "SELECT") {
                     this.addEvent(input, 'change', (evt) => {
                         let input = evt.target;
                         let key = input.name.replace('form_', '');
@@ -133,8 +136,30 @@ export class EditPolicyScreenController
                 });
             });
         }
+        // let's destroy any existing date pickers and destroy them
+        $(insuranceInfoContainer).find('.datepicker').datetimepicker('destroy');
         // setup the event listeners for the date picker fields
-
+        datetimepickerTranslated("#" + insuranceInfoContainer.id + " .datepicker", {
+            timepicker: false
+            ,showSeconds: false
+            ,formatInput: true
+            ,minDate: false
+            ,maxDate: false
+            ,onClose: (selectedDateTime, $input) => {
+            //,onSelectDate: (selectedDateTime, $input) => {
+                let input = $input[0];
+                let key = input.name.replace('form_', '');
+                let value = input.value;
+                console.log("onSelectDate: " + key + " value: " + value);
+                console.log("ct is ", selectedDateTime);
+                // datetime selected
+                this.selectedInsurance[key] = selectedDateTime;
+                // setTimeout(() => {
+                //     // make this happen after we've finished our event handlers
+                //     this.render(); // re-render the screen to update the display
+                // }, 0);
+            }
+        });
         // setup the bootstrap select fields
         select2Translated("#" + insuranceInfoContainer.id + " .sel2", undefined, {
             theme: "bootstrap4"
@@ -323,12 +348,14 @@ export class EditPolicyScreenController
             // let's empty out the select
             select.innerHTML = "";
             let insurances = this.__insurancesByType[type];
+            let displayFormatSettingYMD = 0;
             insurances.forEach(insurance => {
                 let option = document.createElement('option');
                 option.value = insurance.id === null ? "" : insurance.id;
                 option.innerText = insurance.toString();
                 if (insurance.hasOwnProperty('end_date') && insurance.end_date !== null) {
-                    option.innerText += " - " + window.top.xl("End Date") + ": " + insurance.end_date;
+                    option.innerText += " - " + window.top.xl("End Date") + ": "
+                        + window.top.oeFormatters.I18NDateFormat(insurance.end_date, displayFormatSettingYMD);
                 }
                 select.appendChild(option);
             });
@@ -386,37 +413,51 @@ export class EditPolicyScreenController
                 let clone = document.importNode(template.content, true);
                 insuranceInfoContainer.appendChild(clone); // note clone nodes are now empty at this point
                 this.#populateInsuranceProviderListForNode(insuranceInfoContainer, this.__insuranceProviderList);
-
-                let keys = Object.keys(selectedInsurance);
-                keys.forEach(key => {
-                    let value = selectedInsurance[key];
-                    let input = insuranceInfoContainer.querySelector('[name="form_' + key + '"]');
-                    if (!input) {
-                        console.info("Failed to find insurance info input for key: " + key);
-                        return;
-                    }
-                    // clear out the id field as we don't use it
-                    input.removeAttribute('id');
-                    if (input.nodeName != "SELECT") {
-                        input.value = value;
-                    } else {
-                        let option = input.querySelector('[value="' + value + '"]');
-                        if (option) {
-                            option.selected = true;
-                        } else {
-                            console.error("Failed to find select option value for key: " + key + " value: " + value);
-                        }
-                    }
-                });
-
-                let insuranceInfoType = insuranceInfoContainer.querySelector('.insurance-info-type');
-                if (insuranceInfoType) {
-                    // note use of innerText here to prevent XSS, DO NOT USE innerHTML
-                    insuranceInfoType.innerText = type;
-                }
+                // the select2 setup needs to occur after the data elements have been populated.
+                this.#populateInsuranceModelDataElements(insuranceInfoContainer, selectedInsurance);
                 this.#setupModelSyncBinding(selectedInsurance);
                 this.#setupAddressValidation(selectedInsurance);
             }
+        }
+    }
+
+    #populateInsuranceModelDataElements(insuranceInfoContainer, selectedInsurance) {
+
+        let keys = Object.keys(selectedInsurance);
+        keys.forEach(key => {
+            let value = selectedInsurance[key];
+            let input = insuranceInfoContainer.querySelector('[name="form_' + key + '"]');
+            if (!input) {
+                console.info("Failed to find insurance info input for key: " + key);
+                return;
+            }
+            // clear out the id field as we don't use it
+            input.removeAttribute('id');
+            if (input.classList.contains('datepicker')) {
+                if (value) {
+                    input.value = window.top.oeFormatters.I18NDateFormat(value);
+                } else {
+                    input.value = "";
+                }
+                // $(input).val(value); // use jquery to set the value so we trigger plugin formatting
+                // input.value = window.top.oeFormatters.DateFormatRead('jquery-datetimepicker');
+            }
+            else if (input.nodeName != "SELECT") {
+                input.value = value;
+            } else {
+                let option = input.querySelector('[value="' + value + '"]');
+                if (option) {
+                    option.selected = true;
+                } else {
+                    console.error("Failed to find select option value for key: " + key + " value: " + value);
+                }
+            }
+        });
+
+        let insuranceInfoType = insuranceInfoContainer.querySelector('.insurance-info-type');
+        if (insuranceInfoType) {
+            // note use of innerText here to prevent XSS, DO NOT USE innerHTML
+            insuranceInfoType.innerText = type;
         }
     }
 

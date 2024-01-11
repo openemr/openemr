@@ -86,11 +86,13 @@ $esignApi = new Api();
         var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
         var userDebug = <?php echo js_escape($GLOBALS['user_debug']); ?>;
         var webroot_url = <?php echo js_escape($web_root); ?>;
-        var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?>;
+        var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?> || 'ltr';
         var jsGlobals = {}; // this should go away and replace with just global_enable_group_therapy
         // used in tabs_view_model.js.
-        jsGlobals.enable_group_therapy = <?php echo js_escape($GLOBALS['enable_group_therapy']); ?>
-
+        jsGlobals.enable_group_therapy = <?php echo js_escape($GLOBALS['enable_group_therapy']); ?>;
+        jsGlobals.languageDirection = jsLanguageDirection;
+        jsGlobals.date_display_format = <?php echo js_escape($GLOBALS['date_display_format']); ?>;
+        jsGlobals.timezone = <?php echo js_escape($GLOBALS['gbl_time_zone']); ?>;
         var WindowTitleAddPatient = <?php echo ($GLOBALS['window_title_add_patient_name'] ? 'true' : 'false' ); ?>;
         var WindowTitleBase = <?php echo js_escape($openemr_name); ?>;
         const isSms = "<?php echo !empty($GLOBALS['oefax_enable_sms'] ?? null); ?>";

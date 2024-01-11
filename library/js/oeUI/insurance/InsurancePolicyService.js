@@ -145,14 +145,7 @@ export class InsurancePolicyService
     }
 
     #getDataForSave(insuranceObj) {
-        let data = Object.assign({}, insuranceObj);
-        // wierd way of how the server saves the data.
-        if (data.accept_assignment == 'yes') {
-            data.accept_assignment = "TRUE";
-        } else {
-            data.accept_assignment = "FALSE";
-        }
-        return data;
+        return insuranceObj.getDataForSave();
     }
 
     saveInsurance(insurancePolicy) {

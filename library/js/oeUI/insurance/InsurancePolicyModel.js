@@ -87,11 +87,42 @@ export class InsurancePolicyModel {
             Object.assign(this, pojo);
             // server stores this as a TRUE/FALSE string which is... odd
             if (pojo.accept_assignment == 'TRUE') {
-                this.accept_assignment = "yes";
+                this.accept_assignment = "YES";
             } else {
-                this.accept_assignment = "no";
+                this.accept_assignment = "NO";
+            }
+
+            if (pojo.date) {
+                // need to format the date from the server of ISO8601 to the localized date format
+                this.date = new Date(pojo.date + "T00:00:00");
+            }
+
+            if (pojo.date_end) {
+                this.date_end = new Date(pojo.date_end+ "T00:00:00");
+            }
+            if (pojo.subscriber_DOB) {
+                this.subscriber_DOB = new Date(pojo.subscriber_DOB+ "T00:00:00");
             }
         }
+    }
+    getDataForSave() {
+        let data = Object.assign({}, this);
+        // wierd way of how the server saves the data.
+        if (data.accept_assignment == 'YES') {
+            data.accept_assignment = "TRUE";
+        } else {
+            data.accept_assignment = "FALSE";
+        }
+        if (this.date) {
+            data.date = this.date.toISOString().slice(0,10);
+        }
+        if (this.date_end) {
+            data.date_end = this.date_end.toISOString().slice(0,10);
+        }
+        if (this.subscriber_DOB) {
+            data.subscriber_DOB = this.subscriber_DOB.toISOString().slice(0,10);
+        }
+        return data;
     }
     setEffectiveEndDate(date) {
         this.date_end = date;
@@ -106,16 +137,19 @@ export class InsurancePolicyModel {
     }
 
     toString() {
+        const dateFormatSettingYMD = 0;
         let names = [this.plan_name || "", " "];
         if (this.date) {
-            names.push(this.date);
+            names.push(window.top.oeFormatters.I18NDateFormat(this.date, dateFormatSettingYMD));
         } else {
             names.push(window.top.xl("No start date"));
         }
         if (this.date_end) {
-            names.push(" - " + this.date_end);
+            names.push(" - ");
+            names.push(window.top.oeFormatters.I18NDateFormat(this.date_end, dateFormatSettingYMD));
         } else {
-            names.push(" - " + window.top.xl("Current"));
+            names.push(" - ");
+            names.push(window.top.xl("Current"));
         }
         return names.join("");
     }s

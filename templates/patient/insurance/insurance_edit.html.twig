@@ -1,7 +1,7 @@
 <html>
 <head>
     <title>{% block title %}{{ "Insurance Edit"|xlt }}{% endblock %}</title>
-    {{ setupHeader(['datetime-picker','common','select2', 'erx', 'select2-translated']) }}
+    {{ setupHeader(['common','select2', 'erx', 'select2-translated', 'il8formatting', 'datetime-picker', 'datetime-picker-translated' ]) }}
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     {% block scripts %}
     {% endblock %}
@@ -13,6 +13,7 @@
                         , 'list_id': state_list, 'fld_length': '15', max_length: '63', smallform: 'true'} #}
 {% set dataTypeSelectList = 1 %}
 {% set dataTypeText = 2 %}
+{% set dataTypeDate = 4 %}
 
 {# Note that date fields are handled in javascript because we are building a template instead of handling it all via php  #}
 {# Note that empty_title: 'SKIP' is a hack in the function to skip a title... terrible but is the existing code unfortunately in generate_form_field. #}
@@ -30,7 +31,7 @@
     ,{
         name: "Effective Date"|xl
         ,required: true
-        ,data_type: dataTypeText
+        ,data_type: dataTypeDate
         ,field_id: "date"
         ,fld_length: 16
         ,max_length: 60
@@ -39,7 +40,7 @@
     },{
         name: "Effective Date End"|xl
         ,required: true
-        ,data_type: dataTypeText
+        ,data_type: dataTypeDate
         ,field_id: "date_end"
         ,fld_length: 16
         ,max_length: 60
@@ -185,7 +186,7 @@
         }]
     }, {
         name: "D.O.B."|xl
-        ,data_type: dataTypeText
+        ,data_type: dataTypeDate
         ,field_id: "subscriber_DOB"
         ,fld_length: 11
         ,max_length: 60

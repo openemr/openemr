@@ -235,6 +235,7 @@ class InsuranceService extends BaseService
         $sql .= "   subscriber_employer_city=?,";
         $sql .= "   copay=?,";
         $sql .= "   date=?,";
+        $sql .= "   date_end=?,";
         $sql .= "   subscriber_sex=?,";
         $sql .= "   accept_assignment=?,";
         $sql .= "   policy_type=?";
@@ -273,6 +274,7 @@ class InsuranceService extends BaseService
                 $data["subscriber_employer_city"],
                 $data["copay"],
                 $data["date"],
+                empty($data["date_end"]) ? null : $data["date_end"],
                 $data["subscriber_sex"],
                 $data["accept_assignment"],
                 $data["policy_type"],
