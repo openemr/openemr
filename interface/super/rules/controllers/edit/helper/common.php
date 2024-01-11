@@ -114,7 +114,7 @@ If field's value is 1, logic treats as "required"
 <!--                  -->
 <?php function timeunit_select($args)
 {
-    include_once $GLOBALS["srcdir"] . "/options.inc.php";
+    require_once $GLOBALS["srcdir"] . "/options.inc.php";
 
     return generate_select_list(
         $args['name'],
