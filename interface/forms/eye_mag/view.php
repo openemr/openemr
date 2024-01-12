@@ -1954,7 +1954,7 @@ if ($refresh and $refresh != 'fullscreen') {
               <!-- end of the exam selection row -->
 
               <!-- start of the Shorthand Entry Box -->
-              <div id="EXAM_KB" name="EXAM_KB" class="kb borderShadow nodisplay">
+              <div id="EXAM_KB" name="EXAM_KB" class="kb borderShadow nodisplay ui-draggable">
                 <span class="closeButton fa fa-times" id="CLOSE_kb" name="CLOSE_kb"></span>
                 <span class="BAR2_kb" title="<?php echo xla('Click to display shorthand field names.'); ?>" class="ke"><b><?php echo xlt('Shorthand'); ?></b>
                 </span>
