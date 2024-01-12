@@ -28,7 +28,7 @@ use OpenEMR\Services\FacilityService;
 // without clogging up error log
 function error_log1($r = '', $s = '')
 {
-    return; // comment this out to enable logging to php error log. Specify, in the next line, the id of the rule to be logged
+    return; // comment this line to enable logging to php error log. Specify, in the next line, the id of the rule to be logged
     if ($r == 'rule_81' || $r == '*any*') {
         error_log($s);
     }
@@ -102,7 +102,8 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             $ruleData = sqlQuery(
                 "SELECT `bibliographic_citation`, `developer`, `funding_source`, `release_version`, `web_reference`, `linked_referential_cds` " .
                            "FROM `clinical_rules` " .
-                "WHERE  `id`=? AND `pid`=0", array($action['rule_id'])
+                "WHERE  `id`=? AND `pid`=0",
+                array($action['rule_id'])
             );
             $bibliographic_citation = $ruleData['bibliographic_citation'];
             $developer = $ruleData['developer'];
@@ -341,7 +342,8 @@ function allergy_conflict($patient_id, $mode, $user, $test = false)
                                 "AND ( " .
                                 dateEmptySql('enddate') .
                                 "OR `enddate` > NOW() ) " .
-        "AND `pid`=?", $sqlParam
+        "AND `pid`=?",
+        $sqlParam
     );
     $allergies = array();
     for ($iter = 0; $row = sqlFetchArray($res_allergies); $iter++) {
@@ -373,7 +375,8 @@ function allergy_conflict($patient_id, $mode, $user, $test = false)
                              "AND ( " .
                              dateEmptySql('enddate') .
                              "OR `enddate` > NOW() )" .
-            "AND `title` IN (" . $sqlIN . ") AND `pid`=?", $sqlParam
+            "AND `title` IN (" . $sqlIN . ") AND `pid`=?",
+            $sqlParam
         );
         while ($urow = sqlFetchArray($res_meds)) {
               $conflicts[] = $urow['title'];
@@ -381,7 +384,8 @@ function allergy_conflict($patient_id, $mode, $user, $test = false)
 
         $res_rx = sqlStatement(
             "SELECT `drug` FROM `prescriptions` WHERE `active`=1 " .
-            "AND `drug` IN (" . $sqlIN . ") AND `patient_id`=?", $sqlParam
+            "AND `drug` IN (" . $sqlIN . ") AND `patient_id`=?",
+            $sqlParam
         );
         while ($urow = sqlFetchArray($res_rx)) {
               $conflicts[] = $urow['drug'];
@@ -439,7 +443,8 @@ function compare_log_alerts($patient_id, $current_targets, $category = 'clinical
     $prior_targets_sql = sqlQuery(
         "SELECT `value` FROM `clinical_rules_log` " .
                                  "WHERE `category` = ? AND `pid` = ? AND `uid` = ? " .
-        "ORDER BY `id` DESC LIMIT 1", array($category,$patient_id,$userid)
+        "ORDER BY `id` DESC LIMIT 1",
+        array($category,$patient_id,$userid)
     );
     $prior_targets = array();
     if (!empty($prior_targets_sql['value'])) {
@@ -468,7 +473,8 @@ function compare_log_alerts($patient_id, $current_targets, $category = 'clinical
         sqlStatement(
             "INSERT INTO `clinical_rules_log` " .
               "(`date`,`pid`,`uid`,`category`,`value`,`new_value`) " .
-            "VALUES (NOW(),?,?,?,?,?)", array($patient_id,$userid,$category,$current_targets_json,$new_targets_json)
+            "VALUES (NOW(),?,?,?,?,?)",
+            array($patient_id,$userid,$category,$current_targets_json,$new_targets_json)
         );
     }
 
@@ -563,8 +569,9 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
     setTotalItemsReportDatabase($report_id, $totalNumPatients);
 
     // Set ability to itemize report if this feature is turned on
-    if (( ($type == "active_alert" || $type == "passive_alert")          && ($GLOBALS['report_itemizing_standard']) ) 
-        || ( ($type == "cqm" || $type == "cqm_2011" || $type == "cqm_2014") && ($GLOBALS['report_itemizing_cqm'])      ) 
+    if (
+        ( ($type == "active_alert" || $type == "passive_alert")          && ($GLOBALS['report_itemizing_standard']) )
+        || ( ($type == "cqm" || $type == "cqm_2011" || $type == "cqm_2014") && ($GLOBALS['report_itemizing_cqm'])      )
         || ( (CertificationReportTypes::isAMCReportType($type)) && ($GLOBALS['report_itemizing_amc'])      )
     ) {
         $GLOBALS['report_itemizing_temp_flag_and_id'] = $report_id;
@@ -619,7 +626,7 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
         finishReportDatabase($report_id, json_encode([]));
         return [];
     }
-    
+
     error_log1('*any*', 'batch end');
 }
 
@@ -681,7 +688,7 @@ function rules_clinic_get_providers($billing_facility, $pat_prov_rel)
 function test_rules_clinic_group_calculation($type = '', array $dateArray = array(), $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = array(), $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
 {
     error_log1('*any*', 'group start');
-    
+
     (new SystemLogger())->debug(
         "test_rules_clinic_group_calculation()",
         array_combine(
@@ -708,7 +715,8 @@ function test_rules_clinic_group_calculation($type = '', array $dateArray = arra
         //  a separate call to this function.
         $rules = resolve_rules_sql($type, $patient_id, false, $plan, $user);
         $filteredRules = array_filter(
-            $rules, function ($rule) {
+            $rules,
+            function ($rule) {
                 return $rule['amc_flag'] || $rule['cqm_flag'];
             }
         );
@@ -775,7 +783,7 @@ function test_rules_clinic_group_calculation($type = '', array $dateArray = arra
         }
     }
     error_log1('*any*', 'group end');
-    
+
     return $results;
 }
 
@@ -812,7 +820,7 @@ function test_rules_clinic_group_calculation($type = '', array $dateArray = arra
 function test_rules_clinic_collate($provider = '', $type = '', $dateTarget = '', $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = array(), $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
 {
     error_log1('*any*', 'colate start');
-    
+
     $results = [];
     // If set the $provider to collate_outer (or collate_inner without plans organize mode),
     // then run through this function recursively and return results.
@@ -882,9 +890,9 @@ function test_rules_clinic_collate($provider = '', $type = '', $dateTarget = '',
         }
 
         // done, so now can return results
-        
+
         error_log1('*any*', 'colate end');
-        
+
         return $results;
     }
 }
@@ -953,7 +961,7 @@ function test_rules_clinic_cqm_amc_rule($rowRule, $patientData, $dateArray, $dat
 function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = array(), $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
 {
     error_log1('*any*', 'clinic start');
-    
+
     // If dateTarget is an array, then organize them.
     if (is_array($dateTarget)) {
         $dateArray = $dateTarget;
@@ -1000,9 +1008,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
     $rules = resolve_rules_sql($type, $patient_id, false, $plan, $user);
 
     foreach ($rules as $rowRule) {
-        
         error_log1('*any*', 'cr $rowRule: ' . $rowRule['id'] . '^' . $mode . '^' . $type . '^');
-        
+
         // If using cqm or amc type, then use the hard-coded rules set.
         // Note these rules are only used in report mode.
         if ($rowRule['cqm_flag'] || $rowRule['amc_flag']) {
@@ -1038,7 +1045,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
 
         // Find the number of target groups
         $targetGroups = returnTargetGroups($rowRule['id']);
-        
+
         error_log1($rowRule['id'], 'cr targetGroups count: ' . count($targetGroups));
 
         if ((count($targetGroups) == 1) || ($mode == "report")) {
@@ -1068,7 +1075,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                 }
 
                 $passFilter = null;
-                
+
                 foreach ($target_dates as $dateFocus) {
                     //Skip if date is set to SKIP
                     if ($dateFocus == "SKIP") {
@@ -1090,38 +1097,39 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
 
                     // Check if pass filter
                     //$passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateFocus);
-                    /* 
-                    HR: changed behavior of test_filter(), and will pass it $dateTarget instead of $dateFocus. Will also call test_filter() only once, not for each $dateFoucs value
-                        
+                    /*
+                    HR: changed behavior of test_filter(), and will pass it $dateTarget instead of $dateFocus. Will also call test_filter() only once, not for each $dateFocus value
+                    test_filter() looks for patient data entered prior to $dateTarget timepoint
+
                     test_filter() was returning
                     false if an inclusion filter does not succeed
                     "EXCLUDED" if an exclusion filter succeeds
                     otherwise true
-                            
+
                     Changed so it now returns:
                     -- if any required inclusions fail, return false
-                    -- if there are no required inclusions, and some optional inclusions exist, and any optional inclusions succeed, 
+                    -- if there are no required inclusions, and some optional inclusions exist, and any optional inclusions succeed,
                     and either exclusions don't exist or exclusions don't succeed, return true
                     -- if all inclusions are optional, and none succeed, return false
                     -- if there are no inclusions, and there are exclusions, and exclusions do not succeed, return true
-                    -- if exclusions succeed (checked only if inclusions succeed), return 'EXCLUDED'
+                    -- if exclusions succeed (checked only if there are no inclusions, or if inclusions succeed), return 'EXCLUDED'
                     -- if no inclusions or exclusions, return false
-                        
+
                     -- when processing inclusions, if filters exist in multiple categories (e.g. age, gender and lifestyle), need to process all categories.
                     -- If required filters in one category succeed, need to check for required filters in other categories
                     -- Similarly, if all filters in one category are optional and do not succeed, need to see if optional filters exist in different category
                     -- that might succeed
-                        
+
                     -- Mixing optional and required filters makes no sense, but is tollerated. If one filter is required, any optional filters have no relevence
-                        
+
                     -- Same ideas apply to analysis of targets as well as filters
                     */
                     if ($dateCounter == 1) { // only do once, for $dateTarget (which is generally "today")
                         $passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateTarget);
                     }
-                    
+
                     error_log1($rowRule['id'], 'cr passFilter: ' . $passFilter);
-                    
+
                     if ($passFilter === "EXCLUDED") {
                         // increment EXCLUDED and pass_filter counters
                         //  and set as FALSE for reminder functionality.
@@ -1145,22 +1153,24 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
 
                     // Check if pass target
                     /*
-                    HR: rules UI defines targets as lifestyle, custom table or custom. 
+                    HR: rules UI defines targets as lifestyle, custom table or custom.
                     All of these are evaluated by "database" lookup (unlike filters, which can also look at age, gender, lists, and procedures)
                     test_targets can look at procedures or appointments as well, but not defined in rule UI
                     I reworked test_targets similar to how I reworked test_filters to properly handle required vs inclusion targets, and multiple target categories
                     Previously, if had a single target, which was optional and evaluated to false, test_targets would return true.
                     test_targets now returns false if have only optional targets and none evaluate to true
-                        
+
                     test_targets considers all targets as "inclusion" even if target is defined as "exclusion"
+
+                    I added $dateTarget param to call to test_targets, to allow right boundary of examined intervals to be $dateTarget regardless of $dateFocus value
                     */
-                    $passTarget = test_targets($rowPatient['pid'], $rowRule['id'], '', $dateFocus);
-                    
+                    $passTarget = test_targets($rowPatient['pid'], $rowRule['id'], '', $dateFocus, $dateTarget);
+
                     error_log1($rowRule['id'], 'cr target: ' . $passTarget);
-                    
+
                     if ($passTarget) {
                         error_log1($rowRule['id'], 'cr passTarget true: ' . $pass_target . '^' . $mode);
-                        
+
                         // increment pass target counter
                         $pass_target++;
                         // If report itemization is turned on, then record the "passed" item and set the flag
@@ -1177,11 +1187,11 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                             error_log1($rowRule['id'], 'cr reminders-all actionArray got');
                             foreach ($actionArray as $action) {
                                 $action_plus = $action;
-                                
+
                                 // original line
                                 // With this line, Reminder Details page shows only not due and past due
                                 //$action_plus['due_status'] = "not_due";
-                                
+
                                 // HR: My replacement lines
                                 // if passed during this pass, this is the status
                                 if ($dateCounter == 1) {
@@ -1194,7 +1204,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                                 }
 
                                 error_log1($rowRule['id'], 'cr reminders-all setting due_status to: ' . $reminder_status);
-                                
+
                                 $action_plus['due_status'] = $reminder_status;
                                 $action_plus['pid'] = $rowPatient['pid'];
                                 $action_plus['rule_id'] = $rowRule['id'];
@@ -1205,7 +1215,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         break;
                     } else {
                         error_log1($rowRule['id'], 'cr if not passTarget: ' . $mode);
-                        
+
                         // send to reminder results
                         if ($mode != "report") {
                             // place the uncompleted actions into the reminder return array
@@ -1216,7 +1226,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                                 $action_plus['pid'] = $rowPatient['pid'];
                                 $action_plus['rule_id'] = $rowRule['id'];
                                 $results = reminder_results_integrate($results, $action_plus);
-                                
+
                                 error_log1($rowRule['id'], 'cr action_plus: ' . $action_plus['due_status']);
                             }
                         }
@@ -1295,9 +1305,9 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         //$passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateFocus);
                         // HR: change: pass $dateTarget, not $dateFocus to test_filter, and call only once
                         if ($dateCounter == 1) {
-                            $passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateTarget); // as above, 
+                            $passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateTarget); // as above,
                         }
-                    
+
                         if ($passFilter === "EXCLUDED") {
                             $passFilter = false;
                         }
@@ -1313,7 +1323,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         }
 
                         //Check if pass target
-                        $passTarget = test_targets($rowPatient['pid'], $rowRule['id'], $i, $dateFocus);
+                        // HR: I added $dateTarget param to test_targets to allow right boundary to be $dateTarget regardless of $dateFocus value
+                        $passTarget = test_targets($rowPatient['pid'], $rowRule['id'], $i, $dateFocus, $dateTarget);
                         if ($passTarget) {
                             // increment pass target counter
                             $pass_target++;
@@ -1329,11 +1340,11 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                                 $actionArray = resolve_action_sql($rowRule['id'], $i);
                                 foreach ($actionArray as $action) {
                                     $action_plus = $action;
-                                    
+
                                     // original line:
                                     //$action_plus['due_status'] = "not_due";
                                     // With this line, Reminder Details page shows only not due and past due
-                                    
+
                                     // HR: My replacement lines
                                     // if passed during this pass, this is the status
                                     if ($dateCounter == 1) {
@@ -1346,11 +1357,11 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                                     }
 
                                     error_log1($rowRule['id'], 'cr reminders-all setting due_status to: ' . $reminder_status);
-                                    
-                                    // HR: will leave next line alone. Not sure what implications of changing this are here. This was changed above for 
+
+                                    // HR: will leave next line alone. Not sure what implications of changing this are here. This was changed above for
                                     //    if ((count($targetGroups) == 1) || ($mode == "report")) {
                                     // case
-                                    
+
                                     $action_plus['due_status'] = "not_due";
                                     //$action_plus['due_status'] = $reminder_status;
                                     $action_plus['pid'] = $rowPatient['pid'];
@@ -1390,10 +1401,8 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                 // Collect action for title (just use the first one, if more than one)
                 $actionArray = resolve_action_sql($rowRule['id'], $i);
                 if ($actionArray) {
-                 
                     //error_log1($rowRule['id'],'clin rules actionArray exists');
-                }                else {
-                 
+                } else {
                     //error_log1($rowRule['id'],'clin rules actionArray does not exist');
                 }                // HR: Need to ensure $actionArray is valued before trying to use $actionArray[0]
                 if ($actionArray) {
@@ -1414,7 +1423,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
     }
 
     error_log1('*any*', 'clinic end');
-    
+
     // Return the data
     return $results;
 }
@@ -1495,7 +1504,8 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
                 if ($start == null || $batchSize == null || $onlyCount) {
                     $rez = sqlStatementCdrEngine(
                         "SELECT `pid` FROM `patient_data` " .
-                        "WHERE `providerID`=? ORDER BY `pid`", array($provider)
+                        "WHERE `providerID`=? ORDER BY `pid`",
+                        array($provider)
                     );
                     if ($onlyCount) {
                               $patientNumber = sqlNumRows($rez);
@@ -1503,7 +1513,8 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
                 } else {
                     $rez = sqlStatementCdrEngine(
                         "SELECT `pid` FROM `patient_data` " .
-                        "WHERE `providerID`=? ORDER BY `pid` LIMIT ?,?", array($provider,($start - 1),$batchSize)
+                        "WHERE `providerID`=? ORDER BY `pid` LIMIT ?,?",
+                        array($provider,($start - 1),$batchSize)
                     );
                 }
             }
@@ -1637,7 +1648,6 @@ function buildPatientArrayPrimaryProviderBillingFacility($start, $batchSize, $on
         $patientNumber = sqlNumRows($rez);
         return $patientNumber;
     }
-
     $patientData = [];
     for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
         $patientData[$iter] = $row;
@@ -1655,27 +1665,40 @@ function buildPatientArrayPrimaryProviderBillingFacility($start, $batchSize, $on
  */
 function test_filter($patient_id, $rule, $dateTarget)
 {
-    /*    
-    HR:    The "filter" for a given rule can contain multiple filter items, with each having an inclusion/exclusion flag
+    /*
+    HR: test_filter() is called without first testing to see if a rule has any filters defined
+
+    test_filter() examines all of a rule's filters (and filter items) in one step
+
+    A "filter" for a given rule can contain multiple filter items, with each having an inclusion/exclusion flag
     and a required/optional flag
     The various filter evaluation "check" functions below will evaluate all filter items in a filter
-    */
-    
-    /*
-    HR: The "check" functions below return: 
+
+    The "check" functions below return:
     true if all required filters (if any) pass, or if no required filters, and if any optional filters pass
-    'continue' if no required filters, and no optional filters pass
+    'continue' if there are no required filters, and no optional filters pass
     false if any required filters fail
-        
+
     If filters exist in one category and succeed, need to check other categories to see if required filters exist in those other categories as well
-        
+
     If filters in one category are all optional and do not succeed, try the next category
-        
-    If filters in all categories are optional and do not succeed, return false
+
+    If inclusion filters in all categories are optional and do not succeed, return false (no need to check for exclusions)
+
+    If inclusion filters succeed, check for exclusions.
+    If no exclusions, return true
+    If exclusions exist and do not succeed, return true.
+    If exclusions succeed, return 'EXCLUDED'
+
+    If rule has no inclusion filters, but has exclusion filters, check the exclusion filters.
+    If exclusion filters succeed, return 'EXCLUDED'. If exclusion filters do not succeed, return true
+    (So rules do not have to have inclusion filters. If rule has only exclusion filters, and exclusion filters do not succeed, rule is applicable to patient)
+
+    if rule has no inclusion or exclusion filters, return false
     */
-    
+
     error_log1($rule, 'test_filter: ' . $dateTarget);
-    
+
     // Set date to current if not set
     $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
 
@@ -1685,20 +1708,28 @@ function test_filter($patient_id, $rule, $dateTarget)
     //
     // ----------------- INCLUSIONS -----------------
     //
-  
+
     /*
-    HR: need to track if any categories returned true and not 'continue'. Categories return 'continue' if all filters in category are optional and none succeed
+    HR: need to track if any inclusion categories returned true and not 'continue'. Categories return 'continue' if all filters in category are optional and none succeed
+    If there are no inclusion filters, $anySuccess will be empty string at start of exclusion analysis
+    If required inclusions exist, and if any fail, test_filter() will return false on the first failure, before getting to exclusion analysis
+    If all required inclusions succeed, $anySuccess will be true at start of exclusion analysis
+    If there no requried inclusions, and any optional inclusions succeed, $anySuccess will be true at start of exclusion analysis
+    If there are inclusion filters and all are optional and none succeed, $anySuccess will be false at end of inclusion analysis and test_filter() will return false without processing exclusions
     */
-    $anySuccess = false;
+    $anySuccess = '';
 
     // -------- Age Filter (inclusion) ------------
-    // Calculate patient age in years and months
+    // Calculate patient age in years and months as of $dateTarget timepoint
     $patientAgeYears = convertDobtoAgeYearDecimal($patientData['DOB_TS'], $dateTarget);
     $patientAgeMonths = convertDobtoAgeMonthDecimal($patientData['DOB_TS'], $dateTarget);
 
     // Min age (year) Filter (assume that there in not more than one of each)
     $filter = resolve_filter_sql($rule, 'filt_age_min');
     if (!empty($filter)) {
+        if ($anySuccess === '') {
+            $anySuccess = false; // change from empty string to false to indicate that at least one inclusion filter has been found
+        }
         $row = $filter[0];
         if ($row ['method_detail'] == "year") {
             if ($row['value']) {
@@ -1706,31 +1737,27 @@ function test_filter($patient_id, $rule, $dateTarget)
                     if ($row['required_flag']) {
                         error_log1($rule, 'tf min age year filter required and did not pass');
                         return false;
-                    }
-                    else {
+                    } else {
                         error_log1($rule, 'tf min age year filter optional and did not pass');
                     }
-                }
-                else {
+                } else {
                     error_log1($rule, 'tf min age year filter passed');
-                    $anySuccess = true;                    
+                    $anySuccess = true;
                 }
             }
-        }        
+        }
         if ($row ['method_detail'] == "month") {
             if ($row['value']) {
                 if ($row['value'] > $patientAgeMonths) {
                     if ($row['required_flag']) {
                         error_log1($rule, 'tf min age month filter required and did not pass');
                         return false;
-                    }
-                    else {
+                    } else {
                         error_log1($rule, 'tf min age month filter optional and did not pass');
                     }
-                }
-                else {
+                } else {
                     error_log1($rule, 'tf min age month filter passed');
-                    $anySuccess = true;                    
+                    $anySuccess = true;
                 }
             }
         }
@@ -1739,6 +1766,9 @@ function test_filter($patient_id, $rule, $dateTarget)
     // Max age (year) Filter (assume that there in not more than one of each)
     $filter = resolve_filter_sql($rule, 'filt_age_max');
     if (!empty($filter)) {
+        if ($anySuccess === '') {
+            $anySuccess = false; // change from empty string to false to indicate that at least one inclusion filter has been found
+        }
         $row = $filter[0];
         if ($row ['method_detail'] == "year") {
             if ($row['value']) {
@@ -1746,31 +1776,27 @@ function test_filter($patient_id, $rule, $dateTarget)
                     if ($row['required_flag']) {
                         error_log1($rule, 'tf max age year filter required and did not pass');
                         return false;
-                    }
-                    else {
+                    } else {
                         error_log1($rule, 'tf max age year filter optional and did not pass');
                     }
-                }
-                else {
+                } else {
                     error_log1($rule, 'tf max age year filter passed');
-                    $anySuccess = true;                    
+                    $anySuccess = true;
                 }
             }
-        }        
+        }
         if ($row ['method_detail'] == "month") {
             if ($row['value']) {
                 if ($row['value'] < $patientAgeMonths) {
                     if ($row['required_flag']) {
                         error_log1($rule, 'tf max age month filter required and did not pass');
                         return false;
-                    }
-                    else {
+                    } else {
                         error_log1($rule, 'tf max age month filter optional and did not pass');
                     }
-                }
-                else {
+                } else {
                     error_log1($rule, 'tf max age month filter passed');
-                    $anySuccess = true;                    
+                    $anySuccess = true;
                 }
             }
         }
@@ -1780,18 +1806,19 @@ function test_filter($patient_id, $rule, $dateTarget)
     // Gender Filter (assume that there in not more than one of each)
     $filter = resolve_filter_sql($rule, 'filt_sex');
     if (!empty($filter)) {
+        if ($anySuccess === '') {
+            $anySuccess = false; // change from empty string to false to indicate that at least one inclusion filter has been found
+        }
         $row = $filter[0];
         if ($row['value']) {
             if ($row['value'] != $patientData['sex']) {
                 if ($row['required_flag']) {
                     error_log1($rule, 'tf gender filter required and did not pass');
                     return false;
-                }
-                else {
+                } else {
                     error_log1($rule, 'tf gender filter optional and did not pass');
                 }
-            }
-            else {
+            } else {
                 error_log1($rule, 'tf gender filter passed');
                 $anySuccess = true;
             }
@@ -1801,26 +1828,30 @@ function test_filter($patient_id, $rule, $dateTarget)
     // -------- Database Filter (inclusion) ------
     // Database Filter. Many purposes including lifestyle
     $filter = resolve_filter_sql($rule, 'filt_database');
-    
+
     if (empty($filter)) {
         error_log1($rule, 'tf db filter empty');
     } else {
         error_log1($rule, 'tf db filter not empty');
     }
-    
+
     // HR: split out conditions to faciliate logging
-    if ((!empty($filter)) ) {
-        $dc = database_check($patient_id, $filter, '', $dateTarget, $rule);
+    if ((!empty($filter))) {
+        if ($anySuccess === '') {
+            $anySuccess = false; // change from empty string to false to indicate that at least one inclusion filter has been found
+        }
+        // HR: for filters, database_check() is called with $interval parameter as empty string. $interval is defined only for targets
+        // If no interval defined, will search for patient data that was entered prior to $dateTarget timepoint
+        // database_check() is also called for targets, in which case 3rd and 4th params are interval and $dateFocus
+        $dc = database_check($patient_id, $filter, '', '', $dateTarget, $rule);
         if ($dc === false) {
-            error_log1($rule, 'tf db filter did not pass');
+            error_log1($rule, 'tf db filter at least one required filter did not pass');
             return false;
-        }
-        else if ($dc === 'continue') {            
-            error_log1($rule, 'tf db filter did not pass but all optional');
-        }
-        else { // $dc === true
+        } else if ($dc === 'continue') {
+            error_log1($rule, 'tf db filter no required filters and all optional filters did not pass');
+        } else { // $dc === true
             // need to check if other required filters in other categories also pass
-            error_log1($rule, 'tf db filter passed');
+            error_log1($rule, 'tf db filter all required filters passed, or if no required filters, at least one optional filter passed');
             $anySuccess = true;
         }
     }
@@ -1829,115 +1860,147 @@ function test_filter($patient_id, $rule, $dateTarget)
     // Set up lists filter, which is fully customizable and currently includes diagnoses, meds,
     //   surgeries and allergies.
     $filter = resolve_filter_sql($rule, 'filt_lists');
-    
+
     if (empty($filter)) {
         error_log1($rule, 'tf lists filter empty');
     } else {
         error_log1($rule, 'tf lists filter not empty');
     }
-    
+
     // HR: split out conditions to facilitate logging
-    if ((!empty($filter)) ) {
+    if ((!empty($filter))) {
+        if ($anySuccess === '') {
+            $anySuccess = false; // change from empty string to false to indicate that at least one inclusion filter has been found
+        }
+        // find lists items that were entered prior to $dateTarget timepoint
+        // lists_check() is currently called only for filters (inclusion and exclusions), not targets
         $lc = lists_check($patient_id, $filter, $dateTarget, $rule);
         if ($lc === false) {
             error_log1($rule, 'tf lists filter at least one required filter did not pass');
             return false;
-        }
-        else if ($lc === 'continue') {
+        } else if ($lc === 'continue') {
             error_log1($rule, 'tf lists filter no required filters and all optional filters did not pass');
-        }
-        else { // $lc === true
+        } else { // $lc === true
             // need to check if other required filters in other categories also pass
             error_log1($rule, 'tf lists filter all required filters passed, or if no required filters, at least one optional filter passed');
             $anySuccess = true;
-        }        
+        }
     }
 
     // -------- Procedure (labs,imaging,test,procedures,etc) Filter (inlcusion) ----
     // Procedure Target (includes) (may need to include an interval in the future)
     $filter = resolve_filter_sql($rule, 'filt_proc');
     if ((!empty($filter))) {
-        $pc = procedure_check($patient_id, $filter, '', $dateTarget);
+        if ($anySuccess === '') {
+            $anySuccess = false; // change from empty string to false to indicate that at least one inclusion filter has been found
+        }
+        // find procedure items that were entered prior to $dateTarget timepoint
+        // procedure_check() is called for both filters and targets. 3rd and 4th params are interval and $dateFocus
+        $pc = procedure_check($patient_id, $filter, '', '', $dateTarget);
         if (!$pc === false) {
             error_log1($rule, 'tf prcedure filter at least one required filter did not pass');
             return false;
-        }
-        else if ($pc === 'continue') {
+        } else if ($pc === 'continue') {
             error_log1($rule, 'tf procedure filter no required filters and all optional filters did not pass');
-        }
-        else { // $pc === true
+        } else { // $pc === true
             error_log1($rule, 'tf procedure filter all required filters passed, or if no required filters, at least one optional filter passed');
             $anySuccess = true;
         }
     }
 
-    if (!$anySuccess) {
-        // no categories failed for required filters, but no categories had success on at least one optional filter/target
+    if ($anySuccess === false) {
+        // inclusion filters were found. All were optional and none succeeded. Return false
         error_log1($rule, 'tf all inclusions optional and none succeeded');
         return false;
+    } else {
+        // $anySuccess is empty string (no inclusions found) or true (inclusions found and succeeded)
+        error_log1($rule, 'tf either no inclusions or else all inclusions pass');
     }
 
-    error_log1($rule, 'tf all inclusions pass');
-    
     //
     // ----------------- EXCLUSIONS -----------------
     //
-    
-    // HR: if get to this point, then inclusions succeeded. If inclusions had not succeeded, would have returned false. Code below will return only either true or EXCLUDED
+
+    /*
+    HR: if get to this point, then either there were no inclusions, or else inclusion analysis succeeded.
+    If inclusions had existed and had not succeeded, would have returned false above.
+    If no inclusions, and also no exclusions, return false
+    If exclusions exist and succeed, regardless of whether there were no inclusions, or if inclusions had succeeded, return EXCLUDED
+    If no exclusions, or if exclusions do not succeed and inclusions existed and succeeded, return true
+    */
 
     // -------- Lists Filter (EXCLUSION) ----
     // Set up lists EXCLUSION filter, which is fully customizable and currently includes diagnoses, meds,
     //   surgeries and allergies.
     // 3rd argument specifies processing should retrieve the exclusion filters
-    
+
     /*
     HR: $anyExcludesFound used for tracking excludes across data categories where have either all optional, or a mix of optional and required excludes.
-    Is not currently needed since there is only one category analyzed for excludes (i.e. lists)
-    If there were a second category (e.g. db), then if lists filter had all optional exclusions and none succeeded, and db filter found an exclusion
+    Is not currently needed for tracking across categories of exclusions since there is only one category analyzed for excludes (i.e. lists)
+    It is needed for determining if any exclusions exist (and controlling returned results based on existence of exclusions)
+    If there were a second category of exclusions (e.g. db), then if lists filter had all optional exclusions and none succeeded, and db filter found an exclusion
     (either all optional and at lease one optional succeeded, or else all required exclusions succeeded)
     and if there were a third category (e.g. gender), which had all optional and none succeeded,
     then would know to return 'EXCLUDED' by seeing $anyExcludesFound = true as set by the second category.
     Can't just return 'EXCLUDED' when a required exclusion succeeds in one category, since a subsequent category may also have a required exclusion
     that does not succeed (and thus causes true to be returned), and thus the overall exclusion does not happen.
-        
-    If in any category, a required exclusion fails, then exclusion doesn't happen, and return true (since inclusions have succeeded)
+
+    If in any category, a required exclusion fails, then exclusion doesn't happen, and can thus return true (if inclusions either don't exist or else succeeded)
     */
-    
-    $anyExcludesFound = false;
-    
+
+    $anyExcludesFound = '';
+
     $filter = resolve_filter_sql($rule, 'filt_lists', 0);
-    
+
     if (empty($filter)) {
         error_log1($rule, 'tf lists excl filter empty');
     } else {
         error_log1($rule, 'tf lists excl filter not empty');
     }
-        
+
     // HR: split out conditions to facilitate logging
-    if ((!empty($filter)) ) {
+    if ((!empty($filter))) {
+        if ($anyExcludesFound === '') {
+            $anyExcludesFound = false; // change from empty string to false to indicate that at least one exclusion filter has been found
+        }
+        // look for lists data entered prior to $dateTarget timepoint
         $lc = lists_check($patient_id, $filter, $dateTarget, $rule);
         if ($lc === false) {
-            error_log1($rule, 'tf lists excl filter at least one required filter did not pass');
-            //return "EXCLUDED";
+            // a required exclusion did not succeed, so patient can not be excluded from rule. return true
+            error_log1($rule, 'tf lists excl filter at least one required excl filter did not pass');
             return true;
-        }
-        else if ($lc === 'continue') {
+        } else if ($lc === 'continue') {
             // all exclusion filters are optional and none succeeded
-            error_log1($rule, 'tf lists excl filter no required filters and all optional filters did not pass');
-        }
-        else { // $lc === true
-            error_log1($rule, 'tf lists excl filter all required filters passed, or if no required filters, at least one optional filter passed');
+            error_log1($rule, 'tf lists excl filter no required excl filters, and no optional excl filters passed');
+        } else { // $lc === true
+            error_log1($rule, 'tf lists excl filter all required excl filters passed, or if no required filters, at least one optional excl filter passed');
             $anyExcludesFound = true;
         }
     }
-    
-    if ($anyExcludesFound) {
+
+    if ($anyExcludesFound === true) {
         error_log1($rule, 'tf excluded');
         return "EXCLUDED";
     }
-    else {        
-        // Passed all filters, and exclusions did not pass, so return true.
-        error_log1($rule, 'tf all pass');
+
+    // $anyExcludesFound is either empty string (no exclusions found) or false (exclusions found, all optional, and did not succeed)
+    // $anySuccess is either empty string (no inclusions found) or true (inclusions found and succeeded)
+
+    if ($anyExcludesFound === '') {
+        // no exclusions found
+        if ($anySuccess === '') {
+            error_log1($rule, 'tf no inclusion or exclusion filters');
+            return false;
+        }
+        error_log1($rule, 'tf inclusions passed and no exclusions');
+        return true;
+    } else {
+        // exclusions found, were all optional, and did not succeed
+        if ($anySuccess === '') {
+            error_log1($rule, 'tf no inclusions. exclusions found, were optional, and did not succeed');
+            return true;
+        }
+        error_log1($rule, 'tf inclusions succeeded. exclusions found, were optional, and did not succeed');
         return true;
     }
 }
@@ -1953,7 +2016,8 @@ function returnTargetGroups($rule)
 
     $sql = sqlStatementCdrEngine(
         "SELECT DISTINCT `group_id` FROM `rule_target` " .
-        "WHERE `id`=?", array($rule)
+        "WHERE `id`=?",
+        array($rule)
     );
 
     $groups = array();
@@ -1970,33 +2034,38 @@ function returnTargetGroups($rule)
  * @param  integer $patient_id pid of selected patient.
  * @param  string  $rule       id(string) of selected rule (if blank, then will ignore grouping)
  * @param  integer $group_id   group id of target group
- * @param  string  $dateTarget target date (format Y-m-d H:i:s).
+ * @param  string  $dateFocus  date used for determining left boundary of intervals (format Y-m-d H:i:s).
+ * @param  string  $dateTarget date used for determining right boundary of intervals (format Y-m-d H:i:s).
  * @return boolean               if target passes then true, otherwise false
- 
-    called only if targets exist
-    
+
+    called only if targets exist   !! no, this can be called even if no targets defined for a rule, I don't see a place in the code that would
+        prevent test_targets() from getting called if no targets defined
+
     HR: note: currently, this logic ignores inclusion/exclusion flag. Treats all as inclusion
+
+    test_targets() was previously called only with a single date param, which was $dateFocus in calling function.
+    I changed this to pass both $dateFocus and $dateTarget so left and right interval boundaries could be determined separately
  */
-function test_targets($patient_id, $rule, string $group_id = null, $dateTarget = null)
+function test_targets($patient_id, $rule, string $group_id = null, $dateFocus = null, $dateTarget = null)
 {
     // -------- Interval Target ----
     $interval = resolve_target_sql($rule, $group_id, 'target_interval');
 
-    $anySuccess = false;
-    
+    $anySuccess = '';
+
     /*
-    HR: The "check" functions below return: 
+    HR: The "check" functions below return:
     true if all required targets (if any) pass, or if no required targets, and if any optional targets pass
     'continue' if no required targets, and no optional targets pass
     false if any required targets fail
-        
+
     If targets exist in one category and succeed, need to check other categories to see if required targets exist in those other categories as well
-        
+
     If targets in one category are all optional and do not succeed, try the next category
-        
+
     If targets in all categories are optional and do not succeed, return false
     */
-    
+
     // -------- Database Target ----
     // Database Target (includes)
     $target = resolve_target_sql($rule, $group_id, 'target_database');
@@ -2006,18 +2075,22 @@ function test_targets($patient_id, $rule, string $group_id = null, $dateTarget =
         error_log1($rule, 'test_targets: empty target for target_database');
     }
     // HR: split out logic to facilitate logging
-    if ((!empty($target)) ) {
-        $dc = database_check($patient_id, $target, $interval, $dateTarget, $rule);
+    if ((!empty($target))) {
+        if ($anySuccess === '') {
+            $anySuccess = false; // change from empty string to false to indicate that at least one target has been found
+        }
+        // HR: for targets, database_check is passed the target interval. Modified to look for patient data valid
+        // between $dateFocus - interval -> $dateTarget
+        // Was previously looking for patient data valid between $dateTarget - interval and $dateTarget
+        $dc = database_check($patient_id, $target, $interval, $dateFocus, $dateTarget, $rule);
         if ($dc === false) {
-            error_log1($rule, 'test_targets: returning false for target_database');
+            error_log1($rule, 'test_targets: target_database requried target failed');
             return false;
-        }
-        else if ($dc === 'continue') {
-            error_log1($rule, 'test targets: target_database did not pass but all optional');
-        }
-        else { // $dc === true
+        } else if ($dc === 'continue') {
+            error_log1($rule, 'test_targets: target_database did not pass but all optional');
+        } else { // $dc === true
             // need to check if other required targets in other categories also pass
-            error_log1($rule, 'test targets: target_database passed');
+            error_log1($rule, 'test_targets: target_database all requried targets passed, or if none required, at leaset one optional target passed');
             $anySuccess = true;
         }
     }
@@ -2030,17 +2103,18 @@ function test_targets($patient_id, $rule, string $group_id = null, $dateTarget =
     } else {
         error_log1($rule, 'test_targets: empty target for target_proc');
     }
-    if ((!empty($target)) ) {
-        $pc = procedure_check($patient_id, $target, $interval, $dateTarget);
+    if ((!empty($target))) {
+        if ($anySuccess === '') {
+            $anySuccess = false; // change from empty string to false to indicate that at least one target has been found
+        }
+        $pc = procedure_check($patient_id, $target, $interval, $dateFocus, $dateTarget);
         if ($pc === false) {
-            error_log1($rule, 'test_targets: returning false for target_proc');
+            error_log1($rule, 'test_targets: target_proc requried target failed');
             return false;
-        }
-        else if ($pc === 'continue') {
-            error_log1($rule, 'test targets: target_proc did not pass but all optional');
-        }
-        else { // $pc === true
-            error_log1($rule, 'test targets: target_proc passed');
+        } else if ($pc === 'continue') {
+            error_log1($rule, 'test_targets: target_proc did not pass but all optional');
+        } else { // $pc === true
+            error_log1($rule, 'test_targets: target_proc all requried targets passed, or if none required, at leaset one optional target passed');
             $anySuccess = true;
         }
     }
@@ -2055,26 +2129,29 @@ function test_targets($patient_id, $rule, string $group_id = null, $dateTarget =
     }
     //return !((!empty($target)) && appointment_check($patient_id, $dateTarget));
     // HR: reformat to facilitate logging
-    if ((!empty($target)) ) {
-        $ac = appointment_check($patient_id, $dateTarget);
+    if ((!empty($target))) {
+        if ($anySuccess === '') {
+            $anySuccess = false; // change from empty string to false to indicate that at least one target has been found
+        }
+        $ac = appointment_check($patient_id, $dateFocus, $dateTarget);
         if ($ac === false) {
-            error_log1($rule, 'test_targets: returning false for target_appt');
+            error_log1($rule, 'test_targets: target_appt requried target failed');
             return false;
-        }
-        else if ($ac === 'continue') {
-            error_log1($rule, 'test targets: target_appt did not pass but all optional');
-        }
-        else { // $ac === true
-            error_log1($rule, 'test targets: target_appt passed');
+        } else if ($ac === 'continue') {
+            error_log1($rule, 'test_targets: target_appt did not pass but all optional');
+        } else { // $ac === true
+            error_log1($rule, 'test_targets: target_appt all requried targets passed, or if none required, at leaset one optional target passed');
             $anySuccess = true;
         }
     }
-    
-    if ($anySuccess) {
+
+    if ($anySuccess === '') {
+        error_log1($rule, 'test_targets: no targets. returning false');
+        return false;
+    } else if ($anySuccess === true) {
         error_log1($rule, 'test_targets: returning true');
         return true;
-    }
-    else {
+    } else {
         error_log1($rule, 'test_targets: all targets optional and none succeeded. returning false ');
         return false;
     }
@@ -2143,7 +2220,8 @@ function resolve_plans_sql($type = '', $patient_id = '0', $configurableOnly = fa
                 $newReturnArray[] = $goPlan;
             }
         } else {
-            if ($goPlan['normal_flag'] == 1 
+            if (
+                $goPlan['normal_flag'] == 1
                 || $goPlan['cqm_flag'] == 1
             ) {
                 // active, so use the plan
@@ -2244,7 +2322,8 @@ function resolve_rules_sql($type = '', $patient_id = '0', $configurableOnly = fa
         foreach ($returnArray as $rule) {
             $standardRule = sqlQueryCdrEngine(
                 "SELECT * FROM `clinical_plans_rules` " .
-                "WHERE `plan_id`=? AND `rule_id`=?", array($plan,$rule['id'])
+                "WHERE `plan_id`=? AND `rule_id`=?",
+                array($plan,$rule['id'])
             );
             if (!empty($standardRule)) {
                   $planReturnArray[] = $rule;
@@ -2388,7 +2467,8 @@ function resolve_reminder_sql($rule, $reminder_method)
 {
     $sql = sqlStatementCdrEngine(
         "SELECT `method_detail`, `value` FROM `rule_reminder` " .
-        "WHERE `id`=? AND `method`=?", array($rule, $reminder_method)
+        "WHERE `id`=? AND `method`=?",
+        array($rule, $reminder_method)
     );
 
     $returnArray = array();
@@ -2411,9 +2491,10 @@ function resolve_filter_sql($rule, $filter_method, $include_flag = 1)
 {
     $sql = sqlStatementCdrEngine(
         "SELECT `method_detail`, `value`, `required_flag` FROM `rule_filter` " .
-        "WHERE `id`=? AND `method`=? AND `include_flag`=?", array($rule, $filter_method, $include_flag)
+        "WHERE `id`=? AND `method`=? AND `include_flag`=?",
+        array($rule, $filter_method, $include_flag)
     );
-    
+
     error_log1($rule, 'rfs: ' . $filter_method);
 
     $returnArray = array();
@@ -2435,18 +2516,20 @@ function resolve_filter_sql($rule, $filter_method, $include_flag = 1)
  */
 function resolve_target_sql($rule, string $group_id = null, $target_method = '', $include_flag = 1)
 {
-    
+
     //error_log1($rule,'rts top: ' . $group_id . '^' . $target_method . '^' . $include_flag);
 
     if ($group_id) {
         $sql = sqlStatementCdrEngine(
             "SELECT `value`, `required_flag`, `interval` FROM `rule_target` " .
-            "WHERE `id`=? AND `group_id`=? AND `method`=? AND `include_flag`=?", array($rule, $group_id, $target_method, $include_flag)
+            "WHERE `id`=? AND `group_id`=? AND `method`=? AND `include_flag`=?",
+            array($rule, $group_id, $target_method, $include_flag)
         );
     } else {
         $sql = sqlStatementCdrEngine(
             "SELECT `value`, `required_flag`, `interval` FROM `rule_target` " .
-            "WHERE `id`=? AND `method`=? AND `include_flag`=?", array($rule, $target_method, $include_flag)
+            "WHERE `id`=? AND `method`=? AND `include_flag`=?",
+            array($rule, $target_method, $include_flag)
         );
     }
 
@@ -2455,13 +2538,13 @@ function resolve_target_sql($rule, string $group_id = null, $target_method = '',
 
     $returnArray = array();
     for ($iter = 0; $row = sqlFetchArray($sql); $iter++) {
-        //error_log1($rule,'rts iter: ' . $iter);        
+        //error_log1($rule,'rts iter: ' . $iter);
         $returnArray[] = $row;
-        // error_log1($rule,'rts row: ' . $row);        
+        // error_log1($rule,'rts row: ' . $row);
     }
 
     //error_log1($rule,'rts bottom');
-    
+
     return $returnArray;
 }
 
@@ -2481,7 +2564,8 @@ function resolve_action_sql($rule, $group_id = '')
             "FROM `rule_action` as a " .
             "JOIN `rule_action_item` as b " .
             "ON a.category = b.category AND a.item = b.item " .
-            "WHERE a.id=? AND a.group_id=?", array($rule,$group_id)
+            "WHERE a.id=? AND a.group_id=?",
+            array($rule,$group_id)
         );
     } else {
         $sql = sqlStatementCdrEngine(
@@ -2489,7 +2573,8 @@ function resolve_action_sql($rule, $group_id = '')
             "FROM `rule_action` as a " .
             "JOIN `rule_action_item` as b " .
             "ON a.category = b.category AND a.item = b.item " .
-            "WHERE a.id=?", array($rule)
+            "WHERE a.id=?",
+            array($rule)
         );
     }
 
@@ -2507,16 +2592,37 @@ function resolve_action_sql($rule, $group_id = '')
  * @param  string $patient_id pid of selected patient.
  * @param  array  $filter     array containing filter/target elements
  * @param  array  $interval   array containing interval elements
- * @param  string $dateTarget target date(format Y-m-d H:i:s). blank is current date.
+ * @param  string $dateFocus  date for determining left boundary of interval (format Y-m-d H:i:s)
+ * @param  string $dateTarget date for determining right boundary of interval (format Y-m-d H:i:s). blank is current date.
  * @return boolean              true if check passed, otherwise false
  */
-function database_check($patient_id, $filter, $interval = '', $dateTarget = '', $rule = '')
+ /*
+   HR: is called for processing both filters and targets
+   When called for filters, $interval and $dateFocus are empty strings, and database_check() will look for data with start date prior to $dateTarget
+   When called for targets, $interval is valued (something like "1 year").
+   database_check() will look for data between $dateFocus - $interval and $dateTarget
+   (was previously looking for data between $dateFocus - $interval and $dateFocus. I changed to use $dateTarget instead for right interval boundary, for reasons mentioned below
+   in comments at sql_interval_string()
+   Targets are typically processed with $dateFocus set to: D, D+warningInterval or D-pastDueInterval, where D is timepoint passed to test_rules_clinic()
+   D is typically now()
+   Filters were previously processed with these same three timepoints, but I changed them to be processed only once, at D
+
+   $interval is something like: 1 year. Becomes $intervalType and $intervalValue
+   $dateTarget, $intervalType and $intervalValue are passed to exist_custom_item() and exist_database_item()
+   These functions call sql_interval_string(), passing $dateTarget, $intervalType and $intervalValue to sql_interval_string()
+   sql_interval_string() builds the sql query string that checks patient data against an interval
+   The string sql_interval_string() was previously building filtered for patient data in date range:
+   $dateTarget - (interval mentioned in $intervalType and $intervalValue) -> $dateTarget
+   I modified it to instead create an interval that is $dateTarget - (interval mentioned in $intervalType and $intervalValue) -> now()
+   See comments in sql_interval_string() for reasons for this change
+ */
+function database_check($patient_id, $filter, $interval = '', $dateFocus = '', $dateTarget = '', $rule = '')
 {
     //error_log1($rule,'dbc top: ' . $rule . '^');
-    
+
     //error_log1($rule,'dbc: ' . $filter . '^' . $dateTarget); // gets array to string conversion warning
     //error_log1($rule,'dbc: ' . $dateTarget);
-    
+
     //$isMatch = false; //matching flag
     // HR: add 'continue' return value option
     $isMatch = 'continue';
@@ -2544,16 +2650,14 @@ function database_check($patient_id, $filter, $interval = '', $dateTarget = '', 
         if ($temp_df[0] == "CUSTOM") {
             // Row description
             //   [0]=>special modes(CUSTOM) [1]=>category [2]=>item [3]=>complete? [4]=>number of hits comparison [5]=>number of hits
-            if (exist_custom_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $intervalType, $intervalValue, $dateTarget, $rule)) {
-                
+            if (exist_custom_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $intervalType, $intervalValue, $dateFocus, $dateTarget, $rule)) {
                 error_log1($rule, 'dbc custom got match');
-                
+
                 // Record the match
                 $isMatch = true;
             } else {
-                
                 error_log1($rule, 'dbc custom did not get match');
-                
+
                 // If this is a required entry then return false
                 if ($row['required_flag']) {
                     error_log1($rule, 'dbc returning false for custom');
@@ -2565,7 +2669,7 @@ function database_check($patient_id, $filter, $interval = '', $dateTarget = '', 
             //   [0]=>special modes(LIFESTYLE) [1]=>column [2]=>status
             if (exist_lifestyle_item($patient_id, $temp_df[1], $temp_df[2], $dateTarget, $rule)) {
                 error_log1($rule, 'dbc lifestyle got match');
-                
+
                 // Record the match
                 $isMatch = true;
             } else {
@@ -2579,10 +2683,9 @@ function database_check($patient_id, $filter, $interval = '', $dateTarget = '', 
             // Default mode
             // Row description
             //   [0]=>special modes(BLANK) [1]=>table [2]=>column [3]=>value comparison [4]=>value [5]=>number of hits comparison [6]=>number of hits
-            if (exist_database_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $temp_df[6], $intervalType, $intervalValue, $dateTarget, $rule)) {
-                
+            if (exist_database_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $temp_df[6], $intervalType, $intervalValue, $dateFocus, $dateTarget, $rule)) {
                 error_log1($rule, 'dbc default got match');
-        
+
                 // Record the match
                 if ($cond_loop > 0) { // For multiple condition check
                     $isMatch = $isMatch && 1;
@@ -2590,9 +2693,8 @@ function database_check($patient_id, $filter, $interval = '', $dateTarget = '', 
                     $isMatch = true;
                 }
             } else {
-                
                 error_log1($rule, 'dbc default did not get match');
-                
+
                 // If this is a required entry then return false
                 if ($row['required_flag']) {
                     error_log1($rule, 'dbc returning false for default');
@@ -2616,12 +2718,13 @@ function database_check($patient_id, $filter, $interval = '', $dateTarget = '', 
  * @param  string $patient_id pid of selected patient.
  * @param  array  $filter     array containing filter/target elements
  * @param  array  $interval   array containing interval elements
- * @param  string $dateTarget target date(format Y-m-d H:i:s). blank is current date.
+ * @param  string $dateFocus  date for determining left boundary of interval (format Y-m-d H:i:s)
+ * @param  string $dateTarget date for determining right boundary of interval (format Y-m-d H:i:s). blank is current date.
  * @return boolean              true if check passed, otherwise false
  */
-function procedure_check($patient_id, $filter, $interval = '', $dateTarget = '')
+function procedure_check($patient_id, $filter, $interval = '', $dateFocus = '', $dateTarget = '')
 {
-    //$isMatch = false; //matching flag    
+    //$isMatch = false; //matching flag
     // HR: add 'continue' return value option
     $isMatch = 'continue';
 
@@ -2643,7 +2746,7 @@ function procedure_check($patient_id, $filter, $interval = '', $dateTarget = '')
         //   code description
         //     <type(ICD9,CPT4)>:<identifier>||<type(ICD9,CPT4)>:<identifier>||<identifier> etc.
         $temp_df = explode("::", $row['value']);
-        if (exist_procedure_item($patient_id, $temp_df[0], $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $intervalType, $intervalValue, $dateTarget)) {
+        if (exist_procedure_item($patient_id, $temp_df[0], $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $intervalType, $intervalValue, $dataFocus, $dateTarget)) {
             // Record the match
             $isMatch = true;
         } else {
@@ -2691,7 +2794,8 @@ function appointment_check($patient_id, $dateTarget = '')
         "FROM openemr_postcalendar_events " .
         "WHERE openemr_postcalendar_events.pc_eventDate > ? " .
         "AND openemr_postcalendar_events.pc_eventDate <= ? " .
-        "AND openemr_postcalendar_events.pc_pid = ?", array($currentDate,$dateTarget,$patient_id)
+        "AND openemr_postcalendar_events.pc_pid = ?",
+        array($currentDate,$dateTarget,$patient_id)
     );
 
     // return results of check
@@ -2702,7 +2806,7 @@ function appointment_check($patient_id, $dateTarget = '')
     if (sqlNumRows($sql) > 0) {
         $isMatch = true;
     }
-    
+
     error_log1($rule, 'ac returning: ' . $isMatch);
     return $isMatch;
 }
@@ -2717,9 +2821,9 @@ function appointment_check($patient_id, $dateTarget = '')
  */
 /*
     HR: this function is called only for evaluating filters. Not targets
-    Function needs to return true if criteria met, "optional" if criteria found and none passed but all were optional, otherwise false
-    
-    lists_check is called only of $filter has some items to check
+    Function returns true if criteria met, "continue" if criteria found and none passed but all were optional, otherwise false
+
+    lists_check is called only if $filter has some items to check
 */
 function lists_check($patient_id, $filter, $dateTarget, $rule = '')
 {
@@ -2731,18 +2835,17 @@ function lists_check($patient_id, $filter, $dateTarget, $rule = '')
     $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
 
     /*
-    HR: loop through all filters. If any fail to be found in the patient and have required_flag = true, return false immediately. Otherwise return true if any of the optional
-    or required filters are found in the patient
-    If some found, and all are optional, and none pass, return 'optional'
+    HR: loop through all filters. If any fail to be found in the patient and have required_flag = true, return false immediately.
+    Otherwise return true if all requried filters are found, or if no requried filters, then if any of the optional filters are found in the patient
+    If some found, and all are optional, and none pass, return 'continue'
     Logic works if list_check is called for either inclusion or exclusion filters
     Among a set of inclusion filters, or a set of exclusion filters, having a mix of both required and optional filters doesn't make a lot of sense.
     If any filter is required, the optional ones have not purpose
     But it is fine for all inclusion filters to be required, and all exclusion filters to be optional, or vice versa
     */
     foreach ($filter as $row) {
-        
         error_log1($rule, 'lc: ' . $dateTarget . '^' . $row['method_detail'] . '^' . $patient_id . '^' . $row['value'] . '^required: ' . $row['required_flag']);
-        
+
         if (exist_lists_item($patient_id, $row['method_detail'], $row['value'], $dateTarget, $rule)) {
             // Record the match
             error_log1($rule, 'lc: passed');
@@ -2760,7 +2863,7 @@ function lists_check($patient_id, $filter, $dateTarget, $rule = '')
     // no required filters failed
     // $isMatch is true if all required filters passed, or if there were no required filters and at least one optional filter passed
     // otherwise $isMatch remains 'continue'
-    
+
     // return results of check
     error_log1($rule, 'lc: returning: ' . $isMatch);
     return $isMatch;
@@ -2778,15 +2881,16 @@ function lists_check($patient_id, $filter, $dateTarget, $rule = '')
  * @param  integer $num_items_thres number of items threshold
  * @param  string  $intervalType    type of interval (ie. year)
  * @param  integer $intervalValue   searched for within this many times of the interval type
- * @param  string  $dateTarget      target date(format Y-m-d H:i:s).
+ * @param  string  $dateFocus       used for determining left boundary of interval
+ * @param  string  $dateTarget      used for determining right boundary of interval (format Y-m-d H:i:s).
  * @return boolean                    true if check passed, otherwise false
  *
  * (1) If data ends with **, operators ne/eq are replaced by (NOT)LIKE operators
  * (2) If $data contains '#CURDATE#', then it will be converted to the current date.
  */
-function exist_database_item($patient_id, $table, string $column = null, $data_comp = '', string $data = null, $num_items_comp = null, $num_items_thres = null, $intervalType = '', $intervalValue = '', $dateTarget = '', $rule = '')
+function exist_database_item($patient_id, $table, string $column = null, $data_comp = '', string $data = null, $num_items_comp = null, $num_items_thres = null, $intervalType = '', $intervalValue = '', $dateFocus = '', $dateTarget = '', $rule = '')
 {
-
+    // HR: used for filters and targets
     error_log1($rule, 'edi top: ' . $table);
 
     // Set date to current if not set
@@ -2796,7 +2900,8 @@ function exist_database_item($patient_id, $table, string $column = null, $data_c
     $patient_id_label = collect_database_label('pid', $table);
 
     // Get the interval sql query string
-    $dateSql = sql_interval_string($table, $intervalType, $intervalValue, $dateTarget);
+    // HR: left boundary is $dateFocus - interval. right boundary is $dateTarget
+    $dateSql = sql_interval_string($table, $intervalType, $intervalValue, $dateFocus, $dateTarget);
 
     // If just checking for existence (ie. data is empty),
     //   then simply set the comparison operator to ne.
@@ -2832,7 +2937,8 @@ function exist_database_item($patient_id, $table, string $column = null, $data_c
             "SELECT * " .
             "FROM `" . escape_table_name($table)  . "` " .
             " " . $whereTables . " " .
-            "WHERE " . add_escape_custom($patient_id_label) . "=? " . $customSQL, array($patient_id)
+            "WHERE " . add_escape_custom($patient_id_label) . "=? " . $customSQL,
+            array($patient_id)
         );
     } else {
         // mdsupport : Allow trailing '**' in the strings to perform LIKE searches
@@ -2857,10 +2963,11 @@ function exist_database_item($patient_id, $table, string $column = null, $data_c
                 . str_replace("`date`", "b.`date`", $dateSql),
                 array($data, $patient_id)
             );
-            
-            
+
+
             error_log1(
-                $rule, 'sql: ' . "SELECT b.`" . escape_sql_column_name($column, [$table]) . "` " .
+                $rule,
+                'sql: ' . "SELECT b.`" . escape_sql_column_name($column, [$table]) . "` " .
                 "FROM forms a " .
                 "LEFT JOIN `" . escape_table_name($table) . "` " . " b " .
                 "ON (a.form_id=b.id AND a.formdir LIKE '" . add_escape_custom(substr($table, 5)) . "') " .
@@ -2868,9 +2975,7 @@ function exist_database_item($patient_id, $table, string $column = null, $data_c
                 "AND b.`" . escape_sql_column_name($column, [$table]) . "`" . $compSql .
                 "AND b." . add_escape_custom($patient_id_label) . "=? " . $customSQL
                 . str_replace("`date`", "b.`date`", $dateSql)
-            );    
-  
-  
+            );
         } else {
             // This allows to enter the wild card #CURDATE# in the CDR Demographics filter criteria  at the value field
             // #CURDATE# is replace by the Current date allowing a dynamic date filtering
@@ -2885,12 +2990,14 @@ function exist_database_item($patient_id, $table, string $column = null, $data_c
                 " " . $whereTables . " " .
                 "WHERE `" . escape_sql_column_name($column, [$table]) . "`" . $compSql .
                 "AND " . add_escape_custom($patient_id_label) . "=? " . $customSQL .
-                $dateSql, array($data, $patient_id)
+                $dateSql,
+                array($data, $patient_id)
             );
-              
-            
+
+
             error_log1(
-                $rule, 'sql: ' . "SELECT `" . escape_sql_column_name($column, [$table]) . "` " .
+                $rule,
+                'sql: ' . "SELECT `" . escape_sql_column_name($column, [$table]) . "` " .
                 "FROM `" . escape_table_name($table) . "` " .
                 " " . $whereTables . " " .
                 "WHERE `" . escape_sql_column_name($column, [$table]) . "`" . $compSql .
@@ -2898,11 +3005,11 @@ function exist_database_item($patient_id, $table, string $column = null, $data_c
             );
         }
     }
-  
-    //error_log1($rule,'edi bottom: ' . $table);    
-    
+
+    //error_log1($rule,'edi bottom: ' . $table);
+
     //error_log1($rule,'edi bottom: ' . $table . '^' . sqlNumRows($sql) . '^');
-    
+
     error_log1($rule, 'edi end: ' . $table);
 
     // See if number of returned items passes the comparison
@@ -2921,12 +3028,13 @@ function exist_database_item($patient_id, $table, string $column = null, $data_c
  * @param  integer $num_items_thres number of items threshold
  * @param  string  $intervalType    type of interval (ie. year)
  * @param  integer $intervalValue   searched for within this many times of the interval type
- * @param  string  $dateTarget      target date(format Y-m-d H:i:s).
+ * @param  string  $dateFocus       used for determining left boundary of interval
+ * @param  string  $dateTarget      used for determining right boundary of interval (format Y-m-d H:i:s).
  * @return boolean                    true if check passed, otherwise false
  *
  * (1) If result_data ends with **, operators ne/eq are replaced by (NOT)LIKE operators
  */
-function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp, string $result_data = null, $num_items_comp = null, $num_items_thres = null, $intervalType = '', $intervalValue = '', $dateTarget = '')
+function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp, string $result_data = null, $num_items_comp = null, $num_items_thres = null, $intervalType = '', $intervalValue = '', $dateFocus = '', $dateTarget = '')
 {
 
     // Set date to current if not set
@@ -2939,7 +3047,8 @@ function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp
     $patient_id_label = collect_database_label('pid', $table);
 
     // Get the interval sql query string
-    $dateSql = sql_interval_string($table, $intervalType, $intervalValue, $dateTarget);
+    // HR: interval will be $dateFocus - interval -> $dateTarget
+    $dateSql = sql_interval_string($table, $intervalType, $intervalValue, $dateFocus, $dateTarget);
 
     // If just checking for existence (ie result_data is empty),
     //   then simply set the comparison operator to ne.
@@ -3015,10 +3124,11 @@ function exist_procedure_item($patient_id, $proc_title, $proc_code, $result_comp
  * @param  integer $num_items_thres number of items threshold
  * @param  string  $intervalType    type of interval (ie. year)
  * @param  integer $intervalValue   searched for within this many times of the interval type
- * @param  string  $dateTarget      target date(format Y-m-d H:i:s).
+ * @param  string  $dateFocus       used for left boundary of interval
+ * @param  string  $dateTarget      used for right boundary of interval (format Y-m-d H:i:s).
  * @return boolean                    true if check passed, otherwise false
  */
-function exist_custom_item($patient_id, $category, $item, $complete, $num_items_comp, $num_items_thres, string $intervalType = null, string $intervalValue = null, $dateTarget = null, $rule = null)
+function exist_custom_item($patient_id, $category, $item, $complete, $num_items_comp, $num_items_thres, string $intervalType = null, string $intervalValue = null, $dateFocus = null, $dateTarget = null, $rule = null)
 {
     error_log1($rule, 'eci');
 
@@ -3029,7 +3139,15 @@ function exist_custom_item($patient_id, $category, $item, $complete, $num_items_
     $patient_id_label = collect_database_label('pid', $table);
 
     // Get the interval sql query string
-    $dateSql = sql_interval_string($table, $intervalType, $intervalValue, $dateTarget);
+    /*
+       For filters, $intervalType and $intervalValue are empty strings
+       For targets, they are defiend (something like 1 year)
+       if $intervalType and $intervalValue are empty strings, sql_interval_string returns something like
+        [date field] <= $dateTarget
+       If $intervalType and $intervalValue are valued, sql_interval_string returns something like
+        [date field] between $dateFocus - interval and $dateTarget
+    */
+    $dateSql = sql_interval_string($table, $intervalType, $intervalValue, $dateFocus, $dateTarget);
 
     // search for number of specific items
     $sql = sqlStatementCdrEngine(
@@ -3039,11 +3157,13 @@ function exist_custom_item($patient_id, $category, $item, $complete, $num_items_
         "AND `item`=? " .
         "AND `complete`=? " .
         "AND `" . add_escape_custom($patient_id_label)  . "`=? " .
-        $dateSql, array($category,$item,$complete,$patient_id)
+        $dateSql,
+        array($category,$item,$complete,$patient_id)
     );
-    
+
     error_log1(
-        $rule, 'eci: ' . "SELECT `result` " .
+        $rule,
+        'eci: ' . "SELECT `result` " .
         "FROM `" . escape_table_name($table)  . "` " .
         "WHERE `category`=? " .
         "AND `item`=? " .
@@ -3082,7 +3202,7 @@ function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget, $ru
         // Only ensuring any data has been entered into the field
         $stringFlag = true;
     }
-    
+
     error_log1($rule, 'eli: ' . empty($history[$lifestyle]) . '^' . $stringFlag . '^' . $lifestyle . '^' . $status . '^' . $dateTarget);
 
     return !empty($history[$lifestyle]) &&
@@ -3104,16 +3224,17 @@ function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget, $ru
  */
 function exist_lists_item($patient_id, $type, $value, $dateTarget, $rule = '')
 {
+    // HR: used only for filters, not tarets
 
     // Set date to current if not set
     $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
 
     // Attempt to explode the value into a code type and code (if applicable)
     $value_array = explode("::", $value);
-    
-    
+
+
     //error_log1($rule,'eli: ' . $type . '^' . $dateTarget . '^' . count($value_array));
-    
+
     if (count($value_array) == 2) {
         // Collect the code type and code
         $code_type = $value_array[0];
@@ -3136,10 +3257,11 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget, $rule = '')
                 "AND `pid`=? " .
                 "AND `title` $sqloper " .
                 "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
-                "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,$code,$dateTarget,$dateTarget,$dateTarget)
+                "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )",
+                array($type,$patient_id,$code,$dateTarget,$dateTarget,$dateTarget)
             );
-            
-            
+
+
             if (!empty($response)) {
                 return true;
             }
@@ -3151,18 +3273,20 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget, $rule = '')
                 "AND `pid`=? " .
                 "AND `diagnosis` LIKE ? " .
                 "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
-                "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,"%" . $code_type . ":" . $code . "%",$dateTarget,$dateTarget,$dateTarget)
+                "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )",
+                array($type,$patient_id,"%" . $code_type . ":" . $code . "%",$dateTarget,$dateTarget,$dateTarget)
             );
-            
+
             error_log1(
-                $rule, "SELECT * FROM `lists` " .
+                $rule,
+                "SELECT * FROM `lists` " .
                 "WHERE `type`=? " .
                 "AND `pid`=? " .
                 "AND `diagnosis` LIKE ? " .
                 "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
                 "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )"
             );
-            
+
             if (!empty($response)) {
                 return true;
             }
@@ -3185,15 +3309,15 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget, $rule = '')
             "AND `pid`=? " .
             "AND `title` $sqloper " .
             "AND ( (`begdate` IS NULL AND `date`<=?) OR (`begdate` IS NOT NULL AND `begdate`<=?) ) " .
-            "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )", array($type,$patient_id,$value,$dateTarget,$dateTarget,$dateTarget)
+            "AND ( (`enddate` IS NULL) OR (`enddate` IS NOT NULL AND `enddate`>=?) )",
+            array($type,$patient_id,$value,$dateTarget,$dateTarget,$dateTarget)
         );
         if (!empty($response)) {
             return true;
         }
 
         if ($type == 'medication') { // Special case needed for medication as it need to be looked into current medications (prescriptions table) from ccda import
-              $response = sqlQueryCdrEngine("SELECT * FROM `prescriptions` where `patient_id` = ? and `drug` $sqloper", array($patient_id,$value/*,$dateTarget*/));
-            // and `date_added` <= ?
+              $response = sqlQueryCdrEngine("SELECT * FROM `prescriptions` where `patient_id` = ? and `drug` $sqloper and `date_added` <= ?", array($patient_id,$value,$dateTarget));
             if (!empty($response)) {
                 return true;
             }
@@ -3209,45 +3333,55 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget, $rule = '')
  * @param  string  $table          selected mysql table (or EXCEPTION(s))
  * @param  string  $intervalType   type of interval (ie. year)
  * @param  string  $intervalValue  searched for within this many times of the interval type
- * @param  string  $dateTarget     target date(format Y-m-d H:i:s).
+ * @param  string  $dateFocus      used for determinig left boundary of interval
+ * @param  string  $dateTarget     used for determinig right boundary of interval (format Y-m-d H:i:s).
  * @return string                  contains pertinent date interval filter for mysql query
  */
-/* HR: Intervals were previously:
-    1) now() - targetInterval + warningInterval -> now() + warningInterval
-    2) now() - targetInterval -> now()
-    3) now() - targetInterval - pastDueInterval -> now() - pastDueInterval
-    
-If event found in (1), then "not due"
-else if event found in (2), then "due soon"
-else if event found in (3), then "due"
-else event found prior to (3) or event not found -> "past due"
+/*
+   HR: is called for building sql used in processing both filters and targets. When called for filters, $dateFocus, $intervalType and $intervalValue are empty strings
+   When called for targets, $intervalType and $intervalValue are valued
+   When $intervalType and $intervalValue are empty strings, returns something like
+      [db date field] <= $dateTarget
+   which thus finds patient date entered prior to $dateTarget
+   When $intervalType and $intervalValue are valued, was previously retuning something like
+      [db date field] between ($dateFocus - interval) and $dateFocus
+   Targets are processed for three $dateFocus values:
+    1) $dateTarget + warningInterval
+    2) $dateTarget
+    3) $dateTarget - pastDueInterval
+   So targets were evaluated against these three intervals:
+    1) $dateTarget + warningInterval - targetInterval -> $dateTarget + warningInterval
+    2) $dateTarget - targetInterval -> now()
+    3) $dateTarget - pastDueInterval - targetInterval -> $dateTarget - pastDueInterval
+   If event found in (1), then "not due"
+   else if event found in (2), then "due soon"
+   else if event found in (3), then "due"
+   else event found prior to (3) or event not found -> "past due"
 
-I changed logic to:
+   I changed logic to:
+    1) $dateTarget + warningInterval - targetInterval -> $dateTarget
+    2) $dateTarget - targetInterval -> $dateTarget
+    3) $dateTarget - pastDueInterval - targetInterval -> $dateTarget
+   Without this change, if have more than one target, each looking for different events,
+   logic might not correctly determine presence of each event.
 
-    1) now() - targetInterval + warningInterval -> now()
-    2) now() - targetInterval -> now()
-    3) now() - targetInterval - pastDueInterval -> now()
-    
-Without this change, if have more than one target, each looking for different events,
-logic might not correctly determine presence of each event.
+   Example:
+    targetInterval: 1 year
+    warningInterval: 1 month
+    pastDueInterval: 2 months
 
-Example: 
-targetInterval: 1 year
-warningInterval: 1 month
-pastDueInterval: 2 months
+   Suppose event #1 happened 13 months ago, and event #2 happened 1 month ago.
+   With prior logic, event #1 would be considered valid during interval (3),
+   and event #2 would be considered valid during interval (1), but there would
+   be no interval in which both events be considered valid, and the rule
+   would therefore consider the target not satisfied.
 
-Suppose event #1 happened 13 months ago, and event #2 happened 1 month ago.
-With prior logic, event #1 would be considered valid during interval (3),
-and event #2 would be considered valid during interval (1), but there would
-be no interval in which both events be considered valid, and the rule
-would therefore consider the target not satisfied.
+   Actually, the target should be considered satisfied, with status: "due"
 
-Actually, the target should be considered staisfied, with status: "due"
-
-The new interval logic allows both targets to be valid during interval (3),
-generating the proper rule status
+   The new interval logic allows both targets to be valid during interval (3),
+   generating the proper rule status
 */
-function sql_interval_string($table, $intervalType, $intervalValue, $dateTarget)
+function sql_interval_string($table, $intervalType, $intervalValue, $dateFocus, $dateTarget)
 {
 
     $dateSql = "";
@@ -3258,72 +3392,65 @@ function sql_interval_string($table, $intervalType, $intervalValue, $dateTarget)
     // Deal with interval
     if (!empty($intervalType)) {
         switch ($intervalType) {
-        case "year":
-            $dateSql = "AND (" . add_escape_custom($date_label) .
-            " BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
-            "', INTERVAL " . escape_limit($intervalValue) .
-            " YEAR) AND now() ) ";
-            //" YEAR) AND '" . add_escape_custom($dateTarget) . "') ";
-            break;
-        case "month":
-            $dateSql = "AND (" . add_escape_custom($date_label) .
-            " BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
-            "', INTERVAL " . escape_limit($intervalValue) .
-            " MONTH) AND now() ) ";
-            //" MONTH) AND '" . add_escape_custom($dateTarget) . "') ";
-            break;
-        case "week":
-            $dateSql = "AND (" . add_escape_custom($date_label) .
-            " BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
-            "', INTERVAL " . escape_limit($intervalValue) .
-            " WEEK) AND now() ) ";
-            //" WEEK) AND '" . add_escape_custom($dateTarget) . "') ";                
-            break;
-        case "day":
-            $dateSql = "AND (" . add_escape_custom($date_label) .
-            " BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
-            "', INTERVAL " . escape_limit($intervalValue) .
-            " DAY) AND now() ) ";
-            //" DAY) AND '" . add_escape_custom($dateTarget) . "') ";
-            break;
-        case "hour":
-            $dateSql = "AND (" . add_escape_custom($date_label) .
-            " BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
-            "', INTERVAL " . escape_limit($intervalValue) .
-            " HOUR) AND now() ) ";
-            //" HOUR) AND '" . add_escape_custom($dateTarget) . "') ";
-            break;
-        case "minute":
-            $dateSql = "AND (" . add_escape_custom($date_label) .
-            " BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
-            "', INTERVAL " . escape_limit($intervalValue) .
-            " MINUTE) AND now() ) ";
-            //" MINUTE) AND '" . add_escape_custom($dateTarget) . "') ";                
-            break;
-        case "second":
-            $dateSql = "AND (" . add_escape_custom($date_label) .
-            " BETWEEN DATE_SUB('" . add_escape_custom($dateTarget) .
-            "', INTERVAL " . escape_limit($intervalValue) .
-            " SECOND) AND now() ) ";
-            //" SECOND) AND '" . add_escape_custom($dateTarget) . "') ";
-            break;
-        case "flu_season":
-            // Flu season to be hard-coded as September thru February
-            //  (Should make this modifiable in the future)
-            //  ($intervalValue is not used)
-            $dateArray = explode("-", $dateTarget);
-            $Year = $dateArray[0];
-            $dateThisYear = $Year . "-09-01";
-            $dateLastYear = ($Year - 1) . "-09-01";
-            $dateSql = " " .
-            "AND ((" .
+            case "year":
+                $dateSql = "AND (" . add_escape_custom($date_label) .
+                " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
+                "', INTERVAL " . escape_limit($intervalValue) .
+                " YEAR) AND '" . add_escape_custom($dateTarget) . "') ";
+                break;
+            case "month":
+                $dateSql = "AND (" . add_escape_custom($date_label) .
+                " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
+                "', INTERVAL " . escape_limit($intervalValue) .
+                " MONTH) AND '" . add_escape_custom($dateTarget) . "') ";
+                break;
+            case "week":
+                $dateSql = "AND (" . add_escape_custom($date_label) .
+                " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
+                "', INTERVAL " . escape_limit($intervalValue) .
+                " WEEK) AND '" . add_escape_custom($dateTarget) . "') ";
+                break;
+            case "day":
+                $dateSql = "AND (" . add_escape_custom($date_label) .
+                " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
+                "', INTERVAL " . escape_limit($intervalValue) .
+                " DAY) AND '" . add_escape_custom($dateTarget) . "') ";
+                break;
+            case "hour":
+                $dateSql = "AND (" . add_escape_custom($date_label) .
+                " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
+                "', INTERVAL " . escape_limit($intervalValue) .
+                " HOUR) AND '" . add_escape_custom($dateTarget) . "') ";
+                break;
+            case "minute":
+                $dateSql = "AND (" . add_escape_custom($date_label) .
+                " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
+                "', INTERVAL " . escape_limit($intervalValue) .
+                " MINUTE) AND '" . add_escape_custom($dateTarget) . "') ";
+                break;
+            case "second":
+                $dateSql = "AND (" . add_escape_custom($date_label) .
+                " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
+                "', INTERVAL " . escape_limit($intervalValue) .
+                " SECOND) AND '" . add_escape_custom($dateTarget) . "') ";
+                break;
+            case "flu_season":
+                // Flu season to be hard-coded as September thru February
+                //  (Should make this modifiable in the future)
+                //  ($intervalValue is not used)
+                $dateArray = explode("-", $dateTarget);
+                $Year = $dateArray[0];
+                $dateThisYear = $Year . "-09-01";
+                $dateLastYear = ($Year - 1) . "-09-01";
+                $dateSql = " " .
+                "AND ((" .
                 "MONTH('" . add_escape_custom($dateTarget) . "') < 9 " .
                 "AND " . add_escape_custom($date_label) . " >= '" . $dateLastYear . "' ) " .
-              "OR (" .
+                  "OR (" .
                 "MONTH('" . add_escape_custom($dateTarget) . "') >= 9 " .
                 "AND " . add_escape_custom($date_label) . " >= '" . $dateThisYear . "' ))" .
-            "AND " . add_escape_custom($date_label) . " <= '" . add_escape_custom($dateTarget) . "' ";
-            break;
+                "AND " . add_escape_custom($date_label) . " <= '" . add_escape_custom($dateTarget) . "' ";
+                break;
         }
     } else {
         $dateSql = "AND " . add_escape_custom($date_label) .
@@ -3422,8 +3549,9 @@ function collect_database_label($label, $table)
 function is_duplicate_action($actions, $action)
 {
     foreach ($actions as $row) {
-        if ($row['category'] == $action['category'] 
-            && $row['item'] == $action['item'] 
+        if (
+            $row['category'] == $action['category']
+            && $row['item'] == $action['item']
             && $row['value'] == $action['value']
         ) {
             // Is a duplicate
@@ -3540,8 +3668,9 @@ function reminder_results_integrate($reminderOldArray, $reminderNew)
     // If duplicate reminder, then replace the old one
     $duplicate = false;
     foreach ($reminderOldArray as $reminderOld) {
-        if ($reminderOld['pid'] == $reminderNew['pid'] 
-            && $reminderOld['category'] == $reminderNew['category'] 
+        if (
+            $reminderOld['pid'] == $reminderNew['pid']
+            && $reminderOld['category'] == $reminderNew['category']
             && $reminderOld['item'] == $reminderNew['item']
         ) {
             $results[] = $reminderNew;
@@ -3659,7 +3788,7 @@ function calculate_percentage($pass_filt, $exclude_filt, $pass_targ, $rule, $sou
     error_log1($rule, 'calc_percent: ' . $pass_filt . '^' . $exclude_filt . '^' . $pass_targ . '^' . $source);
     if ($pass_filt > 0) {
         if ($pass_filt == $exclude_filt) { // HR: don't want to divide by zero
-            $perc = "0" . xl('%'); 
+            $perc = "0" . xl('%');
         } else {
             $perc = number_format(($pass_targ / ($pass_filt - $exclude_filt)) * 100, 4) . xl('%');
         }
