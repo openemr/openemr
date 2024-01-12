@@ -373,14 +373,15 @@ class InsuranceService extends BaseService
         );
         // I prefer exceptions... but we will try to match other service handler formats for consistency
         $processingResult = new ProcessingResult();
+        $stringUuid = UuidRegistry::uuidToString($data['uuid']);
         if ($insuranceDataId) {
             $data['id'] = $insuranceDataId;
             $processingResult->addData([
                 'id' => $insuranceDataId
-                ,'uuid' => UuidRegistry::uuidToString($data['uuid'])
+                ,'uuid' => $stringUuid
             ]);
             $this->getEventDispatcher()->dispatch($serviceSaveEvent, ServiceSaveEvent::EVENT_POST_SAVE);
-            $processingResult = $this->getOne($data['uuid']);
+            $processingResult = $this->getOne($stringUuid);
         } else {
             $processingResult->addProcessingError("error processing SQL Update");
         }

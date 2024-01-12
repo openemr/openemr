@@ -16,10 +16,10 @@ export class InsurancePolicyModel {
     uuid = null;
     provider = "";
 
-    accept_assignment = "yes";
+    accept_assignment = "YES";
     copay = "";
     // yes it doesn't work well if you're on the edge of a timezone for ISO but as a default its fine
-    date = new Date().toISOString().slice(0,10); // grab YYYY-MM-DD
+    date = new Date();
     date_end = null;
     group_number = "";
     plan_name = "";
@@ -27,7 +27,7 @@ export class InsurancePolicyModel {
     policy_type = "";
     subscriber_DOB = "";
     subscriber_city = "";
-    subscriber_country = "";
+    subscriber_country = "USA";
     subscriber_employer = "";
     subscriber_employer_city = "";
     subscriber_employer_country = "";
@@ -86,10 +86,10 @@ export class InsurancePolicyModel {
             // TODO: if we need to do any validation we could do that here
             Object.assign(this, pojo);
             // server stores this as a TRUE/FALSE string which is... odd
-            if (pojo.accept_assignment == 'TRUE') {
-                this.accept_assignment = "YES";
-            } else {
+            if (pojo.accept_assignment == 'FALSE') {
                 this.accept_assignment = "NO";
+            } else {
+                this.accept_assignment = "YES"; // default to yes for everything
             }
 
             if (pojo.date) {

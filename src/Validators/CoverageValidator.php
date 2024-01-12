@@ -3,6 +3,7 @@
 namespace OpenEMR\Validators;
 
 use OpenEMR\Billing\InsurancePolicyTypes;
+use OpenEMR\Common\Database\QueryUtils;
 use Particle\Validator\Exception\InvalidValueException;
 use Particle\Validator\Validator;
 
@@ -50,9 +51,9 @@ class CoverageValidator extends BaseValidator
                         return true;
                     });
                 $context->required('provider')->numeric();
-                $context->required('plan_name')->lengthBetween(2, 255);
+                $context->optional('plan_name')->lengthBetween(2, 255);
                 $context->required('policy_number')->lengthBetween(2, 255);
-                $context->required('group_number')->lengthBetween(2, 255);
+                $context->optional('group_number')->lengthBetween(2, 255);
                 $context->required('subscriber_lname')->lengthBetween(2, 255);
                 $context->optional('subscriber_mname')->lengthBetween(2, 255);
                 $context->required('subscriber_fname')->lengthBetween(2, 255);
@@ -64,7 +65,7 @@ class CoverageValidator extends BaseValidator
                 $context->required('subscriber_city')->lengthBetween(2, 255);
                 $context->required('subscriber_state')->listOption($GLOBALS['state_list']);
                 $context->required('subscriber_country')->listOption($GLOBALS['country_list']);
-                $context->required('subscriber_phone')->lengthBetween(2, 255);
+                $context->optional('subscriber_phone')->lengthBetween(2, 255);
                 $context->required('subscriber_sex')->listOption('sex');
                 $context->required('accept_assignment')->inArray(['TRUE', 'FALSE']);
                 // policy type has a Not Applicable(NA) option which is an empty string so we allow empty here
@@ -76,7 +77,19 @@ class CoverageValidator extends BaseValidator
                 $context->optional('subscriber_employer_country')->listOption($GLOBALS['country_list']);
                 $context->optional('subscriber_employer_city')->lengthBetween(2, 255);
                 $context->optional('copay')->lengthBetween(2, 255);
-                $context->optional('date')->datetime('Y-m-d');
+                $context->required('date')->datetime('Y-m-d')
+                    ->callback(function ($value, $values) {
+                    // need to check
+                        if (!empty($values['pid']) && !empty($values['type']) && !empty($value)) {
+                            $duplicatePolicyCount = QueryUtils::fetchSingleValue(
+                                "SELECT COUNT(*) AS cnt FROM insurance_data WHERE pid = ? AND date = ? AND type = ?"
+                                , 'cnt', [$values['pid'], $values['type'], $value]);
+                            if ($duplicatePolicyCount > 0) {
+                                throw new InvalidValueException("A policy for this type with the same effective date already exists for this patient", "DATE::DUPLICATE_DATE");
+                            }
+                        }
+                        return true;
+                 });
                 $context->optional('date_end')->datetime('Y-m-d');
             }
         );

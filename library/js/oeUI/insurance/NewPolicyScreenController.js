@@ -7,7 +7,7 @@
  * @copyright Copyright (c) 2024 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-import {InsurancePolicyService} from "./InsurancePolicyService.js";
+let {InsurancePolicyService} = await import("./InsurancePolicyService.js?v=" + window.top.jsGlobals.assetVersion);
 
 export class NewPolicyScreenController
 {

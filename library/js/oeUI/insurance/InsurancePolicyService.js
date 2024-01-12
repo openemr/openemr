@@ -8,7 +8,11 @@
  * @copyright Copyright (c) 2024 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-import {InsurancePolicyModel} from "./InsurancePolicyModel.js";
+// note we do not use import statements here as we need to be able to dynamically load the classes as needed for cache
+// busting using the openemr asset version.  Another option would be to use a bundler but we don't have a consistent
+// bundler in place yet so this is the best option for now.
+let {InsurancePolicyModel} = await import("./InsurancePolicyModel.js?v=" + window.top.jsGlobals.assetVersion);
+let {ValidationFieldError, ValidationError} = await import("../Error/ValidationError.js?v=" + window.top.jsGlobals.assetVersion);
 
 export class InsurancePolicyService
 {
@@ -176,17 +180,20 @@ export class InsurancePolicyService
                 if (result.ok) {
                     return result.json();
                 } else {
-                    return result.json().then(data => {
-                        // we should have caught all of the validation in the client side interface so log the error and throw
-                        console.error("Validation errors occurred. Error object", data);
-                        throw new Error("Failed to save insurance policy due to validation errors");
-                    });
+                    return result.json();
                 }
             })
             .then(resultData => {
-                if (resultData.validationErrors && resultData.validationErrors.length > 0) {
-                    console.error(resultData.validationErrors);
-                    throw new Error("Failed to save insurance policy due to validation errors");
+                let validationKeys = Object.keys(resultData.validationErrors || {});
+                if (validationKeys.length > 0) {
+                    // we should have caught all of the validation in the client side interface so log the error and throw
+                    console.error("Validation errors occurred. Error object", resultData.validationErrors);
+                    let validationFieldErrors = [];
+                    validationKeys.forEach(fieldName => {
+                        let validationErrors = resultData.validationErrors[fieldName];
+                        validationFieldErrors.push(new ValidationFieldError(fieldName, validationErrors));
+                    });
+                    throw new ValidationError("Failed to save insurance policy due to validation errors", validationFieldErrors);
                 }
                 if (resultData.data) {
                     let policy = new InsurancePolicyModel();
@@ -198,9 +205,7 @@ export class InsurancePolicyService
                 }
             });
     }
-    getDataForSave() {
 
-    }
     #replacePolicyInMemory(oldPolicy, newPolicy) {
         // we replace the old policy with the new policy in memory
         // if we don't find the old policy we just add the new policy to the list

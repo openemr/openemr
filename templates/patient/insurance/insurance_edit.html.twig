@@ -9,8 +9,7 @@
 <body class="body_top">
 {% block preContent %}{% endblock %}
 {% block content %}
-    {# generateFormField({'data_type': state_data_type, 'field_id': 'subscriber_employer_state'
-                        , 'list_id': state_list, 'fld_length': '15', max_length: '63', smallform: 'true'} #}
+
 {% set dataTypeSelectList = 1 %}
 {% set dataTypeText = 2 %}
 {% set dataTypeDate = 4 %}
@@ -20,7 +19,7 @@
 {% set fields = {
     left: [{
         name: "Plan Name"|xl
-        ,required: true
+        ,required: false
         ,data_type: dataTypeText
         ,field_id: "plan_name"
         ,fld_length: 20
@@ -39,7 +38,7 @@
         ,classNames: "datepicker mb-1"
     },{
         name: "Effective Date End"|xl
-        ,required: true
+        ,required: false
         ,data_type: dataTypeDate
         ,field_id: "date_end"
         ,fld_length: 16
@@ -57,7 +56,7 @@
         ,classNames: "js-policykeyup mb-1"
     }, {
         name: "Group Number"|xl
-        ,required: true
+        ,required: false
         ,data_type: dataTypeText
         ,field_id: "group_number"
         ,fld_length: 16
@@ -66,7 +65,7 @@
         ,classNames: "js-policykeyup mb-1"
     },{
         name: "Subscriber Employer (SE)"|xl
-        ,required: true
+        ,required: false
         ,data_type: dataTypeText
         ,field_id: "subscriber_employer"
         ,fld_length: 25
@@ -77,7 +76,7 @@
         ,description: 'if unemployed enter Student'|xl ~','~'PT Student, or leave blank'|xl
     },{
         name: "SE Address"|xl
-        ,required: true
+        ,required: false
         ,data_type: dataTypeText
         ,field_id: "subscriber_employer_street"
         ,fld_length: 25
@@ -87,7 +86,7 @@
         ,skip: include_employers
     },{
         name: "SE Address Line 2"|xl
-        ,required: true
+        ,required: false
         ,data_type: dataTypeText
         ,field_id: "subscriber_employer_street_line_2"
         ,fld_length: 25
@@ -97,7 +96,7 @@
         ,skip: include_employers
     },{
         name: "SE City"|xl
-        ,required: true
+        ,required: false
         ,data_type: dataTypeText
         ,field_id: "subscriber_employer_city"
         ,fld_length: 15
@@ -107,7 +106,7 @@
         ,skip: include_employers
     },{
         name: "SE State"|xl
-        ,required: true
+        ,required: false
         ,data_type: state_data_type
         ,field_id: "subscriber_employer_state"
         ,fld_length: 15
@@ -118,7 +117,7 @@
         ,skip: include_employers and useStateTerminology
     }, {
         name: "SE Locality"|xl
-        ,required: true
+        ,required: false
         ,data_type: state_data_type
         ,field_id: "subscriber_employer_state"
         ,fld_length: 15
@@ -129,7 +128,7 @@
         ,skip: include_employers and not useStateTerminology
     }, {
         name: "SE Zip Code"|xl
-        ,required: true
+        ,required: false
         ,data_type: dataTypeText
         ,field_id: "subscriber_employer_postal_code"
         ,fld_length: 15
@@ -139,7 +138,7 @@
         ,skip: include_employers and useStateTerminology
     }, {
         name: "SE Postal Code"|xl
-        ,required: true
+        ,required: false
         ,data_type: dataTypeText
         ,field_id: "subscriber_employer_postal_code"
         ,fld_length: 15
@@ -149,7 +148,7 @@
         ,skip: include_employers and not useStateTerminology
     }, {
         name: "SE Country"|xl
-        ,required: true
+        ,required: false
         ,data_type: country_data_type
         ,field_id: "subscriber_employer_country"
         ,fld_length: 10
@@ -164,6 +163,7 @@
         ,required: true
         ,compound: [{
             data_type: dataTypeText
+            ,name: "Subscriber First Name"|xl
             ,field_id: "subscriber_fname"
             ,fld_length: 10
             ,max_length: 60
@@ -171,6 +171,7 @@
             ,classNames: "js-capitalize-me mb-1"
         }, {
             data_type: dataTypeText
+            ,name: "Subscriber Middle Name"|xl
             ,field_id: "subscriber_mname"
             ,fld_length: 10
             ,max_length: 60
@@ -178,6 +179,7 @@
             ,classNames: "js-capitalize-me mb-1"
         }, {
             data_type: dataTypeText
+            ,name: "Subscriber Last Name"|xl
             ,field_id: "subscriber_lname"
             ,fld_length: 10
             ,max_length: 60
@@ -187,6 +189,7 @@
     }, {
         name: "D.O.B."|xl
         ,data_type: dataTypeDate
+        ,required: true
         ,field_id: "subscriber_DOB"
         ,fld_length: 11
         ,max_length: 60
@@ -195,6 +198,7 @@
     }, {
         name: "Sex"|xl
         ,data_type: dataTypeSelectList
+        ,required: true
         ,field_id: "subscriber_sex"
         ,list_id: 'sex'
         ,smallform: 'true'
@@ -206,6 +210,7 @@
         ,fld_length: 11
         ,smallform: 'true'
         ,classNames: "mb-1"
+        ,required: true
     }, {
         name: "Subscriber Address"|xl
         ,data_type: dataTypeText
@@ -221,7 +226,7 @@
         ,fld_length: 20
         ,smallform: 'true'
         ,classNames: "mb-1 js-capitalize-me"
-        ,required: true
+        ,required: false
     },{
         name: "City"|xl
         ,required: true
@@ -334,231 +339,13 @@
         </div>
         {# TODO: @adunsulag note that the form with id DEM here has a number of hard-coded styles which is where the insurance form gets its layout from. look at changing this. #}
         <form id="DEM">
-    <div class="section-header">
-        <span class="text font-weight-bold">{{ "Insurance"|xlt }}</span>
+            <div class="section-header">
+                <span class="text font-weight-bold">{{ "Insurance"|xlt }}</span>
+            </div>
+            {% include "patient/insurance/_insurance_edit_screen_new.html.twig" %}
+            {% include "patient/insurance/_insurance_edit_screen_edit.html.twig" %}
+        </form>
     </div>
-    <div id="new-policy-screen" class="insuranceNewSettingsContainer d-none">
-        {# two radio button options, copy from existing policy and create blank policy #}
-        {# copy from existing policy should have a select list below it #}
-        {#  #}
-        <div class="form-row mb-2">
-            <div class="col-md-6">
-                {# Need to have radio group of the insurance types ie, Primary, secondary, tertiary #}
-                <div class="form-row">
-                    <div class="col-md-3">
-                        <label>{{ "Insurance Type"|xlt }}</label>
-                    </div>
-                    <div class="col-md-9">
-                        <div class="radio-group">
-                            {% for instype in insuranceTypes %}
-                                <input id="new-insurance-type-{{ instype|attr }}" {% if instype == activeType%}checked="checked"{% endif %} type="radio" name="newInsuranceType" value="{{ instype|attr }}" /><label for="new-insurance-type-{{ instype|attr }}">{{ instype|capitalize|text }}</label>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="form-row mb-2">
-            <div class="col-md-6 text-align-right">
-                <div class="radio-group">
-                    <input id="createOptionBlank" checked="checked" type="radio" name="createOption" value="blank" /><label for="createOptionBlank">{{ "Create blank policy"|xlt }}</label>
-                    <input id="createOptionCopy" type="radio" name="createOption" value="copy" /><label for="createOptionCopy">{{ "Copy from existing policy"|xlt }}</label>
-                </div>
-            </div>
-        </div>
-        <div class="form-row mb-2 d-none new-policy-copy-row">
-            <div class="col-md-6">
-                <div class="form-row">
-                    <div class="col-md-3">
-                        <label>{{ "Policy to copy"|xlt }}</label>
-                    </div>
-                    <div class="col-md-9">
-                        <div class="alert alert-warning new-policy-list-empty d-none">
-                            {{ "No policy exists for this insurance type" }}
-                        </div>
-                        <select class="form-control form-control-sm sel2 mb-1 new-policy-copy-list" class="d-none">
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="form-row mb-2 new-policy-set-end-date-row d-none">
-            <div class="col-md-6">
-                <div class="form-row">
-                    <div class="col-md-12">
-                        <input id="setEndDateCheckbox" type="checkbox" name="setEndDate" class="form-control mb-1" />
-                        <label for="setEndDateCheckbox">{{ "Update current insurance with new effective end date" }}</label>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="form-row mb-2 new-policy-effective-end-date-row d-none">
-            <div class="col-md-6">
-                <div class="form-row">
-                    <div class="col-md-12">
-                        <p>{{ "Policy to update:" }} <span class="effective-end-date-policy-label"></span></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="form-row mb-2 new-policy-effective-end-date-row d-none">
-            <div class="form-row">
-                <div class="col-md-3">
-                    <label>{{ "End Date"|xlt }}</label>
-                </div>
-                <div class="col-md-9">
-                    <input type="textbox" name="endDate" class="date-picker new-policy-effective-end-date form-control mb-1" />
-                </div>
-            </div>
-        </div>
-        <div class="form-row mb-2 new-policy-error-row d-none">
-            <div class="alert alert-danger">
-                <p class="new-policy-error-message new-policy-error-message-copy-empty-policy d-none">{{ "There are no policies for this insurance type to copy from"|xlt }}</p>
-                <p class="new-policy-error-message new-policy-error-message-effective-end-date-empty d-none">{{ "There are no policies for this insurance type to copy from"|xlt }}</p>
-            </div>
-        </div>
-        <div class="form-row mb-2">
-            <div class="form-row">
-                <div class="col-md-3">
-                    <input type="button" class="btn btn-action btn-new-policy-next btn-primary" value="{{ "Next"|xlt }}" />
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id="edit-policy-screen" class="insuranceEditContainer d-none">
-        <ul class="tabNav">
-            {% for instype in insuranceTypes %}
-                <li class="{% if instype == activeType %}current{% endif %} nav-link-insurance-type-container"><a href="#" class="nav-link-insurance-type" data-type="{{ instype|attr }}">{{ instype|text|capitalize }}</a></li>
-            {% endfor %}
-        </ul>
-
-        <div class="tabContainer">
-            {% for instype in insuranceTypes %}
-                {# Need a drop down select with each grouped insurance (by type) #}
-                <div data-type="{{ instype|attr }}" class="tab {% if instype == activeType %}current{% endif %} h-auto w-auto">
-                    <div class="form-row mb-2"><!-- start nested row -->
-                        <div class="col-md-6 text-align-right">
-                            <div class="btn-group">
-                                <input type="button" value="{{ 'Save Policy'|xla }}" class="btn btn-primary btn-save-policy" />
-                            </div>
-
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-row insurance-type-selector-row-{{ instype|attr }}">
-                                <div class="col-md-3 label_custom pb-3">
-                                    <span class='required'>{{ "Selected Policy"|xlt }}</span>
-                                </div>
-                                <div class="col-md-9">
-                                    <select id="insurance-type-{{ instype|attr }}" class="form-control form-control-sm sel2 mb-1" data-type="{{ instype|attr }}" class="d-none">
-                                    </select>
-
-                                </div>
-                            </div>
-                            <div class="form-row mb-2 insurance-type-no-policies insurance-type-no-policies-{{ instype|attr }} d-none">
-                                <div class="col-12">
-                                    <div class="alert alert-info">
-                                        <p>{{ "No insurance policies for this insurance type were found."|xlt }}</p>
-                                        <p>{{ "You can add a new policy to this patient for this insurance type by filling out the form below and pressing the save button."|xlt }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-row" id="insurance-info-type-{{ instype|attr }}">
-                        <div class="alert alert-info">
-                            <h3>{{ "Loading insurance information."|xlt }} <i class="wait fa fa-cog fa-spin ml-2"></i></h3>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-    </div>
-    {% if uspsVerifyAddress %}
-    <template id="insurance-verify-address-template">
-        <input type='button' class='btn btn-sm btn-secondary mb-1' value='{{ "Verify Address"|xla }}' />
-    </template>
-    {% endif %}
-    {# Insurance Edit Template #}
-    <template id="insurance-edit-template">
-        <div class="col-md-6"><!-- start left column -->
-
-            <div class="form-row"><!-- start nested row -->
-                <div class="col-md-3 label_custom pb-3">
-                    <span class='required'>{{ "Provider"|xlt }}</span>
-                </div>
-                <div class="col-md-9">
-                    {# TODO: @adunsulag fix hard coded width here #}
-                    <select name="form_provider" class="form-control form-control-sm sel2 mb-1" style="width: 250px;">
-                        <option value="">{{ 'Unassigned'|xlt }}</option>
-                    </select>
-                    <a class="medium_modal btn btn-primary" href="../../practice/ins_search.php?ins=" role="button">{{ 'Search/Add/Edit'|xlt  }}</a>
-                </div>
-            </div>
-            {% for fieldRow in fields.left %}
-                {% if fieldRow.skip is not defined or fieldRow.skip %}
-                    <div class="form-row"><!-- start nested row -->
-                        <div class="col-md-3 pb-1 label_custom">
-                            <span class='{%if fieldRow.required is defined and fieldRow.required %}required{% endif %}'>{{ fieldRow.name|text }}</span>
-                        </div>
-                        <div class="col-md-9">
-                            {{ generateFormField(fieldRow, '') }}
-                            {% if fieldRow.description %}
-                                <span class='small mb-1'><br />{{ fieldRow.description|text }}</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endif %}
-            {% endfor %}
-        </div><!-- end left column -->
-        <div class="col-md-6"><!-- start right column -->
-
-            <div class="form-row"><!-- start nested row -->
-                <div class="col-md-3 pb-1 label_custom">
-                    <span class='required'>{{ 'Relationship'|xlt }}:</span>
-                </div>
-                <div class="col-md-9">
-                    {{ generateFormField({data_type: 1, field_id: 'subscriber_relationship', 'list_id': 'sub_relation'
-                        , 'empty_title': ' ', classNames: 'mb-1 sel2', smallform: 'true'}, '') }}
-                </div>
-                {# TODO: @adunsulag browsenum needs to be looked at with what this field means #}
-                <a href="javascript:popUp('browse.php?browsenum=1')" class='text'>({{ "Browse"|xlt }})</a>
-            </div>
-            {% for fieldRow in fields.right %}
-                {% if fieldRow.skip is not defined or fieldRow.skip %}
-                    <div class="form-row"><!-- start nested row -->
-                        <div class="col-md-3 pb-1 label_custom">
-                            <span class='{%if fieldRow.required is defined and fieldRow.required %}required{% endif %}'>{{ fieldRow.name|text }}</span>
-                        </div>
-                        <div class="col-md-9">
-                            {% if fieldRow.compound is defined %}
-                                {% for compoundField in fieldRow.compound %}
-                                    {{ generateFormField(compoundField, '') }}
-                                {% endfor %}
-                            {% else %}
-                                {{ generateFormField(fieldRow, '') }}
-                            {% endif %}
-                            {% if fieldRow.description %}
-                                <span class='small mb-1'><br />{{ fieldRow.description|text }}</span>
-                            {% endif %}
-                        </div>
-                    </div>
-                {% endif %}
-            {% endfor %}
-            {# We don't use generate_form_field because there currently isn't a way to generate a select drop down with an already existing static array #}
-            <div class="form-row">
-                <div class="col-md-3 pb-1 label_custom">
-                    <span>{{ 'Secondary Medicare Type'|xlt }}:</span>
-                </div>
-                <div class="col-md-9">
-                    <select class='form-control form-control-sm mb-1 sel2' name='form_policy_type'>
-                        {% for key,value in policy_types %}
-                            <option value ={{ key|attr }}>{{ value|text }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-        </div><!-- end right column -->
-    </template>
     <script type="module">
         // import { InsuranceEditController } from webroot + '/library/js/oeUI/insurance/InsuranceEditController.js';
         // need to hit the server endpoint to grab the patient insurances for the given pid

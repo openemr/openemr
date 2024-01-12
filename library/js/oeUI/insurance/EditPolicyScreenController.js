@@ -7,7 +7,8 @@
  * @copyright Copyright (c) 2024 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-import {InsurancePolicyService} from "./InsurancePolicyService.js";
+let {InsurancePolicyService} = await import("./InsurancePolicyService.js?v=" + window.top.jsGlobals.assetVersion);
+let {ValidationFieldError, ValidationError} = await import("../Error/ValidationError.js?v=" + window.top.jsGlobals.assetVersion);
 
 export class EditPolicyScreenController
 {
@@ -33,6 +34,17 @@ export class EditPolicyScreenController
     __selectedInsuranceTypeTab = null;
 
     #boundEvents = [];
+
+    __validationErrors = [];
+
+    /**
+     * Boolean flag that controls messages / controls to indicate saving progress to the user.
+     * @type {boolean}
+     * @private
+     */
+    __isSaving = false;
+
+    __policySaved = false;
 
     /**
      *
@@ -62,7 +74,7 @@ export class EditPolicyScreenController
      * @param InsurancePolicyModel newPolicyData
      */
     setupNewPolicyEdit(newPolicyData) {
-        this.selectedInsurance = newPolicyData;
+        this.#updateSelectedInsuranceObject(newPolicyData);
         this.__selectedInsuranceTypeTab = newPolicyData.type;
         this.__insurancesByType = this.__insurancePolicyService.getInsurancesByType();
         this.setup();
@@ -217,14 +229,30 @@ export class EditPolicyScreenController
         // this.syncFormDataWithInsurance(this.selectedInsurance);
         // TODO: @adunsulag need to validate the form
         // need to grab the selected insurance and save it
+        this.__validationErrors = []; // reset our errors
+        this.__isSaving = true;
+        this.__policySaved = false;
+        this.render(); // re-render the screen to update the display
         this.__insurancePolicyService.saveInsurance(this.selectedInsurance)
             .then(result => {
-                this.selectedInsurance = result;
-                this.__insurancesByType = insurancePolicyService.getInsurancesByType();
+                this.#updateSelectedInsuranceObject(result);
+                this.__insurancesByType = this.__insurancePolicyService.getInsurancesByType();
+                this.__policySaved = true;
             })
             .catch(error => {
+                if (error instanceof ValidationError) {
+                    // TODO: @adunsulag need to display the validation errors
+                    this.__validationErrors = error.validationErrors;
+                    console.error(error);
+                } else {
+                    console.error(error);
+                    alert("An error occurred while saving the insurance policy.  Please try again or contact your system administrator.");
+                }
                 // TODO: @adunsulag what to do here if we fail?
-                console.error(error);
+            })
+            .finally(() => {
+                this.__isSaving = false;
+                this.render(); // re-render the screen to update the display
             });
     }
 
@@ -233,7 +261,7 @@ export class EditPolicyScreenController
             let defaultType = this.__types[0];
             this.__selectedInsuranceTypeTab = defaultType;
             let insurances = this.__insurancesByType[defaultType];
-            this.selectedInsurance = insurances[0] || null;
+            this.#updateSelectedInsuranceObject(insurances[0] || null);
         }
 
     }
@@ -294,11 +322,18 @@ export class EditPolicyScreenController
                     if (!this.__insurancesByType[this.__selectedInsuranceTypeTab].length) {
                         console.error("Failed to find insurance for type: " + this.__selectedInsuranceTypeTab);
                     }
-                    this.selectedInsurance = this.__insurancesByType[this.__selectedInsuranceTypeTab][0];
+                    this.#updateSelectedInsuranceObject(this.__insurancesByType[this.__selectedInsuranceTypeTab][0]);
                     this.render();
                 });
             });
         }
+    }
+
+    #updateSelectedInsuranceObject(selectedInsurance) {
+        this.selectedInsurance = selectedInsurance;
+        this.__policySaved = false;
+        this.__isSaving = false;
+        this.__validationErrors = []; // clear out any existing errors
     }
 
     render() {
@@ -378,6 +413,100 @@ export class EditPolicyScreenController
             console.error("Failed to render selectedInsurance as none is set");
             saveBtn.disabled = true;
         }
+        // render the validation error messages
+        this.#renderValidationErrorMessages(this.selectedInsurance);
+
+        if (this.__isSaving) {
+            document.querySelector('.btn-saving').classList.remove("d-none");
+            document.querySelector('.btn-save-policy').classList.add("d-none");
+            // show the saving progress indicator
+            // hide the save button and display the saving progress indicator
+        } else {
+            // hide the saving progress indicator
+            // show the save button
+            document.querySelector('.btn-saving').classList.add("d-none");
+            document.querySelector('.btn-save-policy').classList.remove("d-none");
+        }
+
+        if (this.__policySaved) {
+            document.querySelector('.insurance-save-success').classList.remove("d-none");
+        } else {
+            document.querySelector('.insurance-save-success').classList.add("d-none");
+        }
+    }
+
+    #renderValidationErrorMessages(selectedInsurance) {
+        let type = selectedInsurance.type;
+        let insuranceInfoContainer = document.getElementById('insurance-info-type-' + type);
+        if (!insuranceInfoContainer) {
+            return; // can't do anything if the container isn't there
+        }
+        let container = insuranceInfoContainer.querySelector('.validation-errors');
+        // remove the validation template if its there
+        if (container) {
+            container.remove();
+        }
+        // clear any marked errors
+        let markedFields = insuranceInfoContainer.querySelectorAll('.invalid-input.error');
+        markedFields.forEach(field => {
+            field.classList.remove('invalid-input');
+            field.classList.remove('error');
+            field.classList.remove('error-border');
+        });
+        if (!this.__validationErrors.length) {
+            return; // nothing to do
+        } else {
+            let templateNode = document.getElementById('insurance-validation-error-template');
+            if (!templateNode) {
+                throw new Error("Failed to find insurance validation error template");
+            }
+            let template = document.importNode(templateNode.content, true);
+
+            insuranceInfoContainer.prepend(template);
+            let container = insuranceInfoContainer.querySelector('.validation-errors');
+            if (!container) {
+                throw new Error("Failed to find validation error container");
+            }
+
+            let detailsList = container.querySelector('.insurance-validation-details-list');
+            if (!detailsList) {
+                throw new Error("Failed to find validation details list");
+            }
+
+            this.__validationErrors.forEach(error => {
+                let field = error.field;
+                for (let key in error.validationErrors) {
+                    let message = error.validationErrors[key];
+                    let fieldContainer = container.querySelector('[data-error-id="' + key + '"]');
+                    if (!fieldContainer) {
+                        // grab the unknown field container as a backup
+                        fieldContainer = container.querySelector('[data-error-id="Unknown::UNKNOWN"]');
+                        if (!fieldContainer) {
+                            throw new Error("Failed to find validation container for field: " + key);
+                        }
+                    }
+                    let clonedFieldContainer = fieldContainer.cloneNode(true);
+                    clonedFieldContainer.classList.remove('d-none');
+                    let validationFieldName = clonedFieldContainer.querySelector('.validation-field-name');
+                    if (!validationFieldName) {
+                        throw new Error("Failed to find validation field name for validation field with key " + key);
+                    }
+                    let validationFieldLabel = insuranceInfoContainer.querySelector('[data-validation-field="' + field + '"');
+                    if (validationFieldLabel) {
+                        validationFieldName.innerText = validationFieldLabel.innerText;
+                    } else {
+                        validationFieldName.innerText = field;
+                    }
+                    detailsList.appendChild(clonedFieldContainer);
+                    let fieldInput = insuranceInfoContainer.querySelector('[name="form_' + field + '"]');
+                    if (fieldInput) {
+                        fieldInput.classList.add('invalid-input');
+                        fieldInput.classList.add('error');
+                        fieldInput.classList.add('error-border');
+                    }
+                }
+            });
+        }
     }
 
     #populateSelectDropdowns() {
@@ -390,7 +519,8 @@ export class EditPolicyScreenController
                     if (!selectedId) {
                         selectedId = null; // so we can find the blank policy
                     }
-                    this.selectedInsurance = this.__insurancesByType[type].find(insurance => insurance.id == selectedId);
+                    let updatedInsurance = this.__insurancesByType[type].find(insurance => insurance.id == selectedId);
+                    this.#updateSelectedInsuranceObject(updatedInsurance);
                     this.render();
                 });
             }

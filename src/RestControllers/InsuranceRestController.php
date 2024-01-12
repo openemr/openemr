@@ -69,14 +69,19 @@ class InsuranceRestController
     {
         $data['type'] = $data['type'] ?? 'primary';
 
+        $processingResult = new ProcessingResult();
+        $validationMessages = ['puuid::INVALID_PUUID' => 'Patient uuid invalid'];
+        $processingResult->setValidationMessages($validationMessages);
+        if (!UuidRegistry::isValidStringUUID($puuid)) {
+            return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        }
+        $puuid = UuidRegistry::uuidToBytes($puuid);
         $patientService = new PatientService();
         $pid = $patientService->getPidByUuid($puuid);
         if (empty($pid)) {
-            $processingResult = new ProcessingResult();
-            $processingResult->setValidationMessages(['puuid::INVALID_PUUID' => 'Patient uuid invalid']);
             return RestControllerHelper::handleProcessingResult($processingResult, 200);
         }
-
+        $data['pid'] = $pid;
         $insertedResult = $this->insuranceService->insert($data);
         if (!$insertedResult->isValid()) {
             return RestControllerHelper::handleProcessingResult($insertedResult, 200, false);

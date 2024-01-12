@@ -8,9 +8,9 @@
  * @copyright Copyright (c) 2024 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
-import { EditPolicyScreenController } from "./EditPolicyScreenController.js";
-import { NewPolicyScreenController } from "./NewPolicyScreenController.js";
-import { InsurancePolicyService } from "./InsurancePolicyService.js";
+let { EditPolicyScreenController } = await import ("./EditPolicyScreenController.js?v=" + window.top.jsGlobals.assetVersion);
+let { NewPolicyScreenController } = await import ("./NewPolicyScreenController.js?v=" + window.top.jsGlobals.assetVersion);
+let { InsurancePolicyService } = await import ("./InsurancePolicyService.js?v=" + window.top.jsGlobals.assetVersion);
 export class InsuranceEditMainController {
     currentScreen = null;
 
