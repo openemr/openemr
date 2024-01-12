@@ -5469,48 +5469,47 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                             mode: 'dataset'
                             },
                             scales: {
-                                xAxes:  [{
-                                     type: "time",
-                                     time: {
-                                     format: "HH:mm",
-                                     unit: 'hour',
-                                     unitStepSize: 2,
-                                     displayFormats: {
-                                     'minute': 'h:mm a',
-                                     'hour': 'h:mm a'
-                                     },
-                                     tooltipFormat: 'h:mm a'
-                                     },
-                                     scaleLabel: {
-                                     display: true,
-                                     labelString: 'Time'
-                                     },
-                                     ticks: {
-                                     suggestedMin: 4,
-                                     suggestedMax: 24,
-                                     }
-                                     } ],
-                                yAxes: [{
+                                xAxes:  {
+                                    type: "time",
+                                    time: {
+                                       format: "HH:mm",
+                                       unit: 'hour',
+                                       unitStepSize: 2,
+                                       displayFormats: {
+                                           'minute': 'h:mm a',
+                                           'hour': 'h:mm a'
+                                       },
+                                       tooltipFormat: 'h:mm a'
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Time'
+                                    },
+                                    ticks: {
+                                        suggestedMin: 4,
+                                        suggestedMax: 24,
+                                    }
+                                },
+                                yAxes: {
                                     type: "linear",
                                     display: true,
                                     position: "left",
                                     //id: "y-axis-2",
                                     gridLines:{
-                                    display: false
+                                        display: false
                                     },
                                     labels: {
-                                    show:true,
-
+                                        show:true,
                                     },
                                     scaleLabel: {
-                                    display: true,
-                                    labelString: 'IOP (mmHg)'
+                                        display: true,
+                                        labelString: 'IOP (mmHg)'
                                     },
                                     ticks: {
-                                    suggestedMin: 0,
-                                    suggestedMax: 24,
+                                        suggestedMin: 0,
+                                        suggestedMax: 24,
                                     }
-                                    }]
+                                }
                             }
                         }
                     };
@@ -5659,67 +5658,68 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                 mode: 'label'
                             },
                             scales: {
-                            xAxes:  [{
-                                 type: "time",
-                                 stacked:false,
-                                 id: "x-axis-1",
-                                 time: {
-                                 format: dateFormat,
-                                 round: 'day',
-                                 tooltipFormat: 'll'
-                                 },
-                                 categoryPercentage: 0.5,
-                                 barPercentage:1.0,
-                                 //categoryPercentage:0.3,
-                                 scaleLabel: {
-                                 display: true,
-                                 labelString: 'Date'
-                                 },
-                                 ticks: {
-                                 suggestedMin: 3,
-                                 suggestedMax: 6
-                                 }
-                                 }, ],
-                            yAxes: [{
-                                type: "linear",
-                                display: false,
-                                position: "right",
-                                id: "y-axis-2",
-                                stacked: false,
-                                gridLines:{
-                                display: false
+                                xAxes:  {
+                                    type: "time",
+                                    stacked:false,
+                                    id: "x-axis-1",
+                                    time: {
+                                        format: dateFormat,
+                                        round: 'day',
+                                        tooltipFormat: 'll'
+                                    },
+                                    categoryPercentage: 0.5,
+                                    barPercentage:1.0,
+                                    //categoryPercentage:0.3,
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Date'
+                                    },
+                                    ticks: {
+                                        suggestedMin: 3,
+                                        suggestedMax: 6
+                                    }
+                                }, 
+                                'y-Axis-1': {
+                                    type: "linear",
+                                    display: false,
+                                    position: "right",
+                                    id: "y-axis-2",
+                                    stacked: false,
+                                    gridLines:{
+                                        display: false
+                                    },
+                                    labels: {
+                                        show:true,
+                                    },
+                                    scaleLabel: {
+                                        display: false,
+                                        labelString: 'Testing'
+                                    },
+                                    ticks: {
+                                        suggestedMin: 4,
+                                        suggestedMax: 4
+                                    }
                                 },
-                                labels: {
-                                show:true,
-                                },
-                                scaleLabel: {
-                                display: false,
-                                labelString: 'Testing'
-                                },
-                                ticks: {
-                                suggestedMin: 4,
-                                suggestedMax: 4
+                                'y-Axis-2': {
+                                    type: "linear",
+                                    display: true,
+                                    position: "left",
+                                    id: "y-axis-1",
+                                    gridLines:{
+                                    display: true
+                                    },
+                                    labels: {
+                                    show:true,
+                                    },
+                                    scaleLabel: {
+                                    display: true,
+                                    labelString: 'IOP (mmHg)'
+                                    },
+                                    ticks: {
+                                    suggestedMin: 4,
+                                    suggestedMax: 24,
+                                    }
                                 }
-                                }, {
-                                type: "linear",
-                                display: true,
-                                position: "left",
-                                id: "y-axis-1",
-                                gridLines:{
-                                display: true
-                                },
-                                labels: {
-                                show:true,
-                                },
-                                scaleLabel: {
-                                display: true,
-                                labelString: 'IOP (mmHg)'
-                                },
-                                ticks: {
-                                suggestedMin: 4,
-                                suggestedMax: 24,
-                                }
-                                }]
                             }
                         }
                     };
