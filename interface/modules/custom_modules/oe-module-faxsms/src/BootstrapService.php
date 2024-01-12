@@ -64,12 +64,28 @@ class BootstrapService
      */
     public function saveVendorGlobals($vendors): void
     {
-        // Comes from a POST pass in. Only want what we want!
+        // Comes from a Setup form POST pass in. Only want what we want!
+        // Move form names to global name. Easier to read.
         $items['oefax_enable_sms'] = $vendors['sms_vendor'] ?? '';
         $items['oefax_enable_fax'] = $vendors['fax_vendor'] ?? '';
         $items['oesms_send'] = $vendors['allow_dialog'] ?? '';
         $items['oerestrict_users'] = $vendors['restrict'] ?? '';
         $items['oe_enable_email'] = $vendors['email_vendor'] ?? '';
+        foreach ($items as $key => $vendor) {
+            sqlQuery(
+                "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) 
+                    ON DUPLICATE KEY UPDATE `gl_name` = ?, `gl_value` = ?",
+                array($key, $vendor, $key, $vendor)
+            );
+        }
+    }
+
+    /**
+     * @param $items
+     * @return void
+     */
+    public function saveModuleListenerGlobals($items): void
+    {
         foreach ($items as $key => $vendor) {
             sqlQuery(
                 "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) 

@@ -26,6 +26,7 @@ use Installer\Model\InstModuleTable;
 use Laminas\Db\Adapter\Adapter;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Core\ModulesClassLoader;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 
 class InstallerController extends AbstractActionController
@@ -40,6 +41,7 @@ class InstallerController extends AbstractActionController
      * @var Laminas\Db\Adapter\Adapter
      */
     private $dbAdapter;
+    private ModulesClassLoader $listener;
 
     public function __construct(InstModuleTable $installerTable)
     {
@@ -194,18 +196,25 @@ class InstallerController extends AbstractActionController
      */
     private function callModuleAfterAction($action, $modId, $dirModule, $currentStatus): mixed
     {
-        $modPath = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "custom_modules/" . $dirModule;
-        $moduleClassPath = $modPath . '/ModuleManagerActionListener.php';
+        $modPath = $GLOBALS['fileroot'] . "/" . $GLOBALS['baseModDir'] . "custom_modules/" . $dirModule;
+        $moduleClassPath = $modPath . '/ModuleManagerAfterActionListener.php';
+        $className = 'ModuleManagerAfterActionListener';
         $action = trim($action);
         if (!file_exists($moduleClassPath)) {
             return $currentStatus;
         }
+        $t = get_declared_classes();
         require_once($moduleClassPath);
-        $className = 'ModuleManagerActionListener';
+        $namespace = attr($className::getModuleNamespace());
+        if (!empty($namespace)) {
+            $classLoader = new ModulesClassLoader($GLOBALS['fileroot']);
+            $classLoader->registerNamespaceIfNotExists($namespace, $modPath . DIRECTORY_SEPARATOR . 'src');
+        }
         $methodName = trim($action);
-        if (class_exists($className)) {
-            if (method_exists($className, 'moduleManagerAction')) {
-                return call_user_func([$className, 'moduleManagerAction'], $methodName, $modId);
+        $instance = $className::initListenerSelf();
+        if (class_exists($instance::class)) {
+            if (method_exists($instance, 'moduleManagerAction')) {
+                return call_user_func([$instance, 'moduleManagerAction'], $methodName, $modId);
             } else {
                 return $currentStatus;
             }
