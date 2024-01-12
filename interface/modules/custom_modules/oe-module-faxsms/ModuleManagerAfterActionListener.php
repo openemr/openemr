@@ -21,7 +21,7 @@ use OpenEMR\Modules\FaxSMS\BootstrapService;
  */
 /*
  * Do not declare a namespace
- * If you want Laminas manager to set namespace set it in registerModuleNamespace
+ * If you want Laminas manager to set namespace set it in getModuleNamespace
  * otherwise uncomment below and set path.
  *
  * */
