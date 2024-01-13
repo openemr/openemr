@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS `module_faxsms_credentials` (
 `vendor` varchar(63) DEFAULT NULL,
 `credentials` mediumblob NOT NULL,
 `updated` datetime DEFAULT current_timestamp(),
+`setup_persist` tinytext,
 PRIMARY KEY (`id`),
 UNIQUE KEY `vendor` (`auth_user`,`vendor`)
 ) ENGINE=InnoDB COMMENT='Vendor credentials for Fax/SMS';
