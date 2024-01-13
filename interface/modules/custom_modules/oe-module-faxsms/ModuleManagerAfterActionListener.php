@@ -32,7 +32,7 @@ use OpenEMR\Modules\FaxSMS\BootstrapService;
 */
 
 
-class ModuleManagerAfterActionListener
+class ModuleManagerAfterActionListener extends \OpenEMR\Core\AbstractModuleActionListener
 {
     public const FAX_SERVICE = 3;
     public const SMS_SERVICE = 2;
@@ -40,6 +40,7 @@ class ModuleManagerAfterActionListener
 
     public function __construct()
     {
+        parent::__construct();
         $this->service = new BootstrapService();
     }
 
@@ -167,5 +168,23 @@ class ModuleManagerAfterActionListener
     private function upgrade_sql($modId, $currentActionStatus): mixed
     {
         return $currentActionStatus;
+    }
+
+    /**
+     * Grab all Module setup or columns values.
+     * @param        $modId
+     * @param string $col
+     * @return array
+     */
+    function getModuleRegistry($modId, $col = '*'): array
+    {
+        $registry = [];
+        $sql = "SELECT $col FROM modules WHERE mod_id = ?";
+        $results = sqlQuery($sql, array($modId));
+        foreach ($results as $k => $v) {
+            $registry[$k] = trim((preg_replace('/\R/', '', $v)));
+        }
+
+        return $registry;
     }
 }

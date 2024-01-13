@@ -45,13 +45,13 @@ $coreModules = $this->coreModules ?? [];
         </a>
     </li>
 </ul>
-<div class="installer">
+<div class="installer bg-light text-dark">
     <div id='err' class='bold '></div>
-    <div class="installer_code notranslate registered">
+    <div class="installer_code notranslate registered bg-light">
         <?php //REGISTERED SECTION ?>
         <div class="imagetable">
             <div class="imagetable_code notranslate table-resposive">
-                <table id="table-6" class="imagetable table" align="center">
+                <table id="table-6" class="table table-light table-hover table-condensed" align="center">
                     <thead>
                     <tr>
                         <th colspan='10' class="groupReg">
@@ -189,45 +189,56 @@ $coreModules = $this->coreModules ?? [];
     </div>
 
     <style>
-        .show_hide_log {
-            border-radius: 5px;
-            border: 1px solid #c9c6c6;
-            padding: 5px;
-            text-align: center;
-            cursor: pointer;
-            margin: 5px 5px 0px 0px;
-            color: gray;
-            width: 97%;
-        }
+      table {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      }
 
-        .spoiler {
-            display: none;
-            margin-left: 10px;
-            border: 1px solid #c9c6c6;
-            padding: 5px;
-            width: 95%;
-            border-top: 0px;
-        }
+      .table td {
+        padding: .50rem;
+      }
 
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 100%;
-            background: rgba( 255, 255, 255, .8 )
-            url('/interface/modules/zend_modules/public/images/ajax-loader.gif')
-            50% 50%
-            no-repeat;
-        }
+      .table th {
+        background-color: var(--dark);
+        color: var(--light);
+        padding: .50rem;
+      }
+
+      .show_hide_log {
+        border-radius: 5px;
+        border: 1px solid #c9c6c6;
+        padding: 5px;
+        text-align: center;
+        cursor: pointer;
+        margin: 5px 5px 0px 0px;
+        color: gray;
+        width: 97%;
+      }
+
+      .spoiler {
+        display: none;
+        margin-left: 10px;
+        border: 1px solid #c9c6c6;
+        padding: 5px;
+        width: 95%;
+        border-top: 0px;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background: rgba(255, 255, 255, .8) url('/interface/modules/zend_modules/public/images/ajax-loader.gif') 50% 50% no-repeat;
+      }
     </style>
     <div class="modal"></div>
     <div id="install_upgrade_log" style="overflow-y: auto; height: 500px; display: none;"></div>
 
-    <div class="installer_code notranslate unregistered" style="display:none">
-        <table class="imagetable" id="unregistered">
+    <div class="installer_code notranslate unregistered bg-light" style="display:none">
+        <table class="table table-light table-hover table-condensed" id="unregistered">
             <tr>
                 <th colspan='4' class="groupRegUn">
                     <?php echo $listener->z_xlt('Unregistered Modules'); ?>

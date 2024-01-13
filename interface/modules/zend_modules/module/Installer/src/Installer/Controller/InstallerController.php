@@ -133,7 +133,6 @@ class InstallerController extends AbstractActionController
             exit;
         }
 
-        $outputToBrowser = '';
         $request = $this->getRequest();
         $status = $this->listenerObject->z_xlt("Failure");
         if ($request->isPost()) {
@@ -552,7 +551,11 @@ class InstallerController extends AbstractActionController
         $registryEntry = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
         $dirModule = $registryEntry->modDirectory;
         $modType = $registryEntry->type;
-        if ($this->getInstallerTable()->installSQL($modId, $modType, $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule)) {
+        $modUri = "zend_modules/module/";
+        if ($modType == InstModuleTable::MODULE_TYPE_CUSTOM) {
+            $modUri = "custom_modules/";
+        }
+        if ($this->getInstallerTable()->installSQL($modId, $modType, $GLOBALS['fileroot'] . "/" . $GLOBALS['baseModDir'] . $modUri . $dirModule)) {
             $values = array($registryEntry->mod_nick_name,$registryEntry->mod_enc_menu);
             $values[2] = $this->getModuleVersionFromFile($modId);
             $values[3] = $registryEntry->acl_version;
@@ -570,7 +573,12 @@ class InstallerController extends AbstractActionController
     public function UpgradeModuleSQL($modId = '')
     {
         $Module = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
-        $modDir = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $Module->modDirectory;
+        $modType = $Module->type;
+        $modUri = "zend_modules/module/";
+        if ($modType == InstModuleTable::MODULE_TYPE_CUSTOM) {
+            $modUri = "custom_modules/";
+        }
+        $modDir = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . $modUri . $Module->modDirectory;
         $sqlInstallLocation = $modDir . '/sql';
         // if this is a custom module that for some reason doesn't have the SQL in a sql folder...
         if (!file_exists($sqlInstallLocation)) {
@@ -588,7 +596,7 @@ class InstallerController extends AbstractActionController
             }
             ob_start();
             $sqlUpgradeService = new SQLUpgradeService();
-            $sqlUpgradeService->setRenderOutputToScreen(true);
+            $sqlUpgradeService->setRenderOutputToScreen(false);
             $sqlUpgradeService->upgradeFromSqlFile($filename, $sqlInstallLocation);
             $outputToBrowser .= ob_get_contents();
             ob_end_clean();
