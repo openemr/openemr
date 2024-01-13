@@ -92,15 +92,15 @@ export class InsurancePolicyModel {
                 this.accept_assignment = "YES"; // default to yes for everything
             }
 
-            if (pojo.date) {
+            if (pojo.date && typeof pojo.date === 'string') {
                 // need to format the date from the server of ISO8601 to the localized date format
                 this.date = new Date(pojo.date + "T00:00:00");
             }
 
-            if (pojo.date_end) {
+            if (pojo.date_end && typeof pojo.date === 'string') {
                 this.date_end = new Date(pojo.date_end+ "T00:00:00");
             }
-            if (pojo.subscriber_DOB) {
+            if (pojo.subscriber_DOB && typeof pojo.date === 'string') {
                 this.subscriber_DOB = new Date(pojo.subscriber_DOB+ "T00:00:00");
             }
         }

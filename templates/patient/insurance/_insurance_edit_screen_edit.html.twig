@@ -72,10 +72,12 @@
         <p class="d-none" data-error-id="LengthBetween::TOO_SHORT"><span class="validation-field-name"></span> - {{ "This field is too short."|xlt }} {{ "The field must be longer than 1 character"|xlt }}.</p>
         {# Note this last one should never occur... but we need to handle it just in case #}
         <p class="d-none" data-error-id="ListOptionRule::INVALID_LIST_OPTION"><span class="validation-field-name"></span> - {{ "The option you selected does not exist in the system."|xlt }}.</p>
+        <p class="d-none" data-error-id="Record::DUPLICATE_RECORD"><span class="validation-field-name"></span> - {{ "A policy for this type with the same effective date already exists for this patient."|xlt }}</p>
+        <p class="d-none" data-error-id="Record::DUPLICATE_CURRENT_POLICY"><span class="validation-field-name"></span> - {{ "A current policy (no end date) already exists for this patient and type."|xlt }}</p>
         <p class="d-none" data-error-id="DateTime::INVALID_VALUE"><span class="validation-field-name"></span> - {{ "Invalid date format for this field."|xlt }}</p>
+        <p class="d-none" data-error-id="DateTime::INVALID_START_DATE"><span class="validation-field-name"></span> - {{ "Date End must be after start date."|xlt }}</p>
         {# Shouldn't hit this but if someone changes up the CoverageValidator and doesn't update this field we need to handle unknown rules #}
         <p class="d-none" data-error-id="Unknown::UNKNOWN"><span class="validation-field-name"></span> - {{ "This field was invalid."|xlt }}</p>
-
     </div>
 </template>
 {# Insurance Edit Template #}
