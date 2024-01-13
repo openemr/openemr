@@ -1666,11 +1666,11 @@ function buildPatientArrayPrimaryProviderBillingFacility($start, $batchSize, $on
 function test_filter($patient_id, $rule, $dateTarget)
 {
     /*
-    HR: test_filter() is called without first testing to see if a rule has any filters defined	
-	
-	test_filter() examines all of a rule's filters (and filter items) in one step
-	
-	A "filter" for a given rule can contain multiple filter items, with each having an inclusion/exclusion flag
+    HR: test_filter() is called without first testing to see if a rule has any filters defined
+
+    test_filter() examines all of a rule's filters (and filter items) in one step
+
+    A "filter" for a given rule can contain multiple filter items, with each having an inclusion/exclusion flag
     and a required/optional flag
     The various filter evaluation "check" functions below will evaluate all filter items in a filter
 
@@ -1682,19 +1682,19 @@ function test_filter($patient_id, $rule, $dateTarget)
     If filters exist in one category and succeed, need to check other categories to see if required filters exist in those other categories as well
 
     If filters in one category are all optional and do not succeed, try the next category
-	
-	If inclusion filters in all categories are optional and do not succeed, return false (no need to check for exclusions)
-	
-	If inclusion filters succeed, check for exclusions. 
-	If no exclusions, return true
-	If exclusions exist and do not succeed, return true. 
-	If exclusions succeed, return 'EXCLUDED' 
 
-	If rule has no inclusion filters, but has exclusion filters, check the exclusion filters.
-	If exclusion filters succeed, return 'EXCLUDED'. If exclusion filters do not succeed, return true 
-	(So rules do not have to have inclusion filters. If rule has only exclusion filters, and exclusion filters do not succeed, rule is applicable to patient)
+    If inclusion filters in all categories are optional and do not succeed, return false (no need to check for exclusions)
 
-	if rule has no inclusion or exclusion filters, return false
+    If inclusion filters succeed, check for exclusions.
+    If no exclusions, return true
+    If exclusions exist and do not succeed, return true.
+    If exclusions succeed, return 'EXCLUDED'
+
+    If rule has no inclusion filters, but has exclusion filters, check the exclusion filters.
+    If exclusion filters succeed, return 'EXCLUDED'. If exclusion filters do not succeed, return true
+    (So rules do not have to have inclusion filters. If rule has only exclusion filters, and exclusion filters do not succeed, rule is applicable to patient)
+
+    if rule has no inclusion or exclusion filters, return false
     */
 
     error_log1($rule, 'test_filter: ' . $dateTarget);
@@ -1711,11 +1711,11 @@ function test_filter($patient_id, $rule, $dateTarget)
 
     /*
     HR: need to track if any inclusion categories returned true and not 'continue'. Categories return 'continue' if all filters in category are optional and none succeed
-	If there are no inclusion filters, $anySuccess will be empty string at start of exclusion analysis
-	If required inclusions exist, and if any fail, test_filter() will return false on the first failure, before getting to exclusion analysis
-	If all required inclusions succeed, $anySuccess will be true at start of exclusion analysis
-	If there no requried inclusions, and any optional inclusions succeed, $anySuccess will be true at start of exclusion analysis
-	If there are inclusion filters and all are optional and none succeed, $anySuccess will be false at end of inclusion analysis and test_filter() will return false without processing exclusions
+    If there are no inclusion filters, $anySuccess will be empty string at start of exclusion analysis
+    If required inclusions exist, and if any fail, test_filter() will return false on the first failure, before getting to exclusion analysis
+    If all required inclusions succeed, $anySuccess will be true at start of exclusion analysis
+    If there no requried inclusions, and any optional inclusions succeed, $anySuccess will be true at start of exclusion analysis
+    If there are inclusion filters and all are optional and none succeed, $anySuccess will be false at end of inclusion analysis and test_filter() will return false without processing exclusions
     */
     $anySuccess = '';
 
@@ -1727,8 +1727,9 @@ function test_filter($patient_id, $rule, $dateTarget)
     // Min age (year) Filter (assume that there in not more than one of each)
     $filter = resolve_filter_sql($rule, 'filt_age_min');
     if (!empty($filter)) {
-		if ($anySuccess === '')
-			$anySuccess = false; // change from empty string to false to indicate that at least one inclusion filter has been found
+        if ($anySuccess === '') {
+            $anySuccess = false; // change from empty string to false to indicate that at least one inclusion filter has been found
+        }
         $row = $filter[0];
         if ($row ['method_detail'] == "year") {
             if ($row['value']) {
@@ -1765,8 +1766,9 @@ function test_filter($patient_id, $rule, $dateTarget)
     // Max age (year) Filter (assume that there in not more than one of each)
     $filter = resolve_filter_sql($rule, 'filt_age_max');
     if (!empty($filter)) {
-		if ($anySuccess === '')
-			$anySuccess = false; // change from empty string to false to indicate that at least one inclusion filter has been found
+        if ($anySuccess === '') {
+            $anySuccess = false; // change from empty string to false to indicate that at least one inclusion filter has been found
+        }
         $row = $filter[0];
         if ($row ['method_detail'] == "year") {
             if ($row['value']) {
@@ -1804,8 +1806,9 @@ function test_filter($patient_id, $rule, $dateTarget)
     // Gender Filter (assume that there in not more than one of each)
     $filter = resolve_filter_sql($rule, 'filt_sex');
     if (!empty($filter)) {
-		if ($anySuccess === '')
-			$anySuccess = false; // change from empty string to false to indicate that at least one inclusion filter has been found
+        if ($anySuccess === '') {
+            $anySuccess = false; // change from empty string to false to indicate that at least one inclusion filter has been found
+        }
         $row = $filter[0];
         if ($row['value']) {
             if ($row['value'] != $patientData['sex']) {
@@ -1834,8 +1837,9 @@ function test_filter($patient_id, $rule, $dateTarget)
 
     // HR: split out conditions to faciliate logging
     if ((!empty($filter))) {
-		if ($anySuccess === '')
-			$anySuccess = false; // change from empty string to false to indicate that at least one inclusion filter has been found
+        if ($anySuccess === '') {
+            $anySuccess = false; // change from empty string to false to indicate that at least one inclusion filter has been found
+        }
         // HR: for filters, database_check() is called with $interval parameter as empty string. $interval is defined only for targets
         // If no interval defined, will search for patient data that was entered prior to $dateTarget timepoint
         // database_check() is also called for targets, in which case 3rd and 4th params are interval and $dateFocus
@@ -1865,8 +1869,9 @@ function test_filter($patient_id, $rule, $dateTarget)
 
     // HR: split out conditions to facilitate logging
     if ((!empty($filter))) {
-		if ($anySuccess === '')
-			$anySuccess = false; // change from empty string to false to indicate that at least one inclusion filter has been found
+        if ($anySuccess === '') {
+            $anySuccess = false; // change from empty string to false to indicate that at least one inclusion filter has been found
+        }
         // find lists items that were entered prior to $dateTarget timepoint
         // lists_check() is currently called only for filters (inclusion and exclusions), not targets
         $lc = lists_check($patient_id, $filter, $dateTarget, $rule);
@@ -1886,8 +1891,9 @@ function test_filter($patient_id, $rule, $dateTarget)
     // Procedure Target (includes) (may need to include an interval in the future)
     $filter = resolve_filter_sql($rule, 'filt_proc');
     if ((!empty($filter))) {
-		if ($anySuccess === '')
-			$anySuccess = false; // change from empty string to false to indicate that at least one inclusion filter has been found
+        if ($anySuccess === '') {
+            $anySuccess = false; // change from empty string to false to indicate that at least one inclusion filter has been found
+        }
         // find procedure items that were entered prior to $dateTarget timepoint
         // procedure_check() is called for both filters and targets. 3rd and 4th params are interval and $dateFocus
         $pc = procedure_check($patient_id, $filter, '', '', $dateTarget);
@@ -1907,21 +1913,21 @@ function test_filter($patient_id, $rule, $dateTarget)
         error_log1($rule, 'tf all inclusions optional and none succeeded');
         return false;
     } else {
-		// $anySuccess is empty string (no inclusions found) or true (inclusions found and succeeded)
-		error_log1($rule, 'tf either no inclusions or else all inclusions pass');
-	}
+        // $anySuccess is empty string (no inclusions found) or true (inclusions found and succeeded)
+        error_log1($rule, 'tf either no inclusions or else all inclusions pass');
+    }
 
     //
     // ----------------- EXCLUSIONS -----------------
     //
 
     /*
-	HR: if get to this point, then either there were no inclusions, or else inclusion analysis succeeded.
-	If inclusions had existed and had not succeeded, would have returned false above.
-	If no inclusions, and also no exclusions, return false
-	If exclusions exist and succeed, regardless of whether there were no inclusions, or if inclusions had succeeded, return EXCLUDED
-	If no exclusions, or if exclusions do not succeed and inclusions existed and succeeded, return true
-	*/
+    HR: if get to this point, then either there were no inclusions, or else inclusion analysis succeeded.
+    If inclusions had existed and had not succeeded, would have returned false above.
+    If no inclusions, and also no exclusions, return false
+    If exclusions exist and succeed, regardless of whether there were no inclusions, or if inclusions had succeeded, return EXCLUDED
+    If no exclusions, or if exclusions do not succeed and inclusions existed and succeeded, return true
+    */
 
     // -------- Lists Filter (EXCLUSION) ----
     // Set up lists EXCLUSION filter, which is fully customizable and currently includes diagnoses, meds,
@@ -1931,7 +1937,7 @@ function test_filter($patient_id, $rule, $dateTarget)
     /*
     HR: $anyExcludesFound used for tracking excludes across data categories where have either all optional, or a mix of optional and required excludes.
     Is not currently needed for tracking across categories of exclusions since there is only one category analyzed for excludes (i.e. lists)
-	It is needed for determining if any exclusions exist (and controlling returned results based on existence of exclusions)
+    It is needed for determining if any exclusions exist (and controlling returned results based on existence of exclusions)
     If there were a second category of exclusions (e.g. db), then if lists filter had all optional exclusions and none succeeded, and db filter found an exclusion
     (either all optional and at lease one optional succeeded, or else all required exclusions succeeded)
     and if there were a third category (e.g. gender), which had all optional and none succeeded,
@@ -1954,12 +1960,13 @@ function test_filter($patient_id, $rule, $dateTarget)
 
     // HR: split out conditions to facilitate logging
     if ((!empty($filter))) {
-		if ($anyExcludesFound === '')
-			$anyExcludesFound = false; // change from empty string to false to indicate that at least one exclusion filter has been found
+        if ($anyExcludesFound === '') {
+            $anyExcludesFound = false; // change from empty string to false to indicate that at least one exclusion filter has been found
+        }
         // look for lists data entered prior to $dateTarget timepoint
         $lc = lists_check($patient_id, $filter, $dateTarget, $rule);
         if ($lc === false) {
-			// a required exclusion did not succeed, so patient can not be excluded from rule. return true
+            // a required exclusion did not succeed, so patient can not be excluded from rule. return true
             error_log1($rule, 'tf lists excl filter at least one required excl filter did not pass');
             return true;
         } else if ($lc === 'continue') {
@@ -1974,28 +1981,28 @@ function test_filter($patient_id, $rule, $dateTarget)
     if ($anyExcludesFound === true) {
         error_log1($rule, 'tf excluded');
         return "EXCLUDED";
-	}
+    }
 
-	// $anyExcludesFound is either empty string (no exclusions found) or false (exclusions found, all optional, and did not succeed)
-	// $anySuccess is either empty string (no inclusions found) or true (inclusions found and succeeded)
-	
-	if ($anyExcludesFound === '') {
-		// no exclusions found		
-		if ($anySuccess === '') {
-			error_log1($rule, 'tf no inclusion or exclusion filters');		
-			return false;
-		}		
+    // $anyExcludesFound is either empty string (no exclusions found) or false (exclusions found, all optional, and did not succeed)
+    // $anySuccess is either empty string (no inclusions found) or true (inclusions found and succeeded)
+
+    if ($anyExcludesFound === '') {
+        // no exclusions found
+        if ($anySuccess === '') {
+            error_log1($rule, 'tf no inclusion or exclusion filters');
+            return false;
+        }
         error_log1($rule, 'tf inclusions passed and no exclusions');
         return true;
     } else {
-		// exclusions found, were all optional, and did not succeed
-		if ($anySuccess === '') {
-			error_log1($rule, 'tf no inclusions. exclusions found, were optional, and did not succeed');
-			return true;			
-		}
-		error_log1($rule, 'tf inclusions succeeded. exclusions found, were optional, and did not succeed');
-		return true;		
-	}
+        // exclusions found, were all optional, and did not succeed
+        if ($anySuccess === '') {
+            error_log1($rule, 'tf no inclusions. exclusions found, were optional, and did not succeed');
+            return true;
+        }
+        error_log1($rule, 'tf inclusions succeeded. exclusions found, were optional, and did not succeed');
+        return true;
+    }
 }
 
 /**
@@ -2031,8 +2038,8 @@ function returnTargetGroups($rule)
  * @param  string  $dateTarget date used for determining right boundary of intervals (format Y-m-d H:i:s).
  * @return boolean               if target passes then true, otherwise false
 
-    called only if targets exist   !! no, this can be called even if no targets defined for a rule, I don't see a place in the code that would 
-		prevent test_targets() from getting called if no targets defined
+    called only if targets exist   !! no, this can be called even if no targets defined for a rule, I don't see a place in the code that would
+        prevent test_targets() from getting called if no targets defined
 
     HR: note: currently, this logic ignores inclusion/exclusion flag. Treats all as inclusion
 
@@ -2069,8 +2076,9 @@ function test_targets($patient_id, $rule, string $group_id = null, $dateFocus = 
     }
     // HR: split out logic to facilitate logging
     if ((!empty($target))) {
-		if ($anySuccess === '')
-			$anySuccess = false; // change from empty string to false to indicate that at least one target has been found
+        if ($anySuccess === '') {
+            $anySuccess = false; // change from empty string to false to indicate that at least one target has been found
+        }
         // HR: for targets, database_check is passed the target interval. Modified to look for patient data valid
         // between $dateFocus - interval -> $dateTarget
         // Was previously looking for patient data valid between $dateTarget - interval and $dateTarget
@@ -2096,8 +2104,9 @@ function test_targets($patient_id, $rule, string $group_id = null, $dateFocus = 
         error_log1($rule, 'test_targets: empty target for target_proc');
     }
     if ((!empty($target))) {
-		if ($anySuccess === '')
-			$anySuccess = false; // change from empty string to false to indicate that at least one target has been found
+        if ($anySuccess === '') {
+            $anySuccess = false; // change from empty string to false to indicate that at least one target has been found
+        }
         $pc = procedure_check($patient_id, $target, $interval, $dateFocus, $dateTarget);
         if ($pc === false) {
             error_log1($rule, 'test_targets: target_proc requried target failed');
@@ -2121,8 +2130,9 @@ function test_targets($patient_id, $rule, string $group_id = null, $dateFocus = 
     //return !((!empty($target)) && appointment_check($patient_id, $dateTarget));
     // HR: reformat to facilitate logging
     if ((!empty($target))) {
-		if ($anySuccess === '')
-			$anySuccess = false; // change from empty string to false to indicate that at least one target has been found
+        if ($anySuccess === '') {
+            $anySuccess = false; // change from empty string to false to indicate that at least one target has been found
+        }
         $ac = appointment_check($patient_id, $dateFocus, $dateTarget);
         if ($ac === false) {
             error_log1($rule, 'test_targets: target_appt requried target failed');
@@ -2135,10 +2145,10 @@ function test_targets($patient_id, $rule, string $group_id = null, $dateFocus = 
         }
     }
 
-	if ($anySuccess === '') {
+    if ($anySuccess === '') {
         error_log1($rule, 'test_targets: no targets. returning false');
-        return false;		
-	} else if ($anySuccess === true) {
+        return false;
+    } else if ($anySuccess === true) {
         error_log1($rule, 'test_targets: returning true');
         return true;
     } else {
@@ -2825,8 +2835,8 @@ function lists_check($patient_id, $filter, $dateTarget, $rule = '')
     $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
 
     /*
-    HR: loop through all filters. If any fail to be found in the patient and have required_flag = true, return false immediately. 
-	Otherwise return true if all requried filters are found, or if no requried filters, then if any of the optional filters are found in the patient
+    HR: loop through all filters. If any fail to be found in the patient and have required_flag = true, return false immediately.
+    Otherwise return true if all requried filters are found, or if no requried filters, then if any of the optional filters are found in the patient
     If some found, and all are optional, and none pass, return 'continue'
     Logic works if list_check is called for either inclusion or exclusion filters
     Among a set of inclusion filters, or a set of exclusion filters, having a mix of both required and optional filters doesn't make a lot of sense.
