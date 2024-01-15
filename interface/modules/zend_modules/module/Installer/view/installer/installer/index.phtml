@@ -31,16 +31,14 @@ $depObj = $this->dependencyObject;
 $coreModules = $this->coreModules ?? [];
 
 ?>
-<h1><img src="<?php echo $this->basePath() ?>/images/module.png" class="nav-menu-img"><?php echo $this->escapeHtml($title ?? ''); ?></h1>
-
 <ul class="tabNav">
     <li class="current divMenu" onclick="$('.registered').show();$('.unregistered').hide();$('.divMenu').removeClass('current');$(this).addClass('current');">
-        <a href="javascript:void(0)" id="header_tab_.htmlspecialchars(Registered,ENT_QUOTES).">
+        <a class="btn btn-sm btn-primary" href="javascript:void(0)" id="header_tab_Registered">
             <?php echo $listener->z_xlt('Registered'); ?>
         </a>
     </li>
     <li class="divMenu" onclick="$('.registered').hide();$('.unregistered').show();$('.divMenu').removeClass('current');$(this).addClass('current');">
-        <a href="javascript:void(0)" id="header_tab_.htmlspecialchars(UnReg,ENT_QUOTES).">
+        <a class="btn btn-sm btn-secondary" href="javascript:void(0)" id="header_tab_UnReg">
             <?php echo $listener->z_xlt('Unregistered'); ?> <span id='ct'></span>
         </a>
     </li>
@@ -53,22 +51,22 @@ $coreModules = $this->coreModules ?? [];
             <div class="imagetable_code notranslate table-resposive">
                 <table id="table-6" class="table table-light table-hover table-condensed" align="center">
                     <thead>
-                    <tr>
-                        <th colspan='10' class="groupReg">
-                            <?php echo $listener->z_xlt('Registered Modules'); ?>
-                        </th>
-                    <tr>
-                    <tr>
-                        <th scope="col"><?php echo $listener->z_xlt('ID'); ?></th>
-                        <th scope="col"><?php echo $listener->z_xlt('Module'); ?> </th>
-                        <th scope="col"><?php echo $listener->z_xlt('Status'); ?> </th>
-                        <th scope="col"><?php echo $listener->z_xlt('Menu Text'); ?> </th>
-                        <th scope="col"><?php echo $listener->z_xlt('Nick Name'); ?> </th>
-                        <th scope="col"><?php echo $listener->z_xlt('Type'); ?> </th>
-                        <th scope="col"><?php echo $listener->z_xlt('Dependency Modules'); ?> </th>
-                        <th scope="col"><?php echo $listener->z_xlt('Action'); ?> </th>
-                        <th scope="col"><?php echo $listener->z_xlt('Config'); ?> </th>
-                    </tr>
+                        <tr>
+                            <th class="bg-light text-dark">
+                                <span style="font-size: 1.25rem"><?php echo $listener->z_xlt('Registered Modules'); ?></span>
+                            </th>
+                        <tr>
+                        <tr style="font-size: 16px;">
+                            <th scope="col"><?php echo $listener->z_xlt('ID'); ?></th>
+                            <th scope="col"><?php echo $listener->z_xlt('Module'); ?> </th>
+                            <th scope="col"><?php echo $listener->z_xlt('Status'); ?> </th>
+                            <th scope="col"><?php echo $listener->z_xlt('Menu Text'); ?> </th>
+                            <th scope="col"><?php echo $listener->z_xlt('Nick Name'); ?> </th>
+                            <th scope="col"><?php echo $listener->z_xlt('Type'); ?> </th>
+                            <th scope="col"><?php echo $listener->z_xlt('Dependency Modules'); ?> </th>
+                            <th scope="col"><?php echo $listener->z_xlt('Action'); ?> </th>
+                            <th scope="col"><?php echo $listener->z_xlt('Config'); ?> </th>
+                        </tr>
                     </thead>
                     <?php
                     /******** Module Creation ********/
@@ -239,16 +237,19 @@ $coreModules = $this->coreModules ?? [];
 
     <div class="installer_code notranslate unregistered bg-light" style="display:none">
         <table class="table table-light table-hover table-condensed" id="unregistered">
-            <tr>
-                <th colspan='4' class="groupRegUn">
-                    <?php echo $listener->z_xlt('Unregistered Modules'); ?>
-                </th>
-            <tr>
-                <th scope="col"><?php echo $listener->z_xlt('ID'); ?></th>
-                <th scope="col"><?php echo $listener->z_xlt('Module Name'); ?></th>
-                <th scope="col"><?php echo $listener->z_xlt('Type'); ?></th>
-                <th scope="col"><?php echo $listener->z_xlt('Action'); ?></th>
-            </tr>
+            <thead>
+                <tr>
+                    <th class="bg-light text-dark">
+                        <span style="font-size: 1.25rem"><?php echo $listener->z_xlt('Unregistered Modules'); ?></span>
+                    </th>
+                <tr>
+                <tr style="font-size: 1.00rem">
+                    <th scope="col"><?php echo $listener->z_xlt('ID'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Module Name'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Type'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Action'); ?></th>
+                </tr>
+            </thead>
             <?php
             $dpath = $GLOBALS['srcdir'] . "/../{$baseModuleDir}{$customDir}/";
             $dp = opendir($dpath);
