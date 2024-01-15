@@ -744,7 +744,7 @@ class InstallerController extends AbstractActionController
     /**
      * Function to Unregister Module
      *
-     * @param string $dir Location of the php file which calling functions to add sections,aco etc.
+     * @param string $modId
      * @return boolean
      */
     public function UnregisterModule($modId = '')

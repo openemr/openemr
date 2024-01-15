@@ -1,5 +1,6 @@
 <?php
 
+use OpenEMR\Core\AbstractModuleActionListener;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
 
 /**
@@ -31,16 +32,15 @@ use OpenEMR\Modules\FaxSMS\BootstrapService;
     $classLoader->registerNamespaceIfNotExists("OpenEMR\\Modules\\FaxSMS\\", __DIR__ . DIRECTORY_SEPARATOR . 'src');
 */
 
-
-class ModuleManagerAfterActionListener extends \OpenEMR\Core\AbstractModuleActionListener
+class ModuleManagerAfterActionListener extends AbstractModuleActionListener
 {
-    public const FAX_SERVICE = 3;
-    public const SMS_SERVICE = 2;
     public $service;
+    private $authUser;
 
     public function __construct()
     {
         parent::__construct();
+        $this->authUser = (int)$this->getSession('authUserID');
         $this->service = new BootstrapService();
     }
 
@@ -61,8 +61,8 @@ class ModuleManagerAfterActionListener extends \OpenEMR\Core\AbstractModuleActio
 
     /**
      * Required method to return namespace
-     * If namespace isn't provided return empty
-     * and register namespace at top of this script..
+     * If namespace isn't provided return an empty
+     * and register namespace using example at top of this script.
      *
      * @return string
      */
@@ -102,17 +102,10 @@ class ModuleManagerAfterActionListener extends \OpenEMR\Core\AbstractModuleActio
         if (empty($this->service)) {
             $this->service = new BootstrapService();
         }
-        $globals = $this->service->getVendorGlobals();
-
-        foreach ($globals as $k => $v) {
-            if ($k == 'oefax_enable_sms') {
-                $globals[$k] = self::SMS_SERVICE;
-            } elseif ($k == 'oefax_enable_fax') {
-                $globals[$k] = self::FAX_SERVICE;
-            }
-            // leave others as is.
+        $globals = $this->service->fetchPersistedSetupSettings() ?? '';
+        if (empty($globals)) {
+            $globals = $this->service->getVendorGlobals();
         }
-
         $this->service->saveModuleListenerGlobals($globals);
 
         return $currentActionStatus;
@@ -123,20 +116,23 @@ class ModuleManagerAfterActionListener extends \OpenEMR\Core\AbstractModuleActio
      * @param $currentActionStatus
      * @return mixed
      */
-    private function disable($modId, $currentActionStatus): mixed
+    private function disable($modId, $currentActionStatus)
     {
         if (empty($this->service)) {
             $this->service = new BootstrapService();
         }
+        // fetch current.
         $globals = $this->service->getVendorGlobals();
+        // persist current for enable action.
+        $rid = $this->service->persistSetupSettings($globals);
         foreach ($globals as $k => $v) {
             if ($k == 'oefax_enable_sms' || $k == 'oefax_enable_fax') {
+                // force disable of services
                 $globals[$k] = 0;
             }
         }
-
+        // save new disabled settings.
         $this->service->saveModuleListenerGlobals($globals);
-
         return $currentActionStatus;
     }
 
@@ -168,23 +164,5 @@ class ModuleManagerAfterActionListener extends \OpenEMR\Core\AbstractModuleActio
     private function upgrade_sql($modId, $currentActionStatus): mixed
     {
         return $currentActionStatus;
-    }
-
-    /**
-     * Grab all Module setup or columns values.
-     * @param        $modId
-     * @param string $col
-     * @return array
-     */
-    function getModuleRegistry($modId, $col = '*'): array
-    {
-        $registry = [];
-        $sql = "SELECT $col FROM modules WHERE mod_id = ?";
-        $results = sqlQuery($sql, array($modId));
-        foreach ($results as $k => $v) {
-            $registry[$k] = trim((preg_replace('/\R/', '', $v)));
-        }
-
-        return $registry;
     }
 }

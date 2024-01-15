@@ -73,11 +73,29 @@ class BootstrapService
         $items['oe_enable_email'] = $vendors['email_vendor'] ?? '';
         foreach ($items as $key => $vendor) {
             sqlQuery(
-                "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) 
-                    ON DUPLICATE KEY UPDATE `gl_name` = ?, `gl_value` = ?",
+                "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `gl_name` = ?, `gl_value` = ?",
                 array($key, $vendor, $key, $vendor)
             );
         }
+    }
+
+    /**
+     * Grab all Laminas Module setup or columns values.
+     *
+     * @param        $modId
+     * @param string $col
+     * @return array
+     */
+    function getModuleRegistry($modId, $col = '*'): array
+    {
+        $registry = [];
+        $sql = "SELECT $col FROM modules WHERE mod_id = ?";
+        $results = sqlQuery($sql, array($modId));
+        foreach ($results as $k => $v) {
+            $registry[$k] = trim((preg_replace('/\R/', '', $v)));
+        }
+
+        return $registry;
     }
 
     /**
@@ -87,11 +105,40 @@ class BootstrapService
     public function saveModuleListenerGlobals($items): void
     {
         foreach ($items as $key => $vendor) {
-            sqlQuery(
-                "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) 
-                    ON DUPLICATE KEY UPDATE `gl_name` = ?, `gl_value` = ?",
+            $id = sqlQuery(
+                "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `gl_name` = ?, `gl_value` = ?",
                 array($key, $vendor, $key, $vendor)
             );
         }
+    }
+
+    /**
+     * @param $settings
+     * @return mixed
+     */
+    public function persistSetupSettings($settings): mixed
+    {
+        // vendor for backup of setup globals.
+        $vendor = '_persisted';
+        $authId = 0;
+        $content = json_encode($settings);
+        $sql = "INSERT INTO `module_faxsms_credentials` (`id`, `auth_user`, `vendor`, `credentials`) 
+            VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `auth_user`= ?, `vendor` = ?, `credentials`= ?, `updated` = NOW()";
+
+        return sqlQuery($sql, array('', $authId, $vendor, $content, $authId, $vendor, $content));
+    }
+
+    /**
+     * @return array
+     */
+    public function fetchPersistedSetupSettings(): array
+    {
+        $vendor = '_persisted';
+        $authUserId = 0;
+        $globals = sqlQuery("SELECT `credentials` FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", array($authUserId, $vendor)) ?? [];
+        if (is_string($globals['credentials'])) {
+            return json_decode($globals['credentials'], true) ?? [];
+        }
+        return [];
     }
 }
