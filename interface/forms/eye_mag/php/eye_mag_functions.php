@@ -4887,7 +4887,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
             } elseif (!$OSIOPTARGETS[$j]) {
                 list( ,$OSIOPTARGETS[$i]) = getIOPTARGETS($pid, $id, $provider_id);
             } else {
-                $ODIOPTARGETS[$i] = $ODIOPTARGETS[$j];
+                $OSIOPTARGETS[$i] = $OSIOPTARGETS[$j];
             }
             $i++;
         }
@@ -4940,7 +4940,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
         }
 
         if ($encounter_data['OSIOPTARGET']) {
-            $OSIOPTARGETS[$i] = $encounter_data['ODIOPTARGET'];
+            $OSIOPTARGETS[$i] = $encounter_data['OSIOPTARGET'];
         } else {
             list( ,$OSIOPTARGET ) = getIOPTARGETS($pid, ($id ?? ''), $provider_id);
             $OSIOPTARGETS[$i] = $OSIOPTARGET;
@@ -5059,14 +5059,6 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                 break;
             }
         }
-
-        if (( !$OD_time_values[$a]) || (!is_int($OD_time_values[$a]))) {
-            $OD_time_values[$a] = "";
-        }
-
-        if (!$OS_time_values[$a]) {
-            $OS_time_values[$a] = "";
-        }
     }
 
     $dates_OU = "'" . implode("','", $date_OU) . "'";
@@ -5087,7 +5079,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                 <tr >
                     <td colspan="1" class="GFS_title_1" style="padding-bottom:3px;border:none;" nowrap><?php echo xlt('Current Target'); ?>:
                         <td class='GFS_title center' style="padding-bottom:3px;border:none;" nowrap><?php echo xlt('OD{{right eye}}'); ?>: <input type="text" style="width: 20px;" name="ODIOPTARGET" id="ODIOPTARGET" value="<?php echo attr($ODIOPTARGET); ?>" /></td>
-                        <td class='GFS_title center' style="padding-bottom:3px;border:none;" nowrap><?php echo xlt('OS{{left eye}}'); ?>: <input type="text" style="width: 20px;" name="OSIOPTARGET" id="OSIOPTARGET"  value="<?php echo attr($encounter_data['ODIOPTARGET']); ?>"  /></td>
+                        <td class='GFS_title center' style="padding-bottom:3px;border:none;" nowrap><?php echo xlt('OS{{left eye}}'); ?>: <input type="text" style="width: 20px;" name="OSIOPTARGET" id="OSIOPTARGET"  value="<?php echo attr($encounter_data['OSIOPTARGET']); ?>"  /></td>
                 </tr>
                 <tr>
                     <td colspan="3" class="hideme nodisplay">
@@ -5395,78 +5387,85 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     };
 
                     var config_byhour = {
-                        type: 'line',
                         data: {
                             labels: [<?php echo $times_OU; ?>],
-                            datasets: [{
-                                   label: "OD",
-                                   data: [<?php echo $OD_time_values; ?>],
-                                   fill: false,
-                                   borderColor : "#44a3a7",
-                                   backgroundColor : "#44a3a7",
-                                   pointBorderColor : "#055d2b",
-                                   pointBackgroundColor : "#44a3a7",
-                                   pointBorderWidth : 3,
-                                   lineTension: 0.3,
-                                   borderCapStyle: 'butt',
-                                   borderDashOffset: 0.0,
-                                   borderJoinStyle: 'miter',
-                                   pointHoverRadius: 5,
-                                   pointHoverBorderWidth: 2,
-                                   pointRadius: 1,
-                                   pointHitRadius: 3
-                                   }, {
-                                   label: 'OS',
-                                   data: [<?php echo $OS_time_values; ?>],
-                                   fill: false,
-                                   lineTension: 3,
-                                   borderColor : "#000099",
-                                   backgroundColor : "#000099",
-                                   pointBorderColor : "black",
-                                   pointBackgroundColor : "#000099",
-                                   pointBorderWidth : 3,
-                                   lineTension: 0.3,
-                                   borderCapStyle: 'butt',
-                                   borderJoinStyle: 'miter',
-                                   pointHoverRadius: 5,
-                                   pointHoverBorderWidth: 2,
-                                   pointRadius: 1,
-                                   pointHitRadius: 3,
-                                   }]
-                            },
+                            datasets: [
+                                {
+                                    type: 'line',
+                                    label: "OD",
+                                    data: [
+                                        <?php echo $OD_time_values; ?>
+                                    ],
+                                    fill: false,
+                                    borderColor : "#44a3a7",
+                                    backgroundColor : "#44a3a7",
+                                    pointBorderColor : "#055d2b",
+                                    pointBackgroundColor : "#44a3a7",
+                                    pointBorderWidth : 3,
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'butt',
+                                    borderDashOffset: 0.0,
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3
+                                }, 
+                                {
+                                    type: 'line',
+                                    label: 'OS',
+                                    data: [
+                                        <?php echo $OS_time_values; ?>
+                                    ],
+                                    fill: false,
+                                    lineTension: 3,
+                                    borderColor : "#000099",
+                                    backgroundColor : "#000099",
+                                    pointBorderColor : "black",
+                                    pointBackgroundColor : "#000099",
+                                    pointBorderWidth : 3,
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'butt',
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3,
+                                }
+                            ]
+                        },
                         options: {
                             responsive: true,
                             animation: false,
                             onAnimationComplete: function () {
-                                    // prevents the update from triggering an infinite loop
+                                // prevents the update from triggering an infinite loop
                                 if (!this.clearCycle) {
                                     this.clearCycle = true;
 
                                     this.datasets.forEach(function (dataset) {
-                                                          dataset.points.forEach(function (point) {
-                                                                                 if (point.value === 0) {
-                                                                                 point.display = false;
-                                                                                 point.hasValue = function () {
-                                                                                 return false;
-                                                                                 }
-                                                                                 }
-                                                                                 })
-                                                          })
+                                        dataset.points.forEach(function (point) {
+                                            if (point.value === 0) {
+                                                point.display = false;
+                                                point.hasValue = function () {
+                                                    return false;
+                                                }
+                                            }
+                                        })
+                                    })
                                     this.update();
-                                }
-                            else
-                                delete this.clearCycle;
-                            },
+                                } else
+                                    delete this.clearCycle;
+                                },
                             scaleShowHorizontalLines: true,
                             title:{
-                            display:true,
-                            text:'<?php echo xla("Intraocular Pressures") . " (" . xla("mmHg") . ") by Hour"; ?>'
+                                display: true,
+                                text:'<?php echo xla("Intraocular Pressures") . " (" . xla("mmHg") . ") by Hour"; ?>'
                             },
                             tooltips: {
-                            mode: 'label'
+                                mode: 'label'
                             },
                             hover: {
-                            mode: 'dataset'
+                                mode: 'dataset'
                             },
                             scales: {
                                 xAxes:  {
@@ -5494,7 +5493,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     type: "linear",
                                     display: true,
                                     position: "left",
-                                    //id: "y-axis-2",
+                                    id: "y-axis-2",
                                     gridLines:{
                                         display: false
                                     },
@@ -5534,125 +5533,140 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                     var config_byday = {
                         type: 'bar',
                         data: {
-                        labels: [<?php echo $dates_OU; ?>],
-                        datasets: [
-                               {
-                               type: 'line',
-                               label: "Target",
-                               data: [<?php echo $IOPTARGET_values; ?>],
-                               fill: false,
-                               borderColor : "#f28282",
-                               backgroundColor : "#f28282",
-                               pointBorderColor : "black",
-                               pointBackgroundColor : "#f28282",
-                               pointBorderWidth : 3,
-                               drugs: ["test1\ntimoptic","test2","test3"],
-                               yAxisID: 'y-axis-1',
-                               lineTension: 0.3,
-                               borderCapStyle: 'round',
-                               borderDash: [1,5],
-                               borderJoinStyle: 'miter',
-                               pointHoverRadius: 5,
-                               pointHoverBorderWidth: 2,
-                               pointRadius: 1,
-                               pointHitRadius: 3
-                               },{ type: 'line',
-                               label: "OD",
-                               data: [<?php echo $OD_values; ?>],
-                               fill: false,
-                               borderColor : "#44a3a7",
-                               backgroundColor : "#44a3a7",
-                               pointBorderColor : "#055d2b",
-                               pointBackgroundColor : "#44a3a7",
-                               pointBorderWidth : 3,
-                               yAxisID: 'y-axis-1',
-                               lineTension: 0.3,
-                               borderCapStyle: 'butt',
-                               borderDashOffset: 0.0,
-                               borderJoinStyle: 'miter',
-                               pointHoverRadius: 5,
-                               pointHoverBorderWidth: 2,
-                               pointRadius: 1,
-                               pointHitRadius: 3
-                               }, {
-                               type: 'line',
-                               label: 'OS',
-                               data: [<?php echo $OS_values; ?>],
-                               fill: false,
-                               lineTension: 3,
-                               borderColor : "#000099",
-                               backgroundColor : "#000099",
-                               pointBorderColor : "black",
-                               pointBackgroundColor : "#000099",
-                               pointBorderWidth : 3,
-                               yAxisID: 'y-axis-1',
-                               lineTension: 0.3,
-                               borderCapStyle: 'butt',
-                               borderJoinStyle: 'miter',
-                               pointHoverRadius: 5,
-                               pointHoverBorderWidth: 2,
-                               pointRadius: 1,
-                               pointHitRadius: 3,
-                               },{
-                               type: 'bar',
-                               label: "VF",
-                               strokeColor: '#5CABFA',
-                               fillColor:"#5CABFA",
-                               data: [<?php echo $VF_values; ?>],
-                               fill: false,
-                               backgroundColor: '#5CABFA',
-                               borderColor: 'var(--black)',
-                               yAxisID: 'y-axis-2'
-                               },{
-                               type: 'bar',
-                               label: "OCT",
-                               data: [<?php echo $OCT_values; ?>],//0/null is not done, 1 if performed.
-                               fill: true,
-                               backgroundColor: '#71B37C',
-                               borderColor: 'var(--black)',
-                               yAxisID: 'y-axis-2'
-                               },{
-                               type: 'bar',
-                               label: "Gonio",
-                               data: [<?php echo $GONIO_values; ?>],
-                               fill: false,
-                               strokeColor: 'rgba(209, 30, 93, 0.3)',
-                               fillColor:'rgba(209, 30, 93, 0.3)',
-                               backgroundColor: 'red',
-                               borderColor: 'var(--black)',
-                               yAxisID: 'y-axis-2'
-                               }]
+                            labels: [
+                                <?php echo $dates_OU; ?>
+                            ],
+                            datasets: [
+                                {
+                                    axis: 'y',
+                                    type: 'line',
+                                    label: "Target",
+                                    data: [<?php echo $IOPTARGET_values; ?>],
+                                    fill: false,
+                                    borderColor : "#f28282",
+                                    backgroundColor : "#f28282",
+                                    pointBorderColor : "black",
+                                    pointBackgroundColor : "#f28282",
+                                    pointBorderWidth : 3,
+                                    drugs: ["test1\ntimoptic","test2","test3"],
+                                    yAxisID: 'y-axis-1',
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'round',
+                                    borderDash: [1,5],
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3
+                                },
+                                { 
+                                    axis: 'y',
+                                    type: 'line',
+                                    label: "OD",
+                                    data: [<?php echo $OD_values; ?>],
+                                    fill: false,
+                                    borderColor : "#44a3a7",
+                                    backgroundColor : "#44a3a7",
+                                    pointBorderColor : "#055d2b",
+                                    pointBackgroundColor : "#44a3a7",
+                                    pointBorderWidth : 3,
+                                    yAxisID: 'y-axis-1',
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'butt',
+                                    borderDashOffset: 0.0,
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3
+                                }, 
+                                {
+                                    axis: 'y',
+                                    type: 'line',
+                                    label: 'OS',
+                                    data: [<?php echo $OS_values; ?>],
+                                    fill: false,
+                                    lineTension: 3,
+                                    borderColor : "#000099",
+                                    backgroundColor : "#000099",
+                                    pointBorderColor : "black",
+                                    pointBackgroundColor : "#000099",
+                                    pointBorderWidth : 3,
+                                    yAxisID: 'y-axis-1',
+                                    lineTension: 0.3,
+                                    borderCapStyle: 'butt',
+                                    borderJoinStyle: 'miter',
+                                    pointHoverRadius: 5,
+                                    pointHoverBorderWidth: 2,
+                                    pointRadius: 1,
+                                    pointHitRadius: 3,
+                                },
+                                {
+                                    axis: 'y',
+                                    type: 'bar',
+                                    label: "VF",
+                                    strokeColor: '#5CABFA',
+                                    fillColor:"#5CABFA",
+                                    data: [<?php echo $VF_values; ?>],
+                                    fill: false,
+                                    backgroundColor: '#5CABFA',
+                                    borderColor: 'var(--black)',
+                                    yAxisID: 'y-axis-2'
+                                },
+                                {
+                                    axis: 'y',
+                                    type: 'bar',
+                                    label: "OCT",
+                                    data: [<?php echo $OCT_values; ?>],//0/null is not done, 1 if performed.
+                                    fill: true,
+                                    backgroundColor: '#71B37C',
+                                    borderColor: 'var(--black)',
+                                    yAxisID: 'y-axis-2'
+                                },
+                                {
+                                    axis: 'y',
+                                    type: 'bar',
+                                    label: "Gonio",
+                                    data: [<?php echo $GONIO_values; ?>],
+                                    fill: false,
+                                    strokeColor: 'rgba(209, 30, 93, 0.3)',
+                                    fillColor:'rgba(209, 30, 93, 0.3)',
+                                    backgroundColor: 'red',
+                                    borderColor: 'var(--black)',
+                                    yAxisID: 'y-axis-2'
+                                }
+                            ]
                         },
                         options: {
                             responsive: true,
                             scaleShowHorizontalLines: true,
-                            title:{
-                            display: true,
-                            text:'<?php echo xla("Intraocular Pressures (mmHg) by Date"); ?>'
+                            title: {
+                                display: true,
+                                text:'<?php echo xla("Intraocular Pressures (mmHg) by Date"); ?>'
                             },
                             tooltips: {
-                            enabled: true,
-                                //id: "tooltip-1",
-                                //backgroundColor: '#FCFFC5',
-                                //mode: 'label',
-                            enabled: true,
-                            shared: false,
+                                enabled: true,
+                                    //id: "tooltip-1",
+                                    //backgroundColor: '#FCFFC5',
+                                    //mode: 'label',
+                                enabled: true,
+                                shared: false,
 
-                            callbacks: {
-                            label: function(tooltipItem, data) {
-                                if (tooltipItem.yLabel =='0') {
-                                    return data.datasets[tooltipItem.datasetIndex].label + "  ---  "; ;
-                                } else if (tooltipItem.yLabel =='1') {
-                                    return data.datasets[tooltipItem.datasetIndex].label + " <?php echo xlt('performed'); ?>";
-                                } else if (tooltipItem.yLabel > '1') {
-                                    return data.datasets[tooltipItem.datasetIndex].label + ": "+tooltipItem.yLabel;
-                                }
+                                callbacks: {
+                                label: function(tooltipItem, data) {
+                                    if (tooltipItem.yLabel =='0') {
+                                        return data.datasets[tooltipItem.datasetIndex].label + "  ---  "; ;
+                                    } else if (tooltipItem.yLabel =='1') {
+                                        return data.datasets[tooltipItem.datasetIndex].label + " <?php echo xlt('performed'); ?>";
+                                    } else if (tooltipItem.yLabel > '1') {
+                                        return data.datasets[tooltipItem.datasetIndex].label + ": "+tooltipItem.yLabel;
+                                    }
                                 },
                                 afterBody: function(tooltipItems, data) {
-                                    //console.log(tooltipItems);
-                                    //return data.datasets[2].drugs[tagme];
+                                        //console.log(tooltipItems);
+                                        //return data.datasets[2].drugs[tagme];
+                                    }
                                 }
-                            }
                             },
                             hover: {
                                 mode: 'label'
@@ -5665,7 +5679,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     time: {
                                         format: dateFormat,
                                         round: 'day',
-                                        tooltipFormat: 'll'
+                                        tooltipFormat: 'h:mm a'
                                     },
                                     categoryPercentage: 0.5,
                                     barPercentage:1.0,
@@ -5683,7 +5697,7 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     type: "linear",
                                     display: false,
                                     position: "right",
-                                    id: "y-axis-2",
+                                    id: "y-axis-1",
                                     stacked: false,
                                     gridLines:{
                                         display: false
@@ -5704,20 +5718,20 @@ function display_GlaucomaFlowSheet($pid, $bywhat = 'byday')
                                     type: "linear",
                                     display: true,
                                     position: "left",
-                                    id: "y-axis-1",
+                                    id: "y-axis-2",
                                     gridLines:{
-                                    display: true
+                                        display: true
                                     },
                                     labels: {
-                                    show:true,
+                                        show:true,
                                     },
                                     scaleLabel: {
-                                    display: true,
-                                    labelString: 'IOP (mmHg)'
+                                        display: true,
+                                        labelString: 'IOP (mmHg)'
                                     },
                                     ticks: {
-                                    suggestedMin: 4,
-                                    suggestedMax: 24,
+                                        suggestedMin: 4,
+                                        suggestedMax: 24,
                                     }
                                 }
                             }
