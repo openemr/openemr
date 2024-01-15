@@ -26,6 +26,7 @@ use Installer\Model\InstModuleTable;
 use Laminas\Db\Adapter\Adapter;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Core\ModulesClassLoader;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 
 class InstallerController extends AbstractActionController
@@ -40,6 +41,7 @@ class InstallerController extends AbstractActionController
      * @var Laminas\Db\Adapter\Adapter
      */
     private $dbAdapter;
+    private ModulesClassLoader $listener;
 
     public function __construct(InstModuleTable $installerTable)
     {
@@ -131,10 +133,13 @@ class InstallerController extends AbstractActionController
             exit;
         }
 
-        $outputToBrowser = '';
         $request = $this->getRequest();
         $status = $this->listenerObject->z_xlt("Failure");
         if ($request->isPost()) {
+            $modId = $request->getPost('modId') ?? null;
+            $registryEntry = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
+            $dirModule = $registryEntry->modDirectory;
+            $modType = $registryEntry->type;
             if ($request->getPost('modAction') == "enable") {
                 $status = $this->EnableModule($request->getPost('modId'));
             } elseif ($request->getPost('modAction') == "disable") {
@@ -168,6 +173,10 @@ class InstallerController extends AbstractActionController
             } elseif ($request->getPost('modAction') == "unregister") {
                 $status = $this->UnregisterModule($request->getPost('modId'));
             }
+            // cleanup action.
+            if ($modType == InstModuleTable::MODULE_TYPE_CUSTOM) {
+                $status = $this->callModuleAfterAction($request->getPost('modAction'), $modId, $dirModule, $status);
+            }
         }
         $output = "";
         if (!empty($div) && is_array($div)) {
@@ -178,10 +187,46 @@ class InstallerController extends AbstractActionController
     }
 
     /**
+     * @param $action
+     * @param $modId
+     * @param $dirModule
+     * @param $currentStatus
+     * @return mixed
+     */
+    private function callModuleAfterAction($action, $modId, $dirModule, $currentStatus): mixed
+    {
+        $modPath = $GLOBALS['fileroot'] . "/" . $GLOBALS['baseModDir'] . "custom_modules/" . $dirModule;
+        $moduleClassPath = $modPath . '/ModuleManagerAfterActionListener.php';
+        $className = 'ModuleManagerAfterActionListener';
+        $action = trim($action);
+        if (!file_exists($moduleClassPath)) {
+            return $currentStatus;
+        }
+        $t = get_declared_classes();
+        require_once($moduleClassPath);
+        $namespace = attr($className::getModuleNamespace());
+        if (!empty($namespace)) {
+            $classLoader = new ModulesClassLoader($GLOBALS['fileroot']);
+            $classLoader->registerNamespaceIfNotExists($namespace, $modPath . DIRECTORY_SEPARATOR . 'src');
+        }
+        $methodName = trim($action);
+        $instance = $className::initListenerSelf();
+        if (class_exists($instance::class)) {
+            if (method_exists($instance, 'moduleManagerAction')) {
+                return call_user_func([$instance, 'moduleManagerAction'], $methodName, $modId);
+            } else {
+                return $currentStatus;
+            }
+        } else {
+            return $currentStatus;
+        }
+    }
+
+    /**
      * @param $version
      * @return int|string
      */
-    function upgradeAclFromVersion($ACL_UPGRADE, $version)
+    private function upgradeAclFromVersion($ACL_UPGRADE, $version)
     {
         $toVersion = '';
         foreach ($ACL_UPGRADE as $toVersion => $function) {
@@ -506,7 +551,11 @@ class InstallerController extends AbstractActionController
         $registryEntry = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
         $dirModule = $registryEntry->modDirectory;
         $modType = $registryEntry->type;
-        if ($this->getInstallerTable()->installSQL($modId, $modType, $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule)) {
+        $modUri = "zend_modules/module/";
+        if ($modType == InstModuleTable::MODULE_TYPE_CUSTOM) {
+            $modUri = "custom_modules/";
+        }
+        if ($this->getInstallerTable()->installSQL($modId, $modType, $GLOBALS['fileroot'] . "/" . $GLOBALS['baseModDir'] . $modUri . $dirModule)) {
             $values = array($registryEntry->mod_nick_name,$registryEntry->mod_enc_menu);
             $values[2] = $this->getModuleVersionFromFile($modId);
             $values[3] = $registryEntry->acl_version;
@@ -524,7 +573,12 @@ class InstallerController extends AbstractActionController
     public function UpgradeModuleSQL($modId = '')
     {
         $Module = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
-        $modDir = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $Module->modDirectory;
+        $modType = $Module->type;
+        $modUri = "zend_modules/module/";
+        if ($modType == InstModuleTable::MODULE_TYPE_CUSTOM) {
+            $modUri = "custom_modules/";
+        }
+        $modDir = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . $modUri . $Module->modDirectory;
         $sqlInstallLocation = $modDir . '/sql';
         // if this is a custom module that for some reason doesn't have the SQL in a sql folder...
         if (!file_exists($sqlInstallLocation)) {
@@ -542,7 +596,7 @@ class InstallerController extends AbstractActionController
             }
             ob_start();
             $sqlUpgradeService = new SQLUpgradeService();
-            $sqlUpgradeService->setRenderOutputToScreen(true);
+            $sqlUpgradeService->setRenderOutputToScreen(false);
             $sqlUpgradeService->upgradeFromSqlFile($filename, $sqlInstallLocation);
             $outputToBrowser .= ob_get_contents();
             ob_end_clean();
@@ -615,7 +669,7 @@ class InstallerController extends AbstractActionController
      */
     public function EnableModule($modId = '')
     {
-        $resp = $this->getInstallerTable()->updateRegistered($modId, "mod_active=0");
+        $resp = $this->getInstallerTable()->updateRegistered($modId, "mod_active=1");
         if ($resp['status'] == 'failure' && $resp['code'] == '200') {
             $status = $resp['value'];
         } else {
@@ -632,7 +686,7 @@ class InstallerController extends AbstractActionController
      */
     public function DisableModule($modId = '')
     {
-        $resp = $this->getInstallerTable()->updateRegistered($modId, "mod_active=1");
+        $resp = $this->getInstallerTable()->updateRegistered($modId, "mod_active=0");
         if ($resp['status'] == 'failure' && $resp['code'] == '200') {
             $plural = "Module";
             if (count($resp['value'] ?? []) > 1) {
@@ -690,7 +744,7 @@ class InstallerController extends AbstractActionController
     /**
      * Function to Unregister Module
      *
-     * @param string $dir Location of the php file which calling functions to add sections,aco etc.
+     * @param string $modId
      * @return boolean
      */
     public function UnregisterModule($modId = '')
@@ -772,9 +826,9 @@ class InstallerController extends AbstractActionController
             } elseif ($moduleAction === "upgrade_acl") {
                 $div = $this->UpgradeModuleACL($moduleId);
             } elseif ($moduleAction === "enable") {
-                $div = $this->DisableModule($moduleId);
-            } elseif ($moduleAction === "disable") {
                 $div = $this->EnableModule($moduleId);
+            } elseif ($moduleAction === "disable") {
+                $div = $this->DisableModule($moduleId);
             } elseif ($moduleAction === "install") {
                 $div = $this->InstallModule($moduleId);
             } elseif ($moduleAction === "unregister") {
