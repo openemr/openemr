@@ -2441,7 +2441,8 @@ function database_check($patient_id, $filter, $interval = '', $dateFocus = '', $
         $intervalValue = $interval[0]['interval'];
     }
 
-    $cond_loop = 0;
+    // HR: removing $cond_loop from this logic. Doesn't seem to be adding anything. See discussion below
+    //$cond_loop = 0;
     foreach ($filter as $row) {
         // Row description
         //   [0]=>special modes
@@ -2477,20 +2478,24 @@ function database_check($patient_id, $filter, $interval = '', $dateFocus = '', $
             //   [0]=>special modes(BLANK) [1]=>table [2]=>column [3]=>value comparison [4]=>value [5]=>number of hits comparison [6]=>number of hits
             if (exist_database_item($patient_id, $temp_df[1], $temp_df[2], $temp_df[3], $temp_df[4], $temp_df[5], $temp_df[6], $intervalType, $intervalValue, $dateFocus, $dateTarget)) {
                 // Record the match
-                if ($cond_loop > 0) { // For multiple condition check
-                    $isMatch = $isMatch && 1;
-                } else {
+                // HR: I don't see what $cond_loop is addig here. $isMatch will be either 'continue' or true. If was either 'continue' or true, and this target succeeded
+                // (regardless of whether required or optional), set $isMatch to true. if required target fails, database_check() returns false immediately
+                ///if ($cond_loop > 0) { // For multiple condition check
+                //     $isMatch = $isMatch && 1;
+                //} else {
                     $isMatch = true;
-                }
+                //}
             } else {
                // If this is a required entry then return false
                 if ($row['required_flag']) {
                     return false;
                 }
+                // If $isMatch was 'continue', no prior targets had yet succeeded. This target is optional, so leave $isMatch as 'continue'
+                // If $isMatch was true, a prior target succeeded (could have been either required or optional). This target is optional, so leave $isMatch as true
             }
         }
 
-        $cond_loop++;
+        //$cond_loop++;
     }
 
   // return results of check
@@ -2584,6 +2589,11 @@ function appointment_check($patient_id, $dateFocus = '', $dateTarget = '')
   //       to do this.
     if (sqlNumRows($sql) > 0) {
         $isMatch = true;
+    } else {
+        //if ($row['required_flag']) {
+            // appointment_check is not called with a $filter param, so no $row['required_flag'] to check. Assume this check is required, so return false on failure
+            return false;
+        //}
     }
 
     return $isMatch;
