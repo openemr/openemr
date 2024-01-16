@@ -2158,7 +2158,7 @@ View.php
   float: left;
   height: 1.05in;
   padding: 0.02in;
-  width: 1.9in;
+  width: 2.5in;
 }
 
 
@@ -2295,7 +2295,7 @@ View.php
   height: 0.18in;
   left: 0.5in;
   margin: 2px;
-  width: 0.28in;
+  width: 0.5in;
 }
 
 #Lyr42 > span:nth-of-type(1) {
@@ -2395,8 +2395,11 @@ View.php
 }
 
 #Lyr70 {
-  font-size: 0.8em;
-  padding: 1px 10px 5px 0;
+    border: 1px solid var(--black);
+  float: left;
+  min-height: 1.05in;
+  padding: 0.02in;
+  width: 2.5in;
 }
 
 #Lyr71 {
@@ -2455,7 +2458,7 @@ View.php
 #DIMOSPUPILSIZE2 {
   height: 0.2in;
   white-space: nowrap;
-  width: 0.25in;
+  width: 0.5in;
 }
 
 .pupil_input_2,
