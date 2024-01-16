@@ -670,7 +670,12 @@ if (!empty($_POST['newcodes'])) {
 
         $arrcode = explode('|', $codestring);
         if (strpos($arrcode[1], ':') !== false) {
-            list($code, $modifier) = explode(":", $arrcode[1]);
+            $tmp = explode(':', $arrcode[1]);
+            $code = $tmp[0] ?? '';
+            $modifier = $tmp[1] ?? '';
+            $modifier .= ($tmp[2] ?? '') ? ":" . $tmp[2] : '';
+            $modifier .= ($tmp[3] ?? '') ? ":" . $tmp[3] : '';
+            $modifier .= ($tmp[4] ?? '') ? ":" . $tmp[4] : '';
         } else {
             $code = $arrcode[1];
             $modifier = '';
@@ -1566,7 +1571,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 );
                                             } else {
                                                 if (strpos($newcode, ':') !== false) {
-                                                    list($code, $modifier) = explode(":", $newcode);
+                                                    $tmp = explode(':', $arrcode[1]);
+                                                    $code = $tmp[0] ?? '';
+                                                    $modifier = $tmp[1] ?? '';
+                                                    $modifier .= ($tmp[2] ?? '') ? ":" . $tmp[2] : '';
+                                                    $modifier .= ($tmp[3] ?? '') ? ":" . $tmp[3] : '';
+                                                    $modifier .= ($tmp[4] ?? '') ? ":" . $tmp[4] : '';
                                                 } else {
                                                     $code = $newcode;
                                                     $modifier = '';
