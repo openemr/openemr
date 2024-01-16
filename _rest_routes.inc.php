@@ -6222,8 +6222,51 @@ RestConfig::$ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /api/patient/:puuid/insurance" => function ($puuid) {
-        $return = (new InsuranceRestController())->getAll($puuid);
+    "GET /api/patient/:puuid/insurance" => function ($puuid, HttpRestRequest $request) {
+        $searchParams = $request->getQueryParams();
+        $searchParams['puuid'] = $puuid;
+        if ($request->isPatientRequest()) {
+            $searchParams['puuid'] = $request->getPatientUUIDString();
+        }
+        $return = (new InsuranceRestController())->getAll($searchParams);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/api/patient/{puuid}/insurance",
+     *      description="Retrieves all insurances for a patient",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="pid",
+     *          in="path",
+     *          description="The uuid for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /api/patient/:puuid/insurance/:uuid" => function ($puuid, $uuid, HttpRestRequest $request) {
+        if ($request->isPatientRequest()) {
+            $puuid = $request->getPatientUUIDString();
+        }
+        $return = (new InsuranceRestController())->getOne($uuid, $puuid);
         RestConfig::apiLog($return);
         return $return;
     },
@@ -6266,8 +6309,14 @@ RestConfig::$ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /api/patient/:puuid/insurance/:type" => function ($puuid, $type) {
-        $return = (new InsuranceRestController())->getOne($puuid, $type);
+    "GET /api/patient/:puuid/insurance/:type" => function ($puuid, $type, HttpRestRequest $request) {
+        $searchParams = $request->getQueryParams();
+        $searchParams['type'] = $type;
+        $searchParams['puuid'] = $puuid;
+        if ($request->isPatientRequest()) {
+            $searchParams['puuid'] = $request->getPatientUUIDString();
+        }
+        $return = (new InsuranceRestController())->getAll($searchParams);
         RestConfig::apiLog($return);
         return $return;
     },

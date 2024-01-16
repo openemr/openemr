@@ -55,6 +55,15 @@ export class InsurancePolicyService
         return this.__types;
     }
 
+    getPatientInsuranceData(puuid, insuranceuuid) {
+        return this.apiRequest(this.__apiURL + 'patient/' + puuid + '/insurance/' + insuranceuuid)
+        .then(resultData => {
+            let insurance = new InsurancePolicyModel();
+            insurance.populate(resultData.data);
+            return insurance;
+        });
+    }
+
     loadInsurancesByType() {
         return this.apiRequest(this.__apiURL + 'patient/' + this.__puuid + '/insurance')
             .then(resultData => {

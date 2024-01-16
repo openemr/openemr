@@ -46,11 +46,16 @@ export class EditPolicyScreenController
 
     __policySaved = false;
 
+    __csrfToken = null;
+
+    __openedSubWindows = [];
+
     /**
      *
      * @param insurancePolicyService InsurancePolicyService
      */
-    constructor(insurancePolicyService) {
+    constructor(csrfToken, insurancePolicyService) {
+        this.__csrfToken = csrfToken;
         this.__insuranceProviderList = insurancePolicyService.getInsuranceProvidersList();
         this.__types = insurancePolicyService.getInsuranceCategories();
         this.__insurancesByType = insurancePolicyService.getInsurancesByType();
@@ -84,10 +89,48 @@ export class EditPolicyScreenController
         this.show();
         this.#setupInsuranceTypeNavigation();
         this.#setupSavePolicyButton();
+        this.#setupWindowEvents();
         this.#populateSelectDropdowns();
         // this is where we would populate the most current insurance
         this.setupInitialInsurance();
         this.render();
+    }
+
+    #setupWindowEvents() {
+
+        // by doing things this way we abstract the communication from the patient selection piece to this controller
+        // we also are safer by grabbing the patient uuid and insurance uuid and refetching just to make sure we have
+        // the right data.
+        console.log("adding event listener");
+        window.addEventListener("message", (evt) => {
+            console.log("got here in message received");
+            if (event.origin !== window.location.origin) {
+                return; // we only receive events from our same domain
+            }
+            if (evt.data && evt.data.hasOwnProperty('action')) {
+                if (evt.data.action == 'insurance-patient-browser-selected') {
+                    let patientUuid = evt.data.patientUuid;
+                    let insuranceUuid = evt.data.insuranceUuid;
+                    if (!patientUuid || !insuranceUuid) {
+                        alert(window.top.xl("No patient was selected to copy values from."));
+                        return;
+                    }
+                    // this.__openedSubWindows.forEach(w => w.close()); // close all of the sub windows, not sure why the window.close doesn't work from inside the sub window but we'll do it this way.
+                    let patientInsuranceObject = this.__insurancePolicyService.getPatientInsuranceData(patientUuid, insuranceUuid)
+                        .then(result => {
+                            // copy that data into the currently selected insurance
+                            this.selectedInsurance.populate(result);
+                            this.#updateSelectedInsuranceObject(this.selectedInsurance);
+                            this.render();
+                        })
+                        .catch(error => {
+                            console.error(error);
+                            alert(window.top.xl("An error occurred while loading the insurance policy.  Please try again or contact your system administrator."));
+                        });
+                    this.render();
+                }
+            }
+        });
     }
     #setupSavePolicyButton() {
         // setup event listener for btn-save-policy to save the policy
@@ -179,7 +222,17 @@ export class EditPolicyScreenController
             ,width: "resolve"
         });
 
-
+        // setup the dialog popup
+        insuranceInfoContainer.querySelector('.subscriber-relationship-open-finder').addEventListener('click', (evt) => {
+                let input = evt.target;
+                let url = new URL(input.href);
+                // url.searchParams.append('csrf_token_form', this.__csrfToken);
+                let dlgUrl = url.pathname + url.search;
+                evt.preventDefault();
+                window.top.restoreSession();
+                let id = (new Date()).getTime();
+                window.open(dlgUrl, id, 'toolbar=0,scrollbars=1,location=0,statusbar=0,menubar=0,resizable=1,width=400,height=450,left = 440,top = 362');
+        });
     }
 
     #setupAddressValidation(selectedInsurance) {

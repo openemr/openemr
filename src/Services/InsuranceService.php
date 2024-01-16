@@ -64,6 +64,10 @@ class InsuranceService extends BaseService
         return $this->coverageValidator->validate($data);
     }
 
+    public function getOneByPatientUuidAndInsuranceType($puuid, $type) {
+        return $this->search(['puuid' => $puuid, 'type' => $type]);
+    }
+
     public function getOneByPid($id, $type)
     {
         $sql = "SELECT * FROM insurance_data WHERE pid=? AND type=?";
@@ -117,6 +121,12 @@ class InsuranceService extends BaseService
         return $processingResult;
     }
 
+    /**
+     * @deprecated use search instead
+     * @param $search
+     * @param $isAndCondition
+     * @return ProcessingResult|true
+     */
     public function getAll($search = array(), $isAndCondition = true)
     {
 

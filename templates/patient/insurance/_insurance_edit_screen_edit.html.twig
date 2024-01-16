@@ -128,9 +128,8 @@
             <div class="col-md-9">
                 {{ generateFormField({data_type: 1, field_id: 'subscriber_relationship', 'list_id': 'sub_relation'
                     , 'empty_title': ' ', classNames: 'mb-1 sel2', smallform: 'true'}, '') }}
+                <a href="browse.php?browsenum=1" class='text subscriber-relationship-open-finder'>({{ "Browse"|xlt }})</a>
             </div>
-            {# TODO: @adunsulag browsenum needs to be looked at with what this field means #}
-            <a href="javascript:popUp('browse.php?browsenum=1')" class='text'>({{ "Browse"|xlt }})</a>
         </div>
         {% for fieldRow in fields.right %}
             {% if fieldRow.skip is not defined or fieldRow.skip %}

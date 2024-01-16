@@ -15,6 +15,7 @@ namespace OpenEMR\RestControllers;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\InsuranceService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 
 class InsuranceRestController
@@ -26,21 +27,28 @@ class InsuranceRestController
         $this->insuranceService = new InsuranceService();
     }
 
-    public function getAll($pid)
+    public function getAll($searchParams)
     {
-        $serviceResult = $this->insuranceService->getAll(['pid' => $pid]);
+        if (isset($searchParams['uuid'])) {
+            $searchParams['uuid'] = new TokenSearchField('uuid', $searchParams['uuid'], true);
+        }
+        if (isset($searchParams['puuid'])) {
+            $searchParams['puuid'] = new TokenSearchField('puuid', $searchParams['puuid'], true);
+        }
+        $serviceResult = $this->insuranceService->search($searchParams);
         return RestControllerHelper::handleProcessingResult($serviceResult, null, 200);
     }
-
-    public function getOne($pid, $type)
-    {
-
-        $processingResult = $this->insuranceService->getOneByPid($pid, $type);
+    public function getOne($insuranceUuid, $puuid) {
+        $searchParams = [];
+        // we do this again cause we have to handle the 404 result here.
+        $searchParams['uuid'] = new TokenSearchField('uuid', $insuranceUuid, true);
+        $searchParams['puuid'] = new TokenSearchField('puuid', $puuid, true);
+        $processingResult = $this->insuranceService->search($searchParams);
         if (!$processingResult->hasErrors() && count($processingResult->getData()) == 0) {
             return RestControllerHelper::handleProcessingResult($processingResult, 404);
         }
 
-        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        return RestControllerHelper::handleProcessingResult($processingResult, 200, false  );
     }
     public function put($puuid, $insuranceUuid, $data)
     {

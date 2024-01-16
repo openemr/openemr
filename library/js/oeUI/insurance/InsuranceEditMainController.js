@@ -35,8 +35,11 @@ export class InsuranceEditMainController {
      */
     __insurancePolicyService = null;
 
+    __csrfToken = null;
+
     constructor(csrfToken, apiURL, insuranceProviderList, types, puuid) {
         this.__insurancePolicyService = new InsurancePolicyService(csrfToken, apiURL, insuranceProviderList, types, puuid);
+        this.__csrfToken = csrfToken;
     }
 
     init() {
@@ -61,7 +64,7 @@ export class InsuranceEditMainController {
     }
 
     setupEditScreen() {
-        this.__editPolicyScreen = new EditPolicyScreenController(this.__insurancePolicyService);
+        this.__editPolicyScreen = new EditPolicyScreenController(this.__csrfToken, this.__insurancePolicyService);
         this.__editPolicyScreen.setup();
         this.currentScreen = this.__editPolicyScreen;
         this.toggleScreenControlButtons(true);
