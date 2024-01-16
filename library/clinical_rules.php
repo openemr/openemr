@@ -996,69 +996,6 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
         $exclude_filter = 0;
         $pass_target = 0;
 
-        $passFilter = null;
-
-        // Check if pass filter
-        /*
-        HR: moved the test_filter() check to this location, above and outside both
-            foreach ($target_dates as $dateFocus)
-        and
-            if ((count($targetGroups) == 1) || ($mode == "report")) {
-            if (count($targetGroups) > 1) {
-
-        Filters do not need to be tested against each $dateFocus value (see below) and filters were inappropriately failing to evaluate to true when
-        filters were evaluated against $dateFoucs rather than $dateTarget.
-
-        Similarly, code for filter checking was duplicated inside the two $targetGroups sections (one executed when one target group exists, and the other when more than one target group exists)
-
-        test_filter() looks for patient data entered prior to $dateTarget timepoint
-
-        test_filter() was previously returning:
-        --false if an inclusion filter does not succeed
-        --"EXCLUDED" if an exclusion filter succeeds
-        --otherwise true
-
-        Changed so it now returns:
-        -- if any required inclusions fail, return false
-        -- if there are no required inclusions, and some optional inclusions exist, and any optional inclusions succeed,
-        and either exclusions don't exist or exclusions don't succeed, return true
-        -- if all inclusions are optional, and none succeed, return false
-        -- if there are no inclusions, and there are exclusions, and exclusions do not succeed, return true
-        -- if exclusions succeed (checked only if there are no inclusions, or if inclusions succeed), return 'EXCLUDED'
-        -- if no inclusions or exclusions, return true (needed per Brady Miller). Rule will be applicable to all patients
-
-        -- when processing inclusions, if filters exist in multiple categories (e.g. age, gender and lifestyle), need to process all categories.
-        -- If required filters in one category succeed, need to check for required filters in other categories
-        -- Similarly, if all filters in one category are optional and do not succeed, need to see if optional filters exist in a different category
-        -- that might succeed
-
-        -- Mixing optional and required filters makes no sense, but is tollerated. If one filter is required, any optional filters have no relevence
-
-        -- Same ideas have been applied to analysis of targets
-        */
-        $passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateTarget);
-
-        if ($passFilter === "EXCLUDED") {
-            // increment EXCLUDED and pass_filter counters
-            //  and set as FALSE for reminder functionality.
-            $pass_filter++;
-            $exclude_filter++;
-            $passFilter = false;
-        }
-
-        if ($passFilter) {
-            // increment pass filter counter
-            $pass_filter++;
-            // If report itemization is turned on, trigger flag.
-            if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
-                $temp_track_pass = 0;
-            }
-        } else {
-            // did not pass filters.
-            // skip analysis of individual targets via check on $passFilter below. But will still execute code looking at targetGroups
-            ;
-        }
-
         // Find the number of target groups
         $targetGroups = returnTargetGroups($rowRule['id']);
 
@@ -1086,6 +1023,62 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                 // If report itemization is turned on, reset flag.
                 if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
                     $temp_track_pass = 1;
+                }
+
+                // Check if pass filter
+                /*
+                HR: moved the test_filter() check to this location, outside
+                    foreach ($target_dates as $dateFocus)
+
+                Filters do not need to be tested against each $dateFocus value (see below) and filters were inappropriately failing to evaluate to true when
+                filters were evaluated against $dateFoucs rather than $dateTarget.
+
+                test_filter() looks for patient data entered prior to $dateTarget timepoint
+
+                test_filter() was previously returning:
+                --false if an inclusion filter does not succeed
+                --"EXCLUDED" if an exclusion filter succeeds
+                --otherwise true
+
+                Changed so it now returns:
+                -- if any required inclusions fail, return false
+                -- if there are no required inclusions, and some optional inclusions exist, and any optional inclusions succeed,
+                and either exclusions don't exist or exclusions don't succeed, return true
+                -- if all inclusions are optional, and none succeed, return false
+                -- if there are no inclusions, and there are exclusions, and exclusions do not succeed, return true
+                -- if exclusions succeed (checked only if there are no inclusions, or if inclusions succeed), return 'EXCLUDED'
+                -- if no inclusions or exclusions, return true (needed per Brady Miller). Rule will be applicable to all patients
+
+                -- when processing inclusions, if filters exist in multiple categories (e.g. age, gender and lifestyle), need to process all categories.
+                -- If required filters in one category succeed, need to check for required filters in other categories
+                -- Similarly, if all filters in one category are optional and do not succeed, need to see if optional filters exist in a different category
+                -- that might succeed
+
+                -- Mixing optional and required filters makes no sense, but is tollerated. If one filter is required, any optional filters have no relevence
+
+                -- Same ideas have been applied to analysis of targets
+                */
+                $passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateTarget);
+
+                if ($passFilter === "EXCLUDED") {
+                    // increment EXCLUDED and pass_filter counters
+                    //  and set as FALSE for reminder functionality.
+                    $pass_filter++;
+                    $exclude_filter++;
+                    $passFilter = false;
+                }
+
+                if ($passFilter) {
+                    // increment pass filter counter
+                    $pass_filter++;
+                    // If report itemization is turned on, trigger flag.
+                    if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
+                        $temp_track_pass = 0;
+                    }
+                } else {
+                    // did not pass filters.
+                    // skip analysis of individual targets via check on $passFilter below
+                    ;
                 }
 
                 if ($passFilter) {
@@ -1225,6 +1218,12 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                     // If report itemization is turned on, reset flag.
                     if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
                         $temp_track_pass = 1;
+                    }
+
+                    $passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateTarget);
+
+                    if ($passFilter === "EXCLUDED") {
+                        $passFilter = false;
                     }
 
                     if ($passFilter) {
