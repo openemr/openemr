@@ -996,6 +996,69 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
         $exclude_filter = 0;
         $pass_target = 0;
 
+        $passFilter = null;
+
+        // Check if pass filter
+        /*
+        HR: moved the test_filter() check to this location, above and outside both
+            foreach ($target_dates as $dateFocus)
+        and
+            if ((count($targetGroups) == 1) || ($mode == "report")) {
+            if (count($targetGroups) > 1) {
+
+        Filters do not need to be tested against each $dateFocus value (see below) and filters were inappropriately failing to evaluate to true when
+        filters were evaluated against $dateFoucs rather than $dateTarget.
+
+        Similarly, code for filter checking was duplicated inside the two $targetGroups sections (one executed when one target group exists, and the other when more than one target group exists)
+
+        test_filter() looks for patient data entered prior to $dateTarget timepoint
+
+        test_filter() was previously returning:
+        --false if an inclusion filter does not succeed
+        --"EXCLUDED" if an exclusion filter succeeds
+        --otherwise true
+
+        Changed so it now returns:
+        -- if any required inclusions fail, return false
+        -- if there are no required inclusions, and some optional inclusions exist, and any optional inclusions succeed,
+        and either exclusions don't exist or exclusions don't succeed, return true
+        -- if all inclusions are optional, and none succeed, return false
+        -- if there are no inclusions, and there are exclusions, and exclusions do not succeed, return true
+        -- if exclusions succeed (checked only if there are no inclusions, or if inclusions succeed), return 'EXCLUDED'
+        -- if no inclusions or exclusions, return true (needed per Brady Miller). Rule will be applicable to all patients
+
+        -- when processing inclusions, if filters exist in multiple categories (e.g. age, gender and lifestyle), need to process all categories.
+        -- If required filters in one category succeed, need to check for required filters in other categories
+        -- Similarly, if all filters in one category are optional and do not succeed, need to see if optional filters exist in a different category
+        -- that might succeed
+
+        -- Mixing optional and required filters makes no sense, but is tollerated. If one filter is required, any optional filters have no relevence
+
+        -- Same ideas have been applied to analysis of targets
+        */
+        $passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateTarget);
+
+        if ($passFilter === "EXCLUDED") {
+            // increment EXCLUDED and pass_filter counters
+            //  and set as FALSE for reminder functionality.
+            $pass_filter++;
+            $exclude_filter++;
+            $passFilter = false;
+        }
+
+        if ($passFilter) {
+            // increment pass filter counter
+            $pass_filter++;
+            // If report itemization is turned on, trigger flag.
+            if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
+                $temp_track_pass = 0;
+            }
+        } else {
+            // did not pass filters.
+            // skip analysis of individual targets via check on $passFilter below. But will still execute code looking at targetGroups
+            ;
+        }
+
         // Find the number of target groups
         $targetGroups = returnTargetGroups($rowRule['id']);
 
@@ -1025,147 +1088,95 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                     $temp_track_pass = 1;
                 }
 
-                $passFilter = null;
-
-                foreach ($target_dates as $dateFocus) {
-                    //Skip if date is set to SKIP
-                    if ($dateFocus == "SKIP") {
-                        $dateCounter++;
-                        continue;
-                    }
-
-                    //Set date counter and reminder token (applicable for reminders only)
-                    // HR: $reminder_due is the status the reminder will have and end of processing $dateFocus if filters pass and target does not pass
-                    if ($dateCounter == 1) {
-                        $reminder_due = "soon_due";
-                    } elseif ($dateCounter == 2) {
-                        $reminder_due = "due";
-                    } else { // $dateCounter == 3
-                        $reminder_due = "past_due";
-                    }
-
-                    // Check if pass filter
-                    /*
-                    HR: changed behavior of test_filter(), and will pass it $dateTarget instead of $dateFocus. Will also call test_filter() only once, not for each $dateFocus value
-                    test_filter() looks for patient data entered prior to $dateTarget timepoint
-
-                    test_filter() was returning
-                    false if an inclusion filter does not succeed
-                    "EXCLUDED" if an exclusion filter succeeds
-                    otherwise true
-
-                    Changed so it now returns:
-                    -- if any required inclusions fail, return false
-                    -- if there are no required inclusions, and some optional inclusions exist, and any optional inclusions succeed,
-                    and either exclusions don't exist or exclusions don't succeed, return true
-                    -- if all inclusions are optional, and none succeed, return false
-                    -- if there are no inclusions, and there are exclusions, and exclusions do not succeed, return true
-                    -- if exclusions succeed (checked only if there are no inclusions, or if inclusions succeed), return 'EXCLUDED'
-                    -- if no inclusions or exclusions, return false
-
-                    -- when processing inclusions, if filters exist in multiple categories (e.g. age, gender and lifestyle), need to process all categories.
-                    -- If required filters in one category succeed, need to check for required filters in other categories
-                    -- Similarly, if all filters in one category are optional and do not succeed, need to see if optional filters exist in different category
-                    -- that might succeed
-
-                    -- Mixing optional and required filters makes no sense, but is tollerated. If one filter is required, any optional filters have no relevence
-
-                    -- Same ideas apply to analysis of targets as well as filters
-                    */
-                    if ($dateCounter == 1) { // only do once, for $dateTarget (which is generally "today")
-                        $passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateTarget);
-                    }
-
-                    if ($passFilter === "EXCLUDED") {
-                        // increment EXCLUDED and pass_filter counters
-                        //  and set as FALSE for reminder functionality.
-                        $pass_filter++;
-                        $exclude_filter++;
-                        $passFilter = false;
-                    }
-
-                    if ($passFilter) {
-                        // increment pass filter counter
-                        $pass_filter++;
-                        // If report itemization is turned on, trigger flag.
-                        if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
-                            $temp_track_pass = 0;
-                        }
-                    } else {
-                        $dateCounter++;
-                        continue;
-                    }
-
-                    // Check if pass target
-                    /*
-                    HR: rules UI defines targets as lifestyle, custom table or custom.
-                    All of these are evaluated by "database" lookup (unlike filters, which can also look at age, gender, lists, and procedures)
-                    test_targets can look at procedures or appointments as well, but not defined in rule UI
-                    I reworked test_targets similar to how I reworked test_filters to properly handle required vs inclusion targets, and multiple target categories
-                    Previously, if had a single target, which was optional and evaluated to false, test_targets would return true.
-                    test_targets now returns false if have only optional targets and none evaluate to true
-
-                    test_targets considers all targets as "inclusion" even if target is defined as "exclusion"
-
-                    I added $dateTarget param to call to test_targets, to allow right boundary of examined intervals to be $dateTarget regardless of $dateFocus value
-                    */
-                    $passTarget = test_targets($rowPatient['pid'], $rowRule['id'], '', $dateFocus, $dateTarget);
-
-                    if ($passTarget) {
-                        // increment pass target counter
-                        $pass_target++;
-                        // If report itemization is turned on, then record the "passed" item and set the flag
-                        if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
-                            insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $rowPatient['pid']);
-                            $temp_track_pass = 1;
+                if ($passFilter) {
+                    foreach ($target_dates as $dateFocus) {
+                        //Skip if date is set to SKIP
+                        if ($dateFocus == "SKIP") {
+                            $dateCounter++;
+                            continue;
                         }
 
-                        // send to reminder results
-                        if ($mode == "reminders-all") {
-                            // place the completed actions into the reminder return array
-                            $actionArray = resolve_action_sql($rowRule['id'], '1');
-                            foreach ($actionArray as $action) {
-                                $action_plus = $action;
+                        //Set date counter and reminder token (applicable for reminders only)
+                        // HR: $reminder_due is the status the reminder will have and end of processing $dateFocus if filters pass and target does not pass
+                        if ($dateCounter == 1) {
+                            $reminder_due = "soon_due";
+                        } elseif ($dateCounter == 2) {
+                            $reminder_due = "due";
+                        } else { // $dateCounter == 3
+                            $reminder_due = "past_due";
+                        }
 
-                                // original line
-                                // With this line, Reminder Details page shows only not due and past due
-                                //$action_plus['due_status'] = "not_due";
+                        // Check if pass target
+                        /*
+                        HR: rules UI defines targets as lifestyle, custom table or custom.
+                        All of these are evaluated by "database" lookup (unlike filters, which can also look at age, gender, lists, and procedures)
+                        test_targets can look at procedures or appointments as well, but not defined in rule UI
+                        I reworked test_targets similar to how I reworked test_filters to properly handle required vs inclusion targets, and multiple target categories
+                        Previously, if had a single target, which was optional and evaluated to false, test_targets would return true.
+                        test_targets now returns false if have only optional targets and none evaluate to true
 
-                                // HR: My replacement lines
-                                // if passed during this pass, this is the status
-                                if ($dateCounter == 1) {
-                                    // not_due doesn't cause any text to show. Labels come from Clinical Rules Reminder Due Options. Has not_due, so not sure why that does not work
-                                    $reminder_status = "Not Due";
-                                } elseif ($dateCounter == 2) {
-                                    $reminder_status = "soon_due";
-                                } else { // $dateCounter == 3
-                                    $reminder_status = "due";
+                        test_targets considers all targets as "inclusion" even if target is defined as "exclusion"
+
+                        I added $dateTarget param to call to test_targets, to allow right boundary of examined intervals to be $dateTarget regardless of $dateFocus value
+                        */
+                        $passTarget = test_targets($rowPatient['pid'], $rowRule['id'], '', $dateFocus, $dateTarget);
+
+                        if ($passTarget) {
+                            // increment pass target counter
+                            $pass_target++;
+                            // If report itemization is turned on, then record the "passed" item and set the flag
+                            if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
+                                insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $rowPatient['pid']);
+                                $temp_track_pass = 1;
+                            }
+
+                            // send to reminder results
+                            if ($mode == "reminders-all") {
+                                // place the completed actions into the reminder return array
+                                $actionArray = resolve_action_sql($rowRule['id'], '1');
+                                foreach ($actionArray as $action) {
+                                    $action_plus = $action;
+
+                                    // original line
+                                    // With this line, Reminder Details page shows only not due and past due
+                                    //$action_plus['due_status'] = "not_due";
+
+                                    // HR: My replacement lines
+                                    // if passed during this pass, this is the status
+                                    if ($dateCounter == 1) {
+                                        // not_due doesn't cause any text to show. Labels come from Clinical Rules Reminder Due Options. Has not_due, so not sure why that does not work
+                                        $reminder_status = "Not Due";
+                                    } elseif ($dateCounter == 2) {
+                                        $reminder_status = "soon_due";
+                                    } else { // $dateCounter == 3
+                                        $reminder_status = "due";
+                                    }
+
+                                    $action_plus['due_status'] = $reminder_status;
+                                    $action_plus['pid'] = $rowPatient['pid'];
+                                    $action_plus['rule_id'] = $rowRule['id'];
+                                    $results = reminder_results_integrate($results, $action_plus);
                                 }
+                            }
 
-                                $action_plus['due_status'] = $reminder_status;
-                                $action_plus['pid'] = $rowPatient['pid'];
-                                $action_plus['rule_id'] = $rowRule['id'];
-                                $results = reminder_results_integrate($results, $action_plus);
+                            break;
+                        } else {
+                            // send to reminder results
+                            if ($mode != "report") {
+                                // place the uncompleted actions into the reminder return array
+                                $actionArray = resolve_action_sql($rowRule['id'], '1');
+                                foreach ($actionArray as $action) {
+                                    $action_plus = $action;
+                                    $action_plus['due_status'] = $reminder_due;
+                                    $action_plus['pid'] = $rowPatient['pid'];
+                                    $action_plus['rule_id'] = $rowRule['id'];
+                                    $results = reminder_results_integrate($results, $action_plus);
+                                }
                             }
                         }
 
-                        break;
-                    } else {
-                        // send to reminder results
-                        if ($mode != "report") {
-                            // place the uncompleted actions into the reminder return array
-                            $actionArray = resolve_action_sql($rowRule['id'], '1');
-                            foreach ($actionArray as $action) {
-                                $action_plus = $action;
-                                $action_plus['due_status'] = $reminder_due;
-                                $action_plus['pid'] = $rowPatient['pid'];
-                                $action_plus['rule_id'] = $rowRule['id'];
-                                $results = reminder_results_integrate($results, $action_plus);
-                            }
-                        }
+                        $dateCounter++;
                     }
-
-                    $dateCounter++;
                 }
 
                 // If report itemization is turned on, then record the "failed" item if it did not pass
@@ -1216,107 +1227,94 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         $temp_track_pass = 1;
                     }
 
-                    $passFilter = null;
-
-                    foreach ($target_dates as $dateFocus) {
-                        //Skip if date is set to SKIP
-                        if ($dateFocus == "SKIP") {
-                            $dateCounter++;
-                            continue;
+                    if ($passFilter) {
+                        // If report itemization is turned on, trigger flag.
+                        if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
+                            $temp_track_pass = 0;
                         }
+                    }
 
-                        //Set date counter and reminder token (applicable for reminders only)
-                        if ($dateCounter == 1) {
-                            $reminder_due = "soon_due";
-                        } elseif ($dateCounter == 2) {
-                            $reminder_due = "due";
-                        } else { // $dateCounter == 3
-                            $reminder_due = "past_due";
-                        }
-
-                        // Check if pass filter
-                        // HR: change: pass $dateTarget, not $dateFocus to test_filter, and call only once
-                        if ($dateCounter == 1) {
-                            $passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateTarget); // as above,
-                        }
-
-                        if ($passFilter === "EXCLUDED") {
-                            $passFilter = false;
-                        }
-
-                        if (!$passFilter) {
-                            $dateCounter++;
-                            continue;
-                        } else {
-                            // If report itemization is turned on, trigger flag.
-                            if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
-                                $temp_track_pass = 0;
-                            }
-                        }
-
-                        //Check if pass target
-                        // HR: I added $dateTarget param to test_targets to allow right boundary to be $dateTarget regardless of $dateFocus value
-                        $passTarget = test_targets($rowPatient['pid'], $rowRule['id'], $i, $dateFocus, $dateTarget);
-                        if ($passTarget) {
-                            // increment pass target counter
-                            $pass_target++;
-                            // If report itemization is turned on, then record the "passed" item and set the flag
-                            if ($GLOBALS['report_itemizing_temp_flag_and_id'] ?? null) {
-                                insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $rowPatient['pid']);
-                                $temp_track_pass = 1;
+                    if ($passFilter) {
+                        foreach ($target_dates as $dateFocus) {
+                            //Skip if date is set to SKIP
+                            if ($dateFocus == "SKIP") {
+                                $dateCounter++;
+                                continue;
                             }
 
-                            // send to reminder results
-                            if ($mode == "reminders-all") {
-                                // place the completed actions into the reminder return array
-                                $actionArray = resolve_action_sql($rowRule['id'], $i);
-                                foreach ($actionArray as $action) {
-                                    $action_plus = $action;
+                            //Set date counter and reminder token (applicable for reminders only)
+                            if ($dateCounter == 1) {
+                                $reminder_due = "soon_due";
+                            } elseif ($dateCounter == 2) {
+                                $reminder_due = "due";
+                            } else { // $dateCounter == 3
+                                $reminder_due = "past_due";
+                            }
 
-                                    // original line:
-                                    //$action_plus['due_status'] = "not_due";
-                                    // With this line, Reminder Details page shows only not due and past due
+                            //Check if pass target
+                            // HR: I added $dateTarget param to test_targets to allow right boundary to be $dateTarget regardless of $dateFocus value
+                            $passTarget = test_targets($rowPatient['pid'], $rowRule['id'], $i, $dateFocus, $dateTarget);
+                            if ($passTarget) {
+                                // increment pass target counter
+                                $pass_target++;
+                                // If report itemization is turned on, then record the "passed" item and set the flag
+                                if ($GLOBALS['report_itemizing_temp_flag_and_id'] ?? null) {
+                                    insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $rowPatient['pid']);
+                                    $temp_track_pass = 1;
+                                }
 
-                                    // HR: My replacement lines
-                                    // if passed during this pass, this is the status
-                                    if ($dateCounter == 1) {
-                                        // not_due doesn't cause any text to show. Labels come from Clinical Rules Reminder Due Options. Has not_due, so not sure why that does not work
-                                        $reminder_status = "Not Due";
-                                    } elseif ($dateCounter == 2) {
-                                        $reminder_status = "soon_due";
-                                    } else { // $dateCounter == 3
-                                        $reminder_status = "due";
+                                // send to reminder results
+                                if ($mode == "reminders-all") {
+                                    // place the completed actions into the reminder return array
+                                    $actionArray = resolve_action_sql($rowRule['id'], $i);
+                                    foreach ($actionArray as $action) {
+                                        $action_plus = $action;
+
+                                        // original line:
+                                        //$action_plus['due_status'] = "not_due";
+                                        // With this line, Reminder Details page shows only not due and past due
+
+                                        // HR: My replacement lines
+                                        // if passed during this pass, this is the status
+                                        if ($dateCounter == 1) {
+                                            // not_due doesn't cause any text to show. Labels come from Clinical Rules Reminder Due Options. Has not_due, so not sure why that does not work
+                                            $reminder_status = "Not Due";
+                                        } elseif ($dateCounter == 2) {
+                                            $reminder_status = "soon_due";
+                                        } else { // $dateCounter == 3
+                                            $reminder_status = "due";
+                                        }
+
+                                        // HR: will leave next line alone. Not sure what implications of changing this are here. This was changed above for
+                                        //    if ((count($targetGroups) == 1) || ($mode == "report")) {
+                                        // case
+
+                                        $action_plus['due_status'] = "not_due";
+                                        //$action_plus['due_status'] = $reminder_status;
+                                        $action_plus['pid'] = $rowPatient['pid'];
+                                        $action_plus['rule_id'] = $rowRule['id'];
+                                        $results = reminder_results_integrate($results, $action_plus);
                                     }
+                                }
 
-                                    // HR: will leave next line alone. Not sure what implications of changing this are here. This was changed above for
-                                    //    if ((count($targetGroups) == 1) || ($mode == "report")) {
-                                    // case
-
-                                    $action_plus['due_status'] = "not_due";
-                                    //$action_plus['due_status'] = $reminder_status;
-                                    $action_plus['pid'] = $rowPatient['pid'];
-                                    $action_plus['rule_id'] = $rowRule['id'];
-                                    $results = reminder_results_integrate($results, $action_plus);
+                                break;
+                            } else {
+                                // send to reminder results
+                                if ($mode != "report") {
+                                    // place the actions into the reminder return array
+                                    $actionArray = resolve_action_sql($rowRule['id'], $i);
+                                    foreach ($actionArray as $action) {
+                                        $action_plus = $action;
+                                        $action_plus['due_status'] = $reminder_due;
+                                        $action_plus['pid'] = $rowPatient['pid'];
+                                        $action_plus['rule_id'] = $rowRule['id'];
+                                        $results = reminder_results_integrate($results, $action_plus);
+                                    }
                                 }
                             }
 
-                            break;
-                        } else {
-                            // send to reminder results
-                            if ($mode != "report") {
-                                // place the actions into the reminder return array
-                                $actionArray = resolve_action_sql($rowRule['id'], $i);
-                                foreach ($actionArray as $action) {
-                                    $action_plus = $action;
-                                    $action_plus['due_status'] = $reminder_due;
-                                    $action_plus['pid'] = $rowPatient['pid'];
-                                    $action_plus['rule_id'] = $rowRule['id'];
-                                    $results = reminder_results_integrate($results, $action_plus);
-                                }
-                            }
+                            $dateCounter++;
                         }
-
-                        $dateCounter++;
                     }
 
                     // If report itemization is turned on, then record the "failed" item if it did not pass
@@ -1605,7 +1603,7 @@ function test_filter($patient_id, $rule, $dateTarget)
     If inclusion filters in all categories are optional and do not succeed, return false (no need to check for exclusions)
 
     If inclusion filters succeed, check for exclusions.
-    If no exclusions, return true
+    If no exclusions, and inclusions succeeded, return true
     If exclusions exist and do not succeed, return true.
     If exclusions succeed, return 'EXCLUDED'
 
@@ -1613,7 +1611,7 @@ function test_filter($patient_id, $rule, $dateTarget)
     If exclusion filters succeed, return 'EXCLUDED'. If exclusion filters do not succeed, return true
     (So rules do not have to have inclusion filters. If rule has only exclusion filters, and exclusion filters do not succeed, rule is applicable to patient)
 
-    if rule has no inclusion or exclusion filters, return false
+    If rule has no inclusion or exclusion filters, return true (if no filters, rule is applicabile to all patients)
     */
 
   // Set date to current if not set
@@ -1804,7 +1802,7 @@ function test_filter($patient_id, $rule, $dateTarget)
     /*
     HR: if get to this point, then either there were no inclusions, or else inclusion analysis succeeded.
     If inclusions had existed and had not succeeded, would have returned false above.
-    If no inclusions, and also no exclusions, return false
+    If no inclusions, and also no exclusions, return true
     If exclusions exist and succeed, regardless of whether there were no inclusions, or if inclusions had succeeded, return EXCLUDED
     If no exclusions, or if exclusions do not succeed and inclusions existed and succeeded, return true
     */
@@ -1860,14 +1858,17 @@ function test_filter($patient_id, $rule, $dateTarget)
     if ($anyExcludesFound === '') {
         // no exclusions found
         if ($anySuccess === '') {
-            return false;
+            // no inclusion or exclusion filters
+            return true;
         }
+        // inclusions passed and no exclusions
         return true;
     } else {
         // exclusions found, were all optional, and did not succeed
         if ($anySuccess === '') {
             return true;
         }
+        // inclusions succeeded. exclusions found, were optional, and did not succeed
         return true;
     }
 }
