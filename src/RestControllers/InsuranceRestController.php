@@ -38,7 +38,8 @@ class InsuranceRestController
         $serviceResult = $this->insuranceService->search($searchParams);
         return RestControllerHelper::handleProcessingResult($serviceResult, null, 200);
     }
-    public function getOne($insuranceUuid, $puuid) {
+    public function getOne($insuranceUuid, $puuid)
+    {
         $searchParams = [];
         // we do this again cause we have to handle the 404 result here.
         $searchParams['uuid'] = new TokenSearchField('uuid', $insuranceUuid, true);
@@ -48,7 +49,7 @@ class InsuranceRestController
             return RestControllerHelper::handleProcessingResult($processingResult, 404);
         }
 
-        return RestControllerHelper::handleProcessingResult($processingResult, 200, false  );
+        return RestControllerHelper::handleProcessingResult($processingResult, 200, false);
     }
     public function put($puuid, $insuranceUuid, $data)
     {

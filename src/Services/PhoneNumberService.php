@@ -91,9 +91,8 @@ class PhoneNumberService extends BaseService
         $phoneNumbersSql .= "     country_code=?,";
         $phoneNumbersSql .= "     area_code=?,";
         $phoneNumbersSql .= "     prefix=?,";
-        $phoneNumbersSql .= "     number=?,";
-        $phoneNumbersSql .= "     type=?";
-        $phoneNumbersSql .= "     WHERE foreign_id=?";
+        $phoneNumbersSql .= "     number=? ";
+        $phoneNumbersSql .= "     WHERE foreign_id=? AND type=?";
 
         $phoneNumbersSqlResults = sqlStatement(
             $phoneNumbersSql,
@@ -102,8 +101,8 @@ class PhoneNumberService extends BaseService
                 $this->area_code ,
                 $this->prefix,
                 $this->number,
-                $this->type,
-                $this->foreignId
+                $this->foreignId,
+                $this->type
             )
         );
 

@@ -93,7 +93,7 @@
                 <select name="form_provider" class="form-control form-control-sm sel2 mb-1" style="width: 250px;">
                     <option value="">{{ 'Unassigned'|xlt }}</option>
                 </select>
-                <a class="medium_modal btn btn-primary" href="../../practice/ins_search.php?ins=" role="button">{{ 'Search/Add/Edit'|xlt  }}</a>
+                <a data-modal-title="{{ "Insurance Search/Add/Edit"|xla }}" class="medium_modal btn btn-primary insurance-search-open-finder" href="../../practice/ins_search.php?ins=" role="button">{{ 'Search/Add/Edit'|xlt  }}</a>
             </div>
         </div>
         {% for fieldRow in fields.left %}

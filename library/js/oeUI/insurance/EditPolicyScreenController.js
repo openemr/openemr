@@ -109,8 +109,8 @@ export class EditPolicyScreenController
             }
             if (evt.data && evt.data.hasOwnProperty('action')) {
                 if (evt.data.action == 'insurance-patient-browser-selected') {
-                    let patientUuid = evt.data.patientUuid;
-                    let insuranceUuid = evt.data.insuranceUuid;
+                    let patientUuid = evt.data.patientUuid || null;
+                    let insuranceUuid = evt.data.insuranceUuid || null;
                     if (!patientUuid || !insuranceUuid) {
                         alert(window.top.xl("No patient was selected to copy values from."));
                         return;
@@ -127,6 +127,19 @@ export class EditPolicyScreenController
                             console.error(error);
                             alert(window.top.xl("An error occurred while loading the insurance policy.  Please try again or contact your system administrator."));
                         });
+                    this.render();
+                }
+                else if (evt.data.action == 'insurance-search-set-insurance') {
+                    let insuranceCompanyId = evt.data.insuranceId || null;
+                    let insuranceCompanyName = evt.data.insuranceName || null;
+                    if (!insuranceCompanyId || !insuranceCompanyName) {
+                        alert(window.top.xl("An error occurred while loading the insurance company information."));
+                        console.error("Failed to find insurance company id or name in event data, this should not happen and is a bug.Event: ", evt);
+                        return;
+                    }
+                    this.selectedInsurance.provider = insuranceCompanyId;
+                    this.__insurancePolicyService.addInsuranceProviderToList(insuranceCompanyId, insuranceCompanyName);
+                    this.__insuranceProviderList = this.__insurancePolicyService.getInsuranceProvidersList();
                     this.render();
                 }
             }
@@ -232,6 +245,26 @@ export class EditPolicyScreenController
                 window.top.restoreSession();
                 let id = (new Date()).getTime();
                 window.open(dlgUrl, id, 'toolbar=0,scrollbars=1,location=0,statusbar=0,menubar=0,resizable=1,width=400,height=450,left = 440,top = 362');
+        });
+
+        insuranceInfoContainer.querySelector('.insurance-search-open-finder').addEventListener('click', (evt) => {
+            let input = evt.target;
+            let url = new URL(input.href);
+            if (this.selectedInsurance && this.selectedInsurance.provider) {
+                url.searchParams.set('ins', this.selectedInsurance.provider);
+            }
+            let relativeUrl = url.pathname + url.search;
+            evt.preventDefault();
+            dlgopen('', '', 700, 600, '', input.dataset['modalTitle'], {
+                buttons: [
+                    {text: window.top.xl('Close'), close: true, style: 'default btn-sm'}
+                ],
+                allowResize: true,
+                allowDrag: true,
+                dialogId: '',
+                type: 'iframe',
+                url: relativeUrl
+            });
         });
     }
 

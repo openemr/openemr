@@ -64,7 +64,8 @@ class InsuranceService extends BaseService
         return $this->coverageValidator->validate($data);
     }
 
-    public function getOneByPatientUuidAndInsuranceType($puuid, $type) {
+    public function getOneByPatientUuidAndInsuranceType($puuid, $type)
+    {
         return $this->search(['puuid' => $puuid, 'type' => $type]);
     }
 

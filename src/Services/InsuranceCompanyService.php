@@ -49,6 +49,55 @@ class InsuranceCompanyService extends BaseService
         parent::__construct(self::INSURANCE_TABLE);
     }
 
+    public function getInsuranceDisplayName($insuranceId)
+    {
+        $searchResults = $this->search(['id' => $insuranceId]);
+        $insuranceCompany = null;
+        if ($searchResults->hasData()) {
+            $insuranceCompany = $searchResults->getData()[0];
+        }
+        if (!empty($insuranceCompany)) {
+            return self::getDisplayNameForInsuranceRecord($insuranceCompany);
+        } else {
+            return "";
+        }
+    }
+    public static function getDisplayNameForInsuranceRecord($insuranceCompany)
+    {
+        switch ($GLOBALS['insurance_information']) {
+            case '1':
+                $returnval = $insuranceCompany['name'] . " (" . $insuranceCompany['line1'] . ", " . $insuranceCompany['line2'] . ")";
+                break;
+            case '2':
+                $returnval = $insuranceCompany['name'] . " (" . $insuranceCompany['line1'] . ", " . $insuranceCompany['line2'] . ", " . $insuranceCompany['zip'] . ")";
+                break;
+            case '3':
+                $returnval = $insuranceCompany['name'] . " (" . $insuranceCompany['line1'] . ", " . $insuranceCompany['line2'] . ", " . $insuranceCompany['state'] . ")";
+                break;
+            case '4':
+                $returnval = $insuranceCompany['name'] . " (" . $insuranceCompany['line1'] . ", " . $insuranceCompany['line2'] . ", " . $insuranceCompany['state'] .
+                    ", " . $insuranceCompany['zip'] . ")";
+                break;
+            case '5':
+                $returnval = $insuranceCompany['name'] . " (" . $insuranceCompany['line1'] . ", " . $insuranceCompany['line2'] . ", " . $insuranceCompany['city'] .
+                    ", " . $insuranceCompany['state'] . ", " . $insuranceCompany['zip'] . ")";
+                break;
+            case '6':
+                $returnval = $insuranceCompany['name'] . " (" . $insuranceCompany['line1'] . ", " . $insuranceCompany['line2'] . ", " . $insuranceCompany['city'] .
+                    ", " . $insuranceCompany['state'] . ", " . $insuranceCompany['zip'] . ", " . $insuranceCompany['cms_id'] . ")";
+                break;
+            case '7':
+                preg_match("/\d+/", $insuranceCompany['line1'], $matches);
+                $returnval = $insuranceCompany['name'] . " (" . $insuranceCompany['zip'] .
+                    "," . $matches[0] . ")";
+                break;
+            case '0':
+            default:
+                $returnval = $insuranceCompany['name'];
+                break;
+        }
+        return $returnval;
+    }
     public function getUuidFields(): array
     {
         return ['uuid'];
@@ -65,7 +114,7 @@ class InsuranceCompanyService extends BaseService
         $sql .= "        i.x12_receiver_id,";
         $sql .= "        i.x12_default_partner_id,";
         $sql .= "        i.alt_cms_id,";
-        $sql .= "        i.inactive,work_number.id as work_id,fax_number.id AS fax_id,";
+        $sql .= "        i.inactive,work_number.work_id,fax_number.fax_id,";
         $sql .= "        CONCAT(
                             COALESCE(work_number.country_code,'')
                             ,COALESCE(work_number.area_code,'')
@@ -85,18 +134,18 @@ class InsuranceCompanyService extends BaseService
         $sql .= "        a.zip,";
         $sql .= "        a.country";
         $sql .= " FROM insurance_companies i ";
-        $sql .= " JOIN addresses a ON i.id = a.foreign_id";
+        $sql .= " JOIN (SELECT line1,line2,city,state,zip,country,foreign_id FROM addresses) a ON i.id = a.foreign_id";
         // the foreign_id here is a globally unique sequence so there is no conflict.
         // I don't like the assumption here as it should be more explicit what table we are pulling
         // from since OpenEMR mixes a bunch of paradigms.  I initially worried about data corruption as phone_numbers
         // foreign id could be ambigious here... but since the sequence is globally unique @see \generate_id() we can
         // join here safely...
         $sql .= " LEFT JOIN (
-                        SELECT id,foreign_id,country_code, area_code, prefix, number
+                        SELECT id AS work_id,foreign_id,country_code, area_code, prefix, number
                         FROM phone_numbers WHERE number IS NOT NULL AND type = " . self::TYPE_WORK . "
                     ) work_number ON i.id = work_number.foreign_id";
         $sql .= " LEFT JOIN (
-                        SELECT id,foreign_id,country_code, area_code, prefix, number
+                        SELECT id AS fax_id,foreign_id,country_code, area_code, prefix, number
                         FROM phone_numbers WHERE number IS NOT NULL AND type = " . self::TYPE_FAX . "
                     ) fax_number ON i.id = fax_number.foreign_id";
 

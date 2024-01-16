@@ -21,6 +21,7 @@ use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\SocialHistoryService;
 use OpenEMR\Billing\InsurancePolicyTypes;
+use OpenEMR\Services\InsuranceCompanyService;
 
 require_once(dirname(__FILE__) . "/dupscore.inc.php");
 
@@ -116,37 +117,8 @@ function getInsuranceProvidersExtra()
     $rez = sqlStatement($sql);
 
     for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
-        switch ($GLOBALS['insurance_information']) {
-            case $GLOBALS['insurance_information'] = '0':
-                $returnval[$row['id']] = $row['name'];
-                break;
-            case $GLOBALS['insurance_information'] = '1':
-                $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ", " . $row['line2'] . ")";
-                break;
-            case $GLOBALS['insurance_information'] = '2':
-                $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ", " . $row['line2'] . ", " . $row['zip'] . ")";
-                break;
-            case $GLOBALS['insurance_information'] = '3':
-                $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ", " . $row['line2'] . ", " . $row['state'] . ")";
-                break;
-            case $GLOBALS['insurance_information'] = '4':
-                $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ", " . $row['line2'] . ", " . $row['state'] .
-                    ", " . $row['zip'] . ")";
-                break;
-            case $GLOBALS['insurance_information'] = '5':
-                $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ", " . $row['line2'] . ", " . $row['city'] .
-                    ", " . $row['state'] . ", " . $row['zip'] . ")";
-                break;
-            case $GLOBALS['insurance_information'] = '6':
-                $returnval[$row['id']] = $row['name'] . " (" . $row['line1'] . ", " . $row['line2'] . ", " . $row['city'] .
-                    ", " . $row['state'] . ", " . $row['zip'] . ", " . $row['cms_id'] . ")";
-                break;
-            case $GLOBALS['insurance_information'] = '7':
-                preg_match("/\d+/", $row['line1'], $matches);
-                $returnval[$row['id']] = $row['name'] . " (" . $row['zip'] .
-                    "," . $matches[0] . ")";
-                break;
-        }
+        $displayName = InsuranceCompanyService::getDisplayNameForInsuranceRecord($row);
+        $returnval[$row['id']] = $displayName;
     }
 
     return $returnval;

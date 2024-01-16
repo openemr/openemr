@@ -42,6 +42,9 @@ export class InsurancePolicyService
             })
             .then(result => result.json());
     }
+    addInsuranceProviderToList(insuranceCompanyId, insuranceCompanyName) {
+        this.__insuranceProviderList[insuranceCompanyId] = insuranceCompanyName;
+    }
 
     getInsuranceProvidersList() {
         return this.__insuranceProviderList;

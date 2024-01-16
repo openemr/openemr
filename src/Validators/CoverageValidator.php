@@ -116,7 +116,7 @@ class CoverageValidator extends BaseValidator
                             }
                         }
                         return true;
-                 });
+                    });
                 $context->optional('date_end')
                     ->required(function ($values) {
                         if (!empty($values['date'])) {
@@ -127,7 +127,7 @@ class CoverageValidator extends BaseValidator
                         return false;
                     }, null, true)
                     ->datetime('Y-m-d')
-                    ->callback(function($value, $values) {
+                    ->callback(function ($value, $values) {
 
 
                         return true;
