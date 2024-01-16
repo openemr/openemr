@@ -196,7 +196,7 @@ assets:
         basePath: '%assets_static_relative%/underscore/'
         script: underscore-min.js
     ckeditor:
-        basePath: '%assets_static_relative%/ckeditor4/'
+        basePath: '%assets_static_relative%/modified/ckeditor4/'
         script: ckeditor.js
     search-highlight:
         basePath: '%webroot%/library/js/'
