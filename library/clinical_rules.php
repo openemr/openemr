@@ -1902,8 +1902,7 @@ function returnTargetGroups($rule)
  * @param  string   $dateTarget  date used for determining right boundary of intervals (format Y-m-d H:i:s).
  * @return boolean               if target passes then true, otherwise false
 
-    called only if targets exist   !! no, this can be called even if no targets defined for a rule, I don't see a place in the code that would
-        prevent test_targets() from getting called if no targets defined
+    This can be called even if no targets defined for a rule
 
     HR: note: currently, this logic ignores inclusion/exclusion flag. Treats all as inclusion
 
@@ -2419,9 +2418,12 @@ function resolve_action_sql($rule, $group_id = '')
    $dateTarget, $intervalType and $intervalValue are passed to exist_custom_item() and exist_database_item()
    These functions call sql_interval_string(), passing $dateTarget, $intervalType and $intervalValue to sql_interval_string()
    sql_interval_string() builds the sql query string that checks patient data against an interval
-   The string sql_interval_string() was previously building filtered for patient data in date range:
-   $dateTarget - (interval mentioned in $intervalType and $intervalValue) -> $dateTarget
-   I modified it to instead create an interval that is $dateTarget - (interval mentioned in $intervalType and $intervalValue) -> now()
+   The string sql_interval_string() was previously building filters for patient data in date range:
+   $dateTarget - (interval mentioned in $intervalType and $intervalValue) -> $dateTarget (where $dateTarget is the value passed to sql_interval_string(),
+   which comes from $dateFocus in test_rules_clinic() )
+   I modified it to instead create an interval that is:
+   $dateFocus - (interval mentioned in $intervalType and $intervalValue) -> $dateTarget
+   (where $dateFocus and $dateTarget passed to sql_interval_string() are the same as $dateFocus and $dateTarget in test_rules_clinic() )
    See comments in sql_interval_string() for reasons for this change
  */
 function database_check($patient_id, $filter, $interval = '', $dateFocus = '', $dateTarget = '', $rule = '')
@@ -2955,7 +2957,7 @@ function exist_lifestyle_item($patient_id, $lifestyle, $status, $dateTarget)
  */
 function exist_lists_item($patient_id, $type, $value, $dateTarget)
 {
-    // HR: used only for filters, not tarets
+    // HR: used only for filters, not targets
 
   // Set date to current if not set
     $dateTarget = ($dateTarget) ? $dateTarget : date('Y-m-d H:i:s');
@@ -3043,8 +3045,9 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget)
  * @return string                  contains pertinent date interval filter for mysql query
  */
 /*
-   HR: is called for building sql used in processing both filters and targets. When called for filters, $dateFocus, $intervalType and $intervalValue are empty strings
-   When called for targets, $intervalType and $intervalValue are valued
+   HR: is called for building sql used in processing both filters and targets.
+   When called for filters, $dateFocus, $intervalType and $intervalValue are empty strings
+   When called for targets, $dateFocus, $intervalType and $intervalValue are valued
    When $intervalType and $intervalValue are empty strings, returns something like
       [db date field] <= $dateTarget
    which thus finds patient date entered prior to $dateTarget
@@ -3056,7 +3059,7 @@ function exist_lists_item($patient_id, $type, $value, $dateTarget)
     3) $dateTarget - pastDueInterval
    So targets were evaluated against these three intervals:
     1) $dateTarget + warningInterval - targetInterval -> $dateTarget + warningInterval
-    2) $dateTarget - targetInterval -> now()
+    2) $dateTarget - targetInterval -> $dateTarget
     3) $dateTarget - pastDueInterval - targetInterval -> $dateTarget - pastDueInterval
    If event found in (1), then "not due"
    else if event found in (2), then "due soon"
