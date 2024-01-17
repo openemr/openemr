@@ -499,8 +499,13 @@ var page = {
         });
 
         if (newFilename) { // autoload new on init. once only.
-            page.newDocument(cpid, cuser, newFilename, id);
-            newFilename = '';
+            if (!doc_edit && recid) {
+                newFilename = '';
+                page.newDocument(cpid, cuser, newFilename, recid);
+            } else if (doc_edit && rec_id) {
+                page.editHistoryDocument(recid);
+                newFilename = '';
+            }
         }
         // These are set on init for save alerts
         page.isFlattened = false;
@@ -641,9 +646,6 @@ var page = {
         $('#template_id').val('template_id');
         $('#status').val('New');
         page.isSaved = true;
-        if (docid !== 'Help') {
-            //page.isSaved = false;
-        }
         page.showDetailDialog(m); // saved in rendered event
     },
 
