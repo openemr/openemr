@@ -160,6 +160,9 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFunction(
                 'csrfToken',
                 function ($subject = 'default', $fieldName = "_token") {
+                    if (empty($subject)) {
+                        $subject = 'default';
+                    }
                     return sprintf('<input type="hidden" name="%s" value="%s">', $fieldName, attr(CsrfUtils::collectCsrfToken($subject)));
                 }
             ),
