@@ -53,6 +53,9 @@ use OpenEMR\Services\ImmunizationService;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use OpenEMR\Patient\Cards\InsuranceViewCard;
+use OpenEMR\Patient\Cards\BillingViewCard;
+use OpenEMR\Patient\Cards\DemographicsViewCard;
 
 $twig = new TwigContainer(null, $GLOBALS['kernel']);
 
@@ -1061,146 +1064,146 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     }
 
                     // ALLERGY CARD
-                    if ($allergy === 1) {
-                        $allergyService = new AllergyIntoleranceService();
-                        $_rawAllergies = filterActiveIssues($allergyService->getAll(['lists.pid' => $pid])->getData());
-                        $id = 'allergy_ps_expand';
-                        $viewArgs = [
-                            'title' => xl('Allergies'),
-                            'card_container_class_list' => ['flex-fill', 'mx-1', 'card'],
-                            'id' => $id,
-                            'forceAlwaysOpen' => false,
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
-                            'linkMethod' => "javascript",
-                            'list' => $_rawAllergies,
-                            'listTouched' => (!empty(getListTouch($pid, 'allergy'))) ? true : false,
-                            'auth' => true,
-                            'btnLabel' => 'Edit',
-                            'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=allergy')"
-                        ];
-                        echo "<div class=\"$col\">";
-                        echo $t->render('patient/card/allergies.html.twig', $viewArgs);
-                        echo "</div>";
-                    }
-
-                    $patIssueService = new PatientIssuesService();
-
-                    // MEDICAL PROBLEMS CARD
-                    if ($pl === 1) {
-                        $_rawPL = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medical_problem'])->getData();
-                        $id = 'medical_problem_ps_expand';
-                        $viewArgs = [
-                            'title' => xl('Medical Problems'),
-                            'card_container_class_list' => ['flex-fill', 'mx-1', 'card'],
-                            'id' => $id,
-                            'forceAlwaysOpen' => false,
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
-                            'linkMethod' => "javascript",
-                            'list' => filterActiveIssues($_rawPL),
-                            'listTouched' => (!empty(getListTouch($pid, 'medical_problem'))) ? true : false,
-                            'auth' => true,
-                            'btnLabel' => 'Edit',
-                            'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medical_problem')"
-                        ];
-                        echo "<div class=\"$col\">";
-                        echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
-                        echo "</div>";
-                    }
-
-                    // MEDICATION CARD
-                    if ($meds === 1) {
-                        $_rawMedList = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medication'])->getData();
-                        $id = 'medication_ps_expand';
-                        $viewArgs = [
-                            'title' => xl('Medications'),
-                            'card_container_class_list' => ['flex-fill', 'mx-1', 'card'],
-                            'id' => $id,
-                            'forceAlwaysOpen' => false,
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
-                            'linkMethod' => "javascript",
-                            'list' => filterActiveIssues($_rawMedList),
-                            'listTouched' => (!empty(getListTouch($pid, 'medication'))) ? true : false,
-                            'auth' => true,
-                            'btnLabel' => 'Edit',
-                            'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication')"
-                        ];
-                        echo "<div class=\"$col\">";
-                        echo $t->render('patient/card/medication.html.twig', $viewArgs);
-                        echo "</div>";
-                    }
-
-                    // Render the Prescriptions card if turned on
-                    if ($rx === 1) :
-                        if ($GLOBALS['erx_enable'] && $display_current_medications_below == 1) {
-                            $sql = "SELECT * FROM prescriptions WHERE patient_id = ? AND active = '1'";
-                            $res = sqlStatement($sql, [$pid]);
-
-                            $rxArr = [];
-                            while ($row = sqlFetchArray($res)) {
-                                $row['unit'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_units'), $row['unit']);
-                                $row['form'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_form'), $row['form']);
-                                $row['route'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_route'), $row['route']);
-                                $row['interval'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_interval'), $row['interval']);
-                                $rxArr[] = $row;
-                            }
-                            $id = "current_prescriptions_ps_expand";
-                            $viewArgs = [
-                                'title' => xl('Current Medications'),
-                                'id' => $id,
-                                'forceAlwaysOpen' => false,
-                                'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
-                                'auth' => false,
-                                'rxList' => $rxArr,
-                            ];
-
-                            echo $t->render('patient/card/erx.html.twig', $viewArgs);
-                        }
-
-                        $id = "prescriptions_ps_expand";
-                        $viewArgs = [
-                            'title' => xl("Prescriptions"),
-                            'card_container_class_list' => ['flex-fill', 'mx-1', 'card'],
-                            'id' => $id,
-                            'forceAlwaysOpen' => false,
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
-                            'btnLabel' => "Edit",
-                            'auth' => AclMain::aclCheckCore('patients', 'rx', '', ['write', 'addonly']),
-                        ];
-
-                        if ($GLOBALS['erx_enable']) {
-                            $viewArgs['title'] = 'Prescription History';
-                            $viewArgs['btnLabel'] = 'Add';
-                            $viewArgs['btnLink'] = "{$GLOBALS['webroot']}/interface/eRx.php?page=compose";
-                        } elseif ($GLOBALS['weno_rx_enable']) {
-                            // weno plus button which opens their iframe
-                            $viewArgs['weno'] = true;
-                            $viewArgs['title'] = "WENO ComposeRx";
-                            $viewArgs['btnLabel'] = 'Add';
-                            $viewArgs['btnLink'] = "{$GLOBALS['webroot']}/interface/weno/indexrx.php";
-                            $viewArgs['btnClass'] = "iframe";
-                            $viewArgs['linkMethod'] = "javascript";
-                            $viewArgs['btnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
-                        } else {
-                            $viewArgs['btnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
-                            $viewArgs['linkMethod'] = "javascript";
-                            $viewArgs['btnClass'] = "iframe";
-                        }
-
-                        $cwd = getcwd();
-                        chdir("../../../");
-                        $c = new Controller();
-                        // This is a hacky way to get a Smarty template from the controller and injecting it into
-                        // a Twig template. This reduces the amount of refactoring that is required but ideally the
-                        // Smarty template should be upgraded to Twig
-                        ob_start();
-                        echo $c->act(['prescription' => '', 'fragment' => '', 'patient_id' => $pid]);
-                        $viewArgs['content'] = ob_get_contents();
-                        ob_end_clean();
-
-                        echo "<div class=\"col\">";
-                        echo $t->render('patient/card/rx.html.twig', $viewArgs);
-                        echo "</div>";
-                    endif;
+//                    if ($allergy === 1) {
+//                        $allergyService = new AllergyIntoleranceService();
+//                        $_rawAllergies = filterActiveIssues($allergyService->getAll(['lists.pid' => $pid])->getData());
+//                        $id = 'allergy_ps_expand';
+//                        $viewArgs = [
+//                            'title' => xl('Allergies'),
+//                            'card_container_class_list' => ['flex-fill', 'mx-1', 'card'],
+//                            'id' => $id,
+//                            'forceAlwaysOpen' => false,
+//                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+//                            'linkMethod' => "javascript",
+//                            'list' => $_rawAllergies,
+//                            'listTouched' => (!empty(getListTouch($pid, 'allergy'))) ? true : false,
+//                            'auth' => true,
+//                            'btnLabel' => 'Edit',
+//                            'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=allergy')"
+//                        ];
+//                        echo "<div class=\"$col\">";
+//                        echo $t->render('patient/card/allergies.html.twig', $viewArgs);
+//                        echo "</div>";
+//                    }
+//
+//                    $patIssueService = new PatientIssuesService();
+//
+//                    // MEDICAL PROBLEMS CARD
+//                    if ($pl === 1) {
+//                        $_rawPL = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medical_problem'])->getData();
+//                        $id = 'medical_problem_ps_expand';
+//                        $viewArgs = [
+//                            'title' => xl('Medical Problems'),
+//                            'card_container_class_list' => ['flex-fill', 'mx-1', 'card'],
+//                            'id' => $id,
+//                            'forceAlwaysOpen' => false,
+//                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+//                            'linkMethod' => "javascript",
+//                            'list' => filterActiveIssues($_rawPL),
+//                            'listTouched' => (!empty(getListTouch($pid, 'medical_problem'))) ? true : false,
+//                            'auth' => true,
+//                            'btnLabel' => 'Edit',
+//                            'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medical_problem')"
+//                        ];
+//                        echo "<div class=\"$col\">";
+//                        echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
+//                        echo "</div>";
+//                    }
+//
+//                    // MEDICATION CARD
+//                    if ($meds === 1) {
+//                        $_rawMedList = $patIssueService->search(['lists.pid' => $pid, 'lists.type' => 'medication'])->getData();
+//                        $id = 'medication_ps_expand';
+//                        $viewArgs = [
+//                            'title' => xl('Medications'),
+//                            'card_container_class_list' => ['flex-fill', 'mx-1', 'card'],
+//                            'id' => $id,
+//                            'forceAlwaysOpen' => false,
+//                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+//                            'linkMethod' => "javascript",
+//                            'list' => filterActiveIssues($_rawMedList),
+//                            'listTouched' => (!empty(getListTouch($pid, 'medication'))) ? true : false,
+//                            'auth' => true,
+//                            'btnLabel' => 'Edit',
+//                            'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication')"
+//                        ];
+//                        echo "<div class=\"$col\">";
+//                        echo $t->render('patient/card/medication.html.twig', $viewArgs);
+//                        echo "</div>";
+//                    }
+//
+//                    // Render the Prescriptions card if turned on
+//                    if ($rx === 1) :
+//                        if ($GLOBALS['erx_enable'] && $display_current_medications_below == 1) {
+//                            $sql = "SELECT * FROM prescriptions WHERE patient_id = ? AND active = '1'";
+//                            $res = sqlStatement($sql, [$pid]);
+//
+//                            $rxArr = [];
+//                            while ($row = sqlFetchArray($res)) {
+//                                $row['unit'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_units'), $row['unit']);
+//                                $row['form'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_form'), $row['form']);
+//                                $row['route'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_route'), $row['route']);
+//                                $row['interval'] = generate_display_field(array('data_type' => '1', 'list_id' => 'drug_interval'), $row['interval']);
+//                                $rxArr[] = $row;
+//                            }
+//                            $id = "current_prescriptions_ps_expand";
+//                            $viewArgs = [
+//                                'title' => xl('Current Medications'),
+//                                'id' => $id,
+//                                'forceAlwaysOpen' => false,
+//                                'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+//                                'auth' => false,
+//                                'rxList' => $rxArr,
+//                            ];
+//
+//                            echo $t->render('patient/card/erx.html.twig', $viewArgs);
+//                        }
+//
+//                        $id = "prescriptions_ps_expand";
+//                        $viewArgs = [
+//                            'title' => xl("Prescriptions"),
+//                            'card_container_class_list' => ['flex-fill', 'mx-1', 'card'],
+//                            'id' => $id,
+//                            'forceAlwaysOpen' => false,
+//                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
+//                            'btnLabel' => "Edit",
+//                            'auth' => AclMain::aclCheckCore('patients', 'rx', '', ['write', 'addonly']),
+//                        ];
+//
+//                        if ($GLOBALS['erx_enable']) {
+//                            $viewArgs['title'] = 'Prescription History';
+//                            $viewArgs['btnLabel'] = 'Add';
+//                            $viewArgs['btnLink'] = "{$GLOBALS['webroot']}/interface/eRx.php?page=compose";
+//                        } elseif ($GLOBALS['weno_rx_enable']) {
+//                            // weno plus button which opens their iframe
+//                            $viewArgs['weno'] = true;
+//                            $viewArgs['title'] = "WENO ComposeRx";
+//                            $viewArgs['btnLabel'] = 'Add';
+//                            $viewArgs['btnLink'] = "{$GLOBALS['webroot']}/interface/weno/indexrx.php";
+//                            $viewArgs['btnClass'] = "iframe";
+//                            $viewArgs['linkMethod'] = "javascript";
+//                            $viewArgs['btnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
+//                        } else {
+//                            $viewArgs['btnLink'] = "editScripts('{$GLOBALS['webroot']}/controller.php?prescription&list&id=" . attr_url($pid) . "')";
+//                            $viewArgs['linkMethod'] = "javascript";
+//                            $viewArgs['btnClass'] = "iframe";
+//                        }
+//
+//                        $cwd = getcwd();
+//                        chdir("../../../");
+//                        $c = new Controller();
+//                        // This is a hacky way to get a Smarty template from the controller and injecting it into
+//                        // a Twig template. This reduces the amount of refactoring that is required but ideally the
+//                        // Smarty template should be upgraded to Twig
+//                        ob_start();
+//                        echo $c->act(['prescription' => '', 'fragment' => '', 'patient_id' => $pid]);
+//                        $viewArgs['content'] = ob_get_contents();
+//                        ob_end_clean();
+//
+//                        echo "<div class=\"col\">";
+//                        echo $t->render('patient/card/rx.html.twig', $viewArgs);
+//                        echo "</div>";
+//                    endif;
                     ?>
                 </div>
             </div>
@@ -1214,11 +1217,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endif;
 
                     $sectionRenderEvents = $ed->dispatch(new SectionEvent('primary'), SectionEvent::EVENT_HANDLE);
+//                    $sectionRenderEvents->addCard(new DemographicsViewCard($result, $result2, ['dispatcher' => $ed]));
+//                    if (!$GLOBALS['hide_billing_widget']) {
+//                        $sectionRenderEvents->addCard(new BillingViewCard($pid, $insco_name, $result['billing_note'], $result3, ['dispatcher' => $ed]));
+//                    }
+                    $sectionRenderEvents->addCard(new InsuranceViewCard($pid, ['dispatcher' => $ed]));
                     $sectionCards = $sectionRenderEvents->getCards();
 
                     foreach ($sectionCards as $card) {
                         $_auth = $card->getAcl();
-                        if (!AclMain::aclCheckCore($_auth[0], $_auth[1])) {
+                        if (!empty($_auth) && !AclMain::aclCheckCore($_auth[0], $_auth[1])) {
                             continue;
                         }
 
@@ -1243,187 +1251,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));
                     }
 
-                    if (!$GLOBALS['hide_billing_widget']) :
-                        $forceBillingExpandAlways = ($GLOBALS['force_billing_widget_open']) ? true : false;
-                        $patientbalance = get_patient_balance($pid, false);
-                        $insurancebalance = get_patient_balance($pid, true) - $patientbalance;
-                        $totalbalance = $patientbalance + $insurancebalance;
-                        $unallocated_amt = get_unallocated_patient_balance($pid);
-
-                        $id = "billing_ps_expand";
-                        $dispatchResult = $ed->dispatch(new CardRenderEvent('billing'), CardRenderEvent::EVENT_HANDLE);
-
-                        $viewArgs = [
-                            'title' => xl('Billing'),
-                            'id' => $id,
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
-                            'hideBtn' => true,
-                            'patientBalance' => $patientbalance,
-                            'insuranceBalance' => $insurancebalance,
-                            'totalBalance' => $totalbalance,
-                            'unallocated' => $unallocated_amt,
-                            'forceAlwaysOpen' => $forceBillingExpandAlways,
-                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
-                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
-                        ];
-
-                        if (!empty($result['billing_note'])) {
-                            $viewArgs['billingNote'] = $result['billing_note'];
-                        }
-
-                        if (!empty($result3['provider'])) {
-                            $viewArgs['provider'] = true;
-                            $viewArgs['insName'] = $insco_name;
-                            $viewArgs['copay'] = $result3['copay'];
-                            $viewArgs['effDate'] = $result3['effdate'];
-                            $viewArgs['effDateEnd'] = $result3['effdate_end'];
-                        }
-
-                        echo $twig->getTwig()->render('patient/card/billing.html.twig', $viewArgs);
-                    endif; // End the hide_billing_widget
 
                     // if anyone wants to render anything before the patient demographic list
                     $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE, 10);
-
-                    if (AclMain::aclCheckCore('patients', 'demo')) :
-                        $dispatchResult = $ed->dispatch(new CardRenderEvent('demographic'), CardRenderEvent::EVENT_HANDLE);
-                        // Render the Demographics box
-                        $viewArgs = [
-                            'title' => xl("Demographics"),
-                            'id' => "demographics_ps_expand",
-                            'btnLabel' => "Edit",
-                            'btnLink' => "demographics_full.php",
-                            'linkMethod' => "html",
-                            'auth' => ACLMain::aclCheckCore('patients', 'demo', '', 'write'),
-                            'requireRestore' => (!isset($_SESSION['patient_portal_onsite_two'])) ? true : false,
-                            'initiallyCollapsed' => (getUserSetting("demographics_ps_expand") == 0) ? true : false,
-                            'tabID' => "DEM",
-                            'result' => $result,
-                            'result2' => $result2,
-                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
-                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
-                        ];
-                        echo $twig->getTwig()->render('patient/card/tab_base.html.twig', $viewArgs);
-
-                        // Insurance
-                        $insArr = [];
-                        $insInBinder = '?';
-                        for ($y = 1; count($insurance_array) > $y; $y++) {
-                            $insInBinder .= ',?';
-                        }
-                        $sql = "SELECT * FROM insurance_data WHERE pid = ? AND type IN(" . $insInBinder . ") ORDER BY type, date DESC";
-                        $params[] = $pid;
-                        $params = array_merge($params, $insurance_array);
-                        $res = sqlStatement($sql, $params);
-                        $prior_ins_type = '';
-                        $prior_effective_date = '';
-
-                        while ($row = sqlFetchArray($res)) {
-                            if ($row['provider']) {
-                                // since the query is sorted by DATE DESC can use prior ins type to identify
-                                // unless insurance date_end is applicable
-                                $row['isOld'] = (!empty($row['date_end']) && $row['date_end'] <= date("Y-m-d")) ? true : false;
-                                if (!$row['isOld']) {
-                                    $row['isOld'] = (strcmp($row['type'], $prior_ins_type) == 0) ? true : false;
-                                }
-                                $icobj = new InsuranceCompany($row['provider']);
-                                $adobj = $icobj->get_address();
-                                $insco_name = trim($icobj->get_name());
-                                $row['insco'] = [
-                                    'name' => trim($icobj->get_name()),
-                                    'address' => [
-                                        'line1' => $adobj->get_line1(),
-                                        'line2' => $adobj->get_line2(),
-                                        'city' => $adobj->get_city(),
-                                        'state' => $adobj->get_state(),
-                                        'postal' => $adobj->get_zip(),
-                                        'country' => $adobj->get_country()
-                                    ],
-                                ];
-                                $row['policy_type'] = (!empty($row['policy_type'])) ? $policy_types[$row['policy_type']] : false;
-                                $row['dispFromDate'] = $row['date'] ? true : false;
-                                $mname = ($row['subscriber_mname'] != "") ? $row['subscriber_mname'] : "";
-                                $row['subscriber_full_name'] = str_replace("%mname%", $mname, "{$row['subscriber_fname']} %mname% {$row['subscriber_lname']}");
-                                if ($row['type'] == $prior_ins_type && empty($row['date_end'])) {
-                                    $row['date_end'] = $prior_effective_date;
-                                }
-
-                                $insArr[] = $row;
-                                $prior_ins_type = $row['type'];
-                                $prior_effective_date = $row['date'];
-                            } else {
-                                $row['isOld'] = (strcmp($row['type'], $prior_ins_type) == 0) ? true : false;
-                                $row['dispFromDate'] = $row['date'] ? true : false;
-                                $row['insco'] = [
-                                    'name' => 'Self-Pay',
-                                    'address' => [
-                                        'line1' => '',
-                                        'line2' => '',
-                                        'city' => '',
-                                        'state' => '',
-                                        'postal' => '',
-                                        'country' => ''
-                                    ],
-                                ];
-                                $row['policy_type'] = false;
-                                $mname = ''; //($row['subscriber_mname'] != "") ? $row['subscriber_mname'] : "";
-                                $row['subscriber_full_name'] = ' '; // str_replace("%mname%", $mname, "{$row['subscriber_fname']} %mname% {$row['subscriber_lname']}");
-                                $prior_ins_type = $row['type'];
-                                $prior_effective_date = $row['date'];
-                                if ($row['type'] != 'primary') {
-                                    continue;
-                                }
-                                $insArr[] = $row;
-                            }
-                        }
-
-                        if ($GLOBALS["enable_eligibility_requests"]) {
-                            if (($_POST['status_update'] ?? '') === 'true') {
-                                unset($_POST['status_update']);
-                                $showEligibility = true;
-                                $ok = EDI270::requestEligibleTransaction($pid);
-                                if ($ok === true) {
-                                    ob_start();
-                                    EDI270::showEligibilityInformation($pid, false);
-                                    $output = ob_get_contents();
-                                    ob_end_clean();
-                                } else {
-                                    $output = $ok;
-                                }
-                            } else {
-                                ob_start();
-                                EDI270::showEligibilityInformation($pid, true);
-                                $output = ob_get_contents();
-                                ob_end_clean();
-                            }
-                        } else {
-                            ob_start();
-                            EDI270::showEligibilityInformation($pid, true);
-                            $output = ob_get_contents();
-                            ob_end_clean();
-                        }
-
-                        $id = "insurance_ps_expand";
-                        $dispatchResult = $ed->dispatch(new CardRenderEvent('insurance'), CardRenderEvent::EVENT_HANDLE);
-                        $viewArgs = [
-                            'title' => xl("Insurance"),
-                            'id' => $id,
-                            'btnLabel' => "Edit",
-                            'btnLink' => "insurance_edit.php",
-                            'linkMethod' => 'html',
-                            'initiallyCollapsed' => (getUserSetting($id) == 0) ? true : false,
-                            'ins' => $insArr,
-                            'eligibility' => $output,
-                            'enable_eligibility_requests' => $GLOBALS['enable_eligibility_requests'],
-                            'auth' => AclMain::aclCheckCore('patients', 'demo', '', 'write'),
-                            'prependedInjection' => $dispatchResult->getPrependedInjection(),
-                            'appendedInjection' => $dispatchResult->getAppendedInjection(),
-                        ];
-
-                        if (count($insArr) > 0) {
-                            echo $twig->getTwig()->render('patient/card/insurance.html.twig', $viewArgs);
-                        }
-                    endif;  // end if demographics authorized
 
                     if (AclMain::aclCheckCore('patients', 'notes')) :
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('note'), CardRenderEvent::EVENT_HANDLE);

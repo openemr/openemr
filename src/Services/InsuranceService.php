@@ -437,4 +437,57 @@ class InsuranceService extends BaseService
 
         return $result;
     }
+
+    public function getPoliciesOrganizedByTypeForPatientPid($pid)
+    {
+        $insurancePolicies = $this->search(['pid' => $pid]);
+        $result = [];
+        foreach ($insurancePolicies->getData() as $insurancePolicy) {
+            if (empty($insurancePolicy['type'])) {
+                $result[$insurancePolicy['type']] = [];
+                continue;
+            }
+            $result[$insurancePolicy['type']][] = $insurancePolicy;
+        }
+        $organizedResults = [];
+        foreach ($result as $key => $policies) {
+            $sortedPolicies = $this->sortPoliciesByEndDate($policies);
+            if (count($sortedPolicies) > 0) {
+                reset($sortedPolicies);
+                $organizedResults[$key] = [
+                    'current' => current($sortedPolicies)
+                    ,'history' => array_splice($sortedPolicies, 1)
+                ];
+            }
+        }
+        return $organizedResults;
+    }
+
+    private function sortPoliciesByEndDate($policies)
+    {
+        usort($policies, function ($a, $b) {
+            if ($a['date'] == $b['date']) {
+                if (empty($a['date_end']) && empty($b['date_end'])) {
+                    return strcmp($a['policy_number'], $b['policy_number']);
+                }
+                else if (empty($b['date_end'])) {
+                    return 1;
+                } else if (empty($a['date_end'])) {
+                    return -1;
+                } else {
+                    return $a['date_end'] <=> $b['date_end'];
+                }
+            }
+            return $a['date_end'] <=> $b['date_end'];
+        });
+        return $policies;
+    }
+
+    private function sortPoliciesByEffectiveDate($policies)
+    {
+        usort($policies, function ($a, $b) {
+            return $a['date'] <=> $b['date'];
+        });
+        return $policies;
+    }
 }

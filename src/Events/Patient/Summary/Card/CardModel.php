@@ -14,6 +14,8 @@
 
 namespace OpenEMR\Events\Patient\Summary\Card;
 
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
+
 class CardModel implements CardInterface
 {
     private $backgroundColorClass = '';
@@ -38,13 +40,26 @@ class CardModel implements CardInterface
 
     private $templateVariables;
 
+    private $dispatcher;
+
     public function __construct(array $opts)
     {
+        if (!empty($opts['dispatcher']) && $opts['dispatcher'] instanceof EventDispatcherInterface) {
+            $this->dispatcher = $opts['dispatcher'];
+            unset($opts['dispatcher']);
+        } else {
+            $this->dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        }
         foreach ($opts as $prop => $val) {
             if (property_exists($this, $prop)) {
                 $this->$prop = $val;
             }
         }
+    }
+
+    protected function getEventDispatcher(): EventDispatcherInterface
+    {
+        return $this->dispatcher;
     }
 
     /**

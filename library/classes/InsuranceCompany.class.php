@@ -157,6 +157,18 @@ class InsuranceCompany extends ORDataObject
     {
         return $this->name;
     }
+
+    public function get_display_name() {
+        return InsuranceCompanyService::getDisplayNameForInsuranceRecord([
+            'name' => $this->name,
+            'line1' => $this->address->get_line1(),
+            'line2' => $this->address->get_line2(),
+            'city' => $this->address->get_city(),
+            'state' => $this->address->get_state(),
+            'zip' => $this->address->get_zip(),
+            'cms_id' => $this->cms_id
+        ]);
+    }
     public function set_attn($attn)
     {
         $this->attn = $attn;
