@@ -91,12 +91,16 @@ class InsuranceViewCard  extends CardModel
         foreach ($insurancePolicies as $type => $organizedPolicies) {
             $mostRecentEffectiveDate = $organizedPolicies['current']['date'];
             $populatedCurrent = $this->populateInsurancePolicy($organizedPolicies['current']);
-            $policiesByType[$type] = [
-                'current' => $populatedCurrent
-                ,'policies' => [$populatedCurrent]
-            ];
-            foreach ($organizedPolicies['history'] as $policy) {
-                $policiesByType[$type]['policies'][] = $this->populateInsurancePolicy($policy, $mostRecentEffectiveDate);
+
+            // if its a primary insurance we always include it, but if its self-pay on secondary/tertiary we just don't want to display those
+            if ($type == 'primary' || !empty($populatedCurrent['provider'])) {
+                $policiesByType[$type] = [
+                    'current' => $populatedCurrent
+                    , 'policies' => [$populatedCurrent]
+                ];
+                foreach ($organizedPolicies['history'] as $policy) {
+                    $policiesByType[$type]['policies'][] = $this->populateInsurancePolicy($policy, $mostRecentEffectiveDate);
+                }
             }
         }
         return $policiesByType;
