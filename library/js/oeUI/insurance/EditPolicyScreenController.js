@@ -535,9 +535,16 @@ export class EditPolicyScreenController
         // clear any marked errors
         let markedFields = insuranceInfoContainer.querySelectorAll('.invalid-input.error');
         markedFields.forEach(field => {
-            field.classList.remove('invalid-input');
-            field.classList.remove('error');
-            field.classList.remove('error-border');
+            let errorNode = field;
+            if (errorNode && errorNode.classList.contains('sel2')) {
+                // need to handle them differently
+                errorNode = errorNode.nextElementSibling ? errorNode.nextElementSibling.querySelector('.select2-selection') : null;
+            }
+            if (errorNode) {
+                errorNode.classList.remove('invalid-input');
+                errorNode.classList.remove('error');
+                errorNode.classList.remove('error-border');
+            }
         });
         if (!this.__validationErrors.length) {
             return; // nothing to do
@@ -585,10 +592,15 @@ export class EditPolicyScreenController
                     }
                     detailsList.appendChild(clonedFieldContainer);
                     let fieldInput = insuranceInfoContainer.querySelector('[name="form_' + field + '"]');
-                    if (fieldInput) {
-                        fieldInput.classList.add('invalid-input');
-                        fieldInput.classList.add('error');
-                        fieldInput.classList.add('error-border');
+                    let errorNode = fieldInput;
+                    if (errorNode && errorNode.classList.contains('sel2')) {
+                        // need to handle them differently
+                        errorNode = errorNode.nextElementSibling ? errorNode.nextElementSibling.querySelector('.select2-selection') : null;
+                    }
+                    if (errorNode) {
+                        errorNode.classList.add('invalid-input');
+                        errorNode.classList.add('error');
+                        errorNode.classList.add('error-border');
                     }
                 }
             });
