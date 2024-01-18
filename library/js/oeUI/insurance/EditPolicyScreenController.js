@@ -614,25 +614,30 @@ export class EditPolicyScreenController
     }
 
     #populateInsuranceInformationForSelectedInsurance(selectedInsurance) {
-        console.log(selectedInsurance);
         if (selectedInsurance) {
-            let type = selectedInsurance.type;
-            let insuranceInfoContainer = document.getElementById('insurance-info-type-' + type);
-            if (insuranceInfoContainer) {
-                this.clearEvents(); // clear any bound events that we've done here
-                insuranceInfoContainer.innerHTML = '';
-                let template = document.getElementById('insurance-edit-template');
-                if (!template) {
-                    throw new Error("Failed to find insurance edit template");
-                }
+            try {
+                let type = selectedInsurance.type;
+                let insuranceInfoContainer = document.getElementById('insurance-info-type-' + type);
+                if (insuranceInfoContainer) {
+                    this.clearEvents(); // clear any bound events that we've done here
+                    insuranceInfoContainer.innerHTML = '';
+                    let template = document.getElementById('insurance-edit-template');
+                    if (!template) {
+                        throw new Error("Failed to find insurance edit template");
+                    }
 
-                let clone = document.importNode(template.content, true);
-                insuranceInfoContainer.appendChild(clone); // note clone nodes are now empty at this point
-                this.#populateInsuranceProviderListForNode(insuranceInfoContainer, this.__insuranceProviderList);
-                // the select2 setup needs to occur after the data elements have been populated.
-                this.#populateInsuranceModelDataElements(insuranceInfoContainer, selectedInsurance);
-                this.#setupModelSyncBinding(selectedInsurance);
-                this.#setupAddressValidation(selectedInsurance);
+                    let clone = document.importNode(template.content, true);
+                    insuranceInfoContainer.appendChild(clone); // note clone nodes are now empty at this point
+                    this.#populateInsuranceProviderListForNode(insuranceInfoContainer, this.__insuranceProviderList);
+                    // the select2 setup needs to occur after the data elements have been populated.
+                    this.#populateInsuranceModelDataElements(insuranceInfoContainer, selectedInsurance);
+                    this.#setupModelSyncBinding(selectedInsurance);
+                    this.#setupAddressValidation(selectedInsurance);
+                }
+            }
+            catch (error) {
+                console.error(error);
+                alert(window.top.xl("An error occurred while rendering the insurance policy.  Please try again or contact your system administrator."));
             }
         }
     }

@@ -81,6 +81,14 @@ export class InsurancePolicyModel {
         return this.id !== null && this.date_end === null;
     }
 
+    #getValidFormattedDateFromServerDate(date) {
+        if (date && typeof date === 'string' && date != "0000-00-00") {
+            // need to format the date from the server of ISO8601 to the localized date format
+            return new Date(date + "T00:00:00");
+        }
+        return null;
+    }
+
     populate(pojo) {
         if (typeof pojo === 'object') {
             // TODO: if we need to do any validation we could do that here
@@ -91,18 +99,9 @@ export class InsurancePolicyModel {
             } else {
                 this.accept_assignment = "YES"; // default to yes for everything
             }
-
-            if (pojo.date && typeof pojo.date === 'string') {
-                // need to format the date from the server of ISO8601 to the localized date format
-                this.date = new Date(pojo.date + "T00:00:00");
-            }
-
-            if (pojo.date_end && typeof pojo.date === 'string') {
-                this.date_end = new Date(pojo.date_end+ "T00:00:00");
-            }
-            if (pojo.subscriber_DOB && typeof pojo.date === 'string') {
-                this.subscriber_DOB = new Date(pojo.subscriber_DOB+ "T00:00:00");
-            }
+            this.date = this.#getValidFormattedDateFromServerDate(pojo.date);
+            this.date_end = this.#getValidFormattedDateFromServerDate(pojo.date_end);
+            this.subscriber_DOB = this.#getValidFormattedDateFromServerDate(pojo.subscriber_DOB);
         }
     }
     getDataForSave() {
