@@ -454,9 +454,12 @@ class InsuranceService extends BaseService
             $sortedPolicies = $this->sortPoliciesByEndDate($policies);
             if (count($sortedPolicies) > 0) {
                 reset($sortedPolicies);
+                $current = current($sortedPolicies);
+                $history = array_splice($sortedPolicies, 1);
+
                 $organizedResults[$key] = [
-                    'current' => current($sortedPolicies)
-                    ,'history' => array_splice($sortedPolicies, 1)
+                    'current' => $current
+                    ,'history' => array_reverse($history) // we want in descending order
                 ];
             }
         }
@@ -465,6 +468,12 @@ class InsuranceService extends BaseService
 
     private function sortPoliciesByEndDate($policies)
     {
+        // TODO: @adunsulag not a lot of policies here... it'd be more efficient to preconvert all the dates
+        // so we can do comparisons... but this is fine for now.
+
+        // we do a DESC sort on the effective date so that the most recent effective date is first
+        // if there is a conflict with the effective date, then we sort by the end date
+        // if there is no end date, then we sort by the policy number
         usort($policies, function ($a, $b) {
             if ($a['date'] == $b['date']) {
                 if (empty($a['date_end']) && empty($b['date_end'])) {
@@ -475,18 +484,10 @@ class InsuranceService extends BaseService
                 } else if (empty($a['date_end'])) {
                     return -1;
                 } else {
-                    return $a['date_end'] <=> $b['date_end'];
+                    return strtotime($a['date_end']) <=> strtotime($b['date_end']);
                 }
             }
-            return $a['date_end'] <=> $b['date_end'];
-        });
-        return $policies;
-    }
-
-    private function sortPoliciesByEffectiveDate($policies)
-    {
-        usort($policies, function ($a, $b) {
-            return $a['date'] <=> $b['date'];
+            return strtotime($a['date_end']) <=> strtotime($b['date_end']);
         });
         return $policies;
     }
