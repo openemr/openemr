@@ -83,7 +83,7 @@ $templateService = new DocumentTemplateService();
         ";var autoRender=" . js_escape($auto_render) . ";var auditRender=" . js_escape($audit_render) . ";var renderDocumentName=" . js_escape($auto_render_name) .
         ";var catid=" . js_escape($category) . ";var catname=" . js_escape($catname) . ";</script>";
     echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) . ";var help_id=" . js_escape($help_id) . ";</script>";
-    echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";var doc_edit = doc_edit;var webroot_url = webRoot;</script>";
+    echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";var doc_edit=" . js_escape($doc_edit) . ";var webroot_url = webRoot;</script>";
     echo "<script>var csrfTokenDoclib=" . $csrf_php . ";</script>";
     // translations
     echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": " . attr($catname) . "';</script>";
@@ -189,6 +189,19 @@ $templateService = new DocumentTemplateService();
                     }
                     if (!newFilename) { // autoload new on init. once only.
                         page.initFileDrop();
+                    }
+                }
+                if (newFilename) {
+                    console.log('Call template from module');
+                    if (doc_edit == '0' && recid > 0) {
+                        page.newDocument(cpid, cuser, newFilename, recid);
+                        newFilename = '';
+                    } else if (doc_edit == '1' && recid > 0) {
+                        // For now will ignore editing documents from module.
+                        // I don't feel like it's stable.
+                        //page.editHistoryDocument(recid);
+                        page.newDocument(cpid, cuser, newFilename, recid);
+                        newFilename = '';
                     }
                 }
             }, 1000);

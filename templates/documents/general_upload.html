@@ -91,15 +91,20 @@
             </div>
         </div>
         <!-- Section for portal document templates -->
-        <div class='form-group col-sm-4'>
+        <div class='for-group-group col'>
             <p class='my-1'>{xlt t="Patient Document Template Forms"}</p>
-            <div class="dropdown">
-                <a class="dropdown-toggle nav-link btn btn-outline-primary" href="#" role="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    {xlt t="Select Patient Document Template"}
-                </a>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenu">
-                    {$TEMPLATES_LIST_PATIENT}
+            <div class='input-group'>
+                <div class="dropdown">
+                    <a class="dropdown-toggle nav-link btn btn-outline-primary" href="#" role="button" id="dropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        {xlt t="Open Patient Template"}
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenu">
+                        {$TEMPLATES_LIST_PATIENT}
+                    </div>
                 </div>
+                <span class="input-group-append">
+                    <button type="button" class="btn btn-primary" onclick="callTemplateModule({$patient_id|attr_url}, '-patient-', '', 0, 0)">{xlt t="or Open Module"}</button>
+                </span>
             </div>
         </div>
     </form>

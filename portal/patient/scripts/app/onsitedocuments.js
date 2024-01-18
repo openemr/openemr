@@ -497,16 +497,6 @@ var page = {
                 )
             }
         });
-
-        if (newFilename) { // autoload new on init. once only.
-            if (!doc_edit && recid) {
-                newFilename = '';
-                page.newDocument(cpid, cuser, newFilename, recid);
-            } else if (doc_edit && rec_id) {
-                page.editHistoryDocument(recid);
-                newFilename = '';
-            }
-        }
         // These are set on init for save alerts
         page.isFlattened = false;
         page.isSaved = true;
