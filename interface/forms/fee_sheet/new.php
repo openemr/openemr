@@ -220,7 +220,7 @@ function echoServiceLines()
                 if ($codetype != 'COPAY' && (!empty($code_types[$codetype]['mod']) || $modifier)) {
                     echo "  <td class='billcell'><input type='text' class='form-control form-control-sm' name='bill[" . attr($lino) . "][mod]' " .
                        "title='" . xla("Multiple modifiers can be separated by colons or spaces, maximum of 4 (M1:M2:M3:M4)") . "' " .
-                       "value='" . attr($modifier) . "' size='" . attr($code_types[$codetype]['mod']) . " 'onkeyup='policykeyup(this)' /></td>\n";
+                       "value='" . attr($modifier) . "' size='" . attr($code_types[$codetype]['mod']) . "' onkeyup='policykeyup(this)' onblur='formatModifier(this)' /></td>\n";
                 } else {
                     echo "  <td class='billcell'>&nbsp;</td>\n";
                 }
@@ -909,6 +909,11 @@ function defaultPriceLevelChanged(sel) {
     pricelevel_changed(elem);
   }
  }
+}
+
+function formatModifier(e) {
+    var mods = e.value;
+    alert(mods);
 }
 
 </script>
