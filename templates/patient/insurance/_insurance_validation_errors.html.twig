@@ -1,0 +1,33 @@
+<template id="insurance-validation-error-template">
+    <div class="col-md-12 validation-errors">
+        <div class="alert alert-danger">
+            <p>{{ "One or more fields were missing or improperly filled out."|xlt }}
+                {{ "  Please correct the errors and try saving again."|xlt }}
+            </p>
+            <details>
+                <summary>{{ "Expand for more detailed errors"|xlt }}</summary>
+                <ul class="insurance-validation-details-list"></ul>
+            </details>
+        </div>
+        <p class="d-none" data-error-id="NotEmpty::EMPTY_VALUE"><span class="validation-field-name"></span> - {{ "This field is required and cannot be empty."|xlt }}</p>
+        <p class="d-none" data-error-id="Numeric::NOT_NUMERIC"><span class="validation-field-name"></span> - {{ "This field must be a valid number."|xlt }}</p>
+        <p class="d-none" data-error-id="LengthBetween::TOO_LONG"><span class="validation-field-name"></span> - {{ "This field is too long."|xlt }} {{ "The field must be shorter than 255 characters"|xlt }}.</p>
+        <p class="d-none" data-error-id="LengthBetween::TOO_SHORT"><span class="validation-field-name"></span> - {{ "This field is too short."|xlt }} {{ "The field must be longer than 1 character"|xlt }}.</p>
+        {# Note this last one should never occur... but we need to handle it just in case #}
+        <p class="d-none" data-error-id="ListOptionRule::INVALID_LIST_OPTION"><span class="validation-field-name"></span> - {{ "The option you selected does not exist in the system."|xlt }}.</p>
+
+        <p class="d-none" data-error-id="DateTime::INVALID_VALUE"><span class="validation-field-name"></span> - {{ "Invalid date format for this field."|xlt }}</p>
+        <p class="d-none" data-error-id="DateTime::INVALID_START_DATE"><span class="validation-field-name"></span> - {{ "Date End must be after start date."|xlt }}</p>
+
+        {# Overall record check error messages #}
+        <p class="d-none" data-error-id="Record::DUPLICATE_RECORD"><span class="validation-field-name"></span> - {{ "A policy for this type with the same effective date already exists for this patient."|xlt }}</p>
+        <p class="d-none" data-error-id="Record::DUPLICATE_CURRENT_POLICY"><span class="validation-field-name"></span> - {{ "A current policy (no end date) already exists for this patient and type."|xlt }}</p>
+        <p class="d-none" data-error-id="Record::INVALID_SELF_SUBSCRIBER_NAME"><span class="validation-field-name"></span> - {{ "Subscriber name must match the patient name (or a patient's previous name) if the relationship is of type Self."|xlt }}</p>
+        <p class="d-none" data-error-id="Record::INVALID_SELF_SUBSCRIBER_SSN"><span class="validation-field-name"></span> - {{ "Subscriber social security number must match patient social security number if the relationship is of type Self."|xlt }}</p>
+        <p class="d-none" data-error-id="Record::INVALID_SUBSCRIBER_SSN"><span class="validation-field-name"></span> - {{ "Subscriber social security number cannot be the same as patient social security number when the relationship is not of type Self."|xlt }}</p>
+
+        {# Shouldn't hit this but if someone changes up the CoverageValidator and doesn't update this field we need to handle unknown rules #}
+        <p class="d-none" data-error-id="Unknown::UNKNOWN"><span class="validation-field-name"></span> - {{ "This field was invalid."|xlt }}</p>
+    </div>
+</template>
+Record::INVALID_SUBSCRIBER_NAME

@@ -5,6 +5,12 @@ namespace OpenEMR\Validators;
 use OpenEMR\Billing\InsurancePolicyTypes;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\PatientService;
+use OpenEMR\Services\Search\CompositeSearchField;
+use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\StringSearchField;
+use OpenEMR\Services\Search\TokenSearchField;
+use OpenEMR\Services\Search\TokenSearchValue;
 use Particle\Validator\Exception\InvalidValueException;
 use Particle\Validator\Validator;
 
@@ -58,7 +64,70 @@ class CoverageValidator extends BaseValidator
                 $context->required('subscriber_lname')->lengthBetween(2, 255);
                 $context->optional('subscriber_mname')->lengthBetween(2, 255);
                 $context->required('subscriber_fname')->lengthBetween(2, 255);
-                $context->required('subscriber_relationship')->listOption('sub_relation');
+                $context->required('subscriber_relationship')->listOption('sub_relation')
+                    ->callback(function ($value, $values) {
+                        if (!empty($values['pid'])
+                            && !empty($values['subscriber_lname']) && !empty($values['subscriber_fname'])
+                            && !empty($values['subscriber_ss'])) {
+                            // check name and previous names to make sure a mistake hasn't been made.
+                            $pidSearch = new TokenSearchField('pid', new TokenSearchValue($values['pid']));
+                            $prevFirstNameSearch = new StringSearchField('previous_name_first', $values['subscriber_fname'], SearchModifier::EXACT);
+                            $prevLastNameSearch = new StringSearchField('previous_name_last', $values['subscriber_lname'], SearchModifier::EXACT);
+                            $previousNameSearch = new CompositeSearchField('patient-previous-name', []);
+                            $previousNameSearch->setChildren([$pidSearch, $prevFirstNameSearch, $prevLastNameSearch]);
+
+                            $firstNameSearch = new StringSearchField('fname', $values['subscriber_fname'], SearchModifier::EXACT);
+                            $lastNameSearch = new StringSearchField('lname', $values['subscriber_lname'], SearchModifier::EXACT);
+                            $currentNameSearch = new CompositeSearchField('patient-current-name', []);
+                            $currentNameSearch->setChildren([$pidSearch, $firstNameSearch, $lastNameSearch]);
+
+                            $ssnSearch = new StringSearchField('ss', $values['subscriber_ss'], SearchModifier::EXACT);
+                            $ssnPidSearch = new CompositeSearchField('patient-ssn', []);
+                            $ssnPidSearch->setChildren([$pidSearch, $ssnSearch]);
+                            $patientService = new PatientService();
+                            $isAnd = false;
+                            $results = $patientService->search([$previousNameSearch, $currentNameSearch, $ssnPidSearch], $isAnd);
+
+                            if ($value === 'self') {
+                                if (!$results->hasData()) {
+                                    throw new InvalidValueException("Subscriber name must match patient name for self relationship", "Record::INVALID_SELF_SUBSCRIBER_NAME");
+                                }
+                                $patient = $results->getData()[0];
+                                // need to check the social security number as well
+                                if ($patient['ss'] !== $values['subscriber_ss']) {
+                                    throw new InvalidValueException("Subscriber social security number must match patient social security number for self relationship", "Record::INVALID_SELF_SUBSCRIBER_SSN");
+                                }
+                                // if the first and last name do not match exactly we need to search previous names to see if we have a match here.
+                                // we do this because the results return SSN OR name matches so we have to manually check the name matches
+                                if ($patient['lname'] != $values['subscriber_lname'] || $patient['fname'] != $values['subscriber_fname']) {
+                                    // need to search previous names, if no matches here then throw exception
+                                    $previousNames = $patient['previous_names'];
+                                    $found = false;
+                                    foreach ($previousNames as $previousName) {
+                                        if ($previousName['previous_name_first'] == $values['subscriber_fname'] && $previousName['previous_name_last'] == $values['subscriber_lname']) {
+                                            $found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!$found) {
+                                        throw new InvalidValueException("Subscriber name must match patient name for self relationship", "Record::INVALID_SELF_SUBSCRIBER_NAME");
+                                    }
+                                }
+                            } else {
+                                if ($results->hasData()) {
+                                    // need to check to see if its because the ssn matched
+                                    // or because we have a name match
+                                    if ($results->getData()[0]['ss'] === $values['subscriber_ss']) {
+                                        throw new InvalidValueException("Subscriber social security number must not match patient social security number for non-self relationship", "Record::INVALID_SUBSCRIBER_SSN");
+                                    } else {
+                                        // Note: we do not throw an exception on the name match here as there can be a subscriber name ie John Smith who is covered by someone who is NOT themselves also named John Smith
+                                        // for example a father and son with the same name.  This is a rare case but it does happen.
+                                    }
+                                }
+                            }
+                        }
+                        return true;
+                    });
                 $context->required('subscriber_ss')->lengthBetween(2, 255);
                 $context->required('subscriber_DOB')->datetime('Y-m-d');
                 $context->required('subscriber_street')->lengthBetween(2, 255);

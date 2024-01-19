@@ -3199,6 +3199,29 @@ paths:
       security:
         -
           openemr_auth: []
+  '/api/patient/{puuid}/insurance/{uuid}':
+    get:
+      tags:
+        - standard
+      description: 'Retrieves all insurances for a patient'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
   '/api/patient/{puuid}/insurance/{type}':
     get:
       tags:
@@ -7474,12 +7497,10 @@ components:
         zip: '12245'
         country: USA
     api_insurance_request:
-      description: 'Schema for the insurance request'
+      description: "Schema for the insurance request.  Note the following additional validation checks on the request.\nIf the subscriber_relationship value is of type 'self' then the subscriber_fname and subscriber_lname fields\nmust match the patient's first and last name or a patient's previous first and last name.\n\nIf the subscriber_relationship value is of type 'self' then the subscriber_ss field must match the patient's\nsocial security number.\n\nIf the subscriber_relationship value is not of type 'self' then the subscriber_ss field MUST not be the current patient's social security number.\n\nIf the system's global configuration permits only a single insurance type option then any insurance rquest where the type is NOT 'primary' will fail.\n\nAn insurance is considered the current policy for the policy type if the policy date_end field is null.  Only one of these records per policy type can exist for a patient."
       required:
         - provider
-        - plan_name
         - policy_number
-        - group_number
         - subscriber_fname
         - subscriber_lname
         - subscriber_relationship
@@ -7490,25 +7511,23 @@ components:
         - subscriber_city
         - subscriber_state
         - subscriber_country
-        - subscriber_phone
         - subscriber_sex
         - accept_assignment
-        - policy_type
       properties:
         provider:
           description: 'The insurance company id.'
           type: string
         plan_name:
-          description: 'The plan name of insurance.'
+          description: 'The plan name of insurance. (2-255 characters)'
           type: string
         policy_number:
-          description: 'The policy number of insurance.'
+          description: 'The policy number of insurance. (2-255 characters)'
           type: string
         group_number:
-          description: 'The group number of insurance.'
+          description: 'The group number of insurance.(2-255 characters)'
           type: string
         subscriber_lname:
-          description: 'The subscriber last name of insurance.'
+          description: 'The subscriber last name of insurance.(2-255 characters).'
           type: string
         subscriber_mname:
           description: 'The subscriber middle name of insurance.'
@@ -7517,7 +7536,7 @@ components:
           description: 'The subscriber first name of insurance.'
           type: string
         subscriber_relationship:
-          description: 'The subscriber relationship of insurance.'
+          description: 'The subscriber relationship of insurance. `subscriber_relationship` can be found by querying `resource=/api/list/subscriber_relationship`'
           type: string
         subscriber_ss:
           description: 'The subscriber ss number of insurance.'
@@ -7565,7 +7584,10 @@ components:
           description: 'The copay of insurance.'
           type: string
         date:
-          description: 'The date of insurance.'
+          description: 'The effective date of insurance in YYYY-MM-DD format.  This value cannot be after the date_end property and cannot be the same date as any other insurance policy for the same insurance type (''primary, ''secondary'', etc).'
+          type: string
+        date_end:
+          description: 'The effective end date of insurance in YYYY-MM-DD format.  This value cannot be before the date property. If it is null then this policy is the current policy for this policy type for the patient.  There can only be one current policy per type and the request will fail if there is already a current policy for this type.'
           type: string
         subscriber_sex:
           description: 'The subscriber sex of insurance.'
@@ -7574,10 +7596,10 @@ components:
           description: 'The accept_assignment of insurance.'
           type: string
         policy_type:
-          description: 'The policy_type of insurance.'
+          description: 'The 837p list of policy types for an insurance.  See src/Billing/InsurancePolicyType.php for the list of valid values.'
           type: string
         type:
-          description: 'The type of OpenEMR insurance policy, ''primary'', ''secondary'', or ''tertiary''. If this field is missing it will default to ''primary''.'
+          description: 'The type or category of OpenEMR insurance policy, ''primary'', ''secondary'', or ''tertiary''. If this field is missing it will default to ''primary''.'
           type: string
       type: object
       example:

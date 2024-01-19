@@ -6235,7 +6235,7 @@ RestConfig::$ROUTE_MAP = array(
 
     /**
      *  @OA\Get(
-     *      path="/api/patient/{puuid}/insurance",
+     *      path="/api/patient/{puuid}/insurance/{uuid}",
      *      description="Retrieves all insurances for a patient",
      *      tags={"standard"},
      *      @OA\Parameter(
@@ -6322,8 +6322,18 @@ RestConfig::$ROUTE_MAP = array(
     },
 
     /**
-     * Schema for the insurance request
+     * Schema for the insurance request.  Note the following additional validation checks on the request.
+     * If the subscriber_relationship value is of type 'self' then the subscriber_fname and subscriber_lname fields
+     * must match the patient's first and last name or a patient's previous first and last name.
      *
+     * If the subscriber_relationship value is of type 'self' then the subscriber_ss field must match the patient's
+     * social security number.
+     *
+     * If the subscriber_relationship value is not of type 'self' then the subscriber_ss field MUST not be the current patient's social security number.
+     *
+     * If the system's global configuration permits only a single insurance type option then any insurance rquest where the type is NOT 'primary' will fail.
+     *
+     * An insurance is considered the current policy for the policy type if the policy date_end field is null.  Only one of these records per policy type can exist for a patient.
      *  @OA\Schema(
      *      schema="api_insurance_request",
      *      @OA\Property(
@@ -6333,22 +6343,22 @@ RestConfig::$ROUTE_MAP = array(
      *      ),
      *      @OA\Property(
      *          property="plan_name",
-     *          description="The plan name of insurance.",
+     *          description="The plan name of insurance. (2-255 characters)",
      *          type="string"
      *      ),
      *      @OA\Property(
      *          property="policy_number",
-     *          description="The policy number of insurance.",
+     *          description="The policy number of insurance. (2-255 characters)",
      *          type="string"
      *      ),
      *      @OA\Property(
      *          property="group_number",
-     *          description="The group number of insurance.",
+     *          description="The group number of insurance.(2-255 characters)",
      *          type="string"
      *      ),
      *      @OA\Property(
      *          property="subscriber_lname",
-     *          description="The subscriber last name of insurance.",
+     *          description="The subscriber last name of insurance.(2-255 characters).",
      *          type="string"
      *      ),
      *      @OA\Property(
@@ -6363,7 +6373,7 @@ RestConfig::$ROUTE_MAP = array(
      *      ),
      *      @OA\Property(
      *          property="subscriber_relationship",
-     *          description="The subscriber relationship of insurance.",
+     *          description="The subscriber relationship of insurance. `subscriber_relationship` can be found by querying `resource=/api/list/subscriber_relationship`",
      *          type="string"
      *      ),
      *      @OA\Property(
@@ -6443,7 +6453,12 @@ RestConfig::$ROUTE_MAP = array(
      *      ),
      *      @OA\Property(
      *          property="date",
-     *          description="The date of insurance.",
+     *          description="The effective date of insurance in YYYY-MM-DD format.  This value cannot be after the date_end property and cannot be the same date as any other insurance policy for the same insurance type ('primary, 'secondary', etc).",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="date_end",
+     *          description="The effective end date of insurance in YYYY-MM-DD format.  This value cannot be before the date property. If it is null then this policy is the current policy for this policy type for the patient.  There can only be one current policy per type and the request will fail if there is already a current policy for this type.",
      *          type="string"
      *      ),
      *      @OA\Property(
@@ -6458,15 +6473,15 @@ RestConfig::$ROUTE_MAP = array(
      *      ),
      *      @OA\Property(
      *          property="policy_type",
-     *          description="The policy_type of insurance.",
+     *          description="The 837p list of policy types for an insurance.  See src/Billing/InsurancePolicyType.php for the list of valid values.",
      *          type="string"
      *      ),
      *      @OA\Property(
      *          property="type",
-     *          description="The type of OpenEMR insurance policy, 'primary', 'secondary', or 'tertiary'. If this field is missing it will default to 'primary'.",
+     *          description="The type or category of OpenEMR insurance policy, 'primary', 'secondary', or 'tertiary'. If this field is missing it will default to 'primary'.",
      *          type="string"
      *      ),
-     *      required={"provider", "plan_name", "policy_number", "group_number", "subscriber_fname", "subscriber_lname", "subscriber_relationship", "subscriber_ss", "subscriber_DOB", "subscriber_street", "subscriber_postal_code", "subscriber_city", "subscriber_state", "subscriber_country", "subscriber_phone", "subscriber_sex", "accept_assignment", "policy_type"},
+     *      required={"provider", "policy_number", "subscriber_fname", "subscriber_lname", "subscriber_relationship", "subscriber_ss", "subscriber_DOB", "subscriber_street", "subscriber_postal_code", "subscriber_city", "subscriber_state", "subscriber_country", "subscriber_sex", "accept_assignment"},
      *      example={
      *          "provider": "33",
      *          "plan_name": "Some Plan",
@@ -6548,7 +6563,6 @@ RestConfig::$ROUTE_MAP = array(
     "PUT /api/patient/:puuid/insurance/:insuranceUuid" => function ($puuid, $insuranceUuid, HttpRestRequest $request) {
         RestConfig::authorization_check("patients", "demo", '', 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
-        $data['type'] = $type;
         $return = (new InsuranceRestController())->put($puuid, $insuranceUuid, $data);
         RestConfig::apiLog($return, $data);
         return $return;
