@@ -499,7 +499,7 @@ class RuleManager
         $rule = $this->getRule($ruleId);
 
         // if $types is empty, then set to empty array so the in_array() calls below will work
-        $types = !empty($types) ? $types : [];
+        $types = $types ?: [];
 
         if (is_null($rule)) {
             // add
