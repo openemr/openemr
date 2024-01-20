@@ -34,41 +34,42 @@ use OpenEMR\Core\Header;
 
 $content = $_REQUEST['content'];
 ?>
+<!DOCTYPE html>
 <html>
     <head>
         <?php Header::setupHeader('opener'); ?>
         <script>
-    function showWhereInTextarea(){
-    opener.restoreSession();
-    var textarea = document.getElementById('quest');
-    start = textarea.value.indexOf("??");
-    len =2;
-    if(textarea.setSelectionRange){
-        textarea.setSelectionRange(parseInt(start), (parseInt(start)+parseInt(len)));
-    }
-    else{
-        var range = textarea.createTextRange();
-        range.collapse(true);
+            function showWhereInTextarea() {
+                opener.restoreSession();
+                var textarea = document.getElementById('quest');
+                start = textarea.value.indexOf("??");
+                len = 2;
+                if (textarea.setSelectionRange) {
+                    textarea.setSelectionRange(parseInt(start), (parseInt(start) + parseInt(len)));
+                } else {
+                    var range = textarea.createTextRange();
+                    range.collapse(true);
 
-        range.moveStart('character',parseInt(start) );
-        range.moveEnd('character',parseInt(len));
-        range.select();
+                    range.moveStart('character', parseInt(start));
+                    range.moveEnd('character', parseInt(len));
+                    range.select();
+                }
+                document.getElementById('quest').focus();
+            }
 
-    }
-    document.getElementById('quest').focus();
-    }
-    function replace_quest(val){
-        opener.restoreSession();
-        var textarea = document.getElementById('quest').value;
-        textarea=textarea.replace(/\?\?/i,val);
-        document.getElementById('quest').value=textarea;
-    }
-    function save_this(){
-            opener.restoreSession();
-            var textFrom = document.getElementById('quest').value;
-            window.opener.CKEDITOR.instances.textarea1.insertText(textFrom);
-            window.close();
-    }
+            function replace_quest(val) {
+                opener.restoreSession();
+                var textarea = document.getElementById('quest').value;
+                textarea = textarea.replace(/\?\?/i, val);
+                document.getElementById('quest').value = textarea;
+            }
+
+            function save_this() {
+                opener.restoreSession();
+                var textFrom = document.getElementById('quest').value;
+                window.opener.CKEDITOR.instances.textarea1.insertText(textFrom);
+                window.close();
+            }
         </script>
     </head>
     <body class="body_top" onload="showWhereInTextarea()">
@@ -87,7 +88,7 @@ $content = $_REQUEST['content'];
             </tr>
             <tr class="text">
                 <td>
-                <textarea name="quest" id="quest" rows="5" cols="70"><?php echo htmlspecialchars($content, ENT_QUOTES);?></textarea>
+                <textarea name="quest" id="quest" rows="12" cols="70"><?php echo htmlspecialchars($content, ENT_QUOTES);?></textarea>
                 </td>
             </tr>
             <tr>
