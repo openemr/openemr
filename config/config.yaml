@@ -244,3 +244,6 @@ assets:
     u2f_api:
         basePath: '%webroot%/library/js/'
         script: u2f-api.js
+    dompurify:
+        basePath: '%assets_static_relative%/'
+        script: dompurify/dist/purify.js
