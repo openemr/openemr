@@ -333,12 +333,12 @@ function getAuthPortalUsers()
                 };
 
                 $scope.renderMessageBody = function (html) {
-                    return html;
+                    return jsAttr(html);
                 };
 
                 $scope.htmlToText = function (html) {
                     const hold = document.createElement('DIV');
-                    hold.innerHTML = html;
+                    hold.innerHTML = jsText(html);
                     return jsText(hold.textContent || hold.innerText || '');
                 };
 
