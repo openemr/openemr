@@ -2426,7 +2426,7 @@ function resolve_action_sql($rule, $group_id = '')
    (where $dateFocus and $dateTarget passed to sql_interval_string() are the same as $dateFocus and $dateTarget in test_rules_clinic() )
    See comments in sql_interval_string() for reasons for this change
  */
-function database_check($patient_id, $filter, $interval = '', $dateFocus = '', $dateTarget = '', $rule = '')
+function database_check($patient_id, $filter, $interval = '', $dateFocus = '', $dateTarget = '')
 {
     // HR: add 'continue' return value option
     $isMatch = 'continue';
