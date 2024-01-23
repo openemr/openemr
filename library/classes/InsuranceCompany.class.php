@@ -158,7 +158,8 @@ class InsuranceCompany extends ORDataObject
         return $this->name;
     }
 
-    public function get_display_name() {
+    public function get_display_name()
+    {
         return InsuranceCompanyService::getDisplayNameForInsuranceRecord([
             'name' => $this->name,
             'line1' => $this->address->get_line1(),

@@ -70,9 +70,11 @@ class CoverageValidator extends BaseValidator
                 $context->required('subscriber_fname')->lengthBetween(2, 255);
                 $context->required('subscriber_relationship')->listOption('sub_relation')
                     ->callback(function ($value, $values) {
-                        if (!empty($values['pid'])
+                        if (
+                            !empty($values['pid'])
                             && !empty($values['subscriber_lname']) && !empty($values['subscriber_fname'])
-                            && !empty($values['subscriber_ss'])) {
+                            && !empty($values['subscriber_ss'])
+                        ) {
                             // check name and previous names to make sure a mistake hasn't been made.
                             $pidSearch = new TokenSearchField('pid', new TokenSearchValue($values['pid']));
                             $prevFirstNameSearch = new StringSearchField('previous_name_first', $values['subscriber_fname'], SearchModifier::EXACT);
@@ -262,20 +264,29 @@ class CoverageValidator extends BaseValidator
                             throw new InvalidValueException("Invalid coverage uuid", "Record::INVALID_RECORD_UUID");
                         }
                         $srcDate = $srcData[0]['date'];
-                        $targetDate = QueryUtils::fetchSingleValue("SELECT `date` FROM insurance_data WHERE pid = ? AND type = ? ORDER BY date DESC LIMIT 1"
-                            , 'date', [$values['pid'], $values['type']]);
+                        $targetDate = QueryUtils::fetchSingleValue(
+                            "SELECT `date` FROM insurance_data WHERE pid = ? AND type = ? ORDER BY date DESC LIMIT 1",
+                            'date',
+                            [$values['pid'], $values['type']]
+                        );
                         if (empty($srcDate)) {
                             if (!empty($targetDate)) {
-                                $srcTypeCanReceiveTarget = QueryUtils::fetchSingleValue("SELECT COUNT(*) AS cnt FROM insurance_data WHERE pid = ? AND type = ? AND date IS NOT NULL AND date = ?"
-                                    , 'cnt', [$values['pid'], $srcData['type'], $targetDate]);
+                                $srcTypeCanReceiveTarget = QueryUtils::fetchSingleValue(
+                                    "SELECT COUNT(*) AS cnt FROM insurance_data WHERE pid = ? AND type = ? AND date IS NOT NULL AND date = ?",
+                                    'cnt',
+                                    [$values['pid'], $srcData['type'], $targetDate]
+                                );
                                 if ($srcTypeCanReceiveTarget > 0) {
                                     throw new InvalidValueException("Source coverage type already has a policy with an effective date that conflicts with the target policy effective date", "Record::INVALID_SOURCE_POLICY_DATE");
                                 }
                             }
                         } else {
                             if (!(empty($targetDate) || $targetDate == $srcDate)) {
-                                $targetTypeCanReceiveSrc = QueryUtils::fetchSingleValue("SELECT COUNT(*) AS cnt FROM insurance_data WHERE pid = ? AND type = ? AND date IS NOT NULL AND date = ?"
-                                    , 'cnt', [$values['pid'], $values['type'], $srcDate]);
+                                $targetTypeCanReceiveSrc = QueryUtils::fetchSingleValue(
+                                    "SELECT COUNT(*) AS cnt FROM insurance_data WHERE pid = ? AND type = ? AND date IS NOT NULL AND date = ?",
+                                    'cnt',
+                                    [$values['pid'], $values['type'], $srcDate]
+                                );
                                 if ($targetTypeCanReceiveSrc > 0) {
                                     throw new InvalidValueException("Target coverage type already has a policy with an effective date that conflicts with the source policy effective date", "Record::INVALID_TARGET_POLICY_DATE");
                                 }

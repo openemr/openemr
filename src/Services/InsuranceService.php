@@ -481,8 +481,7 @@ class InsuranceService extends BaseService
             if ($a['date'] == $b['date']) {
                 if (empty($a['date_end']) && empty($b['date_end'])) {
                     return strcmp($a['policy_number'], $b['policy_number']);
-                }
-                else if (empty($b['date_end'])) {
+                } else if (empty($b['date_end'])) {
                     return 1;
                 } else if (empty($a['date_end'])) {
                     return -1;
@@ -518,7 +517,8 @@ class InsuranceService extends BaseService
                         $processingResult->setValidationMessages(
                             [
                                 'type' => ['Record::TARGET_INSURANCE_UPDATE_PROHIBITED' => xl('Target insurance could not be saved as it was missing data required for database updates')]
-                            ]);
+                            ]
+                        );
                         // note the finally clause will rollback the transaction
                         return $processingResult;
                     }
@@ -534,7 +534,8 @@ class InsuranceService extends BaseService
                 $processingResult->setValidationMessages(
                     [
                         'type' => ['Record::SOURCE_INSURANCE_UPDATE_PROHIBITED' => xl('Source insurance could not be saved as it was missing data required for database updates')]
-                    ]);
+                    ]
+                );
                 // note the finally clause will rollback the transaction
                 return $processingResult;
             }
@@ -579,16 +580,16 @@ class InsuranceService extends BaseService
             $processingResult->addData($result);
         } catch (\Exception $e) {
             $processingResult->addInternalError($e->getMessage());
-        }
-        finally {
+        } finally {
             try {
                 if (!$transactionCommitted) {
                     QueryUtils::rollbackTransaction();
                 }
-            }
-            catch (\Exception $e) {
-                (new SystemLogger())->errorLogCaller("Failed to rollback transaction " . $e->getMessage()
-                    , ['type' => $targetType, 'insuranceUuid' => $insuranceUuid, 'pid' => $pid]);
+            } catch (\Exception $e) {
+                (new SystemLogger())->errorLogCaller(
+                    "Failed to rollback transaction " . $e->getMessage(),
+                    ['type' => $targetType, 'insuranceUuid' => $insuranceUuid, 'pid' => $pid]
+                );
             }
         }
         return $processingResult;

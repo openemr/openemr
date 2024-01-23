@@ -5,7 +5,7 @@ namespace OpenEMR\Patient\Cards;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
 
-class BillingViewCard  extends CardModel
+class BillingViewCard extends CardModel
 {
     private const TEMPLATE_FILE = 'patient/card/billing.html.twig';
 
@@ -19,8 +19,7 @@ class BillingViewCard  extends CardModel
 
     private $billingNote;
 
-    public function __construct($pid, $insco_name, $billingNote
-        , $primaryInsurance, array $opts = [])
+    public function __construct($pid, $insco_name, $billingNote, $primaryInsurance, array $opts = [])
     {
         $this->pid = $pid;
         $this->insco_name = $insco_name;
@@ -49,7 +48,8 @@ class BillingViewCard  extends CardModel
         return array_merge($templateVars, $billingDataVars);
     }
 
-    private function setupBillingData() {
+    private function setupBillingData()
+    {
         $pid = $this->pid;
         $ed = $this->getEventDispatcher();
         $forceBillingExpandAlways = ($GLOBALS['force_billing_widget_open']) ? true : false;

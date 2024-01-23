@@ -101,7 +101,8 @@ class ProcessingResult
         return $this->data;
     }
 
-    public function getFirstDataResult() {
+    public function getFirstDataResult()
+    {
         if ($this->hasData()) {
             return $this->data[0];
         }

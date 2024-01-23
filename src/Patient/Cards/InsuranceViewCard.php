@@ -10,7 +10,7 @@ use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
 use InsuranceCompany;
 use OpenEMR\Services\InsuranceService;
 
-class InsuranceViewCard  extends CardModel
+class InsuranceViewCard extends CardModel
 {
     private const TEMPLATE_FILE = 'patient/card/insurance.html.twig';
 
@@ -70,7 +70,8 @@ class InsuranceViewCard  extends CardModel
         return $templateVars;
     }
 
-    private function getInsuranceTypeArray() {
+    private function getInsuranceTypeArray()
+    {
         // TODO: @adunsulag should we move this into a class?  It's copied everywhere...
         if ($GLOBALS['insurance_only_one']) {
             $insurance_array = array('primary');
@@ -79,7 +80,8 @@ class InsuranceViewCard  extends CardModel
         }
         return $insurance_array;
     }
-    private function getInsuranceData() {
+    private function getInsuranceData()
+    {
         $pid = $this->pid;
 
         $insuranceService = new InsuranceService();
@@ -106,7 +108,8 @@ class InsuranceViewCard  extends CardModel
         return $policiesByType;
     }
 
-    private function populateInsurancePolicy($row, $mostRecentEffectiveDate = null) {
+    private function populateInsurancePolicy($row, $mostRecentEffectiveDate = null)
+    {
         $policy_types = $this->policy_types;
         $row['date_end_missing'] = false;
         if ($row['provider']) {
@@ -153,7 +156,8 @@ class InsuranceViewCard  extends CardModel
         return $row;
     }
 
-    private function getEligibilityOutput() {
+    private function getEligibilityOutput()
+    {
         $output = '';
         $pid = $this->pid;
         if ($GLOBALS["enable_eligibility_requests"]) {
@@ -184,7 +188,8 @@ class InsuranceViewCard  extends CardModel
         return $output;
     }
 
-    private function getUserCardSetting($settingName) {
+    private function getUserCardSetting($settingName)
+    {
         return \getUserSetting($settingName);
     }
 }
