@@ -120,9 +120,6 @@ export class NewPolicyScreenController
                 this.__effectiveEndDate = selectedDateTime;
             }
         });
-        // this.addEvent(effectiveEndDate, 'input', (event) => {
-        //     this.__effectiveEndDate = event.target.value.trim(); // TODO: do we want to parse this as a date?
-        // });
         this.render();
     }
 
@@ -234,11 +231,6 @@ export class NewPolicyScreenController
                 insurance.date_end = this.__effectiveEndDate;
                 this.render();
                 resolved = this.__insurancePolicyService.saveInsurance(insurance);
-                // resolved = new Promise((resolve, reject) => {
-                //    setTimeout(() => {
-                //        resolve();
-                //    }, 1000);
-                // });
             }
         }
         return resolved;

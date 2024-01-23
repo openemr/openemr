@@ -95,7 +95,6 @@ export class InsurancePolicyModel {
 
     populate(pojo) {
         if (typeof pojo === 'object') {
-            // TODO: if we need to do any validation we could do that here
             Object.assign(this, pojo);
             // server stores this as a TRUE/FALSE string which is... odd
             if (pojo.accept_assignment == 'FALSE') {

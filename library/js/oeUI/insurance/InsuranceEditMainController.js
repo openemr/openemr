@@ -51,7 +51,7 @@ export class InsuranceEditMainController {
             // this.setupNewPolicyScreen()
         })
         .catch(error => {
-            // TODO: @adunsulag what to do here if we fail?
+            window.top.xl("Failed to load insurance policies, contact a system administrator");
             console.error(error);
         });
     }

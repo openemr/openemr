@@ -303,9 +303,6 @@ export class EditPolicyScreenController
     }
 
     savePolicy() {
-        // TODO: @adunsulag need to sync the form data with the selected insurance
-        // this.syncFormDataWithInsurance(this.selectedInsurance);
-        // TODO: @adunsulag need to validate the form
         // need to grab the selected insurance and save it
         this.__validationErrors = []; // reset our errors
         this.__isSaving = true;
@@ -325,7 +322,6 @@ export class EditPolicyScreenController
                     console.error(error);
                     alert("An error occurred while saving the insurance policy.  Please try again or contact your system administrator.");
                 }
-                // TODO: @adunsulag what to do here if we fail?
             })
             .finally(() => {
                 this.__isSaving = false;
