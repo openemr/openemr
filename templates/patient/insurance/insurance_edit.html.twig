@@ -5,6 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     {% block scripts %}
     {% endblock %}
+
+    <style>
+        div.insuranceEditContainer div.label_custom span {
+            font-size: 0.8rem;
+            display: inline-flex;
+            height: 100%;
+            align-items: center;
+            line-height: 1.2;
+        }
+
+        {% if rightJustifyLabels and languageDirection == 'ltr' %}
+            div.label_custom {
+              text-align: right !important;
+            }
+
+            div.tab td.data, div.data {
+                padding-left: 0.5em;
+                padding-right: 2em;
+            }
+        {% endif %}
+    </style>
 </head>
 <body class="body_top">
 {% block preContent %}{% endblock %}
