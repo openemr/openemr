@@ -78,7 +78,7 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
      
 <?php
     //**warning** do not add urlencode to  $provider_info['email']
-    $urlOut = $newRxUrl . $provider_info['email'] . "&data=" . urlencode($urlParam);
+    $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode($urlParam);
 
 ?>
 
@@ -108,18 +108,18 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
                         <th><?php echo xlt("Date Observed"); ?></th>
                     </tr>
                     <tr>
-                        <td><?php echo xlt("Height"); ?>:<?php echo number_format($vitals['height'], 2) ?> </td>
-                        <td><?php echo oeFormatShortDate(date("Y-m-d", strtotime($vitals['date'])))?></td>
+                        <td><?php echo xlt("Height"); ?>:<?php echo text(number_format($vitals['height'], 2)); ?> </td>
+                        <td><?php echo text(oeFormatShortDate(date("Y-m-d", strtotime($vitals['date'])))); ?></td>
                     </tr>
                     <tr>
-                        <td><?php echo xlt("Weight: "); ?><?php echo number_format($vitals['weight'], 2)?> </td>
-                        <td><?php echo oeFormatShortDate(date("Y-m-d", strtotime($vitals['date'])))?></td>
+                        <td><?php echo xlt("Weight: "); ?><?php echo text(number_format($vitals['weight'], 2)); ?> </td>
+                        <td><?php echo text(oeFormatShortDate(date("Y-m-d", strtotime($vitals['date'])))); ?></td>
                     </tr>
                 </table>
             </div>
             <div class="col">
-                <div><?php echo xlt("Primary Pharmacy: "); ?> <?php echo xlt($prim_pharmacy['business_name'] . " / " . $primary_pharmacy['address_line_1'] . " / " . $primary_pharmacy['city']); ?></div>
-                <div><?php echo xlt("Weno Alt: "); ?> <?php echo xlt($alt_pharmacy['business_name'] . " / " . $pharmacy['address_line_1'] . " / " . $pharmacy['city']); ?></div>
+                <div><?php echo xlt("Primary Pharmacy"); ?> : <?php echo text($prim_pharmacy['business_name'] . " / " . $primary_pharmacy['address_line_1'] . " / " . $primary_pharmacy['city']); ?></div>
+                <div><?php echo xlt("Weno Alt"); ?> : <?php echo text($alt_pharmacy['business_name'] . " / " . $alt_pharmacy['address_line_1'] . " / " . $alt_pharmacy['city']); ?></div>
             </div>
         </div>
     </div>

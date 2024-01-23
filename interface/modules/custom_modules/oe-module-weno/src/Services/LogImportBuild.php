@@ -17,7 +17,7 @@ class LogImportBuild
     public function __construct()
     {
         $this->insertdata = new LogDataInsert();
-        $this->rxsynclog = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/logsync.csv";
+        $this->rxsynclog = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/logsync.csv";
     }
 
     public function prescriptionId()

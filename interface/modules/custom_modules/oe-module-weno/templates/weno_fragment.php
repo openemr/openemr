@@ -1,11 +1,17 @@
 <?php 
+/**
+ * weno_fragment.php
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Kofi Appiah <kkappiah@medsov.com>
+ * @copyright Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 require_once(dirname(__DIR__, 4) . "/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
-
-$twig = new TwigContainer(null, $GLOBALS['kernel']);
 
 if(!AclMain::aclCheckCore('patients', 'med')){
     exit;

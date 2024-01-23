@@ -12,7 +12,7 @@ namespace OpenEMR\Modules\WenoModule\Services;
 
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 
-class wenoPharmaciesImport
+class WenoPharmaciesImport
 {
 
     public function __construct()

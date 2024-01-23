@@ -69,7 +69,7 @@ class LogProperties
     {
         $this->cryptoGen = new CryptoGen();
         $this->method = "aes-256-cbc";
-        $this->rxsynclog = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/logsync.csv";
+        $this->rxsynclog = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/logsync.csv";
         $this->enc_key = $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);
         $this->key = substr(hash('sha256', $this->enc_key, true), 0, 32);
         $this->iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
@@ -183,7 +183,7 @@ class LogProperties
     public function getProviderEmail()
     {
         if($_SESSION['authUser']){
-            $provider_info = sqlQuery("select setting_value AS email from user_settings where setting_user = ? and setting_label = 'global:weno_provider_email'", [$_SESSION["authUserID"]]);
+            $provider_info = ['email' => $GLOBALS['weno_provider_email']];
             if(!empty($provider_info)){
                 return $provider_info;
             } else {
@@ -209,11 +209,8 @@ class LogProperties
     public function getProviderPassword()
     {
         if($_SESSION['authUser']){
-            $uid = $_SESSION['authUserID'];
-            $sql = "select setting_value from user_settings where setting_user = ? and setting_label = 'global:weno_provider_password'";
-            $prov_pass = sqlQuery($sql, [$uid]);
-            if(!empty($prov_pass)){
-                return $this->cryptoGen->decryptStandard($prov_pass['setting_value']);
+            if(!empty($GLOBALS['weno_provider_password'])){
+                return $this->cryptoGen->decryptStandard($GLOBALS['weno_provider_password']);
             } else {
                 echo xlt('Provider Password is missing');
                 die;

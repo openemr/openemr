@@ -33,13 +33,14 @@ function wenoAlertManager(option, element, spinElement){
         element.classList.remove("d-none");
         element.classList.add("alert", "alert-success");
         element.innerHTML  = "Successfully updated";
+        window.location.reload();
         setTimeout(
             function(){
                 element.classList.add("d-none");
                 element.classList.remove("alert", "alert-success");
                 element.innerHTML  = "";
             }, 3000
-            )
+            );
         
     } else {
         setTimeout(function(){

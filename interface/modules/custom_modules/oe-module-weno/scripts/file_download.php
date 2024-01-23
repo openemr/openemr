@@ -45,9 +45,9 @@ $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0)
 
 $encrypted = base64_encode(openssl_encrypt($json_object, $method, $key, OPENSSL_RAW_DATA, $iv));
 
-$fileUrl = $baseurl . "?useremail=" . $weno_username . "&data=" . urlencode($encrypted);
-$storelocation = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno_pharmacy.zip";
-$path_to_extract = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/";
+$fileUrl = $baseurl . "?useremail=" . urlencode($weno_username) . "&data=" . urlencode($encrypted);
+$storelocation = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/weno_pharmacy.zip";
+$path_to_extract = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/";
 
 // takes URL of image and Path for the image as parameter
 function download_zipfile($fileUrl, $zipped_file){

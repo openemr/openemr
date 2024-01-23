@@ -13,7 +13,7 @@ namespace OpenEMR\Modules\WenoModule\Services;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
-use OpenEMR\Modules\WenoModule\Services\wenoPharmaciesImport;
+use OpenEMR\Modules\WenoModule\Services\WenoPharmaciesImport;
 
 class DownloadWenoPharmacies
 {
@@ -45,7 +45,7 @@ class DownloadWenoPharmacies
     public function extractFile($path_to_extract, $storelocation){
         $zip = new \ZipArchive();
         $wenolog = new WenoLogService();
-        $import = new wenoPharmaciesImport();
+        $import = new WenoPharmaciesImport();
         
         if ($zip->open($storelocation) === true) {
             $zip->extractTo($path_to_extract);

@@ -31,9 +31,9 @@ class WenoPharmaciesJson
 
     public function storePharmacyDataJson()
     {
-        $url = $this->wenoPharmacyDirectoryLink() . "?useremail=" . $this->providerEmail() . "&data=" . urlencode($this->encrypted);
+        $url = $this->wenoPharmacyDirectoryLink() . "?useremail=" . urlencode($this->providerEmail()) . "&data=" . urlencode($this->encrypted);
         $getWenoPharmaciesCsv = new DownloadWenoPharmacies();
-        $storageLocation = dirname(__DIR__, 3) . "/sites/" . $_SESSION['site_id'] . "/documents/logs_and_misc/";
+        $storageLocation = dirname(__DIR__, 3) . "/sites/" . $_SESSION['site_id'] . "/documents/logs_and_misc/weno/";
         $c = $getWenoPharmaciesCsv->RetrieveDataFile($url, $storageLocation);
     }
 

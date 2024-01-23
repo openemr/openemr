@@ -17,7 +17,8 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\ContactService;
-use OpenEMR\Modules\WenoModule\Services\PharmacyService;
+use OpenEMR\Events\Patient\PatientUpdatedEventAux;
+
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -97,17 +98,12 @@ if (!empty($addressFieldsToSave)) {
     }
 }
 
-//saving weno pharmacies on update
-if($GLOBALS['weno_rx_enable'] && (!empty($_POST['primary_pharmacy']) || 
-    !empty($_POST['alternate_pharmacy']))){
-        
-    $data = array(
-        "primary_pharmacy" => $_POST['primary_pharmacy'],
-        "alternate_pharmacy" => $_POST['alternate_pharmacy']
-    );
-    $pharmacyService = new PharmacyService();
-    $pharmacyService->updatePatientWenoPharmacy($pid, $data);
-}
+/**
+ * trigger events to listeners who want data that is not directly available in
+ * the patient_data table on update
+ */
+$GLOBALS["kernel"]->getEventDispatcher()->dispatch(new PatientUpdatedEventAux($pid, $_POST), PatientUpdatedEventAux::EVENT_HANDLE, 10);
+
 
 $i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
 $i1date = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date"));

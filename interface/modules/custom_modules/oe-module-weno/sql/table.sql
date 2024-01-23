@@ -1,7 +1,3 @@
-#IfTable weno_pharmacy
-DROP TABLE IF EXISTS `weno_pharmacy`;
-#EndIf
-
 #IfNotTable weno_pharmacy
 CREATE TABLE `weno_pharmacy` (
   `id` int(20) NOT NULL AUTO_INCREMENT,
@@ -38,29 +34,29 @@ CREATE TABLE `weno_pharmacy` (
   `Modified` datetime DEFAULT NULL,
   `Deleted` datetime DEFAULT NULL,
   `24HR` varchar(3) DEFAULT NULL,
-  `on_weno` tinytext NOT NULL,
+  `on_weno` tinytext,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`),
   UNIQUE KEY `ncpdp` (`NCPDP`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB;
 #EndIf
 
 #IfNotTable weno_assigned_pharmacy
-CREATE TABLE IF NOT EXISTS `weno_assigned_pharmacy` (
+CREATE TABLE `weno_assigned_pharmacy` (
     `id` INT(10) NOT NULL AUTO_INCREMENT,
     `pid` BIGINT(20) NOT NULL,
     `primary_ncpdp` VARCHAR(8) NOT NULL,
     `alternate_ncpdp` VARCHAR(8) NOT NULL,
-    PRIMARY KEY(id)
+    FOREIGN KEY (`pid`) REFERENCES `patient_data`(`pid`),
+    PRIMARY KEY(`id`)
 ) ENGINE=InnoDB;
 #EndIf
 
 #IfNotTable weno_download_log
-CREATE TABLE IF NOT EXISTS `weno_download_log` (
+CREATE TABLE `weno_download_log` (
     `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
     `value` VARCHAR(12) NOT NULL,
     `status` VARCHAR(10) NOT NULL,
-    `created_at` DATE NOT NULL DEFAULT (CURRENT_DATE),
+    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `value` (`value`)
 ) ENGINE=InnoDB;
@@ -68,22 +64,18 @@ CREATE TABLE IF NOT EXISTS `weno_download_log` (
 
 #IfNotRow background_services name WenoExchangePharmacies
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) 
-VALUES ('WenoExchangePharmacies', 'Weno Exchange Pharmacy', '0', '0', current_timestamp(), '1440', 'downloadWenoPharmacy', '/weno_log_sync.php', '100');
+VALUES ('WenoExchangePharmacies', 'Weno Exchange Pharmacy', '0', '0', current_timestamp(), '1440', 'downloadWenoPharmacy', '/interface/modules/custom_modules/oe-module-weno/scripts/weno_log_sync.php', '100');
 #EndIf
 
-#IfNotRow background_services name WenoExchange
-INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) 
-VALUES ('WenoExchange', 'Weno Prescription Log', '0', '0', current_timestamp(), '30', 'downloadWenoPrescriptionLog', '/weno_log_sync.php', '100');
+#IfRow background_services name WenoExchange
+UPDATE `background_services` SET title="Weno Log Sync", `function`="downloadWenoPrescriptionLog", `require_once`="/interface/modules/custom_modules/oe-module-weno/scripts/weno_log_sync.php" WHERE `name`="WenoExchange";
 #EndIf
 
-#IfRow globals name weno_provider_password
-ALTER TABLE globals RENAME COLUMN weno_provider_password TO weno_admin_password;
+#IfRow globals gl_name weno_provider_password
+UPDATE `globals` SET gl_name="weno_admin_password" WHERE gl_name="weno_provider_password";
 #EndIf
 
-IfRow globals name weno_provider_username
-ALTER TABLE globals RENAME COLUMN weno_provider_username TO weno_admin_username;
+#IfRow globals gl_name weno_provider_username
+UPDATE `globals` SET gl_name="weno_provider_username" WHERE gl_name="weno_admin_username";
 #EndIf
 
-#IfRow user_settings name weno_provider_password
-ALTER TABLE user_settings RENAME COLUMN weno_provider_password TO weno_admin_password;
-#EndIf

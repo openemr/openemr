@@ -12,6 +12,10 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Events\PatientDemographics\RenderEvent as pRenderEvent;
+use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
+use OpenEMR\Events\Patient\PatientBeforeCreatedAuxEvent;
+use OpenEMR\Events\Patient\PatientUpdatedEventAux;
+use OpenEMR\Modules\WenoModule\Services\SelectedPatientPharmacy;
 
 class Bootstrap {
 
@@ -43,10 +47,22 @@ class Bootstrap {
      */
     private $logger;
 
+    private $modulePath;
+
+    /**
+     * @var SelectedPatientPharmacy
+     */
+    private $selectedPatientPharmacy;
+
     public function subscribeToEvents()
     {
         $this->addGlobalSettings();
         $this->registerMenuItems();
+        $this->registerDemographicsEvents();
+        $this->demographicsSelectorEvents();
+        $this->demographicsDisplaySelectedEvents();
+        $this->patientSaveEvents();
+        $this->patientUpdateEvents();
     }
 
     public function __construct(EventDispatcher $dispatcher, ?Kernel $kernel = null)
@@ -60,7 +76,9 @@ class Bootstrap {
 
         $this->globalsConfig = new WenoGlobalConfig($GLOBALS);
         $this->moduleDirectoryName = basename(dirname(__DIR__));
+        $this->modulePath = dirname(__DIR__);
         $this->logger = new SystemLogger();
+        $this->selectedPatientPharmacy = new SelectedPatientPharmacy();
     }
 
     /**
@@ -200,19 +218,18 @@ class Bootstrap {
                 foreach($item->children as $other){
                     if($other->label == 'Other'){
                         $other->children[] = $mgtMenu;
-                        break;
                     }
+                    break;
                 }
+                break;
             }
             
             if ($item->menu_id == 'repimg') {
                 foreach($item->children as $clientReport){
                     if($clientReport->label == 'Clients'){
                         $clientReport->children[] = $menuItem;
-                        break;
                     }
                 }
-                
                 break;
             }
         }
@@ -220,6 +237,46 @@ class Bootstrap {
         $event->setMenu($menu);
 
         return $event;
+    }
+
+    public function demographicsSelectorEvents()
+    {
+        $this->eventDispatcher->addListener(RenderPharmacySectionEvent::RENDER_AFTER_PHARMACY_SECTION, [$this, 'renderWenoPharmacySelector']);
+    }
+
+    public function renderWenoPharmacySelector()
+    {
+        include_once($this->modulePath) . "/templates/pharmacy_list_form.php";
+        
+    }
+
+    public function demographicsDisplaySelectedEvents()
+    {
+        $this->eventDispatcher->addListener(RenderPharmacySectionEvent::RENDER_AFTER_SELECTED_PHARMACY_SECTION, [$this, 'renderSelectedWenoPharmacies']);
+    }
+
+    public function renderSelectedWenoPharmacies(){
+        echo "<br>";
+        include_once($this->modulePath) . "/templates/pharmacy_list_display.php";
+    }
+
+    public function patientSaveEvents(){
+        $this->eventDispatcher->addListener(PatientBeforeCreatedAuxEvent::EVENT_HANDLE, [$this, 'persistPatientWenoPharmacies']);
+    }
+
+    public function persistPatientWenoPharmacies(PatientBeforeCreatedAuxEvent $event)
+    {
+        $patientData = $event->getPatientData();
+        $this->selectedPatientPharmacy->prepSelectedPharmacy($patientData);
+    }
+
+    public function patientUpdateEvents(){
+        $this->eventDispatcher->addListener(PatientUpdatedEventAux::EVENT_HANDLE, [$this, 'updatePatientWenoPharmacies']);
+    }
+
+    public function updatePatientWenoPharmacies(PatientUpdatedEventAux $event){
+        $updatedPatientData = $event->getUpdatedPatientData();
+        $this->selectedPatientPharmacy->prepForUpdatePharmacy($updatedPatientData);
     }
 }
 

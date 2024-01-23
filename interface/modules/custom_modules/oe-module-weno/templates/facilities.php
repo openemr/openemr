@@ -76,7 +76,7 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
             $('#notch-pharm').removeClass("hide");
             $('#pharm-btn').attr("disabled", true);
             $.ajax({
-                url: "<? echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/src/services/file_download.php",
+                url: "<? echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/scripts/file_download.php",
                 type: "GET",
                 success: function (data) {
                     $('#notch-pharm').addClass("hide");
@@ -169,7 +169,7 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
                 <tr>
                     <th scope="row">1</th>
                     <td><?php echo xlt("Weno Pharmacy Directory"); ?></td>
-                    <td><?php echo $pharm_log['created_at']; ?></td>
+                    <td><?php echo text($pharm_log['created_at']); ?></td>
                     <td><?php echo xlt($pharm_log['status']); ?></td>
                     <td>
                         <button type="button" id="btn-pharm" onclick="downloadPharmacies();" class="btn btn-primary btn-sm">
@@ -183,7 +183,7 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
                 <tr>
                     <th scope="row">2</th>
                     <td><?php echo xlt("Prescription log"); ?></td>
-                    <td><?php echo $pres_log['created_at']; ?></td>
+                    <td><?php echo text($pres_log['created_at']); ?></td>
                     <td><?php echo xlt($pres_log['status']); ?></td>
                     <td>
                         <button type="button" id="presc-btn" onclick="downloadPresLog();" class="btn btn-primary btn-sm">

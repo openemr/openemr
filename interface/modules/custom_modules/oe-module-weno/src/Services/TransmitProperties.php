@@ -70,7 +70,7 @@ class TransmitProperties
         $wenObj['LocationID'] = $this->locid['weno_id'];
         $wenObj['TestPatient'] = $mode;
         $wenObj['PatientType'] = 'Human';
-        $wenObj['OrgPatientID'] = $this->patient['pid'] . ":" . $this->encounter;
+        $wenObj['OrgPatientID'] = $this->patient['pid'] . ":" . $this->getEncounter();
         $wenObj['LastName'] = $this->patient['lname'];
 
         $wenObj['FirstName'] = $this->patient['fname'];
@@ -102,9 +102,7 @@ class TransmitProperties
      */
     public function getProviderEmail()
     {
-        $uid = $_SESSION['authUserID'];
-        $sql = "select setting_value AS email from user_settings where setting_user = ? and setting_label = 'global:weno_provider_email'";
-        $provider_info = sqlQuery($sql, [$uid]);
+        $provider_info = ['email' => $GLOBALS['weno_provider_email']];
         if (empty($provider_info['email'])) {
             echo xlt('Provider email address is missing. Go to [User Settings > Weno Tab] and enter your Weno Provider Password');
             exit;
