@@ -3199,6 +3199,43 @@ paths:
       security:
         -
           openemr_auth: []
+  '/api/patient/{puuid}/insurance/$swap-insurance':
+    get:
+      tags:
+        - standard
+      description: 'Updates the insurance for the passed in uuid to be a policy of type `type` and updates (if one exists) the current or most recent insurance for the passed in `type` for a patient to be the `type` of the insurance for the given `uuid`. Validations on the swap operation are performed to make sure the effective `date` of the src and target policies being swapped can be received in each given policy `type` as a policy `type` and `date` must together be unique per patient.'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+        -
+          name: type
+          in: query
+          description: 'The type or category of OpenEMR insurance policy, ''primary'', ''secondary'', or ''tertiary''.'
+          required: true
+          schema:
+            type: string
+        -
+          name: uuid
+          in: query
+          description: 'The insurance uuid that will be swapped into the list of insurances for the type query parameter'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
   '/api/patient/{puuid}/insurance/{uuid}':
     get:
       tags:

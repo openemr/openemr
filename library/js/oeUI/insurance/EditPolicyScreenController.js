@@ -101,9 +101,7 @@ export class EditPolicyScreenController
         // by doing things this way we abstract the communication from the patient selection piece to this controller
         // we also are safer by grabbing the patient uuid and insurance uuid and refetching just to make sure we have
         // the right data.
-        console.log("adding event listener");
         window.addEventListener("message", (evt) => {
-            console.log("got here in message received");
             if (event.origin !== window.location.origin) {
                 return; // we only receive events from our same domain
             }
@@ -218,14 +216,8 @@ export class EditPolicyScreenController
                 let input = $input[0];
                 let key = input.name.replace('form_', '');
                 let value = input.value;
-                console.log("onSelectDate: " + key + " value: " + value);
-                console.log("ct is ", selectedDateTime);
                 // datetime selected
                 this.selectedInsurance[key] = selectedDateTime;
-                // setTimeout(() => {
-                //     // make this happen after we've finished our event handlers
-                //     this.render(); // re-render the screen to update the display
-                // }, 0);
             }
         });
         // setup the bootstrap select fields
@@ -327,7 +319,6 @@ export class EditPolicyScreenController
             })
             .catch(error => {
                 if (error instanceof ValidationError) {
-                    // TODO: @adunsulag need to display the validation errors
                     this.__validationErrors = error.validationErrors;
                     console.error(error);
                 } else {
@@ -501,23 +492,29 @@ export class EditPolicyScreenController
         }
         // render the validation error messages
         this.#renderValidationErrorMessages(this.selectedInsurance);
-
-        if (this.__isSaving) {
-            document.querySelector('.btn-saving').classList.remove("d-none");
-            document.querySelector('.btn-save-policy').classList.add("d-none");
-            // show the saving progress indicator
-            // hide the save button and display the saving progress indicator
-        } else {
-            // hide the saving progress indicator
-            // show the save button
-            document.querySelector('.btn-saving').classList.add("d-none");
-            document.querySelector('.btn-save-policy').classList.remove("d-none");
+        let insuranceInfoContainer = document.getElementById('insurance-info-type-' + type);
+        if (!insuranceInfoContainer) {
+            return; // can't do anything if the container isn't there
         }
+        let buttonTabContainer = document.querySelector('.tabContainer .tab.current');
+        if (buttonTabContainer) {
+            if (this.__isSaving) {
+                buttonTabContainer.querySelector('.btn-saving').classList.remove("d-none");
+                buttonTabContainer.querySelector('.btn-save-policy').classList.add("d-none");
+                // show the saving progress indicator
+                // hide the save button and display the saving progress indicator
+            } else {
+                // hide the saving progress indicator
+                // show the save button
+                buttonTabContainer.querySelector('.btn-saving').classList.add("d-none");
+                buttonTabContainer.querySelector('.btn-save-policy').classList.remove("d-none");
+            }
 
-        if (this.__policySaved) {
-            document.querySelector('.insurance-save-success').classList.remove("d-none");
-        } else {
-            document.querySelector('.insurance-save-success').classList.add("d-none");
+            if (this.__policySaved) {
+                buttonTabContainer.querySelector('.insurance-save-success').classList.remove("d-none");
+            } else {
+                buttonTabContainer.querySelector('.insurance-save-success').classList.add("d-none");
+            }
         }
     }
 
@@ -645,6 +642,7 @@ export class EditPolicyScreenController
                     this.#populateInsuranceModelDataElements(insuranceInfoContainer, selectedInsurance);
                     this.#setupModelSyncBinding(selectedInsurance);
                     this.#setupAddressValidation(selectedInsurance);
+                    this.#setupInsuranceSwapButtons(selectedInsurance);
                 }
             }
             catch (error) {
@@ -652,6 +650,67 @@ export class EditPolicyScreenController
                 alert(window.top.xl("An error occurred while rendering the insurance policy.  Please try again or contact your system administrator."));
             }
         }
+    }
+    #setupInsuranceSwapButtons(selectedInsurance) {
+        let type = selectedInsurance.type;
+        let template = document.getElementById('insurance-swap-template');
+        if (!template || (type != 'secondary' && type != 'tertiary')) {
+            // no template, nothing to do as the feature is turned off or we are not primary or secondary insurance
+            return;
+        }
+        let insuranceInfoContainer = document.getElementById('insurance-info-type-' + type);
+        if (!insuranceInfoContainer) {
+            throw new Error("Failed to find insurance info container for type: " + type);
+        }
+        let fieldDestination = insuranceInfoContainer.querySelector('.js-swap-insurance');
+        if (!fieldDestination) {
+            throw new Error("Failed to find swap insurance field for type: " + type);
+        }
+        let clone = document.importNode(template.content, true);
+        fieldDestination.parentNode.insertBefore(clone, fieldDestination.nextSibling);
+        let swapButton = insuranceInfoContainer.querySelector('.btn-insurance-swap[data-type="'+ type + '"]');
+        if (!swapButton) {
+            throw new Error("Failed to find swap button for type: " + type);
+        }
+        swapButton.classList.remove("d-none");
+        swapButton.addEventListener('click', (evt) => {
+            let targetType = evt.target.dataset['targetType'];
+            if (!targetType) {
+                throw new Error("Failed to find target type for swap button");
+            }
+            evt.target.disabled = true;
+            evt.target.querySelector('.wait').classList.remove('d-none');
+            this.__isSaving = true;
+            this.__policySaved = false;
+            this.__insurancePolicyService.swapInsurance(this.selectedInsurance, targetType)
+                .then(selectedInsurance => {
+                    evt.target.disabled = false;
+                    evt.target.querySelector('.wait').classList.add('d-none');
+                    // we can use our setup function to restart everything with the swapped policies
+                    this.setupNewPolicyEdit(selectedInsurance);
+                    // these fields get reset by the setupNewPolicyEdit function... so we need to undo it
+                    this.__isSaving = false;
+                    this.__policySaved = true;
+                    this.render();
+                })
+                .catch(error => {
+                    this.__isSaving = false;
+                    evt.target.disabled = false;
+                    evt.target.querySelector('.wait').classList.add('d-none');
+                    console.error(error);
+                    // if we couldn't swap due to validation errors... we need to display those errors
+                    if (error instanceof ValidationError) {
+                        this.__validationErrors = error.validationErrors;
+                        this.render(); // re-render the screen to update the display with the errors.
+                    } else {
+                        alert(window.top.xl("An error occurred while swapping the insurance policy.  Please try again or contact your system administrator."));
+                    }
+                });
+        });
+    }
+
+    #isIgnoredModelProperty(property) {
+        return ['id', 'insureruuid', 'pid', 'puuid', 'type', 'uuid'].indexOf(property) < 0;
     }
 
     #populateInsuranceModelDataElements(insuranceInfoContainer, selectedInsurance) {
@@ -661,7 +720,9 @@ export class EditPolicyScreenController
             let value = selectedInsurance[key];
             let input = insuranceInfoContainer.querySelector('[name="form_' + key + '"]');
             if (!input) {
-                console.info("Failed to find insurance info input for key: " + key);
+                if (this.#isIgnoredModelProperty(key)) {
+                    console.error("Failed to find insurance info input for key: " + key);
+                }
                 return;
             }
             // clear out the id field as we don't use it

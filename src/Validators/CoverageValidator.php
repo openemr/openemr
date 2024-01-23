@@ -25,6 +25,9 @@ use Particle\Validator\Validator;
  */
 class CoverageValidator extends BaseValidator
 {
+    const DATABASE_SWAP_CONTEXT = "database-swap";
+
+
     protected function getInnerValidator(): Validator
     {
         return new OpenEMRParticleValidator();
@@ -38,6 +41,7 @@ class CoverageValidator extends BaseValidator
     protected function configureValidator()
     {
         parent::configureValidator();
+        array_push($this->supportedContexts, self::DATABASE_SWAP_CONTEXT);
 
 
         // insert validations
@@ -150,6 +154,7 @@ class CoverageValidator extends BaseValidator
                 $context->required('date')->datetime('Y-m-d')
                     ->callback(function ($value, $values) {
                     // need to check
+                        // TODO: @adunsulag need to move all these queries into the InsuranceService...
                         if (!empty($values['pid']) && !empty($values['type']) && !empty($value)) {
                             $sqlCheck = "SELECT COUNT(*) AS cnt FROM insurance_data WHERE pid = ? AND type = ? AND date = ?";
                             $binds = [$values['pid'], $values['type'], $value];
@@ -222,6 +227,62 @@ class CoverageValidator extends BaseValidator
                 $context->required("uuid", "Coverage UUID")->callback(function ($value) {
                     return $this->validateId("uuid", "insurance_data", $value, true);
                 })->uuid();
+            }
+        );
+
+        $this->validator->context(
+            self::DATABASE_SWAP_CONTEXT,
+            function (Validator $context) {
+                $context->required("uuid", "Coverage UUID")->callback(function ($value) {
+                    return $this->validateId("uuid", "insurance_data", $value, true);
+                })->uuid();
+                $context->required("pid", "Patient ID")->numeric();
+                $context->required("type", "Coverage Type")->inArray(array('primary', 'secondary', 'tertiary'))
+                    ->callback(function ($value, $values) {
+                        if (empty($values['uuid']) && empty($values['pid'])) {
+                            return true; // nothing to do here if we don't have a uuid or pid, so don't run the check and let other failures happen
+                        }
+                        // if src date is null
+                        // if most recent target date is null
+                                // this is ok.
+                        // if most recent target date is not null
+                        // we need to check to make sure target type can receive src date
+
+                        // if src date is not null
+                        // if most recent target date is null || target date is the same as src date
+                        // this is ok as it means there are no other dates and we can easily swap
+                        // if most recent target date is not null
+                        // we need to check to make sure target type does NOT have a date that is the same as src date
+
+                        // hit the database to grab the most recent policy for this type
+                        // grab the uuid we are checking
+                        $uuidBytes = UuidRegistry::uuidToBytes($values['uuid']);
+                        $srcData = QueryUtils::fetchRecords("SELECT `date`,`type` FROM insurance_data WHERE uuid = ?", [$uuidBytes]);
+                        if (empty($srcData)) {
+                            throw new InvalidValueException("Invalid coverage uuid", "Record::INVALID_RECORD_UUID");
+                        }
+                        $srcDate = $srcData[0]['date'];
+                        $targetDate = QueryUtils::fetchSingleValue("SELECT `date` FROM insurance_data WHERE pid = ? AND type = ? ORDER BY date DESC LIMIT 1"
+                            , 'date', [$values['pid'], $values['type']]);
+                        if (empty($srcDate)) {
+                            if (!empty($targetDate)) {
+                                $srcTypeCanReceiveTarget = QueryUtils::fetchSingleValue("SELECT COUNT(*) AS cnt FROM insurance_data WHERE pid = ? AND type = ? AND date IS NOT NULL AND date = ?"
+                                    , 'cnt', [$values['pid'], $srcData['type'], $targetDate]);
+                                if ($srcTypeCanReceiveTarget > 0) {
+                                    throw new InvalidValueException("Source coverage type already has a policy with an effective date that conflicts with the target policy effective date", "Record::INVALID_SOURCE_POLICY_DATE");
+                                }
+                            }
+                        } else {
+                            if (!(empty($targetDate) || $targetDate == $srcDate)) {
+                                $targetTypeCanReceiveSrc = QueryUtils::fetchSingleValue("SELECT COUNT(*) AS cnt FROM insurance_data WHERE pid = ? AND type = ? AND date IS NOT NULL AND date = ?"
+                                    , 'cnt', [$values['pid'], $values['type'], $srcDate]);
+                                if ($targetTypeCanReceiveSrc > 0) {
+                                    throw new InvalidValueException("Target coverage type already has a policy with an effective date that conflicts with the source policy effective date", "Record::INVALID_TARGET_POLICY_DATE");
+                                }
+                            }
+                        }
+                        return true;
+                    });
             }
         );
     }

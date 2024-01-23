@@ -101,6 +101,13 @@ class ProcessingResult
         return $this->data;
     }
 
+    public function getFirstDataResult() {
+        if ($this->hasData()) {
+            return $this->data[0];
+        }
+        return null;
+    }
+
     public function setData($data)
     {
         // we trim the data to be within the confines of the pagination limit and set our has more data flag if we have it

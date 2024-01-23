@@ -17,6 +17,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\Search\{
@@ -249,7 +250,8 @@ class InsuranceService extends BaseService
         $sql .= "   date_end=?,";
         $sql .= "   subscriber_sex=?,";
         $sql .= "   accept_assignment=?,";
-        $sql .= "   policy_type=?";
+        $sql .= "   policy_type=?,";
+        $sql .= "   type=?";
         $sql .= "   WHERE uuid = ? ";
 
         $serviceSaveEvent = new ServiceSaveEvent($this, $data);
@@ -289,6 +291,7 @@ class InsuranceService extends BaseService
                 $data["subscriber_sex"],
                 $data["accept_assignment"],
                 $data["policy_type"],
+                $data['type'],
                 $uuid
             )
         );
@@ -490,5 +493,104 @@ class InsuranceService extends BaseService
             return strtotime($a['date_end']) <=> strtotime($b['date_end']);
         });
         return $policies;
+    }
+
+    public function swapInsurance($pid, string $targetType, string $insuranceUuid)
+    {
+        $transactionCommitted = false;
+        $validateData = ['pid' => $pid, 'type' => $targetType, 'uuid' => $insuranceUuid];
+        $validationResult = $this->coverageValidator->validate($validateData, CoverageValidator::DATABASE_SWAP_CONTEXT);
+        if (!$validationResult->isValid()) {
+            return $validationResult;
+        }
+        $processingResult = new ProcessingResult();
+
+        try {
+            QueryUtils::startTransaction();
+
+            $targetUuid = QueryUtils::fetchSingleValue("SELECT uuid FROM insurance_data WHERE pid = ? AND type = ? ORDER BY (date IS NULL) ASC, date DESC", 'uuid', [$pid, $targetType]);
+            $targetInsurance = null;
+            if (!empty($targetUuid)) {
+                $targetResult = $this->getOne(UuidRegistry::uuidToString($targetUuid));
+                if ($targetResult->hasData()) {
+                    $targetInsurance = $targetResult->getFirstDataResult();
+                    if (!$this->coverageValidator->validate($targetInsurance, CoverageValidator::DATABASE_UPDATE_CONTEXT)->isValid()) {
+                        $processingResult->setValidationMessages(
+                            [
+                                'type' => ['Record::TARGET_INSURANCE_UPDATE_PROHIBITED' => xl('Target insurance could not be saved as it was missing data required for database updates')]
+                            ]);
+                        // note the finally clause will rollback the transaction
+                        return $processingResult;
+                    }
+                }
+            }
+            $srcResult = $this->getOne($insuranceUuid);
+            if (!$srcResult->hasData()) {
+                // shouldn't happen as the validator should have caught this
+                throw new \InvalidArgumentException("Could not find insurance policy with uuid: $insuranceUuid");
+            }
+            $srcInsurance = $srcResult->getFirstDataResult();
+            if (!$this->coverageValidator->validate($srcInsurance, CoverageValidator::DATABASE_UPDATE_CONTEXT)->isValid()) {
+                $processingResult->setValidationMessages(
+                    [
+                        'type' => ['Record::SOURCE_INSURANCE_UPDATE_PROHIBITED' => xl('Source insurance could not be saved as it was missing data required for database updates')]
+                    ]);
+                // note the finally clause will rollback the transaction
+                return $processingResult;
+            }
+
+            // we need to look at changing up the date of the current insurance policy
+            $resetStartDate = null;
+            if (!empty($targetInsurance)) {
+                $resetStartDate = $targetInsurance['date'];
+                if ($resetStartDate != $srcInsurance['date']) {
+                    $resetStartDate = null;
+                } else {
+                    // set to the largest possible date we can which should not conflict with any possible date
+                    // I don't like this but due to the pid-type-date db constraint we have to set a temporary date so we don't conflict
+                    // with the current insurance policy, the chances of conflict are infitisemally small.
+                    // If OpenEMR is still around in 7K+ years, someone should have fixed this by then.
+                    // again since its all wrapped in a transaction, this date should never permanently save
+                    $targetInsurance["date"] = "9999-12-31";
+                }
+                $targetInsurance['type'] = $srcInsurance['type'];
+                $updateResult = $this->update($targetInsurance);
+                if ($updateResult->hasErrors()) {
+                    throw new \InvalidArgumentException("Failed to update insurance policy with uuid: $insuranceUuid");
+                }
+            }
+
+            // we have to do this in multiple steps due to the way the db constraing on the type and date are set
+            $srcInsurance['type'] = $targetType;
+            $this->update($srcInsurance);
+
+            if (!empty($targetInsurance)) {
+                if (!empty($resetStartDate)) {
+                    $targetInsurance["date"] = $resetStartDate;
+                }
+                $this->update($targetInsurance);
+            }
+            QueryUtils::commitTransaction();
+            $transactionCommitted = true;
+            $result = [
+                'src' => $srcInsurance
+                ,'target' => $targetInsurance
+            ];
+            $processingResult->addData($result);
+        } catch (\Exception $e) {
+            $processingResult->addInternalError($e->getMessage());
+        }
+        finally {
+            try {
+                if (!$transactionCommitted) {
+                    QueryUtils::rollbackTransaction();
+                }
+            }
+            catch (\Exception $e) {
+                (new SystemLogger())->errorLogCaller("Failed to rollback transaction " . $e->getMessage()
+                    , ['type' => $targetType, 'insuranceUuid' => $insuranceUuid, 'pid' => $pid]);
+            }
+        }
+        return $processingResult;
     }
 }

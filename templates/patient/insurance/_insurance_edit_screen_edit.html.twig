@@ -55,6 +55,12 @@
         <input type='button' class='btn btn-sm btn-secondary mb-1' value='{{ "Verify Address"|xla }}' />
     </template>
 {% endif %}
+{% if enableSwapSecondaryInsurance %}
+    <template id="insurance-swap-template">
+        <button class='btn btn-sm btn-secondary btn-insurance-swap btn-insurance-swap-primary mb-1 d-none' data-type='secondary' data-target-type="primary">{{ "Swap With Primary"|xla }}<i class="wait fa fa-cog fa-spin ml-2 d-none"></i></button>
+        <button class='btn btn-sm btn-secondary btn-insurance-swap btn-insurance-swap-secondary mb-1 d-none' data-type='tertiary' data-target-type="secondary">{{ "Swap With Secondary"|xla }}<i class="wait fa fa-cog fa-spin ml-2 d-none"></i></button>
+    </template>
+{% endif %}
 {% include "patient/insurance/_insurance_validation_errors.html.twig" %}
 {# Insurance Edit Template #}
 <template id="insurance-edit-template">

@@ -78,21 +78,12 @@ if ($GLOBALS['insurance_only_one']) {
 //Check to see if only one insurance is allowed
 if ($GLOBALS['insurance_only_one']) {
     $insurance_headings = array(xl("Primary Insurance Provider"));
-    $insurance_info = array();
-    $insurance_info[1] = getInsuranceData($pid, "primary");
 } else {
     $insurance_headings = array(xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider"));
-    $insurance_info = array();
-    //$test_ins_info = getInsuranceDataNew($pid, "primary");
-    $insurance_info = array_merge(
-        getInsuranceDataNew($pid, "primary"),
-        getInsuranceDataNew($pid, "secondary"),
-        getInsuranceDataNew($pid, "tertiary")
-    );
 }
 
 $twig = (new \OpenEMR\Common\Twig\TwigContainer(null, $GLOBALS['kernel']))->getTwig();
-$insurance_info[0]['active'] = true;
+//$insurance_info[0]['active'] = true;
 //$insuranceTypes = array_map(function($item) { return $item['type'];}, $insurance_info);
 //$insrender(uranceTypes = array_unique($insuranceTypes);
 // we DO NOT want to allow users to add states/localities in this form per Business Rules
@@ -102,14 +93,13 @@ $country_data_type = $GLOBALS['country_data_type'] === '26' ? '1' : $GLOBALS['co
 echo $twig->render(
     "patient/insurance/insurance_edit.html.twig",
     [
-        'insurance_information' => $insurance_info,
         'insuranceTypes' => $insurance_array,
         'activeType' => $insurance_array[0],
         'patient' => $result,
         'puuid' => \OpenEMR\Common\Uuid\UuidRegistry::uuidToString($result['uuid'])
         // TODO: @adunsulag need to test insuranceProviderList with GLOBALS['insurance_information'] settings for various changes that can occur here.
         ,'insuranceProviderList' => $insurancei
-        ,'enable_swap_secondary_insurance' => $GLOBALS['enable_swap_secondary_insurance']
+        ,'enableSwapSecondaryInsurance' => $GLOBALS['enable_swap_secondary_insurance']
         ,'include_employers' => empty($GLOBALS['omit_employers']) === true
         ,'useStateTerminology' => $GLOBALS['phone_country_code'] === '1'
         ,'state_list' => $GLOBALS['state_list']

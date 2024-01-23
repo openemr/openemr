@@ -25,9 +25,11 @@
         <p class="d-none" data-error-id="Record::INVALID_SELF_SUBSCRIBER_NAME"><span class="validation-field-name"></span> - {{ "Subscriber name must match the patient name (or a patient's previous name) if the relationship is of type Self."|xlt }}</p>
         <p class="d-none" data-error-id="Record::INVALID_SELF_SUBSCRIBER_SSN"><span class="validation-field-name"></span> - {{ "Subscriber social security number must match patient social security number if the relationship is of type Self."|xlt }}</p>
         <p class="d-none" data-error-id="Record::INVALID_SUBSCRIBER_SSN"><span class="validation-field-name"></span> - {{ "Subscriber social security number cannot be the same as patient social security number when the relationship is not of type Self."|xlt }}</p>
-
+        <p class="d-none" data-error-id="Record::INVALID_SOURCE_POLICY_DATE"><span class="validation-field-name"></span> - {{ "The insurance policy you are attemping to swap conflicts with the effective date of another policy for the insurance type you are copying to."|xlt }} {{ "Update the effective date for this policy or for the conflicting policy type in the insurance type you are swapping to."|xlt }}</p>
+        <p class="d-none" data-error-id="Record::INVALID_TARGET_POLICY_DATE"><span class="validation-field-name"></span> - {{ "The insurance policy you are attemping to swap to conflicts with the effective date of another policy for this type of insurance and cannot be swapped into this insurance type."|xlt }} {{ "Update the effective date for the conflicting policy in this insurance type or for the most recent insurance policy in the insurance type you are swapping to."|xlt }}</p>
+        <p class="d-none" data-error-id="Record::TARGET_INSURANCE_UPDATE_PROHIBITED"><span class="validation-field-name"></span> - {{ "Target insurance could not be saved as it was missing data required for database updates."|xlt }} {{ "The insurance must have all required fields filled out and saved before insurance can be swapped."|xlt }}</p>
+        <p class="d-none" data-error-id="Record::SOURCE_INSURANCE_UPDATE_PROHIBITED"><span class="validation-field-name"></span> - {{ "Source insurance could not be saved as it was missing data required for database updates."|xlt }} {{ "The insurance must have all required fields filled out and saved before insurance can be swapped."|xlt }}</p>
         {# Shouldn't hit this but if someone changes up the CoverageValidator and doesn't update this field we need to handle unknown rules #}
         <p class="d-none" data-error-id="Unknown::UNKNOWN"><span class="validation-field-name"></span> - {{ "This field was invalid."|xlt }}</p>
     </div>
 </template>
-Record::INVALID_SUBSCRIBER_NAME

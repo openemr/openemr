@@ -67,6 +67,10 @@ export class InsurancePolicyModel {
         };
     }
 
+    isCurrent() {
+        return this.date_end === null;
+    }
+
     validate() {
         // need to handle validation errors here.
     }
@@ -151,5 +155,5 @@ export class InsurancePolicyModel {
             names.push(window.top.xl("Current"));
         }
         return names.join("");
-    }s
+    }
 }

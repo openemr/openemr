@@ -6235,6 +6235,65 @@ RestConfig::$ROUTE_MAP = array(
 
     /**
      *  @OA\Get(
+     *      path="/api/patient/{puuid}/insurance/$swap-insurance",
+     *      description="Updates the insurance for the passed in uuid to be a policy of type `type` and updates (if one exists) the current or most recent insurance for the passed in `type` for a patient to be the `type` of the insurance for the given `uuid`. Validations on the swap operation are performed to make sure the effective `date` of the src and target policies being swapped can be received in each given policy `type` as a policy `type` and `date` must together be unique per patient.",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="pid",
+     *          in="path",
+     *          description="The uuid for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="type",
+     *          in="query",
+     *          description="The type or category of OpenEMR insurance policy, 'primary', 'secondary', or 'tertiary'.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="query",
+     *          description="The insurance uuid that will be swapped into the list of insurances for the type query parameter",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    'GET /api/patient/:puuid/insurance/$swap-insurance' => function ($puuid, HttpRestRequest $request) {
+        if ($request->isPatientRequest()) {
+            $puuid = $request->getPatientUUIDString();
+        }
+        $type = $request->getQueryParam('type');
+        $insuranceUuid = $request->getQueryParam('uuid');
+
+        $return = (new InsuranceRestController())->operationSwapInsurance($puuid, $type, $insuranceUuid);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
      *      path="/api/patient/{puuid}/insurance/{uuid}",
      *      description="Retrieves all insurances for a patient",
      *      tags={"standard"},

@@ -67,6 +67,29 @@ export class InsurancePolicyService
         });
     }
 
+    findInsuranceByUuid(uuid) {
+        let foundInsurance = null;
+        this.__types.forEach(t => {
+            this.insurancesByType[t].forEach(ins => {
+                if (ins.uuid === uuid) {
+                    foundInsurance = ins;
+                }
+            });
+        });
+        return foundInsurance;
+    }
+
+    #getMostRecentInsuranceByType(type) {
+
+        if (this.insurancesByType[type] && this.insurancesByType[type].length) {
+            // the first one is always the most current one.
+            return this.insurancesByType[type][0];
+        } else {
+            // we should always at least have a blank policy in memory for each type
+            throw new Error("Invalid type found for type " + type);
+        }
+    }
+
     loadInsurancesByType() {
         return this.apiRequest(this.__apiURL + 'patient/' + this.__puuid + '/insurance')
             .then(resultData => {
@@ -90,13 +113,7 @@ export class InsurancePolicyService
                             blankPolicy.type = t;
                             this.insurancesByType[t] = [blankPolicy];
                         }
-                        this.insurancesByType[t].sort((a, b) => {
-                            // end date is the most current one
-                            if (!a.hasOwnProperty('end_date') || a === null) {
-                                return -1;
-                            }
-                            return a.date < b.date ? 1 : -1;
-                        });
+                        this.sortInsurancesByDate(this.insurancesByType[t]);
                     })
 
                     if (this.insurancesByType[this.__types[0]].length > 0) {
@@ -105,6 +122,16 @@ export class InsurancePolicyService
                 }
                 return this.insurancesByType;
             });
+    }
+
+    sortInsurancesByDate(insurances) {
+        insurances.sort((a, b) => {
+            // end date is the most current one
+            if (!a.hasOwnProperty('end_date') || a === null) {
+                return -1;
+            }
+            return a.date < b.date ? 1 : -1;
+        });
     }
 
     copyPolicyFromExistingPolicy(policyId) {
@@ -158,10 +185,64 @@ export class InsurancePolicyService
             // replace the existing policy in memory
             this.insurancesByType[policy.type][index] = policy;
         }
+        this.sortInsurancesByDate(this.insurancesByType[policy.type]);
     }
 
     #getDataForSave(insuranceObj) {
         return insuranceObj.getDataForSave();
+    }
+
+    swapInsurance(insurancePolicy, targetType) {
+
+        // we have a special logic we have to follow for current policies due to the way the server
+        // rejects the save if more than one current policy exists for a given type.
+        // we need to update the target policy to have an end date of today
+        // then we need to save the target policy (we can update it's type to be the source type)
+        // then we need to change the source policy to have a type of the target type and update it
+        // finally we can update the target policy to have an end date of null and update it
+        // this ends up being 3 updates in order to deal with the server side validation
+        // I ended up doing this because I didn't want to introduce a flag on the request
+        // or a new REST operation endpoint to handle the swap
+        // this is less eficient and more chatty but it is a lot less code
+        let getData = new URLSearchParams();
+        getData.append('type', targetType);
+        getData.append('uuid', insurancePolicy.uuid);
+        return this.apiRequest(this.__apiURL + 'patient/' + this.__puuid + '/insurance/$swap-insurance?' + getData.toString())
+        .then(resultData => {
+            let validationKeys = Object.keys(resultData.validationErrors || {});
+            if (validationKeys.length > 0) {
+                // we should have caught all of the validation in the client side interface so log the error and throw
+                console.error("Validation errors occurred. Error object", resultData.validationErrors);
+                let validationFieldErrors = [];
+                validationKeys.forEach(fieldName => {
+                    // map the 'type' error field to the 'date' field so we can display the error on the date field
+                    let validationFieldName = fieldName;
+                    if (fieldName == 'type') {
+                        validationFieldName = 'date';
+                    }
+                    let validationErrors = resultData.validationErrors[fieldName];
+                    validationFieldErrors.push(new ValidationFieldError(validationFieldName, validationErrors));
+                });
+                throw new ValidationError("Failed to save insurance policy due to validation errors", validationFieldErrors);
+            }
+            let insurancePolicySrc = new InsurancePolicyModel();
+            let insurancePolicyTarget = new InsurancePolicyModel();
+            let oldSrcInsurance = this.findInsuranceByUuid(resultData.data.src.uuid);
+            if (oldSrcInsurance) {
+                this.#removePolicyInMemory(oldSrcInsurance);
+            }
+            insurancePolicySrc.populate(resultData.data.src);
+            this.storePolicyInMemory(insurancePolicySrc);
+            if (resultData.data.target) {
+                let oldTargetInsurance = this.findInsuranceByUuid(resultData.data.target.uuid);
+                if (oldTargetInsurance) {
+                    this.#removePolicyInMemory(oldTargetInsurance);
+                }
+                insurancePolicyTarget.populate(resultData.data.target);
+                this.storePolicyInMemory(insurancePolicyTarget);
+            }
+            return insurancePolicySrc;
+        });
     }
 
     saveInsurance(insurancePolicy) {
@@ -216,6 +297,13 @@ export class InsurancePolicyService
                     throw new Error("Failed to save insurance policy as no data came back");
                 }
             });
+    }
+
+    #removePolicyInMemory(policy) {
+        let index = this.insurancesByType[policy.type].findIndex(ins => ins.id === policy.id);
+        if (index !== -1) {
+            this.insurancesByType[policy.type].splice(index, 1);
+        }
     }
 
     #replacePolicyInMemory(oldPolicy, newPolicy) {

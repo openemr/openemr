@@ -104,4 +104,22 @@ class InsuranceRestController
         $processingResult = $this->insuranceService->getOne($insertedUuid);
         return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
+
+    public function operationSwapInsurance(string $puuid, string $type, string $insuranceUuid)
+    {
+        $processingResult = new ProcessingResult();
+        $validationMessages = ['puuid::INVALID_PUUID' => 'Patient uuid invalid'];
+        $processingResult->setValidationMessages($validationMessages);
+        if (!UuidRegistry::isValidStringUUID($puuid)) {
+            return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        }
+        $puuid = UuidRegistry::uuidToBytes($puuid);
+        $patientService = new PatientService();
+        $pid = $patientService->getPidByUuid($puuid);
+        if (empty($pid)) {
+            return RestControllerHelper::handleProcessingResult($processingResult, 200);
+        }
+        $processingResult = $this->insuranceService->swapInsurance($pid, $type, $insuranceUuid);
+        return RestControllerHelper::handleProcessingResult($processingResult, 200);
+    }
 }
