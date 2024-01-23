@@ -912,8 +912,26 @@ function defaultPriceLevelChanged(sel) {
 }
 
 function formatModifier(e) {
-    var mods = e.value;
-    alert(mods);
+    let mods = e.value;
+    mods = mods.substring(0, 11).trim();
+    let modArray = mods.includes(':') ? mods.split(":") : mods.split(" ");
+    let cntr = 0;
+    modArray.forEach( function(m) {
+        let l = m.length;
+        if (l) {
+            cntr++;
+            if (l !== 2) {
+               alert("Removing invalid modifier " + m);
+               modArray.pop();
+            }
+        } else {
+            modArray.pop();
+        }
+    });
+    
+    let modString = modArray.join(":");
+    let last_char = modString.slice(-1);
+    e.value = (last_char === ':') ? modString.slice(0, -1) : modString;
 }
 
 </script>
