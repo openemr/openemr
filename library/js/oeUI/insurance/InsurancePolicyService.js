@@ -79,14 +79,22 @@ export class InsurancePolicyService
         return foundInsurance;
     }
 
-    #getMostRecentInsuranceByType(type) {
+    getCurrentInsuranceForType(type) {
+        if (this.insurancesByType[type] && this.insurancesByType[type].length) {
+            // the first one is always the most current one.
+            return this.insurancesByType[type].find(ins => ins.isCurrent());
+        } else {
+            return null;
+        }
+    }
+
+    getMostRecentInsuranceByType(type) {
 
         if (this.insurancesByType[type] && this.insurancesByType[type].length) {
             // the first one is always the most current one.
             return this.insurancesByType[type][0];
         } else {
-            // we should always at least have a blank policy in memory for each type
-            throw new Error("Invalid type found for type " + type);
+            return null;
         }
     }
 

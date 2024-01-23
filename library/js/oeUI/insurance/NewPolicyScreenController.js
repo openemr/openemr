@@ -47,7 +47,7 @@ export class NewPolicyScreenController
      * @type {string}
      * @private
      */
-    __effectiveEndDate = (new Date()).toISOString().substring(0, 10); // grab the first 10 digits
+    __effectiveEndDate = new Date();
 
     /**
      * @type {InsurancePolicyService}
@@ -56,6 +56,8 @@ export class NewPolicyScreenController
     __insurancePolicyService = null;
 
     __boundEvents = [];
+
+    __isSaving = false;
 
     /**
      *
@@ -100,9 +102,27 @@ export class NewPolicyScreenController
         });
 
         let effectiveEndDate = document.querySelector(".new-policy-effective-end-date");
-        this.addEvent(effectiveEndDate, 'input', (event) => {
-            this.__effectiveEndDate = event.target.value.trim(); // TODO: do we want to parse this as a date?
+        if (effectiveEndDate) {
+            effectiveEndDate.value =  window.top.oeFormatters.I18NDateFormat(this.__effectiveEndDate);
+        }
+        datetimepickerTranslated(".new-policy-effective-end-date", {
+            timepicker: false
+            ,showSeconds: false
+            ,formatInput: true
+            ,minDate: false
+            ,maxDate: false
+            ,onClose: (selectedDateTime, $input) => {
+                //,onSelectDate: (selectedDateTime, $input) => {
+                let input = $input[0];
+                let key = input.name.replace('form_', '');
+                let value = input.value;
+                // datetime selected
+                this.__effectiveEndDate = selectedDateTime;
+            }
         });
+        // this.addEvent(effectiveEndDate, 'input', (event) => {
+        //     this.__effectiveEndDate = event.target.value.trim(); // TODO: do we want to parse this as a date?
+        // });
         this.render();
     }
 
@@ -140,14 +160,26 @@ export class NewPolicyScreenController
         this.__boundEvents.forEach(event => {
             event.node.removeEventListener(event.event, event.callback);
         });
+        $(".new-policy-effective-end-date").datetimepicker('destroy');
         this.__boundEvents = [];
     }
 
     handleNextButtonPress(nextButtonCallback) {
-        this.updateEffectiveEndDate();
-        let data = this.getDataForNewPolicy();
-        let newPolicy = this.getNewPolicy(data.copyPolicyId, data.isCopyPolicy, data.type, data.endDate);
-        nextButtonCallback(newPolicy);
+        this.updateEffectiveEndDate()
+            .then(() => {
+                let data = this.getDataForNewPolicy();
+                let newPolicy = this.getNewPolicy(data.copyPolicyId, data.isCopyPolicy, data.type, data.endDate);
+                this.__isSaving = false;
+                nextButtonCallback(newPolicy);
+            })
+            .catch(error => {
+                let xl =window.top.xl;
+                alert(xl("Failed to set effective end date for current policy.") + xl("Try again or contact your system administrator."));
+                console.error(error);
+                this.__isSaving = false;
+                this.render(); // refresh the screen.
+            })
+
     }
 
     getNewPolicy(copyPolicyId, isCopyPolicy, type) {
@@ -193,10 +225,23 @@ export class NewPolicyScreenController
     }
 
     updateEffectiveEndDate() {
-        // grab the effective end date from the form and update the effective end date
-        // for the insurance policy
-        let endDateInput = document.querySelector(".new-policy-effective-end-date");
-        this.__effectiveEndDate = endDateInput.value;
+
+        let resolved = Promise.resolve();
+        let insurance = this.__insurancePolicyService.getCurrentInsuranceForType(this.__selectedInsuranceType);
+        if (insurance && insurance.id !== null) {
+            if (this.__setEffectiveEndDate) {
+                this.__isSaving = true;
+                insurance.date_end = this.__effectiveEndDate;
+                this.render();
+                resolved = this.__insurancePolicyService.saveInsurance(insurance);
+                // resolved = new Promise((resolve, reject) => {
+                //    setTimeout(() => {
+                //        resolve();
+                //    }, 1000);
+                // });
+            }
+        }
+        return resolved;
     }
 
     getDataForNewPolicy() {
@@ -239,21 +284,32 @@ export class NewPolicyScreenController
 
 
         let effectiveEndDateRows = document.querySelectorAll(".new-policy-effective-end-date-row");
-        if (this.__setEffectiveEndDate) {
-            effectiveEndDateRows.forEach(r => r.classList.remove("d-none"));
-            let effectiveEndDateInput = document.querySelector(".new-policy-effective-end-date");
-            effectiveEndDateInput.value = this.__effectiveEndDate;
-        } else {
-            effectiveEndDateRows.forEach(r => r.classList.add("d-none"));
-        }
+        effectiveEndDateRows.forEach(r => r.classList.add("d-none"));
+
         let policyCopyName = document.querySelector(".effective-end-date-policy-label");
-        if (policyCopyName) {
-            let policyName = window.top.xl("Policy Number missing");
-            let policy = this.__insurancePolicyService.getInsuranceByPolicyId(this.__copyPolicyId);
-            if (policy) {
-                policyName = policy.toString();
+        let mostRecentPolicy = this.__insurancePolicyService.getCurrentInsuranceForType(this.__selectedInsuranceType);
+        if (mostRecentPolicy && mostRecentPolicy.id !== null) {
+            if (this.__setEffectiveEndDate) {
+                effectiveEndDateRows.forEach(r => r.classList.remove("d-none"));
+                // let effectiveEndDateInput = document.querySelector(".new-policy-effective-end-date");
+                // effectiveEndDateInput.value = this.__effectiveEndDate;
             }
-            policyCopyName.innerText = policyName;
+            if (policyCopyName) {
+                let policyName = window.top.xl("Policy Number missing");
+                // let policy = this.__insurancePolicyService.getInsuranceByPolicyId(this.__copyPolicyId);
+                policyName = mostRecentPolicy.toString();
+                policyCopyName.innerText = policyName;
+            }
+        }
+
+        let saveSpinner = document.querySelector(".btn-new-policy-saving");
+        let nextButton = document.querySelector(".btn-new-policy-next");
+        if (this.__isSaving) {
+            nextButton.classList.add("d-none");
+            saveSpinner.classList.remove("d-none");
+        } else {
+            nextButton.classList.remove("d-none");
+            saveSpinner.classList.add("d-none");
         }
 
         if (this.isValid()) {
@@ -294,8 +350,12 @@ export class NewPolicyScreenController
         }
     }
 
+    capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
     createCopyPolicyDropdown(newInsuranceType) {
-        let insurancesByType = this.__insurancesByType[newInsuranceType] || [];
+        let insurancesByType = [].concat(Object.keys(this.__insurancesByType).map(key => this.__insurancesByType[key])).flat();
         let insurances = insurancesByType.filter(insurance => insurance.id !== null);
         let emptyPolicyList = document.querySelector(".new-policy-list-empty");
         let select = document.querySelector(".new-policy-copy-list");
@@ -310,7 +370,7 @@ export class NewPolicyScreenController
             insurances.forEach(insurance => {
                 let option = document.createElement('option');
                 option.value = insurance.id;
-                option.innerText = insurance.toString();
+                option.innerText = this.capitalizeFirstLetter(insurance.type) + ": " + insurance.toString();
                 if (insurance.hasOwnProperty('end_date') && insurance.end_date !== null) {
                     option.innerText += " - " + window.top.xl("End Date") + ": " + insurance.end_date;
                 }
