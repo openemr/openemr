@@ -51,6 +51,8 @@ export class EditPolicyScreenController
 
     __openedSubWindows = [];
 
+    __currentFocusedInputName = null;
+
     /**
      *
      * @param insurancePolicyService InsurancePolicyService
@@ -121,7 +123,14 @@ export class EditPolicyScreenController
     }
 
     #setupWindowEvents() {
-
+        window.addEventListener('focusin', (evt) => {
+            if (evt.target.nodeName == 'INPUT' || evt.target.nodeName == 'SELECT') {
+                if (evt.target.classList.contains('select2-search__field')) {
+                    evt.target.closest()
+                }
+                this.__currentFocusedInputName = evt.target.name;
+            }
+        });
         // by doing things this way we abstract the communication from the patient selection piece to this controller
         // we also are safer by grabbing the patient uuid and insurance uuid and refetching just to make sure we have
         // the right data.
@@ -206,6 +215,9 @@ export class EditPolicyScreenController
                     });
                 } else {
                     // capture the events for the select2 events and update the selectedInsurance
+                    $(input).on('select2:open', (evt) => {
+                        this.__currentFocusedInputName = evt.target.name;
+                    });
                     $(input).on('select2:select', (evt) => {
                     // this.addEvent(input, 'select2:select', (evt) => {
                         let input = evt.target;
@@ -268,6 +280,8 @@ export class EditPolicyScreenController
 
         this.addCustomEventCleanupAction({selector: "#" + insuranceInfoContainer.id + " .sel2"}, (evt) => {
             let selects = $(evt.selector);
+            selects.off('select2:open');
+            selects.off('select2:select'); // make sure we remove the event listeners
             selects.select2('destroy');
         });
 
@@ -561,6 +575,25 @@ export class EditPolicyScreenController
                 buttonTabContainer.querySelector('.insurance-save-success').classList.add("d-none");
             }
         }
+
+        // need to handle the case where we are re-rendering the screen and we had a previously focused input
+        // we want to restore focus to that input and then tab to the next input
+        if (this.__currentFocusedInputName) {
+            let currentTab = tabContainer.querySelector('.tab.current');
+            let input = currentTab.querySelector('[name="' + this.__currentFocusedInputName + '"]');
+            this.__currentFocusedInputName = null;
+            if (input) {
+                let tabbableInputs = currentTab.querySelectorAll('a[href], button, input, select, textarea');
+                let currentInputIndex = Array.prototype.indexOf.call(tabbableInputs, input);
+                let nextTabElement = tabbableInputs[0];
+                if (tabbableInputs[currentInputIndex + 1]) {
+                    nextTabElement = tabbableInputs[currentInputIndex + 1];
+                } else {
+                    nextTabElement = tabbableInputs[0];
+                }
+                nextTabElement.focus();
+            }
+        }
     }
 
     #renderValidationErrorMessages(selectedInsurance) {
@@ -697,6 +730,10 @@ export class EditPolicyScreenController
         }
     }
     #setupInsuranceSwapButtons(selectedInsurance) {
+        if (!selectedInsurance.id) {
+            // we don't have an id so we can't swap the src insurance
+            return;
+        }
         let type = selectedInsurance.type;
         let template = document.getElementById('insurance-swap-template');
         if (!template || (type != 'secondary' && type != 'tertiary')) {
