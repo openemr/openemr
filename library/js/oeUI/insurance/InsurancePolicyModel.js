@@ -47,6 +47,8 @@ export class InsurancePolicyModel {
     subscriber_street = "";
     subscriber_street_line_2 = null;
 
+    #hasChanged = false;
+
     getSubscriberAddress() {
         return {
             street: this.subscriber_street || "",
@@ -86,25 +88,43 @@ export class InsurancePolicyModel {
     }
 
     #getValidFormattedDateFromServerDate(date) {
-        if (date && typeof date === 'string' && date != "0000-00-00") {
-            // need to format the date from the server of ISO8601 to the localized date format
-            return new Date(date + "T00:00:00");
+        if (date) {
+            if (date instanceof Date) {
+                let newDate = new Date(date.getTime());
+                newDate.setHours(0,0,0,0);
+                return newDate;
+            }
+            if (typeof date === 'string' && date != "0000-00-00") {
+                // need to format the date from the server of ISO8601 to the localized date format
+                return new Date(date + "T00:00:00");
+            }
         }
         return null;
     }
 
-    populate(pojo) {
+    populate(pojo, markAsUnchanged = false) {
         if (typeof pojo === 'object') {
-            Object.assign(this, pojo);
+            // we use setProperty here in order to make sure we can track if the value has changed
+            let objectKeys = Object.keys(pojo);
+            objectKeys.forEach((key) => {
+                if (['date', 'date_end', 'subscriber_DOB','accept_assignment'].includes(key)) {
+                    return;
+                }
+                this.setProperty(key, pojo[key]);
+            });
+            // Object.assign(this, pojo);
             // server stores this as a TRUE/FALSE string which is... odd
             if (pojo.accept_assignment == 'FALSE') {
-                this.accept_assignment = "NO";
+                this.setProperty('accept_assignment', "NO");
             } else {
-                this.accept_assignment = "YES"; // default to yes for everything
+                this.setProperty('accept_assignment', "YES");  // default to yes for everything
             }
-            this.date = this.#getValidFormattedDateFromServerDate(pojo.date);
-            this.date_end = this.#getValidFormattedDateFromServerDate(pojo.date_end);
-            this.subscriber_DOB = this.#getValidFormattedDateFromServerDate(pojo.subscriber_DOB);
+            this.setProperty('date', this.#getValidFormattedDateFromServerDate(pojo.date));
+            this.setProperty('date_end', this.#getValidFormattedDateFromServerDate(pojo.date_end));
+            this.setProperty('subscriber_DOB', this.#getValidFormattedDateFromServerDate(pojo.subscriber_DOB));
+            if (markAsUnchanged) {
+                this.#hasChanged = false;
+            }
         }
     }
     getDataForSave() {
@@ -124,18 +144,37 @@ export class InsurancePolicyModel {
         if (this.subscriber_DOB) {
             data.subscriber_DOB = this.subscriber_DOB.toISOString().slice(0,10);
         }
+        // clear out this property so it doesn't get saved.
+        if (data['#hasChanged']) {
+            delete data['#hasChanged'];
+        }
         return data;
+    }
+    setProperty(key, value) {
+        if (typeof this[key] !== 'undefined') {
+            if (this[key] !== value) {
+                this.#hasChanged = true;
+            }
+            this[key] = value;
+        }
+    }
+
+    hasChanged() {
+        return this.#hasChanged;
     }
     setEffectiveEndDate(date) {
         this.date_end = date;
+        this.#hasChanged = true;
     }
 
     setId(id) {
         this.id = id;
+        this.#hasChanged = true;
     }
 
     setUuid(uuid) {
         this.uuid = uuid;
+        this.#hasChanged = true;
     }
 
     toString() {

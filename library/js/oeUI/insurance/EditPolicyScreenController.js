@@ -8,6 +8,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 let {InsurancePolicyService} = await import("./InsurancePolicyService.js?v=" + window.top.jsGlobals.assetVersion);
+let {InsurancePolicyModel} = await import("./InsurancePolicyModel.js?v=" + window.top.jsGlobals.assetVersion);
 let {ValidationFieldError, ValidationError} = await import("../Error/ValidationError.js?v=" + window.top.jsGlobals.assetVersion);
 
 export class EditPolicyScreenController
@@ -62,6 +63,25 @@ export class EditPolicyScreenController
         this.__insurancePolicyService = insurancePolicyService;
     }
 
+    hasDataToSave() {
+        if (this.selectedInsurance && this.selectedInsurance.hasChanged()) {
+            return true;
+        }
+        return false;
+    }
+    resetSaveData() {
+        if (this.selectedInsurance) {
+            let insurancesByType = this.__insurancesByType[this.__selectedInsuranceTypeTab];
+            let resetInsurance = insurancesByType.find(insurance => insurance.id == this.selectedInsurance.id);
+            if (resetInsurance) {
+                this.#updateSelectedInsuranceObject(resetInsurance);
+            }
+        }
+    }
+
+    addCustomEventCleanupAction(evtObj, callback) {
+        this.#boundEvents.push({customCallback: callback, event: evtObj});
+    }
     addEvent(node, event, callback) {
         node.addEventListener(event, callback);
         this.#boundEvents.push({node: node, event: event, callback: callback});
@@ -69,7 +89,11 @@ export class EditPolicyScreenController
 
     clearEvents() {
         this.#boundEvents.forEach(event => {
-            event.node.removeEventListener(event.event, event.callback);
+            if (typeof event.customCallback == 'function') {
+                event.customCallback(event.event);
+            } else {
+                event.node.removeEventListener(event.event, event.callback);
+            }
         });
         this.#boundEvents = [];
     }
@@ -86,7 +110,7 @@ export class EditPolicyScreenController
     }
 
     setup() {
-        this.show();
+        this.toggleDisplay(true); // make sure we are on.
         this.#setupInsuranceTypeNavigation();
         this.#setupSavePolicyButton();
         this.#setupWindowEvents();
@@ -117,6 +141,13 @@ export class EditPolicyScreenController
                     let patientInsuranceObject = this.__insurancePolicyService.getPatientInsuranceData(patientUuid, insuranceUuid)
                         .then(result => {
                             // copy that data into the currently selected insurance
+                            // make sure we don't overwrite the data that is specific to this insurance
+                            // TODO: perhaps make a populateProtectedFields method that will skip over protected data fields
+                            result.id = this.selectedInsurance.id;
+                            result.uuid = this.selectedInsurance.uuid;
+                            result.type = this.selectedInsurance.type;
+                            result.pid = this.selectedInsurance.pid;
+                            result.puuid = this.selectedInsurance.puuid;
                             this.selectedInsurance.populate(result);
                             this.#updateSelectedInsuranceObject(this.selectedInsurance);
                             this.render();
@@ -135,7 +166,7 @@ export class EditPolicyScreenController
                         console.error("Failed to find insurance company id or name in event data, this should not happen and is a bug.Event: ", evt);
                         return;
                     }
-                    this.selectedInsurance.provider = insuranceCompanyId;
+                    this.selectedInsurance.setProperty('provider', insuranceCompanyId);
                     this.__insurancePolicyService.addInsuranceProviderToList(insuranceCompanyId, insuranceCompanyName);
                     this.__insuranceProviderList = this.__insurancePolicyService.getInsuranceProvidersList();
                     this.render();
@@ -170,7 +201,7 @@ export class EditPolicyScreenController
                         let input = evt.target;
                         let key = input.name.replace('form_', '');
                         let value = input.value;
-                        this.selectedInsurance[key] = value;
+                        this.selectedInsurance.setProperty(key,value);
                         this.render(); // re-render the screen to update the display
                     });
                 } else {
@@ -180,7 +211,8 @@ export class EditPolicyScreenController
                         let input = evt.target;
                         let key = input.name.replace('form_', '');
                         let value = input.value;
-                        this.selectedInsurance[key] = value;
+                        this.selectedInsurance.setProperty(key, value);
+                        // this.selectedInsurance[key] = value;
                         this.render(); // re-render the screen to update the display
                     });
                 }
@@ -203,7 +235,7 @@ export class EditPolicyScreenController
             });
         }
         // let's destroy any existing date pickers and destroy them
-        $(insuranceInfoContainer).find('.datepicker').datetimepicker('destroy');
+        // $(insuranceInfoContainer).find('.datepicker').datetimepicker('destroy');
         // setup the event listeners for the date picker fields
         datetimepickerTranslated("#" + insuranceInfoContainer.id + " .datepicker", {
             timepicker: false
@@ -217,14 +249,26 @@ export class EditPolicyScreenController
                 let key = input.name.replace('form_', '');
                 let value = input.value;
                 // datetime selected
-                this.selectedInsurance[key] = selectedDateTime;
+                this.selectedInsurance.setProperty(key, selectedDateTime);
             }
         });
+
+        // let's make sure when we clean our events up that we destroy any existing date pickers
+        this.addCustomEventCleanupAction({selector: "#" + insuranceInfoContainer.id + " .datepicker"}, (evt) => {
+            let datepickers = $(evt.selector);
+            datepickers.datetimepicker('destroy');
+        });
+
         // setup the bootstrap select fields
         select2Translated("#" + insuranceInfoContainer.id + " .sel2", undefined, {
             theme: "bootstrap4"
             ,dropdownAutoWidth: true
             ,width: "resolve"
+        });
+
+        this.addCustomEventCleanupAction({selector: "#" + insuranceInfoContainer.id + " .sel2"}, (evt) => {
+            let selects = $(evt.selector);
+            selects.select2('destroy');
         });
 
         // setup the dialog popup
@@ -343,6 +387,7 @@ export class EditPolicyScreenController
     }
     show() {
         this.toggleDisplay(true);
+        this.render(); // make sure to update ourselves
     }
     toggleDisplay(display) {
         let policyScreen = document.getElementById(this.__screenName);
@@ -403,7 +448,11 @@ export class EditPolicyScreenController
     }
 
     #updateSelectedInsuranceObject(selectedInsurance) {
-        this.selectedInsurance = selectedInsurance;
+        // we want to work with a copy of the insurance object so we don't modify the original until we save
+        let newInsurance = new InsurancePolicyModel();
+        let markAsUnchanged = selectedInsurance.hasChanged() ? false : true;
+        newInsurance.populate(selectedInsurance, markAsUnchanged);
+        this.selectedInsurance = newInsurance;
         this.__policySaved = false;
         this.__isSaving = false;
         this.__validationErrors = []; // clear out any existing errors

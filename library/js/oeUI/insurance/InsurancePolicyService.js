@@ -62,7 +62,7 @@ export class InsurancePolicyService
         return this.apiRequest(this.__apiURL + 'patient/' + puuid + '/insurance/' + insuranceuuid)
         .then(resultData => {
             let insurance = new InsurancePolicyModel();
-            insurance.populate(resultData.data);
+            insurance.populate(resultData.data, true);
             return insurance;
         });
     }
@@ -106,7 +106,7 @@ export class InsurancePolicyService
                     // need to sort through the data and populate the three categories
                     resultData.data.forEach(ins => {
                         let insurance = new InsurancePolicyModel();
-                        insurance.populate(ins);
+                        insurance.populate(ins, true);
                         selectedInsurance = insurance;
                         if (this.insurancesByType[insurance.type]) {
                             this.insurancesByType[insurance.type].push(insurance);
@@ -155,7 +155,7 @@ export class InsurancePolicyService
         let foundInsurance = null;
         this.__types.forEach(t => {
             this.insurancesByType[t].forEach(ins => {
-                if (ins.id === policyId) {
+                if (ins.id === policyId && ins.type === t) {
                     foundInsurance = ins;
                 }
             });
@@ -239,14 +239,14 @@ export class InsurancePolicyService
             if (oldSrcInsurance) {
                 this.#removePolicyInMemory(oldSrcInsurance);
             }
-            insurancePolicySrc.populate(resultData.data.src);
+            insurancePolicySrc.populate(resultData.data.src, true);
             this.storePolicyInMemory(insurancePolicySrc);
             if (resultData.data.target) {
                 let oldTargetInsurance = this.findInsuranceByUuid(resultData.data.target.uuid);
                 if (oldTargetInsurance) {
                     this.#removePolicyInMemory(oldTargetInsurance);
                 }
-                insurancePolicyTarget.populate(resultData.data.target);
+                insurancePolicyTarget.populate(resultData.data.target, true);
                 this.storePolicyInMemory(insurancePolicyTarget);
             }
             return insurancePolicySrc;
@@ -298,7 +298,7 @@ export class InsurancePolicyService
                 }
                 if (resultData.data) {
                     let policy = new InsurancePolicyModel();
-                    policy.populate(resultData.data);
+                    policy.populate(resultData.data, true);
                     this.#replacePolicyInMemory(insurancePolicy, policy);
                     return policy;
                 } else {

@@ -48,11 +48,24 @@ export class InsuranceEditMainController {
             this.turnOffLoading();
             this.setupControlButtons();
             this.setupEditScreen();
+            this.setupSaveDataAlert();
             // this.setupNewPolicyScreen()
         })
         .catch(error => {
             window.top.xl("Failed to load insurance policies, contact a system administrator");
             console.error(error);
+        });
+    }
+
+    setupSaveDataAlert() {
+        window.addEventListener("beforeunload", (event) => {
+            let somethingChanged = this.currentScreen == this.__editPolicyScreen && this.__editPolicyScreen.hasDataToSave();
+            let timedOut = window.top.timed_out || false;
+            if (somethingChanged && !timedOut) {
+                var msg = window.top.xl('You have unsaved changes.');
+                event.returnValue = msg;     // Gecko, Trident, Chrome 34+
+                return msg;              // Gecko, WebKit, Chrome <34
+            }
         });
     }
 
@@ -82,6 +95,13 @@ export class InsuranceEditMainController {
     setupControlButtons() {
         let btnAddPolicy = document.querySelector(".btn-add-policy");
         btnAddPolicy.addEventListener("click", () => {
+            if (this.__editPolicyScreen.hasDataToSave()) {
+                if (!confirm(window.top.xl('Leaving this screen will discard your changes. Are you sure you want to leave?')))
+                {
+                    return;
+                }
+            }
+            this.__editPolicyScreen.resetSaveData();
             this.__editPolicyScreen.hide();
             this.setupNewPolicyScreen();
         });
