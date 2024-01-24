@@ -138,7 +138,7 @@ DROP TABLE IF EXISTS `pma_table_info`;
 #EndIf
 
 #IfMissingColumn x12_partners x12_submitter_id
-ALTER TABLE `x12_partners` ADD COLUMN `x12_submitter_id` tinyint(1) DEFAULT NULL;
+ALTER TABLE `x12_partners` ADD COLUMN `x12_submitter_id` smallint(6) DEFAULT NULL;
 #EndIf
 
 #IfNotRow2D list_options list_id abook_type option_id bill_svc
@@ -236,7 +236,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'r
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'fname', 'First Name', '10');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'mname', 'Middle Name', '20');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'lname', 'Last Name', '30');
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'dob', 'Date of Birth', '40');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'DOB', 'Date of Birth', '40');
 #EndIf
 
 #IfNotTable recent_patients
