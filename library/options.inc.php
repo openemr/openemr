@@ -561,6 +561,7 @@ function generate_form_field($frow, $currvalue)
     $backup_list = $frow['list_backup_id'] ?? null;
     $edit_options = $frow['edit_options'] ?? null;
     $form_id = $frow['form_id'] ?? null;
+    $autoComplete = $frow['autocomplete'] ?? false;
 
     // 'smallform' can be 'true' if we want a smaller form field, otherwise
     // can be used to assign arbitrary CSS classes to data entry fields.
@@ -758,13 +759,13 @@ function generate_form_field($frow, $currvalue)
         if (!$agestr) {
             echo " title='$description'";
         }
-
         // help chrome users avoid autocomplete interfere with datepicker widget display
-        if ($frow['field_id'] == 'DOB') {
-            echo " autocomplete='off' $onchange_string $lbfonchange $disabled />";
-        } else {
-            echo " $onchange_string $lbfonchange $disabled />";
+        if ($autoComplete !== false) {
+            echo " autocomplete='" . attr($autoComplete) . "'";
+        } else if ($frow['field_id'] == 'DOB') {
+            echo " autocomplete='off'";
         }
+        echo " $onchange_string $lbfonchange $disabled />";
 
         // Optional display of age or gestational age.
         if ($agestr) {
