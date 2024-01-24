@@ -66,7 +66,7 @@ class CoverageValidator extends BaseValidator
                 $context->required('policy_number')->lengthBetween(2, 255);
                 $context->optional('group_number')->lengthBetween(2, 255);
                 $context->required('subscriber_lname')->lengthBetween(2, 255);
-                $context->optional('subscriber_mname')->lengthBetween(2, 255);
+                $context->optional('subscriber_mname')->lengthBetween(1, 255);
                 $context->required('subscriber_fname')->lengthBetween(2, 255);
                 $context->required('subscriber_relationship')->listOption('sub_relation')
                     ->callback(function ($value, $values) {
