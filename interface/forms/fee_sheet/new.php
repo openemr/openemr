@@ -930,8 +930,17 @@ function formatModifier(e) {
     });
     
     let modString = modArray.join(":");
-    let last_char = modString.slice(-1);
-    e.value = (last_char === ':') ? modString.slice(0, -1) : modString;
+    e.value = checkLastChar(modString);
+}
+
+function checkLastChar(s) {
+    let last_char = s.slice(-1);
+    if (last_char === ':') {
+        s = s.substring(0, s.length - 1);
+        return checkLastChar(s);
+    } else {
+        return s;
+    }
 }
 
 </script>
