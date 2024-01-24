@@ -125,9 +125,6 @@ export class EditPolicyScreenController
     #setupWindowEvents() {
         window.addEventListener('focusin', (evt) => {
             if (evt.target.nodeName == 'INPUT' || evt.target.nodeName == 'SELECT') {
-                if (evt.target.classList.contains('select2-search__field')) {
-                    evt.target.closest()
-                }
                 this.__currentFocusedInputName = evt.target.name;
             }
         });
