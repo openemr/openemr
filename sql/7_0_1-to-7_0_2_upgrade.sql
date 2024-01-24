@@ -138,7 +138,7 @@ DROP TABLE IF EXISTS `pma_table_info`;
 #EndIf
 
 #IfMissingColumn x12_partners x12_submitter_id
-ALTER TABLE `x12_partners` ADD COLUMN `x12_submitter_id` smallint(6) DEFAULT NULL;
+ALTER TABLE `x12_partners` ADD COLUMN `x12_submitter_id` tinyint(1) DEFAULT NULL;
 #EndIf
 
 #IfNotRow2D list_options list_id abook_type option_id bill_svc
@@ -236,7 +236,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'r
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'fname', 'First Name', '10');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'mname', 'Middle Name', '20');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'lname', 'Last Name', '30');
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'DOB', 'Date of Birth', '40');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('recent_patient_columns', 'dob', 'Date of Birth', '40');
 #EndIf
 
 #IfNotTable recent_patients
@@ -613,8 +613,4 @@ CREATE TABLE `fee_schedule` (
     PRIMARY KEY (`id`),
     UNIQUE KEY `ins_plan_code_mod_type_date` (`insurance_company_id`, `plan`, `code`, `modifier`, `type`, `effective_date`)
 ) ENGINE=InnoDb AUTO_INCREMENT=1;
-#EndIf
-
-#IfMissingColumn form_encounter last_update
-ALTER TABLE `form_encounter` ADD `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 #EndIf
