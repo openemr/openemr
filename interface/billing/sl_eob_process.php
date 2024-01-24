@@ -533,52 +533,46 @@ function era_callback(&$out)
 
                     writeMessageLine($bgcolor, $class, $description . ' ' .
                     sprintf("%.2f", $adj['amount']));
-                } else { // Other group codes for primary insurance are real adjustments.
-                    // except for those services where nothing paid and it wasn't deductible
-                    // we don't want to write off the amount which would force
-                    // the biller to manually delete and re-work so we post a zero-dollar adj
-                    // and save it as a comment
-                    if (
-                        $svc['paid'] == 0
-                        && !(
-                            $adj['group_code'] == "CO"
-                            && (
-                                $adj['reason_code'] == '45'
-                                || $adj['reason_code'] == '59'
-                            )
+                } elseif (
+                    $svc['paid'] == 0
+                    && !(
+                        $adj['group_code'] == "CO"
+                        && (
+                            $adj['reason_code'] == '45'
+                            || $adj['reason_code'] == '59'
                         )
-                    ) {
-                        $class = 'errdetail';
-                        $error = true;
-                    } elseif (!$error && !$debug) {
-                        SLEOB::arPostAdjustment(
-                            $pid,
-                            $encounter,
-                            $InsertionId[$out['check_number']],
-                            $adj['amount'], //$InsertionId[$out['check_number']] gives the session id
-                            $codekey,
-                            substr($inslabel, 3),
-                            "Adjust code " . $adj['reason_code'],
-                            $debug,
-                            '',
-                            $codetype ?? '',
-                            $out['payer_claim_id']
-                        );
-                        $invoice_total -= $adj['amount'];
-                    }
-
-                    writeDetailLine(
-                        $bgcolor,
-                        $class,
-                        $patient_name,
-                        $invnumber,
+                    )
+                ) {
+                    $class = 'errdetail';
+                    $error = true;
+                } elseif (!$error && !$debug) {
+                    SLEOB::arPostAdjustment(
+                        $pid,
+                        $encounter,
+                        $InsertionId[$out['check_number']],
+                        $adj['amount'], //$InsertionId[$out['check_number']] gives the session id
                         $codekey,
-                        $production_date,
-                        $description,
-                        0 - $adj['amount'],
-                        ($error ? '' : $invoice_total)
+                        substr($inslabel, 3),
+                        "Adjust code " . $adj['reason_code'],
+                        $debug,
+                        '',
+                        $codetype ?? '',
+                        $out['payer_claim_id']
                     );
+                    $invoice_total -= $adj['amount'];
                 }
+
+                writeDetailLine(
+                    $bgcolor,
+                    $class,
+                    $patient_name,
+                    $invnumber,
+                    $codekey,
+                    $production_date,
+                    $description,
+                    0 - $adj['amount'],
+                    ($error ? '' : $invoice_total)
+                );
             }
         } // End of service item
 
