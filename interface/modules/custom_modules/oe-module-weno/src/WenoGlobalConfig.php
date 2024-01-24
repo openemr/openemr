@@ -103,13 +103,6 @@ class WenoGlobalConfig
                 ,'default' => ''
                 ,'user_setting' => false
             ]
-            ,self::WENO_SETUP_INSTRUCTION_LINK => [
-                'title' => xl('Weno Setup instructions for OpenEMR')
-                ,'description' => xl('Check your Weno Developer page for instructions')
-                ,'type' => GlobalSetting::DATA_TYPE_TEXT
-                ,'default' => ''
-                ,'user_setting' => false
-            ]
             ,self::WENO_PROVIDER_EMAIL => [
                 'title' => xl('Weno Provider Email')
                 ,'description' => xl('')

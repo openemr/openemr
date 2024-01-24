@@ -46,7 +46,7 @@ CREATE TABLE `weno_assigned_pharmacy` (
     `pid` BIGINT(20) NOT NULL,
     `primary_ncpdp` VARCHAR(8) NOT NULL,
     `alternate_ncpdp` VARCHAR(8) NOT NULL,
-    FOREIGN KEY (`pid`) REFERENCES `patient_data`(`pid`),
+    KEY (`pid`),
     PRIMARY KEY(`id`)
 ) ENGINE=InnoDB;
 #EndIf

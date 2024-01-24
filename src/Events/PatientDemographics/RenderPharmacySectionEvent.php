@@ -39,21 +39,6 @@ class RenderPharmacySectionEvent extends Event
      */
     const RENDER_AFTER_SELECTED_PHARMACY_SECTION = 'patientDemographics.render.after.selected.pharmacy';
 
-    /**
-     * @var
-     */
-    private $appt;
-
-    public function __construct(/* $appt */)
-    {
-        // $this->appt = $appt;
-    }
-
-    // /**
-    //  * @return array
-    //  */
-    // public function getAppt(): array
-    // {
-    //     return $this->appt;
-    // }
+    public function __construct()
+    {}
 }
