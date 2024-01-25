@@ -3148,6 +3148,29 @@ paths:
       security:
         -
           openemr_auth: []
+  '/api/patient/{puuid}/employer':
+    get:
+      tags:
+        - standard
+      description: 'Retrieves all the employer data for a patient. Returns an array of the employer data for the patient.'
+      parameters:
+        -
+          name: pid
+          in: path
+          description: 'The uuid for the patient.'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/standard'
+        '400':
+          $ref: '#/components/responses/badrequest'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: []
   '/api/patient/{puuid}/insurance':
     get:
       tags:
@@ -3246,36 +3269,6 @@ paths:
           name: pid
           in: path
           description: 'The uuid for the patient.'
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          $ref: '#/components/responses/standard'
-        '400':
-          $ref: '#/components/responses/badrequest'
-        '401':
-          $ref: '#/components/responses/unauthorized'
-      security:
-        -
-          openemr_auth: []
-  '/api/patient/{puuid}/insurance/{type}':
-    get:
-      tags:
-        - standard
-      description: 'Retrieves a insurance (by type) for a patient'
-      parameters:
-        -
-          name: puuid
-          in: path
-          description: 'The uuid for the patient.'
-          required: true
-          schema:
-            type: string
-        -
-          name: type
-          in: path
-          description: 'The insurance type for the patient. (options are ''primary'', ''secondary'', or ''tertiary'')'
           required: true
           schema:
             type: string

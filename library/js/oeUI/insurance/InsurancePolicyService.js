@@ -21,6 +21,8 @@ export class InsurancePolicyService
     __apiCSRFToken = null;
     __puuid = null;
 
+    __insurancePatientData = null;
+
     constructor(csrfToken, apiURL, insuranceProviderList, types, puuid) {
         this.__apiCSRFToken = csrfToken;
         this.__apiURL = apiURL;
@@ -41,6 +43,30 @@ export class InsurancePolicyService
                 ,headers: headers
             })
             .then(result => result.json());
+    }
+    getCurrentPatientData() {
+        if (this.__insurancePatientData) {
+            return Promise.resolve(this.__insurancePatientData);
+        }
+
+        let patientPromise = this.apiRequest(this.__apiURL + 'patient/' + this.__puuid);
+        let employerDataPromise = this.apiRequest(this.__apiURL + 'patient/' + this.__puuid + '/employer');
+        return Promise.all([patientPromise, employerDataPromise])
+        .then(resultData => {
+            let patientResult = resultData[0];
+            let employerResult = resultData[1];
+            let insurancePatientData = {};
+            if (patientResult.data) {
+                insurancePatientData = patientResult.data;
+            }
+            if (employerResult.data) {
+                insurancePatientData.employer = employerResult.data;
+            } else {
+                insurancePatientData.employer = [];
+            }
+            this.__insurancePatientData = insurancePatientData;
+            return this.__insurancePatientData;
+        });
     }
     addInsuranceProviderToList(insuranceCompanyId, insuranceCompanyName) {
         this.__insuranceProviderList[insuranceCompanyId] = insuranceCompanyName;

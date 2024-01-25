@@ -588,13 +588,16 @@ class BaseService
             return $clause;
         }
         foreach ($joins as $tableDefinition) {
-            $clause .= $tableDefinition['type'] . ' `' . $tableDefinition['table'] . "` `{$tableDefinition['alias']}` "
-                . ' ON `';
+            // if it is a temporary table that starts with a ( then we don't need to wrap it in backticks
+            $table = $tableDefinition['table'][0] === '(' ? $tableDefinition['table'] : '`' . $tableDefinition['table'] . '`';
+
+            $clause .= $tableDefinition['type'] . ' ' . $table . " `{$tableDefinition['alias']}` "
+                . ' ON ';
             if (isset($tableDefinition['join_clause'])) {
                 $clause .= $tableDefinition['join_clause'];
             } else {
                 $table = $tableDefinition['join_table'] ?? $this->getTable();
-                $clause .= $table . '`.`' . $tableDefinition['column']
+                $clause .= "`" . $table . '`.`' . $tableDefinition['column']
                 . '` = `' . $tableDefinition['alias'] . '`.`' . $tableDefinition['join_column'] . '` ';
             }
         }

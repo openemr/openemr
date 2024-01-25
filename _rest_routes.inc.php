@@ -319,6 +319,7 @@ use OpenEMR\RestControllers\ConditionRestController;
 use OpenEMR\RestControllers\ONoteRestController;
 use OpenEMR\RestControllers\DocumentRestController;
 use OpenEMR\RestControllers\DrugRestController;
+use OpenEMR\RestControllers\EmployerRestController;
 use OpenEMR\RestControllers\ImmunizationRestController;
 use OpenEMR\RestControllers\InsuranceRestController;
 use OpenEMR\RestControllers\MessageRestController;
@@ -6195,6 +6196,46 @@ RestConfig::$ROUTE_MAP = array(
 
     /**
      *  @OA\Get(
+     *      path="/api/patient/{puuid}/employer",
+     *      description="Retrieves all the employer data for a patient. Returns an array of the employer data for the patient.",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="pid",
+     *          in="path",
+     *          description="The uuid for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /api/patient/:puuid/employer" => function ($puuid, HttpRestRequest $request) {
+        $searchParams = $request->getQueryParams();
+        $searchParams['puuid'] = $puuid;
+        if ($request->isPatientRequest()) {
+            $searchParams['puuid'] = $request->getPatientUUIDString();
+        }
+        $return = (new EmployerRestController())->getAll($searchParams);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
      *      path="/api/patient/{puuid}/insurance",
      *      description="Retrieves all insurances for a patient",
      *      tags={"standard"},
@@ -6326,56 +6367,6 @@ RestConfig::$ROUTE_MAP = array(
             $puuid = $request->getPatientUUIDString();
         }
         $return = (new InsuranceRestController())->getOne($uuid, $puuid);
-        RestConfig::apiLog($return);
-        return $return;
-    },
-
-    /**
-     *  @OA\Get(
-     *      path="/api/patient/{puuid}/insurance/{type}",
-     *      description="Retrieves a insurance (by type) for a patient",
-     *      tags={"standard"},
-     *      @OA\Parameter(
-     *          name="puuid",
-     *          in="path",
-     *          description="The uuid for the patient.",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string"
-     *          )
-     *      ),
-     *      @OA\Parameter(
-     *          name="type",
-     *          in="path",
-     *          description="The insurance type for the patient. (options are 'primary', 'secondary', or 'tertiary')",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string"
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          ref="#/components/responses/standard"
-     *      ),
-     *      @OA\Response(
-     *          response="400",
-     *          ref="#/components/responses/badrequest"
-     *      ),
-     *      @OA\Response(
-     *          response="401",
-     *          ref="#/components/responses/unauthorized"
-     *      ),
-     *      security={{"openemr_auth":{}}}
-     *  )
-     */
-    "GET /api/patient/:puuid/insurance/:type" => function ($puuid, $type, HttpRestRequest $request) {
-        $searchParams = $request->getQueryParams();
-        $searchParams['type'] = $type;
-        $searchParams['puuid'] = $puuid;
-        if ($request->isPatientRequest()) {
-            $searchParams['puuid'] = $request->getPatientUUIDString();
-        }
-        $return = (new InsuranceRestController())->getAll($searchParams);
         RestConfig::apiLog($return);
         return $return;
     },

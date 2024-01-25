@@ -101,6 +101,63 @@ export class InsurancePolicyModel {
         }
         return null;
     }
+    getPatientDataFields() {
+        return [
+            'subscriber_fname',
+            'subscriber_mname',
+            'subscriber_lname',
+            'subscriber_DOB',
+            'subscriber_sex',
+            'subscriber_ss',
+            'subscriber_street',
+            'subscriber_street_line_2',
+            'subscriber_city',
+            'subscriber_state',
+            'subscriber_postal_code',
+            'subscriber_phone',
+            'subscriber_country',
+            'subscriber_employer',
+            'subscriber_employer_street',
+            'subscriber_employer_street_line_2',
+            'subscriber_employer_city',
+            'subscriber_employer_state',
+            'subscriber_employer_postal_code',
+            'subscriber_employer_country'
+        ];
+    }
+
+    populateWithPatientData(patientData) {
+        if (typeof patientData === 'object') {
+            let employers = patientData.employer || [];
+            let employer = employers.length > 0 ? employers[0] : {};
+
+            let dataFields = this.getPatientDataFields();
+            dataFields.forEach((key) => {
+                let parts = key.split('_');
+                let property = '';
+                let value = '';
+                if (parts[1] == 'employer') {
+                    if (parts.length == 2) {
+                        property = 'name';
+                    } else {
+                        property = parts.slice(2).join('_');
+                    }
+                    value = employer[property] ?? null;
+                } else {
+                    property = parts.slice(1).join('_');
+                    value = patientData[property] ?? null;
+                }
+                if (property == 'DOB' && value) {
+                    value = this.#getValidFormattedDateFromServerDate(value);
+                }
+                this.setProperty(key, value);
+            });
+        }
+    }
+    isPatientDataField(field) {
+        let dataFields = this.getPatientDataFields();
+        return dataFields.includes(field);
+    }
 
     populate(pojo, markAsUnchanged = false) {
         if (typeof pojo === 'object') {

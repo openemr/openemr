@@ -53,6 +53,8 @@ export class EditPolicyScreenController
 
     __currentFocusedInputName = null;
 
+    __updatingSubscriberSelfRelationship = false;
+
     /**
      *
      * @param insurancePolicyService InsurancePolicyService
@@ -191,6 +193,24 @@ export class EditPolicyScreenController
             }));
         }
     }
+    #updateSubscriberRelationshipWithPatientData() {
+        this.__updatingSubscriberSelfRelationship = true;
+        this.render();
+        this.__insurancePolicyService.getCurrentPatientData()
+        .then(result => {
+            this.__updatingSubscriberSelfRelationship = false;
+            if (this.selectedInsurance) {
+                this.selectedInsurance.populateWithPatientData(result);
+            }
+            this.render();
+        })
+        .catch(error => {
+            console.error(error);
+            this.__updatingSubscriberSelfRelationship = false;
+            this.render();
+            window.top.xl("Could not retrieve patient data for subscriber relationship.");
+        });
+    }
     #setupModelSyncBinding(selectedInsurance) {
         let type = selectedInsurance.type;
         let insuranceInfoContainer = document.getElementById('insurance-info-type-' + type);
@@ -221,8 +241,12 @@ export class EditPolicyScreenController
                         let key = input.name.replace('form_', '');
                         let value = input.value;
                         this.selectedInsurance.setProperty(key, value);
-                        // this.selectedInsurance[key] = value;
-                        this.render(); // re-render the screen to update the display
+                        if (key == 'subscriber_relationship' && value == 'self') {
+                            // set our flag for updatingSubscriberRelationship
+                            this.#updateSubscriberRelationshipWithPatientData();
+                        } else {
+                            this.render(); // re-render the screen to update the display
+                        }
                     });
                 }
             }
@@ -824,6 +848,16 @@ export class EditPolicyScreenController
                 } else {
                     console.error("Failed to find select option value for key: " + key + " value: " + value);
                 }
+            }
+
+            // turn off subscriber self relationships data entry if we are waiting for patient data to load
+            if (this.__updatingSubscriberSelfRelationship && selectedInsurance.isPatientDataField(key)) {
+                if (input.nodeName != "SELECT") {
+                    input.value = window.top.xl("Loading...");
+                }
+                input.disabled = true;
+            } else {
+                input.disabled = false;
             }
         });
 
