@@ -145,6 +145,10 @@ export class InsurancePolicyModel {
                     value = employer[property] ?? null;
                 } else {
                     property = parts.slice(1).join('_');
+                    // mapping of the data fields to the patient data fields
+                    if (property == 'country') {
+                        property = 'country_code';
+                    }
                     value = patientData[property] ?? null;
                 }
                 if (property == 'DOB' && value) {
