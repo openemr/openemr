@@ -854,13 +854,12 @@ function generate_form_field($frow, $currvalue)
         } else {
             echo "</select>";
         }
-        
-        /**
-         * if anyone wants to render something after the pharmacy section on the demographics form, 
-         * they would have to listen to this event.
-        */     
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderPharmacySectionEvent(), RenderPharmacySectionEvent::RENDER_AFTER_PHARMACY_SECTION, 10);
 
+        /**
+         * if anyone wants to render something after the pharmacy section on the demographics form,
+         * they would have to listen to this event.
+        */
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderPharmacySectionEvent(), RenderPharmacySectionEvent::RENDER_AFTER_PHARMACY_SECTION, 10);
     } elseif ($data_type == 13) { // squads
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
         echo " $lbfonchange $disabled>";
@@ -2551,11 +2550,10 @@ function generate_display_field($frow, $currvalue)
             }
         }
         /**
-         * if anyone wants to render something after the pharmacy section on the patient chart/dashboard, 
+         * if anyone wants to render something after the pharmacy section on the patient chart/dashboard,
          * they would have to listen to this event.
-        */ 
+        */
         $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderPharmacySectionEvent(), RenderPharmacySectionEvent::RENDER_AFTER_SELECTED_PHARMACY_SECTION, 10);
-           
     } elseif ($data_type == 13) { // squads
         $squads = AclExtended::aclGetSquads();
         if ($squads) {
