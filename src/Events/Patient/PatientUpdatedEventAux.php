@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PatientUpdatedAuxEvent
  *
@@ -19,13 +20,12 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 class PatientUpdatedEventAux extends Event
 {
-    
     /**
      * This event is triggered after a patient has been updated, and an assoc
      * array of new patient data is passed to the event object
      */
     const EVENT_HANDLE = 'patient.updated.aux';
-    
+
     private $updatedPatientData;
     private $pid;
 
@@ -47,6 +47,4 @@ class PatientUpdatedEventAux extends Event
         $this->updatedPatientData = array_merge($this->updatedPatientData, $pid);
         return $this->updatedPatientData;
     }
-
 }
-?>

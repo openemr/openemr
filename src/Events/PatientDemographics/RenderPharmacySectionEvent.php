@@ -34,7 +34,7 @@ class RenderPharmacySectionEvent extends Event
     const RENDER_AFTER_PHARMACY_SECTION = 'patientDemographics.render.section.after.pharmacy';
 
     /**
-     * This event is triggered after rendering the selected openemr pharmacy 
+     * This event is triggered after rendering the selected openemr pharmacy
      * in the demographics section
      */
     const RENDER_AFTER_SELECTED_PHARMACY_SECTION = 'patientDemographics.render.after.selected.pharmacy';

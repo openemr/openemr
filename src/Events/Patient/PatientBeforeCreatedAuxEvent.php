@@ -6,7 +6,7 @@
  * This event is fired before a patient is created so modules can
  * listen for creation of a patient and perform additional
  * processing, or modify insert data.
- * 
+ *
  * The difference between this event and BeforePatientCreatedEvent
  * is that, it'll give users who attach different tables to the
  * without saving in the patient_data table save their records as well.
@@ -53,7 +53,7 @@ class PatientBeforeCreatedAuxEvent extends Event
     {
         $pid = array('pid' => $this->pid);
         $this->patientData = array_merge($pid, $this->patientData);
-        
+
         return $this->patientData;
     }
 
