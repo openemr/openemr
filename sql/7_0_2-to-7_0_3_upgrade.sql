@@ -113,3 +113,15 @@
 ALTER TABLE `form_encounter` ADD `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 #EndIf
 
+#IfNotRow2D list_options list_id lists option_id default_open_tabs
+-- Create new list Default Open Tabs
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'Hide_Dashboard_Cards', 'Hide Dashboard Cards');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`,`activity`) VALUES ('Hide_Dashboard_Cards', 'card_allergies', 'Allergies', 10, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_amendments', 'Amendments', 60, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_disclosure', 'Disclosures', 50, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_lab', 'Lab', 70, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`,  `activity`) VALUES ('Hide_Dashboard_Cards', 'card_medicalproblems', 'Medical Problems', 20, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_medication', 'Medication', 30, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_rx', 'Prescriptions', 40, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_vitals', 'Vitals', 80, 1);
+#EndIf

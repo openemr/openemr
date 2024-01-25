@@ -142,3 +142,13 @@ function setListTouch($patient_id, $type)
         sqlStatement("INSERT INTO `lists_touch` ( `pid`,`type`,`date` ) VALUES ( ?, ?, NOW() )", array($patient_id,$type));
     }
 }
+
+function getActiveDashboardCards()
+{
+    $hideList = [];
+    $ret = sqlStatement("SELECT option_id FROM list_options WHERE list_id = 'Hide_Dashboard_Cards' AND activity = '1'");
+    while ($row = sqlFetchArray($ret)) {
+        $hideList[] = $row['option_id'];
+    }
+    return $hideList;
+}
