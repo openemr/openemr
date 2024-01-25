@@ -199,7 +199,7 @@ class TransmitProperties
     public function getProviderPassword()
     {
         $uid = $_SESSION['authUserID'];
-        $sql = "select setting_value from user_settings where setting_user = ? and setting_label = 'global:weno_provider_password'";
+        $sql = "select setting_value from user_settings where setting_user = ? and setting_label = 'global:weno_admin_password'";
         $prov_pass = sqlQuery($sql, [$uid]);
         if (!empty($GLOBALS['weno_admin_password'])) {
             return $this->cryptoGen->decryptStandard($prov_pass['setting_value']);

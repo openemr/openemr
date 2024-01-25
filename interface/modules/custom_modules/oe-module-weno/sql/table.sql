@@ -82,6 +82,6 @@ UPDATE `globals` SET gl_name="weno_admin_password" WHERE gl_name="weno_provider_
 #EndIf
 
 #IfRow globals gl_name weno_provider_username
-UPDATE `globals` SET gl_name="weno_provider_username" WHERE gl_name="weno_admin_username";
+UPDATE `globals` SET gl_name="weno_admin_username" WHERE gl_name="weno_provider_username";
 #EndIf
 

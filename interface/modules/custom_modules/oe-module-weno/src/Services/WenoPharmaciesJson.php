@@ -33,7 +33,7 @@ class WenoPharmaciesJson
     {
         $url = $this->wenoPharmacyDirectoryLink() . "?useremail=" . urlencode($this->providerEmail()) . "&data=" . urlencode($this->encrypted);
         $getWenoPharmaciesCsv = new DownloadWenoPharmacies();
-        $storageLocation = dirname(__DIR__, 3) . "/sites/" . $_SESSION['site_id'] . "/documents/logs_and_misc/weno/";
+        $storageLocation = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/";
         $c = $getWenoPharmaciesCsv->retrieveDataFile($url, $storageLocation);
     }
 
@@ -56,12 +56,12 @@ class WenoPharmaciesJson
     }
     private function providerEmail()
     {
-        return $GLOBALS['weno_provider_username'];
+        return $GLOBALS['weno_admin_username'];
     }
 
     private function providerPassword(): string
     {
-        return md5($this->cryptoGen->decryptStandard($GLOBALS['weno_provider_password']));
+        return md5($this->cryptoGen->decryptStandard($GLOBALS['weno_admin_password']));
     }
     private function wenoEncryptionKey()
     {

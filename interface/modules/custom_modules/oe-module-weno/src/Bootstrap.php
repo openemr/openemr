@@ -67,8 +67,6 @@ class Bootstrap
 
     public function __construct(EventDispatcher $dispatcher, ?Kernel $kernel = null)
     {
-        global $GLOBALS;
-
         if (empty($kernel)) {
             $kernel = new Kernel();
         }
@@ -91,8 +89,6 @@ class Bootstrap
 
     public function addGlobalWenoSettings(GlobalsInitializedEvent $event)
     {
-        global $GLOBALS;
-
         $settings = $this->globalsConfig->getGlobalSettingSectionConfiguration();
 
         $userMode = (array_key_exists('mode', $_GET) && $_GET['mode'] == 'user');

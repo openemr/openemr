@@ -207,13 +207,13 @@ class LogProperties
     public function getProviderPassword()
     {
         if ($_SESSION['authUser']) {
-            if (!empty($GLOBALS['weno_provider_password'])) {
-                return $this->cryptoGen->decryptStandard($GLOBALS['weno_provider_password']);
+            if (!empty($GLOBALS['weno_admin_password'])) {
+                return $this->cryptoGen->decryptStandard($GLOBALS['weno_admin_password']);
             } else {
                 echo xlt('Provider Password is missing');
                 die;
             }
-        } else if ($GLOBALS['weno_provider_password']) {
+        } else if ($GLOBALS['weno_admin_password']) {
             return $this->cryptoGen->decryptStandard($GLOBALS['weno_admin_password']);
         } else {
             error_log("Admin password not set");

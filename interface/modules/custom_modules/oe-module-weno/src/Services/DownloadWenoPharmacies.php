@@ -20,6 +20,9 @@ class DownloadWenoPharmacies
     {
         $path_to_extract = $storelocation;
         $storelocation .= "weno_pharmacy.zip";
+        if (!is_dir($path_to_extract)) {
+            mkdir($path_to_extract, 0775, true);
+        }
         $fp = fopen($storelocation, 'w+');
 
         $ch = curl_init($url);
