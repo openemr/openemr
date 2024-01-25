@@ -18,6 +18,7 @@ use OpenEMR\Core\ModulesClassLoader;
 /**
  * @global OpenEMR\Core\ModulesClassLoader $classLoader
  */
+
 $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\WenoModule\\', __DIR__ . DIRECTORY_SEPARATOR . 'src');
 
 /**
@@ -26,4 +27,3 @@ $classLoader->registerNamespaceIfNotExists('OpenEMR\\Modules\\WenoModule\\', __D
 
 $bootstrap = new Bootstrap($eventDispatcher, $GLOBALS['kernel']);
 $bootstrap->subscribeToEvents();
-?>

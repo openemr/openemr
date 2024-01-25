@@ -92,7 +92,7 @@ class LogProperties
         } else {
             $yesterday = date("Y-m-d", strtotime("yesterday"));
         }
-        
+
         $today = date("Y-m-d", strtotime("today"));
 
         $p = [
@@ -182,21 +182,19 @@ class LogProperties
      */
     public function getProviderEmail()
     {
-        if($_SESSION['authUser']){
+        if ($_SESSION['authUser']) {
             $provider_info = ['email' => $GLOBALS['weno_provider_email']];
-            if(!empty($provider_info)){
+            if (!empty($provider_info)) {
                 return $provider_info;
             } else {
                 $error = "Provider email address is missing. Go to [User settings > Email] to add provider's weno registered email address";
                 error_log($error);
                 exit;
             }
-        }
-        else if($GLOBALS['weno_admin_username']){
+        } else if ($GLOBALS['weno_admin_username']) {
             $provider_info["email"] = $GLOBALS['weno_admin_username'];
             return $provider_info;
-        }
-        else{
+        } else {
             $error = "Provider email address is missing. Go to [User settings > Email] to add provider's weno registered email address";
             error_log($error);
             exit;
@@ -208,14 +206,14 @@ class LogProperties
      */
     public function getProviderPassword()
     {
-        if($_SESSION['authUser']){
-            if(!empty($GLOBALS['weno_provider_password'])){
+        if ($_SESSION['authUser']) {
+            if (!empty($GLOBALS['weno_provider_password'])) {
                 return $this->cryptoGen->decryptStandard($GLOBALS['weno_provider_password']);
             } else {
                 echo xlt('Provider Password is missing');
                 die;
             }
-        } else if($GLOBALS['weno_provider_password']) {
+        } else if ($GLOBALS['weno_provider_password']) {
             return $this->cryptoGen->decryptStandard($GLOBALS['weno_admin_password']);
         } else {
             error_log("Admin password not set");

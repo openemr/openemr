@@ -34,7 +34,7 @@ class WenoPharmaciesJson
         $url = $this->wenoPharmacyDirectoryLink() . "?useremail=" . urlencode($this->providerEmail()) . "&data=" . urlencode($this->encrypted);
         $getWenoPharmaciesCsv = new DownloadWenoPharmacies();
         $storageLocation = dirname(__DIR__, 3) . "/sites/" . $_SESSION['site_id'] . "/documents/logs_and_misc/weno/";
-        $c = $getWenoPharmaciesCsv->RetrieveDataFile($url, $storageLocation);
+        $c = $getWenoPharmaciesCsv->retrieveDataFile($url, $storageLocation);
     }
 
     private function buildJson()
@@ -48,10 +48,10 @@ class WenoPharmaciesJson
             "Daily" => 'N'
         ];
 
-        if(date("l") != "Monday" && $has_data){
+        if (date("l") != "Monday" && $has_data) {
             $jobj["Daily"] = "Y";
         }
-        
+
         return json_encode($jobj);
     }
     private function providerEmail()

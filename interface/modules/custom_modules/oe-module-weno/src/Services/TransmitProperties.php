@@ -308,8 +308,9 @@ class TransmitProperties
         return $response;
     }
 
-    private function getEncounter(){
-        if(!$_SESSION['encounter']) {
+    private function getEncounter()
+    {
+        if (!$_SESSION['encounter']) {
             die("Please select an encounter to coninue");
         }
 

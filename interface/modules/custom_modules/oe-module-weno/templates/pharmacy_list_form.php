@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Handles the creating and updating of the weno alternate and primary pharmacies. 
+ * Handles the creating and updating of the weno alternate and primary pharmacies.
  * Saving of these properties are handled by the scripts
- * that call the LBF form.  The current example can be found in 
+ * that call the LBF form.  The current example can be found in
  * interface/patient_file/summary/demographics_save.php
  * and in interface/new/new_comprehensive_save.php
  *
@@ -22,7 +22,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
 
-if(!AclMain::aclCheckCore('patients', 'med')){
+if (!AclMain::aclCheckCore('patients', 'med')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pharmacy Selector")]);
     exit;
 }
@@ -41,7 +41,7 @@ $field_id_esc = $field_id_esc ?? '0';
 $name_field_id = "form_" . $field_id_esc;
 $smallform = $smallform ?? '';
 
-$pharmacyService = new PharmacyService;
+$pharmacyService = new PharmacyService();
 $prev_prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? [];
 $prev_alt_pharmacy = $pharmacyService->getWenoAlternatePharm($_SESSION['pid']) ?? [];
 $prev_prim_pharmacy = json_encode($prev_prim_pharmacy);
@@ -103,9 +103,9 @@ $res = sqlStatement($sql);
         <div class="mr-3 col px-0 mx-0">
             <select class="form-control form-control-sm" name="weno_state" id="weno_state" onchange="stateChanged()">
                 <option value=""><?php echo xlt("State") . " *"; ?></option>
-                <?php while($row = sqlFetchArray($res)){ ?>
+                <?php while ($row = sqlFetchArray($res)) { ?>
                     <option value="<?php echo attr($row['option_id']); ?>"><?php echo xlt($row['title']); ?></option>
-                <?php   
+                    <?php
                 }
                 ?>
             </select>

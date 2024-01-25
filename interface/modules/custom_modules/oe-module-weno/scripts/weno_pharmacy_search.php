@@ -10,13 +10,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__DIR__,5) . "/interface/globals.php");
+require_once(dirname(__DIR__, 5) . "/interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
 
-if(!AclMain::aclCheckCore('patients', 'med')){
+if (!AclMain::aclCheckCore('patients', 'med')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pharmacy Selector")]);
     exit;
 }
@@ -33,7 +33,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_city') {
     $val = '%' . $term . '%';
 
     array_push($params, $val);
-    
+
     $sql = "SELECT city, id FROM weno_pharmacy WHERE city LIKE ? LIMIT 10";
     $res = sqlStatement($sql, $params);
     while ($row = sqlFetchArray($res)) {
@@ -144,7 +144,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
 
     $sql .= " ORDER BY Business_Name ASC";
 
-    $res = sqlStatement($sql,$params);
+    $res = sqlStatement($sql, $params);
     while ($row = sqlFetchArray($res)) {
         $return_arr[] = array(
             "name"  => $row['Business_Name'] . "/ " . $row['address_line_1'] . " / " . $row['city'],

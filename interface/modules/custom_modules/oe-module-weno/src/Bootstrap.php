@@ -17,8 +17,8 @@ use OpenEMR\Events\Patient\PatientBeforeCreatedAuxEvent;
 use OpenEMR\Events\Patient\PatientUpdatedEventAux;
 use OpenEMR\Modules\WenoModule\Services\SelectedPatientPharmacy;
 
-class Bootstrap {
-
+class Bootstrap
+{
     const OPENEMR_GLOBALS_LOCATION = "../../../../globals.php";
     const MODULE_INSTALLATION_PATH = "/interface/modules/custom_modules/oe-module-weno";
     const MODULE_NAME = "";
@@ -96,13 +96,13 @@ class Bootstrap {
         $settings = $this->globalsConfig->getGlobalSettingSectionConfiguration();
 
         $userMode = (array_key_exists('mode', $_GET) && $_GET['mode'] == 'user');
-        
+
         $service = $event->getGlobalsService();
         $service->addUserSpecificTab(self::MODULE_MENU_NAME);
 
         foreach ($settings as $key => $config) {
             $value = $GLOBALS[$key] ?? $config['default'];
-            if($userMode){
+            if ($userMode) {
                 $service->appendToSection(
                     self::MODULE_MENU_NAME,
                     $key,
@@ -115,7 +115,7 @@ class Bootstrap {
                     )
                 );
             } else {
-                if($config['user_setting']){
+                if ($config['user_setting']) {
                     continue;
                 }
                 $service->appendToSection(
@@ -201,7 +201,7 @@ class Bootstrap {
         $menuItem->children = [];
         $menuItem->acl_req = ["patients", "rx"];
         $menuItem->global_req = ["weno_rx_enable"];
-        
+
         //Weno Management
         $mgtMenu = new \stdClass();
         $mgtMenu->requirement = 0;
@@ -214,19 +214,19 @@ class Bootstrap {
         $mgtMenu->global_req = ["weno_rx_enable"];
 
         foreach ($menu as $item) {
-            if($item->menu_id == 'admimg'){
-                foreach($item->children as $other){
-                    if($other->label == 'Other'){
+            if ($item->menu_id == 'admimg') {
+                foreach ($item->children as $other) {
+                    if ($other->label == 'Other') {
                         $other->children[] = $mgtMenu;
                     }
                     break;
                 }
                 break;
             }
-            
+
             if ($item->menu_id == 'repimg') {
-                foreach($item->children as $clientReport){
-                    if($clientReport->label == 'Clients'){
+                foreach ($item->children as $clientReport) {
+                    if ($clientReport->label == 'Clients') {
                         $clientReport->children[] = $menuItem;
                     }
                 }
@@ -247,7 +247,6 @@ class Bootstrap {
     public function renderWenoPharmacySelector()
     {
         include_once($this->modulePath) . "/templates/pharmacy_list_form.php";
-        
     }
 
     public function demographicsDisplaySelectedEvents()
@@ -255,12 +254,14 @@ class Bootstrap {
         $this->eventDispatcher->addListener(RenderPharmacySectionEvent::RENDER_AFTER_SELECTED_PHARMACY_SECTION, [$this, 'renderSelectedWenoPharmacies']);
     }
 
-    public function renderSelectedWenoPharmacies(){
+    public function renderSelectedWenoPharmacies()
+    {
         echo "<br>";
         include_once($this->modulePath) . "/templates/pharmacy_list_display.php";
     }
 
-    public function patientSaveEvents(){
+    public function patientSaveEvents()
+    {
         $this->eventDispatcher->addListener(PatientBeforeCreatedAuxEvent::EVENT_HANDLE, [$this, 'persistPatientWenoPharmacies']);
     }
 
@@ -270,11 +271,13 @@ class Bootstrap {
         $this->selectedPatientPharmacy->prepSelectedPharmacy($patientData);
     }
 
-    public function patientUpdateEvents(){
+    public function patientUpdateEvents()
+    {
         $this->eventDispatcher->addListener(PatientUpdatedEventAux::EVENT_HANDLE, [$this, 'updatePatientWenoPharmacies']);
     }
 
-    public function updatePatientWenoPharmacies(PatientUpdatedEventAux $event){
+    public function updatePatientWenoPharmacies(PatientUpdatedEventAux $event)
+    {
         $updatedPatientData = $event->getUpdatedPatientData();
         $this->selectedPatientPharmacy->prepForUpdatePharmacy($updatedPatientData);
     }

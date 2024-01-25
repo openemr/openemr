@@ -53,5 +53,4 @@ class LogDataInsert
             return $e->getMessage();
         }
     }
-
 }

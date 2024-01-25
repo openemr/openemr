@@ -67,6 +67,12 @@ INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_r
 VALUES ('WenoExchangePharmacies', 'Weno Exchange Pharmacy', '0', '0', current_timestamp(), '1440', 'downloadWenoPharmacy', '/interface/modules/custom_modules/oe-module-weno/scripts/weno_log_sync.php', '100');
 #EndIf
 
+#IfNotRow background_services name WenoExchange
+INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) 
+VALUES ('WenoExchange', 'Weno Log Sync', '0', '0', current_timestamp(), '1440', 'downloadWenoPrescriptionLog', '/interface/modules/custom_modules/oe-module-weno/scripts/weno_log_sync.php', '100');
+#EndIf
+
+-- For early adopters of weno, incase they need to upgrade to the next/latest release of openEMR
 #IfRow background_services name WenoExchange
 UPDATE `background_services` SET title="Weno Log Sync", `function`="downloadWenoPrescriptionLog", `require_once`="/interface/modules/custom_modules/oe-module-weno/scripts/weno_log_sync.php" WHERE `name`="WenoExchange";
 #EndIf

@@ -1,4 +1,5 @@
 <?php
+
 // Disable PHP timeout
 @ini_set('max_execution_time', '0');
 
@@ -24,8 +25,8 @@ $data = array(
     "Daily"                 => "N"
 );
 
-if(date("l") == "Monday"){ //if today is Monday download the weekly file
-    $data["Daily"] = "N"; 
+if (date("l") == "Monday") { //if today is Monday download the weekly file
+    $data["Daily"] = "N";
 }
 
 //check if there is history of download, if not do a weekly file
@@ -50,18 +51,19 @@ $storelocation = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/weno_p
 $path_to_extract = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/";
 
 // takes URL of image and Path for the image as parameter
-function download_zipfile($fileUrl, $zipped_file){
-    $fp = fopen ($zipped_file, 'w+');              
+function download_zipfile($fileUrl, $zipped_file)
+{
+    $fp = fopen($zipped_file, 'w+');
 
     $ch = curl_init($fileUrl);
-    curl_setopt($ch, CURLOPT_FILE, $fp);        
+    curl_setopt($ch, CURLOPT_FILE, $fp);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 1000);      
+    curl_setopt($ch, CURLOPT_TIMEOUT, 1000);
     curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
     curl_exec($ch);
 
-    curl_close($ch);                              
-    fclose($fp);                                  
+    curl_close($ch);
+    fclose($fp);
 }
 
 download_zipfile($fileUrl, $storelocation);
@@ -70,15 +72,15 @@ $zip = new ZipArchive();
 
 $wenolog = new WenoLogService();
 
-if ($zip->open($storelocation) === TRUE) {
+if ($zip->open($storelocation) === true) {
     $zip->extractTo($path_to_extract);
 
     $files = glob($path_to_extract . "/*.csv");
-    if($files){
+    if ($files) {
         $csvFile = $files[1];
         $filename = basename($csvFile);
         $csvFilename = $filename;
-        
+
         EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "File extracted successfully.");
         echo 'File extracted successfully.';
         echo 'CSV filename: ' . $csvFilename;
@@ -95,11 +97,11 @@ if ($zip->open($storelocation) === TRUE) {
 
 $insertPharmacy = new PharmacyService();
 
-if($data['Daily'] == 'N'){
+if ($data['Daily'] == 'N') {
     $insertPharmacy->removeWenoPharmacies();
 }
 
-$insertdata=[];
+$insertdata = [];
 
 $l = 0;
 if (file_exists($csvFile)) {
@@ -119,7 +121,7 @@ if (file_exists($csvFile)) {
             continue;
         }
         if (!empty($line)) {
-            if($data['Daily'] == 'N'){
+            if ($data['Daily'] == 'N') {
                 $ncpdp = str_replace(['[', ']'], '', $line[3]);
                 $npi = str_replace(['[', ']'], '', $line[5]);
                 $business_name = $line[6];
@@ -190,9 +192,7 @@ if (file_exists($csvFile)) {
         }
     }
     error_log("Pharmacy Imported");
-}else {
+} else {
     $wenolog->insertWenoLog("pharmacy", "Failed");
     error_log("file missing");
 }
-
-?>

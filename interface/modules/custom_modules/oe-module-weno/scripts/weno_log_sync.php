@@ -8,12 +8,10 @@
  *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 use OpenEMR\Common\Crypto\CryptoGen;
-
 use OpenEMR\Modules\WenoModule\Services\LogProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoPharmaciesJson;
 
-
-if(isset($_GET['key']) && !empty(isset($_GET['key']))){
+if (isset($_GET['key']) && !empty(isset($_GET['key']))) {
     start_weno();
 }
 function start_weno()
@@ -22,12 +20,13 @@ function start_weno()
     $logsync->logSync();
 }
 
-function downloadWenoPharmacy(){
+function downloadWenoPharmacy()
+{
     $cryptoGen = new CryptoGen();
     $localPharmacyJson = new WenoPharmaciesJson(
         $cryptoGen
     );
-    
+
     //check if the background service is active and set intervals to once a day
     //Weno has decided to not force the import of pharmacies since they are using the iframe
     //and the pharmacy can be selected at the time of creating the prescription.
@@ -39,9 +38,9 @@ function downloadWenoPharmacy(){
     }
 }
 
-function downloadWenoPrescriptionLog(){
+function downloadWenoPrescriptionLog()
+{
     $logsync = new LogProperties();
     $logsync->logSync();
     error_log("Background services completed for prescription log");
 }
-

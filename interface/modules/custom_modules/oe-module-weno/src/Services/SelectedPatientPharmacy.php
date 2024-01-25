@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package     OpenEMR
  * @link        https://www.open-emr.org
@@ -13,7 +14,6 @@ class SelectedPatientPharmacy
 {
     public function __construct()
     {
-        
     }
 
     public function prepSelectedPharmacy(array $data)
@@ -26,7 +26,8 @@ class SelectedPatientPharmacy
         $pharmacyService->createWenoPharmaciesForPatient($data['pid'], $newData);
     }
 
-    public function prepForUpdatePharmacy($data){
+    public function prepForUpdatePharmacy($data)
+    {
         $updateData = array(
             "primary_pharmacy" => $data['primary_pharmacy'],
             "alternate_pharmacy" => $data['alternate_pharmacy']
@@ -34,7 +35,4 @@ class SelectedPatientPharmacy
         $pharmacyService = new PharmacyService();
         $pharmacyService->updatePatientWenoPharmacy($data['pid'], $updateData);
     }
-
-
 }
-?>

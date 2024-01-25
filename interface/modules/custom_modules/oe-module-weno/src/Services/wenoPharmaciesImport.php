@@ -14,13 +14,12 @@ use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 
 class WenoPharmaciesImport
 {
-
     public function __construct()
     {
-        
     }
 
-    public function importPharmacy($csvFile, $files){
+    public function importPharmacy($csvFile, $files)
+    {
         $insertPharmacy = new PharmacyService();
         $insertdata = [];
         $checkWenoDb = new PharmacyService();
@@ -97,15 +96,15 @@ class WenoPharmaciesImport
                     $insertdata['test_pharmacy'] = $test_pharmacy;
                     $insertdata['state_wide_mail'] = $state_wide_mail;
                     $insertdata['fullDay'] = $fullDay;
-                        if($has_data && date("l") == 'Monday'){
-                            $insertPharmacy->updatePharmacies($insertdata);
-                        }
-                        if($has_data && date("l") != 'Monday'){
-                            $insertPharmacy->updatePharmacies($insertdata);
-                        }
-                        if(!$has_data) {
-                            $insertPharmacy->insertPharmacies($insertdata);
-                        }
+                    if ($has_data && date("l") == 'Monday') {
+                        $insertPharmacy->updatePharmacies($insertdata);
+                    }
+                    if ($has_data && date("l") != 'Monday') {
+                        $insertPharmacy->updatePharmacies($insertdata);
+                    }
+                    if (!$has_data) {
+                        $insertPharmacy->insertPharmacies($insertdata);
+                    }
 
                     ++$l;
                 }

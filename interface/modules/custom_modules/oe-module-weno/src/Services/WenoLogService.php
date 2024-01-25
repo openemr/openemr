@@ -23,11 +23,11 @@ class WenoLogService
     public function getLastPrescriptionLogStatus()
     {
         $params  = "prescription";
-        $sql = "SELECT * FROM weno_download_log WHERE "; 
+        $sql = "SELECT * FROM weno_download_log WHERE ";
         $sql .= "VALUE = ? ORDER BY created_at DESC LIMIT 1";
-        
+
         $result = sqlQuery($sql, [$params]);
-        
+
         return $result;
     }
 
@@ -36,7 +36,7 @@ class WenoLogService
         $params = "pharmacy";
         $sql = "SELECT * FROM weno_download_log WHERE ";
         $sql .= "VALUE = ? ORDER BY created_at DESC LIMIT 1";
-        
+
         $result = sqlQuery($sql, [$params]);
 
         return $result;
@@ -47,7 +47,7 @@ class WenoLogService
         $sql = "INSERT INTO weno_download_log SET ";
         $sql .= "value = ?, ";
         $sql .= "status = ? ";
-        
+
         try {
             sqlInsert($sql, [$value, $status]);
         } catch (Exception $e) {

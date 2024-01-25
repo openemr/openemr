@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Module Weno EZ Integration versioning flat file.
  * This file is used by the Modules installer for various reasons

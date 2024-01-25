@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 /**
  * weno_fragment.php
  *
@@ -8,23 +9,25 @@
  * @copyright Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 require_once(dirname(__DIR__, 4) . "/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Acl\AclMain;
 
-if(!AclMain::aclCheckCore('patients', 'med')){
+if (!AclMain::aclCheckCore('patients', 'med')) {
     exit;
 }
 $sql = "SELECT * FROM prescriptions WHERE patient_id = ? " .
         "AND indication IS NOT NULL";
-$res = sqlStatement($sql,array($pid));
+$res = sqlStatement($sql, array($pid));
 
-function getProviderByWenoId($external_id){
+function getProviderByWenoId($external_id)
+{
     $provider = sqlQuery("SELECT fname, mname, lname FROM users WHERE weno_prov_id = ? ", array($external_id));
-    if($provider){
+    if ($provider) {
         return $provider['fname'] . " " . $provider['mname'] . " " . $provider['lname'];
-    } else{
+    } else {
         return "";
     }
 }
@@ -53,7 +56,7 @@ function getProviderByWenoId($external_id){
         </thead>
         <tbody>
         <?php
-        while($row = sqlFetchArray($res)){ ?>
+        while ($row = sqlFetchArray($res)) { ?>
             <tr>
                 <td><?php echo text($row["drug"]); ?></td>
                 <td><?php echo text(getProviderByWenoId($row['external_id'])); ?></td>
