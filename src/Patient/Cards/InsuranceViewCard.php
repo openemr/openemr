@@ -149,10 +149,6 @@ class InsuranceViewCard extends CardModel
             $mname = ''; //($row['subscriber_mname'] != "") ? $row['subscriber_mname'] : "";
             $row['subscriber_full_name'] = ' '; // str_replace("%mname%", $mname, "{$row['subscriber_fname']} %mname% {$row['subscriber_lname']}");
         }
-        if (!empty($mostRecentEffectiveDate) && empty($row['date_end'])) {
-            $row['date_end'] = $mostRecentEffectiveDate;
-            $row['date_end_missing'] = true;
-        }
         return $row;
     }
 

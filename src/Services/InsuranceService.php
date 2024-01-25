@@ -65,11 +65,6 @@ class InsuranceService extends BaseService
         return $this->coverageValidator->validate($data);
     }
 
-    public function getOneByPatientUuidAndInsuranceType($puuid, $type)
-    {
-        return $this->search(['puuid' => $puuid, 'type' => $type]);
-    }
-
     public function getOneByPid($id, $type)
     {
         $sql = "SELECT * FROM insurance_data WHERE pid=? AND type=?";
@@ -90,7 +85,13 @@ class InsuranceService extends BaseService
 
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
-        $sql .= $whereClause->getFragment();
+        $orderClause = " ORDER BY `patient_data_pid` ASC,`type` ASC"
+            // sort by 1 first then 0
+        . ", (`date_end` is null or `date_end` > NOW()) DESC"
+        . ", (`date_end` IS NOT NULL AND `date_end` > NOW()) DESC"
+        . ", `date` DESC, `date_end` DESC, `policy_number` ASC";
+
+        $sql .= $whereClause->getFragment() . $orderClause;
         $sqlBindArray = $whereClause->getBoundValues();
         $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
 
@@ -454,11 +455,10 @@ class InsuranceService extends BaseService
         }
         $organizedResults = [];
         foreach ($result as $key => $policies) {
-            $sortedPolicies = $this->sortPoliciesByEndDate($policies);
-            if (count($sortedPolicies) > 0) {
-                reset($sortedPolicies);
-                $current = current($sortedPolicies);
-                $history = array_splice($sortedPolicies, 1);
+            if (count($policies) > 0) {
+                reset($policies);
+                $current = current($policies);
+                $history = array_splice($policies, 1);
 
                 $organizedResults[$key] = [
                     'current' => $current
@@ -467,31 +467,6 @@ class InsuranceService extends BaseService
             }
         }
         return $organizedResults;
-    }
-
-    private function sortPoliciesByEndDate($policies)
-    {
-        // TODO: @adunsulag not a lot of policies here... it'd be more efficient to preconvert all the dates
-        // so we can do comparisons... but this is fine for now.
-
-        // we do a DESC sort on the effective date so that the most recent effective date is first
-        // if there is a conflict with the effective date, then we sort by the end date
-        // if there is no end date, then we sort by the policy number
-        usort($policies, function ($a, $b) {
-            if ($a['date'] == $b['date']) {
-                if (empty($a['date_end']) && empty($b['date_end'])) {
-                    return strcmp($a['policy_number'], $b['policy_number']);
-                } else if (empty($b['date_end'])) {
-                    return 1;
-                } else if (empty($a['date_end'])) {
-                    return -1;
-                } else {
-                    return strtotime($a['date_end']) <=> strtotime($b['date_end']);
-                }
-            }
-            return strtotime($a['date_end']) <=> strtotime($b['date_end']);
-        });
-        return $policies;
     }
 
     public function swapInsurance($pid, string $targetType, string $insuranceUuid)

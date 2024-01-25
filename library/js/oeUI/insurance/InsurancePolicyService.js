@@ -159,12 +159,67 @@ export class InsurancePolicyService
     }
 
     sortInsurancesByDate(insurances) {
+        let futureDate = new Date();
         insurances.sort((a, b) => {
-            // end date is the most current one
-            if (!a.hasOwnProperty('end_date') || a === null) {
-                return -1;
+            // since we can add / update policies in JS land, we need to handle the sort order here
+            // need to convert the following mysql order by to js
+            //         . ", (`date_end` is null or `date_end` > NOW()) DESC"
+            //         . ", (`date_end` IS NOT NULL AND `date_end` > NOW()) DESC"
+            //         . ", `date` DESC, `date_end` DESC, `policy_number` ASC";
+            // we want to sort by date_end first so that the most current one is first
+            let dateEndNullA = a.date_end === null;
+            let dateEndNullB = b.date_end === null;
+            let dateEndFutureA = !dateEndNullA && a.date_end > futureDate;
+            let dateEndFutureB = !dateEndNullB && b.date_end > futureDate;
+            let dateEndNullOrFutureA = dateEndNullA || dateEndFutureA ? 1 : 0;
+            let dateEndNullOrFutureB = dateEndNullB || dateEndFutureB ? 1 : 0;
+            let dateEndNotNullAndFutureA = !dateEndNullA && dateEndFutureA ? 1 : 0;
+            let dateEndNotNullAndFutureB = !dateEndNullB && dateEndFutureB ? 1 : 0;
+
+            let sortIndex = 0;
+            // b - a for descending order => (`date_end` is null or `date_end` > NOW()) DESC
+            sortIndex += dateEndNullOrFutureB - dateEndNullOrFutureA;
+            if (sortIndex !== 0) {
+                return sortIndex;
             }
-            return a.date < b.date ? 1 : -1;
+            // b - a for descending order => (`date_end` IS NOT NULL AND `date_end` > NOW()) DESC
+            sortIndex += dateEndNotNullAndFutureB - dateEndNotNullAndFutureA;
+            if (sortIndex !== 0) {
+                return sortIndex;
+            }
+            // `date` DESC, nulls come first, then sort by date with most recent first
+            if (a.date !== null && b.date !== null) {
+                sortIndex += a.date > b.date ? -1 : 1;
+            } else if (b.date === null && a.date !== null) {
+                sortIndex -= -1;
+            } else {
+                sortIndex += 1;
+            }
+            if (sortIndex !== 0) {
+                return sortIndex;
+            }
+            // `date_end` DESC, nulls come first, then sort by date with most recent first
+            if (!dateEndNullA && !dateEndNullB) {
+                sortIndex += a.date_end > b.date_end ? -1 : 1;
+            } else if (dateEndNullB && !dateEndNullA) {
+                sortIndex -= -1;
+            } else {
+                sortIndex += 1;
+            }
+            if (sortIndex !== 0) {
+                return sortIndex;
+            }
+            // `policy_number` ASC - sort by policy number ascending
+            // use localeCompare to handle the case where the policy number is a string
+            // pass the base sensitivity to ignore case
+            if (a.policy_number !== null && b.policy_number !== null) {
+                // TODO: @adunsulag if we have the locale specified here... we could pass it in instead of undefined
+                return b.localeCompare(a, undefined, {sensitivity: 'base'});
+            } else if (b.policy_number === null && a.policy_number !== null) {
+                return -1;
+            } else {
+                return 1;
+            }
         });
     }
 
