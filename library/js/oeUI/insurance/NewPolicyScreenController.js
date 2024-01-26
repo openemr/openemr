@@ -372,6 +372,12 @@ export class NewPolicyScreenController
                 select.appendChild(option);
             });
         }
+
+        this.addEvent(select, 'change' , (event) => {
+            if (event.target.value) {
+                this.__copyPolicyId = parseInt(event.target.value);
+            }
+        });
     }
 
     destroy() {
