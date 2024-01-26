@@ -101,8 +101,10 @@ export class InsuranceEditMainController {
                     return;
                 }
             }
+            // TODO: would it be better to just destroy the object and recreate it like we do with new policy screen?
             this.__editPolicyScreen.resetSaveData();
             this.__editPolicyScreen.hide();
+            this.__editPolicyScreen.clearSetupEvents(); // clear out the events so we don't have multiple events firing
             this.setupNewPolicyScreen();
         });
         let btnEditReturn = document.querySelector(".btn-edit-return");

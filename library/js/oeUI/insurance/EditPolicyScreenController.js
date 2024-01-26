@@ -34,8 +34,11 @@ export class EditPolicyScreenController
 
     __selectedInsuranceTypeTab = null;
 
+    // this is used to keep track of any events as part of the render process that we bind to the DOM so we can clean them up when we are done
     #boundEvents = [];
 
+    // these are events we bind at the beginning during the setup process
+    #boundSetupEvents = [];
     __validationErrors = [];
 
     /**
@@ -48,8 +51,6 @@ export class EditPolicyScreenController
     __policySaved = false;
 
     __csrfToken = null;
-
-    __openedSubWindows = [];
 
     __currentFocusedInputName = null;
 
@@ -102,6 +103,17 @@ export class EditPolicyScreenController
         this.#boundEvents = [];
     }
 
+    clearSetupEvents() {
+        this.#boundSetupEvents.forEach(event => {
+            if (event.node == window) {
+                window.removeEventListener(event.event, event.callback);
+            } else {
+                event.node.removeEventListener(event.event, event.callback);
+            }
+        });
+        this.#boundSetupEvents = [];
+    }
+
     /**
      *
      * @param InsurancePolicyModel newPolicyData
@@ -125,15 +137,17 @@ export class EditPolicyScreenController
     }
 
     #setupWindowEvents() {
-        window.addEventListener('focusin', (evt) => {
+        let focusInHandler = (evt) => {
             if (evt.target.nodeName == 'INPUT' || evt.target.nodeName == 'SELECT') {
                 this.__currentFocusedInputName = evt.target.name;
             }
-        });
+        };
+        window.addEventListener('focusin', focusInHandler);
+        this.#boundSetupEvents.push({node: window, event: 'focusin', callback: focusInHandler});
         // by doing things this way we abstract the communication from the patient selection piece to this controller
         // we also are safer by grabbing the patient uuid and insurance uuid and refetching just to make sure we have
         // the right data.
-        window.addEventListener("message", (evt) => {
+        let messageHandler = (evt) => {
             if (event.origin !== window.location.origin) {
                 return; // we only receive events from our same domain
             }
@@ -180,17 +194,24 @@ export class EditPolicyScreenController
                     this.render();
                 }
             }
-        });
+        };
+        window.addEventListener("message", messageHandler);
+        this.#boundSetupEvents.push({node: window, event: 'message', callback: messageHandler});
     }
     #setupSavePolicyButton() {
         // setup event listener for btn-save-policy to save the policy
         let btnSavePolicy = document.querySelectorAll('.btn-save-policy');
+
         if (btnSavePolicy) {
-            btnSavePolicy.forEach(b => b.addEventListener('click', (evt) => {
+            let savePolicyHandler = (evt) => {
                 evt.preventDefault();
                 evt.stopPropagation();
                 this.savePolicy();
-            }));
+            }
+            btnSavePolicy.forEach(b => {
+                b.addEventListener('click', savePolicyHandler);
+                this.#boundSetupEvents.push({node: b, event: 'click', callback: savePolicyHandler});
+            });
         }
     }
     #updateSubscriberRelationshipWithPatientData() {
@@ -433,7 +454,7 @@ export class EditPolicyScreenController
         }
     }
     destroy() {
-
+        this.clearSetupEvents();
     }
 
 
