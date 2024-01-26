@@ -187,7 +187,7 @@ class Bootstrap
     public function addCustomMenuItem(MenuEvent $event)
     {
         $menu = $event->getMenu();
-        //Prescripption Log
+        //Prescription Log
         $menuItem = new \stdClass();
         $menuItem->requirement = 0;
         $menuItem->target = 'rep';
@@ -214,19 +214,18 @@ class Bootstrap
                 foreach ($item->children as $other) {
                     if ($other->label == 'Other') {
                         $other->children[] = $mgtMenu;
+                        break;
                     }
-                    break;
                 }
-                break;
             }
 
             if ($item->menu_id == 'repimg') {
                 foreach ($item->children as $clientReport) {
                     if ($clientReport->label == 'Clients') {
                         $clientReport->children[] = $menuItem;
+                        break;
                     }
                 }
-                break;
             }
         }
 

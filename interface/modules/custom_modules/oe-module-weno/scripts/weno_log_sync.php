@@ -33,7 +33,7 @@ function downloadWenoPharmacy()
     $value = $localPharmacyJson->checkBackgroundService();
     if ($value == 'active' || $value == 'live') {
         $status = $localPharmacyJson->storePharmacyDataJson();
-        error_log('Weno pharmacies download complete');
+        error_log('Weno pharmacies download complete with status:' . text($status));
         die;
     }
 }

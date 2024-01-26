@@ -32,17 +32,20 @@ if ($logurlparam == 'error') {
 
 $url = "https://online.wenoexchange.com/en/EPCS/RxLog?useremail=";
 
-//**warning** do not add urlencode to  $provider_info['email']
-$urlOut = $url . $provider_info['email'] . "&data=" . urlencode($logurlparam);
-header("Location: " . $urlOut);
+// I don't understand why you wouldn't escape email
+// Let me know if there is a good reason not to.
+//**warning** do not add urlencode to  $provider_info['email'].
+$urlOut = $url . urlencode($provider_info['email']) . "&data=" . urlencode($logurlparam);
+// Setting a location header here overrides tab html and iFrame.
+//header("Location: " . $urlOut);
 
 ?>
-
+<title><?php echo xlt("Weno RxLog") ?></title>
 <div class="mt-3">
-        <iframe id="wenoIfram"
-            title="Weno IFRAME"
-            width="100%"
-            height="100%"
-            src="<?php echo $urlOut; ?>">
-        </iframe>
-    </div>
+    <iframe id="wenoIfram"
+        title="Weno IFRAME"
+        width="100%"
+        height="100%"
+        src="<?php echo $urlOut; ?>">
+    </iframe>
+</div>

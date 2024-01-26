@@ -3,13 +3,13 @@
 /**
  * TransmitProperties class.
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Kofi Appiah <kkappiah@medsov.com>
  * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Modules\WenoModule\Services;
@@ -35,17 +35,17 @@ class TransmitProperties
      */
     public function __construct()
     {
-             $this->cryptoGen = new CryptoGen();
-                 $this->ncpdp = $this->getPharmacy();
-                $this->vitals = $this->getVitals();
-               $this->patient = $this->getPatientInfo();
+        $this->cryptoGen = new CryptoGen();
+        $this->ncpdp = $this->getPharmacy();
+        $this->vitals = $this->getVitals();
+        $this->patient = $this->getPatientInfo();
         $this->provider_email = $this->getProviderEmail();
-         $this->provider_pass = $this->getProviderPassword();
-                 $this->locid = $this->getFacilityInfo();
-              $this->pharmacy = $this->getPharmacy();
-               $this->payload = $this->createJsonObject();
-            $this->subscriber = $this->getSubscriber();
-            $this->encounter = $this->getEncounter();
+        $this->provider_pass = $this->getProviderPassword();
+        $this->locid = $this->getFacilityInfo();
+        $this->pharmacy = $this->getPharmacy();
+        $this->payload = $this->createJsonObject();
+        $this->subscriber = $this->getSubscriber();
+        $this->encounter = $this->getEncounter();
     }
 
     /**
@@ -104,7 +104,7 @@ class TransmitProperties
     {
         $provider_info = ['email' => $GLOBALS['weno_provider_email']];
         if (empty($provider_info['email'])) {
-            echo xlt('Provider email address is missing. Go to [User Settings > Weno Tab] and enter your Weno Provider Password');
+            echo xlt('Provider email address is missing. Go to [User Settings select Weno Tab] and enter your Weno Provider Password');
             exit;
         } else {
             return $provider_info;
@@ -123,7 +123,7 @@ class TransmitProperties
             $default_facility = sqlQuery("SELECT name, street, city, state, postal_code, phone, fax, weno_id from facility order by id asc limit 1");
 
             if (empty($default_facility)) {
-                echo xlt('Facility ID is missing. Headover to Admin -> Other -> Weno Management. Enter the Weno ID of your facility');
+                echo xlt('Facility ID is missing. head over to Admin -> Other -> Weno Management. Enter the Weno ID of your facility');
                 exit;
             } else {
                 return $default_facility;
@@ -140,36 +140,42 @@ class TransmitProperties
         //get patient data if in an encounter
         //Since the transmitproperties is called in the logproperties
         //need to check to see if in an encounter or not. Patient data is not required to view the Weno log
-        if (empty($_SESSION['encounter'])) {
-            die("please select an encounter");
-        }
+        // TODO sjp To do prescriptions having to hava an active encounter isn't normal.
+        // TODO if required by Weno then completely changes Rx workflow and WILL cause push back from users.
+        $log = '';
         $missing = 0;
+        if (empty($_SESSION['encounter'])) {
+            //die("please select an encounter");
+            $log .= xlt("Please select an encounter") . "<br>";
+            ++$missing;
+        }
         $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, postal_code, dob, sex, pid from patient_data where pid=?", [$_SESSION['pid']]);
         if (empty($patient['fname'])) {
-            echo xlt("First Name Missing, headover to the Patient Chart > Demographics > Who. Save and retry") . "<br>";
+            $log .= xlt("First Name Missing, head over to the Patient Chart select Demographics select Who. Save and retry") . "<brselect";
             ++$missing;
         }
         if (empty($patient['lname'])) {
-            echo xlt("Last Name Missing, headover to the Patient Chart > Demographics > Who. Save and retry")  . "<br>";
+            $log .= xlt("Last Name Missing, head over to the Patient Chart select Demographics select Who. Save and retry") . "<br>";
             ++$missing;
         }
         if (empty($patient['dob'])) {
-            echo xlt("Date of Birth Missing, headover to the Patient Chart > Demographics > Who. Save and retry") . "<br>";
+            $log .= xlt("Date of Birth Missing, head over to the Patient Chart select Demographics select Who. Save and retry") . "<br>";
             ++$missing;
         }
         if (empty($patient['sex'])) {
-            echo xlt("Gender Missing, headover to the Patient Chart > Demographics > Who. Save and retry") . "<br>";
+            $log .= xlt("Gender Missing, head over to the Patient Chart select Demographics select Who. Save and retry") . "<br>";
             ++$missing;
         }
         if (empty($patient['postal_code'])) {
-            echo xlt("Zip Code Missing, headover to the Patient Chart > Demographics > Contact > Postal Code. Save and retry") . "<br>";
+            $log .= xlt("Zip Code Missing, head over to the Patient Chart select Demographics select Contact select Postal Code. Save and retry") . "<br>";
             ++$missing;
         }
         if (empty($patient['street'])) {
-            echo xlt("Street Address incomplete Missing, headover to the Patient Chart > Demographics > Contact. Save and retry") . "<br>";
+            $log .= xlt("Street Address incomplete Missing, head over to the Patient Chart select Demographics select Contact. Save and retry") . "<br>";
             ++$missing;
         }
         if ($missing > 0) {
+            echo "<div style='font-size: 1.25rem; background-color: white; color: red;'>" . $log . "</div>";
             die('Please add the missing data and try again');
         }
         return $patient;
@@ -229,22 +235,21 @@ class TransmitProperties
      */
     public function getPharmacy()
     {
-        $data = sqlQuery("SELECT * FROM weno_assigned_pharmacy WHERE pid = ? ", [$_SESSION["pid"]]);
-
+        $data = sqlQuery("SELECT * FROM `weno_assigned_pharmacy` WHERE `pid` = ? ", [$_SESSION["pid"]]);
         if (empty($data)) {
-            die("Weno Pharmacies not set. Headover to Patient's Demographics > Choices > Weno Pharmacy Selector to Assign Pharmacies");
+            die("Weno Pharmacies not set. head over to Patient's Demographics select Choices select Weno Pharmacy Selector to Assign Pharmacies");
         }
         $response = array(
-            "primary"   => $data['primary_ncpdp'],
+            "primary" => $data['primary_ncpdp'],
             "alternate" => $data['alternate_ncpdp']
         );
 
         if (empty($response['primary'])) {
-            die("Weno Primary Pharmacy not set. Headover to Patient's Demographics > Choices > Weno Pharmacy Selector to Assign Primary Pharmacy");
+            die("Weno Primary Pharmacy not set. Head over to Patient's Demographics select Choices select Weno Pharmacy Selector to Assign Primary Pharmacy");
         }
 
         if (empty($response['alternate'])) {
-            die("Weno Alternate Pharmacy not set. Headover to Patient's Demographics > Choices > Weno Pharmacy Selector to Assign Primary Pharmacy");
+            die("Weno Alternate Pharmacy not set. Head over to Patient's Demographics select Choices select Weno Pharmacy Selector to Assign Primary Pharmacy");
         }
         return $response;
     }
@@ -302,7 +307,7 @@ class TransmitProperties
     {
         $data = sqlQuery("SELECT * FROM weno_assigned_pharmacy WHERE pid = ? ", [$_SESSION["pid"]]);
         $response = array(
-            "primary"   => $data['primary_ncpdp'],
+            "primary" => $data['primary_ncpdp'],
             "alternate" => $data['alternate_ncpdp']
         );
         return $response;

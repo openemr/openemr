@@ -41,7 +41,7 @@ class WenoGlobalConfig
     }
 
     /**
-     * Returns true if all of the telehealth settings have been configured.  Otherwise it returns false.
+     * Returns true if all the weno settings have been configured.  Otherwise, it returns false.
      * @return bool
      */
     public function isWenoConfigured()
@@ -60,7 +60,6 @@ class WenoGlobalConfig
 
     public function getGlobalSetting($settingKey)
     {
-        global $GLOBALS;
         // don't like this as php 8.1 requires this but OpenEMR works with globals and this is annoying.
         return $GLOBALS[$settingKey] ?? null;
     }
