@@ -1,12 +1,12 @@
 <?php
 
-/*
+/**
  *
  * @package     OpenEMR Weno Module
  * @link        https://online.wenoexchange.com
  *
  * @author      Kofi Appiah <kkappiah@medsov.com>
- * @copyright   Copyright (c) 2023 Omega Systems Group Corp <omegasystemsgroup.com>
+ *   Copyright (c) 2023 Omega Systems Group Corp <omegasystemsgroup.com>
  * @license     GNU General Public License 3
  *
  */
