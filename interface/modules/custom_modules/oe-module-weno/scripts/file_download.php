@@ -12,7 +12,7 @@ use OpenEMR\Modules\WenoModule\Services\LogDataInsert;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 
-$cryptogen = new CryptoGen();
+$cryptoGen = new CryptoGen();
 $weno_username = $GLOBALS['weno_admin_username'];
 $weno_password = $cryptoGen->decryptStandard($GLOBALS['weno_admin_password']);
 $encryption_key = $cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);
@@ -83,7 +83,7 @@ if ($zip->open($storelocation) === true) {
 
         EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "File extracted successfully.");
         echo 'File extracted successfully.';
-        echo 'CSV filename: ' . $csvFilename;
+        echo 'CSV filename: ' . text($csvFilename);
         $zip->close();
         unlink($storelocation);
     } else {
@@ -176,7 +176,7 @@ if (file_exists($csvFile)) {
             $insertdata['fullDay'] = $fullDay;
 
             if ($data['Daily'] == 'Y') {
-                $insertPharmacy->updatePharmacies($insertData);
+                $insertPharmacy->updatePharmacies($insertdata);
             } else {
                 $insertPharmacy->insertPharmacies($insertdata);
             }

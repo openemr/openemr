@@ -104,7 +104,7 @@ $res = sqlStatement($sql);
             <select class="form-control form-control-sm" name="weno_state" id="weno_state" onchange="stateChanged()">
                 <option value=""><?php echo xlt("State") . " *"; ?></option>
                 <?php while ($row = sqlFetchArray($res)) { ?>
-                    <option value="<?php echo attr($row['option_id']); ?>"><?php echo xlt($row['title']); ?></option>
+                    <option value="<?php echo attr($row['option_id']); ?>"><?php echo text($row['title']); ?></option>
                     <?php
                 }
                 ?>
@@ -195,7 +195,7 @@ $res = sqlStatement($sql);
     function init(prevPrimPharmacy, prevAltPharmacy){
         let jsPrim  = JSON.parse(prevPrimPharmacy);
         let jsAlt = JSON.parse(prevAltPharmacy);
-        if(jsPrim  != false){
+        if(jsPrim != false){
             var html= ('<option value="' + jsAttr(jsPrim.primary_ncpdp) + '">' + 
             jsText(jsPrim.business_name) +' - '+ 
             jsText(jsPrim.address_line_1) + '</option>');
