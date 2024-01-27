@@ -904,8 +904,8 @@
         "children": [
           {
             "label": "Codes",
-            "menu_id": "adm0",
-            "target": "adm",
+            "menu_id": "cod0",
+            "target": "cod",
             "url": "/interface/patient_file/encounter/superbill_custom_full.php",
             "children": [],
             "requirement": 0,
@@ -916,8 +916,8 @@
           },
           {
             "label": "Native Data Loads",
-            "menu_id": "adm0",
-            "target": "adm",
+            "menu_id": "cod0",
+            "target": "cod",
             "url": "/interface/super/load_codes.php",
             "children": [],
             "requirement": 0,
