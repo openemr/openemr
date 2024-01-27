@@ -875,7 +875,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 } else {
                     echo js_escape(" " . xl('DOB') . ": " . oeFormatShortDate($result['DOB_YMD']) . " " . xl('Age at death') . ": " . oeFormatAge($result['DOB_YMD'], $date_of_death));
                 } ?>);
-                var EncounterDateArray = new Array;
+                var EncounterDateArray = [];
                 var CalendarCategoryArray = new Array;
                 var EncounterIdArray = new Array;
                 var Count = 0;
@@ -1189,7 +1189,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endif;
                     ?>
                 </div>
-            </div>
             <div class="row">
                 <div class="col-md-8">
                     <?php
@@ -1229,6 +1228,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         echo $t->render($card->getTemplateFile(), array_merge($viewArgs, $card->getTemplateVariables()));
                     }
 
+                    // if anyone wants to render anything before the patient demographic list
+                    $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE, 10);
+
                     if (!$GLOBALS['hide_billing_widget']) :
                         $forceBillingExpandAlways = ($GLOBALS['force_billing_widget_open']) ? true : false;
                         $patientbalance = get_patient_balance($pid, false);
@@ -1267,9 +1269,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         echo $twig->getTwig()->render('patient/card/billing.html.twig', $viewArgs);
                     endif; // End the hide_billing_widget
-
-                    // if anyone wants to render anything before the patient demographic list
-                    $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE, 10);
 
                     if (AclMain::aclCheckCore('patients', 'demo')) :
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('demographic'), CardRenderEvent::EVENT_HANDLE);

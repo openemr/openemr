@@ -36,7 +36,7 @@ function getProviderByWenoId($external_id)
 <script src="../../modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
 
 <div class="row float-right mr-2">
-    <div class="mr-3 click" onclick="sync_weno()">
+    <div class="mr-3 click" role="button" onclick="sync_weno()">
         <u><span><i id="sync-icon" class="fa-solid fa-rotate-right"></i></span><?php echo xlt("Synch"); ?></u>
     </div>
     <a href="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php">

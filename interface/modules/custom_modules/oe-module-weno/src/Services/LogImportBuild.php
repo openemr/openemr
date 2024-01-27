@@ -59,7 +59,7 @@ class LogImportBuild
                     continue;
                 }
                 if (isset($line[4])) {
-                    $this->messageid = isset($line[4]) ? $line[4] : null;
+                    $this->messageid = $line[4] ?? null;
                     $is_saved = $this->checkMessageId();
                     if ($is_saved > 0) {
                         continue;
