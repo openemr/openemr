@@ -17,6 +17,8 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\ContactService;
+use OpenEMR\Events\Patient\PatientUpdatedEventAux;
+
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -96,5 +98,10 @@ if (!empty($addressFieldsToSave)) {
     }
 }
 
+/**
+ * trigger events to listeners who want data that is not directly available in
+ * the patient_data table on update
+ */
+$GLOBALS["kernel"]->getEventDispatcher()->dispatch(new PatientUpdatedEventAux($pid, $_POST), PatientUpdatedEventAux::EVENT_HANDLE, 10);
 // if refresh tab after saving then results in csrf error
 include_once("demographics.php");
