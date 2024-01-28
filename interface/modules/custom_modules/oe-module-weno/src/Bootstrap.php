@@ -54,6 +54,9 @@ class Bootstrap
      */
     private $selectedPatientPharmacy;
 
+    /**
+     * @return void
+     */
     public function subscribeToEvents()
     {
         $this->addGlobalSettings();
@@ -87,6 +90,10 @@ class Bootstrap
         return $this->twig;
     }
 
+    /**
+     * @param GlobalsInitializedEvent $event
+     * @return void
+     */
     public function addGlobalWenoSettings(GlobalsInitializedEvent $event)
     {
         $settings = $this->globalsConfig->getGlobalSettingSectionConfiguration();
@@ -129,16 +136,22 @@ class Bootstrap
         }
     }
 
+    /**
+     * @return void
+     */
     public function registerDemographicsEvents()
     {
         $this->eventDispatcher->addListener(pRenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE, [$this, 'renderWenoSection']);
     }
 
+    /**
+     * @param pRenderEvent $event
+     * @return void
+     */
     public function renderWenoSection(pRenderEvent $event)
     {
         $path = __DIR__;
         $path = str_replace("src", "templates", $path);
-
         $pid = $event->getPid();
         ?>
         <section class="card mb-2">
@@ -174,16 +187,26 @@ class Bootstrap
         <?php
     }
 
+    /**
+     * @return void
+     */
     public function addGlobalSettings()
     {
         $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, [$this, 'addGlobalWenoSettings']);
     }
 
+    /**
+     * @return void
+     */
     public function registerMenuItems()
     {
         $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, [$this, 'addCustomMenuItem']);
     }
 
+    /**
+     * @param MenuEvent $event
+     * @return MenuEvent
+     */
     public function addCustomMenuItem(MenuEvent $event)
     {
         $menu = $event->getMenu();
@@ -234,43 +257,69 @@ class Bootstrap
         return $event;
     }
 
+    /**
+     * @return void
+     */
     public function demographicsSelectorEvents()
     {
         $this->eventDispatcher->addListener(RenderPharmacySectionEvent::RENDER_AFTER_PHARMACY_SECTION, [$this, 'renderWenoPharmacySelector']);
     }
 
+    /**
+     * @return void
+     */
     public function renderWenoPharmacySelector()
     {
         include_once($this->modulePath) . "/templates/pharmacy_list_form.php";
     }
 
+    /**
+     * @return void
+     */
     public function demographicsDisplaySelectedEvents()
     {
         $this->eventDispatcher->addListener(RenderPharmacySectionEvent::RENDER_AFTER_SELECTED_PHARMACY_SECTION, [$this, 'renderSelectedWenoPharmacies']);
     }
 
+    /**
+     * @return void
+     */
     public function renderSelectedWenoPharmacies()
     {
         echo "<br>";
         include_once($this->modulePath) . "/templates/pharmacy_list_display.php";
     }
 
+    /**
+     * @return void
+     */
     public function patientSaveEvents()
     {
         $this->eventDispatcher->addListener(PatientBeforeCreatedAuxEvent::EVENT_HANDLE, [$this, 'persistPatientWenoPharmacies']);
     }
 
+    /**
+     * @param PatientBeforeCreatedAuxEvent $event
+     * @return void
+     */
     public function persistPatientWenoPharmacies(PatientBeforeCreatedAuxEvent $event)
     {
         $patientData = $event->getPatientData();
         $this->selectedPatientPharmacy->prepSelectedPharmacy($patientData);
     }
 
+    /**
+     * @return void
+     */
     public function patientUpdateEvents()
     {
         $this->eventDispatcher->addListener(PatientUpdatedEventAux::EVENT_HANDLE, [$this, 'updatePatientWenoPharmacies']);
     }
 
+    /**
+     * @param PatientUpdatedEventAux $event
+     * @return void
+     */
     public function updatePatientWenoPharmacies(PatientUpdatedEventAux $event)
     {
         $updatedPatientData = $event->getUpdatedPatientData();

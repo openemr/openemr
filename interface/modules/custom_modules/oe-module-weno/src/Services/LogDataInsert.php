@@ -25,6 +25,7 @@ class LogDataInsert
         $sql .= "active = ?, ";
         $sql .= "date_added = NOW(), ";
         $sql .= "patient_id = ?, ";
+        $sql .= "provider_id = ?, ";
         $sql .= "drug = ?, ";
         $sql .= "encounter = ?, ";
         $sql .= "quantity = ?, ";
@@ -39,6 +40,7 @@ class LogDataInsert
             sqlInsert($sql, [
                 $insertdata['active'],
                 $insertdata['patient_id'],
+                $insertdata['user_id'],
                 $insertdata['drug'],
                 $insertdata['encounter'],
                 $insertdata['quantity'],

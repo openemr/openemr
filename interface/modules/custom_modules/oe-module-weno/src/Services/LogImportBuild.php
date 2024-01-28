@@ -20,6 +20,16 @@ class LogImportBuild
         $this->rxsynclog = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/logsync.csv";
     }
 
+    public function getUserIdByWenoId($external_provider_id)
+    {
+        $provider = sqlQuery("SELECT id FROM users WHERE weno_prov_id = ? ", array($external_provider_id));
+        if ($provider) {
+            return $provider['id'];
+        } else {
+            return null;
+        }
+    }
+
     public function prescriptionId()
     {
         $sql = "SELECT MAX(id) as id FROM prescriptions";
@@ -92,7 +102,7 @@ class LogImportBuild
                     $insertdata['date_added'] = $ida;
                     $insertdata['patient_id'] = $pid;
                     $insertdata['encounter'] = $encounter;
-                    $drug = isset($line[11]) ? str_replace('"', '', $line[11]) : null;
+                    $drug = isset($line[11]) ? str_replace('"', '', $line[11]) : xlt("Incomplete");
                     $insertdata['drug'] = $drug;
                     $insertdata['quantity'] = $line[18] ?? null;
                     $insertdata['refills'] = $refills;
@@ -101,6 +111,7 @@ class LogImportBuild
                     $insertdata['note'] = $line[21] ?? null;
                     $insertdata['rxnorm_drugcode'] = $line[12] ?? null;
                     $insertdata['provider_id'] = $provider[0];
+                    $insertdata['user_id'] = $this->getUserIdByWenoId($provider[0]);
                     $insertdata['prescriptionguid'] = $line[4] ?? null;
                     $insertdata['txDate'] = $ida;
                     $loginsert = new LogDataInsert();
