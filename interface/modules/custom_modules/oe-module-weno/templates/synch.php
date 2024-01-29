@@ -24,7 +24,7 @@ $logproperties = new LogProperties();
 $result = $logproperties->logSync();
 
 
-if ($result == true) {
+if ($result) {
     http_response_code(200);
 } else {
     http_response_code(500);

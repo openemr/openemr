@@ -10,16 +10,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__DIR__, 4) . "/globals.php");
-
-use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Acl\AclMain;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     exit;
 }
-$sql = "SELECT * FROM prescriptions WHERE patient_id = ? " .
-        "AND indication IS NOT NULL";
+$sql = "SELECT * FROM prescriptions WHERE patient_id = ? AND indication IS NOT NULL";
 $res = sqlStatement($sql, array($pid));
 
 function getProviderByWenoId($external_id)
@@ -31,11 +27,12 @@ function getProviderByWenoId($external_id)
         return "";
     }
 }
+
 ?>
 
 <script src="../../modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
 
-<div class="row float-right mr-2">
+<div class="row float-right mr-2 mb-2">
     <div class="mr-3 click" role="button" onclick="sync_weno()">
         <u><span><i id="sync-icon" class="fa-solid fa-rotate-right"></i></span><?php echo xlt("Synch"); ?></u>
     </div>
@@ -49,10 +46,10 @@ function getProviderByWenoId($external_id)
 <div class="table-responsive">
     <table class="table w-100">
         <thead class="thead-light border-bottom">
-                <tr>
-                    <th><?php echo xlt("Drug Name"); ?></th>
-                    <th><?php echo xlt("Prescriber"); ?></th>    
-                </tr>
+            <tr>
+                <th><?php echo xlt("Drug Name"); ?></th>
+                <th><?php echo xlt("Prescriber"); ?></th>
+            </tr>
         </thead>
         <tbody>
         <?php
