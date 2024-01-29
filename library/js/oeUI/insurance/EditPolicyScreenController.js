@@ -176,7 +176,7 @@ export class EditPolicyScreenController
                         })
                         .catch(error => {
                             console.error(error);
-                            alert(window.top.xl("An error occurred while loading the insurance policy.  Please try again or contact your system administrator."));
+                            alert(window.top.xl("An error occurred while loading the insurance policy. Please try again or contact your system administrator."));
                         });
                     this.render();
                 }
@@ -185,7 +185,7 @@ export class EditPolicyScreenController
                     let insuranceCompanyName = evt.data.insuranceName || null;
                     if (!insuranceCompanyId || !insuranceCompanyName) {
                         alert(window.top.xl("An error occurred while loading the insurance company information."));
-                        console.error("Failed to find insurance company id or name in event data, this should not happen and is a bug.Event: ", evt);
+                        console.error("Failed to find insurance company id or name in event data, this should not happen and is a bug. Event: ", evt);
                         return;
                     }
                     this.selectedInsurance.setProperty('provider', insuranceCompanyId);
@@ -767,7 +767,7 @@ export class EditPolicyScreenController
             }
             catch (error) {
                 console.error(error);
-                alert(window.top.xl("An error occurred while rendering the insurance policy.  Please try again or contact your system administrator."));
+                alert(window.top.xl("An error occurred while rendering the insurance policy. Please try again or contact your system administrator."));
             }
         }
     }
@@ -827,7 +827,7 @@ export class EditPolicyScreenController
                         this.__validationErrors = error.validationErrors;
                         this.render(); // re-render the screen to update the display with the errors.
                     } else {
-                        alert(window.top.xl("An error occurred while swapping the insurance policy.  Please try again or contact your system administrator."));
+                        alert(window.top.xl("An error occurred while swapping the insurance policy. Please try again or contact your system administrator."));
                     }
                 });
         });
