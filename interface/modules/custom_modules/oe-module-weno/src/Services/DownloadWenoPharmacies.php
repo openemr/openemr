@@ -67,7 +67,7 @@ class DownloadWenoPharmacies
                     "File extracted successfully."
                 );
                 echo 'File extracted successfully.';
-                echo 'CSV filename: ' . $csvFilename;
+                echo 'CSV filename: ' . text($csvFilename);
 
                 $zip->close();
                 unlink($storelocation);

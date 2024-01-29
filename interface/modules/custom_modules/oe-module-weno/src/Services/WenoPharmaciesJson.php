@@ -52,7 +52,7 @@ class WenoPharmaciesJson
             $jobj["Daily"] = "Y";
         }
 
-        return json_encode($jobj);
+        return text(json_encode($jobj));
     }
     private function providerEmail()
     {

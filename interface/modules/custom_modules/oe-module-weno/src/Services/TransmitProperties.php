@@ -140,14 +140,10 @@ class TransmitProperties
         //get patient data if in an encounter
         //Since the transmitproperties is called in the logproperties
         //need to check to see if in an encounter or not. Patient data is not required to view the Weno log
-        // TODO sjp To do prescriptions having to hava an active encounter isn't normal.
-        // TODO if required by Weno then completely changes Rx workflow and WILL cause push back from users.
         $log = '';
         $missing = 0;
         if (empty($_SESSION['encounter'])) {
-            //die("please select an encounter");
-            $log .= xlt("Please select an encounter") . "<br>";
-            ++$missing;
+            // removed requirement sjp
         }
         $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, postal_code, dob, sex, pid from patient_data where pid=?", [$_SESSION['pid']]);
         if (empty($patient['fname'])) {
@@ -204,11 +200,8 @@ class TransmitProperties
      */
     public function getProviderPassword()
     {
-        $uid = $_SESSION['authUserID'];
-        $sql = "select setting_value from user_settings where setting_user = ? and setting_label = 'global:weno_admin_password'";
-        $prov_pass = sqlQuery($sql, [$uid]);
-        if (!empty($GLOBALS['weno_admin_password'])) {
-            return $this->cryptoGen->decryptStandard($prov_pass['setting_value']);
+        if (!empty($GLOBALS['weno_provider_password'])) {
+            return $this->cryptoGen->decryptStandard($GLOBALS['weno_provider_password']);
         } else {
             echo xlt('Provider Password is missing');
             die;
@@ -315,10 +308,6 @@ class TransmitProperties
 
     private function getEncounter()
     {
-        if (!$_SESSION['encounter']) {
-            die("Please select an encounter to continue");
-        }
-
-        return $_SESSION['encounter'];
+        return $_SESSION['encounter'] ?? 0;
     }
 }
