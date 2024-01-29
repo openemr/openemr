@@ -11,16 +11,6 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Modules\WenoModule\Services\LogProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoPharmaciesJson;
 
-if (isset($_GET['key']) && !empty(isset($_GET['key']))) {
-    // called from old v6.0.0 requirement.
-    start_weno();
-}
-function start_weno()
-{
-    $logsync = new LogProperties();
-    $logsync->logSync();
-}
-
 function downloadWenoPharmacy()
 {
     $cryptoGen = new CryptoGen();
