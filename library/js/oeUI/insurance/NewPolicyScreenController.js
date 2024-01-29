@@ -363,7 +363,7 @@ export class NewPolicyScreenController
                 let option = document.createElement('option');
                 option.value = insurance.id;
                 option.innerText = this.capitalizeFirstLetter(insurance.type) + ": " + insurance.toString();
-                if (insurance.hasOwnProperty('end_date') && insurance.end_date !== null) {
+                if (Object.prototype.hasOwnProperty.call(insurance, 'end_date') && insurance.end_date !== null) {
                     option.innerText += " - " + window.top.xl("End Date") + ": " + insurance.end_date;
                 }
                 if (insurance.id === this.__copyPolicyId) {
