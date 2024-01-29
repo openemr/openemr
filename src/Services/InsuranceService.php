@@ -462,7 +462,7 @@ class InsuranceService extends BaseService
 
                 $organizedResults[$key] = [
                     'current' => $current
-                    ,'history' => array_reverse($history) // we want in descending order
+                    ,'history' => $history // we want in descending order
                 ];
             }
         }
