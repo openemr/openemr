@@ -253,3 +253,6 @@ assets:
     select2-translated:
         basePath: '%webroot%/library/js/xl/'
         script: select2-translated.js
+    dompurify:
+        basePath: '%assets_static_relative%/'
+        script: dompurify/dist/purify.js

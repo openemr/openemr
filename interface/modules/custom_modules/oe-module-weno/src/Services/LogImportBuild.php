@@ -8,7 +8,7 @@
  *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-namespace OpenEMR\Rx\Weno;
+namespace OpenEMR\Modules\WenoModule\Services;
 
 class LogImportBuild
 {
@@ -17,7 +17,7 @@ class LogImportBuild
     public function __construct()
     {
         $this->insertdata = new LogDataInsert();
-        $this->rxsynclog = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/logsync.csv";
+        $this->rxsynclog = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/logsync.csv";
     }
 
     public function prescriptionId()
@@ -59,7 +59,7 @@ class LogImportBuild
                     continue;
                 }
                 if (isset($line[4])) {
-                    $this->messageid = isset($line[4]) ? $line[4] : null;
+                    $this->messageid = $line[4] ?? null;
                     $is_saved = $this->checkMessageId();
                     if ($is_saved > 0) {
                         continue;
@@ -76,9 +76,11 @@ class LogImportBuild
                     $month = $idate[0] ?? null;
                     $day = $idate[1] ?? null;
                     $idate = $year . '-' . $month . '-' . $day;
-                    $ida = filter_var($idate, FILTER_SANITIZE_NUMBER_INT);
+                    $ida = preg_replace('/T/', ' ', $line[0]);
                     $p = $line[1] ?? null;
-                    $pid = filter_var($p, FILTER_SANITIZE_NUMBER_INT);
+                    $pid_and_encounter = explode(":", $p);
+                    $pid = intval($pid_and_encounter[0]);
+                    $encounter = intval($pid_and_encounter[1]);
                     $r = $line[22] ?? null;
                     $refills = filter_var($r, FILTER_SANITIZE_NUMBER_INT);
 
@@ -87,12 +89,11 @@ class LogImportBuild
                     $insertdata['id'] = $rec;
                     $active = 1;
                     $insertdata['active'] = $active;
-                    $insertdata['date_added'] =  $ida;
+                    $insertdata['date_added'] = $ida;
                     $insertdata['patient_id'] = $pid;
+                    $insertdata['encounter'] = $encounter;
                     $drug = isset($line[11]) ? str_replace('"', '', $line[11]) : null;
                     $insertdata['drug'] = $drug;
-                    $type = $this->drugForm($line[19]);
-                    $insertdata['form'] = $type ?? null;
                     $insertdata['quantity'] = $line[18] ?? null;
                     $insertdata['refills'] = $refills;
                     $sub = ($line[14] = 'Allowed' ? 1 : 0);

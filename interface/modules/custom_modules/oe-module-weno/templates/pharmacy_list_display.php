@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * Handles the display of weno selected pharmacies
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ *
+ * @author    Kofi Appiah <kkappiah@medsov.com>
+ * @copyright Copyright (c) 2023 Omega Systems Group International. <info@omegasystemsgroup.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Modules\WenoModule\Services\PharmacyService;
+use OpenEMR\Common\Twig\TwigContainer;
+
+if (!AclMain::aclCheckCore('patients', 'med')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pharmacy Selector")]);
+    exit;
+}
+
+$pharmacyService = new PharmacyService();
+$prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? [];
+$alt_pharmacy = $pharmacyService->getWenoAlternatePharm($_SESSION['pid']) ?? [];
+
+$primary_pharmacy = $prim_pharmacy['business_name'] ?? '' . ' - ' . $prim_pharmacy['address_line_1'] ?? '';
+$alternate_pharmacy = $alt_pharmacy['business_name'] ?? '' . ' - ' . $alt_pharmacy['address_line_1'] ?? '';
+?>
+
+<div class="row col-12">
+    <div>
+        <label><b><?php echo xlt("Weno Primary Pharmacy"); ?>:</b></label>
+        <span><?php echo text($primary_pharmacy); ?></span>
+    </div>
+    <div>
+        <label><b><?php echo xlt("Weno Alt Pharmacy"); ?>:</b></label>
+        <span><?php echo text($alternate_pharmacy); ?></span>
+    </div>
+</div>
