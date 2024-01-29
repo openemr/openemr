@@ -5,7 +5,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
- * @copyright Copyright (c) 2024 Discover and Change, Inc. <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 // note we do not use import statements here as we need to be able to dynamically load the classes as needed for cache

@@ -4,7 +4,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
- * @copyright Copyright (c) 2024 Discover and Change, Inc. <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 let {InsurancePolicyService} = await import("./InsurancePolicyService.js?v=" + window.top.jsGlobals.assetVersion);

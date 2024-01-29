@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * ListOptionRuleTest - Tests the ListOptionRule class.
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Tests\Validators\Rules;
 
 use OpenEMR\Validators\Rules\ListOptionRule;
