@@ -151,7 +151,7 @@ export class EditPolicyScreenController
             if (event.origin !== window.location.origin) {
                 return; // we only receive events from our same domain
             }
-            if (evt.data && evt.data.hasOwnProperty('action')) {
+            if (evt.data && (typeof evt.data.action == 'string')) {
                 if (evt.data.action == 'insurance-patient-browser-selected') {
                     let patientUuid = evt.data.patientUuid || null;
                     let insuranceUuid = evt.data.insuranceUuid || null;
@@ -566,7 +566,7 @@ export class EditPolicyScreenController
                 let option = document.createElement('option');
                 option.value = insurance.id === null ? "" : insurance.id;
                 option.innerText = insurance.toString();
-                if (insurance.hasOwnProperty('end_date') && insurance.end_date !== null) {
+                if (Object.prototype.hasOwnProperty.call(insurance, 'end_date') && insurance.end_date !== null) {
                     option.innerText += " - " + window.top.xl("End Date") + ": "
                         + window.top.oeFormatters.I18NDateFormat(insurance.end_date, displayFormatSettingYMD);
                 }
