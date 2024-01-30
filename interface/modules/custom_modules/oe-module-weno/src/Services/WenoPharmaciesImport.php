@@ -18,6 +18,11 @@ class WenoPharmaciesImport
     {
     }
 
+    /**
+     * @param $csvFile
+     * @param $files
+     * @return string|void
+     */
     public function importPharmacy($csvFile, $files)
     {
         $insertPharmacy = new PharmacyService();
