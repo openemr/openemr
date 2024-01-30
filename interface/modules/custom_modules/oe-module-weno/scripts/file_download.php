@@ -3,7 +3,7 @@
 // Disable PHP timeout
 @ini_set('max_execution_time', '0');
 
-require_once dirname(__DIR__, 5) . "/globals.php";
+require_once dirname(__DIR__, 4) . "/globals.php";
 
 use OpenEMR\Common\Logging\EventAuditLogger;
 

@@ -73,10 +73,13 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
         }
         
         function downloadPharmacies(){
+            if (!window.confirm(jsText("This download may take several minutes. Do you want to continue?"))) {
+                return false;
+            }
             $('#notch-pharm').removeClass("hide");
             $('#pharm-btn').attr("disabled", true);
             $.ajax({
-                url: "<? echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/scripts/file_download.php",
+                url: "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/scripts/file_download.php",
                 type: "GET",
                 success: function (data) {
                     $('#notch-pharm').addClass("hide");
@@ -96,7 +99,7 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
             $('#notch-presc').removeClass("hide");
             $('#presc-btn').attr("disabled", true);
             $.ajax({
-                url: "<? echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/templates/synch.php",
+                url: "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/templates/synch.php",
                 type: "GET",
                 data: {key:'downloadLog'},
                 success: function (data) {
