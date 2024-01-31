@@ -17,10 +17,10 @@
 
 require_once $GLOBALS['srcdir'] . '/options.inc.php';
 
-use OpenEMR\Modules\WenoModule\Services\PharmacyService;
-use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pharmacy Selector")]);
@@ -29,8 +29,8 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 
 $widgetConstants = [
     'listWithAddButton' => 26
-    ,'textDate' => 4
-    ,'textbox' => 2
+    , 'textDate' => 4
+    , 'textbox' => 2
 ];
 
 global $pid; // we need to grab our pid from our global settings.
@@ -53,10 +53,10 @@ $res = sqlStatement($sql);
 ?>
 
 <style>
-    .warn {
-        color: red;
-        font-size: 10px;
-    }
+  .warn {
+    color: red;
+    font-size: 10px;
+  }
 </style>
 
 <div id="weno_form"></div>
@@ -69,7 +69,8 @@ $res = sqlStatement($sql);
     <div class="d-flex">
         <div class="h4 text-primary">
             <?php echo xlt("Weno Pharmacy Selector"); ?>
-        </div><br/>
+        </div>
+        <br />
     </div>
     <div class="small">
         <?php echo xlt("Fields marked with * are required"); ?>
@@ -81,9 +82,9 @@ $res = sqlStatement($sql);
         </div>
         <div class="col pl-0 mb-3">
             <select name="weno_coverage" class="form-control form-control-sm" id="weno_coverage" onchange="coverageChanged()">
-                <option value=""><?php echo xlt("Select Coverage") . " *"?></option>
-                <option value="State"><?php echo xlt("State Wide Mail Order")?></option>
-                <option value="Local"><?php echo xlt("Local Retail")?></option>
+                <option value=""><?php echo xlt("Select Coverage") . " *" ?></option>
+                <option value="State"><?php echo xlt("State Wide Mail Order") ?></option>
+                <option value="Local"><?php echo xlt("Local Retail") ?></option>
             </select>
         </div>
     </div>
@@ -124,7 +125,7 @@ $res = sqlStatement($sql);
         </div>
     </div>
     <div class="mt-2">
-        <select class="form-control form-control-sm" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()" >
+        <select class="form-control form-control-sm" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()">
             <option value=""></option>
         </select>
     </div>
@@ -159,7 +160,7 @@ $res = sqlStatement($sql);
     var wenoOnly = null;
     var testPharmacies = null;
     var wenoPrimPharm = null;
-    var wenoValChanged= null;
+    var wenoValChanged = null;
     var wenoAltPharm = null;
     var requirdField = "Field is required";
 
@@ -169,82 +170,83 @@ $res = sqlStatement($sql);
         var weno_form = document.getElementById("weno_form");
         var clone = document.importNode(template.content, true);
         weno_form.appendChild(clone);
-        
+
         let pid = <?php echo json_encode($pid); ?>;
         let prevPrimPharmacy = <?php echo json_encode($prev_prim_pharmacy); ?>;
         let prevAltPharmacy = <?php echo json_encode($prev_alt_pharmacy); ?>;
 
-        if(pid > 0){
+        if (pid > 0) {
             init(prevPrimPharmacy, prevAltPharmacy);
         }
 
         //checking if weno_pharmacy div exists initialize select2
         var pharmacySelector = document.getElementById("weno_pharmacy");
-        if(pharmacySelector !== null){
+        if (pharmacySelector !== null) {
             createWenoPharmacySelect2();
-        } 
+        }
 
         //checking if city div div exists and initialize select2
         var citySelector = document.getElementById("weno_city");
-        if(citySelector !== null){
+        if (citySelector !== null) {
             createWenoCitySelect2();
         }
-        
+
     };
 
-    function init(prevPrimPharmacy, prevAltPharmacy){
-        let jsPrim  = JSON.parse(prevPrimPharmacy);
+    function init(prevPrimPharmacy, prevAltPharmacy) {
+        let jsPrim = JSON.parse(prevPrimPharmacy);
         let jsAlt = JSON.parse(prevAltPharmacy);
-        if(jsPrim != false){
-            var html= ('<option value="' + jsAttr(jsPrim.primary_ncpdp) + '">' + 
-            jsText(jsPrim.business_name) +' - '+ 
-            jsText(jsPrim.address_line_1) + '</option>');
+        if (jsPrim != false) {
+            var html = ('<option value="' + jsAttr(jsPrim.primary_ncpdp) + '">' +
+                jsText(jsPrim.business_name) + ' - ' +
+                jsText(jsPrim.address_line_1) + '</option>');
             $("#weno_pharmacy").html(html);
-    
+
             //setting the form value for Weno Primary Pharmacy and Disply Text respectivley
             $('#weno_primary').text(" " + jsPrim.business_name);
             $('#primary_pharmacy').val(jsPrim.primary_ncpdp);
         }
-        
-        if(jsAlt != false){
+
+        if (jsAlt != false) {
             $('#weno_alt').text(" " + jsAlt.business_name);
             $('#alternate_pharmacy').val(jsAlt.alternate_ncpdp);
         }
     }
 
-    function pharmSelChanged(){
+    function pharmSelChanged() {
         var e = document.getElementById("weno_pharmacy");
         this.wenoValChanged = e.options[e.selectedIndex].value;
         this.wenoPrimPharm = e.options[e.selectedIndex].text;
     }
 
-    function stateChanged(){
+    function stateChanged() {
         var wenoState = document.getElementById('weno_state').selectedOptions[0].value;
         this.wenoState = wenoState;
     }
 
-    function cityChanged(){
+    function cityChanged() {
         var wenoCity = document.getElementById('weno_city').selectedOptions[0].value;
         this.wenoCity = wenoCity;
     }
 
-    function onWenoChanged(cb){
+    function onWenoChanged(cb) {
         this.wenoOnly = cb.checked;
     }
 
-    function coverageChanged(){
+    function coverageChanged() {
         var coverage = document.getElementById('weno_coverage').selectedOptions[0].value;
         this.coverage = coverage;
     }
 
-    function fullDayChanged(cb){
+    function fullDayChanged(cb) {
         this.fullDay = cb.checked;
     }
-    function testPharmaciesChanged(cb){
+
+    function testPharmaciesChanged(cb) {
         this.testPharmacies = cb.checked;
     }
 
-    function doAjax(){
+    function doAjax() {
         var state = document.getElementById('form_weno_state').selectedOptions[0].value;
         var coverage = document.getElementById('weno_coverage').selectedOptions[0].value;
 
@@ -252,115 +254,122 @@ $res = sqlStatement($sql);
             url: url,
             cache: false,
             type: "GET",
-            data: {state: state, coverage: coverage },
-            success: function(data){
+            data: {state: state, coverage: coverage},
+            success: function (data) {
                 var html = '';
-                if(data.length > 0){
-                    $.each(JSON.parse(data), function (i, value){
-                    html += ('<option value="' + jsAttr(value.ncpdp) + '">' + jsText(value.name) +' - '+ jsText(value.address) + '</option>');
-                });
+                if (data.length > 0) {
+                    $.each(JSON.parse(data), function (i, value) {
+                        html += ('<option value="' + jsAttr(value.ncpdp) + '">' + jsText(value.name) + ' - ' + jsText(value.address) + '</option>');
+                    });
                     $("#weno_pharmacy").html(html);
                 }
             }
         });
     }
 
-    function createWenoPharmacySelect2(){
+    function createWenoPharmacySelect2() {
         $('#weno_pharmacy').select2({
-        width: '500px',
-        ajax: {
-            url: '<?php echo $GLOBALS['webroot']; ?>' + '/interface/modules/custom_modules/oe-module-weno/scripts/weno_pharmacy_search.php',
-            dataType: 'json',
-            data: function(params){
-                return {
-                    term: params.term,
-                    searchFor: 'weno_pharmacy',
-                    coverage: coverage,
-                    weno_state: wenoState,
-                    weno_city: wenoCity,
-                    weno_only: wenoOnly,
-                    full_day: fullDay,
-                    csrf_token_form: csrf
-                };
+            width: '500px',
+            ajax: {
+                url: '<?php echo $GLOBALS['webroot']; ?>' + '/interface/modules/custom_modules/oe-module-weno/scripts/weno_pharmacy_search.php',
+                dataType: 'json',
+                data: function (params) {
+                    return {
+                        term: params.term,
+                        searchFor: 'weno_pharmacy',
+                        coverage: coverage,
+                        weno_state: wenoState,
+                        weno_city: wenoCity,
+                        weno_only: wenoOnly,
+                        full_day: fullDay,
+                        csrf_token_form: csrf
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item, index) {
+                            return {
+                                text: item.name,
+                                id: item.ncpdp,
+                                value: item.ncpdp
+                            }
+                        })
+                    };
+                }
             },
-            processResults: function(data) {
-                return  {
-                    results: $.map(data, function(item, index) {
-                      return {
-                            text: item.name,
-                            id: item.ncpdp,
-                            value: item.ncpdp
-                        }
-                    })
-                };
-            }
-        },
-        minimumInputLength: 3,
-        cache: true,
-        placeholder: 'Enter desired Pharmacy',
-        allowClear: true,
-    });
+            minimumInputLength: 3,
+            cache: true,
+            placeholder: 'Enter desired Pharmacy',
+            allowClear: true,
+        });
     }
 
-    function createWenoCitySelect2(){
+    function createWenoCitySelect2() {
         $('#weno_city').select2({
-        width: '98%',
-        allowClear: true,
-        ajax: {
-            url: '<?php echo $GLOBALS['webroot']; ?>' + '/interface/modules/custom_modules/oe-module-weno/scripts/weno_pharmacy_search.php',
-            dataType: 'json',
-            data: function(params){
-                return {
-                    term: params.term,
-                    searchFor: 'weno_city',
-                    csrf_token_form: csrf
-                };
+            width: '98%',
+            allowClear: true,
+            ajax: {
+                url: '<?php echo $GLOBALS['webroot']; ?>' + '/interface/modules/custom_modules/oe-module-weno/scripts/weno_pharmacy_search.php',
+                dataType: 'json',
+                data: function (params) {
+                    return {
+                        term: params.term,
+                        searchFor: 'weno_city',
+                        csrf_token_form: csrf
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data, function (item, index) {
+                            return {
+                                text: item,
+                                id: item,
+                                value: item
+                            }
+                        })
+                    };
+                }
             },
-            processResults: function(data) {
-                return  {
-                    results: $.map(data, function(item, index) {
-                      return {
-                            text: item,
-                            id: item,
-                            value: item
-                        }
-                    })
-                };
-            }
-        },
-        minimumInputLength: 3,
-        cache: true,
-        placeholder: 'Enter City *'
-    });
+            minimumInputLength: 3,
+            cache: true,
+            placeholder: 'Enter City *'
+        });
     }
 
-    function search(){
+    function search() {
         this.wenoZipcode = $('#weno_zipcode').val();
-        if(wenoState !== null && wenoCity !== null && coverage !== null){
+        if (( wenoCity > '' || this.wenoZipcode > '') && wenoState > '' && coverage > '') {
+            $('#weno_city').removeClass("is-invalid");
+            $('.warn').text('');
+            $('#weno_state').removeClass("is-invalid");
+            $('#weno_coverage').removeClass("is-invalid");
             var select2field = document.getElementById('weno_pharmacy');
             var field = select2field.classList.contains('select2-hidden-accessible');
             //check if select2 is active and remove it before using the normal dropdown
-            if(field){
+            if (field) {
                 $('#weno_pharmacy').select2('destroy').off('select2:open');
             }
             makeRequest();
-        }else{
-            if(wenoCity !== ''){
+        } else {
+            // reset errors
+            $('#weno_city').removeClass("is-invalid");
+            $('.warn').text('');
+            $('#weno_state').removeClass("is-invalid");
+            $('#weno_coverage').removeClass("is-invalid");
+            if (wenoCity <= '' && this.wenoZipcode <= '') {
                 $('#weno_city').addClass("is-invalid");
                 $('.warn').text(requirdField);
             }
-            if(this.wenoState == ''){
+            if (this.wenoState <= '') {
                 $('#weno_state').addClass("is-invalid");
             }
-            if(coverage != ''){
+            if (coverage <= '') {
                 $('#weno_coverage').addClass("is-invalid");
             }
-
-            //$('.warn').text(requirdField);
         }
     }
 
-    function makeRequest(){
+    function makeRequest() {
         let data = {
             searchFor: 'weno_drop',
             weno_state: wenoState,
@@ -374,19 +383,19 @@ $res = sqlStatement($sql);
         $.ajax({
             url: '<?php echo $GLOBALS['webroot']; ?>' + '/interface/modules/custom_modules/oe-module-weno/scripts/weno_pharmacy_search.php',
             type: "GET",
-            data:data,
+            data: data,
             success: function (data) {
                 var html = '';
                 data = JSON.parse(data);
-                if(data == null){
-                    html += ('<option value="'+'">' + jsText(xl("No Data Found")) + '</option>');
-                }else{
-                    html += ('<option value="'+'">' + jsText(xl("Select from the dropdown")) + '</option>');
+                if (data == null) {
+                    html += ('<option value="' + '">' + jsText(xl("No Data Found")) + '</option>');
+                } else {
+                    html += ('<option value="' + '">' + jsText(xl("Select from the dropdown")) + '</option>');
                     $.each(data, function (i, value) {
                         html += ('<option style="width: 100%" value="' + jsAttr(value.ncpdp) + '">' + jsText(value.name) + '</option>');
                     });
                 }
-                
+
                 $("#weno_pharmacy").html(html);
             },
             // Error handling
@@ -396,21 +405,21 @@ $res = sqlStatement($sql);
 
     }
 
-    function assignPrimaryPharmacy(){
+    function assignPrimaryPharmacy() {
         weno_pharm = $('#weno_pharmacy').val();
         weno_pharm_text = $('#weno_pharmacy').text();
         $('#weno_primary').text(" " + wenoPrimPharm);
         $('#primary_pharmacy').val(weno_pharm);
     }
 
-    function assignAlternatePharmacy(){
+    function assignAlternatePharmacy() {
         weno_alt = $('#weno_pharmacy').val();
         weno_alt_text = $('#weno_pharmacy').text();
         $('#weno_alt').text(" " + wenoPrimPharm);
         $('#alternate_pharmacy').val(weno_alt);
     }
 
-    function resetForm(){
+    function resetForm() {
         var searchbox = document.getElementById("weno_state");
         searchbox.selectedIndex = 0;
 
@@ -423,15 +432,15 @@ $res = sqlStatement($sql);
         resetSelect2();
     }
 
-    function resetSelect2(){
+    function resetSelect2() {
         var select2field = document.getElementById('weno_pharmacy');
         var field = select2field.classList.contains('select2-hidden-accessible');
 
-        if(field){
+        if (field) {
             $('#weno_pharmacy').val('').trigger('change');
-        }else {
+        } else {
             $('#weno_pharmacy').val('');
         }
     }
-    
+
 </script>
