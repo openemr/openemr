@@ -22,11 +22,13 @@ class LogImportBuild
 
     public function getUserIdByWenoId($external_provider_id)
     {
+        // This is important so a user is set in prescription table.
         $provider = sqlQuery("SELECT id FROM users WHERE weno_prov_id = ? ", array($external_provider_id));
         if ($provider) {
             return $provider['id'];
         } else {
-            return null;
+            // logged in user is auth weno user so let's ensure a user is set.
+            return $_SESSION["authUserID"] ?? null;
         }
     }
 
