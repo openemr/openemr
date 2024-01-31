@@ -323,7 +323,7 @@ files for editing and adding new insurance policies for a patient.
         ,classNames: "js-capitalize-me mb-1 sel2"
         ,list_id: country_list
     }, {
-        name: "Subsciber Phone"|xl
+        name: "Subscriber Phone"|xl
         ,required: false
         ,data_type: dataTypeText
         ,field_id: "subscriber_phone"
@@ -364,8 +364,8 @@ files for editing and adding new insurance policies for a patient.
             </div>
             <div class="col-12">
                 <div class="btn-group text-align-right">
-                    <input type="button" class="btn btn-primary btn-add-policy" value="{{ 'Add New Policy'|xlt }}" />
-                    <input type="button" class="btn btn-danger d-none btn-edit-return" value="{{ 'Return to Edit Screen'|xlt }}" />
+                    <input type="button" class="btn btn-primary btn-add-policy" value="{{ 'Add New Policy'|xla }}" />
+                    <input type="button" class="btn btn-danger d-none btn-edit-return" value="{{ 'Return to Edit Screen'|xla }}" />
                     <a href="./demographics.php" class="btn btn-secondary"><i class="fa fa-back"></i>{{ 'Back to Patient'|xlt }}</a>
                 </div>
                 <hr />
@@ -384,16 +384,16 @@ files for editing and adding new insurance policies for a patient.
         // import { InsuranceEditController } from webroot + '/library/js/oeUI/insurance/InsuranceEditController.js';
         // need to hit the server endpoint to grab the patient insurances for the given pid
         // then I need to popualate the twig template with the data
-        let csrfToken = {{ csrfTokenRaw('api')|json_encode() }};
-        let puuid = {{ puuid|json_encode() }};
-        let url = {{ webroot|json_encode() }} + '/apis/' + {{ session.site_id|json_encode() }} + '/api/';
-        let types = {{ insuranceTypes|json_encode() }};
-        let insuranceProviderList = {{ insuranceProviderList|json_encode() }};
+        let csrfToken = {{ csrfTokenRaw('api')|js_escape() }};
+        let puuid = {{ puuid|js_escape() }};
+        let url = {{ webroot|js_escape() }} + '/apis/' + {{ session.site_id|js_escape() }} + '/api/';
+        let types = {{ insuranceTypes|js_escape() }};
+        let insuranceProviderList = {{ insuranceProviderList|js_escape() }};
 
         window.addEventListener("DOMContentLoaded", function() {
             // due to our dynamic nature we need to do a dynamic import of the controller
             {# TODO: @adunsulag check with @brady.miller to find out if there is a need to escape the cache param here due to the global v_include #}
-            import({{ webroot|json_encode }} + "/library/js/oeUI/insurance/InsuranceEditMainController.js?v=" + {{ getAssetCacheParamRaw()|json_encode() }})
+            import({{ webroot|js_escape() }} + "/library/js/oeUI/insurance/InsuranceEditMainController.js?v=" + {{ getAssetCacheParamRaw()|js_escape() }})
                 .then(result => {
                     /**
                      * @typedef InsuranceEditMainControllerModule

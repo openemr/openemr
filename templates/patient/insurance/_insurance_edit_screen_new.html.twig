@@ -44,7 +44,7 @@ Partial twig file that represents the insurance new policy screen for a patient
                 </div>
                 <div class="col-md-9">
                     <div class="alert alert-warning new-policy-list-empty d-none">
-                        {{ "No policy exists for this insurance type" }}
+                        {{ "No policy exists for this insurance type"|xlt }}
                     </div>
                     <select class="form-control form-control-sm sel2 mb-1 new-policy-copy-list" class="d-none">
                     </select>
@@ -57,7 +57,7 @@ Partial twig file that represents the insurance new policy screen for a patient
             <div class="form-row">
                 <div class="col-md-12">
                     <input id="setEndDateCheckbox" type="checkbox" name="setEndDate" class="form-control mb-1" />
-                    <label for="setEndDateCheckbox">{{ "Update current insurance with new effective end date" }}</label>
+                    <label for="setEndDateCheckbox">{{ "Update current insurance with new effective end date"|xlt }}</label>
                 </div>
             </div>
         </div>
@@ -66,7 +66,7 @@ Partial twig file that represents the insurance new policy screen for a patient
         <div class="col-md-6">
             <div class="form-row">
                 <div class="col-md-12">
-                    <p>{{ "Policy to update:" }} <span class="effective-end-date-policy-label"></span></p>
+                    <p>{{ "Policy to update:"|xlt }} <span class="effective-end-date-policy-label"></span></p>
                 </div>
             </div>
         </div>
@@ -91,7 +91,7 @@ Partial twig file that represents the insurance new policy screen for a patient
         <div class="form-row">
             <div class="col-md-12">
                 <input type="button" class="btn btn-action btn-new-policy-next btn-primary" value="{{ "Next"|xlt }}" />
-                <button type="button" class="btn btn-info btn-new-policy-saving d-none">{{ "Updating current insurance..." }}<i class="wait fa fa-cog fa-spin ml-2"></i></button>
+                <button type="button" class="btn btn-info btn-new-policy-saving d-none">{{ "Updating current insurance..."|xlt }}<i class="wait fa fa-cog fa-spin ml-2"></i></button>
             </div>
         </div>
     </div>

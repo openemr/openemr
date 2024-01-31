@@ -1325,151 +1325,70 @@ function newInsuranceData(
         $effective_date_end = null;
     }
 
-    /* $idres = sqlStatement("SELECT * FROM insurance_data WHERE " .
-    "pid = ? AND type = ? ORDER BY date DESC", array($pid, $type));
-    $idrow = sqlFetchArray($idres);
-
-    // Replace the most recent entry in any of the following cases:
-    // * Its effective date is >= this effective date.
-    // * It is the first entry and it has no (insurance) provider.
-    // * There is no encounter that is earlier than the new effective date but
-    //   on or after the old effective date.
-    // Otherwise insert a new entry.
-
-    $replace = false;
-    if ($idrow) {
-        // convert date from null to "0000-00-00" for below strcmp and query
-        $temp_idrow_date = (!empty($idrow['date'])) ? $idrow['date'] : "0000-00-00";
-        $temp_effective_date = (!empty($effective_date)) ? $effective_date : "0000-00-00";
-        if (strcmp($temp_idrow_date, $temp_effective_date) > 0) {
-            $replace = true;
-        } else {
-            if (!$idrow['provider'] && !sqlFetchArray($idres)) {
-                $replace = true;
-            } else {
-                $ferow = sqlQuery("SELECT count(*) AS count FROM form_encounter " .
-                "WHERE pid = ? AND date < ? AND " .
-                "date >= ?", array($pid, $temp_effective_date . " 00:00:00", $temp_idrow_date . " 00:00:00"));
-                if ($ferow['count'] == 0) {
-                    $replace = true;
-                }
-            }
-        }
-    }
-
-    if ($replace) {
-        // TBD: This is a bit dangerous in that a typo in entering the effective
-        // date can wipe out previous insurance history.  So we want some data
-        // entry validation somewhere.
-        if ($effective_date === null) {
-            sqlStatement("DELETE FROM insurance_data WHERE " .
-                "pid = ? AND type = ? AND " .
-                "id != ?", array($pid, $type, $idrow['id']));
-        } else {
-            sqlStatement("DELETE FROM insurance_data WHERE " .
-                "pid = ? AND type = ? AND date >= ? AND " .
-                "id != ?", array($pid, $type, $effective_date, $idrow['id']));
-        }
-
-        $data = array();
-        $data['type'] = $type;
-        $data['provider'] = $provider;
-        $data['policy_number'] = $policy_number;
-        $data['group_number'] = $group_number;
-        $data['plan_name'] = $plan_name;
-        $data['subscriber_lname'] = $subscriber_lname;
-        $data['subscriber_mname'] = $subscriber_mname;
-        $data['subscriber_fname'] = $subscriber_fname;
-        $data['subscriber_relationship'] = $subscriber_relationship;
-        $data['subscriber_ss'] = $subscriber_ss;
-        $data['subscriber_DOB'] = $subscriber_DOB;
-        $data['subscriber_street'] = $subscriber_street;
-        $data['subscriber_postal_code'] = $subscriber_postal_code;
-        $data['subscriber_city'] = $subscriber_city;
-        $data['subscriber_state'] = $subscriber_state;
-        $data['subscriber_country'] = $subscriber_country;
-        $data['subscriber_phone'] = $subscriber_phone;
-        $data['subscriber_employer'] = $subscriber_employer;
-        $data['subscriber_employer_city'] = $subscriber_employer_city;
-        $data['subscriber_employer_street'] = $subscriber_employer_street;
-        $data['subscriber_employer_postal_code'] = $subscriber_employer_postal_code;
-        $data['subscriber_employer_state'] = $subscriber_employer_state;
-        $data['subscriber_employer_country'] = $subscriber_employer_country;
-        $data['copay'] = $copay;
-        $data['subscriber_sex'] = $subscriber_sex;
-        $data['pid'] = $pid;
-        $data['date'] = $effective_date;
-        $data['accept_assignment'] = $accept_assignment;
-        $data['policy_type'] = $policy_type;
-        $data['date_end'] = $effective_date_end;
-        updateInsuranceData($idrow['id'], $data);
-        return $idrow['id'];
-    } else { */
-        return sqlInsert(
-            "INSERT INTO `insurance_data` SET `type` = ?,
-            `provider` = ?,
-            `policy_number` = ?,
-            `group_number` = ?,
-            `plan_name` = ?,
-            `subscriber_lname` = ?,
-            `subscriber_mname` = ?,
-            `subscriber_fname` = ?,
-            `subscriber_relationship` = ?,
-            `subscriber_ss` = ?,
-            `subscriber_DOB` = ?,
-            `subscriber_street` = ?,
-            `subscriber_postal_code` = ?,
-            `subscriber_city` = ?,
-            `subscriber_state` = ?,
-            `subscriber_country` = ?,
-            `subscriber_phone` = ?,
-            `subscriber_employer` = ?,
-            `subscriber_employer_city` = ?,
-            `subscriber_employer_street` = ?,
-            `subscriber_employer_postal_code` = ?,
-            `subscriber_employer_state` = ?,
-            `subscriber_employer_country` = ?,
-            `copay` = ?,
-            `subscriber_sex` = ?,
-            `pid` = ?,
-            `date` = ?,
-            `accept_assignment` = ?,
-            `policy_type` = ?,
-            `date_end` = ?",
-            [
-                $type,
-                $provider,
-                $policy_number,
-                $group_number,
-                $plan_name,
-                $subscriber_lname,
-                $subscriber_mname,
-                $subscriber_fname,
-                $subscriber_relationship,
-                $subscriber_ss,
-                $subscriber_DOB,
-                $subscriber_street,
-                $subscriber_postal_code,
-                $subscriber_city,
-                $subscriber_state,
-                $subscriber_country,
-                $subscriber_phone,
-                $subscriber_employer,
-                $subscriber_employer_city,
-                $subscriber_employer_street,
-                $subscriber_employer_postal_code,
-                $subscriber_employer_state,
-                $subscriber_employer_country,
-                $copay,
-                $subscriber_sex,
-                $pid,
-                $effective_date,
-                $accept_assignment,
-                $policy_type,
-                $effective_date_end
-            ]
-        );
-    //}
+    return sqlInsert(
+        "INSERT INTO `insurance_data` SET `type` = ?,
+        `provider` = ?,
+        `policy_number` = ?,
+        `group_number` = ?,
+        `plan_name` = ?,
+        `subscriber_lname` = ?,
+        `subscriber_mname` = ?,
+        `subscriber_fname` = ?,
+        `subscriber_relationship` = ?,
+        `subscriber_ss` = ?,
+        `subscriber_DOB` = ?,
+        `subscriber_street` = ?,
+        `subscriber_postal_code` = ?,
+        `subscriber_city` = ?,
+        `subscriber_state` = ?,
+        `subscriber_country` = ?,
+        `subscriber_phone` = ?,
+        `subscriber_employer` = ?,
+        `subscriber_employer_city` = ?,
+        `subscriber_employer_street` = ?,
+        `subscriber_employer_postal_code` = ?,
+        `subscriber_employer_state` = ?,
+        `subscriber_employer_country` = ?,
+        `copay` = ?,
+        `subscriber_sex` = ?,
+        `pid` = ?,
+        `date` = ?,
+        `accept_assignment` = ?,
+        `policy_type` = ?,
+        `date_end` = ?",
+        [
+            $type,
+            $provider,
+            $policy_number,
+            $group_number,
+            $plan_name,
+            $subscriber_lname,
+            $subscriber_mname,
+            $subscriber_fname,
+            $subscriber_relationship,
+            $subscriber_ss,
+            $subscriber_DOB,
+            $subscriber_street,
+            $subscriber_postal_code,
+            $subscriber_city,
+            $subscriber_state,
+            $subscriber_country,
+            $subscriber_phone,
+            $subscriber_employer,
+            $subscriber_employer_city,
+            $subscriber_employer_street,
+            $subscriber_employer_postal_code,
+            $subscriber_employer_state,
+            $subscriber_employer_country,
+            $copay,
+            $subscriber_sex,
+            $pid,
+            $effective_date,
+            $accept_assignment,
+            $policy_type,
+            $effective_date_end
+        ]
+    );
 }
 
 // This is used internally only.

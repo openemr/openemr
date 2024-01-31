@@ -23,6 +23,7 @@ require_once("$srcdir/patient.inc.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Uuid\UuidRegistry;
 
 // make sure permissions are checked before we allow this page to be accessed.
 if (!AclMain::aclCheckCore('patients', 'demo', '', 'write')) {
@@ -94,7 +95,7 @@ echo $twig->render(
         'insuranceTypes' => $insurance_array,
         'activeType' => $insurance_array[0],
         'patient' => $result,
-        'puuid' => \OpenEMR\Common\Uuid\UuidRegistry::uuidToString($result['uuid'])
+        'puuid' => UuidRegistry::uuidToString($result['uuid'])
         // TODO: @adunsulag need to test insuranceProviderList with GLOBALS['insurance_information'] settings for various changes that can occur here.
         ,'insuranceProviderList' => $insurancei
         ,'enableSwapSecondaryInsurance' => $GLOBALS['enable_swap_secondary_insurance']
