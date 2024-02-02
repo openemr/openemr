@@ -34,7 +34,7 @@ class WenoPharmaciesJson
         $url = $this->wenoPharmacyDirectoryLink() . "?useremail=" . urlencode($this->providerEmail()) . "&data=" . urlencode($this->encrypted);
         $getWenoPharmaciesCsv = new DownloadWenoPharmacies();
         $storageLocation = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/";
-        $c = $getWenoPharmaciesCsv->retrieveDataFile($url, $storageLocation);
+        return $getWenoPharmaciesCsv->retrieveDataFile($url, $storageLocation);
     }
 
     private function buildJson()

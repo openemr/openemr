@@ -38,9 +38,9 @@ class DownloadWenoPharmacies
 
         $result = $this->extractFile($path_to_extract, $storelocation);
         if ($result == "Imported") {
-            return "complete";
+            return "Imported";
         } else {
-            return "failed";
+            return $result;
         }
     }
 
@@ -74,6 +74,9 @@ class DownloadWenoPharmacies
                 $result = $import->importPharmacy($csvFile, $files);
                 if ($result == "Imported") {
                     $wenolog->insertWenoLog("pharmacy", "Success");
+                    return $result;
+                } else {
+                    return $result;
                 }
 
                 return "Imported";

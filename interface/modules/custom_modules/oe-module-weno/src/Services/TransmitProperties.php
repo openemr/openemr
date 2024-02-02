@@ -171,10 +171,17 @@ class TransmitProperties
             ++$missing;
         }
         if ($missing > 0) {
-            echo "<div style='font-size: 1.25rem; background-color: white; color: red;'>" . $log . "</div>";
-            die('Please add the missing data and try again');
+            $this->errorWithDie($log);
         }
         return $patient;
+    }
+
+    public function errorWithDie($error)
+    {
+        $log = "<div><p style='font-size: 1.25rem; background-color: white; color: red;'>" .
+            $error . "<br />" . xlt('Please address errors and try again') .
+            "</p></div>";
+        die($log);
     }
 
     /**
@@ -230,7 +237,8 @@ class TransmitProperties
     {
         $data = sqlQuery("SELECT * FROM `weno_assigned_pharmacy` WHERE `pid` = ? ", [$_SESSION["pid"]]);
         if (empty($data)) {
-            die("Weno Pharmacies not set. head over to Patient's Demographics select Choices select Weno Pharmacy Selector to Assign Pharmacies");
+            $log = xlt("Weno Pharmacies not set. Head over to Patient's Demographics select Choices then select Weno Pharmacy Selector to Assign Pharmacies");
+            $this->errorWithDie($log);
         }
         $response = array(
             "primary" => $data['primary_ncpdp'],
@@ -238,11 +246,13 @@ class TransmitProperties
         );
 
         if (empty($response['primary'])) {
-            die("Weno Primary Pharmacy not set. Head over to Patient's Demographics select Choices select Weno Pharmacy Selector to Assign Primary Pharmacy");
+            $log = xlt("Weno Primary Pharmacy not set. Head over to Patient's Demographics select Choices then select Weno Pharmacy Selector to Assign Primary Pharmacy");
+            $this->errorWithDie($log);
         }
 
         if (empty($response['alternate'])) {
-            die("Weno Alternate Pharmacy not set. Head over to Patient's Demographics select Choices select Weno Pharmacy Selector to Assign Primary Pharmacy");
+            $log = xlt("Weno Alternate Pharmacy not set. Head over to Patient's Demographics select Choices then select Weno Pharmacy Selector to Assign Primary Pharmacy");
+            $this->errorWithDie($log);
         }
         return $response;
     }
