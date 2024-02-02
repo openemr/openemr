@@ -41,6 +41,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Services\Utils\DateFormatterUtils;
+
 ?>
     i18n:{
         en: {
@@ -86,14 +88,16 @@
     <?php if ($datetimepicker_timepicker) { ?>
         <?php if ($datetimepicker_showseconds) { ?>
             <?php if ($datetimepicker_formatInput) { ?>
-                format: '<?php echo DateFormatRead("jquery-datetimepicker"); ?> H:i:s',
+                format: '<?php echo DateFormatRead("jquery-datetimepicker") . " " .
+                               DateFormatterUtils::getTimeFormat(true); ?>',
             <?php } else { ?>
                 format: 'Y-m-d H:i:s',
             <?php } ?>
         <?php } else { ?>
             <?php if ($datetimepicker_formatInput) { ?>
-                format: '<?php echo DateFormatRead("jquery-datetimepicker"); ?> g:i a',
-                formatTime:'g:i a',
+                format: '<?php echo DateFormatRead("jquery-datetimepicker") . " " .
+                               DateFormatterUtils::getTimeFormat();?>',
+                formatTime: '<?php echo DateFormatterUtils::getTimeFormat();?>',
                 validateOnBlur: false,
             <?php } else { ?>
                 format: 'Y-m-d H:i',
