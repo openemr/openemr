@@ -96,7 +96,6 @@ echo $twig->render(
         'activeType' => $insurance_array[0],
         'patient' => $result,
         'puuid' => UuidRegistry::uuidToString($result['uuid'])
-        // TODO: @adunsulag need to test insuranceProviderList with GLOBALS['insurance_information'] settings for various changes that can occur here.
         ,'insuranceProviderList' => $insurancei
         ,'enableSwapSecondaryInsurance' => $GLOBALS['enable_swap_secondary_insurance']
         ,'include_employers' => empty($GLOBALS['omit_employers']) === true
