@@ -5,7 +5,9 @@
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -22,7 +24,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 
-class HttpRestRequest implements ServerRequestInterface
+class HttpRestRequest implements ServerRequestInterface, \Stringable
 {
     /**
      * @var ServerRequestInterface
@@ -777,5 +779,10 @@ class HttpRestRequest implements ServerRequestInterface
             $headers[$header][] = $value;
         }
         return $headers;
+    }
+
+    public function __toString()
+    {
+        return self::class; // just returning the class name for now, at some point we can return a summary of the full request
     }
 }

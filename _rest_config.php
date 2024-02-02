@@ -9,6 +9,7 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -299,9 +300,9 @@ class RestConfig
         return null;
     }
 
-    public static function authorization_check($section, $value, $user = ''): void
+    public static function authorization_check($section, $value, $user = '', $aclPermission = ''): void
     {
-        $result = AclMain::aclCheckCore($section, $value, $user);
+        $result = AclMain::aclCheckCore($section, $value, $user, $aclPermission);
         if (!$result) {
             if (!self::$notRestCall) {
                 http_response_code(401);

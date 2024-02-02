@@ -40,6 +40,9 @@ assets:
     i18next-browser-languagedetector:
         basePath: '%assets_static_relative%/i18next-browser-languagedetector/dist/umd/'
         script: i18nextBrowserLanguageDetector.min.js
+    il8formatting:
+        basePath: '%webroot%/library/js/xl/'
+        script: formatting.js
     utility:
         basePath: '%webroot%/library/js/'
         script: utility.js
@@ -132,6 +135,9 @@ assets:
         basePath: '%assets_static_relative%/jquery-datetimepicker/build/'
         script: jquery.datetimepicker.full.min.js
         link: jquery.datetimepicker.min.css
+    datetime-picker-translated:
+        basePath: '%webroot%/library/js/xl/'
+        script: jquery-datetimepicker-2-5-4-translated.js
     report-helper:
         basePath: '%webroot%/library/js/'
         script: report_helper.js
@@ -244,6 +250,9 @@ assets:
     u2f_api:
         basePath: '%webroot%/library/js/'
         script: u2f-api.js
+    select2-translated:
+        basePath: '%webroot%/library/js/xl/'
+        script: select2-translated.js
     dompurify:
         basePath: '%assets_static_relative%/'
         script: dompurify/dist/purify.js

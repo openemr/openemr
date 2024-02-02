@@ -7,8 +7,10 @@
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -18,6 +20,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Common\Uuid\UuidRegistry;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -97,6 +100,22 @@ if (isset($_GET['set_pid'])) {
 <script>
 <!--
 function auto_populate_employer_address(){
+
+    let data = {
+        action: 'insurance-patient-browser-selected',
+        patientUuid: <?php echo js_escape(UuidRegistry::uuidToString($result['uuid'])); ?>,
+        insuranceUuid: <?php echo js_escape(UuidRegistry::uuidToString($result3['uuid'])); ?>
+    };
+    let opener = window.opener;
+    if (!opener) {
+        window.close(); // nothing else to do here, if the browser security context allows it
+        return;
+    }
+    opener.postMessage(data, window.location.origin);
+    if (!(opener.document && opener.document.demographics_form)) {
+        window.close(); // nothing else to do here, if the browser security context allows it
+        return; // we did not open in a popup from a demographics LBF form.
+    }
  var df = opener.document.demographics_form;
  df.i<?php echo attr($browsenum);?>subscriber_fname.value=<?php echo js_escape($result3['subscriber_fname']);?>;
  df.i<?php echo attr($browsenum);?>subscriber_mname.value=<?php echo js_escape($result3['subscriber_mname']);?>;

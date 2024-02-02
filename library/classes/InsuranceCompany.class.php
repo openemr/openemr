@@ -7,8 +7,10 @@
  * @link      https://www.open-emr.org
  * @author    duhlman
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) duhlman
  * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -156,6 +158,19 @@ class InsuranceCompany extends ORDataObject
     public function get_name()
     {
         return $this->name;
+    }
+
+    public function get_display_name()
+    {
+        return InsuranceCompanyService::getDisplayNameForInsuranceRecord([
+            'name' => $this->name,
+            'line1' => $this->address->get_line1(),
+            'line2' => $this->address->get_line2(),
+            'city' => $this->address->get_city(),
+            'state' => $this->address->get_state(),
+            'zip' => $this->address->get_zip(),
+            'cms_id' => $this->cms_id
+        ]);
     }
     public function set_attn($attn)
     {
