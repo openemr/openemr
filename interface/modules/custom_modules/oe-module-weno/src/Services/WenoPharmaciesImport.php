@@ -1,7 +1,5 @@
 <?php
 
-namespace OpenEMR\Modules\WenoModule\Services;
-
 /**
  *  @package OpenEMR
  *  @link    http://www.open-emr.org
@@ -9,6 +7,8 @@ namespace OpenEMR\Modules\WenoModule\Services;
  *  @copyright Copyright (c) 2020 Sherwin Gaddis <sherwingaddis@gmail.com>
  *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+namespace OpenEMR\Modules\WenoModule\Services;
 
 use Exception;
 
