@@ -173,7 +173,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             } elseif ($action['due_status'] == "due") {
                 echo "<span class='text-warning'>";
             } elseif ($action['due_status'] == "not_due") {
-                echo "<span class='text-success>";
+                echo "<span class='text-success'>";
             } else {
                 echo "<span>";
             }
@@ -1137,8 +1137,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                                     // HR: My replacement lines
                                     // if passed during this pass, this is the status
                                     if ($dateCounter == 1) {
-                                        // not_due doesn't cause any text to show. Labels come from Clinical Rules Reminder Due Options. Has not_due, so not sure why that does not work
-                                        $reminder_status = "Not Due";
+                                        $reminder_status = "not_due";
                                     } elseif ($dateCounter == 2) {
                                         $reminder_status = "soon_due";
                                     } else { // $dateCounter == 3
@@ -1276,8 +1275,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                                         // HR: My replacement lines
                                         // if passed during this pass, this is the status
                                         if ($dateCounter == 1) {
-                                            // not_due doesn't cause any text to show. Labels come from Clinical Rules Reminder Due Options. Has not_due, so not sure why that does not work
-                                            $reminder_status = "Not Due";
+                                            $reminder_status = "not_due";
                                         } elseif ($dateCounter == 2) {
                                             $reminder_status = "soon_due";
                                         } else { // $dateCounter == 3
