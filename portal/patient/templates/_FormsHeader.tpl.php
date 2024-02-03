@@ -32,7 +32,7 @@ if ($_SESSION['patient_portal_onsite_two'] ?? 0) {
     Header::setupHeader(['datetime-picker', 'moment']);
 }
 ?>
-?>
+
 <script src="<?php echo $GLOBALS['web_root']; ?>/portal/patient/scripts/libs/LAB.min.js"></script>
 <script>
     $LAB.script("<?php echo $GLOBALS['assets_static_relative']; ?>/underscore/underscore-min.js").wait()

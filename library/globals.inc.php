@@ -155,8 +155,8 @@ $USER_SPECIFIC_GLOBALS = array('default_top_pane',
     'checkout_roll_off',
     'patient_birthday_alert',
     'patient_birthday_alert_manual_off',
-    'erx_import_status_message',
-    'weno_provider_password');
+    'erx_import_status_message'
+);
 
 // Gets array of time zones supported by PHP.
 //
@@ -3493,34 +3493,6 @@ $GLOBALS_METADATA = array(
             ),
             '0',
             xl('Log all NewCrop eRx Requests and / or Responses.'),
-        ),
-
-        'weno_rx_enable' => array(
-            xl('Enable Weno eRx Service'),
-            'bool',
-            '0',
-            xl('Enable Weno eRx Service') . ' ' . xl('Contact https://online.wenoexchange.com to sign up for Weno Free eRx service.')
-        ),
-
-        'weno_rx_enable_test' => array(
-            xl('Enable Weno eRx Service Test mode'),
-            'bool',
-            '1',
-            xl('Enable Weno eRx Service Test mode')
-        ),
-
-        'weno_encryption_key' => array(
-            xl('Weno Encryption Key'),
-            'encrypted',                      // data type
-            '',
-            xl('Encryption key issued by Weno eRx service.')
-        ),
-
-        'weno_provider_password' => array(
-            xl('Weno Provider Account Password'),
-            'encrypted',                      // data type
-            '',
-            xl('Each provider needs to set this under user settings. This should be blank')
         ),
 
         'ccda_alt_service_enable' => array(

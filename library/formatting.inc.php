@@ -129,6 +129,7 @@ function oeFormatClientID($id)
     return $id;
 }
 //----------------------------------------------------
+// note this function is implemented in the javascript side in the js/xl/formatting.js file
 function DateFormatRead($mode = 'legacy')
 {
     //For the 3 supported date format,the javascript code also should be twicked to display the date as per it.

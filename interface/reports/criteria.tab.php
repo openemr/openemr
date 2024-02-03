@@ -98,7 +98,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < sizeof($TPSCriteriaDataType); $T
                             'calendar_function(this.value,' . attr_js('master_from_date_' . $DateNamePart) . ',' . attr_js('master_to_date_' . $DateNamePart) . ');
                                 appendOptionDateCriteria(' . attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]) . ',' .
                                 attr_js($TPSCriteriaKey[$TPSCriteriaIndex]) . ',this.options[this.selectedIndex].text,' .
-                                'this.options[this.selectedIndex].value," = ",' . attr_js('master_from_date_' . $DateNamePart) . ',' . attr_js('master_to_date_' . $DateNamePart) . ',
+                                'this.options[this.selectedIndex].value,' . attr_js('=') . ',' . attr_js('master_from_date_' . $DateNamePart) . ',' . attr_js('master_to_date_' . $DateNamePart) . ',
                                 ' . attr_js($TPSCriteriaDataType[$TPSCriteriaIndex]) . ')'
                         );
                         ?>

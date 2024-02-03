@@ -160,5 +160,5 @@ function hasFormPermission($formDir)
     // get the aco spec from registry table
     $formRow = sqlQuery("SELECT aco_spec FROM registry WHERE directory = ?", array($formDir));
     $permission = explode('|', ($formRow['aco_spec'] ?? ''));
-    return AclMain::aclCheckCore($permission[0], $permission[1]);
+    return AclMain::aclCheckCore($permission[0], $permission[1] ?? null);
 }

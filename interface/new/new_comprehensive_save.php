@@ -16,6 +16,7 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\ContactService;
+use OpenEMR\Events\Patient\PatientBeforeCreatedAuxEvent;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -89,6 +90,13 @@ if (!empty($addressFieldsToSave)) {
         $contactService->saveContactsForPatient($pid, $addressFieldData);
     }
 }
+
+/**
+ * Parse demographics data to listeners who want data that is not directly available in
+ * the patient_data table on update
+ */
+$GLOBALS["kernel"]->getEventDispatcher()->dispatch(new PatientBeforeCreatedAuxEvent($pid, $_POST), PatientBeforeCreatedAuxEvent::EVENT_HANDLE, 10);
+
 
 $i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
 $i1date = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date"));

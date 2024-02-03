@@ -109,9 +109,9 @@ function getAuthPortalUsers()
     <meta charset="utf-8" />
     <?php
     if (IS_PORTAL) {
-        Header::setupHeader(['no_main-theme',  'portal-theme', 'ckeditor', 'angular', 'angular-sanitize', 'checklist-model']);
+        Header::setupHeader(['no_main-theme',  'portal-theme', 'ckeditor', 'angular', 'angular-sanitize', 'checklist-model', 'dompurify']);
     } else {
-        Header::setupHeader(['ckeditor', 'angular', 'angular-sanitize', 'checklist-model']);
+        Header::setupHeader(['ckeditor', 'angular', 'angular-sanitize', 'checklist-model', 'dompurify']);
     }
     ?>
     <title><?php echo xlt("Secure Messaging"); ?></title>
@@ -333,12 +333,13 @@ function getAuthPortalUsers()
                 };
 
                 $scope.renderMessageBody = function (html) {
+                    html = DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
                     return html;
                 };
 
                 $scope.htmlToText = function (html) {
                     const hold = document.createElement('DIV');
-                    hold.innerHTML = html;
+                    hold.innerHTML = DOMPurify.sanitize(html, { USE_PROFILES: { html: true } });
                     return jsText(hold.textContent || hold.innerText || '');
                 };
 

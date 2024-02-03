@@ -88,17 +88,7 @@ var app = {
 		return str;
 
 	},
-
-	/**
-	 * Convenience method for creating an option
-	 */
-	getOptionHtml: function(val,label,selected)	{
-		return '<option value="' + _.escape(val) + '" ' + (selected ? 'selected="selected"' : '') +'>'
-			+ _.escape(label)
-			+ '</option>';
-	},
-
-	/**
+    /**
      * A server error should contain json data, but if a fatal php error occurs it
      * may contain html.  the function will parse the return contents of an
      * error response and return the error message

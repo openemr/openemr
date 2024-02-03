@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2021 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,6 +18,7 @@ use Application\Model\ApplicationTable;
 use Carecoordination\Model\CarecoordinationTable;
 use Document;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\InsuranceService;
@@ -26,6 +29,7 @@ require_once __DIR__ . '/../../../library/forms.inc.php';
 class CdaTemplateImportDispose
 {
     protected $codeService;
+    protected $userauthorized;
 
     public function __construct()
     {
@@ -2018,10 +2022,27 @@ class CdaTemplateImportDispose
         $data["provider"] = $ins_id;
         $data["date"] = $payer['low_date'] ?? null;
         $data["type"] = 'primary';
+        $data['pid'] = $pid;
         $data["plan_name"] = 'QRDA Payer';
         $data["policy_number"] = $payer['code'] ?? '1';
 
-        $id_data = $insuranceData->insert($pid, 'primary', $data);
+        if ($insuranceData->doesInsuranceTypeHaveEntry($pid, 'primary')) {
+            $insuranceEntry = $insuranceData->search(['type' => 'primary', 'pid' => $pid]);
+            if ($insuranceEntry->hasData()) {
+                $data['uuid'] = $insuranceEntry->getData()[0]['uuid'];
+                $id_data = $insuranceData->update($data);
+            }
+        } else {
+            $id_data = $insuranceData->insert($data);
+        }
+        if (!$id_data->isValid()) {
+            (new SystemLogger())->errorLogCaller(
+                'Error inserting insurance data',
+                [
+                    'internalErrors' => $id_data->getInternalErrors(), 'validationErrors' => $id_data->getValidationMessages()
+                ]
+            );
+        }
     }
 
     /**

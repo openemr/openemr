@@ -1,0 +1,425 @@
+{#
+Twig file that represents the insurance edit screen and holds all of the javascript templates and embedded twig partial
+files for editing and adding new insurance policies for a patient.
+
+@package   OpenEMR
+@link      http://www.open-emr.org
+@author    Stephen Nielson <snielson@discoverandchange.com>
+@copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+@license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<html>
+<head>
+    <title>{% block title %}{{ "Insurance Edit"|xlt }}{% endblock %}</title>
+    {{ setupHeader(['common','select2', 'erx', 'select2-translated', 'il8formatting', 'datetime-picker', 'datetime-picker-translated' ]) }}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    {% block scripts %}
+    {% endblock %}
+
+    <style>
+        div.insuranceEditContainer div.label_custom span {
+            font-size: 0.8rem;
+            display: inline-flex;
+            height: 100%;
+            align-items: center;
+            line-height: 1.2;
+        }
+
+        {% if rightJustifyLabels and languageDirection == 'ltr' %}
+            div.label_custom {
+              text-align: right !important;
+            }
+
+            div.tab td.data, div.data {
+                padding-left: 0.5em;
+                padding-right: 2em;
+            }
+        {% endif %}
+    </style>
+</head>
+<body class="body_top">
+{% block preContent %}{% endblock %}
+{% block content %}
+
+{% set dataTypeSelectList = 1 %}
+{% set dataTypeText = 2 %}
+{% set dataTypeDate = 4 %}
+
+{# Note that date fields are handled in javascript because we are building a template instead of handling it all via php  #}
+{# Note that empty_title: 'SKIP' is a hack in the function to skip a title... terrible but is the existing code unfortunately in generate_form_field. #}
+{% set fields = {
+    left: [{
+        name: "Plan Name"|xl
+        ,required: false
+        ,data_type: dataTypeText
+        ,field_id: "plan_name"
+        ,fld_length: 20
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1 js-swap-insurance"
+    }
+    ,{
+        name: "Effective Date"|xl
+        ,required: true
+        ,data_type: dataTypeDate
+        ,field_id: "date"
+        ,fld_length: 16
+        ,max_length: 60
+        ,smallform: 'true'
+        ,classNames: "datepicker mb-1"
+        ,autocomplete: 'off'
+    },{
+        name: "Effective Date End"|xl
+        ,required: false
+        ,data_type: dataTypeDate
+        ,field_id: "date_end"
+        ,fld_length: 16
+        ,max_length: 60
+        ,smallform: 'true'
+        ,classNames: "datepicker mb-1"
+        ,autocomplete: 'off'
+    }, {
+        name: "Policy Number"|xl
+        ,required: true
+        ,data_type: dataTypeText
+        ,field_id: "policy_number"
+        ,fld_length: 16
+        ,max_length: 60
+        ,smallform: 'true'
+        ,classNames: "js-policykeyup mb-1"
+    }, {
+        name: "Group Number"|xl
+        ,required: false
+        ,data_type: dataTypeText
+        ,field_id: "group_number"
+        ,fld_length: 16
+        ,max_length: 60
+        ,smallform: 'true'
+        ,classNames: "js-policykeyup mb-1"
+    },{
+        name: "Subscriber Employer (SE)"|xl
+        ,required: false
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_employer"
+        ,fld_length: 25
+        ,max_length: 60
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1"
+        ,skip: include_employers
+        ,description: 'if unemployed enter Student'|xl ~','~'PT Student, or leave blank'|xl
+    },{
+        name: "SE Address"|xl
+        ,required: false
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_employer_street"
+        ,fld_length: 25
+        ,max_length: 60
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1"
+        ,skip: include_employers
+    },{
+        name: "SE Address Line 2"|xl
+        ,required: false
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_employer_street_line_2"
+        ,fld_length: 25
+        ,max_length: 60
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1"
+        ,skip: include_employers
+    },{
+        name: "SE City"|xl
+        ,required: false
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_employer_city"
+        ,fld_length: 15
+        ,max_length: 60
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1"
+        ,skip: include_employers
+    },{
+        name: "SE State"|xl
+        ,required: false
+        ,data_type: state_data_type
+        ,field_id: "subscriber_employer_state"
+        ,fld_length: 15
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1 sel2"
+        ,list_id: state_list
+        ,skip: include_employers and useStateTerminology
+    }, {
+        name: "SE Locality"|xl
+        ,required: false
+        ,data_type: state_data_type
+        ,field_id: "subscriber_employer_state"
+        ,fld_length: 15
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1 sel2"
+        ,list_id: state_list
+        ,skip: include_employers and not useStateTerminology
+    }, {
+        name: "SE Zip Code"|xl
+        ,required: false
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_employer_postal_code"
+        ,fld_length: 15
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1 js-verify-address"
+        ,skip: include_employers and useStateTerminology
+    }, {
+        name: "SE Postal Code"|xl
+        ,required: false
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_employer_postal_code"
+        ,fld_length: 15
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1 js-verify-address"
+        ,skip: include_employers and not useStateTerminology
+    }, {
+        name: "SE Country"|xl
+        ,required: false
+        ,data_type: country_data_type
+        ,field_id: "subscriber_employer_country"
+        ,fld_length: 10
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1 sel2"
+        ,list_id: country_list
+        ,skip: include_employers
+    }]
+    ,right: [{
+        name: "Subscriber"|xl
+        ,required: true
+        ,compound: [{
+            data_type: dataTypeText
+            ,name: "Subscriber First Name"|xl
+            ,field_id: "subscriber_fname"
+            ,fld_length: 10
+            ,max_length: 60
+            ,smallform: 'true'
+            ,classNames: "js-capitalize-me mb-1"
+        }, {
+            data_type: dataTypeText
+            ,name: "Subscriber Middle Name"|xl
+            ,field_id: "subscriber_mname"
+            ,fld_length: 10
+            ,max_length: 60
+            ,smallform: 'true'
+            ,classNames: "js-capitalize-me mb-1"
+        }, {
+            data_type: dataTypeText
+            ,name: "Subscriber Last Name"|xl
+            ,field_id: "subscriber_lname"
+            ,fld_length: 10
+            ,max_length: 60
+            ,smallform: 'true'
+            ,classNames: "js-capitalize-me mb-1"
+        }]
+    }, {
+        name: "D.O.B."|xl
+        ,data_type: dataTypeDate
+        ,required: true
+        ,field_id: "subscriber_DOB"
+        ,fld_length: 11
+        ,max_length: 60
+        ,smallform: 'true'
+        ,classNames: "datepicker mb-1"
+        ,autocomplete: 'off'
+    }, {
+        name: "Sex"|xl
+        ,data_type: dataTypeSelectList
+        ,required: true
+        ,field_id: "subscriber_sex"
+        ,list_id: 'sex'
+        ,smallform: 'true'
+        ,classNames: "mb-1 sel2"
+    }, {
+        name: "S.S."|xl
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_ss"
+        ,fld_length: 11
+        ,smallform: 'true'
+        ,classNames: "mb-1"
+        ,required: true
+    }, {
+        name: "Subscriber Address"|xl
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_street"
+        ,fld_length: 20
+        ,smallform: 'true'
+        ,classNames: "mb-1 js-capitalize-me"
+        ,required: true
+    }, {
+        name: "Address Line 2"|xl
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_street_line_2"
+        ,fld_length: 20
+        ,smallform: 'true'
+        ,classNames: "mb-1 js-capitalize-me"
+        ,required: false
+    },{
+        name: "City"|xl
+        ,required: true
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_city"
+        ,fld_length: 15
+        ,max_length: 60
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1"
+    },{
+        name: "State"|xl
+        ,required: true
+        ,data_type: state_data_type
+        ,field_id: "subscriber_state"
+        ,fld_length: 15
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1 sel2"
+        ,list_id: state_list
+        ,skip: useStateTerminology
+    }, {
+        name: "Locality"|xl
+        ,required: true
+        ,data_type: state_data_type
+        ,field_id: "subscriber_state"
+        ,fld_length: 15
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1 sel2"
+        ,list_id: state_list
+        ,skip: not useStateTerminology
+    }, {
+        name: "Zip Code"|xl
+        ,required: true
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_postal_code"
+        ,fld_length: 15
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1 js-verify-address"
+        ,skip: useStateTerminology
+    }, {
+        name: "Postal Code"|xl
+        ,required: true
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_postal_code"
+        ,fld_length: 15
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1 js-verify-address"
+        ,skip: not useStateTerminology
+    }, {
+        name: "Country"|xl
+        ,required: true
+        ,data_type: country_data_type
+        ,field_id: "subscriber_country"
+        ,fld_length: 10
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "js-capitalize-me mb-1 sel2"
+        ,list_id: country_list
+    }, {
+        name: "Subscriber Phone"|xl
+        ,required: false
+        ,data_type: dataTypeText
+        ,field_id: "subscriber_phone"
+        ,fld_length: 20
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "mb-1"
+    }, {
+        name: "CoPay"|xl
+        ,required: false
+        ,data_type: dataTypeText
+        ,field_id: "copay"
+        ,fld_length: 6
+        ,max_length: 63
+        ,smallform: 'true'
+        ,classNames: "mb-1"
+    }, {
+        name: "Accept Assignment"|xl
+        ,required: true
+        ,data_type: dataTypeSelectList
+        ,field_id: "accept_assignment"
+        ,list_id: 'yesno'
+        ,smallform: 'true'
+        ,classNames: "mb-1 sel2"
+        ,empty_title: 'SKIP'
+    }]
+}
+%}
+    <div class="container-xl container-loading">
+        <div class="alert alert-info">
+            <h3>{{ "Loading..."|xlt }} <i class="wait fa fa-cog fa-spin ml-2"></i></h3>
+        </div>
+    </div>
+    <div class="container-xl container-loaded d-none">
+        <div class="row">
+            <div class="col-12">
+                <h2>{{ "Edit Current Insurance"|xlt }}</h2>
+            </div>
+            <div class="col-12">
+                <div class="btn-group text-align-right">
+                    <input type="button" class="btn btn-primary btn-add-policy" value="{{ 'Add New Policy'|xla }}" />
+                    <input type="button" class="btn btn-danger d-none btn-edit-return" value="{{ 'Return to Edit Screen'|xla }}" />
+                    <a href="./demographics.php" class="btn btn-secondary"><i class="fa fa-back"></i>{{ 'Back to Patient'|xlt }}</a>
+                </div>
+                <hr />
+            </div>
+        </div>
+        {# TODO: @adunsulag note that the form with id DEM here has a number of hard-coded styles which is where the insurance form gets its layout from. look at changing this. #}
+        <form id="DEM">
+            <div class="section-header">
+                <span class="text font-weight-bold">{{ "Insurance"|xlt }}</span>
+            </div>
+            {% include "patient/insurance/_insurance_edit_screen_new.html.twig" %}
+            {% include "patient/insurance/_insurance_edit_screen_edit.html.twig" %}
+        </form>
+    </div>
+    <script type="module">
+        // import { InsuranceEditController } from webroot + '/library/js/oeUI/insurance/InsuranceEditController.js';
+        // need to hit the server endpoint to grab the patient insurances for the given pid
+        // then I need to popualate the twig template with the data
+        let csrfToken = {{ csrfTokenRaw('api')|js_escape() }};
+        let puuid = {{ puuid|js_escape() }};
+        let url = {{ webroot|js_escape() }} + '/apis/' + {{ session.site_id|js_escape() }} + '/api/';
+        let types = {{ insuranceTypes|js_escape() }};
+        let insuranceProviderList = {{ insuranceProviderList|js_escape() }};
+
+        window.addEventListener("DOMContentLoaded", function() {
+            // due to our dynamic nature we need to do a dynamic import of the controller
+            {# TODO: @adunsulag check with @brady.miller to find out if there is a need to escape the cache param here due to the global v_include #}
+            import({{ webroot|js_escape() }} + "/library/js/oeUI/insurance/InsuranceEditMainController.js?v=" + {{ getAssetCacheParamRaw()|js_escape() }})
+                .then(result => {
+                    /**
+                     * @typedef InsuranceEditMainControllerModule
+                     * @type {object}
+                     * @property {InsuranceEditMainController} InsuranceEditMainController
+                     */
+                    /**
+                     * This is a dynamic module import due to the way we construct our import urls.  We do a custom type definition
+                     * so we can get intellisense support.  You can see the type definition above in order to jump to the definition
+                     * of the file.
+                     * @type {InsuranceEditMainControllerModule}
+                     */
+                    let moduleResult = result;
+                    let insuranceEditController = new result.InsuranceEditMainController(csrfToken, url, insuranceProviderList, types, puuid);
+                    insuranceEditController.init();
+                })
+                .catch(err => {
+                    // not much we can do here...
+                    // TODO: @adunsulag do we notify the end user the whole system is down?
+                    console.log(err);
+                });
+        });
+    </script>
+{% endblock %}
+{% block postContent %}{% endblock %}
+        </form>
+    </div>
+</body>
+</html>

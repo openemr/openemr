@@ -48,7 +48,7 @@ class QueryBuilder
             // debugging sequence of loading tables
             // print "<div>QueryBuilder->AddFieldMap:" . $tablealias . "-&gt;" . $fm->ColumnName . "</div>";
 
-        $this->Columns [$tablealias . "-" . $fm->ColumnName] = $fm->FieldType == FM_CALCULATION ? $fm->ColumnName : "`" . $tablealias . "`.`" . $fm->ColumnName . "` as `" . $fm->ColumnName . "___" . $fm->TableName . "___" . $this->_counter ++ . "`";
+        $this->Columns [$tablealias . "-" . $fm->ColumnName] = $fm->FieldType == FM_CALCULATION ? $fm->ColumnName : "`" . $tablealias . "`.`" . $fm->ColumnName . "` as `" . $fm->ColumnName . "___" . $fm->TableName . "___" . $this->_counter++ . "`";
     }
     private $_keymapcache = array (); // used to check for recursive eager fetching
     private $_prevkeymap; // used to check for recursive eager fetching

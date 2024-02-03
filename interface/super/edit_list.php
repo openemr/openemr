@@ -61,7 +61,7 @@ function listChecksum($list_id)
             "fs_category, fs_option, fs_codes" .
             "))) AS checksum FROM fee_sheet_options"
         );
-    } else if ($list_id == 'code_types') {
+    } elseif ($list_id == 'code_types') {
         $row = sqlQuery(
             "SELECT BIT_XOR(CRC32(CONCAT_WS(',', " .
             "ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_mask, ct_fee, ct_rel, ct_nofs, ct_diag" .
@@ -352,6 +352,9 @@ function getCodeDescriptions($codes)
             if (!empty($tmp[0] ?? null)) {
                 $code = $tmp[0] ?? '';
                 $modifier = $tmp[1] ?? '';
+                $modifier .= ($tmp[2] ?? '') ? ":" . $tmp[2] : '';
+                $modifier .= ($tmp[3] ?? '') ? ":" . $tmp[3] : '';
+                $modifier .= ($tmp[4] ?? '') ? ":" . $tmp[4] : '';
             }
         } else {
             $code = $arrcode[1];

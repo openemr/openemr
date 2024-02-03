@@ -498,6 +498,9 @@ class RuleManager
     {
         $rule = $this->getRule($ruleId);
 
+        // if $types is empty, then set to empty array so the in_array() calls below will work
+        $types = $types ?: [];
+
         if (is_null($rule)) {
             // add
             $result = sqlQuery("select count(*)+1 AS id from clinical_rules");

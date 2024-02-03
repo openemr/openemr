@@ -12,11 +12,13 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2010 MMF Systems, Inc
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019-2023 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -668,7 +670,7 @@ class EDI270
             $showString .= "</div>";
         }
         if ($title === 1) {
-            $showString = "<br /><span><b>" . xlt("Nothing To Report") . "</b></span><br />";
+            $showString .= "<br /><span><b>" . xlt("Nothing To Report") . "</b></span><br />";
         }
         $showString .= "</div>\n";
         echo $showString;

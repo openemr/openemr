@@ -6,7 +6,9 @@
  * @package openemr
  * @link      http://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -83,6 +85,8 @@ class QueryUtils
     public static function fetchSingleValue($sqlStatement, $column, $binds = array())
     {
         $records = self::fetchTableColumn($sqlStatement, $column, $binds);
+        // note if $records[0] is actually the value 0 then the value returned is null...
+        // do we want that behavior?
         if (!empty($records[0])) {
             return $records[0];
         }

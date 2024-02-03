@@ -857,7 +857,7 @@ class DocumentTemplateService extends QuestionnaireService
      * @param $current_user
      * @return string
      */
-    public function renderPortalTemplateMenu($current_patient, $current_user, $dropdown = false): string
+    public function renderPortalTemplateMenu($current_patient, $current_user, $portal = true): string
     {
         $menu = "";
         $category_list = $this->getFormattedCategories();
@@ -896,11 +896,20 @@ class DocumentTemplateService extends QuestionnaireService
                     }
                     $id = $template['id'];
                     $btnname = $template['template_name'];
-                    if (!empty($in_edit)) {
-                        $menu .= '<a class="dropdown-item template-item text-primary btn btn-link font-weight-bold" id="' . attr($id) . '"' .
-                            ' data-history_id="' . attr($in_edit['id']) . '"' . ' href="#" onclick="page.editHistoryDocument(' . attr_js($in_edit['id']) . ')">' . text($btnname) . "</a>\n";
+                    if ($portal) {
+                        if (!empty($in_edit)) {
+                            $menu .= '<a class="dropdown-item template-item text-primary btn btn-link font-weight-bold" id="' . attr($id) . '"' .
+                                ' data-history_id="' . attr($in_edit['id']) . '"' . ' href="#" onclick="page.editHistoryDocument(' . attr_js($in_edit['id']) . ')">' . text($btnname) . "</a>\n";
+                        } else {
+                            $menu .= '<a class="dropdown-item template-item text-success btn btn-link" id="' . attr($id) . '"' . ' href="#" onclick="page.newDocument(' . attr_js($current_patient) . ', ' . attr_js($current_user) . ', ' . attr_js($btnname) . ', ' . attr_js($id) . ')">' . text($btnname) . "</a>\n";
+                        }
                     } else {
-                        $menu .= '<a class="dropdown-item template-item text-success btn btn-link" id="' . attr($id) . '"' . ' href="#" onclick="page.newDocument(' . attr_js($current_patient) . ', ' . attr_js($current_user) . ', ' . attr_js($btnname) . ', ' . attr_js($id) . ')">' . text($btnname) . "</a>\n";
+                        if (empty($in_edit)) {
+                            $menu .= '<a class="dropdown-item template-item text-success btn btn-link" id="' . attr($id) . '"' . ' href="#" onclick="callTemplateModule(' . attr_js($current_patient) . ', ' . attr_js($current_user) . ', ' . attr_js($btnname) . ', ' . attr_js($id) . ', 0)">' . text($btnname) . "</a>\n";
+                        } else {
+                            $menu .= '<a class="dropdown-item template-item text-primary btn btn-link font-weight-bold" id="' . attr($id) . '"' .
+                                ' data-history_id="' . attr($in_edit['id']) . '"' . ' href="#" onclick="callTemplateModule(' . attr_js($current_patient) . ', ' . attr_js($current_user) . ', ' . attr_js($btnname) . ', ' . attr_js($id) . ', 1)">' . text($btnname) . "</a>\n";
+                        }
                     }
                 }
                 if (!$flag) {

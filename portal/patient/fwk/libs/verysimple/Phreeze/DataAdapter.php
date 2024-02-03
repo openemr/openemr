@@ -162,7 +162,7 @@ class DataAdapter implements IObservable
             } catch (Exception $ex) {
                 // retry one time a communication error occurs
                 if ($this->_num_retries == 0 && DataAdapter::$RETRY_ON_COMMUNICATION_ERROR && $this->IsCommunicationError($ex)) {
-                    $this->_num_retries ++;
+                    $this->_num_retries++;
                     $this->Observe("DataAdapter ($this->_label) Communication error.  Retry attempt " . $this->_num_retries, OBSERVE_WARN);
                     sleep(2); // slight delay to prevent throttling
                     return $this->Open();
@@ -237,7 +237,7 @@ class DataAdapter implements IObservable
         } catch (Exception $ex) {
             // retry one time a communication error occurs
             if ($this->_num_retries == 0 && DataAdapter::$RETRY_ON_COMMUNICATION_ERROR && $this->IsCommunicationError($ex)) {
-                $this->_num_retries ++;
+                $this->_num_retries++;
                 $this->Observe("DataAdapter ($this->_label) Communication error.  Retry attempt " . $this->_num_retries, OBSERVE_WARN);
                 sleep(2); // slight delay to prevent throttling
                 return $this->Select($sql);
@@ -293,7 +293,7 @@ class DataAdapter implements IObservable
             } catch (Exception $ex) {
                 // retry one time a communication error occurs
                 if ($this->_num_retries == 0 && DataAdapter::$RETRY_ON_COMMUNICATION_ERROR && $this->IsCommunicationError($ex)) {
-                    $this->_num_retries ++;
+                    $this->_num_retries++;
                     $this->Observe("DataAdapter ($this->_label) Communication error.  Retry attempt " . $this->_num_retries, OBSERVE_WARN);
                     sleep(2); // slight delay to prevent throttling
                     return $this->Execute($sql);

@@ -106,9 +106,11 @@ class AuthUtils
                 privStatement("UPDATE `globals` SET `gl_value` = ? WHERE `gl_name` = 'hidden_auth_dummy_hash'", [$this->dummyHash]);
             }
         }
-        if ($GLOBALS['password_expiration_days'] === '') {
+
+        $password_expiration_days = (privQuery("SELECT * FROM `globals` WHERE `gl_name` = 'password_expiration_days' AND `gl_index` = 0")['gl_value'] ?? null);
+        if ($password_expiration_days === '') {
             $GLOBALS['password_expiration_days'] = 0;
-            sqlQuery("UPDATE `globals` SET `gl_value` = ? WHERE `globals`.`gl_name` = 'password_expiration_days' AND `globals`.`gl_index` = '0' ", ['0']);
+            privStatement("UPDATE `globals` SET `gl_value` = ? WHERE `globals`.`gl_name` = 'password_expiration_days' AND `globals`.`gl_index` = '0'", ['0']);
             error_log("Blank global password_expiration_days updated to 0");
         }
     }
@@ -1004,7 +1006,7 @@ class AuthUtils
 
     private function checkPasswordNotExpired($user)
     {
-        if ((empty($GLOBALS['password_expiration_days'] ?? 0)) || self::useActiveDirectory($user)) {
+        if (($GLOBALS['password_expiration_days'] == 0) || self::useActiveDirectory($user)) {
             // skip the check if turned off or using active directory for login
             return true;
         }
