@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  *  @package OpenEMR
  *  @link    http://www.open-emr.org
  *  @author  Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -15,7 +15,7 @@ require_once("$srcdir/patient.inc");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
-
+use OpenEMR\Core\Header;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\Container;
 
@@ -73,6 +73,7 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
 <head>
  <meta charset="utf-8">
  <title><?php echo xlt('Weno eRx') ?></title>
+ <?php Header::setupHeader(); ?>
 </head>
 <body >
      

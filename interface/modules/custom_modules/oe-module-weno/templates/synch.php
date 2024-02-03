@@ -1,12 +1,13 @@
 <?php
 
-/*
+/**
  *  @package OpenEMR
  *  @link    http://www.open-emr.org
  *  @author  omegasystemsgroup.com
  *  @copyright Copyright (c) 2023 omegasystemsgroup.com <info@omegasystemsgroup.com>
  *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 require_once(dirname(__DIR__, 4) . "/globals.php");
 
 use OpenEMR\Modules\WenoModule\Services\LogProperties;
