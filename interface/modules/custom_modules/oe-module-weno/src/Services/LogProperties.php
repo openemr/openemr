@@ -143,7 +143,7 @@ class LogProperties
         $logurlparam = $this->logEpcs();
         $syncLogs = "https://online.wenoexchange.com/en/EPCS/DownloadNewRxSyncDataVal?useremail=";
         if ($logurlparam == 'error') {
-            echo xlt("Cipher failure check encryption key");
+            echo TransmitProperties::styleErrors(xlt("Cipher failure check encryption key"));
             error_log("Cipher failure check encryption key", time());
             exit;
         }
@@ -187,16 +187,17 @@ class LogProperties
             if (!empty($provider_info)) {
                 return $provider_info;
             } else {
-                $error = "Provider email address is missing. Go to [User settings > Email] to add provider's weno registered email address";
+                $error = xlt("Provider email address is missing. Go to [User settings > Email] to add provider's weno registered email address");
                 error_log($error);
-                exit;
+                TransmitProperties::errorWithDie($error);
             }
         } else if ($GLOBALS['weno_admin_username']) {
             $provider_info["email"] = $GLOBALS['weno_admin_username'];
             return $provider_info;
         } else {
-            $error = "Provider email address is missing. Go to [User settings > Email] to add provider's weno registered email address";
+            $error = xlt("Provider email address is missing. Go to User settings Weno tab to add provider's weno registered email address");
             error_log($error);
+            echo TransmitProperties::styleErrors($error);
             exit;
         }
     }
