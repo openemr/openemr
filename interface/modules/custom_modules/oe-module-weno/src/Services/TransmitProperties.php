@@ -15,6 +15,7 @@
 namespace OpenEMR\Modules\WenoModule\Services;
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Services\FacilityService;
 
 class TransmitProperties
 {
@@ -98,13 +99,13 @@ class TransmitProperties
     }
 
     /**
-     * @return mixed
+     * @return array|void
      */
     public function getProviderEmail()
     {
         $provider_info = ['email' => $GLOBALS['weno_provider_email']];
         if (empty($provider_info['email'])) {
-            echo xlt('Provider email address is missing. Go to [User Settings select Weno Tab] and enter your Weno Provider Password');
+            echo self::styleErrors(xlt('Provider email address is missing and required. Go to User Settings select Weno Tab and enter your Weno Provider Password'));
             exit;
         } else {
             return $provider_info;
@@ -112,24 +113,31 @@ class TransmitProperties
     }
 
     /**
-     * @return mixed
+     * @return array|false|null
      */
-    public function getFacilityInfo()
+    public function getFacilityInfo(): array|null|false
     {
-        $locid = sqlQuery("select name, street, city, state, postal_code, phone, fax, weno_id from facility where id = ?", [$_SESSION['facilityId'] ?? null]);
+        // is user logged into facility
+        if (!empty($_SESSION['facilityId'])) {
+            $locId = sqlQuery("select name, street, city, state, postal_code, phone, fax, weno_id from facility where id = ?", [$_SESSION['facilityId'] ?? null]);
+        } else {
+            // from users facility
+            $facilityService = new FacilityService();
+            $locId = $facilityService->getFacilityForUser($_SESSION['authUserID']);
+        }
 
-        if (empty($locid['weno_id'])) {
+        if (empty($locId['weno_id'])) {
             //if not in an encounter then get the first facility location id as default
-            $default_facility = sqlQuery("SELECT name, street, city, state, postal_code, phone, fax, weno_id from facility order by id asc limit 1");
+            $default_facility = sqlQuery("SELECT name, street, city, state, postal_code, phone, fax, weno_id from facility order by id limit 1");
 
-            if (empty($default_facility)) {
-                echo xlt('Facility ID is missing. head over to Admin -> Other -> Weno Management. Enter the Weno ID of your facility');
+            if (empty($default_facility['weno_id'])) {
+                echo self::styleErrors(xlt('Facility ID is missing. From Admin select Other then Weno Management. Enter the Weno ID of your facility'));
                 exit;
             } else {
                 return $default_facility;
             }
         }
-        return $locid;
+        return $locId;
     }
 
     /**
@@ -147,40 +155,47 @@ class TransmitProperties
         }
         $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, postal_code, dob, sex, pid from patient_data where pid=?", [$_SESSION['pid']]);
         if (empty($patient['fname'])) {
-            $log .= xlt("First Name Missing, head over to the Patient Chart select Demographics select Who. Save and retry") . "<brselect";
+            $log .= xlt("First Name Missing, From the Patient Chart select Demographics select Who. Save and retry") . "<brselect";
             ++$missing;
         }
         if (empty($patient['lname'])) {
-            $log .= xlt("Last Name Missing, head over to the Patient Chart select Demographics select Who. Save and retry") . "<br>";
+            $log .= xlt("Last Name Missing, From the Patient Chart select Demographics select Who. Save and retry") . "<br>";
             ++$missing;
         }
         if (empty($patient['dob'])) {
-            $log .= xlt("Date of Birth Missing, head over to the Patient Chart select Demographics select Who. Save and retry") . "<br>";
+            $log .= xlt("Date of Birth Missing, From the Patient Chart select Demographics select Who. Save and retry") . "<br>";
             ++$missing;
         }
         if (empty($patient['sex'])) {
-            $log .= xlt("Gender Missing, head over to the Patient Chart select Demographics select Who. Save and retry") . "<br>";
+            $log .= xlt("Gender Missing, From the Patient Chart select Demographics select Who. Save and retry") . "<br>";
             ++$missing;
         }
         if (empty($patient['postal_code'])) {
-            $log .= xlt("Zip Code Missing, head over to the Patient Chart select Demographics select Contact select Postal Code. Save and retry") . "<br>";
+            $log .= xlt("Zip Code Missing, From the Patient Chart select Demographics select Contact select Postal Code. Save and retry") . "<br>";
             ++$missing;
         }
         if (empty($patient['street'])) {
-            $log .= xlt("Street Address incomplete Missing, head over to the Patient Chart select Demographics select Contact. Save and retry") . "<br>";
+            $log .= xlt("Street Address incomplete Missing, From the Patient Chart select Demographics select Contact. Save and retry") . "<br>";
             ++$missing;
         }
         if ($missing > 0) {
-            $this->errorWithDie($log);
+            self::errorWithDie($log);
         }
         return $patient;
     }
 
-    public function errorWithDie($error)
+    public static function styleErrors($error): string
     {
-        $log = "<div><p style='font-size: 1.25rem; background-color: white; color: red;'>" .
-            $error . "<br />" . xlt('Please address errors and try again') .
+        $log = "<div><p style='font-size: 1.25rem; color: red;'>" .
+            $error . "<br />" . xlt('Please address errors and try again!') .
+            "<br />" . xlt("Use browser Back button or Click Patient Name from top Patient bar.") .
             "</p></div>";
+        return $log;
+    }
+
+    public static function errorWithDie($error): void
+    {
+        $log = self::styleErrors($error);
         die($log);
     }
 
@@ -237,8 +252,8 @@ class TransmitProperties
     {
         $data = sqlQuery("SELECT * FROM `weno_assigned_pharmacy` WHERE `pid` = ? ", [$_SESSION["pid"]]);
         if (empty($data)) {
-            $log = xlt("Weno Pharmacies not set. Head over to Patient's Demographics select Choices then select Weno Pharmacy Selector to Assign Pharmacies");
-            $this->errorWithDie($log);
+            $log = xlt("Weno Pharmacies not set. From Patient's Demographics select Choices then select Weno Pharmacy Selector to Assign Pharmacies");
+            self::errorWithDie($log);
         }
         $response = array(
             "primary" => $data['primary_ncpdp'],
@@ -246,13 +261,13 @@ class TransmitProperties
         );
 
         if (empty($response['primary'])) {
-            $log = xlt("Weno Primary Pharmacy not set. Head over to Patient's Demographics select Choices then select Weno Pharmacy Selector to Assign Primary Pharmacy");
-            $this->errorWithDie($log);
+            $log = xlt("Weno Primary Pharmacy not set. From Patient's Demographics select Choices then select Weno Pharmacy Selector to Assign Primary Pharmacy");
+            self::errorWithDie($log);
         }
 
         if (empty($response['alternate'])) {
-            $log = xlt("Weno Alternate Pharmacy not set. Head over to Patient's Demographics select Choices then select Weno Pharmacy Selector to Assign Primary Pharmacy");
-            $this->errorWithDie($log);
+            $log = xlt("Weno Alternate Pharmacy not set. From Patient's Demographics select Choices then select Weno Pharmacy Selector to Assign Primary Pharmacy");
+            self::errorWithDie($log);
         }
         return $response;
     }

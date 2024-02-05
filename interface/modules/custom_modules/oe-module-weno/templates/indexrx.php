@@ -18,6 +18,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\Container;
+use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 
 
 //ensure user has proper access
@@ -46,7 +47,7 @@ $facility_name = $wenoProperties->getFacilityInfo();
 
 $newRxUrl = "https://online.wenoexchange.com/en/NewRx/ComposeRx?useremail=";
 if ($urlParam == 'error') {   //check to make sure there were no errors
-    echo xlt("Cipher failure check encryption key");
+    echo TransmitProperties::styleErrors(xlt("Cipher failure check encryption key"));
     exit;
 }
 ?>
