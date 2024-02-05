@@ -12,8 +12,8 @@
 
 require_once(dirname(__DIR__, 5) . "/interface/globals.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
@@ -29,7 +29,7 @@ $params = [];
 
 if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_city') {
     $return_arr = array();
-    $term    = filter_input(INPUT_GET, "term");
+    $term = filter_input(INPUT_GET, "term");
     $val = '%' . $term . '%';
 
     $params[] = $val;
@@ -37,29 +37,28 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_city') {
     $sql = "SELECT city, id FROM weno_pharmacy WHERE city LIKE ? LIMIT 10";
     $res = sqlStatement($sql, $params);
     while ($row = sqlFetchArray($res)) {
-        $return_arr[] =  $row['city'];
+        $return_arr[] = $row['city'];
     }
 
     echo text(json_encode($return_arr));
 }
 
 if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
-    $term    = filter_input(INPUT_GET, "term");
+    $term = filter_input(INPUT_GET, "term");
     $val = '%' . $term . '%';
 
     $params[] = $val;
 
     $sql = "SELECT Business_Name, state, ncpdp, city, address_line_1 " .
-            "FROM weno_pharmacy WHERE Business_Name LIKE ?";
+        "FROM weno_pharmacy WHERE Business_Name LIKE ?";
 
-    $weno_coverage  = $_GET['coverage'] ?: '';
-    $weno_state     = $_GET['weno_state'] ?: '';
-    $weno_city      = $_GET['weno_city'] ?: '';
-    $full_day       = $_GET['full_day'] ? 'Yes' : '';
-    $weno_only      = $_GET['weno_only'] ? 'True' : '';
-    $weno_zipcode   = $_GET['weno_zipcode'] ?: '';
-    $weno_test_pharmacies   = $_GET['test_pharmacy'] ? 'True' : '';
-
+    $weno_coverage = $_GET['coverage'] ?? false ?: '';
+    $weno_state = $_GET['weno_state'] ?? false ?: '';
+    $weno_city = $_GET['weno_city'] ?? false ?: '';
+    $full_day = !empty($_GET['full_day']) ? 'Yes' : '';
+    $weno_only = !empty($_GET['weno_only']) ? 'True' : '';
+    $weno_zipcode = $_GET['weno_zipcode'] ?? false ?: '';
+    $weno_test_pharmacies = !empty($_GET['test_pharmacy']) ? 'True' : '';
 
     if (!empty($weno_coverage)) {
         $sql .= " AND state_wide_mail_order = ?";
@@ -92,10 +91,11 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
 
     $sql .= " ORDER BY Business_Name ASC";
 
+    $return_arr = [];
     $res = sqlStatement($sql, $params);
     while ($row = sqlFetchArray($res)) {
         $return_arr[] = array(
-            "name"  => $row['Business_Name'] . "/ " . $row['address_line_1'] . " / " . $row['city'],
+            "name" => $row['Business_Name'] . "/ " . $row['address_line_1'] . " / " . $row['city'],
             "ncpdp" => $row['ncpdp']
         );
     }
@@ -104,13 +104,13 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
 
 if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
     $sql = "SELECT Business_Name, state, ncpdp, city, address_line_1 " .
-            "FROM weno_pharmacy WHERE 1=1";
+        "FROM weno_pharmacy WHERE 1=1";
 
-    $weno_coverage  = $_GET['coverage'] ?: '';
-    $weno_state     = $_GET['weno_state'] ?: '';
-    $weno_city      = $_GET['weno_city'] ?: '';
-    $full_day       = $_GET['full_day'] ? 'Yes' : '';
-    $weno_zipcode   = $_GET['weno_zipcode'] ?: '';
+    $weno_coverage = $_GET['coverage'] ?: '';
+    $weno_state = $_GET['weno_state'] ?: '';
+    $weno_city = $_GET['weno_city'] ?: '';
+    $full_day = $_GET['full_day'] ? 'Yes' : '';
+    $weno_zipcode = $_GET['weno_zipcode'] ?: '';
     $weno_test_pharmacies = $_GET['test_pharmacy'] == 'true' ? 'True' : '';
 
     if (!empty($weno_state)) {
@@ -140,11 +140,11 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
 
     $sql .= " ORDER BY Business_Name ASC";
 
-    $res = sqlStatement($sql, $params);
     $return_arr = [];
+    $res = sqlStatement($sql, $params);
     while ($row = sqlFetchArray($res)) {
         $return_arr[] = array(
-            "name"  => $row['Business_Name'] . "/ " . $row['address_line_1'] . " / " . $row['city'],
+            "name" => $row['Business_Name'] . "/ " . $row['address_line_1'] . " / " . $row['city'],
             "ncpdp" => $row['ncpdp']
         );
     }

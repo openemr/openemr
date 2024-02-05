@@ -1,17 +1,16 @@
 <?php
 
 /**
- *  @package OpenEMR
- *  @link    http://www.open-emr.org
- *  @author  Sherwin Gaddis <sherwingaddis@gmail.com>
- *  @copyright Copyright (c) 2020 Sherwin Gaddis <sherwingaddis@gmail.com>
- *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2020 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Modules\WenoModule\Services;
 
 use OpenEMR\Common\Crypto\CryptoGen;
-use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 
 class WenoPharmaciesJson
 {
@@ -54,17 +53,28 @@ class WenoPharmaciesJson
 
         return text(json_encode($jobj));
     }
+
     private function providerEmail()
     {
+        if (empty($GLOBALS['weno_admin_username'])) {
+            return '';
+        }
         return $GLOBALS['weno_admin_username'];
     }
 
     private function providerPassword(): string
     {
+        if (empty($GLOBALS['weno_admin_password'])) {
+            return '';
+        }
         return md5($this->cryptoGen->decryptStandard($GLOBALS['weno_admin_password']));
     }
-    private function wenoEncryptionKey()
+
+    private function wenoEncryptionKey(): bool|string
     {
+        if (empty($GLOBALS['weno_encryption_key'])) {
+            return '';
+        }
         return $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);
     }
 
