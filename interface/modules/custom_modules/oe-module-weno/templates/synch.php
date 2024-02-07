@@ -25,7 +25,6 @@ if (!AclMain::aclCheckCore('patient', 'med')) {
 $logproperties = new LogProperties();
 $result = $logproperties->logSync();
 
-
 if ($result) {
     http_response_code(200);
 } else {

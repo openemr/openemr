@@ -53,7 +53,7 @@ function manage(id,action){
         success: function(data){
             try{
                 var data_json = JSON.parse(data);
-                if(data_json.status == "Success") {
+                if(data_json.status.toUpperCase() === "SUCCESS") {
                     if(data_json.output != undefined && data_json.output.length > 1) {
                         install_upgrade_log.empty()
                                            .show()
@@ -81,6 +81,7 @@ function manage(id,action){
                 }
                 else{
                     alert(data_json.status);
+                    window.location.reload();
                 }
             } catch (e) {
                     if (e instanceof SyntaxError) {

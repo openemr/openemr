@@ -120,50 +120,32 @@ $coreModules = $this->coreModules ?? [];
                                     ?>
                                 </td>
                                 <td>
-                                    <?php
-
-                                    if ($moduleResult->sqlRun == 0) {
-                                        ?>
-                                        <a href="javascript:void(0)" class="link_submit install" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','install');" title="<?php echo $listener->z_xla('Click Here to Install This module'); ?>"><input type='button' class='activate' value="<?php echo $listener->z_xla('Install'); ?>" /></a>
-                                        <?php
-                                    } elseif ($moduleResult->modActive == 1) { ?>
-                                        <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','disable');" title="<?php echo $listener->z_xla('Click Here to Disable This module'); ?>"><input type='button' class='deactivate' value="<?php echo $listener->z_xla('Disable'); ?>" /></a>
-                                    <?php } elseif ($moduleResult->modName != 'Acl') {
-                                        ?>
-                                        <a href="javascript:void(0)" class="link_submit inactive" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','enable');" title="<?php echo $listener->z_xla('Click Here to Enable This module'); ?>"><input type='button' class='activate' value="<?php echo $listener->z_xla('Enable'); ?>" /></a>
-                                        <?php
-                                    } ?>
-                                    <?php
-                                    if ($moduleResult->sql_action == "install") {
-                                        ?>
+                                    <?php if ($moduleResult->sqlRun == 0) { ?>
+                                    <a href="javascript:void(0)" class="link_submit install" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','install');" title="<?php echo $listener->z_xla('Click Here to Install This module'); ?>"><input type='button' class='activate' value="<?php echo $listener->z_xla('Install'); ?>" /></a>
+                                    <?php } elseif ($moduleResult->modActive == 1 && $moduleResult->modUiActive == 0) { ?>
+                                    <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','disable');" title="<?php echo $listener->z_xla('Click Here to Disable This module'); ?>"><input type='button' class='deactivate' value="<?php echo $listener->z_xla('Disable'); ?>" /></a>
+                                    <?php } elseif ($moduleResult->modName != 'Acl') { ?>
+                                    <a href="javascript:void(0)" class="link_submit inactive" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','enable');" title="<?php echo $listener->z_xla('Click Here to Enable This module'); ?>"><input type='button' class='activate' value="<?php echo $listener->z_xla('Enable'); ?>" /></a>
+                                    <?php } ?>
+                                    <?php if ($moduleResult->sql_action == "install") { ?>
                                         <a href="javascript:void(0)" class="link_submit install_sql" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','install_sql');" title="<?php echo $listener->z_xla('Click Here to Install SQL for module'); ?>"><input type='button' value="<?php echo $listener->z_xla('Install SQL'); ?>" /></a>
-                                    <?php } elseif ($moduleResult->sql_action == "upgrade") {
-                                        ?>
+                                    <?php } elseif ($moduleResult->sql_action == "upgrade") { ?>
                                         <a href="javascript:void(0)" class="link_submit upgrade_sql" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','upgrade_sql');" title="<?php echo $listener->z_xla('Click Here to Upgrade SQL for module'); ?>"><input type='button' onclick="blockInput(this);" value="<?php echo $listener->z_xla('Upgrade SQL'); ?>" /></a>
-                                        <?php
-                                    }
-                                    ?>
-                                    <?php
-                                    if ($moduleResult->acl_action == "install") {
-                                        ?>
+                                        <?php } ?>
+                                    <?php if ($moduleResult->acl_action == "install") { ?>
                                         <a href="javascript:void(0)" class="link_submit install_acl" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','install_acl');" title="<?php echo $listener->z_xla('Click Here to Install ACL for module'); ?>"><input type='button' onclick="blockInput(this);" value="<?php echo $listener->z_xla('Install ACL'); ?>" /></a>
-                                    <?php } elseif ($moduleResult->acl_action == "upgrade") {
-                                        ?>
+                                    <?php } elseif ($moduleResult->acl_action == "upgrade") { ?>
                                         <a href="javascript:void(0)" class="link_submit upgrade_acl" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','upgrade_acl');" title="<?php echo $listener->z_xla('Click Here to Upgrade ACL for module'); ?>"><input type='button' onclick="blockInput(this);" value="<?php echo $listener->z_xla('Upgrade ACL'); ?>" /></a>
-                                        <?php
-                                    }
-                                    ?>
+                                    <?php } ?>
                                 </td>
                                 <td>
-                                    <?php
-
-                                    if ($moduleResult->sqlRun == 0) {
-                                        ?>
+                                    <?php if ($moduleResult->sqlRun == 0) { ?>
                                         --
-                                        <?php
-                                    } elseif ($moduleResult->modActive == 1) {
-                                        ?>
+                                    <?php } elseif ($moduleResult->modActive == 1) { ?>
                                         <a href="javascript:void(0)" class="link_submit active" onclick="configure('<?php echo $this->escapeHtml($moduleResult->modId) ?>','<?php echo $this->basePath() ?>');" title="<?php echo $listener->z_xla('Click Here to Configure This module'); ?>"><img src="<?php echo $this->basePath() ?>/images/config.png" border=0></a>
+                                        <?php if ($moduleResult->modUiActive == 1 && $moduleResult->type == 0) { ?>
+                                            <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><img src="<?php echo $this->basePath() ?>/images/delete.png" border=0></a>
+                                        <?php } ?>
                                     <?php } elseif ($moduleResult->modActive == 0 && $moduleResult->type == 0) { ?>
                                         <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><img src="<?php echo $this->basePath() ?>/images/delete.png" border=0></a>
                                     <?php } else {

@@ -31,6 +31,7 @@
 */
 
 use OpenEMR\Core\AbstractModuleActionListener;
+use OpenEMR\Modules\WenoModule\Services\ModuleService;
 
 /* Allows maintenance of background tasks depending on Module Manager action. */
 
@@ -95,10 +96,34 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
      * @param $currentActionStatus
      * @return mixed
      */
+    private function preenable($modId, $currentActionStatus): mixed
+    {
+        $modService = new ModuleService();
+        if ($modService->isWenoConfigured()) {
+            $modService->setModuleState($modId, '0', '0');
+            return $currentActionStatus;
+        }
+        $this->setTaskState('0');
+        $modService->setModuleState($modId, '0', '1');
+        return $currentActionStatus;
+    }
+
+    /**
+     * @param $modId
+     * @param $currentActionStatus
+     * @return mixed
+     */
     private function enable($modId, $currentActionStatus): mixed
     {
-        $rtn = $this->setTaskState('1');
-        return $currentActionStatus;
+        $modService = new ModuleService();
+        if ($modService->isWenoConfigured()) {
+            $this->setTaskState('1');
+            $modService->setModuleState($modId, '1', '0');
+            return $currentActionStatus;
+        }
+        $this->setTaskState('0');
+        $modService->setModuleState($modId, '1', '1');
+        return xlt("Weno eRx Service is not configured. Please configure Weno eRx Service in the Weno Module Setup.");
     }
 
     /**
@@ -165,9 +190,9 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
 
     /**
      * @param $flag
-     * @return mixed
+     * @return array|bool|null
      */
-    private function setTaskState($flag): mixed
+    private function setTaskState($flag): array|bool|null
     {
         $sql_next = "UPDATE `background_services` SET `active` = ? WHERE `name` = ? OR `name` = ?";
         return sqlQuery($sql_next, array($flag, 'WenoExchange', 'WenoExchangePharmacies'));

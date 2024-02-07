@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Modules\WenoModule;
 
+use OpenEMR\Modules\WenoModule\Services\ModuleService;
 use OpenEMR\Modules\WenoModule\WenoGlobalConfig;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Kernel;
@@ -47,19 +48,23 @@ class Bootstrap
      */
     private $logger;
 
-    private $modulePath;
+    private string $modulePath;
 
     /**
      * @var SelectedPatientPharmacy
      */
-    private $selectedPatientPharmacy;
+    private SelectedPatientPharmacy $selectedPatientPharmacy;
 
     /**
      * @return void
      */
-    public function subscribeToEvents()
+    public function subscribeToEvents(): void
     {
-        $this->addGlobalSettings();
+        $modService = new ModuleService();
+        if (!$modService->isWenoConfigured()) {
+            return;
+        }
+        //$this->addGlobalSettings(); // Bye bye Config
         $this->registerMenuItems();
         $this->registerDemographicsEvents();
         $this->demographicsSelectorEvents();
@@ -68,14 +73,10 @@ class Bootstrap
         $this->patientUpdateEvents();
     }
 
-    public function __construct(EventDispatcher $dispatcher, ?Kernel $kernel = null)
+    public function __construct(EventDispatcher $dispatcher)
     {
-        if (empty($kernel)) {
-            $kernel = new Kernel();
-        }
         $this->eventDispatcher = $dispatcher;
-
-        $this->globalsConfig = new WenoGlobalConfig($GLOBALS);
+        $this->globalsConfig = new WenoGlobalConfig();
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->modulePath = dirname(__DIR__);
         $this->logger = new SystemLogger();
@@ -85,7 +86,7 @@ class Bootstrap
     /**
      * @return \Twig\Environment
      */
-    public function getTwig()
+    public function getTwig(): Environment
     {
         return $this->twig;
     }
@@ -94,7 +95,7 @@ class Bootstrap
      * @param GlobalsInitializedEvent $event
      * @return void
      */
-    public function addGlobalWenoSettings(GlobalsInitializedEvent $event)
+    public function addGlobalWenoSettings(GlobalsInitializedEvent $event): void
     {
         $settings = $this->globalsConfig->getGlobalSettingSectionConfiguration();
 
@@ -207,7 +208,7 @@ class Bootstrap
      * @param MenuEvent $event
      * @return MenuEvent
      */
-    public function addCustomMenuItem(MenuEvent $event)
+    public function addCustomMenuItem(MenuEvent $event): MenuEvent
     {
         $menu = $event->getMenu();
         //Prescription Log

@@ -140,6 +140,13 @@ class InstallerController extends AbstractActionController
             $registryEntry = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
             $dirModule = $registryEntry->modDirectory;
             $modType = $registryEntry->type;
+            // cleanup action.
+            if ($modType == InstModuleTable::MODULE_TYPE_CUSTOM) {
+                $status = $this->callModuleAfterAction("pre" . $request->getPost('modAction'), $modId, $dirModule, $status);
+                if ($status == 'bypass') {
+                    // future use
+                }
+            }
             if ($request->getPost('modAction') == "enable") {
                 $status = $this->EnableModule($request->getPost('modId'));
             } elseif ($request->getPost('modAction') == "disable") {

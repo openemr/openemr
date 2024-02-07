@@ -197,7 +197,7 @@ if (count($TabSettings) > 0) {
 } else {
     // Final check for config
     // TBD : clsOeModule
-    $rs_mod = sqlQuery('select * from modules where mod_id=? and mod_active=1', [$mod_id]);
+    $rs_mod = sqlQuery('select * from modules where mod_id=? and (mod_active=1 or mod_ui_active=1)', [$mod_id]);
     $fConfig = dirname(realpath('.')) . '/custom_modules/' . $rs_mod['mod_directory'] . '/moduleConfig.php';
     if (($rs_mod['type'] == 0) && file_exists($fConfig)) {
         ?>

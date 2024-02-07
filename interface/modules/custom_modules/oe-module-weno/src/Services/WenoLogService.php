@@ -20,29 +20,25 @@ class WenoLogService
     {
     }
 
-    public function getLastPrescriptionLogStatus()
+    public function getLastPrescriptionLogStatus(): bool|array|null
     {
         $params  = "prescription";
         $sql = "SELECT * FROM weno_download_log WHERE ";
         $sql .= "VALUE = ? ORDER BY created_at DESC LIMIT 1";
 
-        $result = sqlQuery($sql, [$params]);
-
-        return $result;
+        return sqlQuery($sql, [$params]);
     }
 
-    public function getLastPharmacyDownloadStatus()
+    public function getLastPharmacyDownloadStatus(): bool|array|null
     {
         $params = "pharmacy";
         $sql = "SELECT * FROM weno_download_log WHERE ";
         $sql .= "VALUE = ? ORDER BY created_at DESC LIMIT 1";
 
-        $result = sqlQuery($sql, [$params]);
-
-        return $result;
+        return sqlQuery($sql, [$params]);
     }
 
-    public function insertWenoLog($value, $status)
+    public function insertWenoLog($value, $status): bool|string
     {
         $sql = "INSERT INTO weno_download_log SET ";
         $sql .= "value = ?, ";
@@ -53,5 +49,6 @@ class WenoLogService
         } catch (Exception $e) {
             return $e->getMessage();
         }
+        return true;
     }
 }

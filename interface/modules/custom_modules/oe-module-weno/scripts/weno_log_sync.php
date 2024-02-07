@@ -30,9 +30,13 @@ function downloadWenoPharmacy()
     }
 }
 
+/**
+ * @throws Exception
+ */
 function downloadWenoPrescriptionLog()
 {
-    $logsync = new LogProperties();
-    $logsync->logSync();
-    error_log("Background services completed for prescription log");
+    $logSync = new LogProperties();
+    if (!$logSync->logSync()) {
+        error_log("Background services failed for prescription log.");
+    }
 }

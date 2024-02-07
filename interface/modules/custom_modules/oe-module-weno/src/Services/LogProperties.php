@@ -82,8 +82,8 @@ class LogProperties
     public function logEpcs()
     {
         $email['email'] = $this->weno_admin_email;
-        $prov_pass = $this->weno_admin_password;                // gets the password stored for the
-        $md5 = md5($prov_pass);                       // hash the current password
+        $prov_pass = $this->weno_admin_password; // gets the password stored for the
+        $md5 = md5($prov_pass); // hash the current password
         $workday = date("l");
         //Checking Saturday for any prescriptions that were written.
         if ($workday == 'Monday') {
@@ -161,9 +161,11 @@ class LogProperties
         if ($statusCode == 200) {
             file_put_contents($this->rxsynclog, $rpt);
             $logstring = "prescription log import initiated successfully";
-            EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$logstring");
+            // patched out because this inserts way too many events. i.e. every 30 minutes.
+            // EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$logstring");
             $wenolog->insertWenoLog("prescription", "Success");
         } else {
+            // yes record failures.
             EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$statusCode");
             $wenolog->insertWenoLog("prescription", "Failed");
             return false;
@@ -171,26 +173,31 @@ class LogProperties
 
         if (file_exists($this->rxsynclog)) {
             $log = new LogImportBuild();
-            $log->buildInsertArray();
-            return true;
+            $rtn = $log->buildInsertArray();
+            if (!$rtn) {
+                return false;
+            }
+        } else {
+            return false;
         }
+        return true;
     }
 
     /**
      * @return mixed
      */
-    public function getProviderEmail()
+    public function getProviderEmail(): mixed
     {
         if ($_SESSION['authUser']) {
             $provider_info = ['email' => $GLOBALS['weno_provider_email']];
-            if (!empty($provider_info)) {
+            if (!empty($provider_info['email'])) {
                 return $provider_info;
             } else {
                 $error = xlt("Provider email address is missing. Go to [User settings > Email] to add provider's weno registered email address");
                 error_log($error);
                 TransmitProperties::errorWithDie($error);
             }
-        } elseif ($GLOBALS['weno_admin_username']) {
+        } elseif ($GLOBALS['weno_admin_username'] ?? false) {
             $provider_info["email"] = $GLOBALS['weno_admin_username'];
             return $provider_info;
         } else {
@@ -204,7 +211,7 @@ class LogProperties
     /**
      * @return mixed
      */
-    public function getProviderPassword()
+    public function getProviderPassword(): mixed
     {
         if ($_SESSION['authUser']) {
             if (!empty($GLOBALS['weno_admin_password'])) {

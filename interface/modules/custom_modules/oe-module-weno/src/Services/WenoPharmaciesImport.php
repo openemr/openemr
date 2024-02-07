@@ -129,9 +129,10 @@ class WenoPharmaciesImport
                     unlink($file);
                 }
             }
-            return "Imported";
+            return text("Imported");
         } else {
-            error_log("file missing");
+            error_log("Missing Downloaded File");
+            return text("Missing Downloaded File");
         }
     }
 }

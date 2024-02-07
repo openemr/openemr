@@ -74,11 +74,9 @@ class DownloadWenoPharmacies
                 $result = $import->importPharmacy($csvFile, $files);
                 if ($result == "Imported") {
                     $wenolog->insertWenoLog("pharmacy", "Success");
-                    return $result;
                 } else {
                     return $result;
                 }
-
                 return "Imported";
             } else {
                 EventAuditLogger::instance()->newEvent(
@@ -93,9 +91,9 @@ class DownloadWenoPharmacies
             }
         } else {
             EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Failed to extract the file.");
-            echo 'Failed to extract the file.';
             error_log("Failed to extract the file.");
             $wenolog->insertWenoLog("pharmacy", "Failed");
+            return 'Failed to extract the file.';
         }
     }
 }

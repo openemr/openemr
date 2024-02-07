@@ -54,7 +54,7 @@ class LogImportBuild
         return $entry['count'];
     }
 
-    public function buildInsertArray()
+    public function buildInsertArray(): bool|string
     {
         $l = 0;
         if (file_exists($this->rxsynclog)) {
@@ -124,7 +124,8 @@ class LogImportBuild
             }
             fclose($records);
         } else {
-            echo "File is missing!";
+            return xlt("File is missing!");
         }
+        return true;
     }
 }

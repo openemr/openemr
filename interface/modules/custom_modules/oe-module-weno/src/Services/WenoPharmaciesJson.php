@@ -85,10 +85,10 @@ class WenoPharmaciesJson
 
     public function checkBackgroundService(): string
     {
-        $sql = "SELECT active FROM background_services WHERE name = 'WenoExchangePharmacies'";
+        $sql = "SELECT `active` FROM background_services WHERE `name` = 'WenoExchangePharmacies'";
         $activeStatus = sqlQuery($sql);
         if ($activeStatus['active'] == 0) {
-            sqlStatement("UPDATE background_service SET `active` = 1,  WHERE name = 'WenoExchangePharmacies'");
+            sqlStatement("UPDATE `background_services` SET `active` = 1 WHERE `name` = 'WenoExchangePharmacies'");
             return "active";
         }
         return "live";
