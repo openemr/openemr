@@ -30,6 +30,7 @@ class QrdaReportService
     protected $patientJson;
     protected $effectiveDate;
     protected $effectiveDateEnd;
+    protected $client;
     public $measuresPath;
 
     public function __construct()

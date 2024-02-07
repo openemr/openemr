@@ -3,7 +3,7 @@
 {% block head %}
     {{ parent() }}
 
-    <link href="../portal/sign/css/signer_modal.css?v={{ assetVersion | attr_url }}" rel="stylesheet"/>
+    <link href="../portal/sign/css/signer_modal.css?v={{ assetVersion | attr_url }}" rel="stylesheet" />
     <script src="../interface/main/tabs/js/dialog_utils.js?v={{ assetVersion | attr_url }}"></script>
     <script src="../portal/sign/assets/signature_pad.umd.js?v={{ assetVersion | attr_url }}"></script>
     <script src="../portal/sign/assets/signer_api.js?v={{ assetVersion | attr_url }}"></script>
@@ -52,8 +52,10 @@
         });
 
         function persist(where, portalInit = false) {
-            if (where[0] !== '#') {
-                return;
+            if (where[0]) {
+                if (where[0] !== '#') {
+                    return;
+                }
             }
             whereto = where;
             fetch('lib/persist.php', {
@@ -139,34 +141,42 @@
                 });
             });
 
-            $("#medicationlist").load("./get_medications.php", {}, function () {});
+            $("#medicationlist").load("./get_medications.php", {}, function () {
+            });
 
-            $("#labresults").load("./get_lab_results.php", {}, function () {});
+            $("#labresults").load("./get_lab_results.php", {}, function () {
+            });
 
-            $("#amendmentslist").load("./get_amendments.php", {}, function () {});
+            $("#amendmentslist").load("./get_amendments.php", {}, function () {
+            });
 
-            $("#problemslist").load("./get_problems.php", {}, function () {});
+            $("#problemslist").load("./get_problems.php", {}, function () {
+            });
 
-            $("#allergylist").load("./get_allergies.php", {}, function () {});
+            $("#allergylist").load("./get_allergies.php", {}, function () {
+            });
 
-            $("#reports").load("./report/portal_patient_report.php?pid=" + {{ patientID | js_url }}, {}, function () {});
+            $("#reports").load("./report/portal_patient_report.php?pid=" + {{ patientID | js_url }}, {}, function () {
+            });
+
+            //$("#quickstart-div").load("./quickstart_page.php", {}, function () {});
 
             {% if portal_two_payments %}
-                $("#payment").load("./portal_payment.php", {}, function () {});
+            $("#payment").load("./portal_payment.php", {}, function () {
+            });
             {% endif %}
 
             {% if isEasyPro %}
-                $("#pro").load("./get_pro.php", {}, function () {});
+            $("#pro").load("./get_pro.php", {}, function () {
+            });
             {% endif %}
-
-            //$("#quickstart-div").load("./quickstart_page.php", {}, function () {});
 
             $(".generateDoc_download").click(function () {
                 $("#doc_form").submit();
             });
 
             function showProfileModal() {
-                var title = {{ 'Profile Edits Red = Charted Values and Blue = Patient Edits' | xlj }};
+                const title = {{ 'Profile Edits Red = Charted Values and Blue = Patient Edits' | xlj }};
 
                 var params = {
                     buttons: [
@@ -282,109 +292,109 @@
         }
 
         {% if isEasyPro %}
-            function writeResult(score, stdErr, assessmentOID) {
-                $.ajax({
-                    url: '../library/ajax/easipro_util.php',
-                    data: {
-                        'csrf_token_form': {{ csrfUtils | js_escape }},
-                        'function': 'record_result',
-                        'score': score,
-                        'stdErr': stdErr,
-                        'assessmentOID': assessmentOID
-                    },
-                    type: 'POST',
-                    dataType: 'script'
-                });
-            }
+        function writeResult(score, stdErr, assessmentOID) {
+            $.ajax({
+                url: '../library/ajax/easipro_util.php',
+                data: {
+                    'csrf_token_form': {{ csrfUtils | js_escape }},
+                    'function': 'record_result',
+                    'score': score,
+                    'stdErr': stdErr,
+                    'assessmentOID': assessmentOID
+                },
+                type: 'POST',
+                dataType: 'script'
+            });
+        }
 
-            function selectResponse(obj, assessmentOID) {
-                $.ajax({
-                    url: '../library/ajax/easipro_util.php',
-                    type: "POST",
-                    data: {
-                        'csrf_token_form': {{ csrfUtils | js_escape }},
-                        'function': 'select_response',
-                        'assessmentOID': assessmentOID,
-                        'ItemResponseOID': obj.name,
-                        'Response': + obj.id
-                    },
-                    dataType: "json",
-                    success: function (data) {
-                        if (data.DateFinished != '') {
-                            document.getElementById("Content").innerHTML = jsText({{ 'You have finished the assessment.' | xlj }}) + "<br /> " + jsText({{ 'Thank you' | xlj }});
-                            $('.assessment-row').toggleClass('d-none');
-                            document.getElementById("asst_" + assessmentOID).innerHTML = "<i class='fa fa-check-circle'></i>";
-                            document.getElementById("asst_status_" + assessmentOID).innerHTML = "completed";
-                            $.ajax({
-                                url: '../library/ajax/easipro_util.php',
-                                type: "POST",
-                                data: {
-                                    'csrf_token_form': {{ csrfUtils | js_escape }},
-                                    'function': 'collect_results',
-                                    'assessmentOID': assessmentOID
-                                },
-                                dataType: "json",
-                                success: function (data) {
-                                    writeResult(data.Items[0].Theta, data.Items[0].StdError, assessmentOID);
-                                }
-                            });
-                            return
-                        }
-
-                        var screen = "";
-                        for (var j = 0; j < data.Items[0].Elements.length; j++) {
-                            if (typeof(data.Items[0].Elements[j].Map) == 'undefined') {
-                                screen = screen + `<label class="font-weight-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`
-                            } else {
-                                for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
-                                    screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this,'${assessmentOID}')" /></div>`;
-                                }
-                            }
-                        }
-                        document.getElementById("Content").innerHTML = screen;
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        alert("An error occurred");
-                    }
-                });
-            }
-
-            function startAssessment(param, assessmentOID) {
-                param.innerHTML = "<i class='fa fa-circle-notch fa-spin'></i> " + jsText({{ 'Loading' | xlj }});
-
-                $.ajax({
-                    url: '../library/ajax/easipro_util.php',
-                    type: "POST",
-                    data: {
-                        'csrf_token_form': {{ csrfUtils | js_escape }},
-                        'function': 'start_assessment',
-                        'assessmentOID': assessmentOID
-                    },
-                    dataType: "json",
-                    success: function (data) {
-                        var screen = "";
-                        let title = $("#" + "hide_assessment_" + assessmentOID).closest('tr').children('td:first').text();
-                        document.getElementById("ContentTitle").innerHTML = "<h5>" + jsText(title) + "</h5>";
+        function selectResponse(obj, assessmentOID) {
+            $.ajax({
+                url: '../library/ajax/easipro_util.php',
+                type: "POST",
+                data: {
+                    'csrf_token_form': {{ csrfUtils | js_escape }},
+                    'function': 'select_response',
+                    'assessmentOID': assessmentOID,
+                    'ItemResponseOID': obj.name,
+                    'Response': +obj.id
+                },
+                dataType: "json",
+                success: function (data) {
+                    if (data.DateFinished != '') {
+                        document.getElementById("Content").innerHTML = jsText({{ 'You have finished the assessment.' | xlj }}) + "<br /> " + jsText({{ 'Thank you' | xlj }});
                         $('.assessment-row').toggleClass('d-none');
-                        for (var j = 0; j < data.Items[0].Elements.length; j++) {
-                            if (typeof(data.Items[0].Elements[j].Map) == 'undefined') {
-                                screen = screen + `<label class="font-weight-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`;
-                            } else {
-                                for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
-                                    screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this, '${assessmentOID}')" /></div>`;
-                                }
+                        document.getElementById("asst_" + assessmentOID).innerHTML = "<i class='fa fa-check-circle'></i>";
+                        document.getElementById("asst_status_" + assessmentOID).innerHTML = "completed";
+                        $.ajax({
+                            url: '../library/ajax/easipro_util.php',
+                            type: "POST",
+                            data: {
+                                'csrf_token_form': {{ csrfUtils | js_escape }},
+                                'function': 'collect_results',
+                                'assessmentOID': assessmentOID
+                            },
+                            dataType: "json",
+                            success: function (data) {
+                                writeResult(data.Items[0].Theta, data.Items[0].StdError, assessmentOID);
+                            }
+                        });
+                        return
+                    }
+
+                    var screen = "";
+                    for (var j = 0; j < data.Items[0].Elements.length; j++) {
+                        if (typeof (data.Items[0].Elements[j].Map) == 'undefined') {
+                            screen = screen + `<label class="font-weight-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`
+                        } else {
+                            for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
+                                screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this,'${assessmentOID}')" /></div>`;
                             }
                         }
-
-                        document.getElementById("Content").innerHTML = screen;
-                        param.innerHTML = jsText({{ 'Assessment Started' | xlj }});
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        param.innerHTML = jsText({{ 'Start Assessment' | xlj }});
-                        alert("An error occurred");
                     }
-                });
-            }
+                    document.getElementById("Content").innerHTML = screen;
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("An error occurred");
+                }
+            });
+        }
+
+        function startAssessment(param, assessmentOID) {
+            param.innerHTML = "<i class='fa fa-circle-notch fa-spin'></i> " + jsText({{ 'Loading' | xlj }});
+
+            $.ajax({
+                url: '../library/ajax/easipro_util.php',
+                type: "POST",
+                data: {
+                    'csrf_token_form': {{ csrfUtils | js_escape }},
+                    'function': 'start_assessment',
+                    'assessmentOID': assessmentOID
+                },
+                dataType: "json",
+                success: function (data) {
+                    var screen = "";
+                    let title = $("#" + "hide_assessment_" + assessmentOID).closest('tr').children('td:first').text();
+                    document.getElementById("ContentTitle").innerHTML = "<h5>" + jsText(title) + "</h5>";
+                    $('.assessment-row').toggleClass('d-none');
+                    for (var j = 0; j < data.Items[0].Elements.length; j++) {
+                        if (typeof (data.Items[0].Elements[j].Map) == 'undefined') {
+                            screen = screen + `<label class="font-weight-bolder mx-1">${data.Items[0].Elements[j].Description}</label>`;
+                        } else {
+                            for (var k = 0; k < data.Items[0].Elements[j].Map.length; k++) {
+                                screen = screen + `<div class="form-row"><input type="button" class='form-control' id="${data.Items[0].Elements[j].Map[k].Value}" name="${data.Items[0].Elements[j].Map[k].ItemResponseOID}" value="${data.Items[0].Elements[j].Map[k].Description}" onclick="selectResponse(this, '${assessmentOID}')" /></div>`;
+                            }
+                        }
+                    }
+
+                    document.getElementById("Content").innerHTML = screen;
+                    param.innerHTML = jsText({{ 'Assessment Started' | xlj }});
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    param.innerHTML = jsText({{ 'Start Assessment' | xlj }});
+                    alert("An error occurred");
+                }
+            });
+        }
 
         {% endif %}
     </script>
@@ -406,11 +416,6 @@
         <div id="popwait" class="alert alert-warning d-none">
             <strong>{{ 'Working!' | xlt }}</strong>
             {{ 'Please wait...' | xlt }}</div>
-        
-        {#<div class="card collapse overflow-auto" data-parent="#cardgroup" id="quickstart-card">
-            <header class="card-header bg-primary text-light">{{ 'Home' | xlt }}</header>
-            <div id="quickstart-div" class="card-body"></div>
-        </div>#}
 
         <div class="collapse overflow-auto" data-parent="#cardgroup" id="lists">
             <div class="card">
@@ -443,14 +448,6 @@
         <div class="card collapse" data-parent="#cardgroup" id="profilecard">
             <div id="profilereport" class="card-body bg-light"></div>
         </div>
-
-        {#<div class="collapse" data-parent="#cardgroup" id="documentscard">
-            <div class="card">
-                <div id="patdocuments" class="card-body">
-                    <iframe src="{{ web_root | attr }}/portal/patient/onsitedocuments?pid={{ patientID | attr_url }}" class="w-100 vh-100 border-0"></iframe>
-                </div>
-            </div>
-        </div>#}
 
         <div class="collapse" data-parent="#cardgroup" id="secure-msgs-card">
             <div class="card">
@@ -515,7 +512,7 @@
                     <div>
                         <span class="text">{{ 'Download all patient documents' | xlt }}</span>
                         <form name='doc_form' id='doc_form' action='./get_patient_documents.php' method='post'>
-                            <input type="button" class="generateDoc_download" value="{{ 'Download' | xla }}"/>
+                            <input type="button" class="generateDoc_download" value="{{ 'Download' | xla }}" />
                         </form>
                     </div>
                 </div>
@@ -541,10 +538,122 @@
             </div>
         {% endif %}
 
-        <div class="collapse" data-parent="#cardgroup" id="quickstart-card">
-            <div class="card">
-                <div id="app-quickstart" class="card-body p-1">
-                    <iframe src="{{ web_root | attr }}/portal/quickstart_page.php" class="w-100 vh-100 border-0"></iframe>
+        <div class="card collapse overflow-auto" data-parent="#cardgroup" id="quickstart-card">
+            <div id="quickstart-div" class="card-body">
+                <script>
+                    $(function () {
+                        let ele = parent.document.getElementById('topNav');
+                        if ($(parent.document.getElementById('topNav')).is('.collapse:not(.show)')) {
+                            ele.classList.toggle('collapse');
+                        }
+                        // ensure top level shows in quickstart
+                        $(parent.document.getElementById('topNav')).removeClass("d-none");
+                        $("#my_theme").on('change', function (e) {
+                            let sel = $("#my_theme :selected").val() || '';
+                            persistPatientSetting(cpid, 'portal_theme', sel);
+                            $(parent.document.getElementById('homeRefresh')).click();
+                        });
+                    });
+
+                    function persistPatientSetting(pid, label, setting) {
+                        fetch('lib/persist.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                'csrf_token_form': {{ csrfUtils | js_escape }} ,
+                                'setting_patient': pid,
+                                'setting_label': label,
+                                'setting_value': setting
+                            }),
+                        });
+                    }
+                </script>
+                <script>
+                    {{ fireEvent(eventNames.dashboardRenderScripts) }}
+                </script>
+                <div id="card-div">
+                    <!-- About Dialog -->
+                    <div class="modal fade" id="formdialog" tabindex="-1" role="dialog" aria-hidden="true">
+                        <div class="modal-dialog bg-light">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">{{ 'About Portal Dashboard' | xlt }}</h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    <div>
+                                        <span>{{ 'Please see forum here' | xlt }}
+                                            <a href="{{ 'https://community.open-emr.org/' }} " target="_blank">{{ "Visit Forum" | xlt }} </a>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button id="okButton" data-dismiss="modal" class="btn btn-primary">{{ 'Close' | xlt }}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container-xl p-3">
+                        <div class="jumbotron jumbotron-fluid text-center p-1">
+                            <h3>{{ 'My Dashboard' | xlt }}<i class="fa fa-user -danger ml-2" style="font-size: 3rem;"></i></h3>
+                            <p>
+                                <button class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#formdialog">{{ 'Tell me more' | xlt }}</button>
+                            </p>
+                        </div>
+                        <div class='jumbotron jumbotron-fluid p-4'>
+                            <div class="row" id="inject_card">
+                                <!-- Document -->
+                                <div class="card d-flex mr-1 mb-1">
+                                    <div class="card-body">
+                                        <h4 class="card-title"><i class="fa fa-file- mr-1"></i>{{ 'My Documents' | xlt }}</h4>
+                                        <a id="documents-go" class="btn btn-success" href="{{ web_root }} /portal/patient/onsitedocuments?pid={{ pid | attr_url }} ">{{ 'Manage Documents' | xlt }}</a>
+                                    </div>
+                                </div>
+                                <!-- Signature -->
+                                <div class="card d-flex mr-1 mb-1">
+                                    <div class="card-body">
+                                        <h4><i class="card-title fa fa-signature mr-1"></i>{{ 'Signature' | xlt }}</h4>
+                                        <a data-type="patient-signature" class="btn btn-primary" href="#openSignModal" data-toggle="modal" data-backdrop="true" data-target="#openSignModal">{{ 'Manage Signature' | xlt }} </a>
+                                    </div>
+                                </div>
+                                <!-- Theme -->
+                                <div class="card d-flex mr-1 mb-1">
+                                    <div class="card-body row">
+                                        <h4 class="card-title"><i class="fa fa-link mr-1"></i>{{ 'Settings' | xlt }}</h4>
+                                        <div class="col-12 form-group">
+                                            <div class="col">
+                                                <div class="input-group">
+                                                    <label class="m-0" for='my_theme'>{{ 'Current Theme' | xlt }}</label>
+                                                    <select class='form-control ml-2' id='my_theme'>
+                                                        {% for styleKey, styleValue in styleArray %}
+                                                            {{ "<option value='" ~ styleKey | attr ~ "'" }}
+                                                            {% if styleKey  ==  current_theme %}
+                                                                {{ " selected" }}
+                                                            {% endif %}
+                                                            {{ ">" }}{{ styleValue | text }}{{ "</option>\n" }}
+                                                        {% endfor %}
+                                                    </select>
+                                                    <div class="input-group-append">
+                                                        <a class="btn btn-primary" href="./home.php" target="_parent">{{ 'Apply' | xlt }}</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col">
+                                                <div class="form-group form-check-inline">
+                                                    <label class="form-check-label" for="exampleCheck1">
+                                                        <input type="checkbox" class="form-check-input" id="exampleCheck1">{{ 'Auto Save Documents' | xlt  ~ " (Coming soon)" | text }}</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{ fireEvent(eventNames.dashboardInjectCard) }}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

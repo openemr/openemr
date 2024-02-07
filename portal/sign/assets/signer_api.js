@@ -66,9 +66,9 @@ function getSignature(othis, isInit = false, returnSignature = false) {
                 return;
             }
             if (typeof webRoot !== 'undefined' && webRoot !== null) {
-                libUrl = webRoot + '/portal/';
+                libUrl = webRoot + '/portal';
             } else {
-                libUrl = top.webroot_url ? (top.webroot_url + '/portal/') : "./";
+                libUrl = top.webroot_url ? (top.webroot_url + '/portal') : "./";
             }
 
             if (typeof cpid === 'undefined' && typeof cuser === 'undefined') {
@@ -105,7 +105,7 @@ function getSignature(othis, isInit = false, returnSignature = false) {
                 type: signerType
             };
 
-            let url = libUrl + "sign/lib/show-signature.php";
+            let url = libUrl + "/sign/lib/show-signature.php";
             fetch(url, {
                 credentials: 'include',
                 method: 'POST',

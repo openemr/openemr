@@ -208,8 +208,6 @@ INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_r
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
 ('X12_SFTP', 'SFTP Claims to X12 Partner Service', 0, 0, '2021-01-18 11:25:10', 1, 'start_X12_SFTP', '/library/billing_sftp_service.php', 100);
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
-('WenoExchange', 'Weno Log Sync', 0, 0, '2021-01-18 11:25:10', 0, 'start_weno', '/library/weno_log_sync.php', 100);
-INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
 ('UUID_Service', 'Automated UUID Creation Service', 1, 0, '2021-01-18 11:25:10', 240, 'autoPopulateAllMissingUuids', '/library/uuid.php', 100);
 INSERT INTO `background_services` (`name`, `title`, `active`, `running`, `next_run`, `execute_interval`, `function`, `require_once`, `sort_order`) VALUES
 ('Email_Service', 'Email Service', 1, 0, '2021-01-18 11:25:10', 2, 'emailServiceRun', '/library/email_service_run.php', 100);
@@ -1640,44 +1638,6 @@ CREATE  TABLE `erx_ttl_touch` (
   `updated` DATETIME NOT NULL COMMENT 'Date and time of last process update for patient' ,
   PRIMARY KEY (`patient_id`, `process`)
 ) ENGINE = InnoDB COMMENT = 'Store records last update per patient data process';
-
--- --------------------------------------------------------
-
---
--- Table structure for table `erx_weno_drugs`
---
-
-DROP TABLE IF EXISTS `erx_weno_drugs`;
-CREATE TABLE `erx_weno_drugs` (
-  `drug_id` int(11) NOT NULL AUTO_INCREMENT,
-  `rxcui_drug_coded` int(11) DEFAULT NULL,
-  `generic_rxcui` int(11) DEFAULT NULL,
-  `drug_db_code_qualifier` text,
-  `full_name` varchar(250) NOT NULL,
-  `rxn_dose_form` text,
-  `full_generic_name` varchar(250) NOT NULL,
-  `brand_name` varchar(250) NOT NULL,
-  `display_name` varchar(250) NOT NULL,
-  `route` text,
-  `new_dose_form` varchar(100) DEFAULT NULL,
-  `strength` varchar(15) DEFAULT NULL,
-  `supress_for` text,
-  `display_name_synonym` text,
-  `is_retired` text,
-  `sxdg_rxcui` varchar(10) DEFAULT NULL,
-  `sxdg_tty` text,
-  `sxdg_name` varchar(100) DEFAULT NULL,
-  `psn_drugdescription` varchar(100) DEFAULT NULL,
-  `ncpdp_quantity_term` text,
-  `potency_unit_code` varchar(10) DEFAULT NULL,
-  `dea_schedule_no` int(2) DEFAULT NULL,
-  `dea_schedule` varchar(7) DEFAULT NULL,
-  `ingredients` varchar(100) DEFAULT NULL,
-  `drug_interaction` varchar(100) DEFAULT NULL,
-  `unit_source_code` varchar(3) DEFAULT NULL,
-  `code_list_qualifier` int(3) DEFAULT NULL,
-  PRIMARY KEY (`drug_id`)
-) ENGINE=InnoDB;
 
 -- --------------------------------------------------------
 
@@ -8053,7 +8013,7 @@ DROP TABLE IF EXISTS `rule_filter`;
 CREATE TABLE `rule_filter` (
   `id` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to the id column in the clinical_rules table',
   `include_flag` tinyint(1) NOT NULL default 0 COMMENT '0 is exclude and 1 is include',
-  `required_flag` tinyint(1) NOT NULL default 0 COMMENT '0 is required and 1 is optional',
+  `required_flag` tinyint(1) NOT NULL default 0 COMMENT '0 is optional and 1 is required',
   `method` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to list_options list rule_filters',
   `method_detail` varchar(31) NOT NULL DEFAULT '' COMMENT 'Maps to list_options lists rule__intervals',
   `value` varchar(255) NOT NULL DEFAULT '',

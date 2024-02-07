@@ -31,12 +31,12 @@ require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 
-$templateid = $_REQUEST['templateid'];
-$Source = $_REQUEST['source'];
-$list_id = $_REQUEST['list_id'];
-$item = $_REQUEST['item'];
-$multi = $_REQUEST['multi'];
-$content = $_REQUEST['content'];
+$templateid = $_REQUEST['templateid'] ?? '';
+$Source = $_REQUEST['source'] ?? '';
+$list_id = $_REQUEST['list_id'] ?? '';
+$item = $_REQUEST['item'] ?? '';
+$multi = $_REQUEST['multi'] ?? '';
+$content = $_REQUEST['content'] ?? '';
 
 if ($Source == "add_template") {
     $arr = explode("|", $multi);
@@ -50,12 +50,12 @@ if ($Source == "add_template") {
             sqlStatement("INSERT INTO template_users (tu_user_id,tu_template_id) VALUES (?,?)", array($_SESSION['authUserID'], $newid));
         }
         echo "<select name='template' id='template' onchange='TemplateSentence(this.value)' style='width:180px'>";
-        echo "<option value=''>" . htmlspecialchars(xl('Select category'), ENT_QUOTES) . "</option>";
+        echo "<option value=''>" . xlt('Select category') . "</option>";
         $resTemplates = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE
                                      tu.tu_user_id=? AND c.cl_list_type=3 AND cl_list_id=? AND cl_deleted=0 ORDER BY tu.tu_template_order,
                                      c.cl_list_item_long", array($_SESSION['authUserID'], $list_id));
         while ($rowTemplates = sqlFetchArray($resTemplates)) {
-            echo "<option value='" . htmlspecialchars($rowTemplates['cl_list_slno'], ENT_QUOTES) . "'>" . htmlspecialchars($rowTemplates['cl_list_item_long'], ENT_QUOTES) . "</option>";
+            echo "<option value='" . attr($rowTemplates['cl_list_slno']) . "'>" . text($rowTemplates['cl_list_item_long']) . "</option>";
         }
         echo "</select>";
     }
@@ -86,18 +86,17 @@ if ($Source == "add_template") {
     $selcont = sqlQuery("SELECT * FROM customlists WHERE cl_list_slno=? AND cl_list_type=2 AND cl_deleted=0", array($selcat['cl_list_id']));
     $cnt = sqlNumRows($res);
     if ($cnt) {
-        echo "<table width='100%'>";
-        echo "<tr class='text'><th colspan=2  style='background-color:var(--white)'>" . htmlspecialchars(xl('Preview of'), " " . $selcat['cl_list_item_long'] . "(" . $selcont['cl_list_item_long'] . ")", ENT_QUOTES) . "</th></tr>";
+        echo "<table class='table table-dark table-striped table-sm'>";
+        echo "<tr class='text bg-dark text-light'><th colspan=2 class='text bg-dark text-light'>" . text(xl('Preview of') . " " . $selcat['cl_list_item_long'] . "(" . $selcont['cl_list_item_long'] . ")") . "</th></tr>";
         $i = 0;
         while ($row = sqlFetchArray($res)) {
             $i++;
-            $class = ($class == 'reportTableOddRow') ? 'reportTableEvenRow' : 'reportTableOddRow';
-            echo "<tr class='text'><td style='background-color:var(--white)'>" . $i . "</td><td style='background-color:#ffffff'>" . htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES) . "</td></tr>";
+            echo "<tr class='text'><td class='bg-dark text-light'>" . text($i) . "</td><td>" . text($row['cl_list_item_long']) . "</td></tr>";
         }
         echo "</table>";
     } else {
         echo "<table width='100%'>";
-        echo "<tr class='text'><th colspan=2  style='background-color:var(--white)'>" . htmlspecialchars(xl('No items under selected category'), ENT_QUOTES) . "</th></tr>";
+        echo "<tr class='text bg-dark text-light'><th colspan=2>" . xlt('No items under selected category') . "</th></tr>";
         echo "</table>";
     }
     $Source = "add_template";
@@ -105,9 +104,9 @@ if ($Source == "add_template") {
     $sql = sqlStatement("SELECT * FROM template_users WHERE tu_template_id=? AND tu_user_id=?", array($item, $list_id));
     $cnt = sqlNumRows($sql);
     if ($cnt) {
-        echo htmlspecialchars(xl("OK"), ENT_QUOTES);
+        echo xlt("OK");
     } else {
-        echo htmlspecialchars(xl("FAIL"), ENT_QUOTES);
+        echo xlt("FAIL");
     }
     $Source = "add_template";
 } elseif ($Source == 'display_item') {
@@ -116,7 +115,7 @@ if ($Source == "add_template") {
     echo "<select multiple name='topersonalizeditem[]' id='topersonalizeditem' size='6' style='width:220px' onchange='display_item()'>";
     $resTemplates = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=4 AND cl_deleted=0 AND cl_list_id IN (?) ORDER BY cl_list_item_long", [$val]);
     while ($rowTemplates = sqlFetchArray($resTemplates)) {
-        echo "<option value='" . htmlspecialchars($rowTemplates['cl_list_slno'], ENT_QUOTES) . "'>" . htmlspecialchars($rowTemplates['cl_list_item_long'], ENT_QUOTES) . "</option>";
+        echo "<option value='" . attr($rowTemplates['cl_list_slno']) . "'>" . text($rowTemplates['cl_list_item_long']) . "</option>";
     }
     echo "</select>";
     $Source = "add_template";
@@ -128,7 +127,7 @@ if ($Source == "add_template") {
         $i++;
         $users .= $i . ")" . $row['fname'] . " " . $row['lname'] . "\n";
     }
-    echo htmlspecialchars($users, ENT_QUOTES);
+    echo text($users);
     $Source = "add_template";
 } elseif ($Source == 'delete_full_category') {
     sqlStatement("UPDATE customlists SET cl_deleted=? WHERE cl_list_slno=?", array(1, $templateid));
@@ -158,22 +157,22 @@ if ($Source != "add_template") {
     $i = 0;
     while ($row = sqlFetchArray($res)) {
         $i++;
-        echo "<li id='clorder_" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "' style='cursor:pointer'><span>";
+        echo "<li class='bg-dark text-light' id='clorder_" . attr($row['cl_list_slno']) . "' style='cursor:pointer'><span class='bg-dark text-light'>";
         if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
-            echo "<img src='" . $GLOBALS['images_static_relative'] . "/b_edit.png' onclick=update_item_div('" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "')>";
+            echo "<img src='" . $GLOBALS['images_static_relative'] . "/b_edit.png' onclick='update_item_div(" . attr_js($row['cl_list_slno']) . ")'>";
         }
-        echo "<div style='display:inline' id='" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "' onclick=\"moveOptions_11('" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "', 'textarea1');\">" . htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES) . "</div>";
+        echo "<div style='display:inline' id='" . attr($row['cl_list_slno']) . "' onclick='moveOptions_11(" . attr_js($row['cl_list_slno']) . ", \"textarea1\")'>" . text($row['cl_list_item_long']) . "</div>";
         if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
-            echo "<img src='" . $GLOBALS['images_static_relative'] . "/deleteBtn.png' onclick=\"delete_item('" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "')\">";
-            echo "<div id='update_item" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "' style='display:none'><textarea name='update_item_txt" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "' id='update_item_txt" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "' class='w-100'>" . htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES) . "</textarea><br />";
-            echo "<input type='button' name='update' onclick=update_item('" . $row['cl_list_slno'] . "') value='" . htmlspecialchars(xl('Update'), ENT_QUOTES) . "'><input type='button' name='cancel' value='" . htmlspecialchars(xl('Cancel'), ENT_QUOTES) . "' onclick=cancel_item('" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "')></div>";
+            echo "<img src='" . $GLOBALS['images_static_relative'] . "/deleteBtn.png' onclick='delete_item(" . attr_js($row['cl_list_slno']) . ")'>";
+            echo "<div id='update_item" . attr($row['cl_list_slno']) . "' style='display:none'><textarea name='update_item_txt" . attr($row['cl_list_slno']) . "' id='update_item_txt" . attr($row['cl_list_slno']) . "' class='w-100'>" . text($row['cl_list_item_long']) . "</textarea><br />";
+            echo "<input type='button' name='update' onclick='update_item(" . attr_js($row['cl_list_slno']) . ")' value='" . xla('Update') . "'><input type='button' name='cancel' value='" . xla('Cancel') . "' onclick='cancel_item(" . attr_js($row['cl_list_slno']) . ")'></div>";
         }
         echo "</span></li>";
     }
     if (AclMain::aclCheckCore('nationnotes', 'nn_configure') && $templateid) {
-        echo "<li style='cursor:pointer'><span onclick='add_item()'>" . htmlspecialchars(xl('Click to add new components'), ENT_QUOTES);
+        echo "<li class='bg-dark text-light' style='cursor:pointer'><span class='bg-dark text-light' onclick='add_item()'>" . xlt('Click to add new components');
         echo "</span><div id='new_item' style='display:none' class='w-100'>";
-        echo "<textarea name='item' id='item' class='w-100'></textarea><br />";
-        echo "<input type='button' name='save' value='" . htmlspecialchars(xl('Save'), ENT_QUOTES) . "' onclick='save_item()'><input type='button' name='cancel' value='" . htmlspecialchars(xl('Cancel'), ENT_QUOTES) . "' onclick=cancel_item('" . htmlspecialchars($row['cl_list_slno'], ENT_QUOTES) . "')></div></li>";
+        echo "<textarea name='item' id='item' class='w-100 bg-dark text-light'></textarea><br />";
+        echo "<input type='button' name='save' value='" . xla('Save') . "' onclick='save_item()'><input type='button' name='cancel' value='" . xla('Cancel') . "' onclick='cancel_item(" . attr_js($row['cl_list_slno'] ?? '') . ")'></div></li>";
     }
 }

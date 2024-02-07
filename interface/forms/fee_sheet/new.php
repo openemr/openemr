@@ -220,7 +220,7 @@ function echoServiceLines()
                 if ($codetype != 'COPAY' && (!empty($code_types[$codetype]['mod']) || $modifier)) {
                     echo "  <td class='billcell'><input type='text' class='form-control form-control-sm' name='bill[" . attr($lino) . "][mod]' " .
                        "title='" . xla("Multiple modifiers can be separated by colons or spaces, maximum of 4 (M1:M2:M3:M4)") . "' " .
-                       "value='" . attr($modifier) . "' size='" . attr($code_types[$codetype]['mod']) . " 'onkeyup='policykeyup(this)' /></td>\n";
+                       "value='" . attr($modifier) . "' size='" . attr($code_types[$codetype]['mod']) . "' onkeyup='policykeyup(this)' onblur='formatModifier(this)' /></td>\n";
                 } else {
                     echo "  <td class='billcell'>&nbsp;</td>\n";
                 }
@@ -670,7 +670,12 @@ if (!empty($_POST['newcodes'])) {
 
         $arrcode = explode('|', $codestring);
         if (strpos($arrcode[1], ':') !== false) {
-            list($code, $modifier) = explode(":", $arrcode[1]);
+            $tmp = explode(':', $arrcode[1]);
+            $code = $tmp[0] ?? '';
+            $modifier = $tmp[1] ?? '';
+            $modifier .= ($tmp[2] ?? '') ? ":" . $tmp[2] : '';
+            $modifier .= ($tmp[3] ?? '') ? ":" . $tmp[3] : '';
+            $modifier .= ($tmp[4] ?? '') ? ":" . $tmp[4] : '';
         } else {
             $code = $arrcode[1];
             $modifier = '';
@@ -904,6 +909,38 @@ function defaultPriceLevelChanged(sel) {
     pricelevel_changed(elem);
   }
  }
+}
+
+function formatModifier(e) {
+    let mods = e.value;
+    mods = mods.substring(0, 11).trim();
+    let modArray = mods.includes(':') ? mods.split(":") : mods.split(" ");
+    let cntr = 0;
+    modArray.forEach( function(m) {
+        let l = m.length;
+        if (l) {
+            cntr++;
+            if (l !== 2) {
+               alert("Removing invalid modifier " + m);
+               modArray.pop();
+            }
+        } else {
+            modArray.pop();
+        }
+    });
+    
+    let modString = modArray.join(":");
+    e.value = checkLastChar(modString);
+}
+
+function checkLastChar(s) {
+    let last_char = s.slice(-1);
+    if (last_char === ':') {
+        s = s.substring(0, s.length - 1);
+        return checkLastChar(s);
+    } else {
+        return s;
+    }
 }
 
 </script>
@@ -1566,7 +1603,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 );
                                             } else {
                                                 if (strpos($newcode, ':') !== false) {
-                                                    list($code, $modifier) = explode(":", $newcode);
+                                                    $tmp = explode(':', $arrcode[1]);
+                                                    $code = $tmp[0] ?? '';
+                                                    $modifier = $tmp[1] ?? '';
+                                                    $modifier .= ($tmp[2] ?? '') ? ":" . $tmp[2] : '';
+                                                    $modifier .= ($tmp[3] ?? '') ? ":" . $tmp[3] : '';
+                                                    $modifier .= ($tmp[4] ?? '') ? ":" . $tmp[4] : '';
                                                 } else {
                                                     $code = $newcode;
                                                     $modifier = '';

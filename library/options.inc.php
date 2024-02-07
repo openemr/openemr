@@ -60,6 +60,7 @@ use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
 
 $facilityService = new FacilityService();
 
@@ -561,12 +562,21 @@ function generate_form_field($frow, $currvalue)
     $backup_list = $frow['list_backup_id'] ?? null;
     $edit_options = $frow['edit_options'] ?? null;
     $form_id = $frow['form_id'] ?? null;
+    $autoComplete = $frow['autocomplete'] ?? false;
 
     // 'smallform' can be 'true' if we want a smaller form field, otherwise
     // can be used to assign arbitrary CSS classes to data entry fields.
     $smallform = $frow['smallform'] ?? null;
     if ($smallform === 'true') {
         $smallform = ' form-control-sm';
+    }
+
+    // historically we've used smallform to append classes if the value is NOT true
+    // to make it EXPLICIT what we are doing and to aid maintainability we are supporting
+    // an actual 'classNames' attribute for assigning arbitrary CSS classes to data entry fields
+    $classesToAppend = $frow['classNames'] ?? '';
+    if (!empty($classesToAppend)) {
+        $smallform = isset($smallform) ? $smallform . ' ' . $classesToAppend : $classesToAppend;
     }
 
     // escaped variables to use in html
@@ -750,13 +760,13 @@ function generate_form_field($frow, $currvalue)
         if (!$agestr) {
             echo " title='$description'";
         }
-
         // help chrome users avoid autocomplete interfere with datepicker widget display
-        if ($frow['field_id'] == 'DOB') {
-            echo " autocomplete='off' $onchange_string $lbfonchange $disabled />";
-        } else {
-            echo " $onchange_string $lbfonchange $disabled />";
+        if ($autoComplete !== false) {
+            echo " autocomplete='" . attr($autoComplete) . "'";
+        } else if ($frow['field_id'] == 'DOB') {
+            echo " autocomplete='off'";
         }
+        echo " $onchange_string $lbfonchange $disabled />";
 
         // Optional display of age or gestational age.
         if ($agestr) {
@@ -853,6 +863,12 @@ function generate_form_field($frow, $currvalue)
         } else {
             echo "</select>";
         }
+
+        /**
+         * if anyone wants to render something after the pharmacy section on the demographics form,
+         * they would have to listen to this event.
+        */
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderPharmacySectionEvent(), RenderPharmacySectionEvent::RENDER_AFTER_PHARMACY_SECTION, 10);
     } elseif ($data_type == 13) { // squads
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
         echo " $lbfonchange $disabled>";
@@ -2542,6 +2558,11 @@ function generate_display_field($frow, $currvalue)
                 $prow['line1'] . ' / ' . $prow['city'], ENT_NOQUOTES);
             }
         }
+        /**
+         * if anyone wants to render something after the pharmacy section on the patient chart/dashboard,
+         * they would have to listen to this event.
+        */
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderPharmacySectionEvent(), RenderPharmacySectionEvent::RENDER_AFTER_SELECTED_PHARMACY_SECTION, 10);
     } elseif ($data_type == 13) { // squads
         $squads = AclExtended::aclGetSquads();
         if ($squads) {
