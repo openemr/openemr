@@ -1,16 +1,18 @@
 <?php
 
 /**
- * Fax SMS Module Member
+ * OpenEMR Module Member
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2023 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2023-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Modules\WenoModule\Services;
+
+use OpenEMR\Common\Crypto\CryptoGen;
 
 /**
  * Companion to event bootstrapping
@@ -43,6 +45,9 @@ class ModuleService
         while ($row = sqlFetchArray($gl)) {
             $vendors[$row['gl_name']] = $row['gl_value'];
         }
+        $crypt = new CryptoGen();
+        $vendors['weno_encryption_key'] = $crypt->decryptStandard($vendors['weno_encryption_key']);
+        $vendors['weno_admin_password'] = $crypt->decryptStandard($vendors['weno_admin_password']);
 
         return $vendors;
     }
@@ -53,7 +58,9 @@ class ModuleService
      */
     public function saveVendorGlobals($items): void
     {
-        // Comes from a Setup form POST pass in.
+        $crypt = new CryptoGen();
+        $items['weno_encryption_key'] = $crypt->encryptStandard($items['weno_encryption_key']);
+        $items['weno_admin_password'] = $crypt->encryptStandard($items['weno_admin_password']);
         $vendors['weno_rx_enable']      = $items['weno_rx_enable'] ?? '0';
         $vendors['weno_rx_enable_test'] = $items['weno_rx_enable_test'] ?? '0';
         $vendors['weno_encryption_key'] = $items['weno_encryption_key'];

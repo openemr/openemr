@@ -64,7 +64,7 @@ class Bootstrap
         if (!$modService->isWenoConfigured()) {
             return;
         }
-        //$this->addGlobalSettings(); // Bye bye Config
+        $this->addGlobalSettings();
         $this->registerMenuItems();
         $this->registerDemographicsEvents();
         $this->demographicsSelectorEvents();
