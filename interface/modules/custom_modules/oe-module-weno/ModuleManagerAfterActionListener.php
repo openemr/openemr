@@ -100,11 +100,11 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
     {
         $modService = new ModuleService();
         if ($modService->isWenoConfigured()) {
-            $modService->setModuleState($modId, '0', '0');
+            $modService::setModuleState($modId, '0', '0');
             return $currentActionStatus;
         }
         $this->setTaskState('0');
-        $modService->setModuleState($modId, '0', '1');
+        $modService::setModuleState($modId, '0', '1');
         return $currentActionStatus;
     }
 
@@ -118,11 +118,11 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
         $modService = new ModuleService();
         if ($modService->isWenoConfigured()) {
             $this->setTaskState('1');
-            $modService->setModuleState($modId, '1', '0');
+            $modService::setModuleState($modId, '1', '0');
             return $currentActionStatus;
         }
         $this->setTaskState('0');
-        $modService->setModuleState($modId, '1', '1');
+        $modService::setModuleState($modId, '1', '1');
         return xlt("Weno eRx Service is not configured. Please configure Weno eRx Service in the Weno Module Setup.");
     }
 

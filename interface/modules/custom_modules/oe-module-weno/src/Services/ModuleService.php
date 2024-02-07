@@ -82,11 +82,11 @@ class ModuleService
      * @param string $col
      * @return array
      */
-    function getModuleRegistry($modId, $col = '*'): array
+    function getModuleRegistry($modId, string $col = '*'): array
     {
         $registry = [];
-        $sql = "SELECT $col FROM modules WHERE mod_id = ?";
-        $results = sqlQuery($sql, array($modId));
+        $sql = "SELECT $col FROM modules WHERE mod_id = ? OR `mod_directory` = ?";
+        $results = sqlQuery($sql, array($modId, $modId));
         foreach ($results as $k => $v) {
             $registry[$k] = trim((preg_replace('/\R/', '', $v)));
         }
@@ -116,9 +116,9 @@ class ModuleService
         return true;
     }
 
-    public function setModuleState($modId, $flag, $flag_ui): array|bool|null
+    public static function setModuleState($modId, $flag, $flag_ui): array|bool|null
     {
-        $sql = "UPDATE `modules` SET `mod_active` = ?, `mod_ui_active` = ? WHERE `mod_id` = ?";
-        return sqlQuery($sql, array($flag, $flag_ui, $modId));
+        $sql = "UPDATE `modules` SET `mod_active` = ?, `mod_ui_active` = ? WHERE `mod_id` = ? OR `mod_directory` = ?";
+        return sqlQuery($sql, array($flag, $flag_ui, $modId, $modId));
     }
 }

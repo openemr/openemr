@@ -27,11 +27,11 @@ $vendors['weno_admin_username'] = '';
 $vendors['weno_admin_password'] = '';
 
 $boot = new ModuleService();
-if (($_POST['form_save'] ?? null) || ($_POST['form_save_top'] ?? null)) {
+if (($_POST['form_save'] ?? null)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-    unset($_POST['form_save'], $_POST['form_save_top'], $_POST['csrf_token_form']);
+    unset($_POST['form_save'], $_POST['csrf_token_form']);
     $boot->saveVendorGlobals($_POST);
 }
 
@@ -40,7 +40,7 @@ $vendors = $boot->getVendorGlobals();
 <!DOCTYPE HTML>
 <html lang="eng">
 <head>
-    <title>><?php echo xlt("Enable Vendors") ?></title>
+    <title>><?php echo xlt("Weno Config") ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php
     if (count($vendors ?? []) === 0) {
@@ -59,19 +59,28 @@ $vendors = $boot->getVendorGlobals();
             }).on('hide.bs.collapse', function () {
                 $(this).prev(".card-header").find(".fa").removeClass("fa-minus").addClass("fa-plus");
             });
+
+            // Auto save on change
+            const persistChange = document.querySelectorAll('.persist');
+            persistChange.forEach(persist => {
+                persist.addEventListener('change', (event) => {
+                    $("#form_save").click();
+                });
+            });
         });
     </script>
 </head>
 <body>
-    <div class="container">
+    <div class="container-xl">
         <div class="form-group text-center m-2 p-2">
             <h2><?php echo xlt("Weno eRx Service Admin Setup"); ?></h2>
+            <h4><small><?php echo xlt("Changes are automatically saved."); ?></small></h4>
         </div>
         <form id="set_form" name="set_form" class="form" role="form" method="post" action="">
             <div id="set-weno">
                 <div class="row form-group">
                     <div class="col-12">
-                        <button type="submit" id="form_save_top" name="form_save_top" class="btn btn-primary btn-save" value="Save"><?php echo xlt("Save Setup"); ?></button>
+
                     </div>
                 </div>
                 <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
@@ -108,7 +117,10 @@ $vendors = $boot->getVendorGlobals();
                     </div>
                     <div class="row form-group">
                         <div class="col-12">
-                            <button type="submit" id="form_save" name="form_save" class="btn btn-primary btn-save float-right" value="Save"><?php echo xlt("Save Setup"); ?></button>
+                            <button type="button" class="btn btn-primary btn-refresh float-right" id="app_refresh" onclick="top.location.reload()"
+                                title="<?php echo xla("Same as a browser refresh. Click to implement any new menus and Configuration items."); ?>"><?php echo xlt("Restart OpenEMR"); ?>
+                            </button>
+                            <button type="submit" id="form_save" name="form_save" class="btn btn-primary btn-save float-right d-none" value="Save"><?php echo xlt("Save Setup"); ?></button>
                         </div>
                     </div>
                 </div>

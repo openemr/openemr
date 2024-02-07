@@ -62,9 +62,9 @@ CREATE TABLE `weno_download_log` (
 ) ENGINE=InnoDB;
 #EndIf
 
--- For early adopters of weno, incase they need to upgrade to the next/latest release of openEMR
+-- For early adopters of weno, in case they need to upgrade let's delete and add below.
 #IfRow background_services name WenoExchange
-UPDATE `background_services` SET title="Weno Log Sync", `function`="downloadWenoPrescriptionLog", `require_once`="/interface/modules/custom_modules/oe-module-weno/scripts/weno_log_sync.php" WHERE `name`="WenoExchange";
+DELETE FROM `background_services` WHERE `name` = 'WenoExchange';
 #EndIf
 
 #IfNotRow background_services name WenoExchangePharmacies
@@ -78,10 +78,10 @@ VALUES ('WenoExchange', 'Weno Log Sync', '0', '0', current_timestamp(), '30', 'd
 #EndIf
 
 #IfRow globals gl_name weno_provider_password
-UPDATE `globals` SET gl_name="weno_admin_password" WHERE gl_name="weno_provider_password";
+UPDATE `globals` SET gl_name='weno_admin_password' WHERE gl_name='weno_provider_password';
 #EndIf
 
 #IfRow globals gl_name weno_provider_username
-UPDATE `globals` SET gl_name="weno_admin_username" WHERE gl_name="weno_provider_username";
+UPDATE `globals` SET gl_name='weno_admin_username' WHERE gl_name='weno_provider_username';
 #EndIf
 

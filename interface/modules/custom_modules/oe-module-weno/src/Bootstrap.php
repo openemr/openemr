@@ -2,21 +2,19 @@
 
 namespace OpenEMR\Modules\WenoModule;
 
-use OpenEMR\Modules\WenoModule\Services\ModuleService;
-use OpenEMR\Modules\WenoModule\WenoGlobalConfig;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
+use OpenEMR\Events\Patient\PatientBeforeCreatedAuxEvent;
+use OpenEMR\Events\Patient\PatientUpdatedEventAux;
+use OpenEMR\Events\PatientDemographics\RenderEvent as pRenderEvent;
+use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
+use OpenEMR\Menu\MenuEvent;
+use OpenEMR\Modules\WenoModule\Services\ModuleService;
+use OpenEMR\Modules\WenoModule\Services\SelectedPatientPharmacy;
 use OpenEMR\Services\Globals\GlobalSetting;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
-use OpenEMR\Menu\MenuEvent;
-use OpenEMR\Events\PatientDemographics\RenderEvent as pRenderEvent;
-use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
-use OpenEMR\Events\Patient\PatientBeforeCreatedAuxEvent;
-use OpenEMR\Events\Patient\PatientUpdatedEventAux;
-use OpenEMR\Modules\WenoModule\Services\SelectedPatientPharmacy;
 
 class Bootstrap
 {
@@ -34,6 +32,7 @@ class Bootstrap
 
     /**
      * The OpenEMR Twig Environment
+     *
      * @var Environment
      */
     private $twig;
@@ -62,8 +61,13 @@ class Bootstrap
     {
         $modService = new ModuleService();
         if (!$modService->isWenoConfigured()) {
+            $modService::setModuleState('oe-module-weno', '1', '1');
+            // let Admin configure Weno if module is not configured.
+            $this->addGlobalSettings();
+            $this->registerMenuItems();
             return;
         }
+        $modService::setModuleState('oe-module-weno', '1', '0');
         $this->addGlobalSettings();
         $this->registerMenuItems();
         $this->registerDemographicsEvents();
@@ -156,35 +160,35 @@ class Bootstrap
         $pid = $event->getPid();
         ?>
         <section class="card mb-2">
-        <?php
-        // Weno expand collapse widget
-        $widgetTitle = self::MODULE_MENU_NAME;
-        $widgetLabel = "wenocard";
-        $widgetButtonLabel = xl("Edit");
-        $widgetButtonLink = ""; // "return newEvt();";
-        $widgetButtonClass = "d-none";
-        $linkMethod = "html";
-        $bodyClass = "notab";
-        $widgetAuth = false;
-        $fixedWidth = false;
-        $forceExpandAlways = false;
+            <?php
+            // Weno expand collapse widget
+            $widgetTitle = self::MODULE_MENU_NAME;
+            $widgetLabel = "wenocard";
+            $widgetButtonLabel = xl("Edit");
+            $widgetButtonLink = ""; // "return newEvt();";
+            $widgetButtonClass = "d-none";
+            $linkMethod = "html";
+            $bodyClass = "notab";
+            $widgetAuth = false;
+            $fixedWidth = false;
+            $forceExpandAlways = false;
 
-        expand_collapse_widget(
-            $widgetTitle,
-            $widgetLabel,
-            $widgetButtonLabel,
-            $widgetButtonLink,
-            $widgetButtonClass,
-            $linkMethod,
-            $bodyClass,
-            $widgetAuth,
-            $fixedWidth,
-            $forceExpandAlways
-        );
-        ?>
-        
-        <div> <?php include $path . "/weno_fragment.php";?> </div>
-    </section>
+            expand_collapse_widget(
+                $widgetTitle,
+                $widgetLabel,
+                $widgetButtonLabel,
+                $widgetButtonLink,
+                $widgetButtonClass,
+                $linkMethod,
+                $bodyClass,
+                $widgetAuth,
+                $fixedWidth,
+                $forceExpandAlways
+            );
+            ?>
+
+            <div> <?php include $path . "/weno_fragment.php"; ?> </div>
+        </section>
         <?php
     }
 
