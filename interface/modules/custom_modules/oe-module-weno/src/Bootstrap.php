@@ -61,13 +61,12 @@ class Bootstrap
     {
         $modService = new ModuleService();
         if (!$modService->isWenoConfigured()) {
-            $modService::setModuleState('oe-module-weno', '1', '1');
             // let Admin configure Weno if module is not configured.
             $this->addGlobalSettings();
-            $this->registerMenuItems();
             return;
         }
         $modService::setModuleState('oe-module-weno', '1', '0');
+        $this->registerMenuItems();
         $this->addGlobalSettings();
         $this->registerMenuItems();
         $this->registerDemographicsEvents();
@@ -144,7 +143,7 @@ class Bootstrap
     /**
      * @return void
      */
-    public function registerDemographicsEvents()
+    public function registerDemographicsEvents(): void
     {
         $this->eventDispatcher->addListener(pRenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE, [$this, 'renderWenoSection']);
     }
@@ -153,7 +152,7 @@ class Bootstrap
      * @param pRenderEvent $event
      * @return void
      */
-    public function renderWenoSection(pRenderEvent $event)
+    public function renderWenoSection(pRenderEvent $event): void
     {
         $path = __DIR__;
         $path = str_replace("src", "templates", $path);
@@ -195,7 +194,7 @@ class Bootstrap
     /**
      * @return void
      */
-    public function addGlobalSettings()
+    public function addGlobalSettings(): void
     {
         $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, [$this, 'addGlobalWenoSettings']);
     }
@@ -203,7 +202,7 @@ class Bootstrap
     /**
      * @return void
      */
-    public function registerMenuItems()
+    public function registerMenuItems(): void
     {
         $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, [$this, 'addCustomMenuItem']);
     }
@@ -265,7 +264,7 @@ class Bootstrap
     /**
      * @return void
      */
-    public function demographicsSelectorEvents()
+    public function demographicsSelectorEvents(): void
     {
         $this->eventDispatcher->addListener(RenderPharmacySectionEvent::RENDER_AFTER_PHARMACY_SECTION, [$this, 'renderWenoPharmacySelector']);
     }
@@ -273,7 +272,7 @@ class Bootstrap
     /**
      * @return void
      */
-    public function renderWenoPharmacySelector()
+    public function renderWenoPharmacySelector(): void
     {
         include_once($this->modulePath) . "/templates/pharmacy_list_form.php";
     }
@@ -281,7 +280,7 @@ class Bootstrap
     /**
      * @return void
      */
-    public function demographicsDisplaySelectedEvents()
+    public function demographicsDisplaySelectedEvents(): void
     {
         $this->eventDispatcher->addListener(RenderPharmacySectionEvent::RENDER_AFTER_SELECTED_PHARMACY_SECTION, [$this, 'renderSelectedWenoPharmacies']);
     }
@@ -289,7 +288,7 @@ class Bootstrap
     /**
      * @return void
      */
-    public function renderSelectedWenoPharmacies()
+    public function renderSelectedWenoPharmacies(): void
     {
         echo "<br>";
         include_once($this->modulePath) . "/templates/pharmacy_list_display.php";
@@ -298,7 +297,7 @@ class Bootstrap
     /**
      * @return void
      */
-    public function patientSaveEvents()
+    public function patientSaveEvents(): void
     {
         $this->eventDispatcher->addListener(PatientBeforeCreatedAuxEvent::EVENT_HANDLE, [$this, 'persistPatientWenoPharmacies']);
     }
@@ -307,7 +306,7 @@ class Bootstrap
      * @param PatientBeforeCreatedAuxEvent $event
      * @return void
      */
-    public function persistPatientWenoPharmacies(PatientBeforeCreatedAuxEvent $event)
+    public function persistPatientWenoPharmacies(PatientBeforeCreatedAuxEvent $event): void
     {
         $patientData = $event->getPatientData();
         $this->selectedPatientPharmacy->prepSelectedPharmacy($patientData);
@@ -316,7 +315,7 @@ class Bootstrap
     /**
      * @return void
      */
-    public function patientUpdateEvents()
+    public function patientUpdateEvents(): void
     {
         $this->eventDispatcher->addListener(PatientUpdatedEventAux::EVENT_HANDLE, [$this, 'updatePatientWenoPharmacies']);
     }
@@ -325,7 +324,7 @@ class Bootstrap
      * @param PatientUpdatedEventAux $event
      * @return void
      */
-    public function updatePatientWenoPharmacies(PatientUpdatedEventAux $event)
+    public function updatePatientWenoPharmacies(PatientUpdatedEventAux $event): void
     {
         $updatedPatientData = $event->getUpdatedPatientData();
         $this->selectedPatientPharmacy->prepForUpdatePharmacy($updatedPatientData);

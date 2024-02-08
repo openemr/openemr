@@ -24,6 +24,20 @@ class ModuleService
     }
 
     /**
+     * @param $flag
+     * @param bool $reset
+     * @return array|bool|null
+     */
+    public static function setTaskState($flag, bool $reset = false): array|bool|null
+    {
+        $sql_next = "UPDATE `background_services` SET `active` = ? WHERE `name` = ? OR `name` = ?";
+        if ($reset) {
+            $sql_next = "UPDATE `background_services` SET `active` = ?, next_run = NOW() WHERE `name` = ? OR `name` = ?";
+        }
+        return sqlQuery($sql_next, array($flag, 'WenoExchange', 'WenoExchangePharmacies'));
+    }
+
+    /**
      * @return array
      */
     public function getVendorGlobals(): array
@@ -36,7 +50,7 @@ class ModuleService
 
         $gl = sqlStatementNoLog(
             "SELECT gl_name, gl_value FROM `globals` WHERE `gl_name` IN(?, ?, ?, ?, ?)",
-            array( "weno_rx_enable", "weno_rx_enable_test", "weno_encryption_key", "weno_admin_username", "weno_admin_password")
+            array("weno_rx_enable", "weno_rx_enable_test", "weno_encryption_key", "weno_admin_username", "weno_admin_password")
         );
         if (empty($gl)) {
             $this->saveVendorGlobals($vendors);
@@ -61,7 +75,7 @@ class ModuleService
         $crypt = new CryptoGen();
         $items['weno_encryption_key'] = $crypt->encryptStandard($items['weno_encryption_key']);
         $items['weno_admin_password'] = $crypt->encryptStandard($items['weno_admin_password']);
-        $vendors['weno_rx_enable']      = $items['weno_rx_enable'] ?? '0';
+        $vendors['weno_rx_enable'] = $items['weno_rx_enable'] ?? '0';
         $vendors['weno_rx_enable_test'] = $items['weno_rx_enable_test'] ?? '0';
         $vendors['weno_encryption_key'] = $items['weno_encryption_key'];
         $vendors['weno_admin_username'] = $items['weno_admin_username'];
@@ -95,9 +109,7 @@ class ModuleService
     }
 
     /**
-     * Returns true if all the weno settings have been configured.  Otherwise, it returns false.
-     *
-     * @return bool
+     * @return bool true if all the Admin weno settings have been configured.  Otherwise, false.
      */
     public function isWenoConfigured(): bool
     {
@@ -110,14 +122,29 @@ class ModuleService
             $value = $GLOBALS[$key] ?? null;
 
             if (empty($value)) {
+                self::setTaskState('0', false);
                 return false;
             }
         }
+        self::setTaskState('1', false);
         return true;
     }
 
+    /**
+     * @param $modId   string|int module id or directory name
+     * @param $flag    string|int 1 or 0 to activate or deactivate module.
+     * @param $flag_ui string|int custom module ui flag to activate or deactivate Manager UI states.
+     * @return array|bool|null
+     */
     public static function setModuleState($modId, $flag, $flag_ui): array|bool|null
     {
+        if (($flag_ui == '1') || ($flag == '0')) {
+            self::setTaskState('0', false);
+        } else {
+            // set BG tasks to active if module is active.
+            self::setTaskState('1', false);
+        }
+        // set module state.
         $sql = "UPDATE `modules` SET `mod_active` = ?, `mod_ui_active` = ? WHERE `mod_id` = ? OR `mod_directory` = ?";
         return sqlQuery($sql, array($flag, $flag_ui, $modId, $modId));
     }

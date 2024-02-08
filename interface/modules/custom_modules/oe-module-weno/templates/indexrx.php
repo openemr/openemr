@@ -28,7 +28,7 @@ if (!AclMain::aclCheckCore('patients', 'rx')) {
 }
 
 $pharmacyService = new PharmacyService();
-$prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? [];
+$primary_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? [];
 $alt_pharmacy = $pharmacyService->getWenoAlternatePharm($_SESSION['pid']) ?? [];
 
 
@@ -36,10 +36,7 @@ $container = new Container();
 
 $wenoProperties = $container->getTransmitproperties();
 $provider_info = $wenoProperties->getProviderEmail();
-$urlParam = $wenoProperties->cipherpayload();          //lets encrypt the data
-//$logsync = $container->getLogproperties();
-//$logsync->logSync();
-
+$urlParam = $wenoProperties->cipherpayload(); //lets encrypt the data
 $vitals = $wenoProperties->getVitals();
 $provider_name = $wenoProperties->getProviderName();
 $patient_name = $wenoProperties->getPatientName();
@@ -79,9 +76,7 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
 <body >
      
 <?php
-    //**warning** do not add urlencode to  $provider_info['email']
     $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode($urlParam);
-
 ?>
 
 <div style="margin:30px">
@@ -120,7 +115,7 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
                 </table>
             </div>
             <div class="col">
-                <div><?php echo xlt("Primary Pharmacy"); ?> : <?php echo text($prim_pharmacy['business_name'] . " / " . $primary_pharmacy['address_line_1'] . " / " . $primary_pharmacy['city']); ?></div>
+                <div><?php echo xlt("Primary Pharmacy"); ?> : <?php echo text($primary_pharmacy['business_name'] . " / " . $primary_pharmacy['address_line_1'] . " / " . $primary_pharmacy['city']); ?></div>
                 <div><?php echo xlt("Weno Alt"); ?> : <?php echo text($alt_pharmacy['business_name'] . " / " . $alt_pharmacy['address_line_1'] . " / " . $alt_pharmacy['city']); ?></div>
             </div>
         </div>

@@ -103,7 +103,6 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
             $modService::setModuleState($modId, '0', '0');
             return $currentActionStatus;
         }
-        $this->setTaskState('0');
         $modService::setModuleState($modId, '0', '1');
         return $currentActionStatus;
     }
@@ -117,11 +116,9 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
     {
         $modService = new ModuleService();
         if ($modService->isWenoConfigured()) {
-            $this->setTaskState('1');
             $modService::setModuleState($modId, '1', '0');
             return $currentActionStatus;
         }
-        $this->setTaskState('0');
         $modService::setModuleState($modId, '1', '1');
         return xlt("Weno eRx Service is not configured. Please configure Weno eRx Service in the Weno Module Setup.");
     }
@@ -133,7 +130,7 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
      */
     private function disable($modId, $currentActionStatus): mixed
     {
-        $rtn = $this->setTaskState('0');
+        ModuleService::setModuleState($modId, '0', '0');
         return $currentActionStatus;
     }
 
@@ -186,15 +183,5 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
         }
 
         return $registry;
-    }
-
-    /**
-     * @param $flag
-     * @return array|bool|null
-     */
-    private function setTaskState($flag): array|bool|null
-    {
-        $sql_next = "UPDATE `background_services` SET `active` = ? WHERE `name` = ? OR `name` = ?";
-        return sqlQuery($sql_next, array($flag, 'WenoExchange', 'WenoExchangePharmacies'));
     }
 }

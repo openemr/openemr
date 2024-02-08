@@ -32,18 +32,13 @@ class WenoLogService
     public function getLastPharmacyDownloadStatus(): bool|array|null
     {
         $params = "pharmacy";
-        $sql = "SELECT * FROM weno_download_log WHERE ";
-        $sql .= "VALUE = ? ORDER BY created_at DESC LIMIT 1";
-
+        $sql = "SELECT * FROM weno_download_log WHERE VALUE = ? ORDER BY created_at DESC LIMIT 1";
         return sqlQuery($sql, [$params]);
     }
 
     public function insertWenoLog($value, $status): bool|string
     {
-        $sql = "INSERT INTO weno_download_log SET ";
-        $sql .= "value = ?, ";
-        $sql .= "status = ? ";
-
+        $sql = "INSERT INTO weno_download_log SET value = ?, status = ?";
         try {
             sqlInsert($sql, [$value, $status]);
         } catch (Exception $e) {

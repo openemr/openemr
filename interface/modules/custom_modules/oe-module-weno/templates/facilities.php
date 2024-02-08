@@ -41,7 +41,6 @@ $facilities = $data->getFacilities();
 $pres_log = $logService->getLastPrescriptionLogStatus();
 $pharm_log = $logService->getLastPharmacyDownloadStatus();
 
-
 ?>
 <html>
 <head>

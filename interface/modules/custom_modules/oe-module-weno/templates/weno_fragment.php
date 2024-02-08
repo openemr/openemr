@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Kofi Appiah <kkappiah@medsov.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
+ * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -15,16 +17,16 @@ use OpenEMR\Common\Acl\AclMain;
 if (!AclMain::aclCheckCore('patients', 'med')) {
     exit;
 }
-$sql = "SELECT * FROM prescriptions WHERE patient_id = ? AND indication IS NOT NULL";
-$res = sqlStatement($sql, array($pid));
 
-function getProviderByWenoId($external_id)
+$res = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND indication IS NOT NULL", array($pid));
+
+function getProviderByWenoId($external_id): string
 {
-    $provider = sqlQuery("SELECT fname, mname, lname FROM users WHERE weno_prov_id = ? ", array($external_id));
+    $provider = sqlQuery("SELECT fname, mname, lname FROM users WHERE weno_prov_id = ? OR id = ?", array($external_id, $external_id));
     if ($provider) {
         return $provider['fname'] . " " . $provider['mname'] . " " . $provider['lname'];
     } else {
-        return "";
+        return "Missing Weno User Id.";
     }
 }
 
@@ -46,10 +48,10 @@ function getProviderByWenoId($external_id)
 <div class="table-responsive">
     <table class="table w-100">
         <thead class="thead-light border-bottom">
-            <tr>
-                <th><?php echo xlt("Drug Name"); ?></th>
-                <th><?php echo xlt("Prescriber"); ?></th>
-            </tr>
+        <tr>
+            <th><?php echo xlt("Drug Name"); ?></th>
+            <th><?php echo xlt("Prescriber"); ?></th>
+        </tr>
         </thead>
         <tbody>
         <?php
