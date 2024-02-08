@@ -161,7 +161,7 @@ class Bootstrap
         <section class="card mb-2">
             <?php
             // Weno expand collapse widget
-            $widgetTitle = self::MODULE_MENU_NAME;
+            $widgetTitle = self::MODULE_MENU_NAME . " " . xlt("eRx");
             $widgetLabel = "wenocard";
             $widgetButtonLabel = xl("Edit");
             $widgetButtonLink = ""; // "return newEvt();";

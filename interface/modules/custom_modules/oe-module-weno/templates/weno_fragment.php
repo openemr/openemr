@@ -35,12 +35,12 @@ function getProviderByWenoId($external_id): string
 <script src="../../modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
 
 <div class="row float-right mr-2 mb-2">
-    <div class="mr-3 click" role="button" onclick="sync_weno()">
-        <u><span><i id="sync-icon" class="fa-solid fa-rotate-right"></i></span><?php echo xlt("Synch"); ?></u>
+    <div class="mr-3" role="button">
+        <u><span class="click" onclick="sync_weno()"><i id="sync-icon" class="fa-solid fa-rotate-right mr-1"></i><?php echo xlt("Synch"); ?></span></u>
+        <a href="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php">
+            <span><i class="fa-solid fa-pen mx-2"></i></span>
+        </a>
     </div>
-    <a href="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php">
-        <span><i class="fa-solid fa-pen"></i></span>
-    </a>
 </div>
 
 <div id="sync-alert" class="d-none"></div>
