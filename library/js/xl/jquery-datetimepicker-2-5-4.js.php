@@ -88,16 +88,15 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
     <?php if ($datetimepicker_timepicker) { ?>
         <?php if ($datetimepicker_showseconds) { ?>
             <?php if ($datetimepicker_formatInput) { ?>
-                format: '<?php echo DateFormatRead("jquery-datetimepicker") . " " .
-                               DateFormatterUtils::getTimeFormat(true); ?>',
+                format: '<?php echo DateFormatRead("jquery-datetimepicker") . " " . 
+                    DateFormatterUtils::getTimeFormat(true); ?>',
             <?php } else { ?>
                 format: 'Y-m-d H:i:s',
             <?php } ?>
         <?php } else { ?>
             <?php if ($datetimepicker_formatInput) { ?>
                 format: '<?php echo DateFormatRead("jquery-datetimepicker") . " " .
-                               DateFormatterUtils::getTimeFormat();?>',
-                formatTime: '<?php echo DateFormatterUtils::getTimeFormat();?>',
+                    DateFormatterUtils::getTimeFormat(); ?>',
                 validateOnBlur: false,
             <?php } else { ?>
                 format: 'Y-m-d H:i',
