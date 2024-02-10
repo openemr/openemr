@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  *  @package OpenEMR
  *  @link    http://www.open-emr.org
  *  @author  Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -73,7 +73,7 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
         }
         
         function downloadPharmacies(){
-            if (!window.confirm(jsText("This download may take several minutes. Do you want to continue?"))) {
+            if (!window.confirm(xl("This download may take several minutes. Do you want to continue?"))) {
                 return false;
             }
             $('#notch-pharm').removeClass("hide");

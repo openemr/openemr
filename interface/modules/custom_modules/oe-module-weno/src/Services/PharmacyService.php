@@ -144,7 +144,7 @@ class PharmacyService
         $sql .= "24hr = ? ";
 
         try {
-            sqlInsert($sql, [
+            sqlStatementNoLog($sql, [
                 $insertdata['ncpdp'],
                 $insertdata['npi'],
                 $insertdata['business_name'],
