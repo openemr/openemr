@@ -87,16 +87,19 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
     <?php } ?>
     <?php if ($datetimepicker_timepicker) { ?>
         <?php if ($datetimepicker_showseconds) { ?>
-            <?php if ($datetimepicker_formatInput) { ?>
-                format: '<?php echo DateFormatRead("jquery-datetimepicker") . " " . 
-                    DateFormatterUtils::getTimeFormat(true); ?>',
+            <?php if ($datetimepicker_formatInput) {
+                $time_format_with_secs = DateFormatterUtils::getTimeFormat(true); ?>
+                format: '<?php echo DateFormatRead("jquery-datetimepicker") . " " . $time_format_with_secs; ?>',
+                formatTime: '<?php echo $time_format_with_secs; ?>',
             <?php } else { ?>
                 format: 'Y-m-d H:i:s',
+                formatTime: 'H:i:s',
             <?php } ?>
         <?php } else { ?>
-            <?php if ($datetimepicker_formatInput) { ?>
-                format: '<?php echo DateFormatRead("jquery-datetimepicker") . " " .
-                    DateFormatterUtils::getTimeFormat(); ?>',
+            <?php if ($datetimepicker_formatInput) {
+                $time_format_without_secs =  DateFormatterUtils::getTimeFormat(); ?>
+                format: '<?php echo DateFormatRead("jquery-datetimepicker") . " " . $time_format_without_secs; ?>',
+                formatTime: '<?php echo $time_format_without_secs; ?>',
                 validateOnBlur: false,
             <?php } else { ?>
                 format: 'Y-m-d H:i',
