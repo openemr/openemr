@@ -1089,8 +1089,9 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                             continue;
                         }
 
-                        //Set date counter and reminder token (applicable for reminders only)
-                        // HR: $reminder_due is the status the reminder will have and end of processing $dateFocus if filters pass and target does not pass
+                        // Set date counter and reminder token (applicable for reminders only)
+                        // HR: $reminder_due is the status the reminder will have and end of processing current value of $dateFocus if filters pass and target does not pass
+                        // If target passes on the next pass, this $reminder_due value will be appropriate for keeping at that time
                         if ($dateCounter == 1) {
                             $reminder_due = "soon_due";
                         } elseif ($dateCounter == 2) {
@@ -1123,39 +1124,30 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                                 $temp_track_pass = 1;
                             }
 
-                            // send to reminder results
-                            if ($mode == "reminders-all") {
-                                // place the completed actions into the reminder return array
-                                $actionArray = resolve_action_sql($rowRule['id'], '1');
-                                foreach ($actionArray as $action) {
-                                    $action_plus = $action;
+                            // send to redminder results
+                            // HR: do this only if passes during the first pass through the $target_dates loop.
+                            // If passes during pass 2 or 3, status has already been set appropriately by the "else" code below
+                            if ($dateCounter == 1) {
+                                if ($mode == "reminders-all") {
+                                    // place the completed actions into the reminder return array
+                                    $actionArray = resolve_action_sql($rowRule['id'], '1');
+                                    foreach ($actionArray as $action) {
+                                        $action_plus = $action;
+                                        $action_plus['due_status'] = "not_due";
 
-                                    // original line
-                                    // With this line, Reminder Details page shows only not due and past due
-                                    //$action_plus['due_status'] = "not_due";
-
-                                    // HR: My replacement lines
-                                    // if passed during this pass, this is the status
-                                    if ($dateCounter == 1) {
-                                        $reminder_status = "not_due";
-                                    } elseif ($dateCounter == 2) {
-                                        $reminder_status = "soon_due";
-                                    } else { // $dateCounter == 3
-                                        $reminder_status = "due";
+                                        $action_plus['pid'] = $rowPatient['pid'];
+                                        $action_plus['rule_id'] = $rowRule['id'];
+                                        $results = reminder_results_integrate($results, $action_plus);
                                     }
-
-                                    $action_plus['due_status'] = $reminder_status;
-                                    $action_plus['pid'] = $rowPatient['pid'];
-                                    $action_plus['rule_id'] = $rowRule['id'];
-                                    $results = reminder_results_integrate($results, $action_plus);
                                 }
                             }
-
                             break;
                         } else {
                             // send to reminder results
                             if ($mode != "report") {
                                 // place the uncompleted actions into the reminder return array
+                                // HR: reminder_results_integrate() checks to see if reminder info has already been saved, based on pid, category and item
+                                // If already present, will replace prior version with new version. Otherwise, adds new version
                                 $actionArray = resolve_action_sql($rowRule['id'], '1');
                                 foreach ($actionArray as $action) {
                                     $action_plus = $action;
@@ -1262,38 +1254,19 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                                 }
 
                                 // send to reminder results
-                                if ($mode == "reminders-all") {
-                                    // place the completed actions into the reminder return array
-                                    $actionArray = resolve_action_sql($rowRule['id'], $i);
-                                    foreach ($actionArray as $action) {
-                                        $action_plus = $action;
-
-                                        // original line:
-                                        //$action_plus['due_status'] = "not_due";
-                                        // With this line, Reminder Details page shows only not due and past due
-
-                                        // HR: My replacement lines
-                                        // if passed during this pass, this is the status
-                                        if ($dateCounter == 1) {
-                                            $reminder_status = "not_due";
-                                        } elseif ($dateCounter == 2) {
-                                            $reminder_status = "soon_due";
-                                        } else { // $dateCounter == 3
-                                            $reminder_status = "due";
+                                if ($date_target == 1) {
+                                    if ($mode == "reminders-all") {
+                                        // place the completed actions into the reminder return array
+                                        $actionArray = resolve_action_sql($rowRule['id'], $i);
+                                        foreach ($actionArray as $action) {
+                                            $action_plus = $action;
+                                            $action_plus['due_status'] = "not_due";
+                                            $action_plus['pid'] = $rowPatient['pid'];
+                                            $action_plus['rule_id'] = $rowRule['id'];
+                                            $results = reminder_results_integrate($results, $action_plus);
                                         }
-
-                                        // HR: will leave next line alone. Not sure what implications of changing this are here. This was changed above for
-                                        //    if ((count($targetGroups) == 1) || ($mode == "report")) {
-                                        // case
-
-                                        $action_plus['due_status'] = "not_due";
-                                        //$action_plus['due_status'] = $reminder_status;
-                                        $action_plus['pid'] = $rowPatient['pid'];
-                                        $action_plus['rule_id'] = $rowRule['id'];
-                                        $results = reminder_results_integrate($results, $action_plus);
                                     }
                                 }
-
                                 break;
                             } else {
                                 // send to reminder results
