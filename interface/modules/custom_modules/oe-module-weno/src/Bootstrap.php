@@ -65,8 +65,6 @@ class Bootstrap
             $this->addGlobalSettings();
             return;
         }
-        $modService::setModuleState('oe-module-weno', '1', '0');
-        $this->registerMenuItems();
         $this->addGlobalSettings();
         $this->registerMenuItems();
         $this->registerDemographicsEvents();
@@ -74,6 +72,7 @@ class Bootstrap
         $this->demographicsDisplaySelectedEvents();
         $this->patientSaveEvents();
         $this->patientUpdateEvents();
+        $modService::setModuleState('oe-module-weno', '1', '0');
     }
 
     public function __construct(EventDispatcher $dispatcher)

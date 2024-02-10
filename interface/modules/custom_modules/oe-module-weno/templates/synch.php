@@ -4,7 +4,9 @@
  *  @package OpenEMR
  *  @link    http://www.open-emr.org
  *  @author  omegasystemsgroup.com
- *  @copyright Copyright (c) 2023 omegasystemsgroup.com <info@omegasystemsgroup.com>
+ *  @author     Jerry Padgett <sjpadgett@gmail.com>
+ *  @copyright  Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
+ *  @copyright  Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
  *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 

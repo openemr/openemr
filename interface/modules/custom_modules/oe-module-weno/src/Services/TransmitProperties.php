@@ -7,8 +7,10 @@
  * @link      http://www.open-emr.org
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Kofi Appiah <kkappiah@medsov.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2016-2017 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
+ * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -19,6 +21,7 @@ use OpenEMR\Services\FacilityService;
 
 class TransmitProperties
 {
+    public $errors;
     private $payload;
     private $patient;
     private $provider_email;
@@ -30,13 +33,15 @@ class TransmitProperties
     private $cryptoGen;
     private $pharmacy;
     private $encounter;
+    private mixed $wenoProviderID;
 
     /**
      * AdminProperties constructor.
      */
-    public function __construct()
+    public function __construct($returnFlag = false)
     {
         $this->cryptoGen = new CryptoGen();
+        $this->wenoProviderID = $this->getWenoProviderID();
         $this->ncpdp = $this->getPharmacy();
         $this->vitals = $this->getVitals();
         $this->patient = $this->getPatientInfo();
@@ -44,9 +49,65 @@ class TransmitProperties
         $this->provider_pass = $this->getProviderPassword();
         $this->locid = $this->getFacilityInfo();
         $this->pharmacy = $this->getPharmacy();
-        $this->payload = $this->createJsonObject();
         $this->subscriber = $this->getSubscriber();
         $this->encounter = $this->getEncounter();
+        // check for errors
+        $this->errors = $this->checkErrors();
+        if (!empty($this->errors)) {
+            // let's not create payload if there are errors.
+            // nip it here so to speak.
+            if ($returnFlag) {
+                return;
+            }
+            self::errorWithDie($this->errors);
+        }
+        // validated so create json object
+        $this->payload = $this->createJsonObject();
+    }
+
+    public function isJson($value): bool
+    {
+        return is_string($value) && is_array(json_decode($value, true)) && (json_last_error() == JSON_ERROR_NONE);
+    }
+
+    public function getPayload(): false|string
+    {
+        return $this->payload;
+    }
+
+    public function checkErrors(): string
+    {
+        $error = '';
+        foreach ($this as $key => $value) {
+            if ($this->isJson($value)) {
+                foreach (json_decode($value, true) as $k => $v) {
+                    if (str_contains($v, "ERROR")) {
+                        $v = str_replace("ERROR:", " * ", $v);
+                        if (str_contains($error, $v)) {
+                            continue;
+                        }
+                        $error .= $v . "<br>";
+                    }
+                }
+            } elseif (is_array($value)) {
+                foreach ($value as $k => $v) {
+                    if (str_contains($v, "ERROR")) {
+                        $v = str_replace("ERROR:", " * ", $v);
+                        if (str_contains($error, $v)) {
+                            continue;
+                        }
+                        $error .= $v . "<br>";
+                    }
+                }
+            } elseif (is_string($value) && str_contains($value, "ERROR")) {
+                $value = str_replace("ERROR:", " * ", $value);
+                if (str_contains($error, $value)) {
+                    continue;
+                }
+                $error .= $value . "<br>";
+            }
+        }
+        return $error;
     }
 
     /**
@@ -94,19 +155,18 @@ class TransmitProperties
         $wenObj['PrimaryPharmacyNCPCP'] = $this->pharmacy['primary'];
         $wenObj['AlternativePharmacyNCPCP'] = $this->pharmacy['alternate'];
 
-        //add insurance
+        //TODO add insurance
         return json_encode($wenObj);
     }
 
     /**
-     * @return array|void
+     * @return string
      */
-    public function getProviderEmail()
+    public function getProviderEmail(): array|string
     {
         $provider_info = ['email' => $GLOBALS['weno_provider_email']];
         if (empty($provider_info['email'])) {
-            echo self::styleErrors(xlt('Provider email address is missing and required. Go to User Settings select Weno Tab and enter your Weno Provider Password'));
-            exit;
+            return "ERROR:" . (xlt('Provider Email is missing. Go to User Settings Weno Tab and enter your Weno Provider Email'));
         } else {
             return $provider_info;
         }
@@ -131,11 +191,9 @@ class TransmitProperties
             $default_facility = sqlQuery("SELECT name, street, city, state, postal_code, phone, fax, weno_id from facility order by id limit 1");
 
             if (empty($default_facility['weno_id'])) {
-                echo self::styleErrors(xlt('Facility ID is missing. From Admin select Other then Weno Management. Enter the Weno ID of your facility'));
-                exit;
-            } else {
-                return $default_facility;
+                $default_facility['error'] = "ERROR:" . xlt('Facility ID is missing. From Admin select Other then Weno Management. Enter the Weno ID of your facility');
             }
+            return $default_facility;
         }
         return $locId;
     }
@@ -203,7 +261,7 @@ class TransmitProperties
      * @return string
      * New Rx
      */
-    public function cipherpayload()
+    public function cipherpayload(): string
     {
         $cipher = "aes-256-cbc"; // AES 256 CBC cipher
         $enc_key = $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);
@@ -225,8 +283,7 @@ class TransmitProperties
         if (!empty($GLOBALS['weno_provider_password'])) {
             return $this->cryptoGen->decryptStandard($GLOBALS['weno_provider_password']);
         } else {
-            echo xlt('Provider Password is missing');
-            die;
+            return "ERROR:" . xlt('Provider Password is missing. Go to User Settings Weno Tab and enter your Weno Provider Password');
         }
     }
 
@@ -246,33 +303,35 @@ class TransmitProperties
     }
 
     /**
-     * @return mixed
+     * @return string|array
      */
-    public function getPharmacy()
+    public function getPharmacy(): string|array
     {
         $data = sqlQuery("SELECT * FROM `weno_assigned_pharmacy` WHERE `pid` = ? ", [$_SESSION["pid"]]);
-        if (empty($data)) {
-            $log = xlt("Weno Pharmacies not set. From Patient's Demographics select Choices then select Weno Pharmacy Selector to Assign Pharmacies");
-            self::errorWithDie($log);
-        }
         $response = array(
             "primary" => $data['primary_ncpdp'],
             "alternate" => $data['alternate_ncpdp']
         );
+        if (empty($data)) {
+            $response['errors'] = true;
+            // both primary and alternate are empty
+        }
 
         if (empty($response['primary'])) {
-            $log = xlt("Weno Primary Pharmacy not set. From Patient's Demographics select Choices then select Weno Pharmacy Selector to Assign Primary Pharmacy");
-            self::errorWithDie($log);
+            $response['errors'] = true;
+            $e = 'ERROR:' . xlt("Weno Primary Pharmacy not set. From Patient's Demographics Choices assign Primary Pharmacy");
+            $response['primary'] = $e;
         }
 
         if (empty($response['alternate'])) {
-            $log = xlt("Weno Alternate Pharmacy not set. From Patient's Demographics select Choices then select Weno Pharmacy Selector to Assign Primary Pharmacy");
-            self::errorWithDie($log);
+            $response['errors'] = true;
+            $e = 'ERROR:' . xlt("Weno Alternate Pharmacy not set. From Patient's Demographics Choices assign Alternate Pharmacy");
+            $response['alternate'] = $e;
         }
         return $response;
     }
 
-    public function wenoChr()
+    public function wenoChr(): string
     {
         return
             chr(0x0) .
@@ -293,15 +352,10 @@ class TransmitProperties
             chr(0x0);
     }
 
-    public function wenoMethod(): string
-    {
-        return "aes-256-cbc";
-    }
-
     /**
      * @return mixed
      */
-    public function getProviderName()
+    public function getProviderName(): mixed
     {
         $provider_info = sqlQuery("select fname, mname, lname from users where username=? ", [$_SESSION["authUser"]]);
 
@@ -318,21 +372,22 @@ class TransmitProperties
         return $patient_info['fname'] . " " . $patient_info['mname'] . " " . $patient_info['lname'];
     }
 
-    /**
-     * @return mixed
-     */
-    public function getWenoAltPharmacies()
-    {
-        $data = sqlQuery("SELECT * FROM weno_assigned_pharmacy WHERE pid = ? ", [$_SESSION["pid"]]);
-        $response = array(
-            "primary" => $data['primary_ncpdp'],
-            "alternate" => $data['alternate_ncpdp']
-        );
-        return $response;
-    }
-
     private function getEncounter()
     {
         return $_SESSION['encounter'] ?? 0;
+    }
+
+    public function getWenoProviderId($id = null)
+    {
+        if (empty($id)) {
+            $id = $_SESSION['authUserID'] ?? '';
+        }
+            // get the weno provider id from the user table (weno_prov_id
+        $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
+        if (!empty($provider['weno_prov_id'])) {
+            return $provider['weno_prov_id'];
+        } else {
+            return "ERROR:" . xlt("Missing Weno Provider Id. Select Admin then Users and edit the user to add Weno Provider Id");
+        }
     }
 }

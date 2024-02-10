@@ -214,7 +214,7 @@ $res = sqlStatement($sql);
     }
 
     function pharmSelChanged() {
-        var e = document.getElementById("weno_pharmacy");
+        const e = document.getElementById("weno_pharmacy");
         this.wenoValChanged = e.options[e.selectedIndex].value;
         this.wenoPrimPharm = e.options[e.selectedIndex].text;
     }

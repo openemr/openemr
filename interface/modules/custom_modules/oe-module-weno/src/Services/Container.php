@@ -29,7 +29,7 @@ class Container
     /**
      * @return TransmitProperties
      */
-    public function getTransmitproperties(): TransmitProperties
+    public function getTransmitProperties(): TransmitProperties
     {
         if ($this->transmitproperties === null) {
             $this->transmitproperties = new TransmitProperties();

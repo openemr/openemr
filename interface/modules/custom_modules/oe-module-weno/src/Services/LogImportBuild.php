@@ -13,6 +13,7 @@ namespace OpenEMR\Modules\WenoModule\Services;
 class LogImportBuild
 {
     public $rxsynclog;
+    private $insertdata;
 
     public function __construct()
     {
@@ -28,7 +29,7 @@ class LogImportBuild
             return $provider['id'];
         } else {
             // logged in user is auth weno user so let's ensure a user is set.
-            return $_SESSION["authUserID"] ?? null;
+            return "ERROR:" . xlt("Missing Weno Provider Id. Select Admin then Users and edit the user to add Weno Provider Id");
         }
     }
 

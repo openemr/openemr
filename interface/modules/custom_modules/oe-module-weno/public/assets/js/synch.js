@@ -51,3 +51,13 @@ function wenoAlertManager(option, element, spinElement) {
         element.innerHTML = "An error occurred";
     }
 }
+
+function renderDialogAlert(message) {
+    const dialogAlert = document.getElementById("dialog-alert");
+    const dialogContent = document.getElementById("dialog-content");
+    dialogAlert.classList.remove("d-none");
+    dialogContent.innerHTML = message;
+    setTimeout(function () {
+        dialogAlert.classList.add("d-none");
+    }, 20000);
+}

@@ -4,9 +4,11 @@
  *  @package OpenEMR
  *  @link    http://www.open-emr.org
  *  @author  Sherwin Gaddis <sherwingaddis@gmail.com>
- *  @author    Kofi Appiah <kkappiah@medsov.com>
+ *  @author  Kofi Appiah <kkappiah@medsov.com>
+ *  @author  Jerry Padgett <sjpadgett@gmail.com>
  *  @copyright Copyright (c) 2020 Sherwin Gaddis <sherwingaddis@gmail.com>
  *  @copyright Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
+ *  @copyright  Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
  *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -31,10 +33,9 @@ $pharmacyService = new PharmacyService();
 $primary_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? [];
 $alt_pharmacy = $pharmacyService->getWenoAlternatePharm($_SESSION['pid']) ?? [];
 
-
 $container = new Container();
 
-$wenoProperties = $container->getTransmitproperties();
+$wenoProperties = $container->getTransmitProperties();
 $provider_info = $wenoProperties->getProviderEmail();
 $urlParam = $wenoProperties->cipherpayload(); //lets encrypt the data
 $vitals = $wenoProperties->getVitals();
