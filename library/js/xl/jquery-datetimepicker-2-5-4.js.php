@@ -100,13 +100,12 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
                 $time_format_without_secs =  DateFormatterUtils::getTimeFormat(); ?>
                 format: '<?php echo DateFormatRead("jquery-datetimepicker") . " " . $time_format_without_secs; ?>',
                 formatTime: '<?php echo $time_format_without_secs; ?>',
-                validateOnBlur: false,
             <?php } else { ?>
                 format: 'Y-m-d H:i',
             <?php } ?>
         <?php } ?>
         timepicker:true,
-        step: '30'
+        step: 30
     <?php } else { ?>
         <?php if ($datetimepicker_formatInput) { ?>
             format: '<?php echo DateFormatRead("jquery-datetimepicker"); ?>',
