@@ -193,7 +193,7 @@ class LogProperties
             if (!empty($provider_info['email'])) {
                 return $provider_info;
             } else {
-                $error = xlt("Provider email address is missing. Go to [User settings > Email] to add provider's weno registered email address");
+                $error = xlt("Provider email address is missing. Go to User settings Email to add provider's weno registered email address");
                 error_log($error);
                 TransmitProperties::errorWithDie($error);
             }

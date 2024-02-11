@@ -29,7 +29,7 @@ class LogImportBuild
             return $provider['id'];
         } else {
             // logged in user is auth weno user so let's ensure a user is set.
-            return "ERROR:" . xlt("Missing Weno Provider Id. Select Admin then Users and edit the user to add Weno Provider Id");
+            return "REQED: " . xlt("Weno Provider Id missing. Select Admin then Users and edit the user to add Weno Provider Id");
         }
     }
 

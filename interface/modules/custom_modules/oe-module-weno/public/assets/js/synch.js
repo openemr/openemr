@@ -52,6 +52,7 @@ function wenoAlertManager(option, element, spinElement) {
     }
 }
 
+// Reserved for future use.
 function renderDialogAlert(message) {
     const dialogAlert = document.getElementById("dialog-alert");
     const dialogContent = document.getElementById("dialog-content");

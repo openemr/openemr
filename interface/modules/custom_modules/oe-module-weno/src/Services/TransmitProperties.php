@@ -16,6 +16,7 @@
 
 namespace OpenEMR\Modules\WenoModule\Services;
 
+use Exception;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Services\FacilityService;
 
@@ -40,6 +41,7 @@ class TransmitProperties
      */
     public function __construct($returnFlag = false)
     {
+        $this->errors = ['errors' => '', 'warnings' => '', 'info' => '', 'string' => ''];
         $this->cryptoGen = new CryptoGen();
         $this->wenoProviderID = $this->getWenoProviderID();
         $this->ncpdp = $this->getPharmacy();
@@ -53,60 +55,118 @@ class TransmitProperties
         $this->encounter = $this->getEncounter();
         // check for errors
         $this->errors = $this->checkErrors();
-        if (!empty($this->errors)) {
+        if (!empty($this->errors['errors'])) {
             // let's not create payload if there are errors.
             // nip it here so to speak.
             if ($returnFlag) {
                 return;
             }
             self::errorWithDie($this->errors);
+        } elseif ($returnFlag) {
+            return;
         }
         // validated so create json object
         $this->payload = $this->createJsonObject();
     }
 
+    /**
+     * @param $value
+     * @return bool
+     */
     public function isJson($value): bool
     {
-        return is_string($value) && is_array(json_decode($value, true)) && (json_last_error() == JSON_ERROR_NONE);
+        return is_string($value) && is_array(json_decode($value, true)) && (json_last_error() == JSON_REQED_NONE);
     }
 
+    /**
+     * @return false|string
+     */
     public function getPayload(): false|string
     {
         return $this->payload;
     }
 
-    public function checkErrors(): string
+    /**
+     * Generate a list of errors, warnings and info messages.
+     * All messages should be escaped and translated.
+     *
+     * @return string[]
+     */
+    public function checkErrors(): array
     {
-        $error = '';
-        foreach ($this as $key => $value) {
-            if ($this->isJson($value)) {
-                foreach (json_decode($value, true) as $k => $v) {
-                    if (str_contains($v, "ERROR")) {
-                        $v = str_replace("ERROR:", " * ", $v);
-                        if (str_contains($error, $v)) {
+        // This function will check for errors, warnings and info messages.
+        // It will return an array with the following keys:
+        $error = ['errors' => '', 'warnings' => '', 'info' => '', 'string' => ''];
+        try {
+            foreach ($this as $k => $value) {
+                if ($this->isJson($value)) {
+                    foreach (json_decode($value, true) as $k => $v) {
+                        if (str_contains($v, "REQED")) {
+                            $v = "* " . $v;
+                            if (str_contains($error['errors'], $v)) {
+                                continue;
+                            }
+                            $error['errors'] .= $v . "<br>";
+                        } elseif (str_contains($v, "WARNS")) {
+                            $v = "* " . $v;
+                            if (str_contains($error['warnings'], $v)) {
+                                continue;
+                            }
+                            $error['warnings'] .= $v . "<br>";
+                        } elseif (str_contains($v, "INFO")) {
+                            $v = "* " . $v;
+                            if (str_contains($error['info'], $v)) {
+                                continue;
+                            }
+                            $error['info'] .= $v . "<br>";
+                        }
+                    }
+                } elseif (is_array($value)) {
+                    foreach ($value as $key => $v) {
+                        if (str_contains($v, "REQED")) {
+                            $v = "* " . $v;
+                            if (str_contains($error['errors'], $v)) {
+                                continue;
+                            }
+                            $error['errors'] .= $v . "<br>";
+                        } elseif (str_contains($v, "WARNS")) {
+                            $v = "* " . $v;
+                            if (str_contains($error['warnings'], $v)) {
+                                continue;
+                            }
+                            $error['warnings'] .= $v . "<br>";
+                        } elseif (str_contains($v, "INFO")) {
+                            $v = "* " . $v;
+                            if (str_contains($error['info'], $v)) {
+                                continue;
+                            }
+                            $error['info'] .= $v . "<br>";
+                        }
+                    }
+                } elseif (is_string($value)) {
+                    if (
+                        str_contains($value, "REQED")
+                        || str_contains($value, "WARNS")
+                        || str_contains($value, "INFO")
+                    ) {
+                        $value = "* " . $value;
+                        if (
+                            str_contains($error['errors'], $value)
+                            || str_contains($error['warnings'], $value)
+                            || str_contains($error['info'], $value)
+                        ) {
                             continue;
                         }
-                        $error .= $v . "<br>";
+                        $error['errors'] .= $value . "<br>";
                     }
                 }
-            } elseif (is_array($value)) {
-                foreach ($value as $k => $v) {
-                    if (str_contains($v, "ERROR")) {
-                        $v = str_replace("ERROR:", " * ", $v);
-                        if (str_contains($error, $v)) {
-                            continue;
-                        }
-                        $error .= $v . "<br>";
-                    }
-                }
-            } elseif (is_string($value) && str_contains($value, "ERROR")) {
-                $value = str_replace("ERROR:", " * ", $value);
-                if (str_contains($error, $value)) {
-                    continue;
-                }
-                $error .= $value . "<br>";
             }
+        } catch (Exception $e) {
+            $error['errors'] = $e->getMessage();
         }
+
+        // string: a string with all the messages for UI render.
+        $error['string'] = $error['errors'] . $error['warnings'] . $error['info'];
         return $error;
     }
 
@@ -166,7 +226,7 @@ class TransmitProperties
     {
         $provider_info = ['email' => $GLOBALS['weno_provider_email']];
         if (empty($provider_info['email'])) {
-            return "ERROR:" . (xlt('Provider Email is missing. Go to User Settings Weno Tab and enter your Weno Provider Email'));
+            return "REQED: " . (xlt('Provider Email is missing. Go to User Settings Weno Tab and enter your Weno Provider Email'));
         } else {
             return $provider_info;
         }
@@ -191,7 +251,7 @@ class TransmitProperties
             $default_facility = sqlQuery("SELECT name, street, city, state, postal_code, phone, fax, weno_id from facility order by id limit 1");
 
             if (empty($default_facility['weno_id'])) {
-                $default_facility['error'] = "ERROR:" . xlt('Facility ID is missing. From Admin select Other then Weno Management. Enter the Weno ID of your facility');
+                $default_facility['error'] = "REQED: " . xlt('Facility ID is missing. From Admin select Other then Weno Management. Enter the Weno ID of your facility');
             }
             return $default_facility;
         }
@@ -201,67 +261,71 @@ class TransmitProperties
     /**
      * @return mixed
      */
-    private function getPatientInfo()
+    private function getPatientInfo(): mixed
     {
         //get patient data if in an encounter
         //Since the transmitproperties is called in the logproperties
         //need to check to see if in an encounter or not. Patient data is not required to view the Weno log
-        $log = '';
-        $missing = 0;
-        if (empty($_SESSION['encounter'])) {
-            // removed requirement sjp
-        }
+
         $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, postal_code, dob, sex, pid from patient_data where pid=?", [$_SESSION['pid']]);
         if (empty($patient['fname'])) {
-            $log .= xlt("First Name Missing, From the Patient Chart select Demographics select Who. Save and retry") . "<brselect";
-            ++$missing;
+            $patient['fname'] = "REQED: " . xlt("First Name Missing, From the Patient Chart select Demographics select Who.");
         }
         if (empty($patient['lname'])) {
-            $log .= xlt("Last Name Missing, From the Patient Chart select Demographics select Who. Save and retry") . "<br>";
-            ++$missing;
+            $patient['lname'] = "REQED: " . xlt("Last Name Missing, From the Patient Chart select Demographics select Who.");
         }
         if (empty($patient['dob'])) {
-            $log .= xlt("Date of Birth Missing, From the Patient Chart select Demographics select Who. Save and retry") . "<br>";
-            ++$missing;
+            $patient['dob'] = "REQED: " . xlt("Date of Birth Missing, From the Patient Chart select Demographics select Who.");
         }
         if (empty($patient['sex'])) {
-            $log .= xlt("Gender Missing, From the Patient Chart select Demographics select Who. Save and retry") . "<br>";
-            ++$missing;
+            $patient['sex'] = "REQED: " . xlt("Gender Missing, From the Patient Chart select Demographics select Who.");
         }
         if (empty($patient['postal_code'])) {
-            $log .= xlt("Zip Code Missing, From the Patient Chart select Demographics select Contact select Postal Code. Save and retry") . "<br>";
-            ++$missing;
+            $patient['postal_code'] = "REQED: " . xlt("Zip Code Missing, From the Patient Chart select Demographics select Contact select Postal Code.");
         }
         if (empty($patient['street'])) {
-            $log .= xlt("Street Address incomplete Missing, From the Patient Chart select Demographics select Contact. Save and retry") . "<br>";
-            ++$missing;
+            $patient['street'] = "REQED: " . xlt("Street Address Missing, From the Patient Chart select Demographics select Contact.");
         }
-        if ($missing > 0) {
-            self::errorWithDie($log);
+        if (empty($patient['city'])) {
+            $patient['city'] = "WARNS: " . xlt("City Missing, From the Patient Chart select Demographics select Contact.");
+        }
+        if (empty($patient['state'])) {
+            $patient['state'] = "WARNS: " . xlt("State Missing, From the Patient Chart select Demographics select Contact.");
+        }
+        if (empty($patient['phone_cell'])) {
+            $patient['phone_cell'] = "WARNS: " . xlt("Cell Phone Missing, From the Patient Chart select Demographics select Contact.");
         }
         return $patient;
     }
 
     public static function styleErrors($error): string
     {
-        $log = "<div><p style='font-size: 1.25rem; color: red;'>" .
-            $error . "<br />" . xlt('Please address errors and try again!') .
-            "<br />" . xlt("Use browser Back button or Click Patient Name from top Patient bar.") .
+        $log = "<div><p style='font-size: 1.0rem; color: red;'>" .
+            $error . xlt('Please address errors and try again!') .
             "</p></div>";
         return $log;
     }
 
-    public static function errorWithDie($error): void
+    /**
+     * @param $errors
+     * @return void
+     */
+    public static function errorWithDie($errors): void
     {
+        if (is_array($errors)) {
+            $error = $errors['errors'] . $errors['warnings'] . $errors['info'];
+        } else {
+            $error = $errors;
+        }
         $log = self::styleErrors($error);
-        die($log);
+        echo($log);
     }
 
     /**
      * @return string
      * New Rx
      */
-    public function cipherpayload(): string
+    public function cipherPayload(): string
     {
         $cipher = "aes-256-cbc"; // AES 256 CBC cipher
         $enc_key = $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);
@@ -278,12 +342,12 @@ class TransmitProperties
     /**
      * @return mixed
      */
-    public function getProviderPassword()
+    public function getProviderPassword(): mixed
     {
         if (!empty($GLOBALS['weno_provider_password'])) {
             return $this->cryptoGen->decryptStandard($GLOBALS['weno_provider_password']);
         } else {
-            return "ERROR:" . xlt('Provider Password is missing. Go to User Settings Weno Tab and enter your Weno Provider Password');
+            return "REQED: " . xlt('Provider Password is missing. Go to User Settings Weno Tab and enter your Weno Provider Password');
         }
     }
 
@@ -296,6 +360,9 @@ class TransmitProperties
         return $vitals;
     }
 
+    /**
+     * @return mixed
+     */
     private function getSubscriber()
     {
         $sql = sqlQuery("select subscriber_relationship from insurance_data where pid = ? and type = 'primary'", [$_SESSION['pid']]);
@@ -319,13 +386,13 @@ class TransmitProperties
 
         if (empty($response['primary'])) {
             $response['errors'] = true;
-            $e = 'ERROR:' . xlt("Weno Primary Pharmacy not set. From Patient's Demographics Choices assign Primary Pharmacy");
+            $e = 'REQED: ' . xlt("Weno Primary Pharmacy not set. From Patient's Demographics Choices assign Primary Pharmacy");
             $response['primary'] = $e;
         }
 
         if (empty($response['alternate'])) {
             $response['errors'] = true;
-            $e = 'ERROR:' . xlt("Weno Alternate Pharmacy not set. From Patient's Demographics Choices assign Alternate Pharmacy");
+            $e = 'WARNS: ' . xlt("Weno Alternate Pharmacy not set. From Patient's Demographics Choices assign Alternate Pharmacy");
             $response['alternate'] = $e;
         }
         return $response;
@@ -372,22 +439,29 @@ class TransmitProperties
         return $patient_info['fname'] . " " . $patient_info['mname'] . " " . $patient_info['lname'];
     }
 
+    /**
+     * @return int|mixed
+     */
     private function getEncounter()
     {
         return $_SESSION['encounter'] ?? 0;
     }
 
+    /**
+     * @param $id
+     * @return mixed|string
+     */
     public function getWenoProviderId($id = null)
     {
         if (empty($id)) {
             $id = $_SESSION['authUserID'] ?? '';
         }
-            // get the weno provider id from the user table (weno_prov_id
+        // get the weno provider id from the user table (weno_prov_id
         $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
         if (!empty($provider['weno_prov_id'])) {
             return $provider['weno_prov_id'];
         } else {
-            return "ERROR:" . xlt("Missing Weno Provider Id. Select Admin then Users and edit the user to add Weno Provider Id");
+            return "REQED: " . xlt("Weno Provider Id missing. Select Admin then Users and edit the user to add Weno Provider Id");
         }
     }
 }

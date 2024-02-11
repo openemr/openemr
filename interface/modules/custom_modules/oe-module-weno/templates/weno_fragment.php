@@ -21,10 +21,12 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 
 $validate = new TransmitProperties(true);
 $validate_errors = "";
-if (!empty($validate->errors)) {
-    $validate_errors = ($validate->errors);
-}
-$pid = $_SESSION['pid'];
+$hasErrors = !empty($validate->errors['errors']);
+$hasWarnings = !empty($validate->errors['warnings']);
+$justWarnings = $hasWarnings && empty($validate->errors['errors']);
+$validate_errors = $validate->errors['string'];
+
+$pid = ($pid ?? '') ?: $_SESSION['pid'] ?? '';
 $res = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND indication IS NOT NULL", array($pid));
 
 function getProviderByWenoId($external_id): string
@@ -33,7 +35,7 @@ function getProviderByWenoId($external_id): string
     if ($provider) {
         return $provider['fname'] . " " . $provider['mname'] . " " . $provider['lname'];
     } else {
-        return "ERROR:" . xlt("Missing Weno Provider Id.");
+        return "REQED: " . xlt("Weno Provider Id missing.");
     }
 }
 
@@ -41,28 +43,28 @@ function getProviderByWenoId($external_id): string
 
 <script src="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
 
-<div class="row float-right mr-2 mb-2">
-    <div class="mr-3" role="button">
+<div class="row float-right mr-1">
+    <div role="button">
         <u><span class="click" onclick="sync_weno()"><i id="sync-icon" class="fa-solid fa-rotate-right mr-1"></i><?php echo xlt("Sync"); ?></span></u>
-        <a href="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php">
-            <span><i class="fa-solid fa-pen mx-2"></i></span>
-        </a>
+        <a href="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php"><span><i class="fa-solid fa-pen ml-2 mb-2"></i></span></a>
     </div>
 </div>
-<?php if (empty($validate_errors)) { ?>
+<?php if (!$hasErrors) { ?>
     <div id="sync-alert" class="d-none"></div>
-<?php } else { ?>
-    <div id="sync-alert" class="alert alert-danger p-1">
-        <span><strong><?php echo text("Problems!"); ?></strong> <?php echo xlt("Weno eRx is not fully configured. Details"); ?></span>
-        <a role="button" class="btn btn-link pl-0" onclick="$('.dialog-alert').toggleClass('d-none')"><i class="fa fa-info-circle close"></i></a>
-        <div id="dialog-alert" class="dialog-alert alert alert-danger m-0 p-0 d-none" role="alert">
-            <div id="dialog-content" class="dialog-content p-2" style="color: white;"><?php echo $validate_errors; ?></div>
+    <br>
+<?php }
+if ($hasWarnings || $hasErrors) { ?>
+    <div id="error-alert" class="alert <?php echo !$justWarnings ? 'alert-danger' : 'alert-warning'; ?> mt-2 px-0 py-1" role="alert">
+        <span class="text-warning"><strong><?php echo text("Problems!"); ?></strong></span> <span style="color: white;"><?php echo xlt("Weno eRx is not fully configured. Details"); ?></span>
+        <a role="button" class="btn btn-link p-0 pl-1" onclick="$('.dialog-alert').toggleClass('d-none')"><i class="fa fa-question-circle text-warning close"></i></a>
+        <div id="dialog-alert" class="dialog-alert m-0 p-0 pt-1 d-none">
+            <div id="dialog-content" class="dialog-content" style="color: white;"><?php echo $validate_errors; ?></div>
         </div>
     </div>
 <?php } ?>
 <div class="table-responsive">
-    <table class="table w-100">
-        <thead class="thead-light border-bottom">
+    <table class="table table-sm table-hover table-striped w-100">
+        <thead class="thead thead-light border-bottom">
         <tr>
             <th><?php echo xlt("Drug Name"); ?></th>
             <th><?php echo xlt("Prescriber"); ?></th>
@@ -70,6 +72,12 @@ function getProviderByWenoId($external_id): string
         </thead>
         <tbody>
         <?php
+        if (empty($res->num_rows)) {
+            echo "<tr>" .
+                "<td>" . xlt("No Weno eRx prescriptions found.") . "</td>" .
+                "<td>" . xlt("Log into your account if one is expected.") . "</td>" .
+                "</tr>";
+        }
         while ($row = sqlFetchArray($res)) { ?>
             <tr>
                 <td><?php echo text($row["drug"]); ?></td>

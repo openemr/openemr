@@ -37,7 +37,7 @@ $container = new Container();
 
 $wenoProperties = $container->getTransmitProperties();
 $provider_info = $wenoProperties->getProviderEmail();
-$urlParam = $wenoProperties->cipherpayload(); //lets encrypt the data
+$urlParam = $wenoProperties->cipherPayload(); //lets encrypt the data
 $vitals = $wenoProperties->getVitals();
 $provider_name = $wenoProperties->getProviderName();
 $patient_name = $wenoProperties->getPatientName();
