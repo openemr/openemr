@@ -109,3 +109,7 @@
 --    desc: Change date from zeroes to date of vitals form creation.
 --    arguments: none
 
+#IfMissingColumn form_encounter last_update
+ALTER TABLE `form_encounter` ADD `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+#EndIf
+

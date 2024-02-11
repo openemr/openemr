@@ -18,6 +18,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 
 $pid = $this->cpid;
+$doc_edit = $this->doc_edit;
 $recid = $this->recid;
 $docid = $this->docid;
 $help_id = $this->help_id;
@@ -82,7 +83,7 @@ $templateService = new DocumentTemplateService();
         ";var autoRender=" . js_escape($auto_render) . ";var auditRender=" . js_escape($audit_render) . ";var renderDocumentName=" . js_escape($auto_render_name) .
         ";var catid=" . js_escape($category) . ";var catname=" . js_escape($catname) . ";</script>";
     echo "<script>var recid=" . js_escape($recid) . ";var docid=" . js_escape($docid) . ";var isNewDoc=" . js_escape($isnew) . ";var newFilename=" . js_escape($new_filename) . ";var help_id=" . js_escape($help_id) . ";</script>";
-    echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";var webroot_url = webRoot;</script>";
+    echo "<script>var isPortal=" . js_escape($is_portal) . ";var isModule=" . js_escape($is_module) . ";var webRoot=" . js_escape($webroot) . ";var doc_edit=" . js_escape($doc_edit) . ";var webroot_url = webRoot;</script>";
     echo "<script>var csrfTokenDoclib=" . $csrf_php . ";</script>";
     // translations
     echo "<script>var alertMsg1='" . xlt("Saved to Patient Documents") . '->' . xlt("Category") . ": " . attr($catname) . "';</script>";
@@ -186,8 +187,22 @@ $templateService = new DocumentTemplateService();
                         page.editHistoryDocument(auditRender);
                         console.log('Onetime history template init');
                     }
-                    // init upload drop box
-                    page.initFileDrop();
+                    if (!newFilename) { // autoload new on init. once only.
+                        page.initFileDrop();
+                    }
+                }
+                if (newFilename) {
+                    console.log('Call template from module');
+                    if (doc_edit == '0' && recid > 0) {
+                        page.newDocument(cpid, cuser, newFilename, recid);
+                        newFilename = '';
+                    } else if (doc_edit == '1' && recid > 0) {
+                        // For now will ignore editing documents from module.
+                        // I don't feel like it's stable.
+                        //page.editHistoryDocument(recid);
+                        page.newDocument(cpid, cuser, newFilename, recid);
+                        newFilename = '';
+                    }
                 }
             }, 1000);
         }).wait(function () {
@@ -511,7 +526,7 @@ $templateService = new DocumentTemplateService();
                         <li class="nav-item mb-1">
                             <a class="nav-link text-danger btn btn-outline-danger" id="a_docReturn" href="#" onclick='window.location.replace(<?php echo attr_js($referer_portal) ?>)'><?php echo xlt('Exit'); ?></a>
                         </li>
-                    <?php } else {
+                    <?php } elseif (!$is_module && !$is_dashboard) {
                         $referer_portal = "../home.php?site=" . (urlencode($_SESSION['site_id']) ?? null) ?: 'default';
                         ?>
                         <li class="nav-item mb-1">
@@ -527,7 +542,7 @@ $templateService = new DocumentTemplateService();
         </nav>
         <div class="d-flex flex-row justify-content-center">
             <!-- Pending documents left menu Deprecated and removed 01/13/22 -->
-            <div class="clearfix" id="topnav">
+            <div class="clearfix" id="topNav">
                 <div id="collectionAlert"></div>
             </div>
             <!-- Right editor container -->

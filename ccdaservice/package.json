@@ -8,7 +8,7 @@
     "license": "GPL-3.0",
     "dependencies": {
         "file": "./oe-blue-button-generate",
-        "libxmljs2": "0.31.0",
+        "libxmljs2": "0.33.0",
         "lodash": "4.17.21",
         "net": "1.0.2",
         "oe-cqm-service": "6.0.0",

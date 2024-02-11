@@ -402,7 +402,8 @@ class SMARTAuthorizationController
     private function smartAppStyles()
     {
         $cssTheme = $GLOBALS['css_header'];
-        $parts = explode(".", $cssTheme);
+        $baseCssTheme = basename($cssTheme);
+        $parts = explode(".", $baseCssTheme);
         $coreTheme = $parts[0] ?? "style_light";
         $logoService = new LogoService();
         // do we want to expose each of the logos?  These really need to be cached instead of hitting FS each time...
@@ -412,7 +413,7 @@ class SMARTAuthorizationController
                 'primary' => $primaryLogo
             ]
         ];
-        $defaultFile = "/api/smart/smart-style_light.json";
-        $this->renderTwigJson('oauth2/authorize/smart-style', "/api/smart/smart-" . $coreTheme . ".json", $context, $defaultFile);
+        $defaultFile = "/api/smart/smart-style_light.json.twig";
+        $this->renderTwigJson('oauth2/authorize/smart-style', "/api/smart/smart-" . $coreTheme . ".json.twig", $context, $defaultFile);
     }
 }

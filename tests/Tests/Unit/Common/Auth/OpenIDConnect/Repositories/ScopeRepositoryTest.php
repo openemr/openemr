@@ -29,7 +29,7 @@ class ScopeRepositoryTest extends TestCase
 
         $this->scopeRepository = new ScopeRepository($mock);
 
-        $noopCallback = function (){ };
+        $noopCallback = function () { };
         $standardResources = ['facility, patient'];
         $fhirResources = ['Patient', 'Observation'];
         $portalResources = ['patient', 'patient/encounter'];

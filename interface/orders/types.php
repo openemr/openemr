@@ -39,8 +39,8 @@ if ($popup && !AclMain::aclCheckCore('patients', 'lab') && !AclMain::aclCheckCor
 
 // If Save was clicked, set the result, close the window and exit.
 //
-if ($popup && $_POST['form_save']) {
-    $form_order = isset($_GET['form_order']) ? $_GET['form_order'] + 0 : 0;
+if ($popup && $_POST['form_save'] ?? '') {
+    $form_order = isset($_REQUEST['form_order']) ? $_REQUEST['form_order'] + 0 : 0;
     $ptrow = sqlQuery("SELECT name FROM procedure_type WHERE procedure_type_id = ?", [$form_order]);
     $name = $ptrow['name'];
     ?>

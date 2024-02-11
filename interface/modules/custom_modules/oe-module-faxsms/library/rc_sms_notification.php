@@ -12,7 +12,7 @@
  * @author    Robert Down
  * @copyright Unknown
  * @copyright Copyright (c) 2008 Larry Lart
- * @copyright Copyright (c) 2018-2023 Jerry Padgett
+ * @copyright Copyright (c) 2018-2024 Jerry Padgett
  * @copyright Copyright (c) 2021 Robert Down <robertdown@live.com>
  */
 
@@ -24,16 +24,25 @@ $_SERVER['SERVER_NAME'] = 'localhost';
 $backpic = "";
 $clientApp = null;
 // for cron
-if (($argc ?? null) > 1 && empty($_SESSION['site_id']) && empty($_GET['site'])) {
-    $c = stripos($argv[1], 'site=');
-    if ($c === false) {
-        echo xlt("Missing Site Id using default") . "\n";
-        $argv[1] = "site=default";
+$error = '';
+$runtime = [];
+
+// Check for other arguments and perform your script logic
+
+if (($argc ?? null) > 1) {
+    foreach ($argv as $k => $v) {
+        if ($k == 0) {
+            continue;
+        }
+        $args = explode('=', $v);
+        if ((count($args ?? [])) > 1) {
+            $runtime[trim($args[0])] = trim($args[1]);
+        }
     }
-    $args = explode('=', $argv[1]);
-    $_GET['site'] = $args[1] ?? 'default';
 }
+$isCli = 0;
 if (php_sapi_name() === 'cli') {
+    $isCli = 1;
     $_SERVER["HTTP_HOST"] = "localhost";
     $ignoreAuth = true;
 }
@@ -43,13 +52,32 @@ $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../../globals.php");
 require_once("$srcdir/appointments.inc.php");
 
-$TYPE = "SMS";
+// Check for help argument
+if ($argc > 1 && (in_array('--help', $argv) || in_array('-h', $argv))) {
+    displayHelp();
+    exit(0);
+}
+
+if (empty($runtime['site']) && empty($_SESSION['site_id']) && empty($_GET['site'])) {
+    echo xlt("Missing Site Id using default") . "\n";
+    $_GET['site'] = $runtime['site'] = 'default';
+} else {
+    $_GET['site'] = $runtime['site'];
+}
+
+$TYPE = '';
+if (!empty($runtime['type'])) {
+    $TYPE = strtoupper($runtime['type']);
+} else {
+    $TYPE = $runtime['type'] = "SMS"; // default
+}
 $CRON_TIME = 150;
 // use service if needed
 if ($TYPE === "SMS") {
+    $_SESSION['authUser'] = $runtime['user'] ?? '';
     $clientApp = AppDispatch::getApiService('sms');
     $cred = $clientApp->getCredentials();
-    if (!$clientApp->verifyAcl()) {
+    if (!$clientApp->verifyAcl('admin', 'docs', $runtime['user'] ?? '')) {
         die("<h3>" . xlt("Not Authorised!") . "</h3>");
     }
 }
@@ -62,7 +90,7 @@ $MESSAGE = $cred['smsMessage'];
 
 // check command line for quite option
 $bTestRun = isset($_REQUEST['dryrun']) ? 1 : 0;
-if ($argc > 1 && $argv[2] == 'test') {
+if (!empty($runtime['testrun'])) {
     $bTestRun = 1;
 }
 
@@ -311,3 +339,22 @@ function cron_GetNotificationSettings(): bool|array
     return ($vectNotificationSettings);
 }
 
+function displayHelp(): void
+{
+    //echo text($helpt);
+    $help =
+    <<<HELP
+
+Usage:   php rc_sms_notification.php [options]
+Example: php rc_sms_notification.php site=default user=admin type=sms testrun=1
+--help  Display this help message
+Options:
+  site={site_id}    Site
+  user={authUser}   Authorized username not id.
+  type={sms}        Send method SMS or email.
+  testrun={1}       Test run set to 1
+
+HELP;
+
+    echo text($help);
+}

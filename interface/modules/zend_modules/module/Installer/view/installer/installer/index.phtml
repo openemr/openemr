@@ -31,44 +31,42 @@ $depObj = $this->dependencyObject;
 $coreModules = $this->coreModules ?? [];
 
 ?>
-<h1><img src="<?php echo $this->basePath() ?>/images/module.png" class="nav-menu-img"><?php echo $this->escapeHtml($title ?? ''); ?></h1>
-
 <ul class="tabNav">
     <li class="current divMenu" onclick="$('.registered').show();$('.unregistered').hide();$('.divMenu').removeClass('current');$(this).addClass('current');">
-        <a href="javascript:void(0)" id="header_tab_.htmlspecialchars(Registered,ENT_QUOTES).">
+        <a class="btn btn-sm btn-primary" href="javascript:void(0)" id="header_tab_Registered">
             <?php echo $listener->z_xlt('Registered'); ?>
         </a>
     </li>
     <li class="divMenu" onclick="$('.registered').hide();$('.unregistered').show();$('.divMenu').removeClass('current');$(this).addClass('current');">
-        <a href="javascript:void(0)" id="header_tab_.htmlspecialchars(UnReg,ENT_QUOTES).">
+        <a class="btn btn-sm btn-secondary" href="javascript:void(0)" id="header_tab_UnReg">
             <?php echo $listener->z_xlt('Unregistered'); ?> <span id='ct'></span>
         </a>
     </li>
 </ul>
-<div class="installer">
+<div class="installer bg-light text-dark">
     <div id='err' class='bold '></div>
-    <div class="installer_code notranslate registered">
+    <div class="installer_code notranslate registered bg-light">
         <?php //REGISTERED SECTION ?>
         <div class="imagetable">
             <div class="imagetable_code notranslate table-resposive">
-                <table id="table-6" class="imagetable table" align="center">
+                <table id="table-6" class="table table-light table-hover table-condensed" align="center">
                     <thead>
-                    <tr>
-                        <th colspan='10' class="groupReg">
-                            <?php echo $listener->z_xlt('Registered Modules'); ?>
-                        </th>
-                    <tr>
-                    <tr>
-                        <th scope="col"><?php echo $listener->z_xlt('ID'); ?></th>
-                        <th scope="col"><?php echo $listener->z_xlt('Module'); ?> </th>
-                        <th scope="col"><?php echo $listener->z_xlt('Status'); ?> </th>
-                        <th scope="col"><?php echo $listener->z_xlt('Menu Text'); ?> </th>
-                        <th scope="col"><?php echo $listener->z_xlt('Nick Name'); ?> </th>
-                        <th scope="col"><?php echo $listener->z_xlt('Type'); ?> </th>
-                        <th scope="col"><?php echo $listener->z_xlt('Dependency Modules'); ?> </th>
-                        <th scope="col"><?php echo $listener->z_xlt('Action'); ?> </th>
-                        <th scope="col"><?php echo $listener->z_xlt('Config'); ?> </th>
-                    </tr>
+                        <tr>
+                            <th class="bg-light text-dark">
+                                <span style="font-size: 1.25rem"><?php echo $listener->z_xlt('Registered Modules'); ?></span>
+                            </th>
+                        <tr>
+                        <tr style="font-size: 16px;">
+                            <th scope="col"><?php echo $listener->z_xlt('ID'); ?></th>
+                            <th scope="col"><?php echo $listener->z_xlt('Module'); ?> </th>
+                            <th scope="col"><?php echo $listener->z_xlt('Status'); ?> </th>
+                            <th scope="col"><?php echo $listener->z_xlt('Menu Text'); ?> </th>
+                            <th scope="col"><?php echo $listener->z_xlt('Nick Name'); ?> </th>
+                            <th scope="col"><?php echo $listener->z_xlt('Type'); ?> </th>
+                            <th scope="col"><?php echo $listener->z_xlt('Dependency Modules'); ?> </th>
+                            <th scope="col"><?php echo $listener->z_xlt('Action'); ?> </th>
+                            <th scope="col"><?php echo $listener->z_xlt('Config'); ?> </th>
+                        </tr>
                     </thead>
                     <?php
                     /******** Module Creation ********/
@@ -129,10 +127,10 @@ $coreModules = $this->coreModules ?? [];
                                         <a href="javascript:void(0)" class="link_submit install" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','install');" title="<?php echo $listener->z_xla('Click Here to Install This module'); ?>"><input type='button' class='activate' value="<?php echo $listener->z_xla('Install'); ?>" /></a>
                                         <?php
                                     } elseif ($moduleResult->modActive == 1) { ?>
-                                        <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','enable');" title="<?php echo $listener->z_xla('Click Here to Disable This module'); ?>"><input type='button' class='deactivate' value="<?php echo $listener->z_xla('Disable'); ?>" /></a>
+                                        <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','disable');" title="<?php echo $listener->z_xla('Click Here to Disable This module'); ?>"><input type='button' class='deactivate' value="<?php echo $listener->z_xla('Disable'); ?>" /></a>
                                     <?php } elseif ($moduleResult->modName != 'Acl') {
                                         ?>
-                                        <a href="javascript:void(0)" class="link_submit inactive" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','disable');" title="<?php echo $listener->z_xla('Click Here to Enable This module'); ?>"><input type='button' class='activate' value="<?php echo $listener->z_xla('Enable'); ?>" /></a>
+                                        <a href="javascript:void(0)" class="link_submit inactive" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','enable');" title="<?php echo $listener->z_xla('Click Here to Enable This module'); ?>"><input type='button' class='activate' value="<?php echo $listener->z_xla('Enable'); ?>" /></a>
                                         <?php
                                     } ?>
                                     <?php
@@ -189,55 +187,69 @@ $coreModules = $this->coreModules ?? [];
     </div>
 
     <style>
-        .show_hide_log {
-            border-radius: 5px;
-            border: 1px solid #c9c6c6;
-            padding: 5px;
-            text-align: center;
-            cursor: pointer;
-            margin: 5px 5px 0px 0px;
-            color: gray;
-            width: 97%;
-        }
+      table {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      }
 
-        .spoiler {
-            display: none;
-            margin-left: 10px;
-            border: 1px solid #c9c6c6;
-            padding: 5px;
-            width: 95%;
-            border-top: 0px;
-        }
+      .table td {
+        padding: .50rem;
+      }
 
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 100%;
-            background: rgba( 255, 255, 255, .8 )
-            url('/interface/modules/zend_modules/public/images/ajax-loader.gif')
-            50% 50%
-            no-repeat;
-        }
+      .table th {
+        background-color: var(--dark);
+        color: var(--light);
+        padding: .50rem;
+      }
+
+      .show_hide_log {
+        border-radius: 5px;
+        border: 1px solid #c9c6c6;
+        padding: 5px;
+        text-align: center;
+        cursor: pointer;
+        margin: 5px 5px 0px 0px;
+        color: gray;
+        width: 97%;
+      }
+
+      .spoiler {
+        display: none;
+        margin-left: 10px;
+        border: 1px solid #c9c6c6;
+        padding: 5px;
+        width: 95%;
+        border-top: 0px;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background: rgba(255, 255, 255, .8) url('/interface/modules/zend_modules/public/images/ajax-loader.gif') 50% 50% no-repeat;
+      }
     </style>
     <div class="modal"></div>
     <div id="install_upgrade_log" style="overflow-y: auto; height: 500px; display: none;"></div>
 
-    <div class="installer_code notranslate unregistered" style="display:none">
-        <table class="imagetable" id="unregistered">
-            <tr>
-                <th colspan='4' class="groupRegUn">
-                    <?php echo $listener->z_xlt('Unregistered Modules'); ?>
-                </th>
-            <tr>
-                <th scope="col"><?php echo $listener->z_xlt('ID'); ?></th>
-                <th scope="col"><?php echo $listener->z_xlt('Module Name'); ?></th>
-                <th scope="col"><?php echo $listener->z_xlt('Type'); ?></th>
-                <th scope="col"><?php echo $listener->z_xlt('Action'); ?></th>
-            </tr>
+    <div class="installer_code notranslate unregistered bg-light" style="display:none">
+        <table class="table table-light table-hover table-condensed" id="unregistered">
+            <thead>
+                <tr>
+                    <th class="bg-light text-dark">
+                        <span style="font-size: 1.25rem"><?php echo $listener->z_xlt('Unregistered Modules'); ?></span>
+                    </th>
+                <tr>
+                <tr style="font-size: 1.00rem">
+                    <th scope="col"><?php echo $listener->z_xlt('ID'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Module Name'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Type'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Action'); ?></th>
+                </tr>
+            </thead>
             <?php
             $dpath = $GLOBALS['srcdir'] . "/../{$baseModuleDir}{$customDir}/";
             $dp = opendir($dpath);

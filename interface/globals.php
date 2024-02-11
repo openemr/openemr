@@ -434,6 +434,13 @@ if (!empty($glrow)) {
             $GLOBALS[$gl_name] = $gl_value;
         }
     }
+    // Set any user settings that are not also in GLOBALS.
+    // This is for modules support.
+    foreach ($gl_user as $setting) {
+        if (!array_key_exists($setting['setting_label'], $GLOBALS)) {
+            $GLOBALS[$setting['setting_label']] = $setting['setting_value'];
+        }
+    }
 
   // Language cleanup stuff.
     $GLOBALS['language_menu_login'] = false;

@@ -14,8 +14,8 @@
 
 set_time_limit(0);
 
-require_once('../globals.php');
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+require_once '../globals.php';
+require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -124,27 +124,16 @@ if (!empty($_POST['bn_upload'])) {
                 }
 
                 $seen_codes[$code] = 1;
-                ++$inscount;
                 if (!$form_replace) {
-                    $tmp = sqlQuery(
-                        "SELECT id FROM codes WHERE code_type = ? AND code = ? LIMIT 1",
-                        array($code_type_id, $code)
-                    );
-                    if ($tmp['id']) {
-                              sqlStatementNoLog(
-                                  "UPDATE codes SET code_text = ? WHERE code_type = ? AND code = ?",
-                                  array($a[14], $code_type_id, $code)
-                              );
-                              ++$repcount;
-                              continue;
+                    $tmp = sqlQuery("SELECT id FROM codes WHERE code_type = ? AND code = ? LIMIT 1", array($code_type_id, $code));
+                    if (!empty($tmp)) {
+                        sqlStatementNoLog("UPDATE codes SET code_text = ? WHERE code_type = ? AND code = ?", array($a[14], $code_type_id, $code));
+                        ++$repcount;
+                        continue;
                     }
                 }
 
-                sqlStatementNoLog(
-                    "INSERT INTO codes SET code_type = ?, code = ?, code_text = ?, " .
-                    "fee = 0, units = 0",
-                    array($code_type_id, $code, $a[14])
-                );
+                sqlStatementNoLog("INSERT INTO codes SET code_type = ?, code = ?, code_text = ?, fee = 0, units = 0", array($code_type_id, $code, $a[14]));
                 ++$inscount;
             }
 
@@ -156,13 +145,16 @@ if (!empty($_POST['bn_upload'])) {
         sqlStatementNoLog("SET autocommit=1");
 
         fclose($eres);
-        $zipin->close();
-    }
+        // Cannot close ZIP object if not initialised, catch and do nothing
+        try {
+            $zipin->close();
+        } catch (ValueError $e) {
+        }
 
-    echo "<p class='text-success'>" .
-       xlt('LOAD SUCCESSFUL. Codes inserted') . ": " . text($inscount) . ", " .
-       xlt('replaced') . ": " . text($repcount) .
-       "</p>\n";
+        echo "<p class='text-success'>" . xlt('LOAD SUCCESSFUL. Codes inserted') . ": " . text($inscount) . ", " . xlt('replaced') . ": " . text($repcount) . "</p>\n";
+    } else {
+        echo "<p class='text-danger'>" . xlt('ERROR. Could not open') . ". " . (php_ini_loaded_file() ?? "Server") . " upload_max_filesize: " . xlt('Your file is too large') . ". " . xlt('Set To') . " ≥ post_max_size.";
+    }
 }
 
 ?>

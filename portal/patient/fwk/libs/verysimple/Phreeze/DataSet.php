@@ -112,7 +112,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
         $this->_verifyRs();
 
         $this->_current = null;
-        $this->_counter ++;
+        $this->_counter++;
 
         if ($this->_eof) {
             if (! $this->_no_exception) {

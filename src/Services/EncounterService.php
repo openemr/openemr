@@ -195,6 +195,7 @@ class EncounterService extends BaseService
                        fe.referral_source,
                        fe.billing_facility,
                        fe.external_id,
+                       fe.last_update,
                        fe.pos_code,
                        fe.class_code,
                        class.notes as class_title,
@@ -247,7 +248,8 @@ class EncounterService extends BaseService
                                facility_id,
                                discharge_disposition,
                                pid as encounter_pid,
-                               referring_provider_id
+                               referring_provider_id,
+                               last_update
                            FROM form_encounter
                        ) fe
                        LEFT JOIN openemr_postcalendar_categories as opc

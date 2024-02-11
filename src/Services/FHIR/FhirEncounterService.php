@@ -94,7 +94,8 @@ class FhirEncounterService extends FhirServiceBase implements
                 ]
             ),
             'patient' => $this->getPatientContextSearchField(),
-            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date'])
+            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
+            '_lastUpdated' => new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_update'])
         ];
     }
 
@@ -112,7 +113,7 @@ class FhirEncounterService extends FhirServiceBase implements
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
+        $meta->setLastUpdated((new \DateTime($dataRecord['last_update']) )->format(DATE_ATOM)); // stored as utc
         $encounterResource->setMeta($meta);
 
         $id = new FhirId();

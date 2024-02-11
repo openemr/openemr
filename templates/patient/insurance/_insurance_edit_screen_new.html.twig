@@ -1,0 +1,98 @@
+{#
+Partial twig file that represents the insurance new policy screen for a patient
+
+@package   OpenEMR
+@link      http://www.open-emr.org
+@author    Stephen Nielson <snielson@discoverandchange.com>
+@copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
+@license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div id="new-policy-screen" class="insuranceNewSettingsContainer d-none">
+    {# two radio button options, copy from existing policy and create blank policy #}
+    {# copy from existing policy should have a select list below it #}
+    {#  #}
+    <div class="form-row mb-2">
+        <div class="col-md-6">
+            {# Need to have radio group of the insurance types ie, Primary, secondary, tertiary #}
+            <div class="form-row">
+                <div class="col-md-3">
+                    <label>{{ "Insurance Type"|xlt }}</label>
+                </div>
+                <div class="col-md-9">
+                    <div class="radio-group">
+                        {% for instype in insuranceTypes %}
+                            <input id="new-insurance-type-{{ instype|attr }}" {% if instype == activeType%}checked="checked"{% endif %} type="radio" name="newInsuranceType" value="{{ instype|attr }}" /><label for="new-insurance-type-{{ instype|attr }}">{{ instype|capitalize|text }}</label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-row mb-2">
+        <div class="col-md-6 text-align-right">
+            <div class="radio-group">
+                <input id="createOptionBlank" checked="checked" type="radio" name="createOption" value="blank" /><label for="createOptionBlank">{{ "Create blank policy"|xlt }}</label>
+                <input id="createOptionCopy" type="radio" name="createOption" value="copy" /><label for="createOptionCopy">{{ "Copy from existing policy"|xlt }}</label>
+            </div>
+        </div>
+    </div>
+    <div class="form-row mb-2 d-none new-policy-copy-row">
+        <div class="col-md-6">
+            <div class="form-row">
+                <div class="col-md-3">
+                    <label>{{ "Policy to copy"|xlt }}</label>
+                </div>
+                <div class="col-md-9">
+                    <div class="alert alert-warning new-policy-list-empty d-none">
+                        {{ "No policy exists for this insurance type"|xlt }}
+                    </div>
+                    <select class="form-control form-control-sm sel2 mb-1 new-policy-copy-list" class="d-none">
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-row mb-2 new-policy-set-end-date-row d-none">
+        <div class="col-md-6">
+            <div class="form-row">
+                <div class="col-md-12">
+                    <input id="setEndDateCheckbox" type="checkbox" name="setEndDate" class="form-control mb-1" />
+                    <label for="setEndDateCheckbox">{{ "Update current insurance with new effective end date"|xlt }}</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-row mb-2 new-policy-effective-end-date-row d-none">
+        <div class="col-md-6">
+            <div class="form-row">
+                <div class="col-md-12">
+                    <p>{{ "Policy to update:"|xlt }} <span class="effective-end-date-policy-label"></span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-row mb-2 new-policy-effective-end-date-row d-none">
+        <div class="form-row">
+            <div class="col-md-3">
+                <label>{{ "End Date"|xlt }}</label>
+            </div>
+            <div class="col-md-9">
+                <input type="textbox" name="endDate" class="date-picker new-policy-effective-end-date form-control mb-1" />
+            </div>
+        </div>
+    </div>
+    <div class="form-row mb-2 new-policy-error-row d-none">
+        <div class="alert alert-danger">
+            <p class="new-policy-error-message new-policy-error-message-copy-empty-policy d-none">{{ "There are no policies for this insurance type to copy from"|xlt }}</p>
+            <p class="new-policy-error-message new-policy-error-message-effective-end-date-empty d-none">{{ "There are no policies for this insurance type to copy from"|xlt }}</p>
+        </div>
+    </div>
+    <div class="form-row mb-2">
+        <div class="form-row">
+            <div class="col-md-12">
+                <input type="button" class="btn btn-action btn-new-policy-next btn-primary" value="{{ "Next"|xlt }}" />
+                <button type="button" class="btn btn-info btn-new-policy-saving d-none">{{ "Updating current insurance..."|xlt }}<i class="wait fa fa-cog fa-spin ml-2"></i></button>
+            </div>
+        </div>
+    </div>
+</div>

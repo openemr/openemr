@@ -198,8 +198,8 @@ class ApplicationTable
 
     public function portalLog($event = '', $patient_id = null, $comments = "", $binds = '', $success = '1', $user_notes = '', $ccda_doc_id = 0)
     {
-        $groupname = isset($GLOBALS['groupname']) ? $GLOBALS['groupname'] : 'none';
-        $user = isset($_SESSION['portal_username']) ? $_SESSION['portal_username'] : $_SESSION['authUser'] ?? null;
+        $groupname = $GLOBALS['groupname'] ?? 'none';
+        $user = $_SESSION['portal_username'] ?? $_SESSION['authUser'] ?? null;
         $log_from = isset($_SESSION['portal_username']) ? 'onsite-portal' : 'portal-dashboard';
         if (!isset($_SESSION['portal_username']) && !isset($_SESSION['authUser'])) {
             $log_from = 'portal-login';

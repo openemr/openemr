@@ -28,7 +28,7 @@ Steps to reproduce the behavior:
 - OpenEMR version:
 - Operating system:
 
-<!-- Love openemr? Please consider supporting our collective:
-👉  https://opencollective.com/openemr/donate -->
+<!-- Love openemr? Please consider supporting our project:
+👉  https://github.com/sponsors/openemr -->
 
 

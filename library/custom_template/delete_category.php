@@ -103,7 +103,7 @@ $res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u 
     while ($row = sqlFetchArray($res)) {
         $context = sqlQuery("SELECT * FROM customlists WHERE cl_list_slno=?", array($row['cl_list_id']));
         $i++;
-        $class = ($class == 'reportTableOddRow') ? 'reportTableEvenRow' : 'reportTableOddRow';
+        $class = (($class ?? '') == 'reportTableOddRow') ? 'reportTableEvenRow' : 'reportTableOddRow';
         echo "<tr class='text " . htmlspecialchars($class, ENT_QUOTES) . "'>";
         echo "<td>" . $i . "</td>";
         echo "<td>" . htmlspecialchars($row['cl_list_item_long'], ENT_QUOTES) . "</td>";

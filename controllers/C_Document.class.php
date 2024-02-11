@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -18,6 +20,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Events\PatientDocuments\PatientDocumentTreeViewFilterEvent;
@@ -35,6 +38,7 @@ class C_Document extends Controller
     private $Document;
     private $cryptoGen;
     private bool $skip_acl_check = false;
+    private DocumentTemplateService $templateService;
 
     public function __construct($template_mod = "general")
     {
@@ -66,6 +70,7 @@ class C_Document extends Controller
 
         // Create a crypto object that will be used for for encryption/decryption
         $this->cryptoGen = new CryptoGen();
+        $this->templateService = new DocumentTemplateService();
     }
 
     public function upload_action($patient_id, $category_id)
@@ -100,31 +105,9 @@ class C_Document extends Controller
         }
         $this->assign("TEMPLATES_LIST", $templates_options);
 
-        // duplicate template list for new template form editor sjp 05/20/2019
         // will call as module or individual template.
-        $templatedir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates';
-        $templates_options = "<option value=''>-- " . xlt('Open Forms Module') . " --</option>";
-        if (file_exists($templatedir)) {
-            $dh = opendir($templatedir);
-        }
-        if ($dh) {
-            $templateslist = array();
-            while (false !== ($sfname = readdir($dh))) {
-                if (substr($sfname, 0, 1) == '.') {
-                    continue;
-                }
-                if (substr(strtolower($sfname), strlen($sfname) - 4) == '.tpl') {
-                    $templateslist[$sfname] = $sfname;
-                }
-            }
-            closedir($dh);
-            ksort($templateslist);
-            foreach ($templateslist as $sfname) {
-                $optname = str_replace('_', ' ', basename($sfname, ".tpl"));
-                $templates_options .= "<option value='" . attr($sfname) . "'>" . text($optname) . "</option>";
-            }
-        }
-        $this->assign("TEMPLATES_LIST_PATIENT", $templates_options);
+        $templates_list = $this->templateService->renderPortalTemplateMenu($patient_id, '-patient-', false) ?? [];
+        $this->assign("TEMPLATES_LIST_PATIENT", $templates_list);
 
         $activity = $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_upload.html");
         $this->assign("activity", $activity);

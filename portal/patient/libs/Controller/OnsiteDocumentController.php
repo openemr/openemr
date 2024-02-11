@@ -53,47 +53,29 @@ class OnsiteDocumentController extends AppBasePortalController
         if (isset($_GET['pid'])) {
             $pid = (int)$_GET['pid'];
         }
-
         // only allow patient to see themselves
         if (!empty($GLOBALS['bootstrap_pid'])) {
-            $pid = $GLOBALS['bootstrap_pid'];
+            $pid = (int)$GLOBALS['bootstrap_pid'];
         }
 
-        if (isset($_GET['user'])) {
-            $user = $_GET['user'];
-        }
-
-        if (isset($_GET['docid'])) {
-            $docid = $_GET['docid'];
-        }
-
-        if (isset($_GET['enc'])) {
-            $encounter = (int)$_GET['enc'];
-        }
-
-        if (isset($_GET['recid'])) {
-            $recid = (int)$_GET['recid'];
-        }
-
-        if (isset($_GET['is_module'])) {
-            $is_module = $_GET['is_module'];
-        }
-
-        if (isset($_GET['catid'])) {
-            $catid = $_GET['catid'];
-        }
-
-        if (isset($_GET['new'])) {
-            $new_filename = $_GET['new'];
-        }
+        $user = $_GET['user'] ?? 0;
+        $docid = $_GET['docid'] ?? '';
+        $encounter = $_GET['enc'] ?? 0;
+        $recid = $_GET['recid'] ?? 0;
+        $is_module = $_GET['is_module'] ?? 0;
+        $catid = $_GET['catid'] ?? '';
+        $new_filename = $_GET['new'] ?? '';
+        $doc_edit = $_GET['edit'] ?? 0;
 
         $auto_render = $_GET['auto_render_id'] ?? 0;
-        unset($_GET['auto_render_id']);
         $auto_render_name = $_GET['auto_render_name'] ?? 0;
-        unset($_GET['auto_render_name']);
         $audit_render = $_GET['audit_render_id'] ?? 0;
+
+        unset($_GET['auto_render_id']);
+        unset($_GET['auto_render_name']);
         unset($_GET['audit_render_id']);
 
+        $this->Assign('doc_edit', $doc_edit);
         $this->Assign('recid', $recid);
         $this->Assign('help_id', $help_id);
         $this->Assign('cpid', $pid);
