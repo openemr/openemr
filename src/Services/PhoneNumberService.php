@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use Particle\Validator\Validator;
 
 class PhoneNumberService extends BaseService
@@ -64,7 +65,7 @@ class PhoneNumberService extends BaseService
         $phoneNumbersSql .= "     type=?,";
         $phoneNumbersSql .= "     foreign_id=?";
 
-        $phoneNumbersSqlResults = sqlInsert(
+        $phoneNumbersSqlResults = QueryUtils::sqlInsert(
             $phoneNumbersSql,
             array(
                 $freshId,
