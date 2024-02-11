@@ -16,7 +16,6 @@
 
 namespace OpenEMR\Modules\WenoModule\Services;
 
-use Exception;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Services\FacilityService;
 
@@ -54,14 +53,14 @@ class TransmitProperties
         $this->subscriber = $this->getSubscriber();
         $this->encounter = $this->getEncounter();
         // check for errors
-        $this->errors = $this->checkErrors();
+        $this->errors = $this->checkErrors($this);
         if (!empty($this->errors['errors'])) {
             // let's not create payload if there are errors.
             // nip it here so to speak.
             if ($returnFlag) {
                 return;
             }
-            self::errorWithDie($this->errors);
+            self::echoError($this->errors);
         } elseif ($returnFlag) {
             return;
         }
@@ -75,7 +74,7 @@ class TransmitProperties
      */
     public function isJson($value): bool
     {
-        return is_string($value) && is_array(json_decode($value, true)) && (json_last_error() == JSON_REQED_NONE);
+        return is_string($value) && json_decode($value) !== null && (json_last_error() == JSON_ERROR_NONE);
     }
 
     /**
@@ -90,81 +89,50 @@ class TransmitProperties
      * Generate a list of errors, warnings and info messages.
      * All messages should be escaped and translated.
      *
+     * @param $obj
      * @return string[]
      */
-    public function checkErrors(): array
+    public function checkErrors($obj): array
     {
-        // This function will check for errors, warnings and info messages.
-        // It will return an array with the following keys:
+        // Initialize the error array
         $error = ['errors' => '', 'warnings' => '', 'info' => '', 'string' => ''];
-        try {
-            foreach ($this as $k => $value) {
-                if ($this->isJson($value)) {
-                    foreach (json_decode($value, true) as $k => $v) {
-                        if (str_contains($v, "REQED")) {
-                            $v = "* " . $v;
-                            if (str_contains($error['errors'], $v)) {
-                                continue;
-                            }
-                            $error['errors'] .= $v . "<br>";
-                        } elseif (str_contains($v, "WARNS")) {
-                            $v = "* " . $v;
-                            if (str_contains($error['warnings'], $v)) {
-                                continue;
-                            }
-                            $error['warnings'] .= $v . "<br>";
-                        } elseif (str_contains($v, "INFO")) {
-                            $v = "* " . $v;
-                            if (str_contains($error['info'], $v)) {
-                                continue;
-                            }
-                            $error['info'] .= $v . "<br>";
-                        }
-                    }
-                } elseif (is_array($value)) {
-                    foreach ($value as $key => $v) {
-                        if (str_contains($v, "REQED")) {
-                            $v = "* " . $v;
-                            if (str_contains($error['errors'], $v)) {
-                                continue;
-                            }
-                            $error['errors'] .= $v . "<br>";
-                        } elseif (str_contains($v, "WARNS")) {
-                            $v = "* " . $v;
-                            if (str_contains($error['warnings'], $v)) {
-                                continue;
-                            }
-                            $error['warnings'] .= $v . "<br>";
-                        } elseif (str_contains($v, "INFO")) {
-                            $v = "* " . $v;
-                            if (str_contains($error['info'], $v)) {
-                                continue;
-                            }
-                            $error['info'] .= $v . "<br>";
-                        }
-                    }
-                } elseif (is_string($value)) {
-                    if (
-                        str_contains($value, "REQED")
-                        || str_contains($value, "WARNS")
-                        || str_contains($value, "INFO")
-                    ) {
-                        $value = "* " . $value;
-                        if (
-                            str_contains($error['errors'], $value)
-                            || str_contains($error['warnings'], $value)
-                            || str_contains($error['info'], $value)
-                        ) {
-                            continue;
-                        }
-                        $error['errors'] .= $value . "<br>";
-                    }
+        // Check if the object is valid
+        if (!is_object($obj)) {
+            return $error; // Return empty error array if the input is not an object
+        }
+        // Iterate through the object properties
+        foreach ($obj as $property => $value) {
+            if ($property == 'errors' || empty($value)) {
+                continue;
+            }
+            // Handle arrays and strings separately
+            if ($this->isJson($value)) {
+                $values = json_decode($value, true);
+            } elseif (is_array($value)) {
+                $values = $value;
+            } elseif (is_string($value)) {
+                $values = [$value];
+            } else {
+                continue; // Skip non-array and non-string properties
+            }
+            // Iterate through the values
+            foreach ($values as $v) {
+                // Determine error type
+                if (str_contains($v, "REQED")) {
+                    $type = 'errors';
+                } elseif (str_contains($v, "WARNS")) {
+                    $type = 'warnings';
+                } elseif (str_contains($v, "INFO")) {
+                    $type = 'info';
+                } else {
+                    continue; // Skip if no error type detected
+                }
+                // Add error to the respective error type if not already present
+                if (!str_contains($error[$type], $v)) {
+                    $error[$type] .= "* $v<br>";
                 }
             }
-        } catch (Exception $e) {
-            $error['errors'] = $e->getMessage();
         }
-
         // string: a string with all the messages for UI render.
         $error['string'] = $error['errors'] . $error['warnings'] . $error['info'];
         return $error;
@@ -310,7 +278,7 @@ class TransmitProperties
      * @param $errors
      * @return void
      */
-    public static function errorWithDie($errors): void
+    public static function echoError($errors): void
     {
         if (is_array($errors)) {
             $error = $errors['errors'] . $errors['warnings'] . $errors['info'];

@@ -195,7 +195,7 @@ class LogProperties
             } else {
                 $error = xlt("Provider email address is missing. Go to User settings Email to add provider's weno registered email address");
                 error_log($error);
-                TransmitProperties::errorWithDie($error);
+                TransmitProperties::echoError($error);
             }
         } elseif ($GLOBALS['weno_admin_username'] ?? false) {
             $provider_info["email"] = $GLOBALS['weno_admin_username'];
