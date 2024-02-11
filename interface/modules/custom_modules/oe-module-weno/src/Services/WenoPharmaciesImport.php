@@ -34,6 +34,10 @@ class WenoPharmaciesImport
             $records = fopen($csvFile, "r");
 
             try {
+                if ($records ?? null) {
+                    sqlStatementNoLog('SET autocommit=0');
+                    sqlStatementNoLog('START TRANSACTION');
+                }
                 while (!feof($records)) {
                     $line = fgetcsv($records);
 

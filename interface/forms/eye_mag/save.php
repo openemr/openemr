@@ -1178,7 +1178,7 @@ if ($_REQUEST['canvas'] ?? '') {
 
     $sql = "SELECT * from documents where documents.name like ?";
     $ans1 = sqlQuery($sql, array('%' . $base_name . '%'));
-    if ($ans1['id']) {  //it is new, add it
+    if ($ans1['id'] ?? '') {  //it is new, add it
         $file = substr($ans1['url'], 7);
         foreach (glob($file) as $file_to_delete) {
             unlink($file_to_delete);

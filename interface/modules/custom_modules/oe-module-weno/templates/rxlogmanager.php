@@ -12,12 +12,13 @@
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Modules\WenoModule\Services\LogProperties;
+use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 
 /*
  * access control is on Weno side based on the user login
  */
 if (!AclMain::aclCheckCore('patient', 'med')) {
-    echo xlt('Prescriptions Review Not Authorized');
+    echo TransmitProperties::styleErrors(xlt('Prescriptions Review Not Authorized'));
     exit;
 }
 
@@ -26,7 +27,7 @@ $logurlparam = $log_properties->logReview();
 $provider_info = $log_properties->getProviderEmail();
 
 if ($logurlparam == 'error') {
-    echo xlt("Cipher failure check encryption key");
+    echo TransmitProperties::styleErrors(xlt("Cipher failure check encryption key"));
     exit;
 }
 

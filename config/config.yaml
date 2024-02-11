@@ -250,6 +250,11 @@ assets:
     u2f_api:
         basePath: '%webroot%/library/js/'
         script: u2f-api.js
+    chart:
+        basePath: '%assets_static_relative%/'
+        script:
+            - chart.js/dist/chart.umd.js
+            - chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.js
     select2-translated:
         basePath: '%webroot%/library/js/xl/'
         script: select2-translated.js

@@ -691,6 +691,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full')
                 <?php
                     // if the VF zone is checked, display it
                     // if ODVF1 = 1 (true boolean) the value="0" checked="true"
+                $bad = 0;
                 for ($z = 1; $z < 5; $z++) {
                     $ODzone = "ODVF" . $z;
                     if ($$ODzone == '1') {

@@ -12,12 +12,13 @@ require_once(dirname(__DIR__, 4) . "/globals.php");
 
 use OpenEMR\Modules\WenoModule\Services\LogProperties;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 
 /*
  * access control is on Weno side based on the user login
  */
 if (!AclMain::aclCheckCore('patient', 'med')) {
-    echo xlt('Prescriptions Review Not Authorized');
+    echo TransmitProperties::styleErrors(xlt('Prescriptions Review Not Authorized'));
     exit;
 }
 

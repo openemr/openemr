@@ -173,7 +173,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
             } elseif ($action['due_status'] == "due") {
                 echo "<span class='text-warning'>";
             } elseif ($action['due_status'] == "not_due") {
-                echo "<span class='text-success>";
+                echo "<span class='text-success'>";
             } else {
                 echo "<span>";
             }
