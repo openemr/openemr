@@ -23,7 +23,6 @@ class ReceiveHl7Results
      * This receives a single lab result base on guid, the catch here is that
      * a lab could be split!  if this happens then more than one result is
      * retrieved and not expected.
-     *
      */
     public function receiveResults($resultsGuid, $rejectResult): array
     {
@@ -261,8 +260,10 @@ class ReceiveHl7Results
             array($GLOBALS['lab_results_category_name'])
         );
         if (empty($catrow['id'])) {
-            return $this->rhl7LogMsg(xl('Document category for lab results does not exist') .
-                ': ' . $GLOBALS['lab_results_category_name'], true);
+            return $this->rhl7LogMsg(
+                xl('Document category for lab results does not exist') .
+                ': ' . $GLOBALS['lab_results_category_name'], true
+            );
         } else {
             $results_category_id = $catrow['id'];
             $mdm_category_id = $results_category_id;
@@ -361,17 +362,17 @@ class ReceiveHl7Results
                 $in_zip = $this->rhl7Text($tmp[4] ?? '');
                 $in_phone = $this->rhl7Text($a[13]) ?? '';
                 switch (strtoupper($a[8])) {
-                    case 'M':
-                        $in_sex = 'Male';
-                        break;
-                    case 'F':
-                        $in_sex = 'Female';
-                        break;
-                    case 'T':
-                        $in_sex = 'Transgender';
-                        break;
-                    default:
-                        $in_sex = 'Unassigned';
+                case 'M':
+                    $in_sex = 'Male';
+                    break;
+                case 'F':
+                    $in_sex = 'Female';
+                    break;
+                case 'T':
+                    $in_sex = 'Transgender';
+                    break;
+                default:
+                    $in_sex = 'Unassigned';
                 }
                 $tmp = explode($d2, $a[5]);
                 $in_lname = $this->rhl7Text($tmp[0]);
@@ -413,8 +414,10 @@ class ReceiveHl7Results
                             } else {
                                 // Should not happen, but it would be bad to abort now.  Create the patient.
                                 $patient_id = 0;
-                                $this->rhl7LogMsg(xl('Unexpected non-match, creating new patient for segment') .
-                                    ' ' . $rhl7_segnum, false);
+                                $this->rhl7LogMsg(
+                                    xl('Unexpected non-match, creating new patient for segment') .
+                                    ' ' . $rhl7_segnum, false
+                                );
                             }
                         }
                     }
@@ -620,8 +623,10 @@ class ReceiveHl7Results
                     } // end no $porow
                 } // end results-only
                 if (empty($porow)) {
-                    $porow = sqlQuery("SELECT * FROM procedure_order WHERE " .
-                        "procedure_order_id = ?", array($in_orderid));
+                    $porow = sqlQuery(
+                        "SELECT * FROM procedure_order WHERE " .
+                        "procedure_order_id = ?", array($in_orderid)
+                    );
                     // The order must already exist. Currently we do not handle electronic
                     // results returned for manual orders.
                     if (empty($porow) && !($dryrun && $direction == 'R')) {
@@ -630,12 +635,14 @@ class ReceiveHl7Results
     
                     if ($in_encounter) {
                         if ($direction != 'R' && $porow['encounter_id'] != $in_encounter) {
-                            return $this->rhl7LogMsg(xl('Encounter ID') .
+                            return $this->rhl7LogMsg(
+                                xl('Encounter ID') .
                                 " '" . $porow['encounter_id'] . "' " .
                                 xl('for OBR placer order number') .
                                 " '$in_orderid' " .
                                 xl('does not match the PV1 encounter number') .
-                                " '$in_encounter'");
+                                " '$in_encounter'"
+                            );
                         }
                     } else {
                         // They did not return an encounter number to verify, so more checking
@@ -646,8 +653,10 @@ class ReceiveHl7Results
                     $tmp = explode($d2, $a[3]);
                     $control_id = $tmp[0];
                     if ($control_id && empty($porow['control_id']) && $in_orderid) {
-                        sqlStatement("UPDATE procedure_order SET control_id = ? WHERE " .
-                            "procedure_order_id = ?", array($control_id, $in_orderid));
+                        sqlStatement(
+                            "UPDATE procedure_order SET control_id = ? WHERE " .
+                            "procedure_order_id = ?", array($control_id, $in_orderid)
+                        );
                     }
     
                     $code_seq_array = array();
@@ -974,7 +983,7 @@ class ReceiveHl7Results
     /**
      * Look for a lab matching the given XCN field from some segment.
      *
-     * @param array $seg MSH seg identifying a provider.
+     * @param  array $seg MSH seg identifying a provider.
      * @return mixed        TRUE, or FALSE if no match.
      */
     private function matchLab(&$hl7, $send_acct, $lab_acct = '', $lab_app = '', $lab_npi = '')
@@ -1003,9 +1012,9 @@ class ReceiveHl7Results
             return false;
         }
 
-        if (strtoupper(trim($a[5])) == strtoupper(trim($send_acct)) ||
-            strtoupper(trim($a[3])) == strtoupper(trim($lab_acct)) ||
-            strtoupper(trim($a[2])) == strtoupper(trim($lab_app))
+        if (strtoupper(trim($a[5])) == strtoupper(trim($send_acct)) 
+            || strtoupper(trim($a[3])) == strtoupper(trim($lab_acct)) 
+            || strtoupper(trim($a[2])) == strtoupper(trim($lab_app))
         ) {
             return true;
         }
@@ -1267,7 +1276,7 @@ class ReceiveHl7Results
      * the HL7 2.3 standard does not help with. Don't be surprised when we have to
      * adapt to conventions of various other labs.
      *
-     * @param string $fileext The lower case extension.
+     * @param  string $fileext The lower case extension.
      * @return string            MIME type.
      */
     private function rhl7MimeType($fileext)
@@ -1298,8 +1307,8 @@ class ReceiveHl7Results
     /**
      * Extract encapsulated document data according to its encoding type.
      *
-     * @param string  $enctype Encoding type from OBX[5][3].
-     * @param string &$src     Encoded data  from OBX[5][4].
+     * @param  string $enctype Encoding type from OBX[5][3].
+     * @param  string &$src    Encoded data  from OBX[5][4].
      * @return string            Decoded data, or FALSE if error.
      */
     private function rhl7DecodeData($enctype, &$src)
@@ -1569,7 +1578,7 @@ class ReceiveHl7Results
     /**
      * Look for a local provider matching the given XCN field from some segment.
      *
-     * @param array $arr array(NPI, lastname, firstname) identifying a provider.
+     * @param  array $arr array(NPI, lastname, firstname) identifying a provider.
      * @return mixed        Array(id, username), or FALSE if no match.
      */
     private function matchProvider($arr)
@@ -1651,7 +1660,7 @@ class ReceiveHl7Results
     /**
      * Encrypt the content of the hl7 file if the global is turned on.
      *
-     * @param string $content The unencrypted content of the hl7.
+     * @param  string $content The unencrypted content of the hl7.
      * @return string         The encrypted content of the hl7 if the global is set.
      */
     private function hl7Crypt($content)

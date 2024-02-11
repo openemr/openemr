@@ -41,7 +41,7 @@ class LabRouteSetup
         $active = 1;
         $type = null;
 
-       // Update the existing procedure provider
+        // Update the existing procedure provider
         $sql = "UPDATE procedure_providers SET 
             name = ?, npi = ?, send_app_id = ?, send_fac_id = ?, recv_app_id = ?
             ,recv_fac_id = ?, DorP = ?, direction = ?, protocol = ?, remote_host = ?,orders_path = ?,results_path = ?,notes = ?

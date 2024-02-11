@@ -39,9 +39,9 @@ class DornGenHl7Order extends GenHl7OrderBase
     /**
      * Generate HL7 for the specified procedure order.
      *
-     * @param integer $orderid Procedure order ID.
-     * @param string &$out     Container for target HL7 text.
-     * @param string &$reqStr
+     * @param  integer $orderid Procedure order ID.
+     * @param  string  &$out    Container for target HL7 text.
+     * @param  string  &$reqStr
      * @return string            Error text, or empty if no errors.
      */
     public function genHl7Order($orderid, &$out)
@@ -158,7 +158,7 @@ class DornGenHl7Order extends GenHl7OrderBase
 
         $vvalue = strtoupper($_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
         $isFasting = strtoupper($_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
-//        $ht = str_pad(round($vitals['height']), 3, "0", STR_PAD_LEFT);
+        //        $ht = str_pad(round($vitals['height']), 3, "0", STR_PAD_LEFT);
         $lb = floor((float)$vitals['weight']);
         $lb = str_pad($lb, 3, "0", STR_PAD_LEFT);
 
@@ -293,13 +293,13 @@ class DornGenHl7Order extends GenHl7OrderBase
  
 
         /**
-     * Generate HL7 for the specified procedure order.
-     *
-     * @param integer $orderid Procedure order ID.
-     * @param string &$out     Container for target HL7 text.
-     * @param string &$reqStr
-     * @return string            Error text, or empty if no errors.
-     */
+         * Generate HL7 for the specified procedure order.
+         *
+         * @param  integer $orderid Procedure order ID.
+         * @param  string  &$out    Container for target HL7 text.
+         * @param  string  &$reqStr
+         * @return string            Error text, or empty if no errors.
+         */
     public function genHl7OrderBarCode($orderid, &$reqStr)
     {
         $today = time();
@@ -487,7 +487,7 @@ class DornGenHl7Order extends GenHl7OrderBase
         $D[1] = substr($D[1], 0, strlen($D[1]) - 1);
         $vvalue = strtoupper($_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
         $isFasting = strtoupper($_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
-//        $ht = str_pad(round($vitals['height']), 3, "0", STR_PAD_LEFT);
+        //        $ht = str_pad(round($vitals['height']), 3, "0", STR_PAD_LEFT);
         $lb = floor((float)$vitals['weight']);
         $lb = str_pad($lb, 3, "0", STR_PAD_LEFT);
 
@@ -1069,8 +1069,8 @@ class DornGenHl7Order extends GenHl7OrderBase
     /**
      * Transmit HL7 for the specified lab.
      *
-     * @param  integer $ppid  Procedure provider ID.
-     * @param  string  $out   The HL7 text to be sent.
+     * @param  integer $ppid Procedure provider ID.
+     * @param  string  $out  The HL7 text to be sent.
      * @return string         Error text, or empty if no errors.
      */
     public function sendHl7Order($ppid, $orderId, $out)

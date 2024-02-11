@@ -89,7 +89,8 @@ class AddressBookAddEdit
             ,$phonew2,$phonecell,$fax,$notes,$abook_type);
 
 
-        $userid = sqlInsert("INSERT INTO users ( 
+        $userid = sqlInsert(
+            "INSERT INTO users ( 
         username, password, authorized, info, source,
         title, fname, lname, mname, suffix, 
         federaltaxid, federaldrugid, upin, facility, see_auth, active, npi, taxonomy, cpoe, 
@@ -101,7 +102,8 @@ class AddressBookAddEdit
         ,?, ?,?,?,?,?,?,?,?
         ,?,?,?,?,?,?,?,?
         ,?,?,?,?,?,?,?,?,?,?,?,?
-        ,?,?,?,?,?)", $sqlArr);
+        ,?,?,?,?,?)", $sqlArr
+        );
 
         return $userid;
     }

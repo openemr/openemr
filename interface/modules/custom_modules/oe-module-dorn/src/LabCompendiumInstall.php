@@ -114,16 +114,19 @@ class LabCompendiumInstall
         $options = "+" . LabCompendiumInstall::formatAnswers($aoe->answers);
 
         // check for existing record
-        $qrow = sqlQuery("SELECT * FROM procedure_questions WHERE lab_id = ? AND procedure_code = ? AND question_code = ?", array(
+        $qrow = sqlQuery(
+            "SELECT * FROM procedure_questions WHERE lab_id = ? AND procedure_code = ? AND question_code = ?", array(
             $lab_id,
             $pcode,
             $qcode
-        ));
+            )
+        );
 
         
         // new record
         if (empty($qrow ['procedure_code'])) {
-            sqlStatement("INSERT INTO procedure_questions SET seq = ?, lab_id = ?, procedure_code = ?, question_code = ?, question_text = ?, fldtype = ?, required = ?, tips = ?, activity = ?, options = ?, maxsize = ?", array(
+            sqlStatement(
+                "INSERT INTO procedure_questions SET seq = ?, lab_id = ?, procedure_code = ?, question_code = ?, question_text = ?, fldtype = ?, required = ?, tips = ?, activity = ?, options = ?, maxsize = ?", array(
                 $aoeCount,
                 $lab_id,
                 $pcode,
@@ -135,9 +138,11 @@ class LabCompendiumInstall
                 $activity,
                 $options,
                 $maxSize
-            ));
+                )
+            );
         } else { // update record
-            sqlStatement("UPDATE procedure_questions SET seq = ?, question_text = ?, fldtype = ?, required = ?, tips = ?, activity = ? WHERE lab_id = ? AND procedure_code = ? AND question_code = ?, options = ?, maxsize = ?", array(
+            sqlStatement(
+                "UPDATE procedure_questions SET seq = ?, question_text = ?, fldtype = ?, required = ?, tips = ?, activity = ? WHERE lab_id = ? AND procedure_code = ? AND question_code = ?, options = ?, maxsize = ?", array(
                 $aoeCount,
                 $question,
                 $fldtype,
@@ -149,7 +154,8 @@ class LabCompendiumInstall
                 $qcode,
                 $options,
                 $maxSize
-            ));
+                )
+            );
         }
     }
     public static function formatAnswers($answers):string
@@ -172,12 +178,12 @@ class LabCompendiumInstall
         Radio buttons or drop-list, depending on the number of choices. = anything else (maybe S) for a single select
         */
         switch ($questionType) {
-            case 'Free Text':
-                return 'T';
-            case 'List':
-                return 'S';
-            case 'Multi-Select List':
-                return 'M';
+        case 'Free Text':
+            return 'T';
+        case 'List':
+            return 'S';
+        case 'Multi-Select List':
+            return 'M';
         }
         return 'T';
     }

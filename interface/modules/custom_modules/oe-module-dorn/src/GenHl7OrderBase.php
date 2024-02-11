@@ -219,8 +219,8 @@ class GenHl7OrderBase
      * Get array of insurance payers for the specified patient as of the specified
      * date. If no date is passed then the current date is used.
      *
-     * @param  integer $pid Patient ID.
-     * @param  date $encounter_date YYYY-MM-DD date.
+     * @param  integer $pid            Patient ID.
+     * @param  date    $encounter_date YYYY-MM-DD date.
      * @return array   Array containing an array of data for each payer.
      */
     public function loadPayerInfo($pid, $date = '')
