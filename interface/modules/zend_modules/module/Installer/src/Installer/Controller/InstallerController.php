@@ -220,7 +220,7 @@ class InstallerController extends AbstractActionController
         $instance = $className::initListenerSelf();
         if (class_exists($instance::class)) {
             if (method_exists($instance, 'moduleManagerAction')) {
-                return call_user_func([$instance, 'moduleManagerAction'], $methodName, $modId);
+                return call_user_func([$instance, 'moduleManagerAction'], $methodName, $modId, $currentStatus);
             } else {
                 return $currentStatus;
             }

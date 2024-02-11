@@ -32,7 +32,7 @@ $pid         = $_REQUEST['pid'] ?? '';
 $refresh     = $_REQUEST['refresh'] ?? null;
 
 if (!empty($_REQUEST['url'])) {
-    redirector($_REQUEST['url']);
+    header('Location: ' . $_REQUEST['url']);
     exit;
 }
 
@@ -186,7 +186,7 @@ if ($refresh and $refresh != 'fullscreen') {
       <meta name="author" content="OpenEMR: Ophthalmology" />
 
 
-      <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor' ]); ?>
+      <?php Header::setupHeader([ 'jquery-ui', 'jquery-ui-redmond','datetime-picker', 'dialog' ,'jscolor', 'chart' ]); ?>
       <link rel="stylesheet" href="../../forms/<?php echo $form_folder; ?>/css/style.css?v=<?php echo $v_js_includes; ?>" type="text/css">
 
   </head>
@@ -1025,7 +1025,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         <?php
                             // if the VF zone is checked, display it
                             // if ODVF1 = 1 (true boolean) the value="0" checked="true"
-                            $bad = '';
+                            $bad = 0;
                         for ($z = 1; $z < 5; $z++) {
                             $ODzone = "ODVF" . $z;
                             if ($$ODzone == '1') {
@@ -1050,7 +1050,7 @@ if ($refresh and $refresh != 'fullscreen') {
                         ?>
                     <div id="Lyr60">
                                 <label for="FieldsNormal" class="input-helper input-helper--checkbox"><?php echo xlt('FTCF{{Full to count fingers}}'); ?></label>
-                                <input id="FieldsNormal" type="checkbox" value="1" <?php echo attr($VFFTCF); ?>>
+                                <input id="FieldsNormal" type="checkbox" value="1" <?php echo attr($VFFTCF ?? ''); ?>>
                     </div>
                     <div id="Lyr511">
                         <table cellpadding="1" cellspacing="1">
