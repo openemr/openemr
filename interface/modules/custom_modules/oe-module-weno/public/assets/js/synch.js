@@ -69,7 +69,9 @@ function renderDialog(action, uid, event) {
         'users': '/interface/usergroup/user_admin.php'
     };
     // Construct action URL
-    const actionUrl = `${urls[action]}?id=${encodeURIComponent(uid)}&csrf_token_form=${encodeURIComponent(csrf)}`;
+    const urlPart = urls[action].includes('?') ? '&' : '?';
+    const actionUrl = `${urls[action]}${urlPart}id=${encodeURIComponent(uid)}&csrf_token_form=${encodeURIComponent(csrf)}`;
+
     if (urls[action] === undefined) {
         console.error('Invalid action URL');
         alert(action.toUpperCase() + " " + xl('Direct action not implemented yet.'));

@@ -16,7 +16,7 @@ namespace OpenEMR\Modules\WenoModule\Services;
  */
 class Container
 {
-    private $transmitproperties;
+    private $transmitProperties;
     private $logproperties;
     private $facilityproperties;
     private $wenopharmacyimport;
@@ -31,10 +31,10 @@ class Container
      */
     public function getTransmitProperties(): TransmitProperties
     {
-        if ($this->transmitproperties === null) {
-            $this->transmitproperties = new TransmitProperties();
+        if ($this->transmitProperties === null) {
+            $this->transmitProperties = new TransmitProperties();
         }
-        return $this->transmitproperties;
+        return $this->transmitProperties;
     }
 
     /**

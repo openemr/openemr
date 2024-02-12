@@ -143,7 +143,7 @@ class TransmitProperties
                     }
                     // Append error with icon and onclick event
                     $uid = attr_js($_SESSION['authUserID'] ?? 0);
-                    $action = js_escape($action);
+                    $action = attr_js($action);
                     $error[$type] .= "<i onclick='renderDialog($action, $uid, event)' role='button' class='fas fa-info-circle mx-1'></i>$v<br>";
                 }
             }
@@ -247,9 +247,9 @@ class TransmitProperties
      */
     private function getPatientInfo(): mixed
     {
-        //get patient data if in an encounter
-        //Since the transmitproperties is called in the logproperties
-        //need to check to see if in an encounter or not. Patient data is not required to view the Weno log
+        // Get patient data if in an encounter
+        // Since the transmitProperties is called in the logproperties
+        // need to check to see if in an encounter or not. Patient data is not required to view the Weno log
 
         $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, postal_code, dob, sex, pid from patient_data where pid=?", [$_SESSION['pid']]);
         if (empty($patient['fname'])) {
@@ -285,7 +285,7 @@ class TransmitProperties
     public static function styleErrors($error): string
     {
         $log = "<div><p style='font-size: 1.0rem; color: red;'>" .
-            $error . xlt('Please address errors and try again!') .
+            $error . "<br />" . xlt('Please address errors and try again!') .
             "</p></div>";
         return $log;
     }
@@ -313,15 +313,17 @@ class TransmitProperties
     {
         $cipher = "aes-256-cbc"; // AES 256 CBC cipher
         $enc_key = $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);
-        if ($enc_key) {
-            $key = substr(hash('sha256', $enc_key, true), 0, 32);
-            $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
 
-            return base64_encode(openssl_encrypt($this->payload, $cipher, $key, OPENSSL_RAW_DATA, $iv));
-        } else {
+        if (!$enc_key) {
             return "error";
         }
+
+        $key = substr(hash('sha256', $enc_key, true), 0, 32);
+        $iv = str_repeat("\0", 16); // Generate an initialization vector
+
+        return base64_encode(openssl_encrypt($this->payload, $cipher, $key, OPENSSL_RAW_DATA, $iv));
     }
+
 
     /**
      * @return mixed
@@ -342,7 +344,7 @@ class TransmitProperties
     {
         $vitals = sqlQuery("SELECT date, height, weight FROM form_vitals WHERE pid = ? ORDER BY id DESC", [$_SESSION["pid"] ?? null]);
         // Check if vitals are empty or missing height and weight
-        if (empty($vitals) || !isset($vitals[0]['height'], $vitals[0]['weight'])) {
+        if (empty($vitals) || !isset($vitals['height'], $vitals['weight'])) {
             return [
                 "REQED:{vitals}" . xlt("A Vitals Height and Weight are required to transmit a prescription. Create or add Vitals in an encounter.")
             ];

@@ -8,7 +8,7 @@
  *  @author  Jerry Padgett <sjpadgett@gmail.com>
  *  @copyright Copyright (c) 2020 Sherwin Gaddis <sherwingaddis@gmail.com>
  *  @copyright Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
- *  @copyright  Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
+ *  @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
  *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -22,7 +22,6 @@ use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\Container;
 use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 
-
 //ensure user has proper access
 if (!AclMain::aclCheckCore('patients', 'rx')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Weno eRx")]);
@@ -35,7 +34,7 @@ $alt_pharmacy = $pharmacyService->getWenoAlternatePharm($_SESSION['pid']) ?? [];
 
 $container = new Container();
 
-$wenoProperties = $container->getTransmitProperties();
+$wenoProperties = new TransmitProperties(); // $container->getTransmitProperties();
 $provider_info = $wenoProperties->getProviderEmail();
 $urlParam = $wenoProperties->cipherPayload(); //lets encrypt the data
 $vitals = $wenoProperties->getVitals();
