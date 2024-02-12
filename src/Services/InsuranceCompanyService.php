@@ -134,9 +134,10 @@ class InsuranceCompanyService extends BaseService
         $sql .= "        a.city,";
         $sql .= "        a.state,";
         $sql .= "        a.zip,";
+        $sql .= "        a.plus_four,";
         $sql .= "        a.country";
         $sql .= " FROM insurance_companies i ";
-        $sql .= " JOIN (SELECT line1,line2,city,state,zip,country,foreign_id FROM addresses) a ON i.id = a.foreign_id";
+        $sql .= " JOIN (SELECT line1,line2,city,state,zip,plus_four,country,foreign_id FROM addresses) a ON i.id = a.foreign_id";
         // the foreign_id here is a globally unique sequence so there is no conflict.
         // I don't like the assumption here as it should be more explicit what table we are pulling
         // from since OpenEMR mixes a bunch of paradigms.  I initially worried about data corruption as phone_numbers
@@ -290,6 +291,11 @@ class InsuranceCompanyService extends BaseService
     {
         // insurance companies need to use sequences table since they share the
         // addresses table with pharmacies
+        // I don't like actually inserting a raw id... yet if we don't allow for this
+        // it makes it very hard for any kind of data import that needs to maintain the same id.
+        if (empty($data["id"])) {
+            $data["id"] = generate_id();
+        }
         $freshId = generate_id();
 
         $sql = " INSERT INTO insurance_companies SET";
@@ -303,7 +309,8 @@ class InsuranceCompanyService extends BaseService
         $sql .= "     alt_cms_id=?,";
         $sql .= "     cqm_sop=?";
 
-        sqlInsert(
+        // throws an exception if the record doesn't insert
+        QueryUtils::sqlInsert(
             $sql,
             array(
                 $freshId,
@@ -352,7 +359,7 @@ class InsuranceCompanyService extends BaseService
                 $data["x12_receiver_id"],
                 $data["x12_default_partner_id"] ?? null,
                 $data["alt_cms_id"],
-                $data["cqm_sop"],
+                $data["cqm_sop"] ?? null,
                 $iid
             )
         );
@@ -367,10 +374,13 @@ class InsuranceCompanyService extends BaseService
             return false;
         }
 
-        $phoneNumberResults = $this->phoneNumberService->update($data, $iid);
+        // no point in updating the phone if there is no phone record...
+        if (!empty($data['phone'])) {
+            $phoneNumberResults = $this->phoneNumberService->update($data, $iid);
 
-        if (!$phoneNumberResults) {
-            return false;
+            if (!$phoneNumberResults) {
+                return false;
+            }
         }
 
         return $iid;
