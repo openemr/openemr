@@ -70,7 +70,11 @@ function renderDialog(action, uid, event) {
     };
     // Construct action URL
     const actionUrl = `${urls[action]}?id=${encodeURIComponent(uid)}&csrf_token_form=${encodeURIComponent(csrf)}`;
-
+    if (urls[action] === undefined) {
+        console.error('Invalid action URL');
+        alert(action.toUpperCase() + " " + xl('Direct action not implemented yet.'));
+        return;
+    }
     // Open dialog
     dlgopen('', '', '900', 'full', '', '', {
         buttons: [{

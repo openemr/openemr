@@ -133,7 +133,20 @@ $vendors = $boot->getVendorGlobals();
                         <h5 class="mb-0"><i class="fa fa-plus mr-2"></i><?php echo xlt("Chores After Setup"); ?></h5>
                     </div>
                     <div id="collapseOne" class="card-body collapse" data-parent="#accordion">
-                        <p>Hold</p>
+                        <!-- Currently no plans to translate. -->
+                        <?php echo '<h5>' . text('Additional values from Weno for finishing setup are:') . '</h5>' .
+                        text('1. Weno Provider Id: Uxxxx') . '<br />' .
+                        text('2. Assigned Location Id for all the facilities used by the above User Id: Lxxxxx') . '<br />' .
+                        text('3. The provider credentials assign to each prescriber: username(email address) and password.') . '<br /><br />' .
+                        '<h5>' . text('To continue setup follow the below steps.') . '</h5>' .
+                        text('1. Find top menu Admin->Users and select the user associated with the Weno Provider ID Uxxx and enter and save the assigned ID in the Weno Provider ID field.') . '<br />' .
+                        text('2. Find top menu  Admin->Other->Weno Management and enter the assigned Location Id Lxxxxx for the location facilities.') . '<br />' .
+                        text('3. Find top Patient Bar User icon and click Settings. Scroll down or find the Weno button in left sidebar and click. Enter your email and password in the Weno Provider Email and Weno Provider Password fields and Save.') . '<br /><br />' .
+                        '<h5>' . text('Patient Chart Requirements.') . '</h5>' .
+                        text('1. Each Patient is required to have an assigned primary pharmacy from Demographics->Choices. It is good practice to assign an Alternate Pharmacy too.') . '<br />' .
+                        text('2. Each Patient is required to have a Vitals Height and Weight assigned. Create or enter in from an encounter vitals form') . '<br /><br />';
+                        ?>
+                        <p><cite><?php echo xlt("Note if these credentials are absent or wrong, you will be required to log into eRx Compose to prescribe prescriptions."); ?></cite>></p>
                     </div>
                 </div>
                 <div class="card">

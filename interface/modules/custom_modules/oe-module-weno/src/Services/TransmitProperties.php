@@ -210,7 +210,7 @@ class TransmitProperties
     {
         $provider_info = ['email' => $GLOBALS['weno_provider_email']];
         if (empty($provider_info['email'])) {
-            return "REQED:{user_settings} " . (xlt('Provider Email is missing. Go to User Settings Weno Tab and enter your Weno Provider Email'));
+            return "REQED:{user_settings}" . (xlt('Provider Email is missing. Go to User Settings Weno Tab and enter your Weno Provider Email'));
         } else {
             return $provider_info;
         }
@@ -316,8 +316,8 @@ class TransmitProperties
         if ($enc_key) {
             $key = substr(hash('sha256', $enc_key, true), 0, 32);
             $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
-            $ciphertext = base64_encode(openssl_encrypt($this->payload, $cipher, $key, OPENSSL_RAW_DATA, $iv));
-            return $ciphertext;
+
+            return base64_encode(openssl_encrypt($this->payload, $cipher, $key, OPENSSL_RAW_DATA, $iv));
         } else {
             return "error";
         }
@@ -336,20 +336,27 @@ class TransmitProperties
     }
 
     /**
-     * @return mixed
+     * @return array|false|null
      */
-    public function getVitals()
+    public function getVitals(): ?array
     {
-        $vitals = sqlQuery("select date, height, weight from form_vitals where pid = ? ORDER BY id DESC", [$_SESSION["pid"] ?? null]);
+        $vitals = sqlQuery("SELECT date, height, weight FROM form_vitals WHERE pid = ? ORDER BY id DESC", [$_SESSION["pid"] ?? null]);
+        // Check if vitals are empty or missing height and weight
+        if (empty($vitals) || !isset($vitals[0]['height'], $vitals[0]['weight'])) {
+            return [
+                "REQED:{vitals}" . xlt("A Vitals Height and Weight are required to transmit a prescription. Create or add Vitals in an encounter.")
+            ];
+        }
         return $vitals;
     }
 
     /**
      * @return mixed
      */
-    private function getSubscriber()
+    private function getSubscriber(): mixed
     {
         $sql = sqlQuery("select subscriber_relationship from insurance_data where pid = ? and type = 'primary'", [$_SESSION['pid']]);
+        $sql = $sql ?? ['subscriber_relationship' => ''];
         return $sql['subscriber_relationship'];
     }
 
@@ -360,8 +367,8 @@ class TransmitProperties
     {
         $data = sqlQuery("SELECT * FROM `weno_assigned_pharmacy` WHERE `pid` = ? ", [$_SESSION["pid"]]);
         $response = array(
-            "primary" => $data['primary_ncpdp'],
-            "alternate" => $data['alternate_ncpdp']
+            "primary" => $data['primary_ncpdp'] ?? '',
+            "alternate" => $data['alternate_ncpdp'] ?? ''
         );
         if (empty($data)) {
             $response['errors'] = true;
@@ -382,51 +389,30 @@ class TransmitProperties
         return $response;
     }
 
-    public function wenoChr(): string
-    {
-        return
-            chr(0x0) .
-            chr(0x0) .
-            chr(0x0) .
-            chr(0x0) .
-            chr(0x0) .
-            chr(0x0) .
-            chr(0x0) .
-            chr(0x0) .
-            chr(0x0) .
-            chr(0x0) .
-            chr(0x0) .
-            chr(0x0) .
-            chr(0x0) .
-            chr(0x0) .
-            chr(0x0) .
-            chr(0x0);
-    }
-
     /**
      * @return mixed
      */
     public function getProviderName(): mixed
     {
         $provider_info = sqlQuery("select fname, mname, lname from users where username=? ", [$_SESSION["authUser"]]);
-
+        $provider_info = $provider_info ?? ['fname' => '', 'mname' => '', 'lname' => ''];
         return $provider_info['fname'] . " " . $provider_info['mname'] . " " . $provider_info['lname'];
     }
 
     /**
      * @return mixed
      */
-    public function getPatientName()
+    public function getPatientName(): mixed
     {
         $patient_info = sqlQuery("select fname, mname, lname from patient_data where pid=? ", [$_SESSION["pid"]]);
-
+        $patient_info = $patient_info ?? ['fname' => '', 'mname' => '', 'lname' => ''];
         return $patient_info['fname'] . " " . $patient_info['mname'] . " " . $patient_info['lname'];
     }
 
     /**
      * @return int|mixed
      */
-    private function getEncounter()
+    private function getEncounter(): mixed
     {
         return $_SESSION['encounter'] ?? 0;
     }
@@ -435,7 +421,7 @@ class TransmitProperties
      * @param $id
      * @return mixed|string
      */
-    public function getWenoProviderId($id = null)
+    public function getWenoProviderId($id = null): mixed
     {
         if (empty($id)) {
             $id = $_SESSION['authUserID'] ?? '';
@@ -445,7 +431,7 @@ class TransmitProperties
         if (!empty(trim($provider['weno_prov_id']))) {
             return $provider['weno_prov_id'];
         } else {
-            return "REQED:{users} " . xlt("Weno Provider Id missing. Select Admin then Users and edit the user to add Weno Provider Id");
+            return "REQED:{users}" . xlt("Weno Provider Id missing. Select Admin then Users and edit the user to add Weno Provider Id");
         }
     }
 }

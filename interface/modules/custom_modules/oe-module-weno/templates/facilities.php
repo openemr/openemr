@@ -5,6 +5,7 @@
  *  @link    http://www.open-emr.org
  *  @author  Sherwin Gaddis <sherwingaddis@gmail.com>
  *  @author  Kofi Appiah <kkappiah@medsov.com>
+ *  @author  Jerry Padgett <sjpadgett@gmail.com>
  *  @copyright Copyright (c) 2020 Sherwin Gaddis <sherwingaddis@gmail.com>
  *  @copyright Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
  *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -124,9 +125,9 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
 <div>
     <div class="container" id="facility"><br><br>
         <h1><?php print xlt("Facility ID's") ?></h1>
-
         <form name="wenofacilityinfo" method="post" action="facilities.php" onsubmit="return top.restoreSession()">
             <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
+            <button type="submit" value="update" id="save_weno_id_top" class="btn btn-primary my-2"><?php echo xla('Update'); ?></button>
         <table class="table">
             <thead>
                 <th></th>
@@ -148,7 +149,7 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
             }
             ?>
         </table>
-            <input type="<?php echo xla('Submit'); ?>" value="update" id="save_weno_id" class="btn_primary">
+            <button type="submit" value="update" id="save_weno_id" class="btn btn-primary float-right"><?php echo xla('Update'); ?></button>
         </form>
     </div>
     <div class="container hide" id="pharmacy">
