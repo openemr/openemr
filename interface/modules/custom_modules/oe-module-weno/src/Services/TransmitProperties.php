@@ -17,6 +17,7 @@
 namespace OpenEMR\Modules\WenoModule\Services;
 
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\FacilityService;
 
 class TransmitProperties
@@ -34,6 +35,7 @@ class TransmitProperties
     private $pharmacy;
     private $encounter;
     private mixed $wenoProviderID;
+    private string|false $csrf;
 
     /**
      * AdminProperties constructor.
@@ -41,6 +43,8 @@ class TransmitProperties
     public function __construct($returnFlag = false)
     {
         $this->errors = ['errors' => '', 'warnings' => '', 'info' => '', 'string' => ''];
+        $this->csrf = js_escape(CsrfUtils::collectCsrfToken());
+        ;
         $this->cryptoGen = new CryptoGen();
         $this->wenoProviderID = $this->getWenoProviderID();
         $this->ncpdp = $this->getPharmacy();
@@ -96,28 +100,30 @@ class TransmitProperties
     {
         // Initialize the error array
         $error = ['errors' => '', 'warnings' => '', 'info' => '', 'string' => ''];
-        // Check if the object is valid
+        // Check if the input is a valid object
         if (!is_object($obj)) {
             return $error; // Return empty error array if the input is not an object
         }
         // Iterate through the object properties
         foreach ($obj as $property => $value) {
-            if ($property == 'errors' || empty($value)) {
+            // Skip 'errors' property and empty values
+            if ($property === 'errors' || empty($value)) {
                 continue;
             }
-            // Handle arrays and strings separately
-            if ($this->isJson($value)) {
+            // Extract error type and value
+            $type = '';
+            $v = '';
+            if (is_string($value)) {
+                $values = [$value];
+            } elseif ($this->isJson($value)) {
                 $values = json_decode($value, true);
             } elseif (is_array($value)) {
                 $values = $value;
-            } elseif (is_string($value)) {
-                $values = [$value];
             } else {
                 continue; // Skip non-array and non-string properties
             }
             // Iterate through the values
             foreach ($values as $v) {
-                // Determine error type
                 if (str_contains($v, "REQED")) {
                     $type = 'errors';
                 } elseif (str_contains($v, "WARNS")) {
@@ -129,12 +135,22 @@ class TransmitProperties
                 }
                 // Add error to the respective error type if not already present
                 if (!str_contains($error[$type], $v)) {
-                    $error[$type] .= "* $v<br>";
+                    // Extract action from value
+                    $action = '';
+                    if (preg_match('/{([^}]*)}/', $v, $matches)) {
+                        $action = $matches[1];
+                        $v = str_replace('{' . $matches[1] . '}', '', $v);
+                    }
+                    // Append error with icon and onclick event
+                    $uid = attr_js($_SESSION['authUserID'] ?? 0);
+                    $action = js_escape($action);
+                    $error[$type] .= "<i onclick='renderDialog($action, $uid, event)' role='button' class='fas fa-info-circle mx-1'></i>$v<br>";
                 }
             }
         }
-        // string: a string with all the messages for UI render.
+        // Combine error messages into a single string
         $error['string'] = $error['errors'] . $error['warnings'] . $error['info'];
+
         return $error;
     }
 
@@ -194,7 +210,7 @@ class TransmitProperties
     {
         $provider_info = ['email' => $GLOBALS['weno_provider_email']];
         if (empty($provider_info['email'])) {
-            return "REQED: " . (xlt('Provider Email is missing. Go to User Settings Weno Tab and enter your Weno Provider Email'));
+            return "REQED:{user_settings} " . (xlt('Provider Email is missing. Go to User Settings Weno Tab and enter your Weno Provider Email'));
         } else {
             return $provider_info;
         }
@@ -219,7 +235,7 @@ class TransmitProperties
             $default_facility = sqlQuery("SELECT name, street, city, state, postal_code, phone, fax, weno_id from facility order by id limit 1");
 
             if (empty($default_facility['weno_id'])) {
-                $default_facility['error'] = "REQED: " . xlt('Facility ID is missing. From Admin select Other then Weno Management. Enter the Weno ID of your facility');
+                $default_facility['error'] = "REQED:{weno_manage}" . xlt('Facility ID is missing. From Admin select Other then Weno Management. Enter the Weno ID of your facility');
             }
             return $default_facility;
         }
@@ -237,31 +253,31 @@ class TransmitProperties
 
         $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, postal_code, dob, sex, pid from patient_data where pid=?", [$_SESSION['pid']]);
         if (empty($patient['fname'])) {
-            $patient['fname'] = "REQED: " . xlt("First Name Missing, From the Patient Chart select Demographics select Who.");
+            $patient['fname'] = "REQED:{demographics}" . xlt("First Name Missing, From the Patient Chart select Demographics select Who.");
         }
         if (empty($patient['lname'])) {
-            $patient['lname'] = "REQED: " . xlt("Last Name Missing, From the Patient Chart select Demographics select Who.");
+            $patient['lname'] = "REQED:{demographics}" . xlt("Last Name Missing, From the Patient Chart select Demographics select Who.");
         }
         if (empty($patient['dob'])) {
-            $patient['dob'] = "REQED: " . xlt("Date of Birth Missing, From the Patient Chart select Demographics select Who.");
+            $patient['dob'] = "REQED:{demographics}" . xlt("Date of Birth Missing, From the Patient Chart select Demographics select Who.");
         }
         if (empty($patient['sex'])) {
-            $patient['sex'] = "REQED: " . xlt("Gender Missing, From the Patient Chart select Demographics select Who.");
+            $patient['sex'] = "REQED:{demographics}" . xlt("Gender Missing, From the Patient Chart select Demographics select Who.");
         }
         if (empty($patient['postal_code'])) {
-            $patient['postal_code'] = "REQED: " . xlt("Zip Code Missing, From the Patient Chart select Demographics select Contact select Postal Code.");
+            $patient['postal_code'] = "REQED:{demographics}" . xlt("Zip Code Missing, From the Patient Chart select Demographics select Contact select Postal Code.");
         }
         if (empty($patient['street'])) {
-            $patient['street'] = "REQED: " . xlt("Street Address Missing, From the Patient Chart select Demographics select Contact.");
+            $patient['street'] = "REQED:{demographics}" . xlt("Street Address Missing, From the Patient Chart select Demographics select Contact.");
         }
         if (empty($patient['city'])) {
-            $patient['city'] = "WARNS: " . xlt("City Missing, From the Patient Chart select Demographics select Contact.");
+            $patient['city'] = "WARNS:{demographics}" . xlt("City Missing, From the Patient Chart select Demographics select Contact.");
         }
         if (empty($patient['state'])) {
-            $patient['state'] = "WARNS: " . xlt("State Missing, From the Patient Chart select Demographics select Contact.");
+            $patient['state'] = "WARNS:{demographics}" . xlt("State Missing, From the Patient Chart select Demographics select Contact.");
         }
         if (empty($patient['phone_cell'])) {
-            $patient['phone_cell'] = "WARNS: " . xlt("Cell Phone Missing, From the Patient Chart select Demographics select Contact.");
+            $patient['phone_cell'] = "WARNS:{demographics}" . xlt("Cell Phone Missing, From the Patient Chart select Demographics select Contact.");
         }
         return $patient;
     }
@@ -315,7 +331,7 @@ class TransmitProperties
         if (!empty($GLOBALS['weno_provider_password'])) {
             return $this->cryptoGen->decryptStandard($GLOBALS['weno_provider_password']);
         } else {
-            return "REQED: " . xlt('Provider Password is missing. Go to User Settings Weno Tab and enter your Weno Provider Password');
+            return "REQED:{user_settings}" . xlt('Provider Password is missing. Go to User Settings Weno Tab and enter your Weno Provider Password');
         }
     }
 
@@ -354,13 +370,13 @@ class TransmitProperties
 
         if (empty($response['primary'])) {
             $response['errors'] = true;
-            $e = 'REQED: ' . xlt("Weno Primary Pharmacy not set. From Patient's Demographics Choices assign Primary Pharmacy");
+            $e = 'REQED:demographics}' . xlt("Weno Primary Pharmacy not set. From Patient's Demographics Choices assign Primary Pharmacy");
             $response['primary'] = $e;
         }
 
         if (empty($response['alternate'])) {
             $response['errors'] = true;
-            $e = 'WARNS: ' . xlt("Weno Alternate Pharmacy not set. From Patient's Demographics Choices assign Alternate Pharmacy");
+            $e = 'WARNS:demographics ' . xlt("Weno Alternate Pharmacy not set. From Patient's Demographics Choices assign Alternate Pharmacy");
             $response['alternate'] = $e;
         }
         return $response;
@@ -426,10 +442,10 @@ class TransmitProperties
         }
         // get the weno provider id from the user table (weno_prov_id
         $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
-        if (!empty($provider['weno_prov_id'])) {
+        if (!empty(trim($provider['weno_prov_id']))) {
             return $provider['weno_prov_id'];
         } else {
-            return "REQED: " . xlt("Weno Provider Id missing. Select Admin then Users and edit the user to add Weno Provider Id");
+            return "REQED:{users} " . xlt("Weno Provider Id missing. Select Admin then Users and edit the user to add Weno Provider Id");
         }
     }
 }

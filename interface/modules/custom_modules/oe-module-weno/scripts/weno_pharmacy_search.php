@@ -103,8 +103,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
 }
 
 if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
-    $sql = "SELECT Business_Name, state, ncpdp, city, address_line_1 " .
-        "FROM weno_pharmacy WHERE 1=1";
+    $sql = "SELECT Business_Name, state, ncpdp, city, address_line_1 " . "FROM weno_pharmacy WHERE 1=1";
 
     $weno_coverage = $_GET['coverage'] ?: '';
     $weno_state = $_GET['weno_state'] ?: '';

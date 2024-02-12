@@ -13,6 +13,7 @@
  */
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
@@ -35,7 +36,7 @@ function getProviderByWenoId($external_id): string
     if ($provider) {
         return $provider['fname'] . " " . $provider['mname'] . " " . $provider['lname'];
     } else {
-        return "REQED: " . xlt("Weno Provider Id missing.");
+        return xlt("Weno Provider Id missing.");
     }
 }
 
@@ -49,6 +50,7 @@ function getProviderByWenoId($external_id): string
         <a href="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php"><span><i class="fa-solid fa-pen ml-2 mb-2"></i></span></a>
     </div>
 </div>
+<input type="hidden" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default')); ?>" />
 <?php if (!$hasErrors) { ?>
     <div id="sync-alert" class="d-none"></div>
     <br>

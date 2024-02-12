@@ -1,4 +1,5 @@
 function sync_weno() {
+    top.restoreSession();
     const syncIcon = document.getElementById("sync-icon");
     const syncAlert = document.getElementById("sync-alert");
     const url = '../../modules/custom_modules/oe-module-weno/templates/synch.php';
@@ -26,6 +27,7 @@ function sync_weno() {
 }
 
 function wenoAlertManager(option, element, spinElement) {
+    top.restoreSession();
     spinElement.classList.remove("fa-spin");
     if (option === "success") {
         element.classList.remove("d-none");
@@ -53,12 +55,39 @@ function wenoAlertManager(option, element, spinElement) {
 }
 
 // Reserved for future use.
-function renderDialogAlert(message) {
-    const dialogAlert = document.getElementById("dialog-alert");
-    const dialogContent = document.getElementById("dialog-content");
-    dialogAlert.classList.remove("d-none");
-    dialogContent.innerHTML = message;
-    setTimeout(function () {
-        dialogAlert.classList.add("d-none");
-    }, 20000);
+function renderDialog(action, uid, event) {
+    event.preventDefault();
+    // Trim action URL
+    action = action.trim();
+    // Get CSRF token
+    const csrf = document.getElementById("csrf_token_form").value;
+    // Map URLs
+    const urls = {
+        'demographics': '/interface/patient_file/summary/demographics_full.php',
+        'user_settings': '/interface/super/edit_globals.php?mode=user',
+        'weno_manage': '/interface/modules/custom_modules/oe-module-weno/templates/facilities.php',
+        'users': '/interface/usergroup/user_admin.php'
+    };
+    // Construct action URL
+    const actionUrl = `${urls[action]}?id=${encodeURIComponent(uid)}&csrf_token_form=${encodeURIComponent(csrf)}`;
+
+    // Open dialog
+    dlgopen('', '', '900', 'full', '', '', {
+        buttons: [{
+            text: jsText('Return to eRx Widget'),
+            close: true,
+            style: 'primary'
+        }],
+        allowResize: true,
+        allowDrag: false,
+        dialogId: 'error-dialog',
+        type: 'iframe',
+        onClosed: 'reload',
+        resolvePromiseOn: 'close',
+        url: top.webroot_url + actionUrl
+    }).then(function (dialog) {
+        top.restoreSession();
+        window.location.reload();
+    });
 }
+

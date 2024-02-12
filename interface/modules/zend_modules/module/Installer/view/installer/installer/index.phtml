@@ -31,14 +31,14 @@ $depObj = $this->dependencyObject;
 $coreModules = $this->coreModules ?? [];
 
 ?>
-<ul class="tabNav">
+<ul class="tabNav bg-light text-dark">
     <li class="current divMenu" onclick="$('.registered').show();$('.unregistered').hide();$('.divMenu').removeClass('current');$(this).addClass('current');">
-        <a class="btn btn-sm btn-primary" href="javascript:void(0)" id="header_tab_Registered">
+        <a class="btn btn-lg btn-primary" href="javascript:void(0)" id="header_tab_Registered">
             <?php echo $listener->z_xlt('Registered'); ?>
         </a>
     </li>
     <li class="divMenu" onclick="$('.registered').hide();$('.unregistered').show();$('.divMenu').removeClass('current');$(this).addClass('current');">
-        <a class="btn btn-sm btn-secondary" href="javascript:void(0)" id="header_tab_UnReg">
+        <a class="btn btn-lg btn-light" href="javascript:void(0)" id="header_tab_UnReg">
             <?php echo $listener->z_xlt('Unregistered'); ?> <span id='ct'></span>
         </a>
     </li>
@@ -147,12 +147,10 @@ $coreModules = $this->coreModules ?? [];
                                             <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><i class="fa fa-trash text-warning fa-2x" aria-hidden="true"></i></a>
                                         <?php } ?>
                                     <?php } elseif ($moduleResult->modActive == 0 && $moduleResult->type == 0) { ?>
-                                        <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><img src="<?php echo $this->basePath() ?>/images/delete.png" border=0></a>
-                                    <?php } else {
-                                        ?>
+                                        <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><i class="fa fa-trash text-warning fa-2x" aria-hidden="true"></i></a>
+                                    <?php } else { ?>
                                         --
-                                        <?php
-                                    } ?>
+                                    <?php } ?>
                                 </td>
                             </tr>
                             <tr style="display:none" class="config" id="ConfigRow_<?php echo $this->escapeHtml($moduleResult->modId); ?>">

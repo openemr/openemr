@@ -2,6 +2,8 @@
 
 /**
  * Config Module.
+ * Call the module setup page if present.
+ * Included in all modules and called by Module Manager.
  *
  * @package   OpenEMR Module
  * @link      http://www.open-emr.org
