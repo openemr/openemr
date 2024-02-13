@@ -55,7 +55,7 @@ function group_attendance_report($pid, $encounter, $cols, $id)
                     ?>
                     <tr>
                         <td><span class='text'><?php echo text($name); ?></span></td>
-                        <td><span class='text'><?php echo text($attnStatus); ?></span></td>
+                        <td><span class='text'><?php echo text(xl_list_label($attnStatus)); ?></span></td>
                         <td width="65%"><span
                                 class='text'><?php echo text($participant['meeting_patient_comment']); ?></span></td>
                     </tr>
