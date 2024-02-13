@@ -32,16 +32,14 @@ $params = [];
 if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_city') {
     $return_arr = array();
     $term = filter_input(INPUT_GET, "term");
-    $val = '%' . $term . '%';
-
+    $val = $term . '%';
     $params[] = $val;
 
-    $sql = "SELECT city, id FROM weno_pharmacy WHERE city LIKE ? LIMIT 10";
+    $sql = "SELECT city, id FROM weno_pharmacy WHERE city LIKE ? GROUP BY city LIMIT 10";
     $res = sqlStatement($sql, $params);
     while ($row = sqlFetchArray($res)) {
         $return_arr[] = $row['city'];
     }
-
     echo text(json_encode($return_arr));
 }
 
@@ -70,9 +68,17 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
         $sql .= " AND state = ?";
         $params[] = $weno_state;
     }
-    if (!empty($weno_city)) {
+    // one or the other but not both. zip is choice over city.
+    if (!empty($weno_city) && !empty($weno_zipcode)) {
+        $weno_city = '';
+    }
+    if (!empty($weno_city) && empty($weno_zipcode)) {
         $sql .= " AND city = ?";
         $params[] = $weno_city;
+    }
+    if (!empty($weno_zipcode) && empty($weno_city)) {
+        $sql .= " AND ZipCode = ?";
+        $params[] = $weno_zipcode;
     }
     if (!empty($weno_only)) {
         $sql .= " AND on_weno = ?";
@@ -81,10 +87,6 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
     if (!empty($full_day)) {
         $sql .= " AND 24HR = ?";
         $params[] = $full_day;
-    }
-    if (!empty($weno_zipcode)) {
-        $sql .= " AND ZipCode = ?";
-        $params[] = $weno_zipcode;
     }
     if (!empty($weno_test_pharmacies)) {
         $sql .= " AND test_pharmacy = ?";
@@ -118,17 +120,21 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
         $sql .= " AND state = ?";
         $params[] = $weno_state;
     }
-    if (!empty($weno_zipcode)) {
+    // sort out zip and city
+    if (!empty($weno_city) && !empty($weno_zipcode)) {
+        $weno_city = '';
+    }
+    if (!empty($weno_city) && empty($weno_zipcode)) {
+        $sql .= " AND city = ?";
+        $params[] = $weno_city;
+    }
+    if (!empty($weno_zipcode) && empty($weno_city)) {
         $sql .= " AND ZipCode = ?";
         $params[] = $weno_zipcode;
     }
     if (!empty($weno_coverage)) {
         $sql .= " AND state_wide_mail_order = ?";
         $params[] = $weno_coverage;
-    }
-    if (!empty($weno_city)) {
-        $sql .= " AND city = ?";
-        $params[] = $weno_city;
     }
     if (!empty($full_day)) {
         $sql .= " AND 24HR = ?";

@@ -431,7 +431,17 @@ class TransmitProperties
         // get the weno provider id from the user table (weno_prov_id
         $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
         if (!empty(trim($provider['weno_prov_id']))) {
+            $doIt = $GLOBALS['weno_provider_uid'] != trim($provider['weno_prov_id']);
+            if ($doIt) {
+                $GLOBALS['weno_provider_uid'] = trim($provider['weno_prov_id']);
+                $sql = "UPDATE `user_settings` SET `setting_value` = ? WHERE `setting_user` = ? AND `setting_label` = 'global:weno_provider_uid'";
+                sqlQuery($sql, [$GLOBALS['weno_provider_uid'], $_SESSION['authUserID']]);
+            }
             return $provider['weno_prov_id'];
+        } elseif (!empty($GLOBALS['weno_provider_uid'])) { // if not in user table then check globals
+            // update user table with weno provider id
+            sqlQuery("UPDATE `users` SET `weno_prov_id` = ? WHERE `id` = ? OR `weno_prov_id` = ?", [$GLOBALS['weno_provider_uid'], $id, $id]);
+            return $GLOBALS['weno_provider_uid'];
         } else {
             return "REQED:{users}" . xlt("Weno Provider Id missing. Select Admin then Users and edit the user to add Weno Provider Id");
         }

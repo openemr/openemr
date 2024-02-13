@@ -11,7 +11,9 @@
  * @link      https://www.open-emr.org
  *
  * @author    Kofi Appiah <kkappiah@medsov.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023 Omega Systems Group International. <info@omegasystemsgroup.com>
+ * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -39,7 +41,7 @@ $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
 // should always be set, but just in case we will set it to 0 so we can grab it
 $field_id_esc = $field_id_esc ?? '0';
 $name_field_id = "form_" . $field_id_esc;
-$smallform = $smallform ?? '';
+$small_form = $small_form ?? '';
 
 $pharmacyService = new PharmacyService();
 $prev_prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? [];
@@ -66,6 +68,7 @@ $res = sqlStatement($sql);
     <input type="text" name="primary_pharmacy" id="primary_pharmacy" hidden>
     <input type="text" name="alternate_pharmacy" id="alternate_pharmacy" hidden>
 
+    <hr class="bg-light font-weight-bold text-dark my-0 mt-1">
     <div class="d-flex">
         <div class="h4 text-primary">
             <?php echo xlt("Weno Pharmacy Selector"); ?>
@@ -107,11 +110,9 @@ $res = sqlStatement($sql);
                 <?php while ($row = sqlFetchArray($res)) { ?>
                     <option value="<?php echo attr($row['option_id']); ?>"><?php echo text($row['title']); ?></option>
                     <?php
-                }
-                ?>
+                } ?>
             </select>
         </div>
-
         <div class="col px-0 mx-0">
             <select class="form-control" name="weno_city" id="weno_city" onchange="cityChanged()"><?php echo xlt("Enter City") . " *"; ?></select>
             <div class="warn"></div>
@@ -134,22 +135,22 @@ $res = sqlStatement($sql);
         <button type="button" class="btn btn-primary btn-sm" onclick="assignAlternatePharmacy()"><?php echo xlt("Assign Alternate Pharmacy"); ?></button>
         <button type="button" class="btn btn-secondary btn-sm ml-3" onclick="resetForm()"><?php echo xlt("Reset"); ?></button>
     </div>
-
     <div class="small mb-1">
-        <?php echo xlt("See below Weno Selected Pharmacies"); ?>
+        <?php echo xlt("Weno Selected Pharmacies"); ?>
     </div>
     <div>
         <span class="font-weight-bold"><?php echo xlt("Weno Selected Primary Pharmacy: "); ?></span>
         <span id="weno_primary"></span>
     </div>
-    <div>
+    <div class="mb-1">
         <span class="font-weight-bold"><?php echo xlt("Weno Selected Alternate Pharmacy: "); ?></span>
         <span id="weno_alt"></span>
+        <hr class=" font-weight-bold bg-light text-dark" />
     </div>
 </template>
 
 <script type="text/javascript">
-    //crsf
+    // csrf token
     let csrf = document.querySelector('input[name="csrf_token_form"]').value;
 
     var wenoState = null;

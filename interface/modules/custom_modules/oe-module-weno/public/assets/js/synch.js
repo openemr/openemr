@@ -88,7 +88,7 @@ function renderDialog(action, uid, event) {
         allowDrag: false,
         dialogId: 'error-dialog',
         type: 'iframe',
-        onClosed: 'reload',
+        //onClosed: 'reload',
         resolvePromiseOn: 'close',
         url: top.webroot_url + actionUrl
     }).then(function (dialog) {

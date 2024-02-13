@@ -28,6 +28,7 @@ class WenoGlobalConfig
     const WENO_RX_ENABLE = 'weno_rx_enable';
     const WENO_PROVIDER_PASSWORD = 'weno_provider_password';
     const WENO_PROVIDER_EMAIL = 'weno_provider_email';
+    const WENO_PROVIDER_UID = 'weno_provider_uid';
 
     const GLOBAL_SECTION_NAME = 'Weno';
 
@@ -94,6 +95,13 @@ class WenoGlobalConfig
                 'title' => xl('Weno Provider Password')
                 , 'description' => xl('')
                 , 'type' => GlobalSetting::DATA_TYPE_ENCRYPTED
+                , 'default' => ''
+                , 'user_setting' => true
+            ]
+            , self::WENO_PROVIDER_UID => [
+                'title' => xl('Weno Provider ID')
+                , 'description' => xl('When a Weno eRx provider, please enter your Weno provider ID here or in your Users setting. If you are not a Weno provider, please leave this field blank.')
+                , 'type' => GlobalSetting::DATA_TYPE_TEXT
                 , 'default' => ''
                 , 'user_setting' => true
             ]
