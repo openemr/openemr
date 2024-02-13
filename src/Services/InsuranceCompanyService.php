@@ -137,7 +137,7 @@ class InsuranceCompanyService extends BaseService
         $sql .= "        a.plus_four,";
         $sql .= "        a.country";
         $sql .= " FROM insurance_companies i ";
-        $sql .= " JOIN (SELECT line1,line2,city,state,zip,plus_four,country,foreign_id FROM addresses) a ON i.id = a.foreign_id";
+        $sql .= " LEFT JOIN (SELECT line1,line2,city,state,zip,plus_four,country,foreign_id FROM addresses) a ON i.id = a.foreign_id";
         // the foreign_id here is a globally unique sequence so there is no conflict.
         // I don't like the assumption here as it should be more explicit what table we are pulling
         // from since OpenEMR mixes a bunch of paradigms.  I initially worried about data corruption as phone_numbers
@@ -214,7 +214,7 @@ class InsuranceCompanyService extends BaseService
         $sql .= "        a.zip,";
         $sql .= "        a.country";
         $sql .= " FROM insurance_companies i";
-        $sql .= " JOIN addresses a ON i.id = a.foreign_id";
+        $sql .= " LEFT JOIN addresses a ON i.id = a.foreign_id";
 
         if (!empty($search)) {
             $sql .= ' AND ';
