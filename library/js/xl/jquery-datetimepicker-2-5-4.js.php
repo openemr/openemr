@@ -91,6 +91,7 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
                 $time_format_with_secs = DateFormatterUtils::getTimeFormat(true); ?>
                 format: '<?php echo DateFormatRead("jquery-datetimepicker") . " " . $time_format_with_secs; ?>',
                 formatTime: '<?php echo $time_format_with_secs; ?>',
+                validateOnBlur: false,
             <?php } else { ?>
                 format: 'Y-m-d H:i:s',
                 formatTime: 'H:i:s',
@@ -100,6 +101,7 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
                 $time_format_without_secs =  DateFormatterUtils::getTimeFormat(); ?>
                 format: '<?php echo DateFormatRead("jquery-datetimepicker") . " " . $time_format_without_secs; ?>',
                 formatTime: '<?php echo $time_format_without_secs; ?>',
+                validateOnBlur: false,
             <?php } else { ?>
                 format: 'Y-m-d H:i',
             <?php } ?>
