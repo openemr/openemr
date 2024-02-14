@@ -38,7 +38,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_city') {
     $sql = "SELECT city, id FROM weno_pharmacy WHERE city LIKE ? GROUP BY city LIMIT 10";
     $res = sqlStatement($sql, $params);
     while ($row = sqlFetchArray($res)) {
-        $return_arr[] = $row['city'];
+        $return_arr[] = ucwords(strtolower($row['city']));
     }
     echo text(json_encode($return_arr));
 }
@@ -64,19 +64,18 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
         $sql .= " AND state_wide_mail_order = ?";
         $params[] = $weno_coverage;
     }
-    if (!empty($weno_state)) {
-        $sql .= " AND state = ?";
-        $params[] = $weno_state;
-    }
-    // one or the other but not both. zip is choice over city.
-    if (!empty($weno_city) && !empty($weno_zipcode)) {
-        $weno_city = '';
-    }
-    if (!empty($weno_city) && empty($weno_zipcode)) {
-        $sql .= " AND city = ?";
-        $params[] = $weno_city;
-    }
-    if (!empty($weno_zipcode) && empty($weno_city)) {
+
+    // if a zip, search by it and forget city and state
+    if (empty($weno_zipcode)) {
+        if (!empty($weno_city)) {
+            $sql .= " AND city = ?";
+            $params[] = $weno_city;
+        }
+        if (!empty($weno_state)) {
+            $sql .= " AND state = ?";
+            $params[] = $weno_state;
+        }
+    } else {
         $sql .= " AND ZipCode = ?";
         $params[] = $weno_zipcode;
     }
@@ -99,7 +98,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
     $res = sqlStatement($sql, $params);
     while ($row = sqlFetchArray($res)) {
         $return_arr[] = array(
-            "name" => $row['Business_Name'] . "/ " . $row['address_line_1'] . " / " . $row['city'],
+            "name" => ucwords(strtolower($row['Business_Name'] . " " . $row['address_line_1'] . " " . $row['city'])),
             "ncpdp" => $row['ncpdp']
         );
     }
@@ -116,22 +115,21 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
     $weno_zipcode = $_GET['weno_zipcode'] ?: '';
     $weno_test_pharmacies = $_GET['test_pharmacy'] == 'true' ? 'True' : '';
 
-    if (!empty($weno_state)) {
-        $sql .= " AND state = ?";
-        $params[] = $weno_state;
-    }
-    // sort out zip and city
-    if (!empty($weno_city) && !empty($weno_zipcode)) {
-        $weno_city = '';
-    }
-    if (!empty($weno_city) && empty($weno_zipcode)) {
-        $sql .= " AND city = ?";
-        $params[] = $weno_city;
-    }
-    if (!empty($weno_zipcode) && empty($weno_city)) {
+    // if a zip, search by it and forget city and state
+    if (empty($weno_zipcode)) {
+        if (!empty($weno_city)) {
+            $sql .= " AND city = ?";
+            $params[] = $weno_city;
+        }
+        if (!empty($weno_state)) {
+            $sql .= " AND state = ?";
+            $params[] = $weno_state;
+        }
+    } else {
         $sql .= " AND ZipCode = ?";
         $params[] = $weno_zipcode;
     }
+
     if (!empty($weno_coverage)) {
         $sql .= " AND state_wide_mail_order = ?";
         $params[] = $weno_coverage;
@@ -151,7 +149,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
     $res = sqlStatement($sql, $params);
     while ($row = sqlFetchArray($res)) {
         $return_arr[] = array(
-            "name" => $row['Business_Name'] . "/ " . $row['address_line_1'] . " / " . $row['city'],
+            "name" => ucwords(strtolower($row['Business_Name'] . " " . $row['address_line_1'] . " " . $row['city'])),
             "ncpdp" => $row['ncpdp']
         );
     }

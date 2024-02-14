@@ -77,15 +77,23 @@ function renderDialog(action, uid, event) {
         alert(action.toUpperCase() + " " + xl('Direct action not implemented yet.'));
         return;
     }
-    // Open dialog
-    dlgopen('', '', '900', 'full', '', '', {
+    // Open modal dialog
+    dlgopen('', 'dialog-mod', '900', 'full', '', '', {
         buttons: [{
+            text: jsText('Click'),
+            close: false,
+            id: jsAttr('click-me'),
+            click: function () {
+                //tidyUp();
+            },
+            style: 'primary'
+        }, {
             text: jsText('Return to eRx Widget'),
             close: true,
-            style: 'primary'
+            style: 'secondary'
         }],
         allowResize: true,
-        allowDrag: false,
+        allowDrag: true,
         dialogId: 'error-dialog',
         type: 'iframe',
         //onClosed: 'reload',
@@ -97,3 +105,19 @@ function renderDialog(action, uid, event) {
     });
 }
 
+function tidyUp() {
+    // Get the iframe element
+    var iframe = document.getElementsByTagName('iframe')[0];
+    var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
+    var saveButton = iframeDocument.getElementById('form_save');
+    if (saveButton) {
+        console.log('Button found:', saveButton);
+    } else {
+        console.log('Button not found.');
+    }
+}
+
+function composeNewTab() {
+    let href = "/modules/custom_modules/oe-module-weno/templates/indexrx.php"
+    parent.left_nav.loadFrame('wen0', 'wen', href);
+}

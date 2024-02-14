@@ -193,7 +193,7 @@ class TransmitProperties
         $wenObj['PatientHeight'] = substr($this->vitals['height'], 0, -3);
         $wenObj['PatientWeight'] = substr($this->vitals['weight'], 0, -3);
         $wenObj['HeightWeightObservationDate'] = $heighDate[0];
-        $wenObj["ResponsiblePartySameAsPatient"] = 'Y';
+        $wenObj["ResponsiblePartySameAsPatient"] = 'Y'; // TODO add responsible party
         $wenObj['PatientLocation'] = "Home";
 
         $wenObj['PrimaryPharmacyNCPCP'] = $this->pharmacy['primary'];
@@ -379,7 +379,7 @@ class TransmitProperties
 
         if (empty($response['primary'])) {
             $response['errors'] = true;
-            $e = 'REQED:demographics}' . xlt("Weno Primary Pharmacy not set. From Patient's Demographics Choices assign Primary Pharmacy");
+            $e = 'REQED:{demographics}' . xlt("Weno Primary Pharmacy not set. From Patient's Demographics Choices assign Primary Pharmacy");
             $response['primary'] = $e;
         }
 
@@ -435,12 +435,12 @@ class TransmitProperties
             if ($doIt) {
                 $GLOBALS['weno_provider_uid'] = trim($provider['weno_prov_id']);
                 $sql = "UPDATE `user_settings` SET `setting_value` = ? WHERE `setting_user` = ? AND `setting_label` = 'global:weno_provider_uid'";
-                sqlQuery($sql, [$GLOBALS['weno_provider_uid'], $_SESSION['authUserID']]);
+                //sqlQuery($sql, [$GLOBALS['weno_provider_uid'], $_SESSION['authUserID']]);
             }
             return $provider['weno_prov_id'];
         } elseif (!empty($GLOBALS['weno_provider_uid'])) { // if not in user table then check globals
             // update user table with weno provider id
-            sqlQuery("UPDATE `users` SET `weno_prov_id` = ? WHERE `id` = ? OR `weno_prov_id` = ?", [$GLOBALS['weno_provider_uid'], $id, $id]);
+            //sqlQuery("UPDATE `users` SET `weno_prov_id` = ? WHERE `id` = ? OR `weno_prov_id` = ?", [$GLOBALS['weno_provider_uid'], $id, $id]);
             return $GLOBALS['weno_provider_uid'];
         } else {
             return "REQED:{users}" . xlt("Weno Provider Id missing. Select Admin then Users and edit the user to add Weno Provider Id");
