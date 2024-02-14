@@ -17,7 +17,7 @@ require_once(__DIR__ . "/../../../library/patient.inc.php");
 
 use Mpdf\Mpdf;
 
-$form_id = (int) $_REQUEST['formid'];
+$form_id = $_REQUEST['formid'];
 //$_REQUEST['debug'] = 'yes';
 
 function ereqForm($pid, $encounter, $form_id, $reqStr = null, $doDoc = true)
