@@ -75,7 +75,7 @@ class InsuranceCompany extends ORDataObject
     /**
      * Constructor sets all Insurance Company attributes to their default value
      */
-    public function __construct($id = "", $prefix = "")
+    public function __construct($id = "", $prefix = "", InsuranceCompanyService $insuranceCompanyService = null)
     {
         $this->id = $id;
         $this->name = "";
@@ -86,15 +86,19 @@ class InsuranceCompany extends ORDataObject
         $fax->set_type(TYPE_FAX);
         $this->address = new Address();
         $this->phone_numbers = array($phone, $fax);
-        $this->InsuranceCompany = new InsuranceCompanyService();
-        $this->ins_type_code_array = $this->InsuranceCompany->getInsuranceTypes();
+        if ($insuranceCompanyService === null) {
+            $this->InsuranceCompany = new InsuranceCompanyService();
+        } else {
+            $this->InsuranceCompany = $insuranceCompanyService;
+        }
+        $this->ins_type_code_array = $this->InsuranceCompany->getInsuranceTypesCached();
         $this->ins_claim_type_array = $this->InsuranceCompany->getInsuranceClaimTypes();
         if ($id != "") {
             $this->populate();
         }
 
         $this->X12Partner = new X12Partner();
-        $this->cqm_sop_array = $this->InsuranceCompany->getInsuranceCqmSop();
+        $this->cqm_sop_array = $this->InsuranceCompany->getInsuranceCqmSopCached();
     }
 
     public function set_id($id = "")
@@ -330,19 +334,29 @@ class InsuranceCompany extends ORDataObject
 
     public function insurance_companies_factory()
     {
-        $p = new InsuranceCompany();
+        $insuranceCompanyService = new InsuranceCompanyService();
         $icompanies = array();
-        $sql = "SELECT p.id, a.city " .
-            "FROM " . escape_table_name($p->_table) . " AS p " .
-            "INNER JOIN addresses as a on p.id = a.foreign_id ORDER BY name, id";
 
-        //echo $sql . "<bR />";
-        $results = sqlQ($sql);
-        //echo "sql: $sql";
-        //print_r($results);
-        while ($row = sqlFetchArray($results)) {
-                $icompanies[] = new InsuranceCompany($row['id']);
+        $listAll = $insuranceCompanyService->search([]);
+        if ($listAll->hasData()) {
+            $data = $listAll->getData();
+            foreach ($data as $record) {
+                // we pass in the service array so we don't recreate it each time
+                $company = new InsuranceCompany("", "", $insuranceCompanyService);
+                $company->populate_array($record);
+                if (!empty($record['work_id'])) {
+                    $company->set_phone($record['work_number']);
+                }
+                if (!empty($record['fax_id'])) {
+                    $company->set_fax($record['fax_number']);
+                }
+                $icompanies[] = $company;
+            }
         }
+        // sort by name since we don't know that the sql query will return them in the correct order
+        usort($icompanies, function ($a, $b) {
+            return strcasecmp($a->name, $b->name);
+        });
 
         return $icompanies;
     }
