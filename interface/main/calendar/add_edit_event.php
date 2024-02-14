@@ -942,7 +942,7 @@ if ($groupid) {
 <script>
 <?php require $GLOBALS['srcdir'] . "/formatting_DateToYYYYMMDD_js.js.php" ?>
 
- var mypcc = '<?php echo $GLOBALS['phone_country_code'] ?>';
+ var mypcc = '<?php echo text($GLOBALS['phone_country_code']) ?>';
 
  var durations = new Array();
 <?php
