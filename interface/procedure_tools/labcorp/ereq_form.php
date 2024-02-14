@@ -135,7 +135,7 @@ STYLES;
         $pdfContent .= '<tr><td style="width:36%;text-align:right;">Patient Name:</td><td style="width:64%;padding-left:8px;">' . text($patient['lname']) . ', ' . text($patient['fname']) . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">Gender:</td><td style="padding-left:8px;">' . text($patient['sex']) . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">Date of Birth:</td><td style="padding-left:8px;">' . date("m/d/Y", strtotime($patient['DOB'])) . '</td></tr>';
-        $pdfContent .= '<tr><td style="text-align:right;">Age:</td><td style="padding-left:8px;">' . str_replace('y', '', text($ageformat[0])) . '/' . str_replace('m', '', text($ageformat[1])) . '/' . str_replace('d', '', text($ageformat[2])) . '</td></tr>';
+        $pdfContent .= '<tr><td style="text-align:right;">Age:</td><td style="padding-left:8px;">' . str_replace('y', '', text($ageformat[0])) . '/' . text(str_replace('m', '', $ageformat[1])) . '/' . text(str_replace('d', '', $ageformat[2])) . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">Patient Address:</td><td style="padding-left:8px;">' . text($patient['street']) . '</td></tr>';
         $pdfContent .= '<tr><td style="text-align:right;">City, State Zip:</td><td style="padding-left:8px;">' . text($patient['city']) . ', ' . text($patient['state']) . ' ' . text($patient['postal_code']) . '</td></tr>';
         $pdfContent .= '</table>';
