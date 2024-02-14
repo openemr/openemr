@@ -24,9 +24,16 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Events\PatientDocuments\PatientDocumentUpload;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class Document extends ORDataObject
 {
+    /**
+     * @var EventDispatcherInterface $eventDispatcher
+     */
+    private $eventDispatcher;
+
     public const TABLE_NAME = "documents";
 
     /**
@@ -248,6 +255,8 @@ class Document extends ORDataObject
         if ($id != "") {
             $this->populate();
         }
+
+        $this->eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
     }
 
     /**
@@ -981,6 +990,27 @@ class Document extends ORDataObject
             $this->couch_docid = $docid;
             $this->couch_revid = $revid;
         } else {
+            /**
+             * https://www.php.net/manual/en/language.fibers.php
+             * Fibers provide a way to pause a running function and return to it later.
+             * In this application of the Fiber class will be used to halt the local file storage.
+             * A dispatch will be sent to see if any module is listening for the file upload.
+             * If a listener is found then the file will be uploaded to the listener and the fiber will be terminated.
+             * If no listener is found then the file will be stored locally.
+             * First use of fiber Sherwin Gaddis 2/13/2024
+             */
+            $fiber = new Fiber(function () use (
+                $data,
+                $cryptoGen,
+                $filename,
+                $has_thumbnail,
+                $thumbnail_data,
+                $patient_id,
+                $path_depth,
+                $higher_level_path
+            ) {
+                $this->remoteFileName = $filename;
+                Fiber::suspend($data);
             // Storing document files locally.
             $repository = $GLOBALS['oer_config']['documents']['repository'];
             $higher_level_path = preg_replace("/[^A-Za-z0-9\/]/", "_", $higher_level_path);
@@ -1055,6 +1085,29 @@ class Document extends ORDataObject
                 ) {
                     return xl('Failed to create') .  $filepath . $this->get_thumb_name($filenameUuid);
                 }
+            }
+            return '';
+            }); //end of fiber
+            /**
+             * The fiber is started and is immediately suspended. Values are passed through the Fiber::suspend() method.
+             */
+            $data = $fiber->start();
+            $offSiteUpload = new PatientDocumentUpload($data);
+            $offSiteUpload->setRemoteFileName($filename);
+            /**
+             * There must be a return to terminate for the fiber if there is a listener that uploaded the file.
+             */
+            $uploadListener = $this->eventDispatcher->dispatch($offSiteUpload, PatientDocumentUpload::REMOTE_STORAGE_LOCATION);
+            $uploadReturn = json_decode(json_encode($uploadListener), true);  // convert symfony object to array
+            /**
+             * If the listener is not null then the file was uploaded to another location.
+             * Else resume the local file storage
+             */
+
+            if ($uploadReturn) {
+                return '';
+            } else {
+                $fiber->resume($data);
             }
         }
 
