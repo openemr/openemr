@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use Particle\Validator\Validator;
 
 class AddressService extends BaseService
@@ -31,6 +32,7 @@ class AddressService extends BaseService
         $validator->optional('city')->lengthBetween(2, 255);
         $validator->optional('state')->lengthBetween(2, 35);
         $validator->optional('zip')->lengthBetween(2, 10);
+        $validator->optional('plus_four')->lengthBetween(2, 4);
         $validator->optional('country')->lengthBetween(2, 255);
 
         return $validator->validate($insuranceCompany);
@@ -73,10 +75,11 @@ class AddressService extends BaseService
         $addressesSql .= "     city=?,";
         $addressesSql .= "     state=?,";
         $addressesSql .= "     zip=?,";
+        $addressesSql .= "     plus_four=?,";
         $addressesSql .= "     country=?,";
         $addressesSql .= "     foreign_id=?";
 
-        $addressesSqlResults = sqlInsert(
+        $addressesSqlResults = QueryUtils::sqlInsert(
             $addressesSql,
             array(
                 $freshId,
@@ -85,6 +88,7 @@ class AddressService extends BaseService
                 $data["city"],
                 $data["state"],
                 $data["zip"],
+                $data["plus_four"] ?? null,
                 $data["country"],
                 $foreignId
             )
@@ -105,6 +109,7 @@ class AddressService extends BaseService
         $addressesSql .= "     city=?,";
         $addressesSql .= "     state=?,";
         $addressesSql .= "     zip=?,";
+        $addressesSql .= "     plus_four=?,";
         $addressesSql .= "     country=?";
         $addressesSql .= "     WHERE foreign_id=?";
 
@@ -116,6 +121,7 @@ class AddressService extends BaseService
                 $data["city"],
                 $data["state"],
                 $data["zip"],
+                $data["plus_four"] ?? null,
                 $data["country"],
                 $foreignId
             )
