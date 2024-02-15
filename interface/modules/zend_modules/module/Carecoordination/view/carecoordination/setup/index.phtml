@@ -135,7 +135,7 @@ $(function () {
                 }
                 ?>
                 <li class='ui-state-default sortable_li <?php echo $this->escapeHtml($rowforms[1]);?>' id='<?php echo preg_replace('/\s/','_',$this->escapeHtml($rowforms[0]));?>'>
-                    <?php echo $rowforms[0];
+                    <?php echo text($rowforms[0]);
                     if(is_array($rowforms[2] ?? null)){
                         ?>
                         <ul class='droptrue' style='display: none;' id='sub_<?php echo preg_replace('/\s/','_',$this->escapeHtml($rowforms[0]));?>'>

@@ -38,6 +38,21 @@ class InsuranceCompanyService extends BaseService
     public const TYPE_FAX = 5;
     public const TYPE_WORK = 2;
 
+    /**
+     * @var null | array $cqm_sops cached CQM SOPS
+     */
+    private $cqm_sops = null;
+
+    /**
+     * @var null | array $types cached insurance types
+     */
+    private $types = null;
+
+    /**
+     * @var null | array $claim_types cached claim types
+     */
+    private $claim_types = null;
+
 
     /**
      * Default constructor.
@@ -115,6 +130,7 @@ class InsuranceCompanyService extends BaseService
         $sql .= "        i.ins_type_code,";
         $sql .= "        i.x12_receiver_id,";
         $sql .= "        i.x12_default_partner_id,";
+        $sql .= "        x12.x12_default_partner_name,";
         $sql .= "        i.alt_cms_id,";
         $sql .= "        i.inactive,work_number.work_id,fax_number.fax_id,";
         $sql .= "        CONCAT(
@@ -137,7 +153,7 @@ class InsuranceCompanyService extends BaseService
         $sql .= "        a.plus_four,";
         $sql .= "        a.country";
         $sql .= " FROM insurance_companies i ";
-        $sql .= " JOIN (SELECT line1,line2,city,state,zip,plus_four,country,foreign_id FROM addresses) a ON i.id = a.foreign_id";
+        $sql .= " LEFT JOIN (SELECT line1,line2,city,state,zip,plus_four,country,foreign_id FROM addresses) a ON i.id = a.foreign_id";
         // the foreign_id here is a globally unique sequence so there is no conflict.
         // I don't like the assumption here as it should be more explicit what table we are pulling
         // from since OpenEMR mixes a bunch of paradigms.  I initially worried about data corruption as phone_numbers
@@ -151,6 +167,10 @@ class InsuranceCompanyService extends BaseService
                         SELECT id AS fax_id,foreign_id,country_code, area_code, prefix, number
                         FROM phone_numbers WHERE number IS NOT NULL AND type = " . self::TYPE_FAX . "
                     ) fax_number ON i.id = fax_number.foreign_id";
+        $sql .= " LEFT JOIN (
+                        SELECT id AS x12_default_partner_id, name AS x12_default_partner_name
+                        FROM x12_partners
+                    ) x12 ON i.x12_default_partner_id = x12.x12_default_partner_id";
 
         $processingResult = new ProcessingResult();
         try {
@@ -214,7 +234,7 @@ class InsuranceCompanyService extends BaseService
         $sql .= "        a.zip,";
         $sql .= "        a.country";
         $sql .= " FROM insurance_companies i";
-        $sql .= " JOIN addresses a ON i.id = a.foreign_id";
+        $sql .= " LEFT JOIN addresses a ON i.id = a.foreign_id";
 
         if (!empty($search)) {
             $sql .= ' AND ';
@@ -250,6 +270,16 @@ class InsuranceCompanyService extends BaseService
         return $this->getAll(['uuid' => $uuid]);
     }
 
+
+    public function getInsuranceTypesCached()
+    {
+        if ($this->types !== null) {
+            return $this->types;
+        }
+        $this->types = $this->getInsuranceTypes();
+        return $this->types;
+    }
+
     public function getInsuranceTypes()
     {
         $types = [];
@@ -262,6 +292,15 @@ class InsuranceCompanyService extends BaseService
         return $types;
     }
 
+    public function getInsuranceClaimTypesCached()
+    {
+        if ($this->claim_types !== null) {
+            return $this->claim_types;
+        }
+        $this->claim_types = $this->getInsuranceClaimTypes();
+        return $this->claim_types;
+    }
+
     public function getInsuranceClaimTypes()
     {
         $claim_types = [];
@@ -272,6 +311,15 @@ class InsuranceCompanyService extends BaseService
             $claim_types[$i] = $row['claim_type'];
         }
         return $claim_types;
+    }
+
+    public function getInsuranceCqmSopCached()
+    {
+        if ($this->cqm_sops !== null) {
+            return $this->cqm_sops;
+        }
+        $this->cqm_sops = $this->getInsuranceCqmSop();
+        return $this->cqm_sops;
     }
 
     public function getInsuranceCqmSop()
@@ -296,7 +344,7 @@ class InsuranceCompanyService extends BaseService
         if (empty($data["id"])) {
             $data["id"] = generate_id();
         }
-        $freshId = generate_id();
+        $freshId = $data['id'];
 
         $sql = " INSERT INTO insurance_companies SET";
         $sql .= "     id=?,";
