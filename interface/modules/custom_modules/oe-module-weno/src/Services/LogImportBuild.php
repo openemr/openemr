@@ -97,7 +97,7 @@ class LogImportBuild
                     $p = $line[1] ?? '';
                     $pid_and_encounter = explode(":", $p);
                     $pid = intval($pid_and_encounter[0]);
-                    $encounter = intval($pid_and_encounter[1]);
+                    $uid = intval($pid_and_encounter[1]);
                     $r = $line[22] ?? '';
                     $refills = filter_var($r, FILTER_SANITIZE_NUMBER_INT);
 
@@ -108,7 +108,7 @@ class LogImportBuild
                     $insertdata['active'] = $active;
                     $insertdata['date_added'] = $ida;
                     $insertdata['patient_id'] = $pid;
-                    $insertdata['encounter'] = $encounter;
+                    $insertdata['attached_user_id'] = $uid;
                     $drug = isset($line[11]) ? str_replace('"', '', $line[11]) : xlt("Incomplete");
                     $insertdata['drug'] = $drug;
                     $insertdata['quantity'] = $line[18] ?? '';
@@ -118,12 +118,11 @@ class LogImportBuild
                     $insertdata['note'] = $line[21] ?? '';
                     $insertdata['rxnorm_drugcode'] = $line[12] ?? '';
                     $insertdata['provider_id'] = $provider[0];
-                    $insertdata['user_id'] = $this->getUserIdByWenoId($provider[0]);
+                    $insertdata['user_id'] = ($uid > 0) ? $uid : $this->getUserIdByWenoId($provider[0]);
                     $insertdata['prescriptionguid'] = $line[4] ?? '';
                     $insertdata['txDate'] = $ida;
                     $loginsert = new LogDataInsert();
                     $loginsert->insertPrescriptions($insertdata);
-
                     ++$l;
                 }
             }

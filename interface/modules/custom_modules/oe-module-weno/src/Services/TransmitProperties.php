@@ -44,7 +44,6 @@ class TransmitProperties
     {
         $this->errors = ['errors' => '', 'warnings' => '', 'info' => '', 'string' => ''];
         $this->csrf = js_escape(CsrfUtils::collectCsrfToken());
-        ;
         $this->cryptoGen = new CryptoGen();
         $this->wenoProviderID = $this->getWenoProviderID();
         $this->ncpdp = $this->getPharmacy();
@@ -144,7 +143,7 @@ class TransmitProperties
                     // Append error with icon and onclick event
                     $uid = attr_js($_SESSION['authUserID'] ?? 0);
                     $action = attr_js($action);
-                    $error[$type] .= "<i onclick='renderDialog($action, $uid, event)' role='button' class='fas fa-info-circle mx-1'></i>$v<br>";
+                    $error[$type] .= "<i onclick='renderDialog($action, $uid, event)' role='button' class='fas fa-pen text-warning mx-1'></i>$v<br>";
                 }
             }
         }
@@ -157,7 +156,7 @@ class TransmitProperties
     /**
      * @return false|string
      */
-    public function createJsonObject()
+    public function createJsonObject(): false|string
     {
         //default is testing mode
         $testing = isset($GLOBALS['weno_rx_enable_test']);
@@ -167,8 +166,9 @@ class TransmitProperties
             $mode = 'N';
         }
         $gender = $this->patient['sex'];
-        $heighDate = explode(" ", $this->vitals['date']);
-        $phoneprimary = preg_replace('/\D+/', '', $this->patient['phone_cell']);
+        $heightDate = explode(" ", $this->vitals['date'] ?? '');
+        $phonePrimary = $this->formatPhoneNumber($this->patient['phone_cell']);
+        $age = self::getAge($this->patient['dob']);
         //create json array
         $wenObj = [];
         $wenObj['UserEmail'] = $this->provider_email['email'];
@@ -176,7 +176,7 @@ class TransmitProperties
         $wenObj['LocationID'] = $this->locid['weno_id'];
         $wenObj['TestPatient'] = $mode;
         $wenObj['PatientType'] = 'Human';
-        $wenObj['OrgPatientID'] = $this->patient['pid'] . ":" . $this->getEncounter();
+        $wenObj['OrgPatientID'] = $this->patient['pid'] . ":" . $_SESSION['authUserID'] ?? 0;
         $wenObj['LastName'] = $this->patient['lname'];
 
         $wenObj['FirstName'] = $this->patient['fname'];
@@ -187,24 +187,62 @@ class TransmitProperties
         $wenObj['State'] = $this->patient['state'];
         $wenObj['PostalCode'] = $this->patient['postal_code'];
         $wenObj['CountryCode'] = "US";
-        $wenObj['PrimaryPhone'] = $phoneprimary;
+        $wenObj['PrimaryPhone'] = $phonePrimary;
         $wenObj['SupportsSMS'] = 'Y';
 
-        $wenObj['PatientHeight'] = substr($this->vitals['height'], 0, -3);
-        $wenObj['PatientWeight'] = substr($this->vitals['weight'], 0, -3);
-        $wenObj['HeightWeightObservationDate'] = $heighDate[0];
-        $wenObj["ResponsiblePartySameAsPatient"] = 'Y'; // TODO add responsible party
+        $wenObj['PatientHeight'] = substr($this->vitals['height'] ?? '', 0, -3);
+        $wenObj['PatientWeight'] = substr($this->vitals['weight'] ?? '', 0, -3);
+        $wenObj['HeightWeightObservationDate'] = $heightDate[0];
+        $wenObj["ResponsiblePartySameAsPatient"] = $age < 19 ? 'N' : 'Y';
+        // TODO add responsible party
         $wenObj['PatientLocation'] = "Home";
 
         $wenObj['PrimaryPharmacyNCPCP'] = $this->pharmacy['primary'];
         $wenObj['AlternativePharmacyNCPCP'] = $this->pharmacy['alternate'];
 
-        //TODO add insurance
         return json_encode($wenObj);
     }
 
     /**
-     * @return string
+     * @return mixed
+     */
+    private function getResponsableParty(): mixed
+    {
+        $relation = sqlQuery("select subscriber_relationship from insurance_data where pid = ? and type = 'primary'", [$_SESSION['pid']]);
+        $relation = $relation ?? ['subscriber_relationship' => ''];
+        if (self::getAge($this->patient['dob']) < 19) {
+            $e = 'REQED:{demographics}' . xlt("Patient is under 19 years old. Subscriber Relationship is required. From the Patient Chart select Demographics Insurance or Guardian.");
+            $relation['subscriber_relationship'] = $e;
+        }
+        return $relation['subscriber_relationship'];
+    }
+
+    public static function getAge($dob, $asof = ''): string
+    {
+        if (empty($asof)) {
+            $asof = date('Y-m-d');
+        }
+        $a1 = explode('-', substr($dob, 0, 10));
+        $a2 = explode('-', substr($asof, 0, 10));
+        $age = $a2[0] - $a1[0];
+        if ($a2[1] < $a1[1] || ($a2[1] == $a1[1] && $a2[2] < $a1[2])) {
+            --$age;
+        }
+
+        return (int)$age;
+    }
+
+    public function formatPhoneNumber($phone): string
+    {
+        $phone = preg_replace('/\D+/', '', $phone);
+        if (strlen($phone) == 11) {
+            $phone = substr($phone, 1, 10);
+        }
+        return $phone;
+    }
+
+    /**
+     * @return array|string
      */
     public function getProviderEmail(): array|string
     {
@@ -251,7 +289,7 @@ class TransmitProperties
         // Since the transmitProperties is called in the logproperties
         // need to check to see if in an encounter or not. Patient data is not required to view the Weno log
 
-        $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, postal_code, dob, sex, pid from patient_data where pid=?", [$_SESSION['pid']]);
+        $patient = sqlQuery("select title, fname, lname, mname, street, state, city, email, phone_cell, phone_home, postal_code, dob, sex, pid from patient_data where pid=?", [$_SESSION['pid']]);
         if (empty($patient['fname'])) {
             $patient['fname'] = "REQED:{demographics}" . xlt("First Name Missing, From the Patient Chart select Demographics select Who.");
         }
@@ -271,13 +309,16 @@ class TransmitProperties
             $patient['street'] = "REQED:{demographics}" . xlt("Street Address Missing, From the Patient Chart select Demographics select Contact.");
         }
         if (empty($patient['city'])) {
-            $patient['city'] = "WARNS:{demographics}" . xlt("City Missing, From the Patient Chart select Demographics select Contact.");
+            $patient['city'] = "REQED:{demographics}" . xlt("City Missing, From the Patient Chart select Demographics select Contact.");
         }
         if (empty($patient['state'])) {
-            $patient['state'] = "WARNS:{demographics}" . xlt("State Missing, From the Patient Chart select Demographics select Contact.");
+            $patient['state'] = "REQED:{demographics}" . xlt("State Missing, From the Patient Chart select Demographics select Contact.");
         }
         if (empty($patient['phone_cell'])) {
-            $patient['phone_cell'] = "WARNS:{demographics}" . xlt("Cell Phone Missing, From the Patient Chart select Demographics select Contact.");
+            $patient['phone_cell'] = "REQED:{demographics}" . xlt("Cell or Home Phone Missing, From the Patient Chart select Demographics select Contact.");
+            if (!empty($patient['phone_home'])) {
+                $patient['phone_cell'] = $patient['phone_home'];
+            }
         }
         return $patient;
     }
@@ -344,7 +385,7 @@ class TransmitProperties
     {
         $vitals = sqlQuery("SELECT date, height, weight FROM form_vitals WHERE pid = ? ORDER BY id DESC", [$_SESSION["pid"] ?? null]);
         // Check if vitals are empty or missing height and weight
-        if (empty($vitals) || !isset($vitals['height'], $vitals['weight'])) {
+        if (empty($vitals) || ($vitals['height'] <= 0) || ($vitals['weight'] <= 0)) {
             return [
                 "REQED:{vitals}" . xlt("A Vitals Height and Weight are required to transmit a prescription. Create or add Vitals in an encounter.")
             ];
@@ -357,9 +398,13 @@ class TransmitProperties
      */
     private function getSubscriber(): mixed
     {
-        $sql = sqlQuery("select subscriber_relationship from insurance_data where pid = ? and type = 'primary'", [$_SESSION['pid']]);
-        $sql = $sql ?? ['subscriber_relationship' => ''];
-        return $sql['subscriber_relationship'];
+        $relation = sqlQuery("select subscriber_relationship from insurance_data where pid = ? and type = 'primary'", [$_SESSION['pid']]);
+        $relation = $relation ?? ['subscriber_relationship' => ''];
+        if (self::getAge($this->patient['dob']) < 19) {
+            $e = 'REQED:{demographics}' . xlt("Patient is under 19 years old. Subscriber Relationship is required. From the Patient Chart select Demographics Insurance or Guardian.");
+            $relation['subscriber_relationship'] = $e;
+        }
+        return $relation['subscriber_relationship'];
     }
 
     /**
@@ -385,7 +430,7 @@ class TransmitProperties
 
         if (empty($response['alternate'])) {
             $response['errors'] = true;
-            $e = 'WARNS:{demographics}' . xlt("Weno Alternate Pharmacy not set. From Patient's Demographics Choices assign Alternate Pharmacy");
+            $e = 'REQED:{demographics}' . xlt("Weno Alternate Pharmacy not set. From Patient's Demographics Choices assign Alternate Pharmacy");
             $response['alternate'] = $e;
         }
         return $response;

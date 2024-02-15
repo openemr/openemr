@@ -77,7 +77,7 @@ function getProviderByWenoId($external_id): string
 <?php }
 if ($hasWarnings || $hasErrors) { ?>
     <div id="error-alert" class="alert <?php echo !$justWarnings ? 'alert-danger' : 'alert-warning'; ?> mt-2 px-0 py-1" role="alert">
-        <span><strong><?php echo xlt("Problems!"); ?></strong></span> <span><?php echo xlt("Weno eRx is not fully configured. Details"); ?></span>
+        <span class="text-warning"><strong><?php echo xlt("Problems!"); ?></strong></span> <span><?php echo xlt("Weno eRx is not fully configured. Details"); ?></span>
         <a role="button" class="btn btn-link p-0 pl-1" onclick="$('.dialog-alert').toggleClass('d-none')"><i class="fa fa-question-circle close"></i></a>
         <div id="dialog-alert" class="dialog-alert m-0 p-0 pt-1 d-none">
             <div id="dialog-content" class="dialog-content"><?php echo $validate_errors; ?></div>

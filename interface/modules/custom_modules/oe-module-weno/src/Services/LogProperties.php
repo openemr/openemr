@@ -147,7 +147,7 @@ class LogProperties
             exit;
         }
         //**warning** do not add urlencode to  $provider_info['email'] per Weno design
-        $urlOut = $syncLogs . $provider_info['email'] . "&data=" . urlencode($logurlparam);
+        $urlOut = $syncLogs . urlencode($provider_info['email']) . "&data=" . urlencode($logurlparam);
 
         $ch = curl_init($urlOut);
         curl_setopt($ch, CURLOPT_TIMEOUT, 200);

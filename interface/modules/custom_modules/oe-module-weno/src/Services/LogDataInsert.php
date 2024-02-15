@@ -27,7 +27,6 @@ class LogDataInsert
         $sql .= "patient_id = ?, ";
         $sql .= "provider_id = ?, ";
         $sql .= "drug = ?, ";
-        $sql .= "encounter = ?, ";
         $sql .= "quantity = ?, ";
         $sql .= "refills = ?, ";
         $sql .= "substitute = ?,";
@@ -42,7 +41,6 @@ class LogDataInsert
                 $insertdata['patient_id'],
                 $insertdata['user_id'],
                 $insertdata['drug'],
-                $insertdata['encounter'],
                 $insertdata['quantity'],
                 $insertdata['refills'],
                 $insertdata['substitute'],
