@@ -203,8 +203,8 @@ class InstallerController extends AbstractActionController
     private function callModuleAfterAction($action, $modId, $dirModule, $currentStatus): mixed
     {
         $modPath = $GLOBALS['fileroot'] . "/" . $GLOBALS['baseModDir'] . "custom_modules/" . $dirModule;
-        $moduleClassPath = $modPath . '/ModuleManagerAfterActionListener.php';
-        $className = 'ModuleManagerAfterActionListener';
+        $moduleClassPath = $modPath . '/ModuleManagerListener.php';
+        $className = 'ModuleManagerListener';
         $action = trim($action);
         if (!file_exists($moduleClassPath)) {
             return $currentStatus;

@@ -35,7 +35,7 @@ use OpenEMR\Modules\WenoModule\Services\ModuleService;
 
 /* Allows maintenance of background tasks depending on Module Manager action. */
 
-class ModuleManagerAfterActionListener extends AbstractModuleActionListener
+class ModuleManagerListener extends AbstractModuleActionListener
 {
     public function __construct()
     {
@@ -74,9 +74,9 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
      * Required method to return this class object,
      * so it is instantiated in Laminas Manager.
      *
-     * @return ModuleManagerAfterActionListener
+     * @return ModuleManagerListener
      */
-    public static function initListenerSelf(): ModuleManagerAfterActionListener
+    public static function initListenerSelf(): ModuleManagerListener
     {
         return new self();
     }
