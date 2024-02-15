@@ -166,7 +166,7 @@ class LogProperties
             $wenolog->insertWenoLog("prescription", "Success");
         } else {
             // yes record failures.
-            EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$statusCode");
+            EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "$statusCode");
             $wenolog->insertWenoLog("prescription", "Failed");
             return false;
         }

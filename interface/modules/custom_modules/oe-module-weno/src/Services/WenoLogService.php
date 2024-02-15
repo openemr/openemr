@@ -32,8 +32,11 @@ class WenoLogService
     public function getLastPharmacyDownloadStatus(): bool|array|null
     {
         $params = "pharmacy";
-        $sql = "SELECT * FROM weno_download_log WHERE VALUE = ? ORDER BY created_at DESC LIMIT 1";
-        return sqlQuery($sql, [$params]);
+        $v = sqlQuery("SELECT * FROM `weno_download_log` WHERE VALUE = ? ORDER BY created_at DESC LIMIT 1", [$params]);
+        $count = sqlQuery("SELECT COUNT(`id`) as count FROM `weno_pharmacy`");
+        $v['count'] = $count['count'] ?? 0;
+
+        return $v;
     }
 
     public function insertWenoLog($value, $status): bool|string

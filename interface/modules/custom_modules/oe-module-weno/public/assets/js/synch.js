@@ -79,7 +79,8 @@ function renderDialog(action, uid, event) {
     }
     // Open modal dialog
     dlgopen('', 'dialog-mod', '900', 'full', '', '', {
-        buttons: [{
+        buttons: [
+            /*{
             text: jsText('Click'),
             close: false,
             id: jsAttr('click-me'),
@@ -87,16 +88,17 @@ function renderDialog(action, uid, event) {
                 //tidyUp();
             },
             style: 'primary'
-        }, {
+            },*/
+            {
             text: jsText('Return to eRx Widget'),
             close: true,
-            style: 'secondary'
-        }],
+            style: 'primary'
+            }
+        ],
         allowResize: true,
         allowDrag: true,
         dialogId: 'error-dialog',
         type: 'iframe',
-        //onClosed: 'reload',
         resolvePromiseOn: 'close',
         url: top.webroot_url + actionUrl
     }).then(function (dialog) {

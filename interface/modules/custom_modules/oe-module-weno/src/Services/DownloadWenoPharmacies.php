@@ -84,7 +84,7 @@ class DownloadWenoPharmacies
                 return "Failed";
             }
         } else {
-            EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Failed to extract the file.");
+            EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Failed to extract the file.");
             error_log("Failed to extract the file.");
             $wenolog->insertWenoLog("pharmacy", "Failed");
             return 'Failed to extract the file.';

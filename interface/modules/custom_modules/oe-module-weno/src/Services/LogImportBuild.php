@@ -14,6 +14,10 @@ class LogImportBuild
 {
     public $rxsynclog;
     private $insertdata;
+    /**
+     * @var mixed|null
+     */
+    private mixed $messageid;
 
     public function __construct()
     {
@@ -72,29 +76,29 @@ class LogImportBuild
                     continue;
                 }
                 if (isset($line[4])) {
-                    $this->messageid = $line[4] ?? null;
+                    $this->messageid = $line[4] ?? '';
                     $is_saved = $this->checkMessageId();
                     if ($is_saved > 0) {
                         continue;
                     }
                 }
                 if (!empty($line)) {
-                    $pr = $line[2] ?? null;
+                    $pr = $line[2] ?? '';
                     $provider = explode(":", $pr);
-                    $windate = $line[16] ?? null;
+                    $windate = $line[16] ?? '';
                     $idate = substr(trim($windate), 0, -5);
                     $idate = explode(" ", $idate);
                     $idate = explode("/", $idate[0]);
-                    $year = $idate[2] ?? null;
-                    $month = $idate[0] ?? null;
-                    $day = $idate[1] ?? null;
+                    $year = $idate[2] ?? '';
+                    $month = $idate[0] ?? '';
+                    $day = $idate[1] ?? '';
                     $idate = $year . '-' . $month . '-' . $day;
                     $ida = preg_replace('/T/', ' ', $line[0]);
-                    $p = $line[1] ?? null;
+                    $p = $line[1] ?? '';
                     $pid_and_encounter = explode(":", $p);
                     $pid = intval($pid_and_encounter[0]);
                     $encounter = intval($pid_and_encounter[1]);
-                    $r = $line[22] ?? null;
+                    $r = $line[22] ?? '';
                     $refills = filter_var($r, FILTER_SANITIZE_NUMBER_INT);
 
                     $insertdata = [];
@@ -107,15 +111,15 @@ class LogImportBuild
                     $insertdata['encounter'] = $encounter;
                     $drug = isset($line[11]) ? str_replace('"', '', $line[11]) : xlt("Incomplete");
                     $insertdata['drug'] = $drug;
-                    $insertdata['quantity'] = $line[18] ?? null;
+                    $insertdata['quantity'] = $line[18] ?? '';
                     $insertdata['refills'] = $refills;
                     $sub = ($line[14] = 'Allowed' ? 1 : 0);
-                    $insertdata['substitute'] = $sub ?? null;
-                    $insertdata['note'] = $line[21] ?? null;
-                    $insertdata['rxnorm_drugcode'] = $line[12] ?? null;
+                    $insertdata['substitute'] = $sub ?? '';
+                    $insertdata['note'] = $line[21] ?? '';
+                    $insertdata['rxnorm_drugcode'] = $line[12] ?? '';
                     $insertdata['provider_id'] = $provider[0];
                     $insertdata['user_id'] = $this->getUserIdByWenoId($provider[0]);
-                    $insertdata['prescriptionguid'] = $line[4] ?? null;
+                    $insertdata['prescriptionguid'] = $line[4] ?? '';
                     $insertdata['txDate'] = $ida;
                     $loginsert = new LogDataInsert();
                     $loginsert->insertPrescriptions($insertdata);

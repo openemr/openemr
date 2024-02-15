@@ -15,13 +15,31 @@
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
+use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     exit;
 }
 
+$logService = new WenoLogService();
+$pharmacy_log = $logService->getLastPharmacyDownloadStatus();
+
 $validate = new TransmitProperties(true);
 $validate_errors = "";
+
+
+$logService = new WenoLogService();
+$pharmacyLog = $logService->getLastPharmacyDownloadStatus();
+$status = xlt("Last pharmacy update failed! Current count") . ": " . text($pharmacyLog['count'] ?? 0) . ". " . "Last success was" . ": " . text($pharmacyLog['created_at'] ?? '');
+$cite = <<<CITE
+<cite class="h6 text-danger p-1 mt-1">
+    <span>$status</span>
+</cite>
+CITE;
+if ($pharmacyLog['status'] != 'Failed') {
+    $cite = '';
+}
+
 $hasErrors = !empty($validate->errors['errors']);
 $hasWarnings = !empty($validate->errors['warnings']);
 $justWarnings = $hasWarnings && empty($validate->errors['errors']);
@@ -51,13 +69,15 @@ function getProviderByWenoId($external_id): string
     </div>
 </div>
 <input type="hidden" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default')); ?>" />
+
+<div id="sync-alert" class=""><?php echo $cite; ?></div>
 <?php if (!$hasErrors) { ?>
     <div id="sync-alert" class="d-none"></div>
     <br>
 <?php }
 if ($hasWarnings || $hasErrors) { ?>
     <div id="error-alert" class="alert <?php echo !$justWarnings ? 'alert-danger' : 'alert-warning'; ?> mt-2 px-0 py-1" role="alert">
-        <span><strong><?php echo xlt("Problems!"); ?></strong></span> <span ><?php echo xlt("Weno eRx is not fully configured. Details"); ?></span>
+        <span><strong><?php echo xlt("Problems!"); ?></strong></span> <span><?php echo xlt("Weno eRx is not fully configured. Details"); ?></span>
         <a role="button" class="btn btn-link p-0 pl-1" onclick="$('.dialog-alert').toggleClass('d-none')"><i class="fa fa-question-circle close"></i></a>
         <div id="dialog-alert" class="dialog-alert m-0 p-0 pt-1 d-none">
             <div id="dialog-content" class="dialog-content"><?php echo $validate_errors; ?></div>

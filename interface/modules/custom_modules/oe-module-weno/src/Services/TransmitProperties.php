@@ -133,14 +133,14 @@ class TransmitProperties
                 } else {
                     continue; // Skip if no error type detected
                 }
+                // Extract action from value
+                $action = '';
+                if (preg_match('/{([^}]*)}/', $v, $matches)) {
+                    $action = $matches[1];
+                    $v = str_replace('{' . $matches[1] . '}', '', $v);
+                }
                 // Add error to the respective error type if not already present
                 if (!str_contains($error[$type], $v)) {
-                    // Extract action from value
-                    $action = '';
-                    if (preg_match('/{([^}]*)}/', $v, $matches)) {
-                        $action = $matches[1];
-                        $v = str_replace('{' . $matches[1] . '}', '', $v);
-                    }
                     // Append error with icon and onclick event
                     $uid = attr_js($_SESSION['authUserID'] ?? 0);
                     $action = attr_js($action);
@@ -208,7 +208,7 @@ class TransmitProperties
      */
     public function getProviderEmail(): array|string
     {
-        $provider_info = ['email' => $GLOBALS['weno_provider_email']];
+        $provider_info = ['email' => ($GLOBALS['weno_provider_email'] ?? '')];
         if (empty($provider_info['email'])) {
             return "REQED:{user_settings}" . (xlt('Provider Email is missing. Go to User Settings Weno Tab and enter your Weno Provider Email'));
         } else {
@@ -385,7 +385,7 @@ class TransmitProperties
 
         if (empty($response['alternate'])) {
             $response['errors'] = true;
-            $e = 'WARNS:demographics ' . xlt("Weno Alternate Pharmacy not set. From Patient's Demographics Choices assign Alternate Pharmacy");
+            $e = 'WARNS:{demographics}' . xlt("Weno Alternate Pharmacy not set. From Patient's Demographics Choices assign Alternate Pharmacy");
             $response['alternate'] = $e;
         }
         return $response;
@@ -430,7 +430,7 @@ class TransmitProperties
         }
         // get the weno provider id from the user table (weno_prov_id
         $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
-        if (!empty(trim($provider['weno_prov_id']))) {
+        if (!empty(trim($provider['weno_prov_id'] ?? ''))) {
             $doIt = $GLOBALS['weno_provider_uid'] != trim($provider['weno_prov_id']);
             if ($doIt) {
                 $GLOBALS['weno_provider_uid'] = trim($provider['weno_prov_id']);

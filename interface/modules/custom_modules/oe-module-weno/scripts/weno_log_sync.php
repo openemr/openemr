@@ -24,11 +24,12 @@ function downloadWenoPharmacy()
     // Weno has decided to not force the import of pharmacies since they are using the iframe
     // and the pharmacy can be selected at the time of creating the prescription.
     $value = $localPharmacyJson->checkBackgroundService();
+
     EventAuditLogger::instance()->newEvent(
         "pharmacy_background",
         $_SESSION['authUser'],
         $_SESSION['authProvider'],
-        3,
+        1,
         "Init Background Pharmacy Download Service Status:"  . text(ucfirst($value))
     );
     if ($value == 'active' || $value == 'live') {
@@ -40,7 +41,7 @@ function downloadWenoPharmacy()
             "pharmacy_background",
             $_SESSION['authUser'],
             $_SESSION['authProvider'],
-            3,
+            1,
             "Background Initiated Pharmacy Download Completed with Status:"  . text($status)
         );
         error_log('Background Initiated Weno Pharmacies download completed with status:' . text($status));
@@ -57,6 +58,6 @@ function downloadWenoPrescriptionLog(): void
     if (!$logSync->logSync()) {
         error_log("Background services failed for prescription log.");
     } else {
-        error_log("Background Pharmacy services completed for prescription log.");
+        error_log("Background Pharmacy services completed for prescription log."); // todo: remove this line
     }
 }

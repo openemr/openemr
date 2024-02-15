@@ -23,6 +23,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
+use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pharmacy Selector")]);
@@ -38,6 +39,11 @@ $widgetConstants = [
 global $pid; // we need to grab our pid from our global settings.
 $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
 
+$logService = new WenoLogService();
+$pharmacy_log = $logService->getLastPharmacyDownloadStatus();
+
+$activeStatus = sqlQuery("SELECT `active` FROM background_services WHERE `name` = 'WenoExchangePharmacies'");
+
 // should always be set, but just in case we will set it to 0 so we can grab it
 $field_id_esc = $field_id_esc ?? '0';
 $name_field_id = "form_" . $field_id_esc;
@@ -51,7 +57,7 @@ $prev_alt_pharmacy = json_encode($prev_alt_pharmacy);
 
 $sql = "SELECT list_id, option_id, title FROM list_options WHERE list_id = 'state'";
 $res = sqlStatement($sql);
-
+$error = false;
 ?>
 
 <style>
@@ -65,16 +71,30 @@ $res = sqlStatement($sql);
 
 <template id="weno_template">
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-
     <input type="text" name="primary_pharmacy" id="primary_pharmacy" hidden>
     <input type="text" name="alternate_pharmacy" id="alternate_pharmacy" hidden>
     <hr class="bg-light font-weight-bold text-dark my-0 mt-1">
     <div class="d-flex">
-        <div class="h4 text-primary">
+        <span class="h4 text-primary">
             <?php echo xlt("Weno Pharmacy Selector"); ?>
-        </div>
-        <br />
+        </span>
+        <?php if (!empty($pharmacy_log['count'] ?? 0)) {
+            $error = false;  ?>
+            <cite class="h6 text-primary p-1 mt-1">
+                <?php
+                echo xlt("Status") . ": " . (text($pharmacy_log['status']) ?? xlt("No Data")) . " " . xlt("Last success") . ": " . (text($pharmacy_log['created_at']) ?? xlt("No Data"));
+                ?>
+            </cite>
+        <?php } else {
+            $error = true; ?>
+            <cite class="h6 text-danger p-1 mt-1">
+                <?php
+                echo xlt("Currently No Pharmacies. Last Status") . ": " . (text($pharmacy_log['status']) ?? xlt("No Data")) . " " . xlt("Last Downloaded") . " " . (text($pharmacy_log['created_at']) ?? xlt("No Data"));
+                ?>
+            </cite>
+        <?php } ?>
     </div>
+    <?php if (!$error) { ?>
     <div class="row col-12 m-0 p-0 mb-1">
         <div class="col pl-0">
             <input type="checkbox" name="24hr" id="24hr" onclick='fullDayChanged(this);'>
@@ -121,6 +141,7 @@ $res = sqlStatement($sql);
         <button type="button" class="btn btn-primary btn-sm ml-3 show-hide" onclick="assignAlternatePharmacy()"><?php echo xlt("Assign Alternate Pharmacy"); ?></button>
         <button type="button" class="btn btn-secondary btn-sm" onclick="resetForm()"><?php echo xlt("Reset"); ?></button>
     </div>
+    <?php } ?>
     <div class="small mb-1">
         <?php echo xlt("Current Weno Selected Pharmacies"); ?>
     </div>

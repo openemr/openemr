@@ -25,15 +25,9 @@ $data = array(
 
 if (date("l") == "Monday") { //if today is Monday download the weekly file
     $data["Daily"] = "N";
+} else {
+    $data["Daily"] = "Y";
 }
-
-//check if there is history of download, if not do a weekly file
-// $pharmacyService = new PharmacyService();
-// $db_exist = $pharmacyService->checkWenoPharmacyLog();
-// if($db_exist != "empty"){
-//     $data["Daily"] = "Y";
-// }
-
 
 $json_object = json_encode($data);
 $method = 'aes-256-cbc';
@@ -224,7 +218,7 @@ if (file_exists($csvFile)) {
         "pharmacy_log",
         $_SESSION['authUser'],
         $_SESSION['authProvider'],
-        1,
+        0,
         "Pharmacy Import download failed."
     );
     $wenolog->insertWenoLog("pharmacy", "Failed");

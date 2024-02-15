@@ -49,7 +49,7 @@ class WenoGlobalConfig
     public function getGlobalSettingSectionConfiguration(): array
     {
         $settings = [
-            self::WENO_RX_ENABLE => [
+            /*self::WENO_RX_ENABLE => [
                 'title' => 'Enable Weno eRx Service'
                 , 'description' => xl('Enable Weno eRx Service') . ' ' . xl('Contact https://online.wenoexchange.com to sign up for Weno Free eRx service.')
                 , 'type' => GlobalSetting::DATA_TYPE_BOOL
@@ -83,28 +83,28 @@ class WenoGlobalConfig
                 , 'type' => GlobalSetting::DATA_TYPE_ENCRYPTED
                 , 'default' => ''
                 , 'user_setting' => false
-            ]
-            , self::WENO_PROVIDER_EMAIL => [
+            ]*/
+             self::WENO_PROVIDER_EMAIL => [
                 'title' => xl('Weno Provider Email')
                 , 'description' => xl('')
                 , 'type' => GlobalSetting::DATA_TYPE_TEXT
                 , 'default' => ''
                 , 'user_setting' => true
-            ]
-            , self::WENO_PROVIDER_PASSWORD => [
+             ]
+             , self::WENO_PROVIDER_PASSWORD => [
                 'title' => xl('Weno Provider Password')
                 , 'description' => xl('')
                 , 'type' => GlobalSetting::DATA_TYPE_ENCRYPTED
                 , 'default' => ''
                 , 'user_setting' => true
-            ]
-            , self::WENO_PROVIDER_UID => [
+             ]
+             , self::WENO_PROVIDER_UID => [
                 'title' => xl('Weno Provider ID')
                 , 'description' => xl('When a Weno eRx provider, please enter your Weno provider ID here or in your Users setting. If you are not a Weno provider, please leave this field blank.')
                 , 'type' => GlobalSetting::DATA_TYPE_TEXT
                 , 'default' => ''
                 , 'user_setting' => true
-            ]
+             ]
         ];
         return $settings;
     }

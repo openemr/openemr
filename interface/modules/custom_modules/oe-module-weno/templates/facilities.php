@@ -120,7 +120,7 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
 <body class="body_top">
 <div class="container">
     <button class="btn btn-primary btn-small" id="fac-btn" onclick="activateFacility()"><?php echo xlt("Facility"); ?></button>
-    <button class="btn btn-primary btn-small" id="mgt-btn" onclick="activateManagement()"><?php echo xlt("Management"); ?></button>
+    <button class="btn btn-primary btn-small" id="mgt-btn" onclick="activateManagement()"><?php echo xlt("Download Management"); ?></button>
 </div>
 <div>
     <div class="container" id="facility"><br><br>

@@ -113,6 +113,7 @@ class ModuleService
      */
     public function isWenoConfigured(): bool
     {
+        self::statusPharmacyDownloadReset(); // if last failed, reset to active
         $config = $this->getVendorGlobals();
         $keys = array_keys($config);
         foreach ($keys as $key) {
@@ -128,6 +129,18 @@ class ModuleService
         }
         self::setTaskState('1', false);
         return true;
+    }
+
+    public static function statusPharmacyDownloadReset(): bool
+    {
+        $logService = new WenoLogService();
+        $log = $logService->getLastPharmacyDownloadStatus();
+        if ($log['status'] != 'Success') {
+            $sql = "UPDATE `background_services` SET `next_run` = current_timestamp(), `active` = '1' WHERE `name` = ? && `next_run` > current_timestamp()";
+            sqlQuery($sql, array('WenoExchangePharmacies'));
+            return true;
+        }
+        return false;
     }
 
     /**
