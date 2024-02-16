@@ -69,15 +69,15 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
     <?php Header::setupHeader(); ?>
 </head>
 <body>
-
     <?php
     $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode($urlParam);
     ?>
-
-    <div class="container-xl">
-        <div>
-            <h2><?php echo xlt("e-Prescribe"); ?></h2>
-        </div>
+    <div class="container-xl mt-3">
+        <header>
+            <h2>
+                <a href="<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>" class="text-primary" title="<?php echo xla("Return to Patient Demographics"); ?>"><?php echo xlt("e-Prescribe"); ?></a>
+            </h2>
+        </header>
         <div class="container">
             <div class="row ml-1 center">
                 <div class="col">
@@ -123,6 +123,9 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
                 src="<?php echo $urlOut; ?>">
             </iframe>
         </div>
+        <footer>
+            <a href="<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>" class="btn btn-primary float-right mt-2 mb-4 mr-3"><?php echo xlt("Return to Demographics"); ?></a>
+        </footer>
     </div>
 </body>
 </html>
