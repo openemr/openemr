@@ -24,7 +24,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Events\PatientDocuments\PatientDocumentUpload;
+use OpenEMR\Events\PatientDocuments\PatientDocumentStoreOffsite;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class Document extends ORDataObject
@@ -991,12 +991,12 @@ class Document extends ORDataObject
             $this->couch_revid = $revid;
         } else {
             // Store it remotely.
-            $offSiteUpload = new PatientDocumentUpload($data);
+            $offSiteUpload = new PatientDocumentStoreOffsite($data);
             $offSiteUpload->setRemoteFileName($filename);
             /**
              * There must be a return to terminate processing.
              */
-            $uploadListener = $this->eventDispatcher->dispatch($offSiteUpload, PatientDocumentUpload::REMOTE_STORAGE_LOCATION);
+            $uploadListener = $this->eventDispatcher->dispatch($offSiteUpload, PatientDocumentStoreOffsite::REMOTE_STORAGE_LOCATION);
             $uploadReturn = json_decode(json_encode($uploadListener), true);  // convert symfony object to array
             /**
              * If the listener is not null then the file was uploaded to another location.

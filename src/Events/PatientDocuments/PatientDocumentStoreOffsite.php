@@ -14,7 +14,7 @@ namespace OpenEMR\Events\PatientDocuments;
 
 use Symfony\Contracts\EventDispatcher\Event;
 
-class PatientDocumentUpload extends Event
+class PatientDocumentStoreOffsite extends Event
 {
     const REMOTE_STORAGE_LOCATION = 'documents.remote.storage.location';
     private mixed $data;
