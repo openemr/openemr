@@ -36,6 +36,7 @@ class TransmitProperties
     private $encounter;
     private mixed $wenoProviderID;
     private string|false $csrf;
+    private mixed $responsibleParty;
 
     /**
      * AdminProperties constructor.
@@ -54,6 +55,7 @@ class TransmitProperties
         $this->locid = $this->getFacilityInfo();
         $this->pharmacy = $this->getPharmacy();
         $this->subscriber = $this->getSubscriber();
+        $this->responsibleParty = $this->getResponsibleParty();
         $this->encounter = $this->getEncounter();
         // check for errors
         $this->errors = $this->checkErrors($this);
@@ -194,11 +196,25 @@ class TransmitProperties
         $wenObj['PatientWeight'] = substr($this->vitals['weight'] ?? '', 0, -3);
         $wenObj['HeightWeightObservationDate'] = $heightDate[0];
         $wenObj["ResponsiblePartySameAsPatient"] = $age < 19 ? 'N' : 'Y';
-        // TODO add responsible party
+        if ($age < 19 && !empty($this->responsibleParty)) {
+            $wenObj['ResponsiblePartyLastName'] = $this->responsibleParty['ResponsiblePartyLastName'];
+            $wenObj['ResponsiblePartyFirstName'] = $this->responsibleParty['ResponsiblePartyFirstName'];
+            $wenObj['ResponsiblePartyAddressLine1'] = $this->responsibleParty['ResponsiblePartyAddressLine1'];
+            if (!empty(($this->responsibleParty['ResponsiblePartyAddressLine2'] ?? ''))) {
+                $wenObj['ResponsiblePartyAddressLine2'] = $this->responsibleParty['ResponsiblePartyAddressLine2'];
+            };
+            $wenObj['ResponsiblePartyCity'] = $this->responsibleParty['ResponsiblePartyCity'];
+            $wenObj['ResponsiblePartyState'] = $this->responsibleParty['ResponsiblePartyState'];
+            $wenObj['ResponsiblePartyPostalCode'] = $this->responsibleParty['ResponsiblePartyPostalCode'];
+            $wenObj['ResponsiblePartyCountryCode'] = 'US';
+            $wenObj['ResponsiblePartyPrimaryPhone'] = self::formatPhoneNumber($this->responsibleParty['ResponsiblePartyPrimaryPhone']);
+        }
         $wenObj['PatientLocation'] = "Home";
 
         $wenObj['PrimaryPharmacyNCPCP'] = $this->pharmacy['primary'];
-        $wenObj['AlternativePharmacyNCPCP'] = $this->pharmacy['alternate'];
+        if (!empty($this->pharmacy['alternate'])) {
+            $wenObj['AlternativePharmacyNCPCP'] = $this->pharmacy['alternate'];
+        }
 
         return json_encode($wenObj);
     }
@@ -206,24 +222,36 @@ class TransmitProperties
     /**
      * @return mixed
      */
-    private function getResponsableParty(): mixed
+    private function getResponsibleParty(): mixed
     {
-        $relation = sqlQuery("select subscriber_relationship from insurance_data where pid = ? and type = 'primary'", [$_SESSION['pid']]);
-        $relation = $relation ?? ['subscriber_relationship' => ''];
-        if (self::getAge($this->patient['dob']) < 19) {
-            $e = 'REQED:{demographics}' . xlt("Patient is under 19 years old. Subscriber Relationship is required. From the Patient Chart select Demographics Insurance or Guardian.");
-            $relation['subscriber_relationship'] = $e;
+        $guardian = <<<guardian
+select guardiansname as ResponsiblePartyLastName, guardiansname as ResponsiblePartyFirstName, guardianaddress as ResponsiblePartyAddressLine1, guardianpostalcode as ResponsiblePartyPostalCode, guardiancity as ResponsiblePartyCity, guardianstate as ResponsiblePartyState, guardianphone as ResponsiblePartyPrimaryPhone from patient_data where pid = ?;
+guardian;
+
+        $sql = <<<sql
+select subscriber_lname as ResponsiblePartyLastName, subscriber_fname as ResponsiblePartyFirstName, subscriber_street as ResponsiblePartyAddressLine1, subscriber_postal_code as ResponsiblePartyPostalCode, subscriber_city as ResponsiblePartyCity, subscriber_state as ResponsiblePartyState, subscriber_phone as ResponsiblePartyPrimaryPhone, subscriber_street_line_2 as ResponsiblePartyAddressLine2 from insurance_data where pid = ? and subscriber_relationship > '' and subscriber_relationship != 'self' and type = 'primary'
+sql;
+
+        // check if patient is under 19 and has a guardian
+        $relation = sqlQuery($guardian, [$_SESSION['pid']]);
+        // if no guardian then check for primary insurance subscriber
+        if (empty($relation)) {
+            $relation = sqlQuery($sql, [$_SESSION['pid']]);
         }
-        return $relation['subscriber_relationship'];
+        if (empty($relation)) {
+            return 'REQED:{demographics}' . xlt("Patient is under 19 years old. A Responsible Party is required. From the Patient Chart select Demographics Primary Insurance or Guardian and add.");
+        }
+
+        return $relation;
     }
 
-    public static function getAge($dob, $asof = ''): string
+    public static function getAge($dob, $as_of = ''): string
     {
-        if (empty($asof)) {
-            $asof = date('Y-m-d');
+        if (empty($as_of)) {
+            $as_of = date('Y-m-d');
         }
         $a1 = explode('-', substr($dob, 0, 10));
-        $a2 = explode('-', substr($asof, 0, 10));
+        $a2 = explode('-', substr($as_of, 0, 10));
         $age = $a2[0] - $a1[0];
         if ($a2[1] < $a1[1] || ($a2[1] == $a1[1] && $a2[2] < $a1[2])) {
             --$age;
@@ -400,10 +428,7 @@ class TransmitProperties
     {
         $relation = sqlQuery("select subscriber_relationship from insurance_data where pid = ? and type = 'primary'", [$_SESSION['pid']]);
         $relation = $relation ?? ['subscriber_relationship' => ''];
-        if (self::getAge($this->patient['dob']) < 19) {
-            $e = 'REQED:{demographics}' . xlt("Patient is under 19 years old. Subscriber Relationship is required. From the Patient Chart select Demographics Insurance or Guardian.");
-            $relation['subscriber_relationship'] = $e;
-        }
+
         return $relation['subscriber_relationship'];
     }
 
@@ -428,11 +453,6 @@ class TransmitProperties
             $response['primary'] = $e;
         }
 
-        if (empty($response['alternate'])) {
-            $response['errors'] = true;
-            $e = 'REQED:{demographics}' . xlt("Weno Alternate Pharmacy not set. From Patient's Demographics Choices assign Alternate Pharmacy");
-            $response['alternate'] = $e;
-        }
         return $response;
     }
 
