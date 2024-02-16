@@ -55,7 +55,11 @@ class TransmitProperties
         $this->locid = $this->getFacilityInfo();
         $this->pharmacy = $this->getPharmacy();
         $this->subscriber = $this->getSubscriber();
-        $this->responsibleParty = $this->getResponsibleParty();
+        // check if patient is under 19 years old
+        $this->responsibleParty = '';
+        if (self::getAge($this->patient['dob']) < 19) {
+            $this->responsibleParty = $this->getResponsibleParty();
+        }
         $this->encounter = $this->getEncounter();
         // check for errors
         $this->errors = $this->checkErrors($this);
@@ -202,7 +206,7 @@ class TransmitProperties
             $wenObj['ResponsiblePartyAddressLine1'] = $this->responsibleParty['ResponsiblePartyAddressLine1'];
             if (!empty(($this->responsibleParty['ResponsiblePartyAddressLine2'] ?? ''))) {
                 $wenObj['ResponsiblePartyAddressLine2'] = $this->responsibleParty['ResponsiblePartyAddressLine2'];
-            };
+            }
             $wenObj['ResponsiblePartyCity'] = $this->responsibleParty['ResponsiblePartyCity'];
             $wenObj['ResponsiblePartyState'] = $this->responsibleParty['ResponsiblePartyState'];
             $wenObj['ResponsiblePartyPostalCode'] = $this->responsibleParty['ResponsiblePartyPostalCode'];
@@ -228,23 +232,27 @@ class TransmitProperties
 select guardiansname as ResponsiblePartyLastName, guardiansname as ResponsiblePartyFirstName, guardianaddress as ResponsiblePartyAddressLine1, guardianpostalcode as ResponsiblePartyPostalCode, guardiancity as ResponsiblePartyCity, guardianstate as ResponsiblePartyState, guardianphone as ResponsiblePartyPrimaryPhone from patient_data where pid = ?;
 guardian;
 
-        $sql = <<<sql
+        $insurance = <<<insurance
 select subscriber_lname as ResponsiblePartyLastName, subscriber_fname as ResponsiblePartyFirstName, subscriber_street as ResponsiblePartyAddressLine1, subscriber_postal_code as ResponsiblePartyPostalCode, subscriber_city as ResponsiblePartyCity, subscriber_state as ResponsiblePartyState, subscriber_phone as ResponsiblePartyPrimaryPhone, subscriber_street_line_2 as ResponsiblePartyAddressLine2 from insurance_data where pid = ? and subscriber_relationship > '' and subscriber_relationship != 'self' and type = 'primary'
-sql;
+insurance;
 
-        // check if patient is under 19 and has a guardian
         $relation = sqlQuery($guardian, [$_SESSION['pid']]);
         // if no guardian then check for primary insurance subscriber
         if (empty($relation['ResponsiblePartyLastName'])) {
-            $relation = sqlQuery($sql, [$_SESSION['pid']]);
+            $relation = sqlQuery($insurance, [$_SESSION['pid']]);
         }
         if (empty($relation)) {
-            return 'REQED:{demographics}' . xlt("Patient is under 19 years old. A Responsible Party is required. From the Patient Chart select Demographics Primary Insurance or Guardian and add.");
+            return 'REQED:{demographics}' . xlt("Patient is under 19 years old. A Responsible Party is required. From the Patient Chart select Demographics Primary Insurance or Guardian to add a person.");
         }
 
         return $relation;
     }
 
+    /**
+     * @param $dob
+     * @param $as_of
+     * @return string
+     */
     public static function getAge($dob, $as_of = ''): string
     {
         if (empty($as_of)) {
@@ -260,6 +268,10 @@ sql;
         return (int)$age;
     }
 
+    /**
+     * @param $phone
+     * @return string
+     */
     public function formatPhoneNumber($phone): string
     {
         $phone = preg_replace('/\D+/', '', $phone);
@@ -351,6 +363,10 @@ sql;
         return $patient;
     }
 
+    /**
+     * @param $error
+     * @return string
+     */
     public static function styleErrors($error): string
     {
         $log = "<div><p style='font-size: 1.0rem; color: red;'>" .

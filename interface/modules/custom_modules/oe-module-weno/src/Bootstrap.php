@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Contains all of the Weno global settings and configuration
+ *
+ * @package   openemr
+ * @link      http://www.open-emr.org
+ * @author    Kofi Appiah <kkappiah@medsov.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2023 Omega Systems Group <https://omegasystemsgroup.com/>
+ * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Modules\WenoModule;
 
 use OpenEMR\Common\Logging\SystemLogger;

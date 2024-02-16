@@ -48,7 +48,7 @@ class WenoGlobalConfig
      */
     public function getGlobalSettingSectionConfiguration(): array
     {
-        $settings = [
+        return [
             /*self::WENO_RX_ENABLE => [
                 'title' => 'Enable Weno eRx Service'
                 , 'description' => xl('Enable Weno eRx Service') . ' ' . xl('Contact https://online.wenoexchange.com to sign up for Weno Free eRx service.')
@@ -106,6 +106,5 @@ class WenoGlobalConfig
                 , 'user_setting' => true
              ]
         ];
-        return $settings;
     }
 }

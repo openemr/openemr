@@ -106,20 +106,3 @@ function renderDialog(action, uid, event) {
         window.location.reload();
     });
 }
-
-function tidyUp() {
-    // Get the iframe element
-    var iframe = document.getElementsByTagName('iframe')[0];
-    var iframeDocument = iframe.contentDocument || iframe.contentWindow.document;
-    var saveButton = iframeDocument.getElementById('form_save');
-    if (saveButton) {
-        console.log('Button found:', saveButton);
-    } else {
-        console.log('Button not found.');
-    }
-}
-
-function composeNewTab() {
-    let href = "/modules/custom_modules/oe-module-weno/templates/indexrx.php"
-    parent.left_nav.loadFrame('wen0', 'wen', href);
-}

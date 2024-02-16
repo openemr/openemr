@@ -56,10 +56,6 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
     flex-direction: column;
   }
 
-  .mr-5 {
-    margin-right: 50px;
-  }
-
   .center {
     justify-content: center;
   }
@@ -78,13 +74,13 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
     $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode($urlParam);
     ?>
 
-    <div style="margin:30px">
+    <div class="container-xl">
         <div>
             <h2><?php echo xlt("e-Prescribe"); ?></h2>
         </div>
         <div class="container">
-            <div class="row center">
-                <div class="col mr-5">
+            <div class="row ml-1 center">
+                <div class="col">
                     <div class="row">
                         <div><b><?php echo xlt("Presriber"); ?></b>: <?php echo text($provider_name); ?> </div>
                     </div>
@@ -97,7 +93,7 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
                         </div>
                     </div>
                 </div>
-                <div class="col mr-5" style="margin-top: -14px !important">
+                <div class="col" style="margin-top: -14px !important">
                     <table>
                         <tr>
                             <th><?php echo xlt("Vitals"); ?></th>
@@ -119,7 +115,7 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
                 </div>
             </div>
         </div>
-        <div class="mt-3">
+        <div class="container-xl mt-3">
             <iframe id="wenoIfram"
                 title="Weno IFRAME"
                 width="100%"
