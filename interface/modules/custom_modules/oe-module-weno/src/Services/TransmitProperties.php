@@ -235,7 +235,7 @@ sql;
         // check if patient is under 19 and has a guardian
         $relation = sqlQuery($guardian, [$_SESSION['pid']]);
         // if no guardian then check for primary insurance subscriber
-        if (empty($relation)) {
+        if (empty($relation['ResponsiblePartyLastName'])) {
             $relation = sqlQuery($sql, [$_SESSION['pid']]);
         }
         if (empty($relation)) {
