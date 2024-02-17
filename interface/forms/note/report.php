@@ -47,6 +47,8 @@ function note_report($pid, $encounter, $cols, $id)
             print("<tr>\n");
             if ($key == "Note Type") {
                 print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . xlt($value) . "</span></td>";
+            } elseif ($key == "Date Of Signature") {
+                print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . oeFormatShortDate($value) . "</span></td>";
             } else {
                 print "<td><span class=bold>" . xlt($key) . ": </span><span class=text>" . text($value) . "</span></td>";
             }

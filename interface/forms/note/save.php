@@ -32,7 +32,7 @@ if ($encounter == "") {
     $encounter = date("Ymd");
 }
 
-$_POST['date_of_signature'] = DateTimeToYYYYMMDDHHMMSS($_POST['date_of_signature']);
+$_POST['date_of_signature'] = DateToYYYYMMDD($_POST['date_of_signature']);
 
 if ($_GET["mode"] == "new") {
     $newid = formSubmit($table_name, $_POST, $_GET["id"] ?? '', $userauthorized);
