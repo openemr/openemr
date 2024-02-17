@@ -34,6 +34,7 @@ class DownloadWenoPharmacies
         curl_setopt($ch, CURLOPT_TIMEOUT, 1000);
         curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
         curl_exec($ch);
+        $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         fclose($fp);
 

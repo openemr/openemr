@@ -25,6 +25,9 @@ $vendors['weno_rx_enable_test'] = '';
 $vendors['weno_encryption_key'] = '';
 $vendors['weno_admin_username'] = '';
 $vendors['weno_admin_password'] = '';
+$vendors['weno_secondary_encryption_key'] = '';
+$vendors['weno_secondary_admin_username'] = '';
+$vendors['weno_secondary_admin_password'] = '';
 
 $boot = new ModuleService();
 if (($_POST['form_save'] ?? null)) {
@@ -52,12 +55,12 @@ $vendors = $boot->getVendorGlobals();
     <script>
         $(function () {
             $(".collapse.show").each(function () {
-                $(this).prev(".card-header").find(".fa").addClass("fa-minus").removeClass("fa-plus");
+                $(this).prev(".card-header").find(".fa").addClass("fa-minus").removeClass("fa-expand");
             });
             $(".collapse").on('show.bs.collapse', function () {
-                $(this).prev(".card-header").find(".fa").removeClass("fa-plus").addClass("fa-minus");
+                $(this).prev(".card-header").find(".fa").removeClass("fa-expand").addClass("fa-minus");
             }).on('hide.bs.collapse', function () {
-                $(this).prev(".card-header").find(".fa").removeClass("fa-minus").addClass("fa-plus");
+                $(this).prev(".card-header").find(".fa").removeClass("fa-minus").addClass("fa-expand");
             });
 
             // Auto save on change
@@ -78,11 +81,6 @@ $vendors = $boot->getVendorGlobals();
         </div>
         <form id="set_form" name="set_form" class="form" role="form" method="post" action="">
             <div id="set-weno">
-                <div class="row form-group">
-                    <div class="col-12">
-
-                    </div>
-                </div>
                 <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <div class="form-group">
                     <div class="row form-group">
@@ -98,23 +96,62 @@ $vendors = $boot->getVendorGlobals();
                         </div>
                     </div>
                     <div class="row form-group">
-                        <label for="" class="col-sm-6"><?php echo xlt("Weno Encryption Key") ?></label>
+                        <div class="col-12 text-center">
+                            <h5>
+                                <hr class="text-dark bg-light" />
+                                <?php echo xlt("Weno Primary Admin"); ?>
+                                <hr class="text-dark bg-light" />
+                            </h5>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label for="" class="col-sm-6"><?php echo xlt("Weno Primary Encryption Key") ?></label>
                         <div class="col-sm-6" title="<?php echo xla("Encryption key issued by Weno eRx service on the Weno Developer Page.") ?>">
                             <input type="password" class="form-control persist" maxlength="255" name="weno_encryption_key" id="weno_encryption_key" value="<?php echo attr($vendors['weno_encryption_key']); ?>" />
                         </div>
                     </div>
                     <div class="row form-group">
-                        <label for="weno_admin_username" class="col-sm-6"><?php echo xlt("Weno Admin Username") ?></label>
+                        <label for="weno_admin_username" class="col-sm-6"><?php echo xlt("Weno Primary Admin Username") ?></label>
                         <div class="col-sm-6" title="<?php echo xla("This is required for Weno Pharmacy Directory Download in Background Services. Same as email for logging in into Weno") ?>">
                             <input type="text" class="form-control persist" maxlength="255" name="weno_admin_username" id="weno_admin_username" value="<?php echo attr($vendors['weno_admin_username']); ?>" />
                         </div>
                     </div>
                     <div class="row form-group">
-                        <label for="weno_admin_password" class="col-sm-6"><?php echo xlt("Weno Admin Password") ?></label>
+                        <label for="weno_admin_password" class="col-sm-6"><?php echo xlt("Weno Primary Admin Password") ?></label>
                         <div class="col-sm-6" title="<?php echo xla("Required Weno account password") ?>">
                             <input type="password" class="form-control persist" maxlength="255" name="weno_admin_password" id="weno_admin_password" value="<?php echo attr($vendors['weno_admin_password']); ?>" />
                         </div>
                     </div>
+                    <div class="row form-group">
+                        <div class="col-12 text-center">
+                            <h5>
+                                <hr class="text-dark bg-light" />
+                                <?php echo xlt("Weno Secondary Admin"); ?>
+                                <hr class="text-dark bg-light" />
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="row form-group">
+                        <label for="weno_secondary_encryption_key" class="col-sm-6"><?php echo xlt("Weno Secondary Encryption Key") ?></label>
+                        <div class="col-sm-6" title="<?php echo xla("Backup Encryption key issued by Weno eRx service on the Weno Developer Page.") ?>">
+                            <input type="password" class="form-control persist" maxlength="255" name="weno_secondary_encryption_key" id="weno_secondary_encryption_key" value="<?php echo attr($vendors['weno_secondary_encryption_key']); ?>" />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label for="weno_secondary_admin_username" class="col-sm-6"><?php echo xlt("Weno Secondary Admin Username") ?></label>
+                        <div class="col-sm-6" title="<?php echo xla("This is required for Weno Pharmacy Directory Download in Background Services. Same as email for logging in into Weno") ?>">
+                            <input type="text" class="form-control persist" maxlength="255" name="weno_secondary_admin_username" id="weno_secondary_admin_username" value="<?php echo attr($vendors['weno_secondary_admin_username']); ?>" />
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <label for="weno_secondary_admin_password" class="col-sm-6"><?php echo xlt("Weno Secondary Admin Password") ?></label>
+                        <div class="col-sm-6" title="<?php echo xla("Required Weno account password") ?>">
+                            <input type="password" class="form-control persist" maxlength="255" name="weno_secondary_admin_password" id="weno_secondary_admin_password" value="<?php echo attr($vendors['weno_secondary_admin_password']); ?>" />
+                        </div>
+                    </div>
+                    <hr class="text-dark bg-light" />
                     <div class="row form-group">
                         <div class="col-12">
                             <button type="button" class="btn btn-primary btn-refresh float-right" id="app_refresh" onclick="top.location.reload()"
@@ -126,32 +163,32 @@ $vendors = $boot->getVendorGlobals();
                 </div>
             </div>
         </form>
-        <div class="">
+        <div class="mb-5">
             <div id="accordion" class="accordion">
                 <div class="card mb-1">
                     <div class="card-header p-1 mb-1 bg-dark text-light collapsed collapsed" data-toggle="collapse" href="#collapseOne">
-                        <h5 class="mb-0"><i class="fa fa-plus mr-2"></i><?php echo xlt("Chores After Setup"); ?></h5>
+                        <h5 class="mb-0"><i class="fa fa-expand mr-2"></i><?php echo xlt("Chores After Setup"); ?></h5>
                     </div>
                     <div id="collapseOne" class="card-body collapse" data-parent="#accordion">
                         <!-- Currently no plans to translate. -->
                         <?php echo '<h5>' . text('Additional values from Weno for finishing setup are:') . '</h5>' .
-                        text('1. Weno Provider Id: Uxxxx') . '<br />' .
-                        text('2. Assigned Location Id for all the facilities used by the above User Id: Lxxxxx') . '<br />' .
-                        text('3. The provider credentials assign to each prescriber: username(email address) and password.') . '<br /><br />' .
-                        '<h5>' . text('To continue setup follow the below steps.') . '</h5>' .
-                        text('1. Find top menu Admin->Users and select the user associated with the Weno Provider ID Uxxx and enter and save the assigned ID in the Weno Provider ID field.') . '<br />' .
-                        text('2. Find top menu  Admin->Other->Weno Management and enter the assigned Location Id Lxxxxx for the location facilities.') . '<br />' .
-                        text('3. Find top Patient Bar User icon and click Settings. Scroll down or find the Weno button in left sidebar and click. Enter your email and password in the Weno Provider Email and Weno Provider Password fields and Save.') . '<br /><br />' .
-                        '<h5>' . text('Patient Chart Requirements.') . '</h5>' .
-                        text('1. Each Patient is required to have an assigned primary pharmacy from Demographics->Choices. It is good practice to assign an Alternate Pharmacy too.') . '<br />' .
-                        text('2. Each Patient is required to have a Vitals Height and Weight assigned. Create or enter in from an encounter vitals form') . '<br /><br />';
+                            text('1. Weno Provider Id: Uxxxx') . '<br />' .
+                            text('2. Assigned Location Id for all the facilities used by the above User Id: Lxxxxx') . '<br />' .
+                            text('3. The provider credentials assign to each prescriber: username(email address) and password.') . '<br /><br />' .
+                            '<h5>' . text('To continue setup follow the below steps.') . '</h5>' .
+                            text('1. Find top menu Admin->Users and select the user associated with the Weno Provider ID Uxxx and enter and save the assigned ID in the Weno Provider ID field.') . '<br />' .
+                            text('2. Find top menu  Admin->Other->Weno Management and enter the assigned Location Id Lxxxxx for the location facilities.') . '<br />' .
+                            text('3. Find top Patient Bar User icon and click Settings. Scroll down or find the Weno button in left sidebar and click. Enter your email and password in the Weno Provider Email and Weno Provider Password fields and Save.') . '<br /><br />' .
+                            '<h5>' . text('Patient Chart Requirements.') . '</h5>' .
+                            text('1. Each Patient is required to have an assigned primary pharmacy from Demographics->Choices. It is good practice to assign an Alternate Pharmacy too.') . '<br />' .
+                            text('2. Each Patient is required to have a Vitals Height and Weight assigned. Create or enter in from an encounter vitals form') . '<br /><br />';
                         ?>
                         <p><cite><?php echo xlt("Note if these credentials are absent or wrong, you will be required to log into eRx Compose to prescribe prescriptions."); ?></cite>></p>
                     </div>
                 </div>
-                <div class="card">
+                <div id="help-links" class="card d-none">
                     <div class="card-header p-1 bg-dark text-light collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-                        <h5 class="mb-0"><i class="fa fa-plus mr-2"></i><?php echo xlt("Some Helpful Sites"); ?></h5>
+                        <h5 class="mb-0"><i class="fa fa-expand mr-2"></i><?php echo xlt("Some Helpful Sites"); ?></h5>
                     </div>
                     <div id="collapseTwo" class="card-body collapse" data-parent="#accordion">
                         <p>Hold</p>

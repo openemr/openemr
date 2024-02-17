@@ -40,17 +40,20 @@ class ModuleService
     /**
      * @return array
      */
-    public function getVendorGlobals(): array
+    public function getVendorGlobals($decrypt = true): array
     {
         $vendors['weno_rx_enable'] = '0';
         $vendors['weno_rx_enable_test'] = '0';
         $vendors['weno_encryption_key'] = '';
         $vendors['weno_admin_username'] = '';
         $vendors['weno_admin_password'] = '';
+        $vendors['weno_secondary_encryption_key'] = '';
+        $vendors['weno_secondary_admin_username'] = '';
+        $vendors['weno_secondary_admin_password'] = '';
 
         $gl = sqlStatementNoLog(
-            "SELECT gl_name, gl_value FROM `globals` WHERE `gl_name` IN(?, ?, ?, ?, ?)",
-            array("weno_rx_enable", "weno_rx_enable_test", "weno_encryption_key", "weno_admin_username", "weno_admin_password")
+            "SELECT gl_name, gl_value FROM `globals` WHERE `gl_name` IN(?, ?, ?, ?, ?, ?, ?, ?)",
+            array("weno_rx_enable", "weno_rx_enable_test", "weno_encryption_key", "weno_admin_username", "weno_admin_password", "weno_secondary_encryption_key", "weno_secondary_admin_username", "weno_secondary_admin_password")
         );
         if (empty($gl)) {
             $this->saveVendorGlobals($vendors);
@@ -59,9 +62,13 @@ class ModuleService
         while ($row = sqlFetchArray($gl)) {
             $vendors[$row['gl_name']] = $row['gl_value'];
         }
-        $crypt = new CryptoGen();
-        $vendors['weno_encryption_key'] = $crypt->decryptStandard($vendors['weno_encryption_key']);
-        $vendors['weno_admin_password'] = $crypt->decryptStandard($vendors['weno_admin_password']);
+        if ($decrypt) {
+            $crypt = new CryptoGen();
+            $vendors['weno_encryption_key'] = $crypt->decryptStandard($vendors['weno_encryption_key']);
+            $vendors['weno_admin_password'] = $crypt->decryptStandard($vendors['weno_admin_password']);
+            $vendors['weno_secondary_encryption_key'] = $crypt->decryptStandard($vendors['weno_secondary_encryption_key']);
+            $vendors['weno_secondary_admin_password'] = $crypt->decryptStandard($vendors['weno_secondary_admin_password']);
+        }
 
         return $vendors;
     }
@@ -75,11 +82,16 @@ class ModuleService
         $crypt = new CryptoGen();
         $items['weno_encryption_key'] = $crypt->encryptStandard($items['weno_encryption_key']);
         $items['weno_admin_password'] = $crypt->encryptStandard($items['weno_admin_password']);
+        $items['weno_secondary_encryption_key'] = $crypt->encryptStandard($items['weno_secondary_encryption_key']);
+        $items['weno_secondary_admin_password'] = $crypt->encryptStandard($items['weno_secondary_admin_password']);
         $vendors['weno_rx_enable'] = $items['weno_rx_enable'] ?? '0';
         $vendors['weno_rx_enable_test'] = $items['weno_rx_enable_test'] ?? '0';
         $vendors['weno_encryption_key'] = $items['weno_encryption_key'];
         $vendors['weno_admin_username'] = $items['weno_admin_username'];
         $vendors['weno_admin_password'] = $items['weno_admin_password'];
+        $vendors['weno_secondary_encryption_key'] = $items['weno_secondary_encryption_key'];
+        $vendors['weno_secondary_admin_username'] = $items['weno_secondary_admin_username'];
+        $vendors['weno_secondary_admin_password'] = $items['weno_secondary_admin_password'];
 
         foreach ($vendors as $key => $vendor) {
             sqlQuery(
