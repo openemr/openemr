@@ -996,15 +996,15 @@ class Document extends ORDataObject
             /**
              * There must be a return to terminate processing.
              */
-            $uploadListener = $this->eventDispatcher->dispatch($offSiteUpload, PatientDocumentStoreOffsite::REMOTE_STORAGE_LOCATION);
-            $uploadReturn = json_decode(json_encode($uploadListener), true);  // convert symfony object to array
+            $this->eventDispatcher->dispatch($offSiteUpload, PatientDocumentStoreOffsite::REMOTE_STORAGE_LOCATION);
+
             /**
              * If the listener is not null then the file was uploaded to another location.
              * Else resume the local file storage
              */
 
-            if (!empty($uploadReturn)) {
-                die; // terminate processing
+            if ($GLOBALS['documentStoredRemotely']) {
+                return xlt("Document was uploaded to remote storage"); // terminate processing
             }
 
             // Storing document files locally.
