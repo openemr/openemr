@@ -1,5 +1,8 @@
 <?php
 
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Services\InsuranceCompanyService;
+
 class C_InsuranceCompany extends Controller
 {
     var $template_mod;
@@ -42,10 +45,39 @@ class C_InsuranceCompany extends Controller
 
     public function list_action()
     {
+        $twig = new TwigContainer(null, $GLOBALS['kernel']);
 
-        $this->assign("icompanies", $this->InsuranceCompany->insurance_companies_factory());
+        $insuranceCompanyService = new InsuranceCompanyService();
+        $results = $insuranceCompanyService->search([]);
+        $iCompanies = [];
+        if ($results->hasData()) {
+            foreach ($results->getData() as $record) {
+                $company = [
+                    'id' => $record['id'],
+                    'name' => $record['name'],
+                    'line1' => $record['line1'],
+                    'line2' => $record['line2'],
+                    'city' => $record['city'],
+                    'state' => $record['state'],
+                    'zip' => $record['zip'],
+                    'phone' => $record['work_number'],
+                    'fax' => $record['fax_number'],
+                    'cms_id' => $record['cms_id'],
+                    'x12_default_partner_name' => $record['x12_default_partner_name'],
+                    'inactive' => $record['inactive']
+                ];
+                $iCompanies[] = $company;
+            }
+            usort($iCompanies, function ($a, $b) {
+                return strcasecmp($a['name'], $b['name']);
+            });
+        }
+        $templateVars = [
+            'CURRENT_ACTION' => $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&insurance_company&"
+            ,'icompanies' => $iCompanies
+        ];
 
-        return $this->fetch($GLOBALS['template_dir'] . "insurance_companies/" . $this->template_mod . "_list.html");
+        return $twig->getTwig()->render('insurance_companies/general_list.html.twig', $templateVars);
     }
 
 
