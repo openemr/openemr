@@ -986,8 +986,9 @@ class X125010837P
         }
         // End of Loop 2310B
 
-        // Loop 2310C is omitted in the case of home visits (POS=12).
-        if ($claim->facilityPOS() != 12 && ($claim->facilityNPI() != $claim->billingFacilityNPI())) {
+        // Loop 2310C is omitted in the case of home visits (POS=12)
+        // and when the service facility is the billing facility
+        if ($claim->facilityPOS() != 12 && ($claim->billing_facility['id'] != $claim->facility['id'])) {
             ++$edicount;
             $out .= "NM1" .       // Loop 2310C Service Location
                 "*" . "77" .
