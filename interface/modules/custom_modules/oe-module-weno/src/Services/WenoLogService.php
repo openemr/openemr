@@ -32,7 +32,12 @@ class WenoLogService
     public function getLastPharmacyDownloadStatus(): bool|array|null
     {
         $params = "pharmacy";
-        $v = sqlQuery("SELECT * FROM `weno_download_log` WHERE VALUE = ? ORDER BY created_at DESC LIMIT 1", [$params]);
+        $v = ['count' => 0, 'created_at' => '', 'status' => ''];
+        $vsql = sqlQuery("SELECT * FROM `weno_download_log` WHERE `value` = ? ORDER BY `created_at` DESC LIMIT 1", [$params]);
+        if (!$vsql) {
+            return $v;
+        }
+        $v = $vsql;
         $count = sqlQuery("SELECT COUNT(`id`) as count FROM `weno_pharmacy`");
         $v['count'] = $count['count'] ?? 0;
 
@@ -48,5 +53,37 @@ class WenoLogService
             return $e->getMessage();
         }
         return true;
+    }
+
+    public function scrapeWenoErrorHtml($content)
+    {
+        $error = ['is_error' => false, 'type' => 'other', 'messageText' => '', 'messageHtml' => ''];
+        if (empty($content)) {
+            return $error;
+        }
+        $content = trim(preg_replace(('/\r\n/'), '', $content));
+        $content_html = strip_tags($content, '<div><nav><p><textarea>');
+        $content = strip_tags($content);
+        $content = preg_replace('/\s+\r\n/', ' ', $content);
+
+        if (empty($content)) {
+            return $error;
+        }
+        $doc = new \DOMDocument();
+        @$doc->loadHTML($content_html);
+        $xpath = new \DOMXPath($doc);
+        $nodes = $xpath->query('//textarea');
+        if ($nodes->length <= 0) {
+            return $error;
+        }
+        $message = "";
+        foreach ($nodes as $node) {
+            $message .= $node->nodeValue;
+        }
+        $type = 'other';
+        if (stripos($message, 'credentials') !== false) {
+            $type = 'credentials';
+        }
+        return ['is_error' => true, 'type' => $type, 'messageText' => trim($message), 'messageHtml' => trim($content_html)];
     }
 }

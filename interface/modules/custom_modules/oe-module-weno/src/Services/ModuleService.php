@@ -147,7 +147,10 @@ class ModuleService
     {
         $logService = new WenoLogService();
         $log = $logService->getLastPharmacyDownloadStatus();
-        if ($log['status'] != 'Success') {
+        if ($log['status'] ?? '' != 'Success') {
+            if (($log['count'] ?? 0) > 0) {
+                return true;
+            }
             $sql = "UPDATE `background_services` SET `next_run` = current_timestamp(), `active` = '1' WHERE `name` = ? && `next_run` > current_timestamp()";
             sqlQuery($sql, array('WenoExchangePharmacies'));
             return true;

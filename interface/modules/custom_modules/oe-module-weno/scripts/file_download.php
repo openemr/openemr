@@ -8,6 +8,7 @@ require_once dirname(__DIR__, 4) . "/globals.php";
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
+use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 $cryptoGen = new CryptoGen();
@@ -73,7 +74,6 @@ EventAuditLogger::instance()->newEvent(
 download_zipfile($fileUrl, $storelocation);
 
 $zip = new ZipArchive();
-
 $wenolog = new WenoLogService();
 
 if ($zip->open($storelocation) === true) {
@@ -90,12 +90,21 @@ if ($zip->open($storelocation) === true) {
         $zip->close();
         unlink($storelocation);
     } else {
-        EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "No CSV file found in the zip archive.");
+        EventAuditLogger::instance()->newEvent("pharmacy_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "No CSV file found in the zip archive.");
         echo 'No CSV file found in the zip archive.';
     }
 } else {
-    EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Failed to extract the file.");
-    echo 'Failed to extract the file.';
+    $rpt = file_get_contents($storelocation);
+    $isError = $wenolog->scrapeWenoErrorHtml($rpt);
+    if ($isError['is_error']) {
+        error_log('Pharmacy download failed: ' . $isError['messageText']);
+        $wenolog->insertWenoLog("pharmacy", "credentials");
+    }
+    EventAuditLogger::instance()->newEvent("pharmacy_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, $isError['messageText']);
+    $wenolog->insertWenoLog("pharmacy", "Failed");
+    // no need to continue
+    return false;
+    //die(TransmitProperties::styleErrors($isError['messageText']));
 }
 
 $insertPharmacy = new PharmacyService();

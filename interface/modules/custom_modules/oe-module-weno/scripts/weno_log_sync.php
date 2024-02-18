@@ -58,6 +58,6 @@ function downloadWenoPrescriptionLog(): void
     if (!$logSync->logSync()) {
         error_log("Background services failed for prescription log.");
     } else {
-        error_log("Background Pharmacy services completed for prescription log."); // todo: remove this line
+        //error_log("Background Pharmacy services completed for prescription log."); // todo: remove this line
     }
 }

@@ -148,7 +148,6 @@ class LogProperties
             error_log("Cipher failure check encryption key", time());
             exit;
         }
-        //**warning** do not add urlencode to  $provider_info['email'] per Weno design
         $urlOut = $syncLogs . urlencode($provider_info['email']) . "&data=" . urlencode($logurlparam);
 
         $ch = curl_init($urlOut);
@@ -162,9 +161,15 @@ class LogProperties
         curl_close($ch);
         if ($statusCode == 200) {
             file_put_contents($this->rxsynclog, $rpt);
-            $logstring = "prescription log import initiated successfully";
-            // patched out because this inserts way too many events. i.e. every 30 minutes.
-            // EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$logstring");
+            $isError = $wenolog->scrapeWenoErrorHtml($rpt);
+            if ($isError['is_error']) {
+                $error = $isError['messageText'];
+                error_log('Prescription download failed: ' . $error);
+                $wenolog->insertWenoLog("prescription", "credentials");
+                $wenolog->insertWenoLog("prescription", "Failed");
+                EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, $error);
+                return false;
+            }
             $wenolog->insertWenoLog("prescription", "Success");
         } else {
             // yes record failures.

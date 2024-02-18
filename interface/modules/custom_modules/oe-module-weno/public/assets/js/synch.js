@@ -47,10 +47,10 @@ function wenoAlertManager(option, element, spinElement) {
             element.classList.add("d-none");
             element.classList.remove("alert", "alert-danger");
             element.innerHTML = "";
-        }, 3000);
+        }, 5000);
         element.classList.remove("d-none");
         element.classList.add("alert", "alert-danger");
-        element.innerHTML = "An error occurred";
+        element.innerHTML = "An error occurred possibly credentials are wrong. Please check the credentials and try again.";
     }
 }
 

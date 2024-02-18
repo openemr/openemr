@@ -26,7 +26,7 @@ $pharmacy_log = $logService->getLastPharmacyDownloadStatus();
 
 $validate = new TransmitProperties(true);
 $validate_errors = "";
-
+$cite = '';
 
 $logService = new WenoLogService();
 $pharmacyLog = $logService->getLastPharmacyDownloadStatus();
@@ -36,7 +36,7 @@ $cite = <<<CITE
     <span>$status</span>
 </cite>
 CITE;
-if ($pharmacyLog['status'] != 'Failed') {
+if ($pharmacyLog['status'] == 'Success') {
     $cite = '';
 }
 

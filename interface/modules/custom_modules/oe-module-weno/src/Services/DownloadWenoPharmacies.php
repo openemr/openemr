@@ -34,7 +34,6 @@ class DownloadWenoPharmacies
         curl_setopt($ch, CURLOPT_TIMEOUT, 1000);
         curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0');
         curl_exec($ch);
-        $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
         fclose($fp);
 
@@ -49,7 +48,7 @@ class DownloadWenoPharmacies
     public function extractFile($path_to_extract, $storelocation): ?string
     {
         $zip = new ZipArchive();
-        $wenolog = new WenoLogService();
+        $wenoLog = new WenoLogService();
         $import = new WenoPharmaciesImport();
 
         if ($zip->open($storelocation) === true) {
@@ -68,27 +67,36 @@ class DownloadWenoPharmacies
                 unlink($storelocation);
                 $result = $import->importPharmacy($csvFile, $files);
                 if ($result == "Imported") {
-                    $wenolog->insertWenoLog("pharmacy", "Success");
+                    $wenoLog->insertWenoLog("pharmacy", "Success");
                 } else {
-                    $wenolog->insertWenoLog("pharmacy", "Failed");
+                    $wenoLog->insertWenoLog("pharmacy", "Failed");
                 }
                 return $result;
             } else {
                 EventAuditLogger::instance()->newEvent(
-                    "prescriptions_log",
+                    "pharmacy_log",
                     $_SESSION['authUser'],
                     $_SESSION['authProvider'],
                     0,
                     "No CSV file found in the zip archive."
                 );
-                $wenolog->insertWenoLog("pharmacy", "Failed");
+                $wenoLog->insertWenoLog("pharmacy", "Failed");
                 return "Failed";
             }
         } else {
-            EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Failed to extract the file.");
-            error_log("Failed to extract the file.");
-            $wenolog->insertWenoLog("pharmacy", "Failed");
-            return 'Failed to extract the file.';
+            $scrape = file_get_contents($storelocation);
+            $wenolog = new WenoLogService();
+            $isError = $wenolog->scrapeWenoErrorHtml($scrape);
+            if ($isError['is_error']) {
+                EventAuditLogger::instance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy Failed download! Weno error: " . $isError['messageText']);
+                error_log('Pharmacy download failed: ' . $isError['messageText']);
+                $wenolog->insertWenoLog("pharmacy", "credentials");
+            } else {
+                EventAuditLogger::instance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy Failed download! Weno error Other");
+                error_log("Pharmacy Failed download! Weno error: Other");
+            }
+            $wenoLog->insertWenoLog("pharmacy", "Failed");
+            die;
         }
     }
 }
