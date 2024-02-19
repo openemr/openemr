@@ -82,15 +82,28 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
                 url: "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/scripts/file_download.php",
                 type: "GET",
                 success: function (data) {
+                    if (data.includes('Error') || data.includes('failed')) {
+                        let alertDiv = document.getElementById('alertDiv');
+                        let errorMsgSpan = document.getElementById('error-msg');
+                        errorMsgSpan.textContent = jsText(data);
+                        $("#alertDiv").removeClass("d-none");
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 10000);
+                    }
                     $('#notch-pharm').addClass("hide");
                     $('#pharm-btn').attr("disabled", false);
-                    alert('Update Complete');
+                    if (!data.includes('Error') && !data.includes('failed')) {
+                        alert('Update Complete');
+                        window.location.reload();
+                    }
                 },
                 // Error handling
                 error: function (error) {
                     $('#notch-pharm').addClass("hide");
                     $('#pharm-btn').attr("disabled", false);
                     console.log(`Error ${error}`);
+                    window.location.reload();
                 }
             });
         }
@@ -103,15 +116,28 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
                 type: "GET",
                 data: {key:'downloadLog'},
                 success: function (data) {
+                    if (data.includes('Error') || data.includes('failed')) {
+                        let alertDiv = document.getElementById('alertDiv');
+                        let errorMsgSpan = document.getElementById('error-msg');
+                        errorMsgSpan.textContent = jsText(data);
+                        $("#alertDiv").removeClass("d-none");
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 10000);
+                    }
                     $('#notch-presc').addClass("hide");
                     $('#presc-btn').attr("disabled", false);
-                    alert('Update Complete');
+                    if (!data.includes('Error') && !data.includes('failed')) {
+                        alert('Update Complete');
+                        window.location.reload();
+                    }
                 },
                 // Error handling
                 error: function (error) {
                     $('#notch-presc').addClass("hide");
                     $('#presc-btn').attr("disabled", false);
                     console.log(`Error ${error}`);
+                    window.location.reload();
                 }
             });
         }
@@ -157,7 +183,11 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
         <div>
             <?php echo xlt("Use this page to download Weno Pharmacy Directory and Weno Prescription Log"); ?>
         </div>
-        
+        <div id="alertDiv" class="alert alert-danger d-none">
+            <button type="button" class="close" onclick="window.location.reload();">&times;</button>
+            <strong><?php echo xlt("Error!"); ?></strong>
+            <span id="error-msg"></span>
+        </div>
         <table class="table">
             <thead>
                 <tr>

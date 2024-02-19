@@ -103,8 +103,8 @@ if ($zip->open($storelocation) === true) {
     EventAuditLogger::instance()->newEvent("pharmacy_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, $isError['messageText']);
     $wenolog->insertWenoLog("pharmacy", "Failed");
     // no need to continue
-    return false;
-    //die(TransmitProperties::styleErrors($isError['messageText']));
+    // send error to UI alert
+    die(js_escape($isError['messageText']));
 }
 
 $insertPharmacy = new PharmacyService();

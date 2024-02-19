@@ -61,7 +61,7 @@ class WenoLogService
         if (empty($content)) {
             return $error;
         }
-        $content = trim(preg_replace(('/\r\n/'), '', $content));
+        $content = trim(preg_replace("/\r?\n|\r/", '</p><p>', $content));
         $content_html = strip_tags($content, '<div><nav><p><textarea>');
         $content = strip_tags($content);
         $content = preg_replace('/\s+\r\n/', ' ', $content);

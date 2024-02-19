@@ -60,7 +60,7 @@ function renderDialog(action, uid, event) {
     // Trim action URL
     action = action.trim();
     // Get CSRF token
-    const csrf = document.getElementById("csrf_token_form").value;
+    const csrf = document.getElementById("csrf_token_form").value || '';
     // Map URLs
     const urls = {
         'demographics': '/interface/patient_file/summary/demographics_full.php',
