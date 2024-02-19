@@ -1189,7 +1189,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         //Check if pass target
                         $passTarget = test_targets($rowPatient['pid'], $rowRule['id'], $i, $dateFocus);
                         if ($passTarget) {
-                            // increment pass target counter
+                            // increment pass target counter (used for reporting)
                             $pass_target++;
                             // If report itemization is turned on, then record the "passed" item and set the flag
                             if ($GLOBALS['report_itemizing_temp_flag_and_id'] ?? null) {
