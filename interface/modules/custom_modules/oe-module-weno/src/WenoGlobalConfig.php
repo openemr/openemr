@@ -49,7 +49,7 @@ class WenoGlobalConfig
     public function getGlobalSettingSectionConfiguration(): array
     {
         return [
-            /*self::WENO_RX_ENABLE => [
+            self::WENO_RX_ENABLE => [
                 'title' => 'Enable Weno eRx Service'
                 , 'description' => xl('Enable Weno eRx Service') . ' ' . xl('Contact https://online.wenoexchange.com to sign up for Weno Free eRx service.')
                 , 'type' => GlobalSetting::DATA_TYPE_BOOL
@@ -63,7 +63,7 @@ class WenoGlobalConfig
                 , 'default' => ''
                 , 'user_setting' => false
             ]
-            , self::WENO_ENCRYPTION_KEY => [
+            ,/* self::WENO_ENCRYPTION_KEY => [
                 'title' => xl('Weno Encryption Key')
                 , 'description' => xl('Encryption key issued by Weno eRx service on the Weno Developer Page')
                 , 'type' => GlobalSetting::DATA_TYPE_ENCRYPTED

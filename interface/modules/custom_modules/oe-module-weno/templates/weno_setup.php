@@ -126,7 +126,7 @@ $vendors = $boot->getVendorGlobals();
                         <div class="col-12 text-center">
                             <h5>
                                 <hr class="text-dark bg-light" />
-                                <?php echo xlt("Weno Secondary Admin"); ?>
+                                <?php echo xlt("Weno Secondary Admin Not Required"); ?>
                                 <hr class="text-dark bg-light" />
                             </h5>
                         </div>
