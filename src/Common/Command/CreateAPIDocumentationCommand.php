@@ -39,6 +39,8 @@ class CreateAPIDocumentationCommand implements IOpenEMRCommand
      */
     public function execute(CommandContext $context)
     {
+        echo "Executing command 'CreateAPIDocumentation'\n";
+
         $routesLocation = $context->getRootPath() . "_rest_routes.inc.php";
         $fileDestinationFolder = $context->getRootPath() . "swagger" . DIRECTORY_SEPARATOR;
         $fileDestinationYaml =  $fileDestinationFolder . "openemr-api.yaml";

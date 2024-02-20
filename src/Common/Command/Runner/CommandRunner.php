@@ -80,7 +80,6 @@ class CommandRunner
             exit;
         }
 
-        echo "Executing command '" . $commandName . "'\n";
         $command->execute($context);
         exit;
     }
