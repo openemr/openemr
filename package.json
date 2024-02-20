@@ -58,7 +58,7 @@
     "jest": "29.7.0",
     "minimist": "1.2.8",
     "napa": "3.0.0",
-    "postcss": "8.4.30",
+    "postcss": "8.4.31",
     "replace-in-file": "7.0.1",
     "stylelint": "15.10.3",
     "stylelint-config-sass-guidelines": "10.0.0",
