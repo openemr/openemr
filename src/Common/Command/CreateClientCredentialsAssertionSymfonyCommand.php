@@ -32,7 +32,7 @@ class CreateClientCredentialsAssertionSymfonyCommand extends Command
     {
         $this
             ->setName('openemr:create-client-credentials-assertion')
-            ->setDescription("Generates an OpenAPI swagger file that documents the OpenEMR API")
+            ->setDescription("Utility class to help test and use the client credentials grant assertion")
             ->addUsage('--site=default')
             ->setDefinition(
                 new InputDefinition([
