@@ -132,7 +132,7 @@ class FHIRSpecimenContainedPreference extends FHIRElement implements \JsonSerial
     /**
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->value;
     }

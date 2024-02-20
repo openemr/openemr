@@ -52,8 +52,8 @@ if (!defined('__POSTCALENDAR__')) {
 //  Require utility classes
 //=========================================================================
 
-require_once($GLOBALS['fileroot'] . "/library/patient.inc");
-require_once($GLOBALS['fileroot'] . "/library/group.inc");
+require_once($GLOBALS['fileroot'] . "/library/patient.inc.php");
+require_once($GLOBALS['fileroot'] . "/library/group.inc.php");
 require_once($GLOBALS['fileroot'] . "/library/encounter_events.inc.php");
 $pcModInfo = pnModGetInfo(pnModGetIDFromName(__POSTCALENDAR__));
 $pcDir = pnVarPrepForOS($pcModInfo['directory']);
@@ -926,7 +926,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
     // Custom filtering
     $calFilterEvent = new CalendarFilterEvent();
-    $calFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(CalendarFilterEvent::EVENT_HANDLE, $calFilterEvent, 10);
+    $calFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($calFilterEvent, CalendarFilterEvent::EVENT_HANDLE, 10);
     $calFilter = $calFilterEvent->getCustomWhereFilter();
     $sql .= " AND $calFilter ";
 

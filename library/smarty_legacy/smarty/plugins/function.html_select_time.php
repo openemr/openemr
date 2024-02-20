@@ -21,6 +21,10 @@
  * @return string
  * @uses smarty_make_timestamp()
  */
+
+//This provides a cross-platform alternative to strftime() for when it will be removed from PHP.
+use function PHP81_BC\strftime;
+
 function smarty_function_html_select_time($params, &$smarty)
 {
     require_once $smarty->_get_plugin_filepath('shared','make_timestamp');

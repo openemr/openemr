@@ -52,6 +52,16 @@
         <div class="col-sm-12">
             <form id="vitalsForm" name="vitals" method="post" action="{{ FORM_ACTION|attr }}/interface/forms/vitals/save.php">
                 <input type="hidden" name="csrf_token_form" value="{{ CSRF_TOKEN_FORM|attr }}" />
+                {% if has_id %}
+                <div class="row">
+                    <div class="col-md-auto p-3 font-weight-bold text-right">
+                        <label for="date">{{ "Date"|xlt }}</label>
+                    </div>
+                    <div class="col-md-auto p-2">
+                        <input title="{{ 'Date and time of this observation'|xla }}" type='text' size='14' class='form-control datetimepicker oe-patient-background' name='date' id='date' value='{{ vitals.get_date|dateToTime|date("Y-m-d H:i")|attr }}' />
+                    </div>
+                </div>
+                {% endif %}
                 <div id="chart" class="chart-dygraphs" style="margin-left: -15px"></div>
                     <div class="table-responsive">
 
@@ -61,9 +71,7 @@
                                 <tr>
                                     <th class="text-left"><span class="vitals-title">{{ "Name"|xlt }}</span></th>
                                     <th class="text-left">{{ "Unit"|xlt }}</th>
-                                    <th class='currentvalues p-2' title="{{ 'Date and time of this observation'|xla }}">
-                                        <input type='text' size='14' class='form-control datetimepicker oe-patient-background' name='date' id='date' value='{{ vitals.get_date|dateToTime|date("Y-m-d H:i")|attr }}' />
-                                    </th>
+                                    <th class="editonly">{{ "Value"|xlt }}</th>
                                     <th class="editonly">{{ "Abn"|xlt }}</th>
                                     <th class="editonly">{{ "Actions"|xlt }}</th>
                                     {% for result in vitalsHistoryLookback %}
@@ -81,7 +89,7 @@
                                 {% endif %}
                                  {% if field.type == "textbox" %}
                                      {% include "vitals_textbox.html.twig" with {title:field.title, input:field.input
-                                         , vitals:vitals, vitalsValue:field.vitalsValue, unit:field.unit,
+                                         , vitals:vitals, vitalsValue:field.vitalsValue, unit:field.unit, unitLabel: field.unitLabel,
                                          precision:field.precision, codes:field.codes, results: vitalsHistoryLookback, is_edit: true }
                                      %}
                                  {% endif %}

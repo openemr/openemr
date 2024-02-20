@@ -13,7 +13,7 @@
  */
 
 require_once(dirname(__FILE__) . '/../../globals.php');
-require_once($GLOBALS["srcdir"] . "/api.inc");
+require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
 function track_anything_report($pid, $encounter, $cols, $id)
 {

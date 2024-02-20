@@ -13,7 +13,7 @@
  */
 
 require_once("../globals.php");
-require_once($GLOBALS['srcdir'] . "/patient.inc");
+require_once($GLOBALS['srcdir'] . "/patient.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -128,44 +128,44 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
 
     fclose($fh);
 
-    $cpstring = str_replace('{' . $FIELD_TAG['DATE'] . '}', $datestr, $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['FROM_TITLE'] . '}', $from_title, $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['FROM_FNAME'] . '}', $frow['fname'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['FROM_LNAME'] . '}', $frow['lname'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['FROM_MNAME'] . '}', $frow['mname'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['FROM_STREET'] . '}', $frow['street'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['FROM_CITY'] . '}', $frow['city'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['FROM_STATE'] . '}', $frow['state'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['FROM_POSTAL'] . '}', $frow['zip'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['FROM_VALEDICTORY'] . '}', $frow['valedictory'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['FROM_PHONECELL'] . '}', $frow['phonecell'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['FROM_PHONE'] . '}', $frow['phone'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['FROM_EMAIL'] . '}', $frow['email'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['TO_TITLE'] . '}', $to_title, $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['TO_FNAME'] . '}', $trow['fname'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['TO_LNAME'] . '}', $trow['lname'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['TO_MNAME'] . '}', $trow['mname'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['TO_STREET'] . '}', $trow['street'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['TO_CITY'] . '}', $trow['city'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['TO_STATE'] . '}', $trow['state'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['TO_POSTAL'] . '}', $trow['zip'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['TO_VALEDICTORY'] . '}', $trow['valedictory'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['TO_FAX'] . '}', $trow['fax'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['TO_PHONE'] . '}', $trow['phone'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['TO_PHONECELL'] . '}', $trow['phonecell'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['TO_ORGANIZATION'] . '}', $trow['organization'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['PT_FNAME'] . '}', $patdata['fname'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['PT_LNAME'] . '}', $patdata['lname'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['PT_MNAME'] . '}', $patdata['mname'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['PT_STREET'] . '}', $patdata['street'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['PT_CITY'] . '}', $patdata['city'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['PT_STATE'] . '}', $patdata['state'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['PT_POSTAL'] . '}', $patdata['postal_code'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['PT_PHONE_HOME'] . '}', $patdata['phone_home'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['PT_PHONE_CELL'] . '}', $patdata['phone_cell'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['PT_SSN'] . '}', $patdata['ss'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['PT_EMAIL'] . '}', $patdata['email'], $cpstring);
-    $cpstring = str_replace('{' . $FIELD_TAG['PT_DOB'] . '}', $patdata['DOB'], $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['DATE'] . '}', $datestr ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_TITLE'] . '}', $from_title ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_FNAME'] . '}', $frow['fname'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_LNAME'] . '}', $frow['lname'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_MNAME'] . '}', $frow['mname'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_STREET'] . '}', $frow['street'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_CITY'] . '}', $frow['city'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_STATE'] . '}', $frow['state'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_POSTAL'] . '}', $frow['zip'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_VALEDICTORY'] . '}', $frow['valedictory'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_PHONECELL'] . '}', $frow['phonecell'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_PHONE'] . '}', $frow['phone'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['FROM_EMAIL'] . '}', $frow['email'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_TITLE'] . '}', $to_title ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_FNAME'] . '}', $trow['fname'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_LNAME'] . '}', $trow['lname'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_MNAME'] . '}', $trow['mname'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_STREET'] . '}', $trow['street'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_CITY'] . '}', $trow['city'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_STATE'] . '}', $trow['state'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_POSTAL'] . '}', $trow['zip'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_VALEDICTORY'] . '}', $trow['valedictory'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_FAX'] . '}', $trow['fax'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_PHONE'] . '}', $trow['phone'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_PHONECELL'] . '}', $trow['phonecell'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['TO_ORGANIZATION'] . '}', $trow['organization'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_FNAME'] . '}', $patdata['fname'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_LNAME'] . '}', $patdata['lname'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_MNAME'] . '}', $patdata['mname'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_STREET'] . '}', $patdata['street'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_CITY'] . '}', $patdata['city'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_STATE'] . '}', $patdata['state'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_POSTAL'] . '}', $patdata['postal_code'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_PHONE_HOME'] . '}', $patdata['phone_home'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_PHONE_CELL'] . '}', $patdata['phone_cell'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_SSN'] . '}', $patdata['ss'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_EMAIL'] . '}', $patdata['email'] ?? '', $cpstring);
+    $cpstring = str_replace('{' . $FIELD_TAG['PT_DOB'] . '}', $patdata['DOB'] ?? '', $cpstring);
 
     if ($form_format == "pdf") {
         $pdf = new Cezpdf($GLOBALS['rx_paper_size']);

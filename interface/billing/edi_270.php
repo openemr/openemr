@@ -21,10 +21,10 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/forms.inc");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/forms.inc.php");
+require_once("$srcdir/patient.inc.php");
 require_once "$srcdir/options.inc.php";
-require_once("$srcdir/calendar.inc");
+require_once("$srcdir/calendar.inc.php");
 require_once("$srcdir/appointments.inc.php");
 
 use OpenEMR\Billing\EDI270;
@@ -433,7 +433,7 @@ if ($exclude_policy != "") {
                                                     <?php echo xlt('Create batch'); ?>
                                                     <input type='hidden' name='form_savefile' id='form_savefile' value=''></input>
 
-                                                    <?php if ($GLOBALS['enable_oa']) {
+                                                    <?php if ($GLOBALS['enable_eligibility_requests']) {
                                                         echo "<a href='#' class='btn btn-secondary btn-transmit' onclick='return validate_batch(true);'>" . xlt('Request Eligibility') . "</a>\n";
                                                     }
                                                     ?>

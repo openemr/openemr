@@ -53,7 +53,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
         exit();
     }
 
-    echo $ccaudit;
+    echo text($ccaudit);
     exit();
 }
 

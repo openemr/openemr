@@ -162,7 +162,7 @@ class FhirOrganizationFacilityService extends FhirServiceBase
 
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
-        $fhirMeta->setLastUpdated(gmdate('c'));
+        $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $organizationResource->setMeta($fhirMeta);
         // facilities have no active / inactive state
         $organizationResource->setActive(true);
@@ -254,7 +254,7 @@ class FhirOrganizationFacilityService extends FhirServiceBase
                 $addressPeriod = UtilsService::getPeriodTimestamps($address->getPeriod());
                 if (empty($addressPeriod['end'])) {
                     $activeAddress = $address;
-                } else if (!empty($mostRecentPeriods['end']) && $addressPeriod['end'] > $mostRecentPeriods['end']) {
+                } elseif (!empty($mostRecentPeriods['end']) && $addressPeriod['end'] > $mostRecentPeriods['end']) {
                     // if our current period is more recent than our most recent address we want to grab that one
                     $mostRecentPeriods = $addressPeriod;
                     $activeAddress = $address;

@@ -8,8 +8,10 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Terry Hill <terry@lillysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2005-2022 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2017-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -25,8 +27,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
 //acl check
-if (!AclMain::aclCheckForm('fee_sheet')) {
-    ?>
+if (!AclMain::aclCheckForm('fee_sheet')) { ?>
     <script>alert(<?php echo xlj("Not authorized"); ?>)</script>;
     <?php
     formJump();
@@ -208,7 +209,7 @@ function echoServiceLines()
         } else { // not billed
             if ($institutional) {
                 if ($codetype != 'COPAY' && $codetype != 'ICD10') {
-                    echo "  <td class='billcell'><select type='text' class='revcode form-control' name='bill[" . attr($lino) . "][revenue_code]' " .
+                    echo "  <td class='billcell'><select type='text' class='revcode form-control form-control-sm' name='bill[" . attr($lino) . "][revenue_code]' " .
                         "title='" . xla("Revenue Code for this item. Type to search") . "' " .
                         "value='" . attr($revenue_code) . "' size='4'></select></td>\n";
                 } else {
@@ -217,9 +218,9 @@ function echoServiceLines()
             }
             if (modifiers_are_used(true)) {
                 if ($codetype != 'COPAY' && (!empty($code_types[$codetype]['mod']) || $modifier)) {
-                    echo "  <td class='billcell'><input type='text' class='form-control' name='bill[" . attr($lino) . "][mod]' " .
+                    echo "  <td class='billcell'><input type='text' class='form-control form-control-sm' name='bill[" . attr($lino) . "][mod]' " .
                        "title='" . xla("Multiple modifiers can be separated by colons or spaces, maximum of 4 (M1:M2:M3:M4)") . "' " .
-                       "value='" . attr($modifier) . "' size='" . attr($code_types[$codetype]['mod']) . " 'onkeyup='policykeyup(this)' /></td>\n";
+                       "value='" . attr($modifier) . "' size='" . attr($code_types[$codetype]['mod']) . "' onkeyup='policykeyup(this)' onblur='formatModifier(this)' /></td>\n";
                 } else {
                     echo "  <td class='billcell'>&nbsp;</td>\n";
                 }
@@ -236,7 +237,7 @@ function echoServiceLines()
                     // Price display is conditional.
                     if ($fs->pricesAuthorized()) {
                         echo "  <td class='billcell text-right'>" .
-                            "<input type='text' class='form-control' name='bill[$lino][price]' " .
+                            "<input type='text' class='form-control form-control-sm' name='bill[$lino][price]' " .
                             "value='" . attr($li['price']) . "' size='6' onchange='setSaveAndClose()'";
                         if (!AclMain::aclCheckCore('acct', 'disc')) {
                             echo " readonly";
@@ -250,7 +251,7 @@ function echoServiceLines()
 
                     echo "  <td class='billcell text-center'>";
                     if ($codetype != 'COPAY') {
-                        echo "<input type='text' class='form-control text-right' name='bill[" . attr($lino) . "][units]' " .
+                        echo "<input type='text' class='form-control form-control-sm text-right' name='bill[" . attr($lino) . "][units]' " .
                         "value='" . attr($li['units']) . "' size='2'>";
                     } else {
                         echo "<input type='hidden' name='bill[" . attr($lino) . "][units]' value='" . attr($li['units']) . "' />";
@@ -260,7 +261,7 @@ function echoServiceLines()
 
                     if (!empty($code_types[$codetype]['just']) || !empty($li['justify'])) {
                         echo "  <td class='billcell' align='center'$justifystyle>";
-                        echo "<select class='form-control' name='bill[" . attr($lino) . "][justify]' onchange='setJustify(this)'>";
+                        echo "<select class='form-control form-control-sm' name='bill[" . attr($lino) . "][justify]' onchange='setJustify(this)'>";
                         echo "<option value='" . attr($li['justify']) . "'>" . text($li['justify']) . "</option></select>";
                         echo "</td>\n";
                         $justinit .= "setJustify(f['bill[" . attr($lino) . "][justify]']);\n";
@@ -284,7 +285,7 @@ function echoServiceLines()
             echo "</td>\n";
 
             if (!empty($code_types[$codetype]['claim']) && empty($code_types[$codetype]['diag'])) {
-                echo "  <td class='billcell text-center' $usbillstyle><input type='text' class='form-control' name='bill[" . attr($lino) . "][notecodes]' " .
+                echo "  <td class='billcell text-center' $usbillstyle><input type='text' class='form-control form-control-sm' name='bill[" . attr($lino) . "][notecodes]' " .
                 "value='" . text($li['notecodes']) . "' maxlength='10' size='8' /></td>\n";
             } else {
                 echo "  <td class='billcell text-center' $usbillstyle></td>\n";
@@ -308,13 +309,13 @@ function echoServiceLines()
             echo " <tr>\n";
             echo "  <td class='billcell' colspan='2'>&nbsp;</td>\n";
             echo "  <td class='billcell' colspan='6'>&nbsp;NDC:&nbsp;";
-            echo "<input type='text' class='form-control' name='bill[" . attr($lino) . "][ndcnum]' value='" . attr($li['ndcnum']) . "' " .
+            echo "<input type='text' class='form-control form-control-sm' name='bill[" . attr($lino) . "][ndcnum]' value='" . attr($li['ndcnum']) . "' " .
             "size='11' />";
             echo " &nbsp;Qty:&nbsp;";
-            echo "<input type='text' class='form-control text-left' name='bill[" . attr($lino) . "][ndcqty]' value='" . attr($li['ndcqty']) . "' " .
+            echo "<input type='text' class='form-control form-control-sm text-left' name='bill[" . attr($lino) . "][ndcqty]' value='" . attr($li['ndcqty']) . "' " .
             "size='3' />";
             echo " ";
-            echo "<select class='form-control' name='bill[" . attr($lino) . "][ndcuom]'>";
+            echo "<select class='form-control form-control-sm' name='bill[" . attr($lino) . "][ndcuom]'>";
             foreach ($fs->ndc_uom_choices as $key => $value) {
                 echo "<option value='" . attr($key) . "'";
                 if ($key == $li['ndcuom']) {
@@ -512,7 +513,16 @@ if (isset($_POST['form_checksum'])) {
     if ($_POST['form_checksum'] != $current_checksum) {
         $alertmsg = xl('Someone else has just changed this visit. Please cancel this page and try again.');
         $comment = "CHECKSUM ERROR, expecting '{$_POST['form_checksum']}'";
-        EventAuditLogger::instance()->newEvent("checksum", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $comment, $pid);
+        EventAuditLogger::instance()->newEvent(
+            "checksum",
+            $_SESSION['authUser'],
+            $_SESSION['authProvider'],
+            1,
+            $comment,
+            $pid,
+            'open-emr',
+            'fee sheet'
+        );
     }
 }
 
@@ -660,7 +670,12 @@ if (!empty($_POST['newcodes'])) {
 
         $arrcode = explode('|', $codestring);
         if (strpos($arrcode[1], ':') !== false) {
-            list($code, $modifier) = explode(":", $arrcode[1]);
+            $tmp = explode(':', $arrcode[1]);
+            $code = $tmp[0] ?? '';
+            $modifier = $tmp[1] ?? '';
+            $modifier .= ($tmp[2] ?? '') ? ":" . $tmp[2] : '';
+            $modifier .= ($tmp[3] ?? '') ? ":" . $tmp[3] : '';
+            $modifier .= ($tmp[4] ?? '') ? ":" . $tmp[4] : '';
         } else {
             $code = $arrcode[1];
             $modifier = '';
@@ -700,11 +715,13 @@ function reinitForm(){
 // This is invoked by <select onchange> for the various dropdowns,
 // including search results.
 function codeselect(selobj) {
- var i = selobj ? selobj.selectedIndex : -1;
+ let i = selobj ? selobj.selectedIndex : -1;
  if (i) {
   top.restoreSession();
-  var f = document.forms[0];
-  if (selobj) f.newcodes.value = selobj.options[i].value;
+  let f = document.forms[0];
+  if (selobj) {
+      f.newcodes.value = selobj.options[i].value;
+  }
   f.submit();
  }
 }
@@ -894,6 +911,38 @@ function defaultPriceLevelChanged(sel) {
  }
 }
 
+function formatModifier(e) {
+    let mods = e.value;
+    mods = mods.substring(0, 11).trim();
+    let modArray = mods.includes(':') ? mods.split(":") : mods.split(" ");
+    let cntr = 0;
+    modArray.forEach( function(m) {
+        let l = m.length;
+        if (l) {
+            cntr++;
+            if (l !== 2) {
+               alert("Removing invalid modifier " + m);
+               modArray.pop();
+            }
+        } else {
+            modArray.pop();
+        }
+    });
+    
+    let modString = modArray.join(":");
+    e.value = checkLastChar(modString);
+}
+
+function checkLastChar(s) {
+    let last_char = s.slice(-1);
+    if (last_char === ':') {
+        s = s.substring(0, s.length - 1);
+        return checkLastChar(s);
+    } else {
+        return s;
+    }
+}
+
 </script>
 <style>
     @media only screen and (max-width: 1024px) {
@@ -995,7 +1044,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <?php
                                 $i = 0;
                                 $last_category = '';
-
                                 // Create drop-lists based on the fee_sheet_options table.
                                 $res = sqlStatement("SELECT * FROM fee_sheet_options " .
                                 "ORDER BY fs_category, fs_option");
@@ -1029,7 +1077,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 echo "  <td class='text-center text-nowrap' width='50%'>\n";
                                 echo "   <select class='form-control' onchange='codeselect(this)'>\n";
                                 echo "    <option value=''> " . text(xl_list_label($prow['title'])) . "\n";
-                                $res = sqlStatement("SELECT code_type, code, code_text,modifier FROM codes " .
+                                $res = sqlStatement("SELECT code_type, code, code_text, modifier FROM codes " .
                                 "WHERE superbill = ? AND active = 1 " .
                                 "ORDER BY code_text", array($prow['option_id']));
                                 while ($row = sqlFetchArray($res)) {
@@ -1097,30 +1145,31 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <legend><?php echo xlt("Search for Additional Codes")?></legend>
                                 <div class="text-center">
                                     <div class="form-group">
-                                    <?php
+                                        <?php
                                         $nofs_code_types = array();
-                                    foreach ($code_types as $key => $value) {
-                                        if (!empty($value['nofs'])) {
-                                            continue;
+                                        foreach ($code_types as $key => $value) {
+                                            if (!empty($value['nofs'])) {
+                                                continue;
+                                            }
+                                            $nofs_code_types[$key] = $value;
                                         }
-                                        $nofs_code_types[$key] = $value;
-                                    }
                                         $size_select = (count($nofs_code_types) < 5) ? count($nofs_code_types) : 5;
-                                    ?>
+                                        ?>
 
-                                    <?php
-                                    foreach ($nofs_code_types as $key => $value) {
-                                        echo"<label class='radio-inline'>";
-                                        echo "   <input type='radio' name='search_type' value='" . attr($key) . "'";
-                                        if ($key == $search_type) {
-                                            echo " checked";
-                                        }
-                                        echo " />" . xlt($value['label']) . "&nbsp;\n";
-                                        echo " </label>";
-                                    }
-                                    ?>
+                                        <div class="btn-group" data-toggle="buttons">
+                                            <?php
+                                            foreach ($nofs_code_types as $key => $value) {
+                                                echo"<label class='radio-inline btn btn-secondary'>";
+                                                echo "   <input type='radio' name='search_type' value='" . attr($key) . "'";
+                                                if ($key == $search_type) {
+                                                    echo " checked";
+                                                }
+                                                echo " />&nbsp;" . xlt($value['label']) . "\n";
+                                                echo " </label>";
+                                            }
+                                            ?>
+                                        </div>
                                     </div>
-                                </div>
 
                                 <div class="mx-5 mb-3 text-center">
                                     <div class="input-group">
@@ -1145,17 +1194,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             $numrows = sqlNumRows($res);
                                         }
                                     }
-                                    if (! $numrows) {
+                                    if (empty($numrows)) {
                                         echo "   <select name='search_results' class='form-control text-danger' " .
                                         "onchange='codeselect(this)' disabled >\n";
                                     } else {
-                                        echo "   <select name='search_results' style='background: var(--yellow)' " .
-                                        "onchange='codeselect(this)' >\n";
+                                        echo "   <select name='search_results' style='background: lightyellow' " . "onchange='codeselect(this)' >\n";
                                     }
 
                                     echo "    <option value=''> " . xlt("Search Results") . " ($numrows " . xlt("items") . ")\n";
 
-                                    if ($numrows) {
+                                    if (!empty($numrows)) {
                                         while ($row = sqlFetchArray($res)) {
                                             $code = $row['code'];
                                             if ($row['modifier']) {
@@ -1190,41 +1238,43 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             </table>
                         </div>
                         <div class='col-12 text-center table-responsive'>
-                            <table name='selected_codes' id='selected_codes' class="table">
-                                <tr>
-                                    <td class='billcell font-weight-bold'><?php echo xlt('Type');?></td>
-                                    <td class='billcell font-weight-bold'><?php echo xlt('Code');?></td>
-                                    <td class='billcell font-weight-bold'><?php echo xlt('Description');?></td>
-                                    <?php if ($institutional) { ?>
-                                        <td class='billcell font-weight-bold'><?php echo xlt('Revenue');?></td>
-                                    <?php } ?>
-                                    <?php if (modifiers_are_used(true)) { ?>
-                                        <td class='billcell font-weight-bold'><?php echo xlt('Modifiers');?></td>
-                                    <?php } ?>
-                                    <?php if (fees_are_used()) { ?>
-                                        <?php if ($price_levels_are_used) { ?>
-                                            <td class='billcell text-center font-weight-bold'><?php echo xlt('Price Level');?>&nbsp;</td>
+                            <table name='selected_codes' id='selected_codes' class="table table-striped table-sm">
+                                <thead>
+                                    <tr>
+                                        <th class='billcell'><?php echo xlt('Type');?></th>
+                                        <th class='billcell'><?php echo xlt('Code');?></th>
+                                        <th class='billcell'><?php echo xlt('Description');?></th>
+                                        <?php if ($institutional) { ?>
+                                            <th class='billcell'><?php echo xlt('Revenue');?></th>
                                         <?php } ?>
-                                        <!-- Price display is conditional. -->
-                                        <?php if ($fs->pricesAuthorized()) { ?>
-                                        <td class='billcell text-right font-weight-bold'><?php echo xlt('Price');?>&nbsp;</td>
-                                        <?php } else { ?>
-                                        <td class='billcell' style='display:none'>&nbsp;</td>
+                                        <?php if (modifiers_are_used(true)) { ?>
+                                            <th class='billcell'><?php echo xlt('Modifiers');?></th>
                                         <?php } ?>
-                                        <td class='billcell text-center font-weight-bold'><?php echo xlt('Qty');?></td>
-                                    <?php } ?>
-                                    <?php if (justifiers_are_used()) { ?>
-                                        <td class='billcell text-center font-weight-bold'<?php echo $justifystyle; ?>><?php echo xlt('Justify');?></td>
-                                    <?php } ?>
-                                    <td class='billcell text-center font-weight-bold' <?php echo $liprovstyle; ?>><?php echo xlt('Provider/Warehouse');?></td>
-                                    <td class='billcell text-center font-weight-bold'<?php echo $usbillstyle; ?>><?php echo xlt('Note Codes');?></td>
-                                    <td class='billcell text-center font-weight-bold'<?php echo $usbillstyle; ?>><?php echo xlt('Auth');?></td>
-                                    <?php if (!empty($GLOBALS['gbl_auto_create_rx'])) { ?>
-                                        <td class='billcell text-center font-weight-bold'><?php echo xlt('Rx'); ?></td>
-                                    <?php } ?>
-                                    <td class='billcell text-center font-weight-bold'><?php echo xlt('Delete');?></td>
-                                </tr>
-
+                                        <?php if (fees_are_used()) { ?>
+                                            <?php if ($price_levels_are_used) { ?>
+                                                <th class='billcell'><?php echo xlt('Price Level');?>&nbsp;</th>
+                                            <?php } ?>
+                                            <!-- Price display is conditional. -->
+                                            <?php if ($fs->pricesAuthorized()) { ?>
+                                            <th class='billcell'><?php echo xlt('Price');?>&nbsp;</th>
+                                            <?php } else { ?>
+                                            <th class='billcell d-none'>&nbsp;</th>
+                                            <?php } ?>
+                                            <th class='billcell text-center'><?php echo xlt('Qty');?></th>
+                                        <?php } ?>
+                                        <?php if (justifiers_are_used()) { ?>
+                                            <th class='billcell'<?php echo $justifystyle; ?>><?php echo xlt('Justify');?></th>
+                                        <?php } ?>
+                                        <th class='billcell' <?php echo $liprovstyle; ?>><?php echo xlt('Provider/Warehouse');?></th>
+                                        <th class='billcell'<?php echo $usbillstyle; ?>><?php echo xlt('Note Codes');?></th>
+                                        <th class='billcell'<?php echo $usbillstyle; ?>><?php echo xlt('Auth');?></th>
+                                        <?php if (!empty($GLOBALS['gbl_auto_create_rx'])) { ?>
+                                            <th class='billcell'><?php echo xlt('Rx'); ?></th>
+                                        <?php } ?>
+                                        <th class='billcell'><?php echo xlt('Delete');?></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
                                 <?php
                                     $justinit = "var f = document.forms[0];\n";
 
@@ -1247,7 +1297,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         if ($institutional) {
                                             $revenue_code   = trim($iter["revenue_code"]);
                                         }
-                                        $modifier   = trim($iter["modifier"]);
+                                        $modifier   = trim($iter["modifier"] ?? '');
                                         $units      = $iter["units"];
                                         $fee        = $iter["fee"];
                                         $authorized = $iter["authorized"];
@@ -1264,8 +1314,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             if ($institutional) {
                                                 //$revenue_code   = trim($bline['revenue_code']);
                                             }
-                                            $modifier   = trim($bline['mod'] ?? null);
-                                            $units = intval(trim($bline['units'] ?? null));
+                                            $modifier   = trim($bline['mod'] ?? '');
+                                            $units = intval(trim($bline['units'] ?? ''));
                                             if (!$units) {
                                                 $units = 1; // units may be negative.
                                             }
@@ -1280,7 +1330,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 trim($bline['ndcqty']);
                                             }
                                             $justify    = $bline['justify'] ?? null;
-                                            $notecodes  = trim($bline['notecodes'] ?? null);
+                                            $notecodes  = trim($bline['notecodes'] ?? '');
                                             $provider_id = (int) ($bline['provid'] ?? null);
                                         }
 
@@ -1553,7 +1603,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 );
                                             } else {
                                                 if (strpos($newcode, ':') !== false) {
-                                                    list($code, $modifier) = explode(":", $newcode);
+                                                    $tmp = explode(':', $arrcode[1]);
+                                                    $code = $tmp[0] ?? '';
+                                                    $modifier = $tmp[1] ?? '';
+                                                    $modifier .= ($tmp[2] ?? '') ? ":" . $tmp[2] : '';
+                                                    $modifier .= ($tmp[3] ?? '') ? ":" . $tmp[3] : '';
+                                                    $modifier .= ($tmp[4] ?? '') ? ":" . $tmp[4] : '';
                                                 } else {
                                                     $code = $newcode;
                                                     $modifier = '';
@@ -1591,6 +1646,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     // Ensure DOM is updated.
                                     echo "<script>reinitForm();</script>";
                                 ?>
+                                </tbody>
                             </table>
                         </div>
 

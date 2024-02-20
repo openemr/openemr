@@ -13,9 +13,9 @@
  */
 
 require_once(dirname(__FILE__) . '/../../globals.php');
-require_once("$srcdir/pid.inc");
-require_once("$srcdir/encounter.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/pid.inc.php");
+require_once("$srcdir/encounter.inc.php");
+require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Tabs\TabsWrapper;
 use OpenEMR\Core\Header;

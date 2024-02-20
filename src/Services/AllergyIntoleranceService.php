@@ -46,13 +46,15 @@ class AllergyIntoleranceService extends BaseService
         // we inner join on lists itself so we can grab our uuids, we do this so we can search on each of the uuids
         // such as allergy_uuid, practitioner_uuid,organization_uuid, etc.  You can't use an 'AS' clause in a select
         // so we have to have actual column names in our WHERE clause.  To make that work in a searchable way we extend
-        // out our queries into sub queries which through the power of index's & keys it is pretty highly optimized by the
-        // database query engine.
+        // out our queries into sub queries which through the power of index's & keys it is pretty highly optimized by
+        // the database query engine.
 
         $sql = "SELECT lists.*,
         lists.pid AS patient_id,
         lists.title,
+        lists.comments,
         practitioners.uuid as practitioner,
+        practitioners.practitioner_npi,
         practitioners.practitioner_uuid,
         organizations.uuid as organization,
         organizations.organization_uuid,
@@ -62,12 +64,15 @@ class AllergyIntoleranceService extends BaseService
         reaction.title as reaction_title,
         reaction.codes AS reaction_codes,
         verification.title as verification_title
-    FROM lists
+    FROM (
+            SELECT lists.*, lists.pid AS patient_id FROM lists
+        ) lists
         INNER JOIN (
             SELECT lists.uuid AS allergy_uuid FROM lists
         ) allergy_ids ON lists.uuid = allergy_ids.allergy_uuid
         LEFT JOIN list_options as reaction ON (reaction.option_id = lists.reaction and reaction.list_id = 'reaction')
-        LEFT JOIN list_options as verification ON verification.option_id = lists.verification and verification.list_id = 'allergyintolerance-verification'
+        LEFT JOIN list_options as verification ON verification.option_id = lists.verification
+            and verification.list_id = 'allergyintolerance-verification'
         RIGHT JOIN (
             SELECT
                 patient_data.uuid AS puuid
@@ -79,12 +84,10 @@ class AllergyIntoleranceService extends BaseService
             select
             users.uuid
             ,users.uuid AS practitioner_uuid
+            ,users.npi AS practitioner_npi
             ,users.username
             ,users.facility AS organization
             FROM users
-            -- US CORE only allows physicians or patients to be our allergy recorder
-            -- so we will filter out anyone who is not actually a practitioner (May 14th 2021)
-            WHERE users.npi IS NOT NULL -- we only want actual physicians here rather than all users
         ) practitioners ON practitioners.username = lists.user
         LEFT JOIN (
             select
@@ -96,6 +99,7 @@ class AllergyIntoleranceService extends BaseService
 
         // make sure we only search for allergy fields
         $search['type'] = new StringSearchField('type', ['allergy'], SearchModifier::EXACT);
+
         $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
 
         $sql .= $whereClause->getFragment();
@@ -103,9 +107,14 @@ class AllergyIntoleranceService extends BaseService
         $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
 
         $processingResult = new ProcessingResult();
+        // create temp allergy uuid array since sql returns duplicates if
+        // allergies do not have a user associated
+        $temp_uuid_array = [];
         while ($row = sqlFetchArray($statementResults)) {
             $row['uuid'] = UuidRegistry::uuidToString($row['allergy_uuid']);
             $row['puuid'] = UuidRegistry::uuidToString($row['puuid']);
+            $row['patient_uuid'] = UuidRegistry::uuidToString($row['patient_uuid']);
+            $row['allergy_uuid'] = UuidRegistry::uuidToString($row['allergy_uuid']);
             $row['practitioner'] = $row['practitioner'] ?
                 UuidRegistry::uuidToString($row['practitioner']) :
                 $row['practitioner'];
@@ -118,7 +127,12 @@ class AllergyIntoleranceService extends BaseService
             if (!empty($row['reaction']) && !empty($row['reaction_codes'])) {
                 $row['reaction'] = $this->addCoding($row['reaction_codes']);
             }
-            $processingResult->addData($row);
+            unset($row['allergy_uuid']);
+            // only add to processing result if unique
+            if (!in_array($row['uuid'], $temp_uuid_array)) {
+                $processingResult->addData($row);
+                array_push($temp_uuid_array, $row['uuid']);
+            }
         }
         return $processingResult;
     }
@@ -136,9 +150,10 @@ class AllergyIntoleranceService extends BaseService
      */
     public function getAll($search = array(), $isAndCondition = true, $puuidBind = null)
     {
-        // backwards compatible we let sub tables be referenced before, we want those to go away as it's a leaky abstraction
+        // backwards compatible we let sub tables be referenced before,
+        // we want those to go away as it's a leaky abstraction
         if (isset($search['lists.pid'])) {
-            $search['puuid'] = $search['lists.pid'];
+            $search['patient_id'] = $search['lists.pid'];
             unset($search['lists.pid']);
         }
         if (isset($search['lists.id'])) {
@@ -183,7 +198,14 @@ class AllergyIntoleranceService extends BaseService
                 return $isValidPatient;
             }
         }
+
         $newSearch = [];
+        // override puuid with the token search field for binary search
+        if (isset($search['puuid'])) {
+            $newSearch['puuid'] = new TokenSearchField('puuid', $search['puuid'], true);
+            unset($search['puuid']);
+        }
+
         foreach ($search as $key => $value) {
             if (!$value instanceof ISearchField) {
                 $newSearch[] = new StringSearchField($key, [$value], SearchModifier::EXACT);
@@ -194,10 +216,10 @@ class AllergyIntoleranceService extends BaseService
 
         // override puuid, this replaces anything in search if it is already specified.
         if (isset($puuidBind)) {
-            $search['puuid'] = new TokenSearchField('puuid', $puuidBind, true);
+            $newSearch['puuid'] = new TokenSearchField('puuid', $puuidBind, true);
         }
 
-        return $this->search($search, $isAndCondition);
+        return $this->search($newSearch, $isAndCondition);
     }
 
     /**

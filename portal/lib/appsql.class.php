@@ -198,8 +198,8 @@ class ApplicationTable
 
     public function portalLog($event = '', $patient_id = null, $comments = "", $binds = '', $success = '1', $user_notes = '', $ccda_doc_id = 0)
     {
-        $groupname = isset($GLOBALS['groupname']) ? $GLOBALS['groupname'] : 'none';
-        $user = isset($_SESSION['portal_username']) ? $_SESSION['portal_username'] : $_SESSION['authUser'];
+        $groupname = $GLOBALS['groupname'] ?? 'none';
+        $user = $_SESSION['portal_username'] ?? $_SESSION['authUser'] ?? null;
         $log_from = isset($_SESSION['portal_username']) ? 'onsite-portal' : 'portal-dashboard';
         if (!isset($_SESSION['portal_username']) && !isset($_SESSION['authUser'])) {
             $log_from = 'portal-login';
@@ -232,7 +232,7 @@ class ApplicationTable
      * All error display and log
      * Display the Error, Line and File
      * Same behavior of HelpfulDie fuction in OpenEMR
-     * Path /library/sql.inc
+     * Path /library/sql.inc.php
      *
      * @param type $e
      * @param string $sql
@@ -353,7 +353,7 @@ class ApplicationTable
     }
 
     /*
-     * Using generate id function from OpenEMR sql.inc library file
+     * Using generate id function from OpenEMR sql.inc.php library file
      * @param string $seqname table name containing sequence (default is adodbseq)
      * @param integer $startID id to start with for a new sequence (default is 1)
      * @return integer returns the sequence integer

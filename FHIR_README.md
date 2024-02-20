@@ -131,11 +131,11 @@ A status Query will return a result like the following:
   "requiresAccessToken": true,
   "output": [
     {
-      "url": "https:\/\/localhost:9300\/apis\/default\/fhir\/Document\/97552\/Binary",
+      "url": "https:\/\/localhost:9300\/apis\/default\/fhir\/Binary\/97552",
       "type": "Patient"
     },
     {
-      "url": "https:\/\/localhost:9300\/apis\/default\/fhir\/Document\/105232\/Binary",
+      "url": "https:\/\/localhost:9300\/apis\/default\/fhir\/Binary\/105232",
       "type": "Encounter"
     }
   ],
@@ -145,15 +145,15 @@ A status Query will return a result like the following:
 
 You can download the exported documents which are formatted in Newline Delimited JSON (NDJSON) by making a call to:
     ```sh
-          curl -X GET 'https://localhost:9300/apis/default/fhir/Document/105232/Binary'
+          curl -X GET 'https://localhost:9300/apis/default/fhir/Binary/105232'
     ```
 
-In order to download the documents you will need the **system/Document.read** scope.
+In order to download the documents you will need the **system/Binary.read** scope.
 
 #### Bulk FHIR Scope Reference
-- All System export - **system/\*.$export system\*.$bulkdata-status system/Document.read**
-- Group System export - **system/Group.$export system\*.$bulkdata-status system/Document.read**
-- Patient System export - **system/Patient.$export system\*.$bulkdata-status system/Document.read**
+- All System export - **system/\*.$export system\*.$bulkdata-status system/Binary.read**
+- Group System export - **system/Group.$export system\*.$bulkdata-status system/Binary.read**
+- Patient System export - **system/Patient.$export system\*.$bulkdata-status system/Binary.read**
 
 ####
 ## 3rd Party SMART Apps
@@ -205,7 +205,7 @@ It is recommended that native applications follow best practices for native clie
 ### Generate CCDA
 - [Tutorial to Generate CCDA (with Screenshots)](https://github.com/openemr/openemr/issues/5284#issuecomment-1155678620)
 ### Details Docref
-- Requires <context>/DocumentReference.$docref, <context>/DocumentReference.read, and <context>/Document.read scopes
+- Requires <context>/DocumentReference.$docref, <context>/DocumentReference.read, and <context>/Binary.read scopes
 - Start and end date filter encounter related events for the following sections:
     - History of Procedures
     - Relevant DX Tests / LAB Data

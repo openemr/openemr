@@ -441,7 +441,7 @@ exports.immunizationsSectionEntriesOptionalHtmlHeader = {
                     text: leafLevel.deepInputProperty("product.product.name", nda)
                 }, {
                     key: "td",
-                    text: leafLevel.deepInputDate("date_time.point", nda),
+                    text: leafLevel.deepInputDate("date_time.low", nda),
                 }, {
                     key: "td",
                     text: leafLevel.deepInputProperty("status", nda)

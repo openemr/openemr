@@ -1,0 +1,142 @@
+{#
+ # Handles the display of the scope authorization for the oauth2 form.
+ #
+ # @package   OpenEMR
+ # @link      http://www.open-emr.org
+ # @author    Jerry Padgett <sjpadgett@gmail.com>
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ # @copyright Copyright (c) 2023 Discover and Change, Inc. <snielson@discoverandchange.com>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% extends "oauth2/oauth2-base.html.twig" %}
+    {% block title %}{{ "OpenEMR Authorization"|xlt }}{% endblock %}
+    {% block content %}
+        {# include the original contents page #}
+        <form method="post" name="userLogin" id="userLogin" action="{{ redirect|attr }}">
+            {% block form_header %}{% endblock %}
+            <div class="row w-100">
+                <div class="col-12 col-sm-10 col-lg-7 bg-light text-dark mt-2 mt-sm-5 mt-lg-3 ml-auto mr-auto">
+                    <div class="text-md-center mt-2">
+                        {% block clientHeader %}
+                            <h4 class="mb-4 mt-1">{{ "Authorizing for Application"|xlt  }} <strong>{{ client.name|text }}</strong></h4>
+                        {% endblock %}
+                    </div>
+                    <div class="row w-100 mb-3">
+                        {% block scopesContainer %}
+                            {% block resourceScopesContainer %}
+                                <div class="col-sm-8">
+                                    <div class="card">
+                                        <div class="card-body pt-1">
+                                            <h5 class="card-title text-sm-center">{{ "Grant this application access to do the following"|xlt }}</h5>
+                                            <hr />
+                                            {% block resourcePermissions %}
+                                                <h6>{{ "Resource Permissions"|xlt }}</h6>
+                                                <div class="list-group pl-2 mt-1">
+                                                    {% for resource,scopeCollection in scopesByResource %}
+                                                        <label class="list-group-item m-0">
+                                                            <strong>{{ resource|xlt }}</strong><br />
+                                                            {% for scope,permission in scopeCollection.permissions %}
+                                                                <input type="checkbox" class='app-scope' name="scope[{{ scope|attr  }}]" value="{{ scope|attr  }}" checked>
+                                                                {{ permission|text }}
+                                                                <br />
+                                                            {% endfor %}
+                                                            <details><summary><small>({{ "Scopes granted"|xlt }})</small></summary>
+                                                                <ul>
+                                                                    {% for scope,permission in scopeCollection.permissions %}
+                                                                        <li>{{ scope|text }}</li>
+                                                                    {% endfor %}
+                                                                </ul>
+                                                            </details>
+                                                        </label>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endblock %}
+                                            {% block otherPermissions %}
+                                                <h6>{{ "Other Permissions"|xlt  }}</h6>
+                                                <div class="list-group pl-2 mt-1">
+                                                    {% for scope,description in otherScopes %}
+                                                        <label class="list-group-item m-0">
+                                                            <input type="checkbox" class='app-scope' name="scope[{{ scope|attr  }}]" value="{{ scope|attr }}" checked>
+                                                            {{ description|text }}
+                                                            <details><summary><small>({{ "Scopes granted"|xlt }})</small></summary>{{ scope|text }}</details>
+                                                        </label>
+                                                    {% endfor %}
+                                                    {% for scope in hiddenScopes %}
+                                                        <input type="hidden" class='app-scope' name="scope[{{ scope|attr }}]" value="{{ scope|attr }}" checked>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endblock %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endblock %}
+                            {% block claimsContainer %}
+                                <div class="col-sm-4 mt-3 mt-sm-0">
+                                    <div class="card">
+                                        <div class="card-body pt-1">
+                                            <h5 class="card-title text-sm-center">{{ "Identity Information Requested"|xlt }}</h5>
+                                            <hr />
+                                            <p>{{ "This application is requesting access to the following information about you"|xlt }}</p>
+                                            <ul class="pl-2 mt-1">
+                                                {% for key,value in claims %}
+                                                    {% if key == 'fhirUser' %}
+                                                        <li class='col-text'>
+                                                            <strong>{{ "Permission to retrieve information about the current logged-in user"|xlt }}</strong>
+                                                            {{ userAccount.firstName|default("")|text }} {{ userAccount.lastName|default("")|text }}
+                                                        </li>
+                                                    {% else %}
+                                                        <li class='col-text'><strong>{{ key|text }}:</strong>  {{ value|text }}</li>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endblock %}
+                        {% endblock %}
+                    </div>
+                    {% block offlineFooter %}
+                        {% if offlineRequested %}
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <div class="alert alert-warning">
+                                        <p>
+                                            {{ "This application has requested offline access to your data. This permission will allow the data you authorize below to be accessed for an extended period of time"|xlt }}
+                                        </p>
+                                        <p>{{ "Offline access end date"|xlt }} <strong>{{ offline_access_date|text}}</strong></p>
+                                        <p>{{ "If you do not want to allow this application to have offline access to your data, uncheck the Offline Access permission"|xlt  }}</p>
+                                        <label class="list-group-item m-0">
+                                            <input type="checkbox" class='app-scope' name="scope[offline_access]" value="offline_access" checked>
+                                            {{ "Offline Access"|xlt }}
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        <hr />
+                    {% endblock %}
+
+                    {% block csrf %}
+                        <input type="hidden" name="csrf_token_form" value="{{ csrfTokenRaw('oauth2')|raw }}" />
+                    {% endblock %}
+
+                    {% block form_controls %}
+                        <div class="row mb-2">
+                            <div class="col-md-12">
+                                <div class="btn-group">
+                                    {% block form_buttons %}{% endblock %}
+                                    <button type="submit" name="proceed" value="1" class="btn btn-primary">{{ "Authorize"|xlt }}</button>
+                                </div>
+                                <div class="form-check-inline float-right">
+                                    <input class="form-check-input" type="checkbox" name="persist_login" id="persist_login" value="1">
+                                    <label for="persist_login" class="form-check-label">{{ "Remember Me"|xlt  }}</label>
+                                </div>
+                            </div>
+                        </div>
+                    {% endblock %}
+                    {% block form_footer %}{% endblock %}
+                </div>
+            </div>
+        </form>
+    {% endblock %}

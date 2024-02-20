@@ -14,9 +14,9 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/transactions.inc");
+require_once("$srcdir/transactions.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 
 $template_file = $GLOBALS['OE_SITE_DIR'] . "/referral_template.html";
 
@@ -151,10 +151,10 @@ if (empty($facrow['facility_npi'])) {
 }
 
 // Generate link to MA logo if it exists.
-$logo = "<!-- '" . ($ma_logo_path ?? '') . "' does not exist. -->";
+$logo = "";
 $ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
 if (is_file("$webserver_root/$ma_logo_path")) {
-    $logo = "<img src='$web_root/$ma_logo_path' style='height:" . round(9 * 5.14) . "pt' />";
+    $logo = "$web_root/$ma_logo_path";
 }
 
 $s = '';

@@ -11,8 +11,8 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/pnotes.inc");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/pnotes.inc.php");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/gprelations.inc.php");
 
@@ -22,7 +22,7 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 
 if (!empty($_GET['set_pid'])) {
-    require_once("$srcdir/pid.inc");
+    require_once("$srcdir/pid.inc.php");
     setpid($_GET['set_pid']);
 }
 

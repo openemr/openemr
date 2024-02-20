@@ -84,7 +84,7 @@ class FhirOrganizationProcedureProviderService extends FhirServiceBase
 
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
-        $fhirMeta->setLastUpdated(gmdate('c'));
+        $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $organizationResource->setMeta($fhirMeta);
         $organizationResource->setActive($dataRecord['active'] == '1');
 

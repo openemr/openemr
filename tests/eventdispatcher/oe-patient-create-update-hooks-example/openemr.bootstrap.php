@@ -16,7 +16,7 @@
 
 use OpenEMR\Events\Patient\PatientCreatedEvent;
 use OpenEMR\Events\Patient\PatientUpdatedEvent;
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**

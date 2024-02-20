@@ -75,7 +75,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
 
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
-        $fhirMeta->setLastUpdated(gmdate('c'));
+        $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $goal->setMeta($fhirMeta);
 
         $fhirId = new FHIRId();
@@ -110,7 +110,7 @@ class FhirGoalService extends FhirServiceBase implements IResourceUSCIGProfileSe
                 $fhirGoalTarget = new FHIRGoalTarget();
                 if (!empty($detail['date'])) {
                     $fhirDate = new FHIRDate();
-                    $parsedDateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $detail['date']);
+                    $parsedDateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $detail['date'], new \DateTimeZone(date('P')));
                     $fhirDate->setValue($parsedDateTime->format("Y-m-d"));
                     $fhirGoalTarget->setDueDate($fhirDate);
                 } else {

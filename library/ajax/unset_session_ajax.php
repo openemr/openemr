@@ -13,8 +13,8 @@
  */
 
 require_once("../../interface/globals.php");
-require_once("../pid.inc");
-require_once("../group.inc");
+require_once("../pid.inc.php");
+require_once("../group.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 

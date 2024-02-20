@@ -13,9 +13,9 @@
  */
 
     require_once("../../../globals.php");
-    require_once("$srcdir/api.inc");
-    require_once("$srcdir/forms.inc");
-    require_once("$srcdir/patient.inc");
+    require_once("$srcdir/api.inc.php");
+    require_once("$srcdir/forms.inc.php");
+    require_once("$srcdir/patient.inc.php");
 
     $providerID = $_REQUEST['providerID'];
 
@@ -369,7 +369,7 @@ function create_task(to_id,task,to_type) {
     var url = "../../forms/eye_mag/taskman.php";
     var formData = {
         'action'            : "make_task",
-        'from_id'           : <?php echo js_escape($providerID); ?>,
+        'from_id'           : <?php echo attr_js((int) $providerID); ?>,
         'to_id'             : to_id,
         'pid'               : $('#pid').val(),
         'doc_type'          : task,
@@ -1901,6 +1901,7 @@ function HPI_sync_heights() {
 /**
  *  Keyboard shortcut commands.
  */
+const shortcut = new Set();
 
 shortcut.add("Control+T",function() {
              show_TEXT();
@@ -3405,7 +3406,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                             $result = sqlStatement($query, array("Eye_defaults_$providerID"));
 
                                             $list = sqlFetchArray($result);
-                                            $SEQ = $list['seq'];
+                                            $SEQ = $list['seq'] ?? '';
                                             if (!$SEQ) {
                                               // If there is no list for this provider, we create it here.
                                               // This list is part of the idea to create a way to add Eye_Defaults_$providerID specific to the
@@ -3417,6 +3418,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                                                 $sql = "SELECT * from list_options where list_id = 'Eye_Defaults_for_GENERAL'";
                                                 $start = sqlStatement($sql);
                                                 $add_fields = array();
+                                                $parameters = '';
                                                 while ($val = sqlFetchArray($start)) {
                                                     $parameters .= "(?, ?, ?, ?, ?, ?),";
                                                     array_push($add_fields, "Eye_defaults_" . $providerID, $val['option_id'], $val['title'], $val['notes'], '1', $val['seq']);
@@ -3465,7 +3467,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         }
                         ?>
                         submit_form("eye_mag");
-                        
+
                         });
                   $("#EXT_defaults_L").on("click", function() {
                         <?php
@@ -3511,7 +3513,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                     }
                     ?>
                     submit_form("eye_mag");
-                    
+
                     });
                     $("#ANTSEG_defaults_OS").on("click", function() {
                             <?php
@@ -3545,7 +3547,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         $("#ODIRIS").val($("#OSIRIS").val());
                         submit_form("eye_mag");
                     });
-                    
+
                     $("#RETINA_OD_OS").on('click', function () {
                         $("#OSDISC").val($("#ODDISC").val());
                         $("#OSCUP").val($("#ODCUP").val());
@@ -3555,7 +3557,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         $("#OSPERIPH").val($("#ODPERIPH").val());
                         submit_form("eye_mag");
                     });
-                    
+
                     $("#RETINA_OS_OD").on('click', function () {
                         $("#ODDISC").val($("#OSDISC").val());
                         $("#ODCUP").val($("#OSCUP").val());
@@ -3565,7 +3567,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         $("#ODPERIPH").val($("#OSPERIPH").val());
                         submit_form("eye_mag");
                     });
-                    
+
                     $("#clear_EXT_L").on('click', function () {
                         $("#LBROW").val('');
                         $("#LUL").val('');
@@ -3576,7 +3578,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         $("#LMRD").val('');
                         submit_form("eye_mag");
                     });
-                    
+
                     $("#clear_EXT_R").on('click', function () {
                         $("#RBROW").val('');
                         $("#RUL").val('');
@@ -3587,7 +3589,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                         $("#RMRD").val('');
                         submit_form("eye_mag");
                     });
-                    
+
                     $("#RETINA_defaults_OD").on("click", function() {
                             <?php
                             foreach ($RETINA as $item => $value) {
@@ -3598,7 +3600,7 @@ $("body").on("click","[name^='old_canvas']", function() {
                             }
                             ?>
                             submit_form("eye_mag");
-                            
+
                             });
                     $("#RETINA_defaults_OS").on("click", function() {
                         <?php

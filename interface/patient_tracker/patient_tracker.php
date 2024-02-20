@@ -19,10 +19,10 @@
  */
 
 require_once "../globals.php";
-require_once "$srcdir/patient.inc";
+require_once "$srcdir/patient.inc.php";
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/patient_tracker.inc.php";
-require_once "$srcdir/user.inc";
+require_once "$srcdir/user.inc.php";
 require_once "$srcdir/MedEx/API.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -53,12 +53,6 @@ if (
 ) {
     // These are not form elements. We only ever change them via ajax, so exit now.
     exit();
-}
-if (($_POST['saveCALLback'] ?? '') == "Save") {
-    $sqlINSERT = "INSERT INTO medex_outgoing (msg_pc_eid,msg_pid,campaign_uid,msg_type,msg_reply,msg_extra_text)
-                  VALUES
-                (?,?,?,'NOTES','CALLED',?)";
-    sqlQuery($sqlINSERT, array($_POST['pc_eid'], $_POST['pc_pid'], $_POST['campaign_uid'], $_POST['txtCALLback']));
 }
 
 //set default start date of flow board to value based on globals
@@ -476,14 +470,10 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             $other_title = '';
                             $title = '';
                             $icon2_here = '';
-                            $icon_CALL = '';
-                            $icon_4_CALL = '';
                             $appt['stage'] = '';
                             $icon_here = array();
                             $prog_text = '';
-                            $CALLED = '';
                             $FINAL = '';
-                            $icon_CALL = '';
 
                             $query = "SELECT * FROM medex_outgoing WHERE msg_pc_eid =? ORDER BY medex_uid asc";
                             $myMedEx = sqlStatement($query, array($appointment['eid']));
@@ -527,11 +517,6 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 } elseif (($row['msg_reply'] == "CONFIRMED") || ($appointment[$row['msg_type']]['stage'] == "CONFIRMED")) {
                                     $appointment[$row['msg_type']]['stage'] = "CONFIRMED";
                                     $icon_here[$row['msg_type']]  = $icons[$row['msg_type']]['CONFIRMED']['html'];
-                                } elseif ($row['msg_type'] == "NOTES") {
-                                    $CALLED = "1";
-                                    $FINAL = $icons['NOTES']['CALLED']['html'];
-                                    $icon_CALL = str_replace("Call Back: COMPLETED", attr(oeFormatShortDate($row['msg_date'])) . " :: " . xla('Callback Performed') . " | " . xla('NOTES') . ": " . $row['msg_extra_text'] . " | ", $FINAL);
-                                    continue;
                                 } elseif (($row['msg_reply'] == "READ") || ($appointment[$row['msg_type']]['stage'] == "READ")) {
                                     $appointment[$row['msg_type']]['stage'] = "READ";
                                     $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['READ']['html'];
@@ -550,29 +535,18 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                     }
                                 }
                                 //these are additional icons if present
-                                if (($row['msg_reply'] == "CALL") && (!$CALLED)) {
-                                    $icon_here = '';
-                                    $icon_4_CALL = $icons[$row['msg_type']]['CALL']['html'];
-                                    $icon_CALL = "<span onclick=\"doCALLback(" . attr_js($date_squash) . "," . attr_js($appointment['eid']) . "," . attr_js($appointment['pc_cattype']) . ")\">" . $icon_4_CALL . "</span>
-                                    <span class='hidden' name='progCALLback_" . attr($appointment['eid']) . "' id='progCALLback_" . attr($appointment['eid']) . "'>
-                                      <form id='notation_" . attr($appointment['eid']) . "' method='post'
-                                      action='#'>
-                                        <input type='hidden' name='csrf_token_form' value='" . attr(CsrfUtils::collectCsrfToken()) . "' />
-                                        <h4>" . xlt('Call Back Notes') . ":</h4>
-                                        <input type='hidden' name='pc_eid' id='pc_eid' value='" . attr($appointment['eid']) . "'>
-                                        <input type='hidden' name='pc_pid' id='pc_pid' value='" . attr($appointment['pc_pid']) . "'>
-                                        <input type='hidden' name='campaign_uid' id='campaign_uid' value='" . attr($row['campaign_uid']) . "'>
-                                        <textarea name='txtCALLback' id='txtCALLback' rows=6 cols=20></textarea>
-                                        <input type='submit' name='saveCALLback' id='saveCALLback' value='" . xla("Save") . "'>
-                                      </form>
-                                    </span>
-                                      ";
+                                if ($row['msg_reply'] == "CALL") {
+                                    $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['CALL']['html'];
+                                    if (($appointment['allow_sms'] != "NO") && ($appointment['phone_cell'] > '')) {
+                                        $icon_4_CALL = "<span class='input-group-addon'
+                                                              onclick='SMS_bot(" . attr_js($row['msg_pid']) . ");'>
+                                                              <i class='fas fa-sms'></i>
+                                                        </span>";
+                                    }
                                 } elseif ($row['msg_reply'] == "STOP") {
                                     $icon2_here .= $icons[$row['msg_type']]['STOP']['html'];
                                 } elseif ($row['msg_reply'] == "Other") {
                                     $icon2_here .= $icons[$row['msg_type']]['Other']['html'];
-                                } elseif ($row['msg_reply'] == "CALLED") {
-                                    $icon2_here .= $icons[$row['msg_type']]['CALLED']['html'];
                                 }
                             }
                             //if pc_apptstatus == '-', update it now to=status
@@ -713,8 +687,8 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         }
                         if (($yestime == '1') && ($timecheck >= 1) && (strtotime($newarrive) != '')) {
                             echo text($timecheck . ' ' . ($timecheck >= 2 ? xl('minutes') : xl('minute')));
-                        } elseif (($icon_here ?? null) || ($icon2_here ?? null) || ($icon_CALL ?? null)) {
-                            echo "<span style='font-size:0.7rem;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . implode($icon_here) . $icon2_here . "</span> " . $icon_CALL;
+                        } elseif (($icon_here ?? null) || ($icon2_here ?? null)) {
+                            echo "<span style='font-size:0.7rem;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . implode($icon_here) . $icon2_here . "</span> " . $icon_4_CALL;
                         } elseif ($logged_in ?? null) {
                             $pat = $MedEx->display->possibleModalities($appointment);
                             echo "<span style='font-size:0.7rem;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . $pat['SMS'] . $pat['AVM'] . $pat['EMAIL'] . "</span>";
@@ -996,12 +970,6 @@ function myLocalJS()
                     top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid);
                 }
             }
-        }
-
-        function doCALLback(eventdate, eid, pccattype) {
-            $("#progCALLback_" + eid).parent().removeClass('js-blink-infinite').css('animation-name', 'none');
-            $("#progCALLback_" + eid).removeClass("hidden");
-            clearInterval(auto_refresh);
         }
 
         // opens the demographic and encounter screens in a new window

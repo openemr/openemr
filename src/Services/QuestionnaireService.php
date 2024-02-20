@@ -14,6 +14,12 @@ namespace OpenEMR\Services;
 
 use Exception;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\FHIR\Config\ServerConfig;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
+use OpenEMR\FHIR\R4\FHIRElement;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 
 class QuestionnaireService extends BaseService
 {
@@ -29,19 +35,23 @@ class QuestionnaireService extends BaseService
         parent::__construct($base_table ?? self::TABLE_NAME);
     }
 
+    public function getUuidFields(): array
+    {
+        return ['uuid'];
+    }
+
     /**
-     * @param $name
-     * @param $q_id
-     * @param $uuid
-     * @param $type
+     * @param      $name
+     * @param null $q_id
+     * @param null $uuid
      * @return array
      */
-    public function getQuestionnaireIdAndVersion($name, $q_id = null, $uuid = null, $type = 'Questionnaire'): array
+    public function getQuestionnaireIdAndVersion($name, $q_id = null, $uuid = null): array
     {
-        $sql = "Select `id`, `uuid`, `version` From `questionnaire_repository` Where ((`name` IS NOT NULL And `name` = ?) Or (`questionnaire_id` IS NOT NULL And `questionnaire_id` = ?)) And `type` = ?";
-        $bind = array($name, $q_id, $type);
+        $sql = "Select `id`, `uuid`, questionnaire_id, `version` From `questionnaire_repository` Where ((`name` IS NOT NULL And `name` = ?) Or (`questionnaire_id` IS NOT NULL And `questionnaire_id` = ?))";
+        $bind = array($name, $q_id);
         if (!empty($uuid)) {
-            $sql = "Select `id`, `uuid`, `version` From `questionnaire_repository` Where `uuid` = ?";
+            $sql = "Select `id`, `uuid`, questionnaire_id, `version` From `questionnaire_repository` Where `uuid` = ?";
             $bind = array($uuid);
         }
         $response = sqlQuery($sql, $bind) ?: [];
@@ -74,44 +84,69 @@ class QuestionnaireService extends BaseService
 
     /**
      * @param $q
-     * @param $lform
      * @param $name
+     * @param null $q_record_id
      * @param $q_id
+     * @param $lform
      * @param $type
      * @return false|int|mixed
+     * @throws Exception
      */
-    public function saveQuestionnaireResource($q, $lform = null, $name = null, $q_id = null, $type = null)
+    public function saveQuestionnaireResource($q, $name = null, $q_record_id = null, $q_id = null, $lform = null, $type = null)
     {
         $type = $type ?? 'Questionnaire';
-
+        $id = 0;
+        $fhir_ob = null;
         if (is_string($q)) {
-            $q_ob = json_decode($q, true);
+            $q = json_decode($q, true);
             $is_json = json_last_error() === JSON_ERROR_NONE;
             if (!$is_json) {
-                return false;
-            }
-            $q = $q_ob;
-        } else {
-            // in case an object, cast it to array
-            if (is_object($q)) {
-                $q = (array)$q;
+                throw new Exception(xlt("Questionnaire json is invalid"));
             }
         }
-        $q_uuid = (new UuidRegistry(['table_name' => 'questionnaire_repository']))->createUuid();
-        if (is_array($q)) {
-            $q_ob = $q;
-            $q_id = $q_id ?? ($q_ob['id'] ?? null);
-            $q_version = $q_ob['meta']['versionId'] ?? 1;
-            $q_last_date = $q_ob['meta']['lastUpdated'] ?? null;
-            $name = $name ?? ($q_ob['title'] ?? null);
-            $q_profile = $q_ob['meta']['profile'][0] ?? null;
-            $q_status = $q_ob['status'] == 'draft' ? 'active' : $q_ob['status'];
-            $q_code = $q_ob["code"][0]['code'] ?? null;
-            $q_display = $q_ob['code'][0]['display'] ?? null;
-        } else {
-            return false;
+        $fhir_ob = new FHIRQuestionnaire($q);
+        $q_ob = $this->fhirObjectToArray($fhir_ob);
+
+        if (empty($q_id)) {
+            if (!empty($q_ob['id'])) {
+                $q_id = $q_ob['id'];
+            }
         }
-        $content = json_encode($q_ob);
+
+        $name = $name ?: ($q_ob['title'] ?? null);
+        if (empty($name)) {
+            $name = $q_ob['name'] ?? null;
+        }
+        $name = trim($name);
+        if (empty($q_record_id)) {
+            $id = $this->getQuestionnaireIdAndVersion($name, $q_id);
+        } else {
+            $id = $q_record_id;
+        }
+        if (empty($id)) {
+            $q_uuid = (new UuidRegistry(['table_name' => 'questionnaire_repository']))->createUuid();
+            $q_id = UuidRegistry::uuidToString($q_uuid);
+            $serverConfig = new ServerConfig();
+            $fhirUrl = $serverConfig->getFhirUrl();
+            // make sure we always have a slash at the end for our url
+            if (!empty($fhirUrl) && $fhirUrl[strlen($fhirUrl) - 1] != '/') {
+                $fhirUrl .= '/';
+            }
+            $q_url = $fhirUrl . 'Questionnaire/' . $q_id;
+            $fhir_ob->setId(new FHIRId($q_id));
+            $fhir_ob->setUrl(new FHIRUri($q_url));
+            $fhir_ob->setTitle(new FHIRString($name));
+            $fhir_ob->setName(new FHIRString(strtolower(str_replace(' ', '', $name))));
+        }
+
+        $q_version = $q_ob['meta']['versionId'] ?? 1;
+        $q_last_date = $q_ob['meta']['lastUpdated'] ?? null;
+        $q_profile = $q_ob['meta']['profile'][0] ?? null;
+        $q_status = $q_ob['status'] == 'draft' ? 'active' : $q_ob['status'];
+        $q_code = $q_ob["code"][0]['code'] ?? null;
+        $q_display = $q_ob['code'][0]['display'] ?? null;
+
+        $content = $this->jsonSerialize($fhir_ob);
         $bind = array(
             $q_uuid,
             $q_id,
@@ -122,21 +157,19 @@ class QuestionnaireService extends BaseService
             $type,
             $q_profile,
             $q_status,
+            $q_url,
             $q_code,
             $q_display,
             $content,
             $lform
         );
 
-        $sql_insert = "INSERT INTO `questionnaire_repository` (`id`, `uuid`, `questionnaire_id`, `provider`, `version`, `created_date`, `modified_date`, `name`, `type`, `profile`, `active`, `status`, `source_url`, `code`, `code_display`, `questionnaire`, `lform`) VALUES (NULL, ?, ?, ?, ?, current_timestamp(), ?, ?, ?, ?, '1', ?, NULL, ?, ?, ?, ?)";
-        $sql_update = "UPDATE `questionnaire_repository` SET `questionnaire_id` = ?, `provider` = ?,`version` = ?, `modified_date` = ?, `name` = ?, `type` = ?, `profile` = ?, `status` = ?, `code` = ?, `code_display` = ?, `questionnaire` = ?, `lform` = ? WHERE `questionnaire_repository`.`id` = ?";
-
-        $id = $this->getQuestionnaireIdAndVersion($name, $q_id, null, $type);
+        $sql_insert = "INSERT INTO `questionnaire_repository` (`id`, `uuid`, `questionnaire_id`, `provider`, `version`, `created_date`, `modified_date`, `name`, `type`, `profile`, `active`, `status`, `source_url`, `code`, `code_display`, `questionnaire`, `lform`) VALUES (NULL, ?, ?, ?, ?, current_timestamp(), ?, ?, ?, ?, '1', ?, ?, ?, ?, ?, ?)";
+        $sql_update = "UPDATE `questionnaire_repository` SET `provider` = ?,`version` = ?, `modified_date` = ?, `name` = ?, `type` = ?, `profile` = ?, `status` = ?, `code` = ?, `code_display` = ?, `questionnaire` = ?, `lform` = ? WHERE `questionnaire_repository`.`id` = ?";
 
         if (!empty($id)) {
             $version_update = (int)$id['version'] + 1;
             $bind = array(
-                $q_id,
                 $_SESSION['authUserID'],
                 $version_update,
                 date("Y-m-d H:i:s"),
@@ -150,7 +183,7 @@ class QuestionnaireService extends BaseService
                 $lform,
                 $id['id']
             );
-            $result = sqlInsert($sql_update, $bind);
+            sqlInsert($sql_update, $bind);
             $id = $id['id'];
         } else {
             $id = sqlInsert($sql_insert, $bind) ?: 0;
@@ -382,12 +415,24 @@ class QuestionnaireService extends BaseService
     {
         // TODO add enableWhen properties to results
         $answers = [];
+        $score = 'na';
         foreach ($item->getAnswerOption() as $option) {
+            $oOption = $this->fhirObjectToArray($option);
+            if (count($oOption['extension'] ?? [])) {
+                foreach ($oOption['extension'] as $e) {
+                    if (stripos($e['url'], 'ordinalValue') !== false) {
+                        foreach ($e as $k => $v) {
+                            if (stripos($k, 'value') !== false) {
+                                $score = $v;
+                            }
+                        }
+                    }
+                }
+            }
             $coding = $option->getValueCoding();
             $code = $this->getValue($coding->getCode());
             $display = $this->getValue($coding->getDisplay());
-
-            $answers[$code] = $display;
+            $answers[$code] = "$display, $score";
         }
 
         return $answers;

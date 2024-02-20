@@ -37,7 +37,7 @@ class SurgeryService extends BaseService
 
     public function getUuidFields(): array
     {
-        return ['uuid', 'euuid', 'puuid'];
+        return ['uuid', 'euuid', 'puuid', 'recorder_uuid'];
     }
 
     public function search($search, $isAndCondition = true)

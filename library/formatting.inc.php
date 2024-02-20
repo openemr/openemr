@@ -12,24 +12,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
 // TODO: look at moving all of the date functions into the DateFormatterUtils class.
 
 function oeFormatMoney($amount, $symbol = false)
 {
-    $s = number_format(
-        floatval($amount),
-        $GLOBALS['currency_decimals'],
-        $GLOBALS['currency_dec_point'],
-        $GLOBALS['currency_thousands_sep']
-    );
-  // If the currency symbol exists and is requested, prepend it.
-    if ($symbol && !empty($GLOBALS['gbl_currency_symbol'])) {
-        $s = $GLOBALS['gbl_currency_symbol'] . " $s";
-    }
-
-    return $s;
+    return FormatMoney::getFormattedMoney($amount, $symbol);
 }
 
 function oeFormatShortDate($date = 'today', $showYear = true)
@@ -76,7 +66,7 @@ function oeFormatTime($time, $format = "global", $seconds = false)
  */
 function oeFormatDateTime($datetime, $formatTime = "global", $seconds = false)
 {
-    return oeFormatShortDate(substr($datetime, 0, 10)) . " " . oeFormatTime(substr($datetime, 11), $formatTime, $seconds);
+    return oeFormatShortDate(substr($datetime ?? '', 0, 10)) . " " . oeFormatTime(substr($datetime ?? '', 11), $formatTime, $seconds);
 }
 
 /**
@@ -139,6 +129,7 @@ function oeFormatClientID($id)
     return $id;
 }
 //----------------------------------------------------
+// note this function is implemented in the javascript side in the js/xl/formatting.js file
 function DateFormatRead($mode = 'legacy')
 {
     //For the 3 supported date format,the javascript code also should be twicked to display the date as per it.
@@ -178,14 +169,12 @@ function DateToYYYYMMDD($DateValue)
 
 function TimeToHHMMSS($TimeValue)
 {
-    //For now, just return the $TimeValue, since input fields are not formatting time.
-    // This can be upgraded if decided to format input time fields.
-
     if (trim($TimeValue) == '') {
         return '';
     }
 
-    return $TimeValue;
+    $date = new DateTimeImmutable('1970-01-01' . $TimeValue);
+    return $date->format('H:i:s');
 }
 
 

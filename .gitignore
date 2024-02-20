@@ -12,10 +12,6 @@ node_modules
 !/public/assets/modified
 /.docs/.out/*
 
-# Custom modules
-interface/modules/custom_modules/**
-!interface/modules/custom_modules/README.md
-
 # ccda service build
 ccdaservice/node_modules
 
@@ -30,3 +26,4 @@ ccdaservice/node_modules
 
 # testing
 .phpunit.result.cache
+coverage/js-unit

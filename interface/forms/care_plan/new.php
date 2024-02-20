@@ -14,8 +14,8 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
@@ -99,20 +99,20 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         ?>
                                     <div class="tb_row" id="tb_row_<?php echo attr($key) + 1; ?>">
                                         <div class="form-row">
-                                            <div class="forms col-md-2">
+                                            <div class="forms col-md-4">
                                                 <label for="code_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Code'); ?>:</label>
-                                                <input type="text" id="code_<?php echo attr($key) + 1; ?>" name="code[]" class="form-control code" 
+                                                <input type="text" id="code_<?php echo attr($key) + 1; ?>" name="code[]" class="form-control code"
                                                   value="<?php echo attr($obj["code"]); ?>"  onclick='sel_code(<?php echo attr_js($GLOBALS['webroot']) ?>,
                                                   this.parentElement.parentElement.parentElement.id);' data-toggle='tooltip' data-placement='bottom' title='<?php echo attr($obj['code']) . "'"; ?> />
                                                 <span id="displaytext_<?php echo attr($key) + 1; ?>"  class="displaytext help-block"><?php echo text($obj["codetext"] ?? ''); ?></span>
                                                 <input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"]); ?>" />
                                                 <input type="hidden" id="user_<?php echo attr($key) + 1; ?>" name="user[]" class="user" value="<?php echo attr($obj["user"]); ?>" />
                                             </div>
-                                            <div class="forms col-md-2">
+                                            <div class="forms col-md-4">
                                                 <label for="code_date_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Date'); ?>:</label>
                                                 <input type='text' id="code_date_<?php echo attr($key) + 1; ?>" name='code_date[]' class="form-control code_date datepicker" value='<?php echo attr($obj["date"]); ?>' title='<?php echo xla('yyyy-mm-dd HH:MM Date of service'); ?>' />
                                             </div>
-                                            <div class="forms col-md-2">
+                                            <div class="forms col-md-4">
                                                 <label for="care_plan_type_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Type'); ?>:</label>
                                                 <select name="care_plan_type[]" id="care_plan_type_<?php echo attr($key) + 1; ?>" class="form-control care_plan_type">
                                                     <option value=""></option>
@@ -126,18 +126,18 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                                     <?php endforeach;?>
                                                     </select>
                                             </div>
-                                            <div class="forms col-md-6">
+                                            <div class="forms col-md-12">
                                                 <label for="description_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Description'); ?>:</label>
                                                 <textarea name="description[]"  id="description_<?php echo attr($key) + 1; ?>" data-textcontext="<?php echo attr($context); ?>" class="form-control description" rows="6" ><?php echo text($obj["description"]); ?></textarea>
                                             </div>
-                                            <div class="form-row w-100 mt-2 text-center">
-                                                <div class="forms col-md-12">
-                                                    <?php include("templates/careplan_actions.php"); ?>
-                                                </div>
-                                                <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1;?>" />
-                                            </div>
-                                            <?php include "templates/careplan_reason_row.php"; ?>
                                         </div>
+                                        <div class="form-row mt-2">
+                                            <div class="forms col-md-12 d-flex flex-row-reverse ">
+                                                <?php include("templates/careplan_actions.php"); ?>
+                                            </div>
+                                            <input type="hidden" name="count[]" id="count_<?php echo attr($key) + 1; ?>" class="count" value="<?php echo attr($key) + 1;?>" />
+                                        </div>
+                                        <?php include "templates/careplan_reason_row.php"; ?>
                                         <hr />
                                     </div>
                                 <?php }

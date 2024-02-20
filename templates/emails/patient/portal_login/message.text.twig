@@ -1,5 +1,7 @@
-{% if portal_onsite_two_enable is not empty %}{{ "Patient Portal Web Address"|xlt }}: {{ portal_onsite_two_address|text }}{% endif %}
-{{ "Portal Account Name"|xlt }}: {{ uname }}
+{% if portal_onsite_two_enable is not empty %}
+{{ "Patient Portal Web Address"|xlt }}: {{ portal_onsite_two_address|text }}
+{% endif %}
+{{ "Portal Account Name"|xlt }}: {{ uname|text }}
 {{ "Login User Name"|xlt }}: {{ login_uname|text }}
 {{ "Password"|xlt }}: {{ pwd|text }}
 {% if enforce_signin_email %}{{ "Login Trusted Email"|xlt  }}: {% if email_direct is not empty %}{{  email_direct|text }}{% else %}{{ "Is Required. Contact Provider."|xlt}}{% endif %}{% endif %}

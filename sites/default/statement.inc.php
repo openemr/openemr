@@ -336,7 +336,7 @@ function create_HTML_statement($stmt)
         // If first bill then make the amount due current and reset aging date
         if ($stmt['dun_count'] == '0') {
             $last_activity_date = date('Y-m-d');
-            sqlStatement("UPDATE billing SET bill_date = ? WHERE pid = ? AND encounter = ?", array(date('Y-m-d'), $patient_id, $encounter_id));
+            sqlStatement("UPDATE billing SET bill_date = ? WHERE pid = ? AND encounter = ?", array(date('Y-m-d'), $row['pid'], $row['encounter']));
         }
         $age_in_days = (int) (($todays_time - strtotime($last_activity_date)) / (60 * 60 * 24));
         $age_index = (int) (($age_in_days - 1) / 30);

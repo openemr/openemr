@@ -2,7 +2,7 @@
 
 /**
  * CodeTypeInstalledEvent class is fired when a code type has been installed in the OpenEMR system. Currently it is fired
- * during the External Data Load process for code types found in standard_tables_capture.inc  Consumers can hook into
+ * during the External Data Load process for code types found in standard_tables_capture.inc.php  Consumers can hook into
  * the pre install event and post install event.
  *
  * @package   OpenEMR

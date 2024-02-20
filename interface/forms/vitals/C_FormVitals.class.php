@@ -10,8 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS['fileroot'] . "/library/forms.inc");
-require_once($GLOBALS['fileroot'] . "/library/patient.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
+require_once($GLOBALS['fileroot'] . "/library/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormVitals;
@@ -33,6 +33,8 @@ class C_FormVitals
     var $template_dir;
     var $form_id;
     var $units_of_measurement;
+    var $template_mod;
+    var $context;
 
     const OMIT_CIRCUMFERENCES_NO = 0;
     const OMIT_CIRCUMFERENCES_YES = 1;
@@ -42,12 +44,13 @@ class C_FormVitals
      */
     private $interpretationsList = [];
 
-    public function __construct($template_mod = "general")
+    public function __construct($template_mod = "general", $context = '')
     {
         $this->units_of_measurement = $GLOBALS['units_of_measurement'];
         $this->interpretationsList = $this->get_interpretation_list_options();
         $this->template_mod = $template_mod;
         $this->template_dir = __DIR__ . "/templates/vitals/";
+        $this->context = $context;
     }
 
     public function setFormId($form_id)
@@ -93,6 +96,19 @@ class C_FormVitals
             $i++;
         }
 
+        // For the demographics page and $form_id === 0
+        if (
+            $form_id === 0
+            && $this->context == 'dashboard'
+            && is_countable($results)
+        ) {
+            $vitals_history_count = count($results);
+            $vitals = $results[$vitals_history_count];
+            if (isset($vitals->uuid)) {
+                $vitals->uuid = UuidRegistry::uuidToBytes($vitals->uuid);
+            }
+        }
+
         $reasonCodeStatii = ReasonStatusCodes::getCodesWithDescriptions();
         $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status code");
 
@@ -105,8 +121,10 @@ class C_FormVitals
                 // eventually we could just grab the raw values...
                 ,'vitalsValue' => "get_weight"
                 ,'vitalsValueMetric' => "get_weight_metric"
-                ,'unit' => xl('lbs')
-                ,'unitMetric' => xl('kg')
+                ,'unit' => 'lbs'
+                ,'unitMetric' => 'kg'
+                ,'unitLabel' => xl('lbs')
+                ,'unitMetricLabel' => xl('kg')
                 ,'precision' => 2
                 ,'vitalsValueUSAHelpTitle' => xl("Decimal pounds or pounds and ounces separated by #(e.g. 5#4)")
                 ,'codes' => 'LOINC:29463-7'
@@ -118,8 +136,10 @@ class C_FormVitals
                 ,'vitalsValue' => "get_height"
                 ,'vitalsValueMetric' => "get_height_metric"
                 ,'input' => 'height'
-                ,'unit' => xl('in')
-                ,'unitMetric' => xl('cm')
+                ,'unit' => 'in'
+                ,'unitMetric' => 'cm'
+                ,'unitLabel' => xl('in')
+                ,'unitMetricLabel' => xl('cm')
                 ,'precision' => 2
                 ,'codes' => 'LOINC:8302-2'
             ]
@@ -129,7 +149,8 @@ class C_FormVitals
                 // eventually we could just grab the raw values...
                 ,'vitalsValue' => "get_bps"
                 ,'input' => 'bps'
-                ,'unit' => xl('mmHg')
+                ,'unit' => 'mmHg'
+                ,'unitLabel' => xl('mmHg')
                 ,'codes' => 'LOINC:8480-6'
             ]
             ,[
@@ -138,7 +159,8 @@ class C_FormVitals
                 // eventually we could just grab the raw values...
                 ,'vitalsValue' => "get_bpd"
                 ,'input' => 'bpd'
-                ,'unit' => xl('mmHg')
+                ,'unit' => 'mmHg'
+                ,'unitLabel' => xl('mmHg')
                 ,'codes' => 'LOINC:8462-4'
             ]
             ,[
@@ -148,7 +170,8 @@ class C_FormVitals
                 ,'vitalsValue' => "get_pulse"
                 ,'precision' => 0
                 ,'input' => 'pulse'
-                ,'unit' => xl('per min')
+                ,'unit' => 'per min'
+                ,'unitLabel' => xl('per min')
                 ,'codes' => 'LOINC:8867-4'
             ]
             ,[
@@ -158,7 +181,8 @@ class C_FormVitals
                 ,'vitalsValue' => "get_respiration"
                 ,'precision' => 0
                 ,'input' => 'respiration'
-                ,'unit' => xl('per min')
+                ,'unit' => 'per min'
+                ,'unitLabel' => xl('per min')
                 ,'codes' => 'LOINC:9279-1'
             ]
             ,[
@@ -168,8 +192,10 @@ class C_FormVitals
                 ,'vitalsValue' => "get_temperature"
                 ,'vitalsValueMetric' => "get_temperature_metric"
                 ,'input' => 'temperature'
-                ,'unit' => xl('F')
-                ,'unitMetric' => xl('C')
+                ,'unit' => 'F'
+                ,'unitMetric' => 'C'
+                ,'unitLabel' => xl('F')
+                ,'unitMetricLabel' => xl('C')
                 ,'precision' => 2
                 ,'codes' => 'LOINC:8310-5'
             ]
@@ -185,6 +211,7 @@ class C_FormVitals
                 ,'precision' => 2
                 ,'input' => 'oxygen_saturation'
                 ,'unit' => '%'
+                ,'unitLabel' => '%'
                 ,'codes' => 'LOINC:59408-5'
             ]
             ,[
@@ -194,7 +221,8 @@ class C_FormVitals
                 ,'vitalsValue' => "get_oxygen_flow_rate"
                 ,'precision' => 2
                 ,'input' => 'oxygen_flow_rate'
-                ,'unit' => xl('l/min')
+                ,'unit' => 'l/min'
+                ,'unitLabel' => xl('l/min')
                 ,'codes' => 'LOINC:3151-8'
             ]
             ,[
@@ -205,6 +233,7 @@ class C_FormVitals
                 ,'precision' => 0
                 ,'input' => 'inhaled_oxygen_concentration'
                 ,'unit' => '%'
+                ,'unitLabel' => '%'
                 ,'codes' => 'LOINC:3150-0'
             ]
             ,[
@@ -214,8 +243,10 @@ class C_FormVitals
                 ,'vitalsValue' => "get_head_circ"
                 ,'vitalsValueMetric' => "get_head_circ_metric"
                 ,'input' => 'head_circ'
-                ,'unit' => xl('in')
-                ,'unitMetric' => xl('cm')
+                ,'unit' => 'in'
+                ,'unitMetric' => 'cm'
+                ,'unitLabel' => xl('in')
+                ,'unitMetricLabel' => xl('cm')
                 ,'precision' => 2
                 // hide_circumferences
                 ,'hide' => $GLOBALS['gbl_vitals_options'] > 0
@@ -228,8 +259,10 @@ class C_FormVitals
                 ,'vitalsValue' => "get_waist_circ"
                 ,'vitalsValueMetric' => "get_waist_circ_metric"
                 ,'input' => 'waist_circ'
-                ,'unit' => xl('in')
-                ,'unitMetric' => xl('cm')
+                ,'unit' => 'in'
+                ,'unitMetric' => 'cm'
+                ,'unitLabel' => xl('in')
+                ,'unitMetricLabel' => xl('cm')
                 ,'precision' => 2
                 // hide_circumferences
                 ,'hide' => $GLOBALS['gbl_vitals_options'] > 0
@@ -250,6 +283,7 @@ class C_FormVitals
                 ,'vitalsValue' => "get_ped_weight_height"
                 ,'input' => 'ped_weight_height'
                 ,'unit' => '%'
+                ,'unitLabel' => '%'
                 ,'codes' => 'LOINC:77606-2'
                 ,'hide' => !$show_pediatric_fields
             ]
@@ -260,6 +294,7 @@ class C_FormVitals
                 ,'vitalsValue' => "get_ped_bmi"
                 ,'input' => 'ped_bmi'
                 ,'unit' => '%'
+                ,'unitLabel' => '%'
                 ,'codes' => 'LOINC:59576-9'
                 ,'hide' => !$show_pediatric_fields
             ]
@@ -270,6 +305,7 @@ class C_FormVitals
                 ,'vitalsValue' => "get_ped_head_circ"
                 ,'input' => 'ped_head_circ'
                 ,'unit' => '%'
+                ,'unitLabel' => '%'
                 ,'codes' => 'LOINC:8289-1'
                 ,'hide' => !$show_pediatric_fields
             ]
@@ -295,7 +331,7 @@ class C_FormVitals
             $vitalsHistoryLookback = array_slice($results, 0, $maxHistoryCols);
             $hasMoreVitals = true;
         } else {
-            $vitalsHistoryLookback = $results;
+            $vitalsHistoryLookback = $results ?? null;
         }
 
         $data = [
@@ -321,6 +357,7 @@ class C_FormVitals
             ,'patient_age' => $patient_age
             ,'patient_dob' => $patient_dob
             ,'show_pediatric_fields' => ($patient_age <= 20 || (preg_match('/month/', $patient_age)))
+            ,'has_id' => $form_id
         ];
         $twig = (new TwigContainer($this->template_dir, $GLOBALS['kernel']))->getTwig();
 
@@ -446,7 +483,7 @@ class C_FormVitals
 
                 if (empty($value)) {
                     $details->clear_interpretation();
-                } else if (isset($interpretationList[$value])) {
+                } elseif (isset($interpretationList[$value])) {
                     $interpretation = $interpretationList[$value];
 
                     // we save off both the code and the text value here which duplicates the data.  However, since

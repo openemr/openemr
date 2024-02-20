@@ -212,8 +212,6 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
                 ,"description" => $this->getDescriptionForCode($code)
                 ,"category" => "social-history"
                 , "puuid" => $record['puuid']
-                , "euuid" => $record['euuid']
-                , "user_uuid" => $record['user_uuid']
                 ,"uuid" => UuidRegistry::uuidToString($uuidMappings[$code])
                 ,"date" => $record['date']
             ];
@@ -271,7 +269,7 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
         $observation = new FHIRObservation();
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(gmdate('c'));
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $observation->setMeta($meta);
 
         $id = new FHIRId();
@@ -279,7 +277,7 @@ class FhirObservationSocialHistoryService extends FhirServiceBase implements IPa
         $observation->setId($id);
 
         if (!empty($dataRecord['date'])) {
-            $observation->setIssued(gmdate('c', strtotime($dataRecord['date'])));
+            $observation->setIssued(UtilsService::getLocalDateAsUTC($dataRecord['date']));
         } else {
             $observation->setIssued(UtilsService::createDataMissingExtension());
         }

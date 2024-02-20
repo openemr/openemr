@@ -12,7 +12,7 @@
  */
 
 require_once(dirname(__FILE__) . "/../../interface/globals.php");
-require_once(dirname(__FILE__) . "/../lists.inc");
+require_once(dirname(__FILE__) . "/../lists.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 

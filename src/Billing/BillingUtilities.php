@@ -7,7 +7,7 @@
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2011-2021 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019-2022 Stephen Waite <stephen.waite@cmsvt.com>
  * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -275,6 +275,10 @@ class BillingUtilities
         '299' => 'The billing provider is not eligible to receive payment for the service billed.',
         '300' => 'Claim received by the Medical Plan, but benefits not available under this plan. Claim has been forwarded to the patient\'s Behavioral Health Plan for further consideration.',
         '301' => 'Claim received by the Medical Plan, but benefits not available under this plan. Submit these services to the patient\'s Behavioral Health Plan for further consideration.',
+        '302' => 'Precertification/notification/authorization/pre-treatment time limit has expired.',
+        '303' => 'Prior payer\'s (or payers\') patient responsibility (deductible, coinsurance, co-payment) not covered for Qualified Medicare and Medicaid Beneficiaries. (Use only with Group Code CO)',
+        '304' => 'Claim received by the medical plan, but benefits not available under this plan. Submit these services to the patient\'s hearing plan for further consideration.',
+        '305' => 'Claim received by the medical plan, but benefits not available under this plan. Claim has been forwarded to the patient\'s hearing plan for further consideration.',
         'A0' => 'Patient refund amount.',
         'A1' => 'Claim/Service denied. At least one Remark Code must be provided (may be comprised of either the NCPDP Reject Reason Code, or Remittance Advice Remark Code that is not an ALERT.)',
         'A5' => 'Medicare Claim PPS Capital Cost Outlier Amount.',
@@ -1362,7 +1366,54 @@ class BillingUtilities
         'N835' => 'Unrelated Service/procedure/treatment is reduced. The balance of this charge is the patient\'s responsibility.',
         'N836' => 'Provider W9 or Payee Registration not on file.',
         'N837' => 'Alert: Missing modifier was added.',
-        'N838' => 'Alert: Service/procedure postponed due to a federal, state, or local mandate/disaster declaration. Any amounts applied to deductible or member liability will be applied to the prior plan year from which the procedure was cancelled.'
+        'N838' => 'Alert: Service/procedure postponed due to a federal, state, or local mandate/disaster declaration. Any amounts applied to deductible or member liability will be applied to the prior plan year from which the procedure was cancelled.',
+        'N839' => 'The procedure code was added/changed because the level of service exceeds the compensable condition(s).',
+        'N840' => 'Worker\'s compensation claim filed with a different state.',
+        'N841' => 'Alert: North Dakota Administrative Rule 92-01-02-50.3.',
+        'N842' => 'Alert: Patient cannot be billed for charges.',
+        'N843' => 'Missing/incomplete/invalid Core-Based Statistical Area (CBSA) code.',
+        'N844' => 'This claim, or a portion of this claim, was processed in accordance with the Nebraska Legislative LB997 July 24, 2020 - Out of Network Emergency Medical Care Act.',
+        'N845' => 'Alert: Nebraska Legislative LB997 July 24, 2020 - Out of Network Emergency Medical Care Act.',
+        'N846' => 'National Drug Code (NDC) supplied does not correspond to the HCPCs/CPT billed.',
+        'N847' => 'National Drug Code (NDC) billed is obsolete.',
+        'N848' => 'National Drug Code (NDC) billed cannot be associated with a product.',
+        'N849' => 'Missing Tooth Clause: Tooth missing prior to the member effective date.',
+        'N850' => 'Missing/incomplete/invalid narrative explaining/describing this service/treatment.',
+        'N851' => 'Payment reduced because services were furnished by a therapy assistant.',
+        'N852' => 'The pay-to and rendering provider tax identification numbers (TINs) do not match',
+        'N853' => 'The number of modalities performed per session exceeds our acceptable maximum.',
+        'N854' => 'Alert: If you have primary other health insurance (OHI) coverage that has denied services, you must exhaust all appeal levels with your primary OHI before we can consider your claim for reimbursement.',
+        'N855' => 'This coverage is subject to the exclusive jurisdiction of ERISA (1974), U.S.C. SEC 1001.',
+        'N856' => 'This coverage is not subject to the exclusive jurisdiction of ERISA (1974), U.S.C. SEC 1001.',
+        'N857' => 'This claim has been adjusted/reversed. Refund any collected copayment to the member.',
+        'N858' => 'Alert: State regulations relating to an Out of Network Medical Emergency Care Act were applied to the processing of this claim. Payment amounts are eligible for dispute following the state\'s documented appeal/ grievance/ arbitration process.',
+        'N859' => 'Alert: The Federal No Surprise Billing Act was applied to the processing of this claim. Payment amounts are eligible for dispute pursuant to any Federal documented appeal/ grievance/ dispute resolution process(es).',
+        'N860' => 'Alert: The Federal No Surprise Billing Act Qualified Payment Amount (QPA) was used to calculate the member cost share(s).',
+        'N861' => 'Alert: Mismatch between the submitted Patient Liability/Share of Cost and the amount on record for this recipient.',
+        'N862' => 'Alert: Member cost share is in compliance with the No Surprises Act, and is calculated using the lesser of the QPA or billed charge.',
+        'N863' => 'Alert: This claim is subject to the No Surprises Act (NSA). The amount paid is the final out-of-network rate and was calculated based on an All Payer Model Agreement, in accordance with the NSA.',
+        'N864' => 'Alert: This claim is subject to the No Surprises Act provisions that apply to emergency services.',
+        'N865' => 'Alert: This claim is subject to the No Surprises Act provisions that apply to nonemergency services furnished by nonparticipating providers during a patient visit to a participating facility.',
+        'N866' => 'Alert: This claim is subject to the No Surprises Act provisions that apply to services furnished by nonparticipating providers of air ambulance services.',
+        'N867' => 'Alert: Cost sharing was calculated based on a specified state law, in accordance with the No Surprises Act.',
+        'N868' => 'Alert: Cost sharing was calculated based on an All-Payer Model Agreement, in accordance with the No Surprises Act.',
+        'N869' => 'Alert: Cost sharing was calculated based on the qualifying payment amount, in accordance with the No Surprises Act.',
+        'N870' => 'Alert: In accordance with the No Surprises Act, cost sharing was based on the billed amount because the billed amount was lower than the qualifying payment amount.',
+        'N871' => 'Alert: This initial payment was calculated based on a specified state law, in accordance with the No Surprises Act.',
+        'N872' => 'Alert: This final payment was calculated based on a specified state law, in accordance with the No Surprises Act.',
+        'N873' => 'Alert: This final payment was calculated based on an All-Payer Model Agreement, in accordance with the No Surprises Act.',
+        'N874' => 'Alert: This final payment was determined through open negotiation, in accordance with the No Surprises Act.',
+        'N875' => 'Alert: This final payment equals the amount selected as the out-of-network rate by a Federal Independent Dispute Resolution Entity, in accordance with the No Surprises Act.',
+        'N876' => 'Alert: This item or service is covered under the plan. This is a notice of denial of payment provided in accordance with the No Surprises Act. The provider or facility may initiate open negotiation if they desire to negotiate a higher out-of-network rate than the amount paid by the patient in cost sharing.',
+        'N877' => 'Alert: This initial payment is provided in accordance with the No Surprises Act. The provider or facility may initiate open negotiation if they desire to negotiate a higher out-of-network rate.',
+        'N878' => 'Alert: The provider or facility specified that notice was provided and consent to balance bill obtained, but notice and consent was not provided and obtained in a manner consistent with applicable Federal law. Thus, cost sharing and the total amount paid have been calculated based on the requirements under the No Surprises Act, and balance billing is prohibited.',
+        'N879' => 'Alert: The notice and consent to balance bill, and to be charged out-of-network cost sharing, that was obtained from the patient with regard to the billed services, is not permitted for these services. Thus, cost sharing and the total amount paid have been calculated based on the requirements under the No Surprises Act, and balance billing is prohibited.',
+        'N880' => 'Original claim closed due to changes in submitted data. Adjustment claim will be processed under a new claim number.',
+        'N881' => 'Client Obligation, patient responsibility for Home & Community Based Services (HCBS)',
+        'N882' => 'Alert: The out-of-network payment and cost sharing amounts were based on the plan\'s allowance because the provider or facility obtained the patient\'s consent to waive the balance billing protections under the No Surprises Act.',
+        'N883' => 'Alert: Processed according to state law',
+        'N884' => 'Alert: The No Surprises Act may apply to this claim. Please contact payer for instructions on how to submit information regarding whether or not the item or service was furnished during a patient visit to a participating facility.',
+        'N885' => 'Alert: This claim was not processed in accordance with the No Surprises Act cost-sharing or out-of-network payment requirements. The payer disagrees with your determination that those requirements apply. You may contact the payer to find out why it disagrees. You may appeal this adverse determination on behalf of the patient through the payer’s internal appeals and external review processes.',
     );
 
     public static function getBillingByEncounter($pid, $encounter, $cols = "code_type, code, code_text")
@@ -1706,7 +1757,7 @@ class BillingUtilities
     {
         $tmp = sqlQuery("SELECT provider, copay FROM insurance_data " .
             "WHERE pid = ? AND type = 'primary' " .
-            "AND (date <= ? OR date IS NULL) ORDER BY date DESC LIMIT 1", array($patient_id, $encdate));
+            "AND (date <= ? OR date IS NULL) AND (date_end >= ? OR date_end IS NULL) ORDER BY date DESC LIMIT 1", array($patient_id, $encdate, $encdate));
         if (!empty($tmp['provider'])) {
             return sprintf('%01.2f', floatval($tmp['copay']));
         }

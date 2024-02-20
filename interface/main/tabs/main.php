@@ -9,9 +9,11 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>
  * @copyright Copyright (c) 2016-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Ranganath Pathak <pathak@scrs1.org>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -24,6 +26,11 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
+use OpenEMR\Services\LogoService;
+use Symfony\Component\Filesystem\Path;
+
+$logoService = new LogoService();
+$menuLogo = $logoService->getLogo('core/menu/primary/');
 
 // Ensure token_main matches so this script can not be run by itself
 //  If do not match, then destroy the session and go back to login screen
@@ -70,7 +77,7 @@ $esignApi = new Api();
         window.name = "main";
 
         // This flag indicates if another window or frame is trying to reload the login
-        // page to this top-level window.  It is set by javascript returned by auth.inc
+        // page to this top-level window.  It is set by javascript returned by auth.inc.php
         // and is checked by handlers of beforeunload events.
         var timed_out = false;
         // some globals to access using top.variable
@@ -81,14 +88,19 @@ $esignApi = new Api();
         var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
         var userDebug = <?php echo js_escape($GLOBALS['user_debug']); ?>;
         var webroot_url = <?php echo js_escape($web_root); ?>;
-        var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?>;
-        var jsGlobals = {};
+        var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?> || 'ltr';
+        var jsGlobals = {}; // this should go away and replace with just global_enable_group_therapy
         // used in tabs_view_model.js.
-        jsGlobals.enable_group_therapy = <?php echo js_escape($GLOBALS['enable_group_therapy']); ?>
-
+        jsGlobals.enable_group_therapy = <?php echo js_escape($GLOBALS['enable_group_therapy']); ?>;
+        jsGlobals.languageDirection = jsLanguageDirection;
+        jsGlobals.date_display_format = <?php echo js_escape($GLOBALS['date_display_format']); ?>;
+        jsGlobals.timezone = <?php echo js_escape($GLOBALS['gbl_time_zone']); ?>;
+        jsGlobals.assetVersion = <?php echo js_escape($GLOBALS['v_js_includes']); ?>;
         var WindowTitleAddPatient = <?php echo ($GLOBALS['window_title_add_patient_name'] ? 'true' : 'false' ); ?>;
         var WindowTitleBase = <?php echo js_escape($openemr_name); ?>;
-
+        const isSms = "<?php echo !empty($GLOBALS['oefax_enable_sms'] ?? null); ?>";
+        const isFax = "<?php echo !empty($GLOBALS['oefax_enable_fax']) ?? null?>";
+        const isServicesOther = (isSms || isFax);
         function goRepeaterServices() {
             // Ensure send the skip_timeout_reset parameter to not count this as a manual entry in the
             // timing out mechanism in OpenEMR.
@@ -101,6 +113,9 @@ $esignApi = new Api();
             let request = new FormData;
             request.append("skip_timeout_reset", "1");
             request.append("isPortal", isPortalEnabled);
+            request.append("isServicesOther", isServicesOther);
+            request.append("isSms", isSms);
+            request.append("isFax", isFax);
             request.append("csrf_token_form", csrf_token_js);
             fetch(webroot_url + "/library/ajax/dated_reminders_counter.php", {
                 method: 'POST',
@@ -133,6 +148,19 @@ $esignApi = new Api();
                         app_view_model.application_data.user().portalMail(mail);
                         app_view_model.application_data.user().portalChats(chats);
                         app_view_model.application_data.user().portalPayments(payments);
+                    }
+                }
+                if (isServicesOther) {
+                    let sms = data.smsCnt;
+                    let fax = data.faxCnt;
+                    let total = data.serviceTotal;
+                    let enable = ((1 * sms) + (1 * fax));
+                    // Will turn off button display if no notification!
+                    app_view_model.application_data.user().servicesOther(enable);
+                    if (enable > 0) {
+                        app_view_model.application_data.user().serviceAlerts(total);
+                        app_view_model.application_data.user().smsAlerts(sms);
+                        app_view_model.application_data.user().faxAlerts(fax);
                     }
                 }
                 // Always send reminder count text to model
@@ -280,15 +308,25 @@ $esignApi = new Api();
     <?php $userQuery = sqlQuery("select * from users where username = ?", array($_SESSION['authUser'])); ?>
 
     <script>
-        <?php if (!empty($_SESSION['frame1url']) && !empty($_SESSION['frame1target'])) { ?>
-            // Use session variables and tabStatus object to set up initial/default first tab
-            app_view_model.application_data.tabs.tabsList.push(new tabStatus(<?php echo xlj("Loading"); ?> + "...", <?php echo json_encode("../" . $_SESSION['frame1url']); ?>, <?php echo json_encode($_SESSION['frame1target']); ?>, <?php echo xlj("Loading"); ?> + " " + <?php echo json_encode($_SESSION['frame1label']); ?>, true, true, false));
-        <?php } ?>
-
-        <?php if (!empty($_SESSION['frame2url']) && !empty($_SESSION['frame2target'])) { ?>
-            // Use session variables and tabStatus object to set up initial/default second tab, if none is set in globals, this tab will not be displayed initially
-            app_view_model.application_data.tabs.tabsList.push(new tabStatus(<?php echo xlj("Loading"); ?> + "...", <?php echo json_encode("../" . $_SESSION['frame2url']); ?>, <?php echo json_encode($_SESSION['frame2target']); ?>, <?php echo xlj("Loading"); ?> + " " + <?php echo json_encode($_SESSION['frame2label']); ?>, true, false, false));
-        <?php } ?>
+        <?php
+        if ($_SESSION['default_open_tabs']) :
+            // For now, only the first tab is visible, this could be improved upon by further customizing the list options in a future feature request
+            $visible = "true";
+            foreach ($_SESSION['default_open_tabs'] as $i => $tab) :
+                $_unsafe_url = preg_replace('/(\?.*)/m', '', Path::canonicalize($fileroot . DIRECTORY_SEPARATOR . $tab['notes']));
+                if (realpath($_unsafe_url) === false || strpos($_unsafe_url, $fileroot) !== 0) {
+                    unset($_SESSION['default_open_tabs'][$i]);
+                    continue;
+                }
+                $url = json_encode($webroot . "/" . $tab['notes']);
+                $target = json_encode($tab['option_id']);
+                $label = json_encode(xl("Loading") . " " . $tab['title']);
+                $loading = xlj("Loading");
+                echo "app_view_model.application_data.tabs.tabsList.push(new tabStatus($label, $url, $target, $loading, true, $visible, false));\n";
+                $visible = "false";
+            endforeach;
+        endif;
+        ?>
 
         app_view_model.application_data.user(new user_data_view_model(<?php echo json_encode($_SESSION["authUser"])
                                                                             . ',' . json_encode($userQuery['fname'])
@@ -335,9 +373,9 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
     <div id="mainBox" <?php echo $disp_mainBox ?>>
         <nav class="navbar navbar-expand-xl navbar-light bg-light py-0">
             <?php if ($GLOBALS['display_main_menu_logo'] === '1') : ?>
-            <a class="navbar-brand mt-2 mt-xl-0 mr-3 mr-xl-2" href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank">
-                <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/menu-logo.svg"); ?>
-            </a>
+                <a class="navbar-brand" href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank">
+                    <img src="<?php echo $menuLogo;?>" class="d-inline-block align-middle" height="16" alt="<?php echo xlt('Main Menu Logo');?>">
+                </a>
             <?php endif; ?>
             <button class="navbar-toggler mr-auto" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -384,9 +422,11 @@ if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
             }
         });
         document.addEventListener('touchstart', {}); //specifically added for iOS devices, especially in iframes
-        $(function() {
-            goRepeaterServices();
-        });
+        <?php if (($_ENV['OPENEMR__NO_BACKGROUND_TASKS'] ?? 'false') !== 'true') { ?>
+            $(function () {
+                goRepeaterServices();
+            });
+        <?php } ?>
     </script>
     <?php
     // fire off an event here

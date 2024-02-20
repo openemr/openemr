@@ -78,7 +78,7 @@ function mark_hilight(form_id,form_dir,keys,case_sensitive){ // Adds <mark>match
     }
     src_str = src_str.replace(/[\s\r\n]{1,}/g, ' '); // Replace text area newline or multiple spaces with single space
     src_str = src_str.replace(pattern, "<mark class='hilite'>$1</mark>");
-    src_str = src_str.replace(/(<mark class=\'hilite\'>[^<>]*)((<[^>]+>)+)([^<>]*<\/mark>)/g,"$1</mark>$2<mark class='hilite'>$4");
+    src_str = src_str.replace(/(<mark class='hilite'>[^<>]*)((<[^>]+>)+)([^<>]*<\/mark>)/g,"$1</mark>$2<mark class='hilite'>$4");
     $('#search_div_'+form_id+'_'+form_dir).html(src_str);
       $('.hilite').each(function(){
       res_id = res_id+1;
@@ -101,7 +101,7 @@ function find_all(){ // for each report the function mark_hilight() is called
   }
   var keys = document.getElementById('search_element').value;
   var match = null;
-  match = keys.match(/[\^\$\.\|\?\+\(\)\\~`\!@#%&\+={}<>]{1,}/);
+  match = keys.match(/[\^$.|?+()\\~`!@#%&+={}<>]{1,}/);
   if(match){
     document.getElementById('alert_msg').innerHTML = jsText(xl('Special characters are not allowed'));
     return;
@@ -251,9 +251,9 @@ function get_word_count(form_id,form_dir,keys,case_sensitive){
     }
     src_str = src_str.replace(/[\s\r\n]{1,}/g, ' '); // Replace text area newline or multiple spaces with single space
     src_str = src_str.replace(pattern, "<mark class='hilite'>$1</mark>");
-    src_str = src_str.replace(/(<mark class=\'hilite\'>[^<>]*)((<[^>]+>)+)([^<>]*<\/mark>)/,"$1</mark>$2<mark class='hilite'>$4");
+    src_str = src_str.replace(/(<mark class='hilite'>[^<>]*)((<[^>]+>)+)([^<>]*<\/mark>)/,"$1</mark>$2<mark class='hilite'>$4");
     var res =[];
-    res = src_str.match(/<mark class=\'hilite\'>/g);
+    res = src_str.match(/<mark class='hilite'>/g);
     if(res != null){
       return res.length;
     }
@@ -270,7 +270,7 @@ function next_prev(action){
   }
   var keys = document.getElementById('search_element').value;
   var match = null;
-  match = keys.match(/[\^\$\.\|\?\+\(\)\\~`\!@#%&\+={}<>]{1,}/);
+  match = keys.match(/[\^$.|?+()\\~`!@#%&+={}<>]{1,}/);
   if(match){
     document.getElementById('alert_msg').innerHTML = jsText(xl('Special characters are not allowed'));
     return;

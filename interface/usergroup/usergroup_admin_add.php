@@ -12,7 +12,7 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/calendar.inc");
+require_once("$srcdir/calendar.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclExtended;
@@ -278,6 +278,10 @@ foreach ($result2 as $iter) {
 </tr>
 <tr>
 <td><span class="text"><?php echo xlt('Last Name'); ?>: </span></td><td><input type="text" name='lname' id='lname' style="width:120px;" class="form-control"><span class="mandatory"></span></td>
+<td><span class=text><?php echo xlt('Suffix'); ?>: </span></td><td><input type="text" name=suffix id=suffix style="width:150px;"  class="form-control"></td>
+</tr>
+<tr>
+<td><span class=text><?php echo xlt('Valedictory'); ?>: </span></td><td><input type="text" name=valedictory id=valedictory style="width:150px;"  class="form-control"></td>
 <td><span class="text"><?php echo xlt('Default Facility'); ?>: </span></td>
 <td>
 <select style="width:120px;" name=facility_id class="form-control">
@@ -429,7 +433,7 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
     if ($fres) {
         while ($frow = sqlFetchArray($fres)) {
             // Get the warehouses that are linked to this user and facility.
-            $whids = getUserFacWH($user_id, $frow['id']); // from calendar.inc
+            $whids = getUserFacWH($user_id, $frow['id']); // from calendar.inc.php
             // Generate an option for just the facility with no warehouse restriction.
             echo "    <option";
             if (empty($whids) && in_array($frow['id'], $ufid)) {

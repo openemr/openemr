@@ -42,6 +42,7 @@ class VitalsService extends BaseService
     private $shouldConvertVitalMeasurements;
 
     private $dispatcher;
+    private $units_of_measurement;
 
     public function __construct(?int $units_of_measurement = null)
     {

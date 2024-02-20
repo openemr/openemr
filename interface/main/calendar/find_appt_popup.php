@@ -18,7 +18,7 @@
 */
 
 require_once("../../globals.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once(dirname(__FILE__) . "/../../../library/appointments.inc.php");
 require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
 
@@ -373,7 +373,7 @@ if (isset($_REQUEST['cktime'])) {
             for ($i = 0; $i < $slotcount; ++$i) {
                 $available = true;
                 for ($j = $i; $j < $i + $evslots; ++$j) {
-                    if ($slots[$j] >= 4) {
+                    if (($slots[$j] ?? null) >= 4) {
                         $available = false;
                     }
                 }

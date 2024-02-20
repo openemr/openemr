@@ -36,12 +36,12 @@ $ignoreAuth_onsite_portal = true;
 global $ignoreAuth_onsite_portal;
 
 require_once('../../interface/globals.php');
-require_once("$srcdir/forms.inc");
-require_once("$srcdir/pnotes.inc");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/forms.inc.php");
+require_once("$srcdir/pnotes.inc.php");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lists.inc");
-require_once("$srcdir/report.inc");
+require_once("$srcdir/lists.inc.php");
+require_once("$srcdir/report.inc.php");
 require_once("$srcdir/classes/Document.class.php");
 require_once("$srcdir/classes/Note.class.php");
 require_once(dirname(__file__) . "/../../custom/code_types.inc.php");
@@ -51,6 +51,7 @@ require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 
 use ESign\Api;
 use Mpdf\Mpdf;
+use OpenEMR\Pdf\Config_Mpdf;
 
 $staged_docs = array();
 $archive_name = '';
@@ -61,24 +62,7 @@ $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
 $PDF_OUTPUT = empty($_POST['pdf']) ? 0 : intval($_POST['pdf']);
 
 if ($PDF_OUTPUT) {
-    $config_mpdf = array(
-        'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
-        'mode' => $GLOBALS['pdf_language'],
-        'format' => $GLOBALS['pdf_size'],
-        'default_font_size' => '9',
-        'default_font' => 'dejavusans',
-        'margin_left' => $GLOBALS['pdf_left_margin'],
-        'margin_right' => $GLOBALS['pdf_right_margin'],
-        'margin_top' => $GLOBALS['pdf_top_margin'],
-        'margin_bottom' => $GLOBALS['pdf_bottom_margin'],
-        'margin_header' => '',
-        'margin_footer' => '',
-        'orientation' => $GLOBALS['pdf_layout'],
-        'shrink_tables_to_fit' => 1,
-        'use_kwt' => true,
-        'autoScriptToLang' => true,
-        'keep_table_proportions' => true
-    );
+    $config_mpdf = Config_Mpdf::getConfigMpdf();
     $pdf = new mPDF($config_mpdf);
     if ($_SESSION['language_direction'] == 'rtl') {
         $pdf->SetDirectionality('rtl');
@@ -111,27 +95,7 @@ $first_issue = 1;
 
 function getContent()
 {
-    global $web_root, $webserver_root;
     $content = ob_get_clean();
-    // Fix a nasty html2pdf bug - it ignores document root!
-    // TODO - now use mPDF, so should test if still need this fix
-    $i = 0;
-    $wrlen = strlen($web_root);
-    $wsrlen = strlen($webserver_root);
-    while (true) {
-        $i = stripos($content, " src='/", $i + 1);
-        if ($i === false) {
-            break;
-        }
-
-        if (
-            substr($content, $i + 6, $wrlen) === $web_root &&
-            substr($content, $i + 6, $wsrlen) !== $webserver_root
-        ) {
-            $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
-        }
-    }
-
     return $content;
 }
 
@@ -581,7 +545,7 @@ if ($printable) {
     <h2><?php echo text($facility['name']); ?></h2>
     <?php echo text($facility['street']); ?><br />
     <?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?> <?php echo text($facility['postal_code']); ?><br clear='all'>
-    <?php echo $facility['phone'] ?><br />
+    <?php echo text($facility['phone']) ?><br />
 
 <a href="javascript:window.close();"><span class='title'><?php echo text($titleres['fname']) . " " . text($titleres['lname']); ?></span></a><br />
 <span class='text'><?php echo xlt('Generated on'); ?>: <?php echo text(oeFormatShortDate()); ?></span>

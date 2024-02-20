@@ -13,8 +13,8 @@
  */
 
  require_once("../../globals.php");
- require_once("$srcdir/api.inc");
- require_once("$srcdir/patient.inc");
+ require_once("$srcdir/api.inc.php");
+ require_once("$srcdir/patient.inc.php");
 
 
 // menu strings

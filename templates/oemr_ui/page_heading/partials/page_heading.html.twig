@@ -1,0 +1,54 @@
+{#
+The HTML rendering a Page Heading from OemrUI->pageHeading()
+
+@package OpenEMR
+@subpackage OemrUi
+
+@author Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2023 Robert Down
+@copyright Copyright (c) 2023 Providence Healthtech
+#}
+<nav class="navbar navbar-light navbar-expand-sm bg-light">
+    {% block pageHeading %}
+        <span class="navbar-brand mb-0 h1">{{ heading|text }}</span>
+    {% endblock %}
+
+    <div class="collapse navbar-collapse">
+        {% block primaryButtons %}
+            {% import "nav/partials/navbar-nav.html.twig" as navbar %}
+            {{ navbar.navbar_nav(primaryMenu) }}
+        {% endblock %}
+        {% block actionButtons %}
+            <div class="navbar-nav ml-auto" id="pageHeadingNav">
+                {% for a in buttonList %}
+                    <a href="{{ a.getHref()|attr }}" id="{{ a.getId()|attr }}" title="{{ a.getTitle()|attr }}" {{ _self.renderAttributeArray(a.getAttributes()) }} class="nav-link {{ a.getAnchorClasses()|join(' ')|attr }} "><i class="{{ a.getIconClass()|attr }}">&nbsp;</i>{{ a.getDisplayText()|text }}</a>
+                {% endfor %}
+            </div>
+        {% endblock %}
+    </div>
+</nav>
+<script>
+document.addEventListener('DOMContentLoaded', (event) => {
+{% for a in buttonList %}
+    {% if a.getClickHandlerFunctionName() %}
+        var actionButton = document.getElementById({{ a.getID()|js_escape }});
+        actionButton.addEventListener('click', () => {
+            {{ a.getClickHandlerFunctionName()|text }}();
+        });
+    {% endif %}
+{% endfor %}
+});
+
+{% for a in buttonList %}
+    {% if a.getClickHandlerTemplateName() %}
+        {% include a.getClickHandlerTemplateName() %}
+    {% endif %}
+{% endfor %}
+</script>
+
+{# Convert a key/value array into a key="value" string for injection into an element tag. #}
+{% macro renderAttributeArray(attributes) %}
+    {% for attribute, value in attributes %}
+        {{ attribute|text }}="{{ value|attr }}"
+    {% endfor %}
+{% endmacro %}

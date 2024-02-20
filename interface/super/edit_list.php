@@ -8,14 +8,16 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Robert Down <robertdown@live.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2007-2022 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2022 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2022-2023 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2017-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../globals.php");
-require_once("$srcdir/lists.inc");
+require_once("$srcdir/lists.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 
@@ -59,7 +61,7 @@ function listChecksum($list_id)
             "fs_category, fs_option, fs_codes" .
             "))) AS checksum FROM fee_sheet_options"
         );
-    } else if ($list_id == 'code_types') {
+    } elseif ($list_id == 'code_types') {
         $row = sqlQuery(
             "SELECT BIT_XOR(CRC32(CONCAT_WS(',', " .
             "ct_key, ct_id, ct_seq, ct_mod, ct_just, ct_mask, ct_fee, ct_rel, ct_nofs, ct_diag" .
@@ -343,9 +345,21 @@ function getCodeDescriptions($codes)
         }
         $arrcode = explode('|', $codestring);
         $code_type = $arrcode[0];
-        $code = $arrcode[1];
+        // test for code with a modifier.
+        $modifier = '';
+        if (stripos($arrcode[1], ':') !== false) {
+            $tmp = explode(':', $arrcode[1]);
+            if (!empty($tmp[0] ?? null)) {
+                $code = $tmp[0] ?? '';
+                $modifier = $tmp[1] ?? '';
+                $modifier .= ($tmp[2] ?? '') ? ":" . $tmp[2] : '';
+                $modifier .= ($tmp[3] ?? '') ? ":" . $tmp[3] : '';
+                $modifier .= ($tmp[4] ?? '') ? ":" . $tmp[4] : '';
+            }
+        } else {
+            $code = $arrcode[1];
+        }
         $selector = $arrcode[2];
-        $desc = '';
         if ($code_type == 'PROD') {
             $row = sqlQuery("SELECT name FROM drugs WHERE drug_id = ?", array($code));
             $desc = "$code:$selector " . $row['name'];
@@ -356,6 +370,9 @@ function getCodeDescriptions($codes)
             $desc = "$code_type:$code " . ucfirst(strtolower($row['code_text'] ?? ''));
         }
         $desc = str_replace('~', ' ', $desc);
+        if (!empty($modifier ?? '')) {
+            $desc .= " " . xlt("Modifier") . ": " . $modifier;
+        }
         if ($s) {
             $s .= '~';
         }
@@ -965,14 +982,16 @@ function writeITLine($it_array)
         }
 
         // This is for callback by the find-code popup.
-        function set_related(codetype, code, selector, codedesc) {
+        function set_related(codetype, code, selector, codedesc, modifier = '') {
             var f = document.forms[0];
             if (current_sel_clin_term) {
                 // Coming from the Clinical Terms Code(s) edit
                 var e = f[current_sel_clin_term];
                 var s = e.value;
                 if (code) {
-                    if (s.length > 0) s += ';';
+                    if (s.length > 0) {
+                        s += ';';
+                    }
                     s += codetype + ':' + code;
                 }
                 else {
@@ -1001,6 +1020,9 @@ function writeITLine($it_array)
                     codedesc = codedesc.substring(0, i) + ' ' + codedesc.substring(i+1);
                 }
                 if (code) {
+                    if (modifier) {
+                        code = code + ':' + modifier;
+                    }
                     if (celem.value) {
                         celem.value += '~';
                         delem.value += '~';
@@ -1227,9 +1249,9 @@ function writeITLine($it_array)
     <thead>
     <tr>
         <?php if ($list_id == 'feesheet') : ?>
-            <th><?php echo xlt('Group'); ?></td>
-            <th><?php echo xlt('Option'); ?></td>
-            <th><?php echo xlt('Generates'); ?></td>
+            <th><?php echo xlt('Group'); ?></th>
+            <th><?php echo xlt('Option'); ?></th>
+            <th><?php echo xlt('Generates'); ?></th>
         <?php elseif ($list_id == 'code_types') : ?>
             <th><?php echo xlt('Active{{Code}}'); ?></th>
             <th><?php echo xlt('Key'); ?></th>
@@ -1348,6 +1370,8 @@ function writeITLine($it_array)
                 echo xlt('Attributes');
             } elseif ($list_id == "external_patient_education") {
                 echo xlt('External URL');
+            } elseif ($list_id == "default_open_tabs") {
+                echo xlt("URL");
             } else {
                 echo xlt('Notes');
             } ?></th>

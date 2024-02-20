@@ -21,6 +21,7 @@ use Interop\Container\ContainerInterface;
 class CommonPlugin extends AbstractPlugin
 {
     protected $application;
+    protected $listenerObject;
 
     /**
      * Application Table Object
@@ -95,7 +96,7 @@ class CommonPlugin extends AbstractPlugin
   * @param    var   Array   Details parsed from the CCR xml file
   * @return   audit_master_id   Integer   ID from audit_master table
   */
-    public static function insert_ccr_into_audit_data($var, $isQrdaDocument = false)
+    public static function insert_ccr_into_audit_data($var, $isQrdaDocument = false, $isUnstructeredDocument = false)
     {
         $appTable = new ApplicationTable();
         $audit_master_id_to_delete = $var['audit_master_id_to_delete'] ?? null;
@@ -113,8 +114,8 @@ class CommonPlugin extends AbstractPlugin
             $appTable->zQuery($qry, array($audit_master_id_to_delete));
         }
 
-        $master_query = "INSERT INTO audit_master SET pid = ?,approval_status = ?,ip_address = ?,type = ?, is_qrda_document = ?";
-        $result = $appTable->zQuery($master_query, array(0, $approval_status, $ip_address, $type, $isQrdaDocument));
+        $master_query = "INSERT INTO audit_master SET pid = ?,approval_status = ?,ip_address = ?,type = ?, is_qrda_document = ?, is_unstructured_document = ?";
+        $result = $appTable->zQuery($master_query, array(0, $approval_status, $ip_address, $type, $isQrdaDocument, $isUnstructeredDocument));
         $audit_master_id = $result->getGeneratedValue();
         $detail_query = "INSERT INTO `audit_details` (`table_name`, `field_name`, `field_value`, `audit_master_id`, `entry_identification`) VALUES ";
         $detail_query_array = array();
@@ -127,6 +128,8 @@ class CommonPlugin extends AbstractPlugin
                     if (is_array($field_value)) {
                         if (!empty($field_value['status']) || !empty($field_value['enddate'])) {
                             $detail_query_array[] = trim($field_value['value'] ?? '') . "|" . trim($field_value['status'] ?? '') . "|" . trim($field_value['begdate'] ?? '');
+                        } elseif (stripos($field_name, 'encounter_diagnosis') !== false) {
+                            $detail_query_array[] = trim(implode('|', $field_value));
                         } else {
                             $detail_query_array[] = trim($field_value['value'] ?? '');
                         }

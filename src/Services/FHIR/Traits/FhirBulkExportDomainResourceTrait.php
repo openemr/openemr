@@ -13,6 +13,7 @@
 
 namespace OpenEMR\Services\FHIR\Traits;
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\Export\ExportCannotEncodeException;
 use OpenEMR\FHIR\Export\ExportException;
 use OpenEMR\FHIR\Export\ExportJob;
@@ -50,16 +51,19 @@ trait FhirBulkExportDomainResourceTrait
 
         $type = $job->getExportType();
 
-
-        // we would need to grab all of the patient ids that belong to this group
-        // TODO: @adunsulag if we fully implement groups of patient populations we would set our patient ids into $searchParams
-        // or filter the results here.  Right now we treat all patients as belonging to the same '1' group.
         $searchParams = [];
         if ($type == ExportJob::EXPORT_OPERATION_GROUP) {
-            $group = $job->getGroupId();
-
-            $patientUuids = $job->getPatientUuidsToExport();
             if ($this instanceof IPatientCompartmentResourceService) {
+                $patientUuids = $job->getPatientUuidsToExport();
+                if (empty($patientUuids)) {
+                    // TODO: @adunsulag do we want to handle this higher up the chain instead of creating a bunch of
+                    // empty files with no data?
+                    return; // nothing to export here as we have no patients
+                }
+                (new SystemLogger())->debug(
+                    "FhirBulkExportDomainResourceTrait->export() filtering by patient uuids",
+                    ['export-type' => 'group', 'patients' => $patientUuids, 'resource-class' => get_class($this)]
+                );
                 $searchField = $this->getPatientContextSearchField();
                 $searchParams[$searchField->getName()] = implode(",", $patientUuids);
             }

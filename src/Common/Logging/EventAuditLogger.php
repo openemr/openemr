@@ -155,8 +155,17 @@ MSG;
      * @param string    $menu_item
      * @param int       $ccda_doc_id
      */
-    public function newEvent($event, $user, $groupname, $success, $comments = "", $patient_id = null, $log_from = 'open-emr', $menu_item = 'dashboard', $ccda_doc_id = 0)
-    {
+    public function newEvent(
+        $event,
+        $user,
+        $groupname,
+        $success,
+        $comments = "",
+        $patient_id = null,
+        $log_from = 'open-emr',
+        $menu_item = 'dashboard',
+        $ccda_doc_id = 0
+    ) {
         $category = $event;
         // Special case delete for lists table
         if ($event == 'delete') {
@@ -640,7 +649,7 @@ MSG;
             }
         }
 
-        if (empty($GLOBALS["audit_events_${event}"])) {
+        if (empty($GLOBALS["audit_events_{$event}"])) {
             if (!$GLOBALS['gbl_force_log_breakglass'] || !$this->isBreakglassUser($user)) {
                 return;
             }

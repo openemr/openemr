@@ -37,9 +37,9 @@ if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
 }
 
 require_once(__DIR__ . "/lib/appsql.class.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/payment.inc.php");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/forms.inc.php");
 require_once("../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
@@ -47,13 +47,14 @@ require_once("$srcdir/encounter_events.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 
 $cryptoGen = new CryptoGen();
 
 $appsql = new ApplicationTable();
-$pid = isset($_REQUEST['pid']) ? $_REQUEST['pid'] : $pid;
-$pid = $_REQUEST['hidden_patient_code'] > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
+$pid = $_REQUEST['pid'] ?? $pid;
+$pid = ($_REQUEST['hidden_patient_code'] ?? null) > 0 ? $_REQUEST['hidden_patient_code'] : $pid;
 $recid = isset($_REQUEST['recid']) ? (int) $_REQUEST['recid'] : 0;
 $adminUser = '';
 $portalPatient = '';
@@ -62,7 +63,7 @@ $query = "SELECT pao.portal_username as recip_id, Concat_Ws(' ', patient_data.fn
     "LEFT JOIN patient_access_onsite pao ON pao.pid = patient_data.pid " .
     "WHERE patient_data.pid = ? AND pao.portal_pwd_status = 1";
 $portalPatient = sqlQueryNoLog($query, $pid);
-if ($_SESSION['authUserID']) {
+if ($_SESSION['authUserID'] ?? '') {
     $query = "SELECT users.username as recip_id, users.authorized as dash, CONCAT(users.fname,' ',users.lname) as username  " .
         "FROM users WHERE id = ?";
     $adminUser = sqlQueryNoLog($query, $_SESSION['authUserID']);
@@ -81,26 +82,6 @@ if ($edata) {
     echo "<script>var jsondata='" . $edata['table_args'] . "';var ccdata='" . $edata['checksum'] . "'</script>";
 }
 
-function bucks($amount)
-{
-    if ($amount) {
-        $amount = oeFormatMoney($amount);
-        return $amount;
-    }
-
-    return '';
-}
-
-function rawbucks($amount)
-{
-    if ($amount) {
-        $amount = sprintf("%.2f", $amount);
-        return $amount;
-    }
-
-    return '';
-}
-
 // Display a row of data for an encounter.
 //
 $var_index = 0;
@@ -110,19 +91,19 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
     global $sum_charges, $sum_ptpaid, $sum_inspaid, $sum_duept, $sum_copay, $sum_patcopay, $sum_balance;
     global $var_index;
     $var_index++;
-    $balance = bucks($charges - $ptpaid - $inspaid);
+    $balance = FormatMoney::getBucks($charges - $ptpaid - $inspaid);
     $balance = (round($duept, 2) != 0) ? 0 : $balance; // if balance is due from patient, then insurance balance is displayed as zero
     $encounter = $encounter ? $encounter : '';
     echo " <tr id='tr_" . attr($var_index) . "' >\n";
     echo "  <td class='detail'>" . text(oeFormatShortDate($date)) . "</td>\n";
     echo "  <td class='detail' id='" . attr($date) . "' align='left'>" . text($encounter) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_charges_$var_index' >" . text(bucks($charges)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_inspaid_$var_index' >" . text(bucks($inspaid * -1)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_ptpaid_$var_index' >" . text(bucks($ptpaid * -1)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_patient_copay_$var_index' >" . text(bucks($patcopay)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='td_copay_$var_index' >" . text(bucks($copay)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='balance_$var_index'>" . text(bucks($balance)) . "</td>\n";
-    echo "  <td class='detail' align='center' id='duept_$var_index'>" . text(bucks(round($duept, 2) * 1)) . "</td>\n";
+    echo "  <td class='detail' align='center' id='td_charges_$var_index' >" . text(FormatMoney::getBucks($charges)) . "</td>\n";
+    echo "  <td class='detail' align='center' id='td_inspaid_$var_index' >" . text(FormatMoney::getBucks($inspaid * -1)) . "</td>\n";
+    echo "  <td class='detail' align='center' id='td_ptpaid_$var_index' >" . text(FormatMoney::getBucks($ptpaid * -1)) . "</td>\n";
+    echo "  <td class='detail' align='center' id='td_patient_copay_$var_index' >" . text(FormatMoney::getBucks($patcopay)) . "</td>\n";
+    echo "  <td class='detail' align='center' id='td_copay_$var_index' >" . text(FormatMoney::getBucks($copay)) . "</td>\n";
+    echo "  <td class='detail' align='center' id='balance_$var_index'>" . text(FormatMoney::getBucks($balance)) . "</td>\n";
+    echo "  <td class='detail' align='center' id='duept_$var_index'>" . text(FormatMoney::getBucks(round($duept, 2) * 1)) . "</td>\n";
     echo "  <td class='detail' align='center'><input class='form-control' name='" . attr($iname) . "'  id='paying_" . attr($var_index) .
         "' " . " value='" . '' . "' onchange='coloring();calctotal()'  autocomplete='off' " . "onkeyup='calctotal()'/></td>\n";
     echo " </tr>\n";
@@ -199,7 +180,7 @@ $patdata = sqlQuery("SELECT " . "p.fname, p.mname, p.lname, p.postal_code, p.pub
 $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Save button was clicked...
-if ($_POST['form_save']) {
+if ($_POST['form_save'] ?? '') {
     $form_pid = $_POST['form_pid'];
     $form_method = trim($_POST['form_method']);
     $form_source = trim($_POST['form_source']);
@@ -408,8 +389,8 @@ if ($_POST['form_save']) {
     }//if ($_POST['form_upay'])
 }//if ($_POST['form_save'])
 
-if ($_POST['form_save'] || $_REQUEST['receipt']) {
-    if ($_REQUEST['receipt']) {
+if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
+    if (($_REQUEST['receipt'] ?? null)) {
         $form_pid = $_GET['patient'];
         $timestamp = decorateString('....-..-.. ..:..:..', $_GET['time']);
     }
@@ -1117,17 +1098,15 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
                     );
                 }
 
-                if ($brow['code_type'] === 'COPAY') {
-                // $encs[$key]['payments'] -= $brow['fee'];
-                } else {
+                if ($brow['code_type'] !== 'COPAY') {
                     $encs[$key]['charges'] += $brow['fee'];
                     // Add taxes.
                     $sql_array = array();
                     $query = "SELECT taxrates FROM codes WHERE " . "code_type = ? AND " . "code = ? AND ";
-                    array_push($sql_array, $code_types[$brow['code_type']]['id'], $brow['code']);
-                    if ($brow['modifier']) {
+                    array_push($sql_array, $code_types[$brow['code_type']]['id'] ?? '', $brow['code'] ?? '');
+                    if ($brow['modifier'] ?? '') {
                         $query .= "modifier = ?";
-                        array_push($sql_array, $brow['modifier']);
+                        $sql_array[] = $brow['modifier'] ?? '';
                     } else {
                         $query .= "(modifier IS NULL OR modifier = '')";
                     }
@@ -1229,13 +1208,13 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
             <tr>
                 <td class="dehead" align="center"><?php echo xlt('Total'); ?></td>
                 <td class="dehead" id='td_total_1' align="center"></td>
-                <td class="dehead" id='td_total_2' align="center"><?php echo text(bucks($sum_charges)) ?></td>
-                <td class="dehead" id='td_total_3' align="center"><?php echo text(bucks($sum_inspaid)) ?></td>
-                <td class="dehead" id='td_total_4' align="center"><?php echo text(bucks($sum_ptpaid)) ?></td>
-                <td class="dehead" id='td_total_5' align="center"><?php echo text(bucks($sum_patcopay)) ?></td>
-                <td class="dehead" id='td_total_6' align="center"><?php echo text(bucks($sum_copay)) ?></td>
-                <td class="dehead" id='td_total_7' align="center"><?php echo text(bucks($sum_balance)) ?></td>
-                <td class="dehead" id='td_total_8' align="center"><?php echo text(bucks($sum_duept)) ?></td>
+                <td class="dehead" id='td_total_2' align="center"><?php echo text(FormatMoney::getBucks($sum_charges)) ?></td>
+                <td class="dehead" id='td_total_3' align="center"><?php echo text(FormatMoney::getBucks($sum_inspaid)) ?></td>
+                <td class="dehead" id='td_total_4' align="center"><?php echo text(FormatMoney::getBucks($sum_ptpaid)) ?></td>
+                <td class="dehead" id='td_total_5' align="center"><?php echo text(FormatMoney::getBucks($sum_patcopay)) ?></td>
+                <td class="dehead" id='td_total_6' align="center"><?php echo text(FormatMoney::getBucks($sum_copay)) ?></td>
+                <td class="dehead" id='td_total_7' align="center"><?php echo text(FormatMoney::getBucks($sum_balance)) ?></td>
+                <td class="dehead" id='td_total_8' align="center"><?php echo text(FormatMoney::getBucks($sum_duept)) ?></td>
                 <td class="dehead" align="center">
                     <input class="form-control" name='form_paytotal' id='form_paytotal' value='' style='color: #3b9204;' readonly />
                 </td>
@@ -1258,26 +1237,26 @@ if ($_POST['form_save'] || $_REQUEST['receipt']) {
         }
         ?>
         <div class="card-body">
-            <span class="font-weight-bold"><?php echo xlt('Card Name'); ?>: </span><span id="cn"><?php echo text($ccdata["cc_type"]) ?></span><br />
-            <span class="font-weight-bold"><?php echo xlt('Name on Card'); ?>: </span><span id="nc"><?php echo text($ccdata["cardHolderName"]) ?></span>
-            <span class="font-weight-bold"><?php echo xlt('Card Holder Zip'); ?>: </span><span id="czip"><?php echo text($ccdata["zip"]) ?></span><br />
+            <span class="font-weight-bold"><?php echo xlt('Card Name'); ?>: </span><span id="cn"><?php echo text($ccdata["cc_type"] ?? '') ?></span><br />
+            <span class="font-weight-bold"><?php echo xlt('Name on Card'); ?>: </span><span id="nc"><?php echo text($ccdata["cardHolderName"] ?? '') ?></span>
+            <span class="font-weight-bold"><?php echo xlt('Card Holder Zip'); ?>: </span><span id="czip"><?php echo text($ccdata["zip"] ?? '') ?></span><br />
             <span class="font-weight-bold"><?php echo xlt('Card Number'); ?>: </span><span id="ccn">
         <?php
         if (isset($_SESSION['authUserID']) || isset($ccdata["transId"])) {
             echo text($ccdata["cardNumber"]) . "</span><br />";
-        } else {
+        } elseif (strlen($ccdata["cardNumber"] ?? '') > 4) {
             echo "**********  " . text(substr($ccdata["cardNumber"], -4)) . "</span><br />";
         }
         ?>
         <?php
         if (!isset($ccdata["transId"])) { ?>
-                <span class="font-weight-bold"><?php echo xlt('Exp Date'); ?>:  </span><span id="ed"><?php echo text($ccdata["month"]) . "/" . text($ccdata["year"]) ?></span>
-                <span class="font-weight-bold"><?php echo xlt('CVV'); ?>:  </span><span id="cvvpin"><?php echo text($ccdata["cardCode"]) ?></span><br />
+                <span class="font-weight-bold"><?php echo xlt('Exp Date'); ?>:  </span><span id="ed"><?php echo text($ccdata["month"] ?? '') . "/" . text($ccdata["year"] ?? '') ?></span>
+                <span class="font-weight-bold"><?php echo xlt('CVV'); ?>:  </span><span id="cvvpin"><?php echo text($ccdata["cardCode"] ?? '') ?></span><br />
         <?php } else { ?>
-                <span class="font-weight-bold"><?php echo xlt('Transaction Id'); ?>:  </span><span id="ed"><?php echo text($ccdata["transId"]) . "/" . text($ccdata["year"]) ?></span>
-                <span class="font-weight-bold"><?php echo xlt('Authorization'); ?>:  </span><span id="cvvpin"><?php echo text($ccdata["authCode"]) ?></span><br />
+                <span class="font-weight-bold"><?php echo xlt('Transaction Id'); ?>:  </span><span id="ed"><?php echo text($ccdata["transId"] ?? '') . "/" . text($ccdata["year"]) ?></span>
+                <span class="font-weight-bold"><?php echo xlt('Authorization'); ?>:  </span><span id="cvvpin"><?php echo text($ccdata["authCode"] ?? '') ?></span><br />
         <?php } ?>
-        <span class="font-weight-bold"><?php echo xlt('Charge Total'); ?>:  </span><span id="ct"><?php echo text($invdata["form_paytotal"]) ?></span><br />
+        <span class="font-weight-bold"><?php echo xlt('Charge Total'); ?>:  </span><span id="ct"><?php echo text($invdata["form_paytotal"] ?? '') ?></span><br />
         </div>
         </div>
         </div>

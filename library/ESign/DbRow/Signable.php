@@ -47,7 +47,7 @@ abstract class DbRow_Signable implements SignableIF
     {
         $this->_signatures = array();
 
-        $statement = "SELECT E.id, E.tid, E.table, E.uid, U.fname, U.lname, E.datetime, E.is_lock, E.amendment, E.hash, E.signature_hash FROM esign_signatures E ";
+        $statement = "SELECT E.id, E.tid, E.table, E.uid, U.fname, U.lname, U.suffix, U.valedictory, E.datetime, E.is_lock, E.amendment, E.hash, E.signature_hash FROM esign_signatures E ";
         $statement .= "JOIN users U ON E.uid = U.id ";
         $statement .= "WHERE E.tid = ? AND E.table = ? ";
         $statement .= "ORDER BY E.datetime ASC";
@@ -62,6 +62,8 @@ abstract class DbRow_Signable implements SignableIF
                 $row['uid'],
                 $row['fname'],
                 $row['lname'],
+                $row['suffix'],
+                $row['valedictory'],
                 $row['datetime'],
                 $row['hash'],
                 $row['amendment'],

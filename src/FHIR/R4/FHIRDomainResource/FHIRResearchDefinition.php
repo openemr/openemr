@@ -1187,7 +1187,7 @@ class FHIRResearchDefinition extends FHIRDomainResource implements \JsonSerializ
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;

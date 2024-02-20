@@ -2,7 +2,7 @@ version: '3.1'
 services:
   mysql:
     restart: always
-    image: mariadb:10.6
+    image: mariadb:10.11
     command: ['mysqld','--character-set-server=utf8mb4','--ssl-ca=/etc/ssl/ca.pem','--ssl_cert=/etc/ssl/server-cert.pem','--ssl_key=/etc/ssl/server-key.pem']
     ports:
     - 8320:3306
@@ -22,7 +22,8 @@ services:
     volumes:
     - ../..:/openemr:ro
     - ../..:/var/www/localhost/htdocs/openemr:rw
-    - publicvolume:/var/www/localhost/htdocs/openemr/public:rw
+    - assetvolume:/var/www/localhost/htdocs/openemr/public/assets:rw
+    - themevolume:/var/www/localhost/htdocs/openemr/public/themes:rw
     - sitesvolume:/var/www/localhost/htdocs/openemr/sites:rw
     - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
     - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
@@ -67,7 +68,8 @@ services:
       PMA_HOSTS: mysql
 volumes:
   databasevolume: {}
-  publicvolume: {}
+  assetvolume: {}
+  themevolume: {}
   sitesvolume: {}
   nodemodules: {}
   vendordir: {}

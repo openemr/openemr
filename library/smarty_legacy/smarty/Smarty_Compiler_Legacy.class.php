@@ -31,6 +31,10 @@
  * Template compiling class
  * @package Smarty
  */
+
+//This provides a cross-platform alternative to strftime() for when it will be removed from PHP.
+use function PHP81_BC\strftime;
+
 class Smarty_Compiler_Legacy extends Smarty_Legacy {
 
     // internal vars
@@ -72,6 +76,13 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
 
     var $_strip_depth           =   0;
     var $_additional_newline    =   "\n";
+
+    var $_dvar_math_regexp;
+    var $_dvar_math_var_regexp;
+    var $_obj_restricted_param_regexp;
+    var $_obj_single_param_regexp;
+    var $_param_regexp;
+    var $_plugins_code;
 
     /**#@-*/
     /**
@@ -1522,78 +1533,80 @@ class Smarty_Compiler_Legacy extends Smarty_Legacy {
      */
     function _parse_attrs($tag_args)
     {
-
-        /* Tokenize tag attributes. */
-        preg_match_all('~(?:' . $this->_obj_call_regexp . '|' . $this->_qstr_regexp . ' | (?>[^"\'=\s]+)
-                         )+ |
-                         [=]
-                        ~x', $tag_args, $match);
-        $tokens       = $match[0];
-
         $attrs = array();
-        /* Parse state:
-            0 - expecting attribute name
-            1 - expecting '='
-            2 - expecting attribute value (not '=') */
-        $state = 0;
 
-        foreach ($tokens as $token) {
-            switch ($state) {
-                case 0:
-                    /* If the token is a valid identifier, we set attribute name
-                       and go to state 1. */
-                    if (preg_match('~^\w+$~', $token)) {
-                        $attr_name = $token;
-                        $state = 1;
-                    } else
-                        $this->_syntax_error("invalid attribute name: '$token'", E_USER_ERROR, __FILE__, __LINE__);
-                    break;
+        if (!empty($tag_args)) {
+            /* Tokenize tag attributes. */
+            preg_match_all('~(?:' . $this->_obj_call_regexp . '|' . $this->_qstr_regexp . ' | (?>[^"\'=\s]+)
+                            )+ |
+                            [=]
+                            ~x', $tag_args, $match);
+            $tokens       = $match[0];
 
-                case 1:
-                    /* If the token is '=', then we go to state 2. */
-                    if ($token == '=') {
-                        $state = 2;
-                    } else
-                        $this->_syntax_error("expecting '=' after attribute name '$last_token'", E_USER_ERROR, __FILE__, __LINE__);
-                    break;
+            /* Parse state:
+                0 - expecting attribute name
+                1 - expecting '='
+                2 - expecting attribute value (not '=') */
+            $state = 0;
 
-                case 2:
-                    /* If token is not '=', we set the attribute value and go to
-                       state 0. */
-                    if ($token != '=') {
-                        /* We booleanize the token if it's a non-quoted possible
-                           boolean value. */
-                        if (preg_match('~^(on|yes|true)$~', $token)) {
-                            $token = 'true';
-                        } else if (preg_match('~^(off|no|false)$~', $token)) {
-                            $token = 'false';
-                        } else if ($token == 'null') {
-                            $token = 'null';
-                        } else if (preg_match('~^' . $this->_num_const_regexp . '|0[xX][0-9a-fA-F]+$~', $token)) {
-                            /* treat integer literally */
-                        } else if (!preg_match('~^' . $this->_obj_call_regexp . '|' . $this->_var_regexp . '(?:' . $this->_mod_regexp . ')*$~', $token)) {
-                            /* treat as a string, double-quote it escaping quotes */
-                            $token = '"'.addslashes($token).'"';
-                        }
+            foreach ($tokens as $token) {
+                switch ($state) {
+                    case 0:
+                        /* If the token is a valid identifier, we set attribute name
+                        and go to state 1. */
+                        if (preg_match('~^\w+$~', $token)) {
+                            $attr_name = $token;
+                            $state = 1;
+                        } else
+                            $this->_syntax_error("invalid attribute name: '$token'", E_USER_ERROR, __FILE__, __LINE__);
+                        break;
 
-                        $attrs[$attr_name] = $token;
-                        $state = 0;
-                    } else
-                        $this->_syntax_error("'=' cannot be an attribute value", E_USER_ERROR, __FILE__, __LINE__);
-                    break;
+                    case 1:
+                        /* If the token is '=', then we go to state 2. */
+                        if ($token == '=') {
+                            $state = 2;
+                        } else
+                            $this->_syntax_error("expecting '=' after attribute name '$last_token'", E_USER_ERROR, __FILE__, __LINE__);
+                        break;
+
+                    case 2:
+                        /* If token is not '=', we set the attribute value and go to
+                        state 0. */
+                        if ($token != '=') {
+                            /* We booleanize the token if it's a non-quoted possible
+                            boolean value. */
+                            if (preg_match('~^(on|yes|true)$~', $token)) {
+                                $token = 'true';
+                            } else if (preg_match('~^(off|no|false)$~', $token)) {
+                                $token = 'false';
+                            } else if ($token == 'null') {
+                                $token = 'null';
+                            } else if (preg_match('~^' . $this->_num_const_regexp . '|0[xX][0-9a-fA-F]+$~', $token)) {
+                                /* treat integer literally */
+                            } else if (!preg_match('~^' . $this->_obj_call_regexp . '|' . $this->_var_regexp . '(?:' . $this->_mod_regexp . ')*$~', $token)) {
+                                /* treat as a string, double-quote it escaping quotes */
+                                $token = '"'.addslashes($token).'"';
+                            }
+
+                            $attrs[$attr_name] = $token;
+                            $state = 0;
+                        } else
+                            $this->_syntax_error("'=' cannot be an attribute value", E_USER_ERROR, __FILE__, __LINE__);
+                        break;
+                }
+                $last_token = $token;
             }
-            $last_token = $token;
-        }
 
-        if($state != 0) {
-            if($state == 1) {
-                $this->_syntax_error("expecting '=' after attribute name '$last_token'", E_USER_ERROR, __FILE__, __LINE__);
-            } else {
-                $this->_syntax_error("missing attribute value", E_USER_ERROR, __FILE__, __LINE__);
+            if($state != 0) {
+                if($state == 1) {
+                    $this->_syntax_error("expecting '=' after attribute name '$last_token'", E_USER_ERROR, __FILE__, __LINE__);
+                } else {
+                    $this->_syntax_error("missing attribute value", E_USER_ERROR, __FILE__, __LINE__);
+                }
             }
-        }
 
-        $this->_parse_vars_props($attrs);
+            $this->_parse_vars_props($attrs);
+        }
 
         return $attrs;
     }

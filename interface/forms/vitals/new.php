@@ -11,7 +11,7 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc");
+require_once("$srcdir/api.inc.php");
 require_once "C_FormVitals.class.php";
 
 $c = new C_FormVitals();

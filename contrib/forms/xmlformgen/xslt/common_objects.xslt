@@ -33,7 +33,7 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 </xsl:template>
 <!-- generate php code for fetching form contents, regardless of table format. -->
 <xsl:template match="table[@type='form']" mode="fetch">
-<xsl:text disable-output-escaping="yes"><![CDATA[/* Use the formFetch function from api.inc to load the saved record */
+<xsl:text disable-output-escaping="yes"><![CDATA[/* Use the formFetch function from api.inc.php to load the saved record */
 $]]></xsl:text>
 <xsl:value-of select="$fetchrow"/>
 <xsl:text disable-output-escaping="yes"><![CDATA[ = formFetch($table_name, $_GET['id']);
@@ -41,7 +41,7 @@ $]]></xsl:text>
 ]]></xsl:text>
 </xsl:template>
 <xsl:template match="table[@type='extended']" mode="fetch">
-<xsl:text disable-output-escaping="yes"><![CDATA[/* use the sqlQuery function from sql.inc to load the saved record. */
+<xsl:text disable-output-escaping="yes"><![CDATA[/* use the sqlQuery function from sql.inc.php to load the saved record. */
 /* if we were passed an ID, pull it in specifically. otherwise, pull in the newest. */
 
 /* use the pid from the session to find the newest version of this form. */

@@ -12,8 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(dirname(__FILE__) . "/../../../library/api.inc");
-require_once(dirname(__FILE__) . "/../../../library/forms.inc");
+require_once(dirname(__FILE__) . "/../../../library/api.inc.php");
+require_once(dirname(__FILE__) . "/../../../library/forms.inc.php");
 require_once(dirname(__FILE__) . "/../../../library/patient_tracker.inc.php");
 
 /**

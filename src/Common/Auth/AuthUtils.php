@@ -40,6 +40,7 @@
 namespace OpenEMR\Common\Auth;
 
 use Google_Client;
+use MyMailer;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
@@ -104,6 +105,13 @@ class AuthUtils
                 $this->dummyHash = $this->authHashAuth->passwordHash($dummyPassword);
                 privStatement("UPDATE `globals` SET `gl_value` = ? WHERE `gl_name` = 'hidden_auth_dummy_hash'", [$this->dummyHash]);
             }
+        }
+
+        $password_expiration_days = (privQuery("SELECT * FROM `globals` WHERE `gl_name` = 'password_expiration_days' AND `gl_index` = 0")['gl_value'] ?? null);
+        if ($password_expiration_days === '') {
+            $GLOBALS['password_expiration_days'] = 0;
+            privStatement("UPDATE `globals` SET `gl_value` = ? WHERE `globals`.`gl_name` = 'password_expiration_days' AND `globals`.`gl_index` = '0'", ['0']);
+            error_log("Blank global password_expiration_days updated to 0");
         }
     }
 
@@ -275,8 +283,36 @@ class AuthUtils
         // Collect ip address for log
         $ip = collectIpAddresses();
 
+        // Check to ensure ip address has not been blocked
+        // check IP login counter if this option is set
+        if ($this->loginAuth || $this->apiAuth) {
+            $this->setupIpLoginFailedCounter($ip['ip_string']);
+            // Utilize this during logins (and not during standard password checks within openemr such as esign)
+            $returnArray = $this->checkIpLoginFailedCounter($ip['ip_string']);
+            if (!$returnArray['pass']) {
+                $this->incrementIpLoginFailedCounter($ip['ip_string']);
+                if ($returnArray['force_block']) {
+                    EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". IP address has been manually blocked");
+                } else {
+                    EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". IP address exceeded maximum number of failed logins");
+                }
+                $this->clearFromMemory($password);
+                if ($returnArray['email_notification']) {
+                    $this->notifyIpBlock($ip['ip_string']);
+                }
+                if (!$returnArray['skip_timing_attack']) {
+                    $this->preventTimingAttack();
+                }
+                return false;
+            }
+        }
+
         // Check to ensure username and password are not empty
         if (empty($username) || empty($password)) {
+            if ($this->loginAuth || $this->apiAuth) {
+                // Utilize this during logins (and not during standard password checks within openemr such as esign)
+                $this->incrementIpLoginFailedCounter($ip['ip_string']);
+            }
             EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". empty username or password");
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
@@ -287,11 +323,19 @@ class AuthUtils
         $getUserSQL = "select `id`, `authorized`, `see_auth`, `active` from `users` where BINARY `username` = ?";
         $userInfo = privQuery($getUserSQL, [$username]);
         if (empty($userInfo) || empty($userInfo['id'])) {
+            if ($this->loginAuth || $this->apiAuth) {
+                // Utilize this during logins (and not during standard password checks within openemr such as esign)
+                $this->incrementIpLoginFailedCounter($ip['ip_string']);
+            }
             EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". user not found");
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
         } elseif ($userInfo['active'] != 1) {
+            if ($this->loginAuth || $this->apiAuth) {
+                // Utilize this during logins (and not during standard password checks within openemr such as esign)
+                $this->incrementIpLoginFailedCounter($ip['ip_string']);
+            }
             EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". user not active");
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
@@ -301,6 +345,10 @@ class AuthUtils
         // Check to ensure user is in a group (and collect the group name)
         $authGroup = UserService::getAuthGroupForUser($username);
         if (empty($authGroup)) {
+            if ($this->loginAuth || $this->apiAuth) {
+                // Utilize this during logins (and not during standard password checks within openemr such as esign)
+                $this->incrementIpLoginFailedCounter($ip['ip_string']);
+            }
             EventAuditLogger::instance()->newEvent($event, $username, '', 0, $beginLog . ": " . $ip['ip_string'] . ". user not found in a group");
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
@@ -309,6 +357,10 @@ class AuthUtils
 
         // Check to ensure user is in a acl group
         if (AclExtended::aclGetGroupTitles($username) == 0) {
+            if ($this->loginAuth || $this->apiAuth) {
+                // Utilize this during logins (and not during standard password checks within openemr such as esign)
+                $this->incrementIpLoginFailedCounter($ip['ip_string']);
+            }
             EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user not in any phpGACL groups");
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
@@ -321,16 +373,42 @@ class AuthUtils
             " WHERE BINARY `username` = ?";
         $userSecure = privQuery($getUserSecureSQL, [$username]);
         if (empty($userSecure) || empty($userSecure['id']) || empty($userSecure['password'])) {
+            if ($this->loginAuth || $this->apiAuth) {
+                // Utilize this during logins (and not during standard password checks within openemr such as esign)
+                $this->incrementIpLoginFailedCounter($ip['ip_string']);
+            }
             EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user credentials not found");
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
         }
 
+        // check login counter if this option is set
+        if ($this->loginAuth || $this->apiAuth) {
+            // Utilize this during logins (and not during standard password checks within openemr such as esign)
+            $checkArray = $this->checkLoginFailedCounter($username);
+            if (!$checkArray['pass']) {
+                $this->incrementLoginFailedCounter($username);
+                $this->incrementIpLoginFailedCounter($ip['ip_string']);
+                EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user exceeded maximum number of failed logins");
+                $this->clearFromMemory($password);
+                if ($checkArray['email_notification']) {
+                    $this->notifyUserBlock($username);
+                }
+                $this->preventTimingAttack();
+                return false;
+            }
+        }
+
         // Check password
         if (self::useActiveDirectory($username)) {
             // ldap authentication
             if (!$this->activeDirectoryValidation($username, $password)) {
+                if ($this->loginAuth || $this->apiAuth) {
+                    // Utilize this during logins (and not during standard password checks within openemr such as esign)
+                    $this->incrementLoginFailedCounter($username);
+                    $this->incrementIpLoginFailedCounter($ip['ip_string']);
+                }
                 EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user failed ldap authentication");
                 $this->clearFromMemory($password);
                 return false;
@@ -339,6 +417,10 @@ class AuthUtils
             // standard authentication
             // First, ensure the user hash is a valid hash
             if (!AuthHash::hashValid($userSecure['password'])) {
+                if ($this->loginAuth || $this->apiAuth) {
+                    // Utilize this during logins (and not during standard password checks within openemr such as esign)
+                    $this->incrementIpLoginFailedCounter($ip['ip_string']);
+                }
                 EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user stored password hash is invalid");
                 $this->clearFromMemory($password);
                 $this->preventTimingAttack();
@@ -349,6 +431,7 @@ class AuthUtils
                 if ($this->loginAuth || $this->apiAuth) {
                     // Utilize this during logins (and not during standard password checks within openemr such as esign)
                     $this->incrementLoginFailedCounter($username);
+                    $this->incrementIpLoginFailedCounter($ip['ip_string']);
                 }
                 EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user password incorrect");
                 $this->clearFromMemory($password);
@@ -367,20 +450,14 @@ class AuthUtils
             }
         }
 
-        // check login counter if this option is set (note ldap skips this)
-        if ($this->loginAuth || $this->apiAuth) {
-            // Utilize this during logins (and not during standard password checks within openemr such as esign)
-            if (!$this->checkLoginFailedCounter($username)) {
-                $this->incrementLoginFailedCounter($username);
-                EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user exceeded maximum number of failed logins");
-                $this->clearFromMemory($password);
-                return false;
-            }
-        }
-
         // Check to ensure password not expired if this option is set (note ldap skips this)
         if (!$this->checkPasswordNotExpired($username)) {
+            if ($this->loginAuth || $this->apiAuth) {
+                // Utilize this during logins (and not during standard password checks within openemr such as esign)
+                $this->incrementIpLoginFailedCounter($ip['ip_string']);
+            }
             EventAuditLogger::instance()->newEvent($event, $username, $authGroup, 0, $beginLog . ": " . $ip['ip_string'] . ". user password is expired");
+            error_log($username . ": " . $ip['ip_string'] . ". user password is expired");
             $this->clearFromMemory($password);
             return false;
         }
@@ -389,7 +466,8 @@ class AuthUtils
         $this->clearFromMemory($password);
         if ($this->loginAuth || $this->apiAuth) {
             // Utilize this during logins (and not during standard password checks within openemr such as esign)
-            $this->resetLoginFailedCounter($username);
+            self::resetLoginFailedCounter($username);
+            $this->resetIpLoginFailedCounter($ip['ip_string']);
         }
         if ($this->loginAuth) {
             // Specialized code for login auth (not api auth)
@@ -642,6 +720,9 @@ class AuthUtils
             $updateParams = array();
             $updateSQL = "UPDATE `users_secure`";
             $updateSQL .= " SET `last_update_password` = NOW()";
+            $updateSQL .= ", `login_fail_counter` = 0";
+            $updateSQL .= ", `last_login_fail` = null";
+            $updateSQL .= ", `auto_block_emailed` = 0";
             $updateSQL .= ", `password` = ?";
             array_push($updateParams, $newHash);
             if ($GLOBALS['password_history'] != 0) {
@@ -934,6 +1015,7 @@ class AuthUtils
             $current_date = date("Y-m-d");
             $expiredPlusGraceTime = date("Y-m-d", strtotime($query['last_update_password'] . "+" . ((int)$GLOBALS['password_expiration_days'] + (int)$GLOBALS['password_grace_time']) . " days"));
             if (strtotime($current_date) > strtotime($expiredPlusGraceTime)) {
+                error_log("OpenEMR Notice: Password is expired and outside of grace period. User: " . $user);
                 return false;
             }
         } else {
@@ -942,34 +1024,241 @@ class AuthUtils
         return true;
     }
 
-    private function checkLoginFailedCounter($user)
+    public static function collectIpLoginFailsSql(bool $showOnlyWithCount, bool $showOnlyManuallyBlocked, bool $showOnlyAutoBlocked)
     {
-        if ($GLOBALS['password_max_failed_logins'] == 0 || self::useActiveDirectory($user)) {
-            // skip the check if turned off or using active directory for login
-            return true;
+        $sqlBind = [];
+        $where = [];
+        if ($showOnlyWithCount) {
+            $where[] = ' (`ip_login_fail_counter` > 0) ';
         }
-
-        $query = privQuery("SELECT `login_fail_counter` FROM `users_secure` WHERE BINARY `username` = ?", [$user]);
-        if ($query['login_fail_counter'] >= $GLOBALS['password_max_failed_logins']) {
-            return false;
+        if ($showOnlyManuallyBlocked) {
+            $where[] = ' (`ip_force_block` = 1) ';
+        }
+        if ($showOnlyAutoBlocked) {
+            if ((int)$GLOBALS['ip_max_failed_logins'] != 0) {
+                if (!empty((int)$GLOBALS['ip_time_reset_password_max_failed_logins']) && (int)$GLOBALS['ip_time_reset_password_max_failed_logins'] > 0) {
+                    $where[] = ' (ip_login_fail_counter > ? AND TIMESTAMPDIFF(SECOND, `ip_last_login_fail`, NOW()) < ?) ';
+                    array_push($sqlBind, (int)$GLOBALS['ip_max_failed_logins'], (int)$GLOBALS['ip_time_reset_password_max_failed_logins']);
+                } else {
+                    $where[] = ' (ip_login_fail_counter > ?) ';
+                    array_push($sqlBind, (int)$GLOBALS['ip_max_failed_logins']);
+                }
+            }
+        }
+        if (!empty($where)) {
+            $where = implode('AND', $where);
+            $where = 'WHERE ' . $where;
         } else {
-            return true;
+            $where = '';
+        }
+
+        return sqlStatement("SELECT `id`, `ip_string`, `ip_force_block`, `ip_no_prevent_timing_attack`, `total_ip_login_fail_counter`, `ip_login_fail_counter`, `ip_last_login_fail`, TIMESTAMPDIFF(SECOND, `ip_last_login_fail`, NOW()) as `seconds_last_ip_login_fail` FROM `ip_tracking` $where ORDER BY `ip_last_login_fail` DESC, `total_ip_login_fail_counter` DESC", $sqlBind);
+    }
+
+    private function setupIpLoginFailedCounter(string $ipString): void
+    {
+        if (empty($ipString)) {
+            // this should not happen, but will do this to ensure things do not break if it does happen
+            $ipString = 'blank';
+        }
+        $sql = sqlQuery("SELECT `ip_string` FROM `ip_tracking` WHERE `ip_string` = ?", [$ipString]);
+        if (empty($sql['ip_string'])) {
+            sqlStatement("INSERT INTO `ip_tracking` (`ip_string`) VALUES (?)", [$ipString]);
         }
     }
 
-    private function resetLoginFailedCounter($user)
+    private function checkLoginFailedCounter(string $user): array
     {
-        if (!self::useActiveDirectory($user)) {
-            // skip if using active directory for login
-            privStatement("UPDATE `users_secure` SET `login_fail_counter` = 0 WHERE BINARY `username` = ?", [$user]);
+        if ((int)$GLOBALS['password_max_failed_logins'] == 0) {
+            // skip the check if turned off
+            return ['pass' => true, 'email_notification' => null];
+        }
+
+        $query = privQuery("SELECT `auto_block_emailed`, `login_fail_counter`, TIMESTAMPDIFF(SECOND, `last_login_fail`, NOW()) as `seconds_last_login_fail` FROM `users_secure` WHERE BINARY `username` = ?", [$user]);
+        if ($query['login_fail_counter'] >= (int)$GLOBALS['password_max_failed_logins']) {
+            if (
+                !empty((int)$GLOBALS['time_reset_password_max_failed_logins']) &&
+                (int)$GLOBALS['time_reset_password_max_failed_logins'] > 0 &&
+                !empty($query['seconds_last_login_fail']) &&
+                $query['seconds_last_login_fail'] > (int)$GLOBALS['time_reset_password_max_failed_logins']
+            ) {
+                // the last login fail was longer than the timeout required to reset the failed logins, so will pass
+                //  (also need to reset the counter)
+                self::resetLoginFailedCounter($user);
+                return ['pass' => true, 'email_notification' => null];
+            }
+            if (empty($query['auto_block_emailed'])) {
+                $emailNotification = true;
+            } else {
+                $emailNotification = false;
+            }
+            return ['pass' => false, 'email_notification' => $emailNotification];
+        } else {
+            return ['pass' => true, 'email_notification' => null];
         }
     }
 
-    private function incrementLoginFailedCounter($user)
+    private function checkIpLoginFailedCounter(string $ipString): array
     {
-        if (!self::useActiveDirectory($user)) {
-            // skip if using active directory for login
-            privStatement("UPDATE `users_secure` SET `login_fail_counter` = login_fail_counter+1 WHERE BINARY `username` = ?", [$user]);
+        if (empty($ipString)) {
+            // this should not happen, but will do this to ensure things do not break if it does happen
+            $ipString = 'blank';
+        }
+
+        if ((int)$GLOBALS['ip_max_failed_logins'] == 0) {
+            // skip the check if turned off
+            return ['pass' => true, 'force_block' => null, 'skip_timing_attack' => null, 'email_notification' => null];
+        }
+
+        $query = sqlQuery("SELECT `ip_auto_block_emailed`, `ip_force_block`, `ip_no_prevent_timing_attack`, `ip_login_fail_counter`, TIMESTAMPDIFF(SECOND, `ip_last_login_fail`, NOW()) as `seconds_last_ip_login_fail` FROM `ip_tracking` WHERE `ip_string` = ?", [$ipString]);
+        if ($query['ip_force_block'] == 1) {
+            if ($query['ip_no_prevent_timing_attack'] == 1) {
+                return ['pass' => false, 'force_block' => true, 'skip_timing_attack' => true, 'email_notification' => false];
+            } else {
+                return ['pass' => false, 'force_block' => true, 'skip_timing_attack' => false, 'email_notification' => false];
+            }
+        }
+        if ($query['ip_login_fail_counter'] >= (int)$GLOBALS['ip_max_failed_logins']) {
+            if (
+                !empty((int)$GLOBALS['ip_time_reset_password_max_failed_logins']) &&
+                (int)$GLOBALS['ip_time_reset_password_max_failed_logins'] > 0 &&
+                !empty($query['seconds_last_ip_login_fail']) &&
+                $query['seconds_last_ip_login_fail'] > (int)$GLOBALS['ip_time_reset_password_max_failed_logins']
+            ) {
+                // the last ip login fail was longer than the timeout required to reset the failed logins, so will pass
+                //  (also need to reset the counter)
+                $this->resetIpLoginFailedCounter($ipString);
+                return ['pass' => true, 'force_block' => null, 'skip_timing_attack' => null, 'email_notification' => null];
+            }
+            if (empty($query['ip_auto_block_emailed'])) {
+                $emailNotification = true;
+            } else {
+                $emailNotification = false;
+            }
+            return ['pass' => false, 'force_block' => false, 'skip_timing_attack' => false, 'email_notification' => $emailNotification];
+        } else {
+            return ['pass' => true, 'force_block' => null, 'skip_timing_attack' => null, 'email_notification' => null];
+        }
+    }
+
+    public static function resetLoginFailedCounter($user)
+    {
+        privStatement("UPDATE `users_secure` SET `login_fail_counter` = 0, `last_login_fail` = null, `auto_block_emailed` = 0 WHERE BINARY `username` = ?", [$user]);
+    }
+
+    private function resetIpLoginFailedCounter(string $ipString): void
+    {
+        if (empty($ipString)) {
+            // this should not happen, but will do this to ensure things do not break if it does happen
+            $ipString = 'blank';
+        }
+
+        sqlStatement("UPDATE `ip_tracking` SET `ip_login_fail_counter` = 0, `ip_last_login_fail` = null, `ip_auto_block_emailed` = 0 WHERE `ip_string` = ?", [$ipString]);
+    }
+
+    private function incrementLoginFailedCounter($user): void
+    {
+        // If there is a timeout set for the autoblock, then need to check it when incrementing the counter
+        if (
+            !empty((int)$GLOBALS['time_reset_password_max_failed_logins']) &&
+            (int)$GLOBALS['time_reset_password_max_failed_logins'] > 0
+        ) {
+            $query = privQuery("SELECT TIMESTAMPDIFF(SECOND, `last_login_fail`, NOW()) as `seconds_last_login_fail` FROM `users_secure` WHERE BINARY `username` = ?", [$user]);
+            if (
+                !empty($query['seconds_last_login_fail']) &&
+                $query['seconds_last_login_fail'] > (int)$GLOBALS['time_reset_password_max_failed_logins']
+            ) {
+                // the last login fail was longer than the timeout required to reset the failed logins, so will set the login_fail_counter to 1 (ie. reset the counter to 0 and add the 1 for the most recent fail)
+                privStatement("UPDATE `users_secure` SET `total_login_fail_counter` = total_login_fail_counter+1, `login_fail_counter` = 1, `last_login_fail` = NOW(), `auto_block_emailed` = 0 WHERE BINARY `username` = ?", [$user]);
+                return;
+            }
+        }
+
+        privStatement("UPDATE `users_secure` SET `total_login_fail_counter` = total_login_fail_counter+1, `login_fail_counter` = login_fail_counter+1, `last_login_fail` = NOW() WHERE BINARY `username` = ?", [$user]);
+    }
+
+    private function incrementIpLoginFailedCounter(string $ipString): void
+    {
+        if (empty($ipString)) {
+            // this should not happen, but will do this to ensure things do not break if it does happen
+            $ipString = 'blank';
+        }
+
+        // If there is a timeout set for the autoblock, then need to check it when incrementing the counter
+        if (
+            !empty((int)$GLOBALS['ip_time_reset_password_max_failed_logins']) &&
+            (int)$GLOBALS['ip_time_reset_password_max_failed_logins'] > 0
+        ) {
+            $query = sqlQuery("SELECT TIMESTAMPDIFF(SECOND, `ip_last_login_fail`, NOW()) as `seconds_last_ip_login_fail` FROM `ip_tracking` WHERE `ip_string` = ?", [$ipString]);
+            if (
+                !empty($query['seconds_last_ip_login_fail']) &&
+                $query['seconds_last_ip_login_fail'] > (int)$GLOBALS['ip_time_reset_password_max_failed_logins']
+            ) {
+                // the last login fail was longer than the timeout required to reset the failed logins, so will set the login_fail_counter to 1 (ie. reset the counter to 0 and add the 1 for the most recent fail)
+                sqlStatement("UPDATE `ip_tracking` SET `total_ip_login_fail_counter` = total_ip_login_fail_counter+1, `ip_login_fail_counter` = 1, `ip_last_login_fail` = NOW(), `ip_auto_block_emailed` = 0 WHERE `ip_string` = ?", [$ipString]);
+                return;
+            }
+        }
+
+        sqlStatement("UPDATE `ip_tracking` SET `total_ip_login_fail_counter` = total_ip_login_fail_counter+1, `ip_login_fail_counter` = ip_login_fail_counter+1, `ip_last_login_fail` = NOW() WHERE `ip_string` = ?", [$ipString]);
+    }
+
+    public static function resetIpCounter(int $ipId): void
+    {
+        sqlStatement("UPDATE `ip_tracking` SET `ip_login_fail_counter` = 0, `ip_last_login_fail` = null, `ip_auto_block_emailed` = 0 WHERE `id` = ?", [$ipId]);
+    }
+
+    public static function disableIp(int $ipId): void
+    {
+        sqlStatement("UPDATE `ip_tracking` SET `ip_force_block` = 1 WHERE `id` = ?", [$ipId]);
+    }
+
+    public static function enableIp(int $ipId): void
+    {
+        sqlStatement("UPDATE `ip_tracking` SET `ip_force_block` = 0 WHERE `id` = ?", [$ipId]);
+    }
+
+    public static function skipTimingIp(int $ipId): void
+    {
+        sqlStatement("UPDATE `ip_tracking` SET `ip_no_prevent_timing_attack` = 1 WHERE `id` = ?", [$ipId]);
+    }
+
+    public static function noSkipTimingIp(int $ipId): void
+    {
+        sqlStatement("UPDATE `ip_tracking` SET `ip_no_prevent_timing_attack` = 0 WHERE `id` = ?", [$ipId]);
+    }
+
+    private function notifyIpBlock(string $ip_string): bool
+    {
+        sqlStatement("UPDATE `ip_tracking` SET `ip_auto_block_emailed` = 1 WHERE `ip_string` = ?", [$ip_string]);
+
+        if (!empty($GLOBALS['patient_reminder_sender_email']) && !empty($GLOBALS['practice_return_email_path'])) {
+            if (empty((int)$GLOBALS['ip_time_reset_password_max_failed_logins'])) {
+                $message = "IP address '" . text($ip_string) . "' has been blocked.";
+            } else {
+                $message = "IP address '" . text($ip_string) . "' has been temporarily blocked.";
+            }
+            return MyMailer::emailServiceQueue($GLOBALS['patient_reminder_sender_email'], $GLOBALS['practice_return_email_path'], xl('IP Address Block Notification For OpenEMR Admin'), $message);
+        } else {
+            error_log("Unable to send OpenEMR admin email notification since either patient_reminder_sender_email or practice_return_email_path global was not set");
+            return false;
+        }
+    }
+
+    private function notifyUserBlock(string $username): bool
+    {
+        privStatement("UPDATE `users_secure` SET `auto_block_emailed` = 1 WHERE BINARY `username` = ?", [$username]);
+
+        if (!empty($GLOBALS['patient_reminder_sender_email']) && !empty($GLOBALS['practice_return_email_path'])) {
+            if (empty((int)$GLOBALS['time_reset_password_max_failed_logins'])) {
+                $message = "Username '" . text($username) . "' has been blocked.";
+            } else {
+                $message = "Username '" . text($username) . "' has been temporarily blocked.";
+            }
+            return MyMailer::emailServiceQueue($GLOBALS['patient_reminder_sender_email'], $GLOBALS['practice_return_email_path'], xl('Username Block Notification For OpenEMR Admin'), $message);
+        } else {
+            error_log("Unable to send OpenEMR admin email notification since either patient_reminder_sender_email or practice_return_email_path global was not set");
+            return false;
         }
     }
 

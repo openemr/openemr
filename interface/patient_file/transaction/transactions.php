@@ -11,7 +11,7 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/transactions.inc");
+require_once("$srcdir/transactions.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
@@ -142,7 +142,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 <?php } ?>
                                             </div>
                                         </td>
-                                        <td><?php echo getLayoutTitle('Transactions', $item['title']); ?></td>
+                                        <td><?php echo text(getLayoutTitle('Transactions', $item['title'])); ?></td>
                                         <td><?php echo text($date); ?></td>
                                         <td><?php echo text($item['user']); ?></td>
                                         <td><?php echo text($item['body']); ?></td>

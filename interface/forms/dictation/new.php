@@ -10,12 +10,12 @@
  * @author    Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2008 cfapress <cfapress>
  * @copyright Copyright (c) 2013-2017 bradymiller <bradymiller@users.sourceforge.net>
- * @copyright Copyright (c) 2017-2022 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2017-2023 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  **/
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/api.inc");
+require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;

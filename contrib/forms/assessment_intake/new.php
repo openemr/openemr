@@ -13,7 +13,7 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
+require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -278,7 +278,7 @@ formHeader("Form: assessment_intake");
             <h5 class="font-weight-bold mt-3" style="text-decoration: underline;">Assessment of Currently Known Risk Factors:</h5>
 
             <p class="font-weight-bold">Suicide:</p>
-            
+
             <div class="custom-control custom-checkbox">
                 <input type="checkbox" class='custom-control-input' name='risk_suicide_na' />
                 <label class="font-weight-bold custom-control-label">Not Assessed</label>

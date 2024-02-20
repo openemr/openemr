@@ -21,9 +21,9 @@ use OpenEMR\Events\Patient\Summary\Card\SectionEvent;
 
 class PortalCard extends CardModel
 {
-    const TEMPLATE_FILE = 'patient/partials/portal.html.twig';
+    private const TEMPLATE_FILE = 'patient/partials/portal.html.twig';
 
-    const CARD_ID = 'patient_portal';
+    private const CARD_ID = 'patient_portal';
 
     private $opts = [];
 
@@ -59,7 +59,7 @@ class PortalCard extends CardModel
 
     private function renderCard()
     {
-        $dispatchResult = $this->ed->dispatch(RenderEvent::EVENT_HANDLE, new RenderEvent(self::CARD_ID));
+        $dispatchResult = $this->ed->dispatch(new RenderEvent(self::CARD_ID), RenderEvent::EVENT_HANDLE);
         $this->opts['templateVariables']['prependedInjection'] = $dispatchResult->getPrependedInjection();
         $this->opts['templateVariables']['appendedInjection'] = $dispatchResult->getAppendedInjection();
     }
@@ -69,17 +69,23 @@ class PortalCard extends CardModel
         global $GLOBALS;
         global $pid;
         $this->opts = [
-            'acl' => ['patients', 'dem'],
-            'initiallyCollapsed' => (getUserSetting(self::CARD_ID) == 0) ? false : true,
-            'add' => true,
+            'acl' => ['patients', 'demo'],
+            'initiallyCollapsed' => (getUserSetting(self::CARD_ID . '_expand') == 0),
+            'add' => false,
             'edit' => false,
             'collapse' => true,
             'templateFile' => self::TEMPLATE_FILE,
             'identifier' => self::CARD_ID,
             'title' => xl('Patient Portal') . ' / ' . xl('API Access'),
             'templateVariables' => [
-                'portalAuthorized' => portalAuthorized($pid),
+                'isPortalEnabled' => isPortalEnabled(),
+                'isPortalSiteAddressValid' => isPortalSiteAddressValid(),
+                'isPortalAllowed' => isPortalAllowed($pid),
                 'portalLoginHref' => $GLOBALS['webroot'] . "/interface/patient_file/summary/create_portallogin.php",
+                'isApiAllowed' => isApiAllowed($pid),
+                'areCredentialsCreated' => areCredentialsCreated($pid),
+                'isContactEmail' => isContactEmail($pid),
+                'isEnforceSigninEmailPortal' => isEnforceSigninEmailPortal($pid)
             ],
         ];
     }

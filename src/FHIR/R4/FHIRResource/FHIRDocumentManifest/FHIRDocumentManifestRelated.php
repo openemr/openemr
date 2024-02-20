@@ -163,7 +163,7 @@ class FHIRDocumentManifestRelated extends FHIRBackboneElement implements \JsonSe
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         if (isset($this->identifier)) {

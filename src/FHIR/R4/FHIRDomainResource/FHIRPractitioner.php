@@ -441,7 +441,7 @@ Work addresses are not typically entered in this property as they are usually ro
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;

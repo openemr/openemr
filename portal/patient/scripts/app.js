@@ -12,22 +12,27 @@ var app = {
 	errorLandmarkEnd: ' /ERROR -->',
 
 	/**
-	 * Display an alert message inside the element with the id containerId
-	 *
-	 * @param string message to display
-	 * @param string style: '', 'alert-error', 'alert-success' or 'alert-info'
-	 * @param int timeout for message to hide itself
-	 * @param string containerId (default = 'alert')
-	 */
-	appendAlert: function(message,style, timeout,containerId) {
+     * Display an alert message inside the element with the id containerId
+     *
+     * @param message
+     * @param style
+     * @param timeout
+     * @param containerId
+     */
+	appendAlert: function(message, style, timeout,containerId) {
 	    if (!message) {
 	        return;
         }
-        timeout = 60000; // mostly errors so make long.
+        if (timeout < 1000) {
+            timeout = 15000;
+        }
         if (typeof signerAlertMsg !== 'undefined') {
-            signerAlertMsg("Error: " + message, timeout);
+            if (message.includes("Site ID is missing from session data") !== false) {
+                parent.parent.location.replace(top.webroot_url + "/portal/verify_session.php" + '?w&u');
+            }
+            signerAlertMsg(message, timeout, style);
         } else {
-            alert("Error: " + message);
+            alert(message);
         }
 	},
 	/**
@@ -83,17 +88,7 @@ var app = {
 		return str;
 
 	},
-
-	/**
-	 * Convenience method for creating an option
-	 */
-	getOptionHtml: function(val,label,selected)	{
-		return '<option value="' + _.escape(val) + '" ' + (selected ? 'selected="selected"' : '') +'>'
-			+ _.escape(label)
-			+ '</option>';
-	},
-
-	/**
+    /**
      * A server error should contain json data, but if a fatal php error occurs it
      * may contain html.  the function will parse the return contents of an
      * error response and return the error message

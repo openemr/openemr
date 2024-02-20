@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2016-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2016-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,7 +17,6 @@ use OpenEMR\Common\Acl\AclMain;
 
 if (!AclMain::aclCheckCore('patientportal', 'portal')) {
     die(xlt("Unauthorized"));
-    exit;
 }
 
 $this->display('_FormsHeader.tpl.php');
@@ -37,7 +36,7 @@ echo "<script>var cuser='" . $this->cuser . "';</script>";
 <div class="container mt-5">
 
 <h3>
-    <i class="icon-th-list"></i><?php echo xlt('Onsite Patient Activities')?>
+    <i class="icon-th-list"></i><?php echo xlt('Onsite Patient Activities'); ?>
     <span id="loader" class="loader progress progress-striped active"><span class="progress-bar"></span></span>
     <div class="col-sm-3 col-md-3 float-right">
         <form class="navbar-form" role="search">

@@ -1,0 +1,24 @@
+{
+    "name": "juggernautsei/oe-module-prior-authorizations",
+    "description": "Prior Authorizations Module",
+    "type": "openemr-module",
+    "license": "All rights reserved",
+    "authors": [
+        {
+            "name": "Sherwin",
+            "email": "sherwingaddis@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "keywords": ["openemr", "openemr-module"],
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {"Juggernaut\\OpenEMR\\Modules\\PriorAuthModule\\": "src/"}
+    },
+    "require": {
+        "php": ">=7.1"
+    },
+    "conflict": {
+        "openemr/openemr": "<6.0.0"
+    }
+}

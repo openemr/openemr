@@ -59,6 +59,7 @@ class LocationService extends BaseService
     {
         $sqlBindArray = array();
 
+        // TODO: @adunsulag we need to add the contact,contact_address,address records to this Location service which requires uuids in the tables
         $sql = 'SELECT location.*, uuid_mapping.uuid FROM
                 (SELECT
                     uuid as table_uuid,

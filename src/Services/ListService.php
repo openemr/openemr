@@ -14,7 +14,9 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use Particle\Validator\Validator;
+use OpenEMR\Common\Uuid\UuidRegistry;
 
 // TODO: @adunsulag should we rename this to be ListOptions service since that is the table it corresponds to?  The lists table is a patient issues table so this could confuse new developers
 class ListService
@@ -34,8 +36,8 @@ class ListService
         $validator->required('type')->lengthBetween(2, 255);
         $validator->required('pid')->numeric();
         $validator->optional('diagnosis')->lengthBetween(2, 255);
-        $validator->required('begdate')->datetime('Y-m-d');
-        $validator->optional('enddate')->datetime('Y-m-d');
+        $validator->optional('begdate')->datetime('Y-m-d H:i:s');
+        $validator->optional('enddate')->datetime('Y-m-d H:i:s');
 
         return $validator->validate($list);
     }
@@ -48,10 +50,25 @@ class ListService
 
         $results = array();
         while ($row = sqlFetchArray($statementResults)) {
+            $row['uuid'] = UuidRegistry::uuidToString($row['uuid']);
             array_push($results, $row);
         }
 
         return $results;
+    }
+
+    public function getListOptionsForLists($lists)
+    {
+        $sql = "SELECT * FROM list_options WHERE list_id IN (" . str_repeat('?,', count($lists) - 1) . "?) "
+            . " ORDER BY list_id, seq";
+        $records = QueryUtils::fetchRecords($sql, $lists, false);
+        return $records;
+    }
+
+    public function getListIds()
+    {
+        $sql = "SELECT DISTINCT list_id FROM list_options ORDER BY list_id";
+        return QueryUtils::fetchTableColumn($sql, 'list_id', []);
     }
 
     public function getOptionsByListName($list_name, $search = array())

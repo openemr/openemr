@@ -21,8 +21,8 @@
 
 $form_folder = "eye_mag";
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'] . '/lists.inc');
-require_once($GLOBALS['srcdir'] . '/patient.inc');
+require_once($GLOBALS['srcdir'] . '/lists.inc.php');
+require_once($GLOBALS['srcdir'] . '/patient.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
@@ -805,7 +805,7 @@ foreach (explode(',', $given) as $item) {
                         </td>
                     </tr>
                 </table>
-                <table id="row_social" class="w-100">
+                <table id="row_social" class="w-100 small">
                     <?php
                     $given = "*";
                     $dateStart = $_POST['dateState'] ?? '';
@@ -1156,7 +1156,7 @@ foreach (explode(',', $given) as $item) {
                 </tr>
                 </tbody>
                 </table>
-                <table id="row_FH" name="row_FH" width="90%">
+                <table id="row_FH" class="small" name="row_FH" width="90%">
                     <tr>
                         <td class="right text-nowrap"><?php echo xlt('Glaucoma'); ?>:</td>
                         <td class="text data"><input type="radio" onclick='negate_radio(this);' id="radio_usertext11" name="radio_usertext11" <?php if (!$result1['usertext11']) {
@@ -1339,7 +1339,7 @@ foreach (explode(',', $given) as $item) {
                     </tr>
                 </table>
             </div>
-            <div class="text-center w-100 mt-0">
+            <div class="text-center w-100 mt-3">
                 <input type="hidden" id="issue_js" name="issue_js" value="test" />
                 <input type="hidden" id="pid" name="pid" value="<?php echo attr($pid); ?>" />
                 <button type='button' id='form_save' name='form_save' class="btn btn-primary btn-save" onclick='top.restoreSession();submit_this_form();'><?php echo xla('Save'); ?></button>

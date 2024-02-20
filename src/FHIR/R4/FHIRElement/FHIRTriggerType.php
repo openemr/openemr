@@ -132,7 +132,7 @@ class FHIRTriggerType extends FHIRElement implements \JsonSerializable
     /**
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->value;
     }

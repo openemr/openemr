@@ -94,7 +94,8 @@ class FhirEncounterService extends FhirServiceBase implements
                 ]
             ),
             'patient' => $this->getPatientContextSearchField(),
-            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date'])
+            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATETIME, ['date']),
+            '_lastUpdated' => new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['last_update'])
         ];
     }
 
@@ -112,7 +113,7 @@ class FhirEncounterService extends FhirServiceBase implements
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(gmdate('c'));
+        $meta->setLastUpdated((new \DateTime($dataRecord['last_update']) )->format(DATE_ATOM)); // stored as utc
         $encounterResource->setMeta($meta);
 
         $id = new FhirId();
@@ -122,7 +123,8 @@ class FhirEncounterService extends FhirServiceBase implements
         // identifier - required
         $identifier = new FHIRIdentifier();
         $identifier->setValue($dataRecord['euuid']);
-        $identifier->setSystem(FhirCodeSystemConstants::RFC_3986);
+        // the system is a unique urn
+        $identifier->setSystem("urn:uuid:" . strtolower($dataRecord['euuid']));
         $encounterResource->addIdentifier($identifier);
 
         // status - required
@@ -168,8 +170,7 @@ class FhirEncounterService extends FhirServiceBase implements
                 )
             );
             $period = new FHIRPeriod();
-            $period->setStart(DateTime::createFromFormat("Y-m-d H:i:s", $dataRecord['date'])->format('c'));
-            $period->setStart(gmdate('c', strtotime($dataRecord['date'])));
+            $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['date']));
             $participant->setPeriod($period);
 
             $participantType = UtilsService::createCodeableConcept([
@@ -194,8 +195,7 @@ class FhirEncounterService extends FhirServiceBase implements
                 )
             );
             $period = new FHIRPeriod();
-            $period->setStart(DateTime::createFromFormat("Y-m-d H:i:s", $dataRecord['date'])->format('c'));
-            $period->setStart(gmdate('c', strtotime($dataRecord['date'])));
+            $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['date']));
             $participant->setPeriod($period);
 
             $participantType = UtilsService::createCodeableConcept([
@@ -213,7 +213,7 @@ class FhirEncounterService extends FhirServiceBase implements
         // period - must support
         if (!empty($dataRecord['date'])) {
             $period = new FHIRPeriod();
-            $period->setStart(DateTime::createFromFormat("Y-m-d H:i:s", $dataRecord['date'])->format('c'));
+            $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['date']));
             $encounterResource->setPeriod($period);
         }
 

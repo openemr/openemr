@@ -12,7 +12,7 @@ var dataKey = contentModifier.dataKey;
 var sectionLevel2 = require('./sectionLevel2');
 
 exports.ccd2 = function (html_renderer) {
-    var ccd_template = {
+    return {
         key: "ClinicalDocument",
         attributes: {
             "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
@@ -21,17 +21,17 @@ exports.ccd2 = function (html_renderer) {
             "xmlns:sdtc": "urn:hl7-org:sdtc"
         },
         content: [{
-                key: "realmCode",
-                attributes: {
-                    code: "US"
-                }
-            }, {
-                key: "typeId",
-                attributes: {
-                    root: "2.16.840.1.113883.1.3",
-                    extension: "POCD_HD000040"
-                }
-            },
+            key: "realmCode",
+            attributes: {
+                code: "US"
+            }
+        }, {
+            key: "typeId",
+            attributes: {
+                root: "2.16.840.1.113883.1.3",
+                extension: "POCD_HD000040"
+            }
+        },
             fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.1.1", "2015-08-01"),
             fieldLevel.templateId("2.16.840.1.113883.10.20.22.1.1"),
             {
@@ -123,20 +123,103 @@ exports.ccd2 = function (html_renderer) {
                         sectionLevel2.planOfCareSection(html_renderer.planOfCareSectionHtmlHeader, html_renderer.planOfCareSectionHtmlHeaderNA),
                         sectionLevel2.goalSection(html_renderer.goalSectionHtmlHeader, html_renderer.goalSectionHtmlHeaderNA),
                         sectionLevel2.healthConcernSection('', ''),
-                        sectionLevel2.reasonForReferralSection('',  html_renderer.goalSectionHtmlHeaderNA),
+                        sectionLevel2.reasonForReferralSection('', html_renderer.goalSectionHtmlHeaderNA),
                         sectionLevel2.mentalStatusSection('', ''),
                         sectionLevel2.socialHistorySection(html_renderer.socialHistorySectionHtmlHeader, html_renderer.socialHistorySectionHtmlHeaderNA),
                         sectionLevel2.vitalSignsSectionEntriesOptional(html_renderer.vitalSignsSectionEntriesOptionalHtmlHeader, html_renderer.vitalSignsSectionEntriesOptionalHtmlHeaderNA),
                         sectionLevel2.medicalEquipmentSectionEntriesOptional(html_renderer.medicalEquipmentSectionEntriesOptionalHtmlHeader, html_renderer.medicalEquipmentSectionEntriesOptionalHtmlHeaderNA)
-                    ],
-                    notImplemented: [
-                        "advanceDirectivesSectionEntriesOptional",
-                        "familyHistorySection",
                     ]
                 },
                 dataKey: 'data'
             }
         ]
     };
-    return ccd_template;
+};
+
+exports.unstructured = function () {
+    return {
+        key: "ClinicalDocument",
+        attributes: {
+            "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance",
+            "xmlns": "urn:hl7-org:v3",
+            "xmlns:voc": "urn:hl7-org:v3/voc",
+            "xmlns:sdtc": "urn:hl7-org:sdtc"
+        },
+        content: [{
+            key: "realmCode",
+            attributes: {
+                code: "US"
+            }
+        }, {
+            key: "typeId",
+            attributes: {
+                root: "2.16.840.1.113883.1.3",
+                extension: "POCD_HD000040"
+            }
+        },
+            fieldLevel.templateIdExt("2.16.840.1.113883.10.20.22.1.1", "2015-08-01"),
+            fieldLevel.templateId("2.16.840.1.113883.10.20.22.1.1"),
+            {
+                key: "templateId",
+                attributes: {
+                    "root": leafLevel.inputProperty("root"),
+                    "extension": leafLevel.inputProperty("extension")
+                },
+                dataKey: 'meta.ccda_header.template',
+            },
+            {
+                key: "templateId",
+                attributes: {
+                    "root": leafLevel.inputProperty("root")
+                },
+                dataKey: 'meta.ccda_header.template',
+            },
+            [fieldLevel.id, dataKey("meta.identifiers")],
+            {
+                key: "code",
+                attributes: {
+                    codeSystem: "2.16.840.1.113883.6.1",
+                    codeSystemName: "LOINC",
+                    code: leafLevel.inputProperty("code"),
+                    displayName: leafLevel.inputProperty("name")
+                },
+                dataKey: 'meta.ccda_header.code',
+            }, {
+                key: "title",
+                text: leafLevel.inputProperty("title"),
+                dataKey: "meta.ccda_header"
+            },
+            [fieldLevel.effectiveTime, required, dataKey("meta.ccda_header.date_time")], {
+                key: "confidentialityCode",
+                attributes: leafLevel.codeFromName("2.16.840.1.113883.5.25"),
+                dataKey: "meta.confidentiality"
+            }, {
+                key: "languageCode",
+                attributes: {
+                    code: "en-US"
+                }
+            }, {
+                key: "setId",
+                attributes: {
+                    root: leafLevel.inputProperty("identifier"),
+                    extension: leafLevel.inputProperty("extension")
+                },
+                dataKey: 'meta.set_id',
+                existsWhen: condition.keyExists('identifier')
+            }, {
+                key: "versionNumber",
+                attributes: {
+                    value: "1"
+                }
+            },
+            headerLevel.recordTarget,
+            headerLevel.headerAuthor,
+            headerLevel.headerInformant,
+            headerLevel.headerCustodian,
+            headerLevel.headerInformationRecipient,
+            headerLevel.participant,
+            headerLevel.providers,
+            headerLevel.headerComponentOf, {}
+        ]
+    };
 };

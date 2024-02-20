@@ -1,0 +1,28 @@
+{#
+ # This holds the template for the comlink registration code
+ # TODO: @adunsulag should move this into the comlink folder since it is not a core file
+ #
+ # @package openemr
+ # @link      http://www.open-emr.org
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div class="form-group">
+    <label class="font-weight-bold" for="comlink_registration_code">{{ comlink_app_title|default("")|xlt }} {{ "Registration Code"|xlt  }}:</label>
+    <div class="input-group">
+        <input type="text" name="comlink_registration_code" disabled="disabled" value="{{ comlink_registration_code|default("")|attr }}" />
+    </div>
+    <div class="input-group-append">
+        {% if comlink_registration_code is empty %}
+            <div class="alert alert-warning mt-1">{{ "Registration code will be created when credentials are saved"|xlt }}</div>
+        {% else %}
+        {% endif %}
+    </div>
+</div>
+{% if comlink_registration_code is not empty %}
+<div class="form-check mb-2 mt-2">
+    <input id="regNewCode" type="checkbox" class="form-check-input" name="comlink_registration_new_code" value="1" title="{{ 'Check to generate new registration code'|xla  }}">
+    <label class="font-weight-bold form-check-label" for="regNewCode">{{ "Generate new registration code"|xlt  }}</label>
+</div>
+{% endif %}

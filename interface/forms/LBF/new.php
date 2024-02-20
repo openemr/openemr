@@ -25,10 +25,10 @@ if ($patientPortalSession) {
 }
 
 require_once("../../globals.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 require_once("$srcdir/FeeSheetHtml.class.php");
 
@@ -201,7 +201,7 @@ if (isset($LBF_SERVICES_SECTION) || isset($LBF_PRODUCTS_SECTION) || isset($LBF_D
 }
 
 if (!$from_trend_form) {
-    $fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/$formname.plugin.php";
+    $fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/" . check_file_dir_name($formname) . ".plugin.php";
     if (file_exists($fname)) {
         include_once($fname);
     }
@@ -466,7 +466,7 @@ if (
                 e.stopPropagation();
                 let url = $(this).attr('href');
                 url = encodeURI(url);
-                dlgopen('', '', 950, 550, '', '', {
+                dlgopen('', '', 950, 650, '', '', {
                     buttons: [
                         {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
                     ],
@@ -930,7 +930,7 @@ if (
                                 array($formname, $formid)
                             );
                             $form_issue_id = empty($firow['issue_id']) ? 0 : intval($firow['issue_id']);
-                            $default = empty($firow['provider_id']) ? $_SESSION['authUserID'] : intval($firow['provider_id']);
+                            $default = empty($firow['provider_id']) ? ($_SESSION['authUserID'] ?? null) : intval($firow['provider_id']);
 
                             if (!$patient_portal) {
                                 // Provider selector.
@@ -1074,7 +1074,7 @@ if (
                                     "JOIN form_encounter AS e2 ON " .
                                     "e2.pid = e1.pid AND (e2.date < e1.date OR (e2.date = e1.date AND e2.encounter <= e1.encounter)) " .
                                     "JOIN shared_attributes AS sa ON " .
-                                    "sa.pid = e2.pid AND sa.encounter = e2.encounter AND sa.field_id = ?" .
+                                    "sa.pid = e2.pid AND sa.encounter = e2.encounter AND sa.field_id = ? " .
                                     "WHERE e1.pid = ? AND e1.encounter = ? " .
                                     "ORDER BY e2.date DESC, e2.encounter DESC LIMIT 1",
                                     array($field_id, $pid, $visitid)
@@ -1834,7 +1834,7 @@ if (
 
                 <?php if (!$from_trend_form) { // end row and container divs ?>
                     <p style='text-align:center' class='small'>
-                        <?php echo text(xl('Rev.') . ' ' . substr($grp_last_update, 0, 10)); ?>
+                        <?php echo text(xl('Rev.') . ' ' . substr($grp_last_update ?? '', 0, 10)); ?>
                     </p>
 
                 <?php } ?>
@@ -1846,7 +1846,7 @@ if (
                 } ?>
 
                 <!-- include support for the list-add selectbox feature -->
-                <?php include $GLOBALS['fileroot'] . "/library/options_listadd.inc"; ?>
+                <?php require $GLOBALS['fileroot'] . "/library/options_listadd.inc.php"; ?>
 
                 <script>
                     // Array of action conditions for the checkSkipConditions() function.

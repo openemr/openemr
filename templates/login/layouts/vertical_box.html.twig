@@ -1,0 +1,76 @@
+{#
+A vertical box login layout
+
+This layout is the legacy login page, a centered box with the logos on top
+
+@package OpenEMR
+@subpackage Login
+@author Robert Down <robertdown@live.com
+@copyright Copyright (c) 2023 Robert Down <robertdown@live.com>
+@copyright Copyright (c) 2023 Providence Healthtech
+@license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+{% extends "login/base.html.twig" %}
+
+{% block content %}
+<div class="vh-100 p-5 d-flex flex-column justify-content-center">
+    <form method="POST" id="login_form" autocomplete="off" action="../main/main_screen.php?auth=login&site={{ siteID|attr_url }}" target="_top" name="login_form">
+        <div class="shadow-lg m-0 my-sm-5 login-row-center">
+
+            <div class="py-2 px-2 py-md-3 px-md-5 box d-flex flex-column justify-content-center w-100">
+                <div class="flex-fill mx-auto">
+                    {% include "login/partials/html/primary_logo.html.twig" %}
+                </div>
+
+                {% include "login/partials/html/tagline.html.twig" %}
+            </div>
+
+            <div class="p-5 col-12">
+                <input type="hidden" name="new_login_session_management" value="1">
+                <input type="hidden" name="languageChoice" value="{{ defaultLangID|attr }}">
+
+                {% if displayTinyLogo %}
+                    <div class="mb-5">
+                        {% include "login/partials/html/tiny_logo.html.twig" %}
+                    </div>
+                {% endif %}
+
+
+                {% include "login/partials/html/relogin.html.twig" %}
+
+                {% include "login/partials/html/login_failure.html.twig" %}
+
+                {% include "login/partials/input/username.html.twig" %}
+
+                {% include "login/partials/input/password.html.twig" %}
+
+                {{ divApp }}
+
+                {% include "login/partials/input/languages.html.twig" %}
+
+                {% include "login/partials/input/facilities.html.twig" %}
+
+                {% include "login/partials/input/buttons.html.twig" %}
+
+                <div class="form-group">
+                    {% if displayGoogleSignin %}
+                    <input type="hidden" id="used-google-signin" name="used_google_signin" value="">
+                    <input type="hidden" id="google-signin-token" name="google_signin_token" value="">
+                    <div id="google-signin" onclick="return do_google_signin();">
+                        <!-- This message is displayed if the google platform API cannot render the button -->
+                        <span id="google-signin-service-unreachable-alert" style="display:none;">
+                            {{ "Google Sign-In is enabled but the service is unreachable."|xlt }}
+                        </span>
+                    </div>
+                    <div id="google-signout">
+                        <a href="#" onclick="signOut();">{{ "Sign out"|xlt }}</a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% include "login/partials/html/acknowledgements.html.twig" %}
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

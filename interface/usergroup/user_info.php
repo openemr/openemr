@@ -16,8 +16,7 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/auth.inc");
-require_once("$srcdir/user.inc");
+require_once("$srcdir/user.inc.php");
 
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;

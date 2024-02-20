@@ -123,6 +123,20 @@ function initDragResize(dragContext, resizeContext = document) {
     }
 }
 
+function setInteractorPosition(x, y, target) {
+    if ('webkitTransform' in target.style || 'transform' in target.style) {
+        target.style.webkitTransform =
+            target.style.transform =
+                'translate(' + x + 'px, ' + y + 'px)';
+    } else {
+        target.style.left = x + 'px';
+        target.style.top = y + 'px';
+    }
+
+    target.setAttribute('data-x', x);
+    target.setAttribute('data-y', y);
+}
+
 /* function to init all page drag/resize elements. */
 function initInteractors(dragContext = document, resizeContext = '') {
     resizeContext = resizeContext ? resizeContext : dragContext;
@@ -132,17 +146,7 @@ function initInteractors(dragContext = document, resizeContext = '') {
         let x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
         let y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
 
-        if ('webkitTransform' in target.style || 'transform' in target.style) {
-            target.style.webkitTransform =
-                target.style.transform =
-                    'translate(' + x + 'px, ' + y + 'px)';
-        } else {
-            target.style.left = x + 'px';
-            target.style.top = y + 'px';
-        }
-
-        target.setAttribute('data-x', x);
-        target.setAttribute('data-y', y);
+        setInteractorPosition(x, y, target);
     }
 
     /* Draggable */
@@ -210,6 +214,8 @@ function initInteractors(dragContext = document, resizeContext = '') {
         x += event.deltaRect.left;
         y += event.deltaRect.top;
 
+        // TODO: @adunsulag not sure why this only does webkitTransform, seems like it should do the same
+        // as our other move here: setInteractorPosition(x, y, target);
         target.style.webkitTransform = target.style.transform = 'translate(' + x + 'px,' + y + 'px)';
         target.setAttribute('data-x', x);
         target.setAttribute('data-y', y);
@@ -346,6 +352,7 @@ function oeSortable(callBackFn) {
 *
 */
 if (typeof asyncAlertMsg !== "function") {
+    /* eslint-disable-next-line no-inner-declarations */
     function asyncAlertMsg(message, timer = 5000, type = 'danger', size = '') {
         let alertMsg = xl("Alert Notice");
         $('#alert_box').remove();
@@ -467,4 +474,32 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
         return false;
     };
 }
+
+(function(window, oeSMART) {
+    oeSMART.initLaunch = function(webroot, csrfToken) {
+        // allows this to be lazy defined
+        let xl = window.top.xl || function(text) { return text; };
+        let smartLaunchers = document.querySelectorAll('.smart-launch-btn');
+        for (let launch of smartLaunchers) {
+                launch.addEventListener('click', function (evt) {
+                    let node = evt.target;
+                    let intent = node.dataset.intent;
+                    let clientId = node.dataset.clientId;
+                    if (!intent || !clientId) {
+                        console.error("mising intent parameter or client-id parameter");
+                        return;
+                    }
+
+                    let url = webroot + '/interface/smart/ehr-launch-client.php?intent='
+                        + encodeURIComponent(intent) + '&client_id=' + encodeURIComponent(clientId)
+                        + "&csrf_token=" + encodeURIComponent(csrfToken);
+                    let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
+                    // we allow external dialog's  here because that is what a SMART app is
+                    let height = window.top.innerHeight; // do our full height here
+                    dlgopen(url, '_blank', 'modal-full', height, '', title, {allowExternal: true});
+                });
+        }
+    };
+    window.oeSMART = oeSMART;
+})(window, window.top.oeSMART || {});
 

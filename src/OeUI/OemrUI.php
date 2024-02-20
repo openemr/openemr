@@ -13,7 +13,11 @@
 namespace OpenEMR\OeUI;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\UserInterface\BaseActionButtonHelper;
+use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 // Special case where not setting up the header for a script, so using setupAssets function,
 //  which does not autoload anything. The actual header is set up in another script.
@@ -53,6 +57,9 @@ class OemrUI
     private $print;
     private $target;
     private $web_root;
+    private $ed;
+    private $twig;
+    private $page_id;
 
     /**
     * Create the html string that will display the formatted heading with selected icons - expandable,
@@ -73,6 +80,7 @@ class OemrUI
     {
         global $v_js_includes;
 
+        $this->page_id = $arrOeUiSettings['page_id'] ?? 'unknown';
         $this->heading = (!empty($arrOeUiSettings['include_patient_name']) && !empty($arrOeUiSettings['heading_title'])) ? ($arrOeUiSettings['heading_title'] ?? '') . " - " . getPatientFullNameAsString($_SESSION['pid']) : ($arrOeUiSettings['heading_title'] ?? '');
         $this->expandable = $arrOeUiSettings['expandable'] ?? null;
         $this->arrFiles = $arrOeUiSettings['expandable_files'] ?? null;
@@ -82,59 +90,96 @@ class OemrUI
         if (!empty($arrOeUiSettings['expandable']) && !empty($arrOeUiSettings['expandable_files'])) {
             $this->current_state = collectAndOrganizeExpandSetting($arrOeUiSettings['expandable_files']);
         }
+
+        $act = $this->arrAction;
+        $this->action = false;
+        // This is a holdover, the original code does not have a boolean for action, just a bunch of options, easier to keep for now
+        if ($act[0] != "") {
+            $this->action = true;
+        }
+
+        /**
+         * @var EventDispatcher
+         */
+        $this->ed = $GLOBALS['kernel']->getEventDispatcher();
+
+        /**
+         * @var TwigEnvironment
+         */
+        $twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+        $this->twig = $twigContainer->getTwig();
+
+        if ($this->expandable) {
+            $this->ed->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, [$this, 'expandIconListener']);
+        }
+
+        if ($this->action) {
+            $this->ed->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, [$this, 'actionIconListener']);
+        }
+
+        if ($GLOBALS['enable_help'] !== 0 && $this->display_help_icon) {
+            $this->ed->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, [$this, 'helpIconListener']);
+        }
     }
 
     /**
-    * Creates the html string that will display the formatted heading with selected icons - expandable, action and help.
+    * Returns the page heading based on the options passed into the constructor.
     *
-    * @return array containing string $heading - the formatted html string of the actual heading and string $container
-    * - the value of the container class 'container' or 'container-fluid'
+    * @var bool $render If true, will echo the results from within this function
+    * @return string The Twig-rendered html content, suitable for simply echo'ing
     *
     */
-    public function pageHeading()
+    public function pageHeading(bool $render = false): null|string
     {
-        $heading = text($this->heading);
-        if (!empty($heading)) {
-            $arrexpandIcon = $this->expandIcon();// returns and array containing expandable icon string and container class string
-            $action_icon = $this->actionIcon();
-            $help_icon = $this->helpIcon();
-            $expandable_icon = $arrexpandIcon[0];
-            $heading = "<h2>$heading $expandable_icon $action_icon $help_icon</h2>";
+        /**
+         * @var PageHeadingRenderEvent
+         */
+        $pageHeadingEvent = $this->ed->dispatch(new PageHeadingRenderEvent($this->page_id), PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER);
+        $vars = [
+            "primaryMenu" => $pageHeadingEvent->getPrimaryMenuItems(),
+            "buttonList" => $pageHeadingEvent->getActions(),
+            "heading" => $this->heading,
+        ];
+
+        $html = $this->twig->render("oemr_ui/page_heading/partials/page_heading.html.twig", $vars);
+
+        if ($render) {
+            echo $html;
         } else {
-            $heading = "<h2>" . xlt("Please supply a heading") . " <i class='fa fa-oe-smile-o' aria-hidden='true'></i></h2>";
+            return $html;
         }
-        return $heading;
     }
 
     /**
     * Creates the html string that will display the formatted expandable icon - fa-expand or fa-compress.
-    *
-    * @param $expandable - int|bool - whether form is expandable or not and $current_state int|bool - the current state of the form
-    *
-    * @return array containing string $expandable_icon - the formatted html string of the expand icon and string
-    * $container - the value of the container class 'container' or 'container-fluid'
-    *
     */
-    private function expandIcon($expandable = '', $current_state = '')
+    public function expandIconListener(PageHeadingRenderEvent $e): PageHeadingRenderEvent
     {
         $current_state = $this->current_state;
-        $expandable = $this->expandable;
 
-        if ($current_state) {
-            $container = 'container-fluid';
-            $expand_title = xl('Click to Contract and set to henceforth open in Centered mode');
-            $expand_icon_class = 'fa-compress oe-center';
-        } else {
-            $container = 'container';
-            $expand_title = xl('Click to Expand and set to henceforth open in Expanded mode');
-            $expand_icon_class = 'fa-expand oe-expand';
-        }
-        $expandable_icon = '';
-        if ($expandable) {
-            $expandable_icon = "<a href='#' id='exp_cont_icon' class='text-dark text-decoration-none oe-superscript-small expand_contract fa " .  attr($expand_icon_class) . "'" . " title='" . attr($expand_title) . "'
-            aria-hidden='true'></a>";
-        }
-        return array($expandable_icon, $container);
+        $text = ($current_state) ? xl('Click to contract page to center view') : xl('Click to expand page to full width');
+        $title = $text;
+        $anchor_class = ($current_state) ? 'oe-center' : 'oe-expand';
+        $icon = ($current_state) ? 'fa-compress' : 'fa-expand';
+
+        $opts = [
+            'id' => 'exp_cont_icon',
+            'title' => $title,
+            'href' => "#",
+            'iconClass' => "fa fa-fw fa-lg $icon",
+            'attributes' => [
+                'aria-hidden' => 'true',
+            ],
+            'anchorClasses' => [
+                $anchor_class,
+                'expand_contract',
+            ],
+        ];
+        $expandClass = new BaseActionButtonHelper($opts);
+        $actions = $e->getActions();
+        $actions[] = $expandClass;
+        $e->setActions($actions);
+        return $e;
     }
 
     /**
@@ -144,22 +189,22 @@ class OemrUI
     */
     public function oeContainer()
     {
-        $arrexpandIcon = $this->expandIcon();
-        $container = $arrexpandIcon[1] ? $arrexpandIcon[1] : 'container';
+        $container = ($this->current_state) ? 'container-fluid' : 'container';
         return $container;
     }
 
     /**
     * Creates the html string that will display the formatted action/re-direction icon - for conceal, reveal, search, reset, link and back.
     *
-    * @param array $arrAction has 3 elements - string - type of action, string - optional title to be used in tooltip
-    * and string - the file name or url to be redirected to, only the 3 re-directions reset, link or back need a href value
-    * the 3 actions conceal, reveal, search will only use the default title strings
+    * Considers the following
+    * * $action (reset/conceal/reveal/search/link/back), what kind of action is being taken
+    * * $action_title, the Tooltip title, optional
+    * * $action_href, the HREF (used only for reset, link, and back)
     *
-    * @return string $action_icon that will output the action icon html string
+    * @TBD this was narrowly scoped when introduced. These actions should probably be there own separate buttons with custom listeners
     *
     */
-    private function actionIcon($arrAction = array())
+    public function actionIconListener(PageHeadingRenderEvent $e)
     {
         $arrAction = $this->arrAction;
         if ($arrAction) {
@@ -167,46 +212,68 @@ class OemrUI
             $action_title = $arrAction[1];
             $action_href = $arrAction[2];
         }
+
+        if (!$action) {
+            return;
+        }
+
         $action_href = ($action_href) ? $action_href : "#";
+        $id = "advanced-action";
         switch ($action) {
             case "reset":
                 $action_title = ($action_title) ? $action_title : xl("Reset");
-                $action_icon = "<a href='" . attr($action_href) . "' onclick='top.restoreSession()'><i id='advanced-action' class='fa fa-undo fa-oe-sm' title='" . attr($action_title) . "' aria-hidden='true'></i></a>";
+                $icon = "fa-undo";
                 break;
             case "conceal":
                 $action_title = xl("Click to Hide"); // default needed for jQuery to function
-                $action_icon = "<i id='show_hide' class='fa fa-oe-sm fa-eye-slash' title='" . attr($action_title) . "'></i>";
+                $icon = "fa-eye-slash";
+                $id = "show_hide";
+                $action_href = "#";
                 break;
             case "reveal":
                 $action_title = xl("Click to Show"); // default needed for jQuery to function
-                $action_icon = "<i id='show_hide' class='fa fa-oe-sm fa-eye' title='" . attr($action_title) . "'></i>";
+                $icon = "fa-eye";
+                $id = "show_hide";
+                $action_href = "#";
                 break;
             case "search":
                 $action_title = xl("Click to show search"); // default needed for jQuery to function
-                $action_icon = "<i id='show_hide' class='fa fa-search-plus fa-oe-sm' title='" . attr($action_title) . "'></i>";
+                $icon = "fa-search";
+                $id = "show_hide";
+                $action_href = "#";
                 break;
             case "link":
-                if (strpos($action_href, 'http') !== false) {
-                    $target = '_blank';
-                } else {
-                    $target = '_self';
-                }
+                $target = (strpos($action_href, 'http') !== false) ? "_blank" : "_self";
                 $action_title = ($action_title) ? $action_title : xl("Click to go to page");
-                $action_icon = "<a href='" . attr($action_href) . "' target = '" . attr($target) . "' onclick='top.restoreSession()'><i id='advanced-action' class='fa fa-external-link-alt fa-oe-sm' title='" . attr($action_title) . "' aria-hidden='true'></i></a>";
+                $icon = "fa-external-link-alt";
                 break;
             case "back":
                 $action_title = ($action_title) ? $action_title : xl("Go Back");
-                if ($_SESSION ['language_direction'] == 'ltr') {
-                    $arrow_direction = 'fa-arrow-circle-left';
-                } elseif ($_SESSION ['language_direction'] == 'rtl') {
-                    $arrow_direction = 'fa-arrow-circle-right';
-                }
-                $action_icon = "<a href='" . attr($action_href) . "' onclick='top.restoreSession()'><i id='advanced-action' class='fa " . attr($arrow_direction) . " fa-oe-sm' title='" . attr($action_title) . "' aria-hidden='true'></i></a>";
+                $arrow_direction = ($_SESSION['language_direction'] == 'rtl') ? "fa-arrow-circle-right" : "fa-arrow-circle-left";
+                $icon = $arrow_direction;
                 break;
             default:
-                $action_icon = '';
+                $icon = '';
         }
-        return $action_icon;
+
+        // @TBD Handle the HREF and onclick
+        $opts = [
+            'id' => $id,
+            'title' => $action_title,
+            'displayText' => '',
+            'href' => $action_href,
+            'iconClass' => "fa fa-fw fa-lg {$icon}",
+            'dataAttributes' => [
+                'aria-hidden' => 'true',
+            ],
+        ];
+
+        $actionClass = new BaseActionButtonHelper($opts);
+        $actions = $e->getActions();
+        $actions[] = $actionClass;
+        $e->setActions($actions);
+
+        return $e;
     }
 
     /**
@@ -217,25 +284,35 @@ class OemrUI
     * @return string $help_icon that will output the help icon html string
     *
     */
-    private function helpIcon($display_help_icon = '')
+    public function helpIconListener(PageHeadingRenderEvent $e)
     {
-        $help_icon = '';
-        $display_help_icon = $this->display_help_icon;
-        if ($display_help_icon) {
-            if ($_SESSION ['language_direction'] == 'ltr') {
-                $help_icon_title = xl("To enable help - Go to the User Name on top right > Settings > Features > Enable Help Modal");
-            } elseif ($_SESSION ['language_direction'] == 'rtl') {
-                $help_icon_title = xl("To enable help - Go to the User Name on top left > Settings > Features > Enable Help Modal");
-            }
-            if ($GLOBALS['enable_help'] == 1) {
-                $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
-            } elseif ($GLOBALS['enable_help'] == 2) {
-                $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . attr($help_icon_title) . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
-            } elseif ($GLOBALS['enable_help'] == 0) {
-                 $help_icon = '';
-            }
+        $title = "";
+        if ($GLOBALS['enable_help'] == "1") {
+            $title = xl("Click to view Help");
+        } elseif ($GLOBALS['enable_help'] == "2") {
+            $title = xl("Enable help under your User Menu > Settings > Featurees > Enable Help Modal");
         }
-        return $help_icon;
+
+        $id = 'help-href';
+        $opts = [
+            'id' => $id,
+            'title' => $title,
+            'iconClass' => "fa fa-fw fa-lg fa-question-circle",
+            'href' => "#",
+            'anchorClasses' => [
+                'oe-help-redirect',
+            ],
+            'attributes' => [
+                'data-target' => "#myModal",
+                'data-toggle' => 'modal',
+                'name' => $id,
+            ]
+        ];
+
+        $a = $e->getActions();
+        $a[] = new BaseActionButtonHelper($opts);
+        $e->setActions($a);
+        return $e;
     }
 
     /**
@@ -243,6 +320,8 @@ class OemrUI
     *
     * $param string $help_file - name of the help file to be displayed, must exists in Documentation/help_files
     * will echo the entire html string of the help modal and the jQuery, needs to be used as the first line after the container div
+    *
+    * @todo Move this to a twig file, RD 1/12/2023
     *
     * @return void
     *
@@ -279,7 +358,7 @@ class OemrUI
                 </div>
             </div>
         </div>
-HELP;
+        HELP;
         echo $help_modal . "\r\n";
 
         $jquery_draggable = <<<JQD
@@ -295,13 +374,15 @@ HELP;
                 $('#help-href').prop('title', helpTitle);
             });
         </script>
-JQD;
+        JQD;
         echo $jquery_draggable . "\r\n";
         return;
     }
 
     /**
     * Generates the jQuery for the form to toggle between 'expanded' and 'centered' states.
+    *
+    * @todo Move this to a twig file, RD 1/12/2023
     *
     * @param array $arrFiles - that contains the files names that need to be toggled between 'expanded' and 'centered' states
     * will generate the jQuery that will be outputted on the page by function oeBelowContainerDiv()
@@ -338,12 +419,11 @@ JQD;
                 var arrFiles = {$arrFiles};
                 if ($(this).is('.oe-expand')) {
                     elementTitle = expandTitle;
-                    $(this).toggleClass('fa-expand fa-compress');
+                    $("a.oe-expand i").toggleClass('fa-expand fa-compress');
                     $(this).toggleClass('oe-expand oe-center');
                     $('#container_div').toggleClass('container container-fluid');
                     if ($(arrFiles).length) {
                         $.each(arrFiles, function (index, value) {
-
                             $.post(
                                 "{$web_root}/library/ajax/user_settings.php",
                                 {
@@ -356,7 +436,7 @@ JQD;
                     }
                 } else if ($(this).is('.oe-center')) {
                     elementTitle = contractTitle;
-                    $(this).toggleClass('fa-compress fa-expand');
+                    $("a.oe-center i").toggleClass('fa-compress fa-expand');
                     $(this).toggleClass('oe-center oe-expand');
                     $('#container_div').toggleClass('container-fluid container');
                     if ($(arrFiles).length) {
@@ -376,13 +456,15 @@ JQD;
             });
         });
         </script>
-EXP;
+        EXP;
         echo $header_expand_js . "\r\n";
         return;
     }
 
     /**
     * Generates the jQuery to enable an element to toggle between hidden and revealed states.
+    *
+    * @todo Move this to a twig file, RD 1/12/2023
     *
     * @param array $arrAction - first element contains the string for type of action - needed only for actions search, reveal and conceal
     * will generate the jQuery that will be outputted on the page by function oeBelowContainerDiv()
@@ -421,23 +503,31 @@ EXP;
         $action_top_js = <<<SHWTOP
         <script>
         $(function () {
+            let element = document.querySelector('a#show_hide i');
+            let elementIcon = document.querySelector('a#show_hide i');
             $labels
             $actionClasses
             $('#show_hide').click(function () {
                 var elementTitle = '';
-SHWTOP;
-        echo $action_top_js . "\r\n";
+                let element = document.querySelector('a#show_hide i');
+                let elementIcon = document.querySelector('a#show_hide i');
+        SHWTOP;
+            echo $action_top_js . "\r\n";
 
                 $action_bot_js = <<<SHWBOT
 
-                $(this).toggleClass(showActionClass + ' ' + hideActionClass);
+                elementIcon.classList.toggle(showActionClass);
+                elementIcon.classList.toggle(hideActionClass);
+                document.querySelector('.hideaway').classList.toggle('d-none');
 
-                $('.hideaway').toggle(500);
-                if ($(this).is('.' + showActionClass)) {
+                if (element.classList.contains(showActionClass)) {
                     elementTitle = showTitle;
-                } else if ($(this).is('.' + hideActionClass)) {
+                }
+
+                if (element.classList.contains(hideActionClass)) {
                     elementTitle = hideTitle;
                 }
+
                 $(this).prop('title', elementTitle);
 
                 // Remember our hideaway setting in local storage. If it's visible, show it on next page load
@@ -449,21 +539,24 @@ SHWTOP;
             // getItem() returns a string which is why we have to check for the string 'true'
             const elementTitle = localStorage.getItem('display#$page');
             let shouldDisplay = false;
-            if (typeof hideTitle != 'undefined' &&
-                (elementTitle == hideTitle || elementTitle == null)) {
+            if (typeof hideTitle != 'undefined' && (elementTitle == hideTitle || elementTitle == null)) {
                 shouldDisplay = true
             }
 
             // We display if we remember we're showing it, but we don't intentionally hide it (no else here to hide)
             // Because the hideaway is probably shown by default for a reason like in the billing manager
             if (shouldDisplay) {
-                $('.hideaway').show(500);
-                $('#show_hide').removeClass(showActionClass);
-                $('#show_hide').addClass(hideActionClass);
+                if (document.querySelector('.hideaway')) {
+                    document.querySelector('.hideaway').classList.remove('d-none');
+                }
+                if (document.getElementById(showActionClass) && document.getElementById(hideActionClass)) {
+                    elementIcon.classList.remove(showActionClass);
+                    elementIcon.classList.add(hideActionClass);
+                }
             }
         });
         </script>
-SHWBOT;
+        SHWBOT;
         echo $action_bot_js . "\r\n";
         return;
     }

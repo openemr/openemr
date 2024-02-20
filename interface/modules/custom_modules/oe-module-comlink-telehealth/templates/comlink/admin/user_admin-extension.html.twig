@@ -1,0 +1,32 @@
+<div class="card mt-3">
+    <div class="card-header">
+        <h6>{{ "Telehealth Settings"|xlt }}</h6>
+    </div>
+    <div class="card-body">
+        <div class="form-check">
+            <div class="form-group">
+                <input type="checkbox" class="form-check-input" id="comlink-telehealth-user-enable"
+                       name="comlink-telehealth-user-enable" value="1"
+                       {% if userEnabled %}checked{% endif %} {% if forceTelehealthEnabled %}disabled="disabled"{% endif %}>
+                {% if forceTelehealthEnabled %}
+                    {#
+                        A disabled checkbox is not submitted with the form so we have to submit as a hidden variable to
+                        make sure we always enable this.  We have the checkbox as a visual indicator that the user is
+                        enabled for telehealth.
+                    #}
+                <input type="hidden" name="comlink-telehealth-user-enable" value="1" />
+                {% endif %}
+                <label class="form-check-label" for="comlink-telehealth-user-enable">
+                    {{ "Enable Telehealth For This User"|xlt}}
+                    {% if forceTelehealthEnabled %}({{ "Global Setting - Telehealth Enabled For All Providers"|xlt }}){% endif %}
+                </label>
+            </div>
+            <div class="form-group">
+                <p class="alert alert-warning">
+                    {{ "Reassign or remove any current Telehealth appointments to this provider before disabling Telehealth Access"|xlt }}.
+                    {{ "If a provider has Telehealth Access disabled any existing appointments will fail to launch"|xlt }}.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

@@ -17,7 +17,13 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+
+if (!AclMain::aclCheckCore('admin', 'practice')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Address Book")]);
+    exit;
+}
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -467,7 +473,7 @@ if ($type) { // note this only happens when its new
         <label for="form_state" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('State') . "/" . xlt('county'); ?>:</label>
     </div>
     <div class="col">
-        <input type='text' size='10' name='form_state' maxlength='30' value='<?php echo attr($row['state'] ?? ''); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('State') . "/" . xla('county'); ?>" />
+        <?php echo generate_select_list('form_state', 'state', ($row['state'] ?? null), '', 'Unassigned', 'form-control-sm', 'typeSelect(this.value)'); ?>
     </div>
     <div class="col-2">
         <label for="form_zip" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Postal code'); ?>:</label>
@@ -498,7 +504,7 @@ if ($type) { // note this only happens when its new
         <label for="form_state2" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Alt State') . "/" . xlt('county'); ?>:</label>
     </div>
     <div class="col-auto">
-        <input type='text' size='10' name='form_state2' maxlength='30' value='<?php echo attr($row['state2'] ?? ''); ?>' class='form-control form-control-sm inputtext' placeholder="<?php echo xla('Alt State') . "/" . xla('county'); ?>" />
+    <?php echo generate_select_list('form_state2', 'state', ($row['state2'] ?? null), '', 'Unassigned', 'form-control-sm', 'typeSelect(this.value)'); ?>
     </div>
     <div class="col-auto">
         <label for="form_zip2" class="font-weight-bold col-form-label col-form-label-sm"><?php echo xlt('Alt Postal code'); ?>:</label>

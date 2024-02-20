@@ -132,7 +132,7 @@ class FHIRQuestionnaireItemOperator extends FHIRElement implements \JsonSerializ
     /**
      * @return mixed
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->value;
     }

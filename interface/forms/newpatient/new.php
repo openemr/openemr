@@ -11,17 +11,14 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("$srcdir/lists.inc");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/lists.inc.php");
+require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 
 // Check permission to create encounters.
 $tmp = getPatientData($pid, "squad");
-if (
-    ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) ||
-    !AclMain::aclCheckForm('newpatient', '', array('write', 'addonly'))
-) {
+if (($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) || !AclMain::aclCheckForm('newpatient', '', array('write', 'addonly'))) {
     // TODO: why is this reversed?
     echo "<body>\n<html>\n";
     echo "<p>(" . xlt('New encounters not authorized') . ")</p>\n";

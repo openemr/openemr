@@ -21,7 +21,7 @@
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/globals.inc.php");
-require_once("$srcdir/user.inc");
+require_once("$srcdir/user.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
@@ -29,7 +29,9 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\GlobalSetting;
 use Ramsey\Uuid\Uuid;
@@ -110,8 +112,15 @@ function updateBackgroundService($name, $active, $interval)
 function checkBackgroundServices()
 {
   //load up any necessary globals
-    $bgservices = sqlStatement("SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN
-  ('phimail_enable','phimail_interval')");
+    $bgservices = sqlStatement(
+        "SELECT gl_name, gl_index, gl_value FROM globals WHERE gl_name IN
+        (
+            'phimail_enable',
+            'phimail_interval',
+            'auto_sftp_claims_to_x12_partner',
+            'weno_rx_enable'
+        )"
+    );
     while ($globalsrow = sqlFetchArray($bgservices)) {
         $GLOBALS[$globalsrow['gl_name']] = $globalsrow['gl_value'];
     }
@@ -133,8 +142,9 @@ function checkBackgroundServices()
      * Setup background services for Weno when it is enabled
      * this is to sync the prescription logs
      */
-    $wenoservices = $GLOBALS['weno_rx_enable'] == 1 ? '1' : '0';
-    updateBackgroundService('WenoExchange', $wenoservices, 1);
+    $wenoservices = ($GLOBALS['weno_rx_enable'] ?? '') == 1 ? '1' : '0';
+    updateBackgroundService('WenoExchange', $wenoservices, 60);
+    updateBackgroundService('WenoExchangePharmacies', $wenoservices, 1440);
 }
 ?>
 <!DOCTYPE html>
@@ -270,8 +280,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
                     }
                 }
 
-                // We rely on the fact that set of keys in globals.inc === set of keys in `globals`  table!
-
+                // We rely on the fact that set of keys in globals.inc.php === set of keys in `globals` table!
                 if (
                     !isset($old_globals[$fldid]) // if the key not found in database - update database
                     ||
@@ -366,8 +375,13 @@ $arrOeUiSettings = array(
     'help_file_name' => ""
 );
 $oemr_ui = new OemrUI($arrOeUiSettings);
+$serverConfig = new ServerConfig();
+$apiUrl = $serverConfig->getInternalBaseApiUrl();
 ?>
 <script src="edit_globals.js" type="text/javascript"></script>
+<script>
+    window.oeUI.api.setApiUrlAndCsrfToken(<?php echo js_escape($apiUrl); ?>, <?php echo js_escape(CsrfUtils::collectCsrfToken('api')); ?>);
+</script>
 </head>
 
 <body <?php if ($userMode) {
@@ -482,6 +496,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                     $fldvalue = $userSetting;
                                                     $settingDefault = "";
                                                 }
+                                            }
+                                            if ($fldtype == GlobalSetting::DATA_TYPE_HTML_DISPLAY_SECTION) {
+                                                // if the field is an html display box we want to take over the entire real estate so we will continue from here.
+                                                include_once 'templates/field_html_display_section.php';
+                                                ++$i; // make sure we advance the iterator here...
+                                                continue;
                                             }
 
                                             if ($userMode) {
@@ -739,8 +759,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 }
 
                                                 echo "  </select>\n";
-                                            } else if ($fldtype == GlobalSetting::DATA_TYPE_MULTI_SORTED_LIST_SELECTOR) {
+                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_MULTI_SORTED_LIST_SELECTOR) {
                                                 include 'templates/field_multi_sorted_list_selector.php';
+                                            } else if ($fldtype == GlobalSetting::DATA_TYPE_ADDRESS_BOOK) {
+                                                include 'templates/globals-address-book.php';
                                             }
 
                                             if ($userMode) {

@@ -27,7 +27,7 @@
 
 require_once dirname(__FILE__) . '/base_controller.php';
 require_once dirname(__FILE__) . '/therapy_groups_controller.php';
-require_once("{$GLOBALS['srcdir']}/pid.inc");
+require_once("{$GLOBALS['srcdir']}/pid.inc.php");
 
 class ParticipantsController extends BaseController
 {

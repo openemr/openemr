@@ -187,7 +187,6 @@ class OnsiteActivityViewController extends AppBasePortalController
         $sql .= "From onsite_portal_activity Left Join
   patient_data On onsite_portal_activity.patient_id = patient_data.pid Left Join
   users On patient_data.providerID = users.id ";
-        // $sql .= "Where onsite_portal_activity.status = 'waiting'";
         try {
             $this->Phreezer->DataAdapter->Execute($sql);
         } catch (Exception $ex) {

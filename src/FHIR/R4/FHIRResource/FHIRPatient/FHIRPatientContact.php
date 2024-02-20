@@ -320,7 +320,7 @@ class FHIRPatientContact extends FHIRBackboneElement implements \JsonSerializabl
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         if (0 < count($this->relationship)) {

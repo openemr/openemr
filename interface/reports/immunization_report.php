@@ -6,13 +6,17 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Stephen Waite <stephen.waite@open-emr.org>
  * @copyright Copyright (c) 2011 Ensoftek Inc.
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2022 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2022-2023 Stephen Waite <stephen.waite@open-emr.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -20,7 +24,14 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Immunization Registry")]);
+    echo (
+        new TwigContainer(
+            null,
+            $GLOBALS['kernel']
+        ))->getTwig()->render(
+            'core/unauthorized.html.twig',
+            ['pageTitle' => xl("Immunization Registry")]
+        );
     exit;
 }
 
@@ -352,6 +363,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
         <div id="report_parameters">
             <input type='hidden' name='form_refresh' id='form_refresh' value='' />
             <input type='hidden' name='form_get_hl7' id='form_get_hl7' value='' />
+            <input type="hidden" name="form_export" id="form_export" value="" />
             <table>
                 <tr>
                     <td class='w-50'>
@@ -384,7 +396,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
                                         ?>
                                     </td>
                                     <td class='col-form-label'>
-                                        <?php echo xlt('From'); ?>:
+                                        <?php echo xlt('From VIS Date'); ?>:
                                     </td>
                                     <td>
                                         <input type='text' name='form_from_date' id="form_from_date"
@@ -392,7 +404,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
                                             size='10' value='<?php echo attr(oeFormatShortDate($form_from_date)); ?>' />
                                     </td>
                                     <td class='col-form-label'>
-                                        <?php echo xlt('To{{Range}}'); ?>:
+                                        <?php echo xlt('To VIS Date{{Range}}'); ?>:
                                     </td>
                                     <td>
                                         <input type='text' name='form_to_date' id="form_to_date"
@@ -424,6 +436,11 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
                                                 <a href='#' class='btn btn-secondary btn-transmit' onclick="confirmHl7()">
                                                     <?php echo xlt('Get HL7'); ?>
                                                 </a>
+                                                <a href='#' type="submit" class='btn btn-secondary btn-sheet'
+                                                       onclick='exportData()'>
+                                                    <?php echo xlt('Export'); ?>
+                                                </a>
+
                                             <?php } ?>
                                         </div>
                                     </div>
@@ -452,10 +469,11 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
                     <tbody>
                     <?php
                     $total = 0;
-                    //echo "<p> DEBUG query: $query </p>\n"; // debugging
+
                     $res = sqlStatement($query, $sqlBindArray);
 
                     while ($row = sqlFetchArray($res)) {
+                        $rows[] = $row;
                         ?>
                         <tr>
                             <td>
@@ -494,6 +512,27 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
             </div>
         <?php } ?>
     </form>
-
+    <script>
+        
+        function exportData() {
+            let data = <?php echo json_encode($rows ?? ''); ?>;
+            let csrf_token = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
+            dlgopen(
+                "../../library/ajax/immunization_export.php?csrf_token_form=" + encodeURIComponent(csrf_token) +
+                    "&data=" + encodeURIComponent(data),
+                'Export',
+                'modal-xs',
+                300,
+                false,
+                'Export',
+                {
+                    buttons: [
+                        {text: <?php echo xlj('Close'); ?>, close: true, style: 'default btn-sm'}
+                    ]
+                }
+            );
+            return false;
+        }
+    </script>
 </body>
 </html>

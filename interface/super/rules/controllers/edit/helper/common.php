@@ -25,7 +25,7 @@ General Helpers
 <?php function render_select($args)
 {
     ?>
-<select class="form-control" data-grp-tgt="<?php echo attr($args['target']); ?>" type="dropdown" name="<?php echo attr($args['name']); ?>" id="<?php echo attr($args['id']); ?>">
+<select class="form-control" data-grp-tgt="<?php echo attr($args['target']); ?>" type="dropdown" name="<?php echo attr($args['name']); ?>" id="<?php echo attr($args['id'] ?? ''); ?>">
 
     <!-- default option -->
     <option id="" value="">--<?php echo xlt('Select'); ?>--</option>
@@ -51,7 +51,7 @@ General Helpers
 <p class="form-row">
     <span class="left_col colhead req" data-field="<?php echo attr($args['name']); ?>"><?php echo text($args['title']); ?></span>
     <span class="end_col">
-        <input id="<?php echo $args['id'] ? attr($args['id']) : "" ?>" data-grp-tgt="<?php echo attr($args['target']); ?>" class="form-control field <?php echo attr($args['class']); ?>" type="text" name="<?php echo attr($args['name']); ?>" value="<?php echo attr($args['value']);?>" />
+        <input id="<?php echo $args['id'] ? attr($args['id']) : "" ?>" data-grp-tgt="<?php echo attr($args['target'] ?? ''); ?>" class="form-control field <?php echo attr($args['class'] ?? ''); ?>" type="text" name="<?php echo attr($args['name']); ?>" value="<?php echo attr($args['value']);?>" />
     </span>
     <span class="ml-1"><?php echo $args['render_link'] ?? ""; ?></span>
 </p>
@@ -66,6 +66,13 @@ Compound Helpers
 <!-- -->
 <!-- -->
 <!-- -->
+
+<!--
+HR: I inverted the meaning of these radios to match what gets saved in db. Db meaning controls logic. 
+Db field is "required_flag", and its label says has value 0 for required, and 1 for optional. but this is inverted.
+If field's value is 1, logic treats as "required"
+-->
+
 <?php function common_fields($args)
 {
     ?>
@@ -73,10 +80,10 @@ Compound Helpers
     <p class="form-row">
         <span class="left_col colhead req" data-field="fld_optional"><?php echo xlt('Optional'); ?></span>
         <span class="end_col">
-            <input id="fld_optional" type="radio" name="fld_optional" class="field" value="yes"
-                    <?php echo $criteria->optional ? "CHECKED" : ""?>> <?php echo xlt('Yes'); ?>
             <input id="fld_optional" type="radio" name="fld_optional" class="field" value="no"
-                    <?php echo !$criteria->optional ? "CHECKED" : ""?>> <?php echo xlt('No'); ?>
+                    <?php echo !$criteria->optional ? "CHECKED" : ""?>> <?php echo xlt('Yes');?>
+            <input id="fld_optional" type="radio" name="fld_optional" class="field" value="yes"
+                    <?php echo $criteria->optional ? "CHECKED" : ""?>> <?php echo xlt('No'); ?>
         </span>
     </p>
 
@@ -112,12 +119,12 @@ Compound Helpers
     return generate_select_list(
         $args['name'],
         $args['context'],
-        $args['value']->code,
+        $args['value']->code ?? null,
         $args['name'],
         '',
         '',
         '',
-        $args['id'],
+        $args['id'] ?? '',
         array( "data-grp-tgt" => $args['target'] )
     );
 } ?>

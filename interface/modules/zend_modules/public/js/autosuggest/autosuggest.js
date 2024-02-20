@@ -24,7 +24,7 @@ function PreventIt(evt) {
 	if (charCode == 38 || charCode == 40) {
 		if (evt.preventDefault) evt.preventDefault();
 		if (evt.stopPropagation) evt.stopPropagation();
-	 }
+	}
 }
 
 /**
@@ -74,7 +74,8 @@ function PreventIt(evt) {
       for(var i = 0; i < count; i++){
         newPath += '../';
       }
-	    dataType: "html",
+      /* eslint-disable-next-line no-unused-labels */
+      dataType: "html",
 			$.post(newPath + "public/application/index/search", {
         queryString : inputString,
         leading     : leading,
@@ -84,6 +85,7 @@ function PreventIt(evt) {
         searchEleNo : searchEleNo,
         searchMode  : searchMode,
       }, function(data){
+        /* eslint-disable-next-line no-unused-labels */
 				cache: false;
 				if(data.length > 0) {
           if (searchEleNo > 0) {

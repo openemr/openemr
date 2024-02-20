@@ -12,7 +12,7 @@
 
 namespace OpenEMR\Events\Appointments;
 
-use Symfony\Component\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Event object for know what type of appointment has been set on the calendar
@@ -32,6 +32,11 @@ class AppointmentRenderEvent extends Event
      * This event is triggered in below where patient is shown when rendering appointment
      */
     const RENDER_BELOW_PATIENT = 'appointment.render.below.patient';
+
+    /**
+     * This event is triggered by allowing module writers to render just before the close of the appointment form.
+     */
+    const RENDER_BEFORE_ACTION_BAR = 'appointment.render.action-bar.before';
 
     /**
      * @var

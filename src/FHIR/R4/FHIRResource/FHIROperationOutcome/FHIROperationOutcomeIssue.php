@@ -297,7 +297,7 @@ For resource issues, this will be a simple XPath limited to element names, repet
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         if (isset($this->severity)) {

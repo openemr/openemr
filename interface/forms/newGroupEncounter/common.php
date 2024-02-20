@@ -14,8 +14,8 @@
  */
 
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/group.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/group.inc.php");
 require_once("$srcdir/classes/POSRef.class.php");
 
 use OpenEMR\Common\Acl\AclExtended;
@@ -25,12 +25,6 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
-
-$months = array("01","02","03","04","05","06","07","08","09","10","11","12");
-$days = array("01","02","03","04","05","06","07","08","09","10","11","12","13","14",
-  "15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31");
-$thisyear = date("Y");
-$years = array($thisyear - 1, $thisyear, $thisyear + 1, $thisyear + 2);
 
 if ($viewmode) {
     $id = (isset($_REQUEST['id'])) ? $_REQUEST['id'] : '';

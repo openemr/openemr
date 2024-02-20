@@ -29,6 +29,8 @@ class FhirPatientProviderGroupService extends FhirServiceBase
     use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
 
+    private $service;
+
     public function __construct($fhirApiURL = null)
     {
         parent::__construct($fhirApiURL);
@@ -56,7 +58,7 @@ class FhirPatientProviderGroupService extends FhirServiceBase
         $fhirGroup = new FHIRGroup();
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId("1");
-        $fhirMeta->setLastUpdated(gmdate('c'));
+        $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $fhirGroup->setMeta($fhirMeta);
 
         $fhirGroup->setId($dataRecord['uuid']);

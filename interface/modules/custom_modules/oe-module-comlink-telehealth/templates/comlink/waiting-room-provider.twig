@@ -1,0 +1,37 @@
+{#
+ # The view for the provider waiting room
+ #
+ # @package openemr
+ # @link      http://www.open-emr.org
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div class="card-header">
+    <div class="row">
+        <div class="col-md-3 telehealth-user-icon">
+            <i class="fa fa-user"></i>
+        </div>
+        <div class="col-md-5 p-l-0">
+            <h5 class="text-primary">{{ patient.fname|text }} {{ patient.mname|text }} {{ patient.lname|text }}</h5>
+            <h6 class="text-secondary">{{ "DOB"|xlt }}: {{ patient.DOB|text}}</h6>
+            <h6 class="text-secondary">{{ "AGE"|xlt }}: {{ patient.age|text}}</h6>
+        </div>
+        <div class="col-md-4 p-0">
+            <address class="text-secondary">{{ patient.addressFull|text }}</address>
+        </div>
+    </div>
+</div>
+<div class="card-body">
+    <div class="row">
+        <div class="col">
+            <h5>{{ "Appointment Agenda"|xlt }}</h5>
+            <p>{{ appointment.notes|text }}</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <input class="btn btn-primary btn-comlink-conference-join d-none d-lg-inline-block" type="button" value="{{"Join Now"|xla}}">
+        </div>
+    </div>
+</div>

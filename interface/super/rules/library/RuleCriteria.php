@@ -16,12 +16,14 @@ abstract class RuleCriteria
 {
     /**
      * if true, then criteria is optional; required otherwise
+     *
      * @var boolean
      */
     var $optional;
 
     /**
      * if true, then criteira is an inclusion; exclusion otherwise
+     *
      * @var boolean
      */
     var $inclusion = true;
@@ -38,6 +40,7 @@ abstract class RuleCriteria
 
     /**
      * uniquely identifies this criteria
+     *
      * @var string
      */
     var $guid;
@@ -52,7 +55,8 @@ abstract class RuleCriteria
 
     function getCharacteristics()
     {
-        $characteristics = $this->optional ? xl("Optional") : xl("Required");
+        // HR: reverse this to match logic behavior
+        $characteristics = $this->optional ? xl("Required") : xl("Optional");
         $characteristics .= " ";
         $characteristics .= $this->inclusion ? xl("Inclusion") : xl("Exclusion");
 
@@ -120,7 +124,7 @@ abstract class RuleCriteria
         $dbView->inclusion = $this->inclusion;
         $dbView->optional = $this->optional;
         $dbView->interval = $this->interval;
-        $dbView->intervalType = $this->intervalType->code;
+        $dbView->intervalType = $this->intervalType->code ?? null;
 
         return $dbView;
     }

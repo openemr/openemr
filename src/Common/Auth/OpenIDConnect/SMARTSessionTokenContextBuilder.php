@@ -19,6 +19,9 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
+use OpenEMR\RestControllers\AuthorizationController;
+use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
+use OpenEMR\Services\FHIR\UtilsService;
 
 class SMARTSessionTokenContextBuilder
 {
@@ -32,6 +35,7 @@ class SMARTSessionTokenContextBuilder
     public function getEHRLaunchContext()
     {
         $launch = $this->sessionArray['launch'] ?? null;
+        $this->logger->debug("SMARTSessionTokenContextBuilder->getEHRLaunchContext() launch context is", ['launch' => $launch]);
         if (empty($launch)) {
             return [];
         }
@@ -41,7 +45,10 @@ class SMARTSessionTokenContextBuilder
             // tampered with?  Not sure that it matters as the ACL's will verify that the app only has access
             // to the data the currently authorized oauth2 user can access.
             $launchToken = SMARTLaunchToken::deserializeToken($launch);
-            $this->logger->debug("SMARTSessionTokenContextBuilder->getEHRLaunchContext() decoded launch context is", ['context' => $launchToken]);
+            $this->logger->debug(
+                "SMARTSessionTokenContextBuilder->getEHRLaunchContext() decoded launch context is",
+                ['patient' => $launchToken->getPatient(), 'encounter' => $launchToken->getEncounter(), 'intent' => $launchToken->getIntent()]
+            );
 
             // we assume that if a patient is provided we are already displaying the patient
             // we may in the future need to adjust the need_patient_banner depending on the 'intent' chosen.
@@ -55,11 +62,15 @@ class SMARTSessionTokenContextBuilder
             if (!empty($launchToken->getIntent())) {
                 $context['intent'] = $launchToken->getIntent();
             }
+            if (!empty($launchToken->getAppointmentUuid())) {
+                $context['fhirContext'] = [UtilsService::createRelativeReference('Appointment', $launchToken->getAppointmentUuid())];
+            }
             $context['smart_style_url'] = $this->getSmartStyleURL();
         } catch (\Exception $ex) {
             $this->logger->error("SMARTSessionTokenContextBuilder->getAccessTokenContextParameters() Failed to decode launch context parameter", ['error' => $ex->getMessage()]);
             throw new OAuthServerException("Invalid launch parameter", 0, 'invalid_launch_context');
         }
+        $this->logger->debug("SMARTSessionTokenContextBuilder->getEHRLaunchContext() ehr launch context is ", $context);
         return $context;
     }
 
@@ -93,6 +104,7 @@ class SMARTSessionTokenContextBuilder
     public function getContextForScopes($scopes): array
     {
         $context = [];
+        $this->logger->debug("SMARTSessionTokenContextBuilder->getContextForScopes()");
         if ($this->isStandaloneLaunchPatientRequest($scopes)) {
             $context = $this->getStandaloneLaunchContext();
         } else if ($this->isEHRLaunchRequest($scopes)) {
@@ -122,7 +134,9 @@ class SMARTSessionTokenContextBuilder
      */
     private function getSmartStyleURL()
     {
-        return $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . "/public/smart-styles/smart-light.json";
+        // "/public/smart-styles/smart-light.json";
+        // need to make sure we grab the site id for this.
+        return $GLOBALS['site_addr_oath'] . $GLOBALS['web_root'] . "/oauth2/" . $_SESSION['site_id'] . SMARTAuthorizationController::SMART_STYLE_URL;
     }
 
     /**

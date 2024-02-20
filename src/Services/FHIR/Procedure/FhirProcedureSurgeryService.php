@@ -85,7 +85,7 @@ class FhirProcedureSurgeryService extends FhirServiceBase
 
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(gmdate('c'));
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $procedureResource->setMeta($meta);
 
         $id = new FHIRId();
@@ -125,7 +125,7 @@ class FhirProcedureSurgeryService extends FhirServiceBase
         }
 
         if (!empty($dataRecord['begdate'])) {
-            $procedureResource->setPerformedDateTime(gmdate('c', strtotime($dataRecord['begdate'])));
+            $procedureResource->setPerformedDateTime(UtilsService::getLocalDateAsUTC($dataRecord['begdate']));
         }
 
         if (!empty($dataRecord['comments'])) {

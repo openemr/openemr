@@ -19,19 +19,25 @@
 
 require_once("../globals.php");
 require_once("../../custom/code_types.inc.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/payment.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\Billing\Payments\DeletePayment;
 use OpenEMR\OeUI\OemrUI;
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Search Payment")]);
     exit;
 }
+
+/**
+ * @var EventDispatcherInterface $eventDispatcher
+ */
+$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
 
 //===============================================================================
 //Deletion of payment and its corresponding distributions.
@@ -51,7 +57,8 @@ if (isset($_POST["mode"])) {
                 sqlStatement("update form_encounter set last_level_closed=last_level_closed - 1 where pid =? and encounter=?", [$PId, $Encounter]);
             }
         }
-
+        //dispatch this payment is being deleted trigger refund process
+        $eventDispatcher->dispatch(new DeletePayment($DeletePaymentId), DeletePayment::ACTION_DELETE_PAYMENT, 10);
     //delete and log that action
         row_delete("ar_session", "session_id ='" . add_escape_custom($DeletePaymentId) . "'");
         row_modify("ar_activity", "deleted = NOW()", "deleted IS NULL AND session_id = '" . add_escape_custom($DeletePaymentId) . "'");
@@ -533,7 +540,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             </td>
                                             <td>
                                                 <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo htmlspecialchars($RowSearch['session_id']); ?>"><?php echo $Payer == '' ? '&nbsp;' : htmlspecialchars($Payer); ?></a>-->
-                                                <a class="medium_modal" data-target="#myModal1" data-toggle="modal" onclick="loadiframe('edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>"><?php echo $Payer == '' ? '&nbsp;' : text($Payer); ?></a><!--link to iframe-->
+                                                <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>')"><?php echo $Payer == '' ? '&nbsp;' : text($Payer); ?></a><!--link to iframe-->
                                             </td>
                                             <td>
                                                 <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'><?php echo $RowSearch['payer_id'] * 1 > 0 ? text($RowSearch['payer_id']) : '&nbsp;'; ?></a>
@@ -608,10 +615,5 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </div>
     </div><!--end of container div-->
 <?php $oemr_ui->oeBelowContainerDiv(); ?>
-<script>
-function loadiframe(htmlHref) { //load iframe
-    document.getElementById('targetiframe1').src = htmlHref;
-}
-</script>
 </body>
 </html>

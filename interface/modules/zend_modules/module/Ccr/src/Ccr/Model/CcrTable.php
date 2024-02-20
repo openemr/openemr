@@ -21,7 +21,7 @@ use DOMXpath;
 use Document;
 use CouchDB;
 
-require_once(dirname(__FILE__) . "/../../../../../../../../library/patient.inc");
+require_once(dirname(__FILE__) . "/../../../../../../../../library/patient.inc.php");
 
 class CcrTable extends AbstractTableGateway
 {

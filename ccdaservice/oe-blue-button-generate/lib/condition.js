@@ -20,19 +20,24 @@ exports.isNullFlavorSection = function (key) {
 exports.keyExists = function (key) {
     let bu = key;
     return function (input) {
-        return input.hasOwnProperty(key);
+        return Object.prototype.hasOwnProperty.call(input, key);
     };
 };
 
 exports.keyDoesntExist = function (key) {
     return function (input) {
-        return !input.hasOwnProperty(key);
+        return !Object.prototype.hasOwnProperty.call(input, key);
     };
 };
 
 exports.eitherKeyExists = function (key0, key1, key2, key3) {
     return function (input) {
-        return input.hasOwnProperty(key0) || input.hasOwnProperty(key1) || input.hasOwnProperty(key2) || input.hasOwnProperty(key3);
+        return (
+            Object.prototype.hasOwnProperty.call(input, key0) ||
+            Object.prototype.hasOwnProperty.call(input, key1) ||
+            Object.prototype.hasOwnProperty.call(input, key2) ||
+            Object.prototype.hasOwnProperty.call(input, key3)
+        );
     };
 };
 

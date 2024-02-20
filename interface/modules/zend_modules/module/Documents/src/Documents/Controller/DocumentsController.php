@@ -89,6 +89,9 @@ class DocumentsController extends AbstractActionController
                 $file_name = $dateStamp . "_" . basename($file["name"]);
                 $file["name"] = $file_name;
 
+                if ($file['type'] != 'text/xml' && $file['type'] != 'application/xml') {
+                    continue;
+                }
                 $documents[$i] = array(
                     'name' => $file_name,
                     'type' => $file['type'],

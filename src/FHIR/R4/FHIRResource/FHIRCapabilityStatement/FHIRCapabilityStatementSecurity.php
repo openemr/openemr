@@ -198,7 +198,7 @@ class FHIRCapabilityStatementSecurity extends FHIRBackboneElement implements \Js
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         if (isset($this->cors)) {

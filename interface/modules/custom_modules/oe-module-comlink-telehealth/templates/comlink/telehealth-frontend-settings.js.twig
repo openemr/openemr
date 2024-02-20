@@ -1,0 +1,16 @@
+{#
+ # This javascript gets injected before any other telehealth js scripts are added to the system.
+ #
+ # @package openemr
+ # @link      http://www.open-emr.org
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+// Render the comlink translation constants we will use in the system
+(function(comlink) {
+    comlink.settings = {{ settings|json_encode }};
+    comlink.translations = comlink.settings.translations;
+    delete comlink.settings.translations; // no point in having it in two places.
+    window.comlink = comlink;
+})(window.comlink || {});

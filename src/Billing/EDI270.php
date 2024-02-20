@@ -12,11 +12,13 @@
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2010 MMF Systems, Inc
  * @copyright Copyright (c) 2016 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2019-2023 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -25,6 +27,7 @@ namespace OpenEMR\Billing;
 require_once(dirname(__FILE__) . "/../../library/edihistory/codes/edih_271_code_class.php");
 
 use edih_271_codes;
+use OpenEMR\Billing\BillingProcessor\BillingClaimBatchControlNumber;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
@@ -61,7 +64,7 @@ class EDI270
         $ISA[10] = str_pad(date('Hi'), 4, " ");       // Interchange Time (HHMM)
         $ISA[11] = "^";                                 // Interchange Control Standards Identifier
         $ISA[12] = str_pad("00501", 5, " ");          // Interchange Control Version Number
-        $ISA[13] = str_pad("000000001", 9, " ");      // INTERCHANGE CONTROL NUMBER
+        $ISA[13] = BillingClaimBatchControlNumber::getIsa13();      // INTERCHANGE CONTROL NUMBER
         $ISA[14] = str_pad($X12info['x12_isa14'], 1, " ");              // Acknowledgment Request [0= not requested, 1= requested]
         $ISA[15] = str_pad($X12info['x12_isa15'], 1, " ");                 // Usage Indicator [ P = Production Data, T = Test Data ]
         $ISA['Created'] = implode('*', $ISA);       // Data Element Separator
@@ -81,7 +84,7 @@ class EDI270
         $GS[3] = $X12info['x12_receiver_id'];              // Application Receiver's ID
         $GS[4] = date('Ymd');               // Date [CCYYMMDD]
         $GS[5] = date('His');               // Time [HHMM] Group Creation Time
-        $GS[6] = "2";                       // Group Control Number No zeros for 5010
+        $GS[6] = BillingClaimBatchControlNumber::getGs06(); // Group Control Number No zeros for 5010
         $GS[7] = "X";                   // Responsible Agency Code Accredited Standards Committee X12 ]
         $GS[8] = "005010X279A1";            // Version Release / Industry[ Identifier Code Query 005010X279A1
         $GS['Created'] = implode('*', $GS);         // Data Element Separator
@@ -158,7 +161,7 @@ class EDI270
             $NM1[6] = "";                       // Data Element not required.
             $NM1[7] = "";                       // Data Element not required.
             $NM1[8] = "PI";                     // 5010 no longer uses "46"
-            if ($GLOBALS['enable_oa']) {
+            if ($GLOBALS['enable_eligibility_requests']) {
                 $payerId = $row['eligibility_id'];
             } else {
                 $payerId = $row['cms_id'];
@@ -667,7 +670,7 @@ class EDI270
             $showString .= "</div>";
         }
         if ($title === 1) {
-            $showString = "<br /><span><b>" . xlt("Nothing To Report") . "</b></span><br />";
+            $showString .= "<br /><span><b>" . xlt("Nothing To Report") . "</b></span><br />";
         }
         $showString .= "</div>\n";
         echo $showString;
@@ -848,7 +851,7 @@ MIMEBODY;
         $response = oeHttp::bodyFormat('body')
             //->setDebug('5000')/* @todo uncomment and set proxy port to debug eg Fiddler */
             ->usingHeaders($headers)
-            ->post('https://wsd.officeally.com/TransactionSite/rtx.aspx', $mime_body); // @TODO put request urls in x12 partner's for versatility.
+            ->post($X12info['x12_eligibility_endpoint'], $mime_body);
 
         $formBody = $response->body();
         $contentType = $response->header('Content-Type')[0];

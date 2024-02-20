@@ -3,6 +3,11 @@
 namespace OpenEMR\Services;
 
 use Exception;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaireResponse;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\PHPFHIRResponseParser;
 
 trait QuestionnaireTraits
@@ -116,42 +121,28 @@ trait QuestionnaireTraits
 
     /**
      * @param $data
-     * @return \OpenEMR\FHIR\R4\PHPFHIRTypeInterface|null
+     * @return array|object|string
+     * @throws Exception
      */
-    public function parse($data)
+    public function parse($data, $autoLoad = false)
     {
-        $parser = new PHPFHIRResponseParser();
-
+        $parser = new PHPFHIRResponseParser($autoLoad);
+        if (is_array($data) || is_object($data)) {
+            // this is so the parser can set up necessary namespaces
+            $data = $this->jsonSerialize($data);
+        }
         return $parser->parse($data);
     }
 
     /**
-     * @param $FHIRObject
+     * @param $fhirObjectOrArray
      * @return false|string
-     */
-    public function xmlSerialize($FHIRObject)
-    {
-        $dom = dom_import_simplexml($FHIRObject->xmlSerialize())->ownerDocument;
-        $dom->formatOutput = true;
-
-        return $dom->saveXML();
-    }
-
-    /**
-     * @param $mixed
-     * @return array|mixed|string
      * @throws Exception
      */
-    public function getTypedValue($mixed)
+    public function jsonSerialize($fhirObjectOrArray): mixed
     {
-        $arr = '';
-        $vs = $this->fhirObjectToArray($mixed);
-        foreach ($vs as $k => $v) {
-            $a[$k] = $v;
-            $arr = $this->parseAnswer($a, true);
-        }
-
-        return $arr;
+        $a = $this->fhirObjectToArray($fhirObjectOrArray);
+        return json_encode($a, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
     }
 
     /**
@@ -185,14 +176,32 @@ trait QuestionnaireTraits
     }
 
     /**
-     * @param $fhirObjectOrArray
+     * @param $FHIRObject
      * @return false|string
+     */
+    public function xmlSerialize($FHIRObject)
+    {
+        $dom = dom_import_simplexml($FHIRObject->xmlSerialize())->ownerDocument;
+        $dom->formatOutput = true;
+
+        return $dom->saveXML();
+    }
+
+    /**
+     * @param $mixed
+     * @return array|mixed|string
      * @throws Exception
      */
-    public function jsonSerialize($fhirObjectOrArray)
+    public function getTypedValue($mixed)
     {
-        $a = $this->fhirObjectToArray($fhirObjectOrArray);
-        return json_encode($a, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        $arr = '';
+        $vs = $this->fhirObjectToArray($mixed);
+        foreach ($vs as $k => $v) {
+            $a[$k] = $v;
+            $arr = $this->parseAnswer($a, true);
+        }
+
+        return $arr;
     }
 
     /**
@@ -240,7 +249,7 @@ trait QuestionnaireTraits
             case "valueCoding":
                 $obv = array(
                     'type' => 'coding',
-                    'system' => $answer[$type]['system'],
+                    'system' => $answer[$type]['system'] ?? null,
                     'code' => $answer[$type]['code'],
                     'display' => $answer[$type]['display'],
                 );
@@ -337,11 +346,58 @@ trait QuestionnaireTraits
     }
 
     /**
-     * @param $answer
-     * @param $display
+     * @param      $response
+     * @param bool $encode
+     * @return array|false|string
+     * @throws Exception
+     */
+    public function extractResponseMetaData($response, bool $encode = false)
+    {
+        if (is_string($response)) {
+            $response = json_decode($response, true);
+        }
+        $fhirObj = new FHIRQuestionnaireResponse($response);
+        $meta['id'] = $fhirObj->getId();
+        $meta['encounter'] = $fhirObj->getEncounter();
+        $meta['qid'] = $this->getValue($fhirObj->getQuestionnaire());
+        if ($encode) {
+            return $this->jsonSerialize($meta);
+        }
+        return $meta;
+    }
+
+    /**
+     * @param $response
+     * @param $meta
+     * @return mixed
+     * @throws Exception
+     */
+    public function insertResponseMetaData($response, $meta, bool $encode = true)
+    {
+        if (is_string($response)) {
+            $response = json_decode($response, true);
+        }
+        if (is_string($meta)) {
+            $meta = json_decode($meta, true);
+        }
+        $fhirObj = new FHIRQuestionnaireResponse($response);
+        $fhirObj->setId(new FHIRId($meta['id']));
+        $encRef = new FHIRReference();
+        $encRef->setReference(new FHIRString($meta['encounter']));
+        $fhirObj->setEncounter($encRef);
+        $fhirObj->setQuestionnaire(new FHIRCanonical($meta['qid']));
+        if ($encode) {
+            return $this->jsonSerialize($fhirObj);
+        }
+        return $fhirObj;
+    }
+
+    /**
+     * @param      $answer
+     * @param bool $display
      * @return array|mixed
      */
-    private function setAnswer($answer, $display = false)
+    private function setAnswer($answer, bool $display = false)
     {
         $ans_set = [];
         if (count($answer ?? []) > 1) {

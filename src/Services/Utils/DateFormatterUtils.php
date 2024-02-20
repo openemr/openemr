@@ -76,6 +76,17 @@ class DateFormatterUtils
         return $dateTime;
     }
 
+    public static function getShortDateFormat($showYear = true)
+    {
+        if ($GLOBALS['date_display_format'] == 0) { // $GLOBALS['date_display_format'] == 0
+            return 'Y-m-d';
+        } elseif ($GLOBALS['date_display_format'] == 1) {
+            return 'm/d/Y';
+        } elseif ($GLOBALS['date_display_format'] == 2) { // dd/mm/yyyy, note year is added below
+            return 'd/m/Y';
+        }
+    }
+
     public static function oeFormatShortDate($date = 'today', $showYear = true)
     {
         if ($date === 'today') {
@@ -108,5 +119,25 @@ class DateFormatterUtils
 
         // this is case if the $date does not have 10 characters
         return $date;
+    }
+
+    public static function getTimeFormat($seconds = false)
+    {
+        $format = $GLOBALS['time_display_format'] ?? 0;
+
+        if ($format == 1) {
+            if ($seconds) {
+                $formatted = "g:i:s a";
+            } else {
+                $formatted = "g:i a";
+            }
+        } else { // ($format == 0)
+            if ($seconds) {
+                $formatted = "H:i:s";
+            } else {
+                $formatted = "H:i";
+            }
+        }
+        return $formatted;
     }
 }

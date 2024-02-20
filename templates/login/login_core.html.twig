@@ -4,7 +4,13 @@
 <head>
     {% if displayGoogleSignin %}
         <meta name="google-signin-client_id" content="{{ googleSigninClientID|attr }}">
+        <script src="https://accounts.google.com/gsi/client" async defer></script>
+        <div id="g_id_onload"
+           data-client_id="{{ googleSigninClientID|attr }}"
+           data-callback="onSignInSuccess" data-auto_prompt="false">
+        </div>
     {% endif %}
+
     <title>{{ title|text }} {{ "Login"|xlt }}</title>
     {% block head %}{% endblock %}
     <script src="{{ webroot|attr }}/interface/product_registration/product_registration_service.js?v={{ assetVersion|attr_url }}"></script>
@@ -52,13 +58,13 @@
                 <input type="hidden" name="languageChoice" value="{{ defaultLangID|attr }}">
 
                 {% if relogin == 1 %}
-                <div class="alert alert-info m-1 font-weight-bold">
+                <div class="alert alert-info m-1">
                     {{ "password security has recently been upgraded."|xlt }} {{ "Please login again."|xlt }}
                 </div>
                 {% endif %}
 
                 {% if loginFail == 1 %}
-                <div class="bg-danger text-light py-2 px-3 login-failure mb-3 font-weight-bold">
+                <div class="bg-danger text-light py-2 px-3 login-failure mb-3">
                     {{ "Invalid username or password"|xlt }}
                 </div>
                 {% endif %}
@@ -103,7 +109,8 @@
                 </div>
                 {% endif %}
 
-                <div class="form-group d-flex justify-content-end">
+                <div class="form-group d-flex justify-content-between">
+                {% if displayGoogleSignin %}  <div class="g_id_signin" data-type="standard"></div> {% endif %}
                     <button id="login-button" class="btn btn-primary" type="submit" onclick="transmit_form(this)">{{ "Login"|xlt }}</button>
                 </div>
 
@@ -181,7 +188,7 @@
                         <p class="message font-italic"></p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary submit">{{ "Submit"|xlt }}</button>
+                        <button type="button" class="btn btn-primary submit">{{ "Submit"|xlt }}</button>
                         <button type="button" class="btn btn-secondary nothanks">{{ "No Thanks"|xlt }}</button>
                     </div>
                 </div>
@@ -203,15 +210,14 @@
 
     // Click-handler for signin button
     function do_google_signin() {
-        google_signin = true;
+       google_signin = true;
     }
 
     // When Google sign-in successful, sign in to the app, but only
     // if the button was clicked (otherwise we would automatically login)
     function onSignInSuccess(googleUser) {
-        if (google_signin === true) {
-            const auth_response = googleUser.getAuthResponse();
-            const id_token = auth_response.id_token;
+
+            const id_token = googleUser.credential;
             $('.login-failure').hide();
             $('#used-google-signin').val(true);
             $('#google-signin-token').val(id_token);
@@ -219,7 +225,7 @@
             $('#standard-auth-username, #standard-auth-password').hide();
             var element = document.getElementById('login-button');
             transmit_form(element);
-        }
+
     }
 
     function onSignInFailure(error) {
@@ -250,18 +256,5 @@
         });
     }
 
-    $.getScript('https://apis.google.com/js/platform.js', function (data, textStatus, jqxh) {
-        // When the auth2 library is loaded, log out so the user has to sign into google
-        gapi.load('auth2', function () {
-            gapi.auth2.init().then(function () {
-                signOut();
-            });
-        });
-
-        // Render the "Sign in with Google" button
-        renderButton();
-    }).fail(function (jqxhr, settings, exception) {
-        $('#google-signin-service-unreachable-alert').show();
-    });
 </script>
 {% endif %}

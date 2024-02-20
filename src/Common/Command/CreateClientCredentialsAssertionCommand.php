@@ -110,7 +110,7 @@ class CreateClientCredentialsAssertionCommand implements IOpenEMRCommand
         echo "\n\nSample CURL request using assertion: \n";
         $assertionType = CustomClientCredentialsGrant::OAUTH_JWT_CLIENT_ASSERTION_TYPE;
         $scope = 'system/*.\$export system/*.\$bulkdata-status system/Group.\$export system/Patient.\$export '
-        . 'system/Encounter.read system/Document.read';
+        . 'system/Encounter.read system/Binary.read';
         echo "--> curl -k -X POST --data-urlencode \"client_assertion_type=$assertionType\" \\\n"
         . "  --data-urlencode \"client_assertion=$assertion\" \\\n"
         . "  --data-urlencode \"grant_type=client_credentials\" \\\n"

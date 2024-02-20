@@ -14,7 +14,7 @@
 
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/lab.inc");
+require_once("$srcdir/lab.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -27,7 +27,7 @@ $form_batch = empty($_GET['batch']) ? 0 : 1;
 $form_review = empty($_GET['review']) ? 0 : 1;
 
 // Check authorization.
-$thisauth = AclMain::aclCheckCore('patients', 'lab');
+$thisauth = AclMain::aclCheckCore('patients', 'sign');
 if (!$thisauth) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Procedure Results")]);
     exit;
@@ -42,8 +42,8 @@ if ($form_review and !$reviewauth and !$thisauth) {
 
 // Set pid for pending review.
 if (!empty($_GET['set_pid']) && $form_review) {
-    require_once("$srcdir/pid.inc");
-    require_once("$srcdir/patient.inc");
+    require_once("$srcdir/pid.inc.php");
+    require_once("$srcdir/patient.inc.php");
     setpid($_GET['set_pid']);
 
     $result = getPatientData($pid, "*, DATE_FORMAT(DOB,'%Y-%m-%d') as DOB_YMD");
@@ -142,7 +142,7 @@ if (!empty($_POST['form_submit']) && !empty($_POST['form_line'])) {
                 "`range` = '" . oresData("form_result_range", $lino) . "', " .
                 "units = '" . oresData("form_result_units", $lino) . "', " .
                 "facility = '" . oresData("form_facility", $lino) . "', " .
-                "comments = '" . $form_comments . "', " .
+                "comments = '" . add_escape_custom($form_comments) . "', " .
                 "result_status = '" . oresData("form_result_status", $lino) . "', " .
                 "`date_end` = " . QuotedOrNull(oresData("form_result_date_end", $lino));
             if ($result_id) { // result already exists

@@ -17,13 +17,18 @@
  */
 
 require_once(dirname(__FILE__) . "/../../globals.php");
-require_once "$srcdir/user.inc";
+require_once "$srcdir/user.inc.php";
 require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
+use OpenEMR\Menu\BaseMenuItem;
 use OpenEMR\OeUI\OemrUI;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use OpenEMR\Services\PatientService;
 
 $uspfx = 'patient_finder.'; //substr(__FILE__, strlen($webserver_root)) . '.';
 $patient_finder_exact_search = prevSetting($uspfx, 'patient_finder_exact_search', 'patient_finder_exact_search', ' ');
@@ -38,8 +43,7 @@ $header0 = "";
 $header = "";
 $coljson = "";
 $orderjson = "";
-$res = sqlStatement("SELECT option_id, title, toggle_setting_1 FROM list_options WHERE " .
-    "list_id = 'ptlistcols' AND activity = 1 ORDER BY seq, title");
+$res = sqlStatement("SELECT option_id, title, toggle_setting_1 FROM list_options WHERE list_id = 'ptlistcols' AND activity = 1 ORDER BY seq, title");
 $sort_dir_map = generate_list_map('Sort_Direction');
 while ($row = sqlFetchArray($res)) {
     $colname = $row['option_id'];
@@ -66,7 +70,7 @@ while ($row = sqlFetchArray($res)) {
     $orderjson .= "[\"$colcount\", \"" . addcslashes($colorder, "\t\r\n\"\\") . "\"]";
     ++$colcount;
 }
-$loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . xlt("Loading") . "...</span></div>";
+$loading = "";
 ?>
 <!DOCTYPE html>
 <html>
@@ -250,10 +254,10 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
     $(function () {
         // Initializing the DataTable.
         //
-        let serverUrl = "dynamic_finder_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+        let serverUrl = "dynamic_finder_ajax.php";
         let srcAny = <?php echo js_url($searchAny); ?>;
         if (srcAny) {
-            serverUrl += "&search_any=" + srcAny;
+            serverUrl += "?search_any=" + srcAny;
         }
         var oTable = $('#pt_table').dataTable({
             "processing": true,
@@ -285,7 +289,7 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
         <?php
         $checked = (!empty($GLOBALS['gbl_pt_list_new_window'])) ? 'checked' : '';
         ?>
-        $("div.mytopdiv").html("<form name='myform'><div class='form-check form-check-inline'><label for='form_new_window' class='form-check-label' id='form_new_window_label'><input type='checkbox' class='form-check-input' id='form_new_window' name='form_new_window' value='1' <?php echo $checked; ?> /><?php echo xlt('Open in New Window'); ?></label></div><div class='form-check form-check-inline'><label for='setting_search_type' id='setting_search_type_label' class='form-check-label'><input type='checkbox' name='setting_search_type' class='form-check-input' id='setting_search_type' onchange='persistCriteria(this, event)' value='<?php echo attr($patient_finder_exact_search); ?>'<?php echo text($patient_finder_exact_search); ?>/><?php echo xlt('Search with exact method'); ?></label></div></form>");
+        $("div.mytopdiv").html("<form name='myform'><div class='form-check form-check-inline'><label for='form_new_window' class='form-check-label' id='form_new_window_label'><input type='checkbox' class='form-check-input' id='form_new_window' name='form_new_window' value='1' <?php echo $checked; ?> /><?php echo xlt('Open in New Browser Tab'); ?></label></div><div class='form-check form-check-inline'><label for='setting_search_type' id='setting_search_type_label' class='form-check-label'><input type='checkbox' name='setting_search_type' class='form-check-input' id='setting_search_type' onchange='persistCriteria(this, event)' value='<?php echo attr($patient_finder_exact_search); ?>'<?php echo text($patient_finder_exact_search); ?>/><?php echo xlt('Search with exact method'); ?></label></div></form>");
 
         // This is to support column-specific search fields.
         // Borrowed from the multi_filter.html example.
@@ -351,6 +355,8 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
 
 </script>
 <?php
+    /** @var EventDispatcher */
+    $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
     $arrOeUiSettings = array(
     'heading_title' => xl('Patient Finder'),
     'include_patient_name' => false,
@@ -360,82 +366,113 @@ $loading = "<div class='spinner-border' role='status'><span class='sr-only'>" . 
     'action_title' => "",//only for action link, leave empty for conceal, reveal, search
     'action_href' => "",//only for actions - reset, link or back
     'show_help_icon' => false,
-    'help_file_name' => ""
+    'help_file_name' => "",
+    'page_id' => 'dynamic_finder',
     );
     $oemr_ui = new OemrUI($arrOeUiSettings);
+
+    $eventDispatcher->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, function ($event) {
+        if ($event->getPageId() !== 'dynamic_finder') {
+            return;
+        }
+
+        $event->setPrimaryMenuItem(new BaseMenuItem([
+            'displayText' => xl('Add New Patient'),
+            'linkClassList' => ['btn-add'],
+            'id' => $GLOBALS['webroot'] . '/interface/new/new.php',
+            'acl' => ['patients', 'demo', ['write', 'addonly']]
+        ]));
+    });
     ?>
 </head>
 <body>
-    <div id="container_div" class="<?php echo attr($oemr_ui->oeContainer()); ?> mt-3">
-         <div class="w-100">
-            <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
-            <?php if (AclMain::aclCheckCore('patients', 'demo', '', array('write','addonly'))) { ?>
-                <button id="create_patient_btn1" class="btn btn-primary btn-add" onclick="top.restoreSession();top.RTop.location = '<?php echo $web_root ?>/interface/new/new.php'"><?php echo xlt('Add New Patient'); ?></button>
-            <?php } ?>
-            <div>
-                <div id="dynamic"><!-- TBD: id seems unused, is this div required? -->
-                    <!-- Class "display" is defined in demo_table.css -->
-                    <div class="table-responsive">
-                        <table class="table" class="border-0 display" id="pt_table">
-                            <thead class="thead-dark">
-                                <tr id="advanced_search" class="hideaway"  style="display: none;">
-                                    <?php echo $header0; ?>
-                                </tr>
-                                <tr class="">
-                                    <?php echo $header; ?>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <!-- Class "dataTables_empty" is defined in jquery.dataTables.css -->
-                                    <td class="dataTables_empty" colspan="<?php echo attr($colcount); ?>">...</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-          </div>
-        </div>
-        <!-- form used to open a new top level window when a patient row is clicked -->
-        <form name='fnew' method='post' target='_blank' action='../main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-            <input type='hidden' name='patientID' value='0'/>
-        </form>
-    </div> <!--End of Container div-->
-    <?php $oemr_ui->oeBelowContainerDiv();?>
+<?php
 
-    <script>
-        $(function () {
-            $("#exp_cont_icon").click(function () {
-                $("#pt_table").removeAttr("style");
-            });
-        });
+function rp()
+{
+    $sql = "SELECT option_id, title FROM list_options WHERE list_id = 'recent_patient_columns' AND activity = '1' ORDER BY seq ASC";
+    $res = sqlStatement($sql);
+    $headers = [];
+    while ($row = sqlFetchArray($res)) {
+        $headers[] = $row;
+    }
+    $patientService = new PatientService();
+    $rp = $patientService->getRecentPatientList();
+    // Get a list of the columns in patient_data that are either date or datetime:
+    $sql_dtCols = "SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = DATABASE() AND TABLE_NAME = 'patient_data' AND (data_type = 'datetime' OR data_type = 'date')";
+    $res_dtCols = sqlStatement($sql_dtCols);
+    $pd_dtCols = [];
+    while ($row = sqlFetchArray($res_dtCols)) {
+        $pd_dtCols[] = $row;
+    }
+    $date_cols = [];
+    $datetime_cols = [];
+    foreach ($pd_dtCols as $k => $v) {
+        if ($v['data_type'] == "datetime") {
+            $datetime_cols[] = $v['column_name'];
+        } else if ($v['data_type'] == "date") {
+            $date_cols[] = $v['column_name'];
+        }
+    }
+    // Build SQL statement to pull desired columns from patient_data table...
+    $pd_sql = "SELECT pid";
+    foreach ($headers as $k => $v) {
+        $pd_sql .= ', ';
+        $col_name = $v['option_id'];
+        $dt_format = '';
+        if (in_array($col_name, $date_cols) || in_array($col_name, $datetime_cols)) {
+            switch ($GLOBALS['date_display_format']) {
+                case 0: // mysql YYYY-MM-DD format
+                    $dt_format = "'%Y-%m-%d";
+                    break;
+                case 1: // MM/DD/YYYY format
+                    $dt_format = "'%m/%d/%Y";
+                    break;
+                case 2: // DD/MM/YYYY format
+                    $dt_format = "'%d/%m/%Y";
+                    break;
+            }
+            if (in_array($col_name, $datetime_cols)) {
+                switch ($GLOBALS['time_display_format']) {
+                    case 0: // 24 Hr fmt
+                        $dt_format .= " %T";
+                        break;
+                    case 1: // AM PM fmt
+                        $dt_format .= " %r";
+                        break;
+                }
+            }
+            $dt_format .= "'";  // Don't forget the closing '!
+            $pd_sql .= "DATE_FORMAT(" . $col_name . ", " . $dt_format . ") AS " . $col_name;
+        } else {
+            $pd_sql .= $col_name;
+        }
+    }
+    $pd_sql .= " FROM patient_data WHERE pid = ?";
+    $pd_data = [];
+    foreach ($rp as $k => $v) {
+        $pd_data[] = sqlQuery($pd_sql, $v['pid']);
+    }
+    return ['headers' => $headers, 'rp' => $pd_data];
+}
 
-        $(window).on("resize", function() { //portrait vs landscape
-           $("#pt_table").removeAttr("style");
-        });
-    </script>
-    <script>
-      $(function() {
-        $("#pt_table_filter").addClass("d-md-initial");
-        $("#pt_table_length").addClass("d-md-initial");
-        $("#show_hide").addClass("d-md-initial");
-        $("#search_hide").addClass("d-md-initial");
-        $("#pt_table_length").addClass("d-none");
-        $("#show_hide").addClass("d-none");
-        $("#search_hide").addClass("d-none");
-      });
-    </script>
+$rp = rp();
 
-    <script>
-        document.addEventListener('touchstart', {});
-    </script>
+$templateVars = [
+    'oeContainer' => $oemr_ui->oeContainer(),
+    'oeBelowContainerDiv' => $oemr_ui->oeBelowContainerDiv(),
+    'pageHeading' => $oemr_ui->pageHeading(),
+    'header0' => $header0,
+    'header' => $header,
+    'colcount' => $colcount,
+    'headers' => $rp['headers'],
+    'rp' => $rp['rp'],
+];
 
-    <script>
-        $(function() {
-            $('div.dataTables_filter input').focus();
-        });
-    </script>
+$twig = new TwigContainer(null, $GLOBALS['kernel']);
+$t = $twig->getTwig();
+echo $t->render('patient_finder/finder.html.twig', $templateVars);
+
+?>
 </body>
 </html>

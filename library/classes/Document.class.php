@@ -17,7 +17,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../pnotes.inc");
+require_once(__DIR__ . "/../pnotes.inc.php");
 require_once(__DIR__ . "/../gprelations.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
@@ -61,7 +61,7 @@ class Document extends ORDataObject
     public $id;
 
     /**
-     * @var Unique User Identifier that is for both external reference to this entity and for future offline use.
+     * @var string Binary of Unique User Identifier that is for both external reference to this entity and for future offline use.
      */
     public $uuid;
 
@@ -264,7 +264,7 @@ class Document extends ORDataObject
         . "WHERE `ctd`.`document_id` = ? ";
         $resultSet = sqlStatement($categories, [$this->get_id()]);
         $categories = [];
-        while ($category = sqlGetAssoc($resultSet)) {
+        while ($category = sqlFetchArray($resultSet)) {
             $categories[] = $category;
         }
         return $categories;
@@ -279,6 +279,16 @@ class Document extends ORDataObject
         if (!empty($this->date_expires)) {
             $dateTime = DateTime::createFromFormat("Y-m-d H:i:s", $this->date_expires);
             return $dateTime->getTimestamp() >= time();
+        }
+        return false;
+    }
+
+    public function can_patient_access($pid)
+    {
+        $foreignId = $this->get_foreign_id();
+        // TODO: if any information blocking rule checks were to be applied, they can be done here
+        if (!empty($foreignId) && $foreignId == $pid) {
+            return true;
         }
         return false;
     }
@@ -835,11 +845,14 @@ class Document extends ORDataObject
         return $this->couch_revid;
     }
 
-    function set_uuid($uuid)
+    function set_uuid(?string $uuid)
     {
         $this->uuid = $uuid;
     }
 
+    /**
+     * @return string Binary representation of the uuid for this document
+     */
     function get_uuid()
     {
         return $this->uuid;

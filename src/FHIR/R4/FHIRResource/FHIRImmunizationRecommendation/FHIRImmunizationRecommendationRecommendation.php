@@ -535,7 +535,7 @@ class FHIRImmunizationRecommendationRecommendation extends FHIRBackboneElement i
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         if (0 < count($this->vaccineCode)) {

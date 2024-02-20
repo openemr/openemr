@@ -14,9 +14,13 @@ function moveOptions_11(theSelFrom, theSelTo) {
     var patt = /\?\?/;
     var result = patt.test(str);
     if (result) {
-        url = 'quest_popup.php?content=' + str;
-        window.open(url, 'quest_pop', 'width=640,height=190,menubar=no,toolbar=0,location=0, directories=0, status=0,left=400,top=375');
-        //dlgopen(url,'quest_pop', '', 640, 190);
+        url = 'quest_popup.php?content=' + encodeURIComponent(str);
+        // patched out 1/19/24 sjp better to be a dialog.
+        //window.open(url, 'quest_pop', 'width=640,height=190,menubar=no,toolbar=0,location=0, directories=0, status=0,left=400,top=375');
+        dlgopen(url,'quest_pop', 640, 250, '', '', {
+            allowDrag: true,
+            allowResize: true,
+        });
     } else {
         val = str;
         CKEDITOR.instances.textarea1.insertText(val);
@@ -38,7 +42,7 @@ function nl2br(str) {
 }
 
 function br2nl(str) {
-    return str.replace(/<\s*\/?br\s*[\/]?>/gi, "\r\n");
+    return str.replace(/<\s*\/?br\s*[/]?>/gi, "\r\n");
 }
 
 function edit(id, ccFlag = '') {
@@ -240,7 +244,6 @@ function save_item() {
         success: function (thedata) {
             //alert(thedata)
             document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
-            ;
             cancel_item('');
         },
         error: function () {
@@ -270,7 +273,6 @@ function update_item(id) {
         success: function (thedata) {
             //alert(thedata)
             document.getElementById('template_sentence').innerHTML = supportDragAndDrop(thedata);
-            ;
             cancel_item(id);
         },
         error: function () {

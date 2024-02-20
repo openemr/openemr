@@ -12,7 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS['fileroot'] . "/library/forms.inc");
+require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
 require_once("FormEvaluation.class.php");
 
 use OpenEMR\Billing\BillingUtilities;

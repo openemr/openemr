@@ -816,7 +816,7 @@ The duration (usually in minutes) could also be provided to indicate the length 
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         $json['resourceType'] = $this->_fhirElementName;

@@ -49,16 +49,18 @@
 
 // NOTE: All of the magic constants for the data types here are found in library/layout.inc.php
 
-require_once("user.inc");
-require_once("patient.inc");
-require_once("lists.inc");
+require_once("user.inc.php");
+require_once("patient.inc.php");
+require_once("lists.inc.php");
 require_once(dirname(dirname(__FILE__)) . "/custom/code_types.inc.php");
 
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
 
 $facilityService = new FacilityService();
 
@@ -134,64 +136,59 @@ function generate_select_list(
     $include_inactive = false,
     $tabIndex = false
 ) {
-    $s = '';
+    $attributes = [];
+    $_options = [];
+    $_metadata = [];
 
     $tag_name_esc = attr($tag_name);
 
-    if ($multiple) {
-        $tag_name_esc = $tag_name_esc . "[]";
-    }
-
-    $s .= "<select name='$tag_name_esc'";
+    $attributes['name'] = ($multiple) ? $tag_name_esc . "[]" : $tag_name_esc;
 
     if ($tabIndex !== false) {
-        $s .= " tabindex='" . attr($tabIndex) . "' '";
+        $attributes['tabindex'] = attr($tabIndex);
     }
 
     if ($multiple) {
-        $s .= " multiple='multiple'";
+        $attributes['multiple'] = "multiple";
     }
 
-    $tag_id_esc = attr($tag_name);
-
-    if ($tag_id != '') {
-        $tag_id_esc = attr($tag_id);
-    }
-
-    $s .= " id='$tag_id_esc'";
-
-    if (!empty($class)) {
-        $class_esc = attr($class);
-        $s .= " class='form-control $class_esc'";
-    } else {
-        $s .= " class='form-control'";
-    }
+    $attributes['id'] = attr($tag_name);
+    $attributes['class'] = (!empty($class)) ? "form-control " . attr($class) : "form-control";
 
     if ($onchange) {
-        $s .= " onchange='$onchange'";
+        $attributes['onchange'] = $onchange;
     }
 
     if ($custom_attributes != null && is_array($custom_attributes)) {
         foreach ($custom_attributes as $attr => $val) {
             if (isset($custom_attributes [$attr])) {
-                $s .= " " . attr($attr) . "='" . attr($val) . "'";
+                $attributes[attr($attr)] = attr($val);
             }
         }
     }
 
-    $selectTitle = attr($title);
-    $s .= " title='$selectTitle'>";
+    $attributes['title'] = attr($title);
+
     $selectEmptyName = xlt($empty_name);
     if ($empty_name) {
-        $s .= "<option value=''>" . $selectEmptyName . "</option>";
+        preg_match_all('/select2/m', ($class ?? ''), $matches, PREG_SET_ORDER, 0);
+        if (array_key_exists('placeholder', $attributes) && count($matches) > 0) {
+            // We have a placeholder attribute as well as a select2 class indicating there
+            // should be provide a truley empty option.
+            $_options[] = [];
+        } else {
+            $_options[] = [
+                'label' => $selectEmptyName,
+                'value' => '',
+                'isSelected' => true,
+            ];
+        }
     }
 
     $got_selected = false;
 
     for ($active = 1; $active == 1 || ($active == 0 && $include_inactive); --$active) {
-        if ($include_inactive) {
-            $s .= "<optgroup label='" . ($active ? xla('Active') : xla('Inactive')) . "'>\n";
-        }
+        $_optgroup = ($include_inactive) ? true : false;
 
         // List order depends on language translation options.
         //  (Note we do not need to worry about the list order in the algorithm
@@ -199,66 +196,60 @@ function generate_select_list(
         //   are done which include inactive items or items from a backup
         //   list; note these will always be shown at the bottom of the list no matter the
         //   chosen order.)
+        // This block should be migrated to the ListService but the service currently does not translate or offer a sort option.
         $lang_id = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
         // sort by title
+        $order_by_sql = ($GLOBALS['gb_how_sort_list'] == '0') ? "seq, title" : "title, seq";
         if (!$GLOBALS['translate_lists']) {
             // do not translate
-            if ($GLOBALS['gb_how_sort_list'] == '0') {
-                // order by seq
-                $order_by_sql = "seq, title";
-            } else { //$GLOBALS['gb_how_sort_list'] == '1'
-                // order by title
-                $order_by_sql = "title, seq";
-            }
-            $lres = sqlStatement(
-                "SELECT * FROM list_options WHERE list_id = ? AND activity = ? ORDER BY "
-                . $order_by_sql,
-                array($list_id, $active)
-            );
+            $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = ? ORDER BY $order_by_sql", [$list_id, $active]);
         } else {
             // do translate
-            if ($GLOBALS['gb_how_sort_list'] == '0') {
-                // order by seq
-                $order_by_sql = "lo.seq, title";
-            } else { //$GLOBALS['gb_how_sort_list'] == '1'
-                // order by title
-                $order_by_sql = "title, lo.seq";
-            }
-            $lres = sqlStatement(
-                "SELECT lo.option_id, lo.is_default, " .
-                "COALESCE((SELECT ld.definition FROM lang_constants AS lc, lang_definitions AS ld " .
-                "WHERE lc.constant_name = lo.title AND ld.cons_id = lc.cons_id AND ld.lang_id = ? " .
-                "AND ld.definition IS NOT NULL AND ld.definition != '' " .
-                "LIMIT 1), lo.title) AS title " .
-                "FROM list_options AS lo " .
-                "WHERE lo.list_id = ? AND lo.activity = ? " .
-                "ORDER BY " . $order_by_sql,
-                array($lang_id, $list_id, $active)
-            );
+            $order_by_sql = str_replace("seq", "lo.seq", $order_by_sql);
+            $sql = "SELECT lo.option_id, lo.is_default,
+                        COALESCE((SELECT ld.definition FROM lang_constants AS lc, lang_definitions AS ld
+                            WHERE lc.constant_name = lo.title AND ld.cons_id = lc.cons_id AND ld.lang_id = ? AND ld.definition IS NOT NULL
+                                AND ld.definition != ''
+                            LIMIT 1), lo.title) AS title
+                    FROM list_options AS lo
+                    WHERE lo.list_id = ? AND lo.activity = ?
+                    ORDER BY {$order_by_sql}";
+            $lres = sqlStatement($sql, [$lang_id, $list_id, $active]);
         }
+
+        // Populate the options array with pertinent values
 
         while ($lrow = sqlFetchArray($lres)) {
             $selectedValues = explode("|", $currvalue ?? '');
+            $isSelected = false;
 
             $optionValue = attr($lrow ['option_id']);
-            $s .= "<option value='$optionValue'";
 
             if (
-                (strlen($currvalue ?? '') == 0 && $lrow ['is_default'] && !$ignore_default) ||
-                (strlen($currvalue ?? '') > 0 && in_array($lrow ['option_id'], $selectedValues))
+                (strlen($currvalue ?? '') == 0 && $lrow['is_default'] && !$ignore_default) ||
+                (strlen($currvalue ?? '') > 0 && in_array($lrow['option_id'], $selectedValues))
             ) {
-                $s .= " selected";
                 $got_selected = true;
+                $isSelected = true;
             }
 
             // Already has been translated above (if applicable), so do not need to use
             // the xl_list_label() function here
             $optionLabel = text($lrow ['title']);
-            $s .= ">$optionLabel</option>\n";
-        }
 
-        if ($include_inactive) {
-            $s .= "</optgroup>\n";
+            $_tmp = [
+                'label' => $optionLabel,
+                'value' => $optionValue,
+                'isSelected' => $isSelected,
+                'isActive' => $include_inactive,
+            ];
+
+            if ($_optgroup) {
+                $_tmp['optGroupOptions'] = $_tmp;
+                $_tmp['optgroupLabel'] = ($active) ? xla('Active') : xla('Inactive');
+            }
+
+            $_options[] = $_tmp;
         }
     } // end $active loop
 
@@ -266,30 +257,35 @@ function generate_select_list(
       To show the inactive item in the list if the value is saved to database
       */
     if (!$got_selected && strlen($currvalue ?? '') > 0) {
-        $lres_inactive = sqlStatement("SELECT * FROM list_options " .
-        "WHERE list_id = ? AND activity = 0 AND option_id = ? ORDER BY seq, title", array($list_id, $currvalue));
+        $_sql = "SELECT * FROM list_options WHERE list_id = ? AND activity = 0 AND option_id = ? ORDER BY seq, title";
+        $lres_inactive = sqlStatement($_sql, [$list_id, $currvalue]);
         $lrow_inactive = sqlFetchArray($lres_inactive);
         if (!empty($lrow_inactive['option_id'])) {
             $optionValue = htmlspecialchars($lrow_inactive['option_id'], ENT_QUOTES);
-            $s .= "<option value='$optionValue' selected>" . htmlspecialchars(xl_list_label($lrow_inactive['title']), ENT_NOQUOTES) . "</option>\n";
+            $_options[] = [
+                'label' => htmlspecialchars(xl_list_label($lrow_inactive['title']), ENT_NOQUOTES),
+                'value' => $optionValue,
+                'isSelected' => true,
+                'isActive' => false,
+            ];
             $got_selected = true;
         }
     }
 
     if (!$got_selected && strlen($currvalue ?? '') > 0 && !$multiple) {
         $list_id = $backup_list;
-        $lrow = sqlQuery("SELECT title FROM list_options WHERE list_id = ? AND option_id = ?", array($list_id,$currvalue));
+        $lrow = sqlQuery("SELECT title FROM list_options WHERE list_id = ? AND option_id = ?", [$list_id, $currvalue]);
 
-        if ($lrow > 0 && !empty($backup_list)) {
-            $selected = text(xl_list_label($lrow['title']));
-            $s .= "<option value='" . attr($currvalue) . "' selected> $selected </option>";
-            $s .= "</select>";
-        } else {
-            $s .= "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
-            $s .= "</select>";
-            $fontTitle = xlt('Please choose a valid selection from the list.');
-            $fontText = xlt('Fix this');
-            $s .= " <span class='text-danger' title='$fontTitle'>$fontText!</span>";
+        $_options[] = [
+            'value' => attr($currvalue),
+            'selected' => true,
+            'label' => ($lrow > 0 && !empty($backup_list)) ? text(xl_list_label($lrow['title'])) : text($currvalue),
+        ];
+        if (empty($lrow) && empty($backup_list)) {
+            $metadata['error'] = [
+                'title' => xlt('Please choose a valid selection from the list.'),
+                'text' => xlt('Fix this'),
+            ];
         }
     } elseif (!$got_selected && strlen($currvalue ?? '') > 0 && $multiple) {
         //if not found in main list, display all selected values that exist in backup list
@@ -300,14 +296,14 @@ function generate_select_list(
             $lres_backup = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = 1 ORDER BY seq, title", array($list_id));
             while ($lrow_backup = sqlFetchArray($lres_backup)) {
                 $selectedValues = explode("|", $currvalue);
-
                 $optionValue = attr($lrow_backup['option_id']);
 
                 if (in_array($lrow_backup ['option_id'], $selectedValues)) {
-                    $s .= "<option value='$optionValue'";
-                    $s .= " selected";
-                    $optionLabel = text(xl_list_label($lrow_backup ['title']));
-                    $s .= ">$optionLabel</option>\n";
+                    $_options[] = [
+                        'label' => text(xl_list_label($lrow_backup['title'])),
+                        'value' => $optionValue,
+                        'isSelected' => true,
+                    ];
                     $got_selected_backup = true;
                 }
             }
@@ -316,21 +312,65 @@ function generate_select_list(
         if (!$got_selected_backup) {
             $selectedValues = explode("|", $currvalue);
             foreach ($selectedValues as $selectedValue) {
-                $s .= "<option value='" . attr($selectedValue) . "'";
-                $s .= " selected";
-                $s .= ">* " . text($selectedValue) . " *</option>\n";
+                $_options[] = [
+                    'label' => text($selectedValue),
+                    'value' => attr($selectedValue),
+                    'isSelected' => true,
+                ];
             }
 
-            $s .= "</select>";
-            $fontTitle = xlt('Please choose a valid selection from the list.');
-            $fontText = xlt('Fix this');
-            $s .= " <span class='text-danger' title='$fontTitle'>$fontText!</span>";
+            $_metadata['error'] = [
+                'title' => xlt('Please choose a valid selection from the list.'),
+                'text' => xlt('Fix this'),
+            ];
         }
-    } else {
-        $s .= "</select>";
     }
 
-    return $s;
+    $_parsedOptions = [];
+    $_og = false;
+    foreach ($_options as $o) {
+        $_isOG = (array_key_exists('optGroupOptions', $o) && count($o['optGroupOptions']) > 0) ? true : false;
+        $_currOG = $o['optgroupLabel'] ?? false;
+
+        // Render only if the current optgroup label is not triple equal to the previous label
+        if ($_og !== $_currOG) {
+            $_parsedOptions[] = "</optgroup>";
+        }
+
+        // Must have an opt group and it must be different than the previous
+        if ($_isOG && $_og !== $_currOG) {
+            $_parsedOptions[] = sprintf('<optgroup label="%s">', $_currOG);
+        }
+
+        $_parsedOptions[] = _create_option_element($o);
+
+        $_og = $_currOG;
+    }
+    $optionString = implode("\n", $_parsedOptions);
+
+    $_parsedAttributes = [];
+    foreach ($attributes as $attr => $val) {
+        $_parsedAttributes[] = sprintf('%s="%s"', $attr, $val);
+    }
+    $attributeString = implode("\n", $_parsedAttributes);
+
+    $_selectString = sprintf("<select %s>%s</select>", $attributeString, $optionString);
+    $output[] = $_selectString;
+
+    if (array_key_exists('error', $_metadata)) {
+        $_errorString = sprintf("<span title=\"%s\">%s</span>", $_metadata['error']['title'], $metadata['error']['text']);
+        $output[] = $_errorString;
+    }
+
+    return implode("", $output);
+}
+
+function _create_option_element(array $o): string
+{
+    $_valStr = (array_key_exists('value', $o)) ? "value=\"{$o['value']}\"" : "";
+    $_selStr = (array_key_exists('isSelected', $o) && $o['isSelected'] == true) ? "selected" : "";
+    $_labStr = (array_key_exists('label', $o)) ? $o['label'] : "";
+    return "<option $_valStr $_selStr>$_labStr</option>";
 }
 
 // Parsing for data type 31, static text.
@@ -522,12 +562,21 @@ function generate_form_field($frow, $currvalue)
     $backup_list = $frow['list_backup_id'] ?? null;
     $edit_options = $frow['edit_options'] ?? null;
     $form_id = $frow['form_id'] ?? null;
+    $autoComplete = $frow['autocomplete'] ?? false;
 
     // 'smallform' can be 'true' if we want a smaller form field, otherwise
     // can be used to assign arbitrary CSS classes to data entry fields.
     $smallform = $frow['smallform'] ?? null;
     if ($smallform === 'true') {
         $smallform = ' form-control-sm';
+    }
+
+    // historically we've used smallform to append classes if the value is NOT true
+    // to make it EXPLICIT what we are doing and to aid maintainability we are supporting
+    // an actual 'classNames' attribute for assigning arbitrary CSS classes to data entry fields
+    $classesToAppend = $frow['classNames'] ?? '';
+    if (!empty($classesToAppend)) {
+        $smallform = isset($smallform) ? $smallform . ' ' . $classesToAppend : $classesToAppend;
     }
 
     // escaped variables to use in html
@@ -711,13 +760,13 @@ function generate_form_field($frow, $currvalue)
         if (!$agestr) {
             echo " title='$description'";
         }
-
         // help chrome users avoid autocomplete interfere with datepicker widget display
-        if ($frow['field_id'] == 'DOB') {
-            echo " autocomplete='off' $onchange_string $lbfonchange $disabled />";
-        } else {
-            echo " $onchange_string $lbfonchange $disabled />";
+        if ($autoComplete !== false) {
+            echo " autocomplete='" . attr($autoComplete) . "'";
+        } else if ($frow['field_id'] == 'DOB') {
+            echo " autocomplete='off'";
         }
+        echo " $onchange_string $lbfonchange $disabled />";
 
         // Optional display of age or gestational age.
         if ($agestr) {
@@ -753,7 +802,7 @@ function generate_form_field($frow, $currvalue)
     } elseif ($data_type == 11) { // provider list, including address book entries with an NPI number
         $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
         "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
-        "AND ( authorized = 1 OR ( username = '' AND npi != '' ) ) " .
+        "AND ( authorized = 1 OR ((username = '' OR username IS NULL) AND npi != '' )) " .
         "ORDER BY lname, fname");
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
         echo " $lbfonchange $disabled>";
@@ -786,7 +835,7 @@ function generate_form_field($frow, $currvalue)
         $got_selected = false;
         $zone = '';
         while ($prow = sqlFetchArray($pres)) {
-            if ($zone != strtolower(trim($prow['city']))) {
+            if ($zone != strtolower(trim($prow['city'] ?? ''))) {
                 if ($zone != '') {
                     echo "</optgroup>";
                 }
@@ -814,6 +863,12 @@ function generate_form_field($frow, $currvalue)
         } else {
             echo "</select>";
         }
+
+        /**
+         * if anyone wants to render something after the pharmacy section on the demographics form,
+         * they would have to listen to this event.
+        */
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderPharmacySectionEvent(), RenderPharmacySectionEvent::RENDER_AFTER_PHARMACY_SECTION, 10);
     } elseif ($data_type == 13) { // squads
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
         echo " $lbfonchange $disabled>";
@@ -1575,7 +1630,7 @@ function generate_form_field($frow, $currvalue)
         $mywidth  = 50 + ($canWidth  > 250 ? $canWidth  : 250);
         $myheight = 31 + ($canHeight > 261 ? $canHeight : 261);
         echo "<div>"; // wrapper for myHideOrShow()
-        echo "<div id='form_$field_id_esc' style='width:${mywidth}px; height:${myheight}px;'></div>";
+        echo "<div id='form_$field_id_esc' style='width:{$mywidth}px; height:{$myheight}px;'></div>";
         // Hidden form field exists to send updated data to the server at submit time.
         echo "<input type='hidden' name='form_$field_id_esc' value='' />";
         // Hidden image exists to support initialization of the canvas.
@@ -1666,7 +1721,7 @@ function generate_form_field($frow, $currvalue)
     // Previous Patient Names with add. Somewhat mirrors data types 44,45.
     } elseif ($data_type == 52) {
         global $pid;
-        $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
+        $pid = ($frow['blank_form'] ?? null) ? null : $pid;
         $patientService = new PatientService();
         $res = $patientService->getPatientNameHistory($pid);
         echo "<div class='input-group w-75'>";
@@ -2427,6 +2482,9 @@ function generate_display_field($frow, $currvalue)
     $field_id   = isset($frow['field_id'])  ? $frow['field_id'] : null;
     $list_id    = $frow['list_id'];
     $backup_list = isset($frow['list_backup_id']) ? $frow['list_backup_id'] : null;
+    $show_unchecked_arr = array();
+    getLayoutProperties($frow['form_id'] ?? null, $show_unchecked_arr, 'grp_unchecked', "1");
+    $show_unchecked = strval($show_unchecked_arr['']['grp_unchecked'] ?? null) == "0" ? false : true;
 
     $s = '';
 
@@ -2444,7 +2502,7 @@ function generate_display_field($frow, $currvalue)
           $s = htmlspecialchars(xl_list_label($lrow['title'] ?? ''), ENT_NOQUOTES);
         //if there is no matching value in the corresponding lists check backup list
         // only supported in data types 1,26,43,46
-        if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $$data_type == 43 || $data_type == 46)) {
+        if ($lrow == 0 && !empty($backup_list) && ($data_type == 1 || $data_type == 26 || $data_type == 43 || $data_type == 46)) {
               $lrow = sqlQuery("SELECT title FROM list_options " .
               "WHERE list_id = ? AND option_id = ? AND activity = 1", array($backup_list,$currvalue));
               $s = htmlspecialchars(xl_list_label($lrow['title']), ENT_NOQUOTES);
@@ -2500,6 +2558,11 @@ function generate_display_field($frow, $currvalue)
                 $prow['line1'] . ' / ' . $prow['city'], ENT_NOQUOTES);
             }
         }
+        /**
+         * if anyone wants to render something after the pharmacy section on the patient chart/dashboard,
+         * they would have to listen to this event.
+        */
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderPharmacySectionEvent(), RenderPharmacySectionEvent::RENDER_AFTER_SELECTED_PHARMACY_SECTION, 10);
     } elseif ($data_type == 13) { // squads
         $squads = AclExtended::aclGetSquads();
         if ($squads) {
@@ -2564,7 +2627,7 @@ function generate_display_field($frow, $currvalue)
         $s = htmlspecialchars($crow['pc_catname'], ENT_NOQUOTES);
     } elseif ($data_type == 21) { // a single checkbox or set of labeled checkboxes
         if (!$list_id) {
-            $s .= $currvalue ? '[ x ]' : '[ &nbsp;&nbsp; ]';
+            $s .= $currvalue ? '&#9745;' : '&#9744;';
         } else {
             // In this special case, fld_length is the number of columns generated.
             $cols = max(1, $frow['fld_length']);
@@ -2581,11 +2644,17 @@ function generate_display_field($frow, $currvalue)
                     }
                     $s .= "<tr>";
                 }
-                $s .= "<td nowrap>";
                 $checked = in_array($option_id, $avalue);
-                $s .= $checked ? '[ x ]' : '[ &nbsp;&nbsp; ]';
-                $s .= '&nbsp;' . text(xl_list_label($lrow['title'])) . '&nbsp;&nbsp;';
-                $s .= "</td>";
+                if (!$show_unchecked && $checked) {
+                    $s .= "<td nowrap>";
+                    $s .= text(xl_list_label($lrow['title'])) . '&nbsp;&nbsp;';
+                    $s .= "</td>";
+                } elseif ($show_unchecked) {
+                    $s .= "<td nowrap>";
+                    $s .= $checked ? '&#9745;' : '&#9744;';
+                    $s .= '&nbsp;' . text(xl_list_label($lrow['title'])) . '&nbsp;&nbsp;';
+                    $s .= "</td>";
+                }
             }
             if ($count) {
                 $s .= "</tr>";
@@ -2711,12 +2780,18 @@ function generate_display_field($frow, $currvalue)
                 }
                 $s .= "<tr>";
             }
-            $s .= "<td nowrap>";
             $checked = ((strlen($currvalue) == 0 && $lrow['is_default']) ||
                 (strlen($currvalue)  > 0 && $option_id == $currvalue));
-            $s .= $checked ? '[ x ]' : '[ &nbsp;&nbsp; ]';
-            $s .= '&nbsp;' . text(xl_list_label($lrow['title'])) . '&nbsp;&nbsp;';
-            $s .= "</td>";
+            if (!$show_unchecked && $checked) {
+                $s .= "<td nowrap>";
+                $s .= text(xl_list_label($lrow['title'])) . '&nbsp;&nbsp;';
+                $s .= "</td>";
+            } elseif ($show_unchecked) {
+                $s .= "<td nowrap>";
+                $s .= $checked ? '&#9745;' : '&#9744;';
+                $s .= '&nbsp;' . text(xl_list_label($lrow['title'])) . '&nbsp;&nbsp;';
+                $s .= "</td>";
+            }
         }
         if ($count) {
             $s .= "</tr>";
@@ -2817,7 +2892,7 @@ function generate_display_field($frow, $currvalue)
         }
     } elseif ($data_type == 35) { // facility
         $urow = $facilityService->getById($currvalue);
-        $s = htmlspecialchars($urow['name'], ENT_NOQUOTES);
+        $s = htmlspecialchars($urow['name'] ?? '', ENT_NOQUOTES);
     } elseif ($data_type == 36 || $data_type == 33) { // Multi select. Supports backup lists
         $values_array = explode("|", $currvalue);
         $i = 0;
@@ -3498,13 +3573,14 @@ function isSkipped(&$frow, $currvalue)
 }
 
 // Load array of names of the given layout and its groups.
-function getLayoutProperties($formtype, &$grparr, $sel = "grp_title")
+function getLayoutProperties($formtype, &$grparr, $sel = "grp_title", $limit = null)
 {
     if ($sel != '*' && strpos($sel, 'grp_group_id') === false) {
         $sel = "grp_group_id, $sel";
     }
     $gres = sqlStatement("SELECT $sel FROM layout_group_properties WHERE grp_form_id = ? " .
-        "ORDER BY grp_group_id", array($formtype));
+        " ORDER BY grp_group_id " .
+        ($limit ? "LIMIT " . escape_limit($limit) : ""), array($formtype));
     while ($grow = sqlFetchArray($gres)) {
         // TBD: Remove this after grp_init_open column is implemented.
         if ($sel == '*' && !isset($grow['grp_init_open'])) {
@@ -4379,7 +4455,7 @@ function get_layout_form_value($frow, $prefix = 'form_')
     }
 
     // Better to die than to silently truncate data!
-    if ($maxlength && $maxlength != 0 && strlen(trim($value)) > $maxlength && !$frow['list_id']) {
+    if ($maxlength && $maxlength != 0 && mb_strlen(trim($value)) > $maxlength && !$frow['list_id']) {
         die(htmlspecialchars(xl('ERROR: Field') . " '$field_id' " . xl('is too long'), ENT_NOQUOTES) .
         ":<br />&nbsp;<br />" . htmlspecialchars($value, ENT_NOQUOTES));
     }
@@ -4735,13 +4811,7 @@ function billing_facility($name, $select)
 //
 function getListItemTitle($list, $option)
 {
-    $row = sqlQuery("SELECT title FROM list_options WHERE " .
-    "list_id = ? AND option_id = ? AND activity = 1", array($list, $option));
-    if (empty($row['title'])) {
-        return $option;
-    }
-
-    return xl_list_label($row['title']);
+    return LayoutsUtils::getListItemTitle($list, $option);
 }
 
 //function to get the translated title value in Patient Transactions

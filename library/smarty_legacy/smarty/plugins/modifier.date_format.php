@@ -9,6 +9,10 @@
  * Include the {@link shared.make_timestamp.php} plugin
  */
 require_once $smarty->_get_plugin_filepath('shared', 'make_timestamp');
+
+//This provides a cross-platform alternative to strftime() for when it will be removed from PHP.
+use function PHP81_BC\strftime;
+
 /**
  * Smarty date_format modifier plugin
  *

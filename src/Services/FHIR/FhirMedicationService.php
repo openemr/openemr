@@ -7,6 +7,7 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRMedication\FHIRMedicationBatch;
 use OpenEMR\Services\DrugService;
 use OpenEMR\Services\FHIR\FhirServiceBase;
@@ -61,7 +62,9 @@ class FhirMedicationService extends FhirServiceBase implements IResourceUSCIGPro
     {
         $medicationResource = new FHIRMedication();
 
-        $meta = array('versionId' => '1', 'lastUpdated' => gmdate('c'));
+        $meta = new FHIRMeta();
+        $meta->setVersionId('1');
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $medicationResource->setMeta($meta);
 
         $id = new FHIRId();

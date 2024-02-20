@@ -20,6 +20,7 @@ use Lcobucci\JWT\Signer\Rsa\Sha384;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Token\InvalidTokenStructure;
 use Lcobucci\JWT\Token\UnsupportedHeaderFound;
+use Lcobucci\JWT\Token\Plain;
 use Lcobucci\JWT\Validation\Constraint\IssuedBy;
 use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;

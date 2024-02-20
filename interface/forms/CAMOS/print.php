@@ -15,7 +15,7 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once("../../../library/api.inc");
+require_once("../../../library/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;

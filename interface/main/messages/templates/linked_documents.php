@@ -28,9 +28,9 @@ if (empty($noteid)) {
 }
 
 // Get the related document IDs if any.
-$linkedDocsSql = "SELECT id1 FROM gprelations WHERE " .
-    "type1 = ? AND type2 = ? AND id2 = ?";
-$tmp = QueryUtils::fetchRecords($linkedDocsSql, ['1','6',$noteid]);
+$linkedDocsSql = "SELECT type1, id1 FROM gprelations WHERE " .
+    "type2 = ? AND id2 = ?";
+$tmp = QueryUtils::fetchRecords($linkedDocsSql, ['6',$noteid]);
 if (empty($tmp)) {
     return;
 }
@@ -54,49 +54,73 @@ $records = [];
 $prow = $prow ?? null;
 $cdaDocumentValidator = new CdaValidateDocumentObject();
 foreach ($tmp as $record) {
-    $d = new Document($record['id1']);
-    $docInformation = [
-        'documentId' => $d->get_id(),
-        'title' => $d->get_name() . "-" . $d->get_id(),
-        'isCda' => false,
-        'hasPatient' => false,
-        'requiresValidation' => false
-    ];
-    if (!empty($prow)) {
-        $docInformation['hasPatient'] = true;
-        $docInformation['pname'] = $prow['fname'] . " " . $prow['lname'];
-        $docInformation['pid'] = $prow['pid'];
-        $docInformation['pubpid'] = $prow['pubpid'];
-        $docInformation['DOB'] = $prow['DOB'];
+    if ($record['type1'] == 1) {
+        $d = new Document($record['id1']);
+        $docInformation = [
+            'documentId' => $d->get_id(),
+            'title' => $d->get_name() . "-" . $d->get_id(),
+            'isCda' => false,
+            'hasPatient' => false,
+            'requiresValidation' => false,
+            'serviceDocType' => null
+        ];
+        if (!empty($prow)) {
+            $docInformation['hasPatient'] = true;
+            $docInformation['pname'] = $prow['fname'] . " " . $prow['lname'];
+            $docInformation['pid'] = $prow['pid'];
+            $docInformation['pubpid'] = $prow['pubpid'];
+            $docInformation['DOB'] = $prow['DOB'];
+        }
+        if ($cdaDocumentValidator->isCdaDocument($d)) {
+            $docInformation['isCda'] = true;
+            $docInformation['requiresValidation'] = true;
+        }
+        $records[] = $docInformation;
     }
-    if ($cdaDocumentValidator->isCdaDocument($d)) {
-        $docInformation['isCda'] = true;
-        $docInformation['requiresValidation'] = true;
+    if ($record['type1'] == 9) {
+        $docInformation = [
+            'documentId' => $record['id1'],
+            'title' => 'fax_attachment' . "-" . $record['id1'],
+            'isCda' => false,
+            'hasPatient' => false,
+            'requiresValidation' => false,
+            'serviceDocType' => $record['type1']
+        ];
+        if (!empty($prow)) {
+            $docInformation['hasPatient'] = true;
+            $docInformation['pname'] = $prow['fname'] . " " . $prow['lname'];
+            $docInformation['pid'] = $prow['pid'];
+            $docInformation['pubpid'] = $prow['pubpid'];
+            $docInformation['DOB'] = $prow['DOB'];
+        }
+        $records[] = $docInformation;
     }
-    $records[] = $docInformation;
 }
 
 try {
-    foreach ($records as $record) : ?>
-<div class="row mt-2 mb-2 messages-document-row <?php echo $record['requiresValidation'] ? "messages-document-validate" : ""; ?>"
-     data-doc="<?php echo attr($record['documentId']); ?>">
+    foreach ($records as $record) { ?>
+    <div class="row mt-2 mb-2 messages-document-row <?php echo $record['requiresValidation'] ? "messages-document-validate" : ""; ?>" data-doc="<?php echo attr($record['documentId']); ?>">
     <div class="col-12">
     <span class='font-weight-bold'><?php echo xlt('Linked document'); ?>:</span>
-        <?php if (!$record['hasPatient']) : ?>
-        <a class='messages-document-link<?php echo $record['requiresValidation'] ? " d-none" : ""; ?>'
-           href='javascript:void(0);' onClick='previewDocument(<?php echo attr_js($record['documentId']); ?>);'
-
-        >
+        <?php if ($record['serviceDocType'] == 9) { ?>
+        <a class='messages-document-link'
+            href='javascript:void(0);' onClick='viewFaxAttachment(event, <?php echo attr_js($record['documentId']); ?>);'>
             <?php echo text($record['title']); ?>
         </a>
-        <?php else : ?>
+        <?php } else {
+            if (!$record['hasPatient']) { ?>
+        <a class='messages-document-link<?php echo $record['requiresValidation'] ? " d-none" : ""; ?>'
+           href='javascript:void(0);' onClick='previewDocument(<?php echo attr_js($record['documentId']); ?>);'>
+                <?php echo text($record['title']); ?>
+        </a>
+            <?php } else { ?>
             <a class='messages-document-link <?php echo $record['requiresValidation'] ? "d-none" : ""; ?>'
                href='javascript:void(0);'
                onClick="gotoReport(<?php echo attr_js($record['documentId']); ?>, <?php echo attr_js($record['pname']); ?>, <?php echo attr_js($record['pid']); ?>,<?php echo attr_js($record['pubpid'] ?? $record['pid']); ?>,<?php echo attr_js($record['DOB']); ?>);">
                 <?php echo text($record['title']); ?>
             </a>
-        <?php endif; ?>
-        <?php if ($record['requiresValidation']) : ?>
+        <?php } ?>
+            <?php if ($record['requiresValidation']) { ?>
             <span class="validation-line">
                 <?php echo text($record['title']); ?>
                 <span class="text-info"><?php echo xlt("Validating document for errors"); ?>...</span>
@@ -109,13 +133,13 @@ try {
                 <?php echo xlt("Failed to retrieve validation results from server"); ?>
             </span>
         <span class="validation-totals validation-totals-success badge badge-pill badge-success p-2 d-none">
-            <?php echo xlt("Errors"); ?> <span class="validation-totals-count">0</span>
+                <?php echo xlt("Errors"); ?> <span class="validation-totals-count">0</span>
         </span>
-            <span class="validation-totals validation-totals-failed badge badge-pill badge-danger p-2 d-none">
-            <?php echo xlt("Errors"); ?> <span class="validation-totals-count">0</span>
+        <span class="validation-totals validation-totals-failed badge badge-pill badge-danger p-2 d-none">
+                <?php echo xlt("Errors"); ?> <span class="validation-totals-count">0</span>
         </span>
-        <?php endif; ?>
-        <?php if ($record['isCda']) : ?>
+        <?php } ?>
+            <?php if ($record['isCda']) { ?>
         <details class="validation-report-errors d-none">
             <summary><?php echo xlt("Validation report"); ?></summary>
             <div class="validation-report-errors-container">
@@ -123,10 +147,11 @@ try {
             <a href="javascript:void(0)" onClick='previewCCDADocument(event,<?php echo attr_js($record['documentId']);?>);'
                 ><?php echo xlt("View Processed Document"); ?></a>
         </details>
-    <?php endif; ?>
+        <?php }
+        } ?>
     </div>
 </div>
-    <?php endforeach;
+    <?php }
 } catch (Exception $exception) {
     // if twig throws any exceptions we want to log it.
     (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
@@ -134,7 +159,6 @@ try {
 ?>
 
 <script>
-
     function previewCCDADocument(event, documentId) {
         event.preventDefault();
         let url = "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/zend_modules/public/encountermanager/previewDocument?docId=" + documentId;
@@ -203,7 +227,7 @@ try {
 
     window.addEventListener("DOMContentLoaded", startDocumentValidation);
 
-    // this originaly came from the messages class... but it makes no sense to have it there when we only use it here.
+    // this originally came from the messages class... but it makes no sense to have it there when we only use it here.
     function gotoReport(doc_id, pname, pid, pubpid, str_dob) {
         EncounterDateArray = [];
         CalendarCategoryArray = [];

@@ -27,6 +27,11 @@ session_regenerate_id(true);
 $landingpage = "index.php?site=" . urlencode($_SESSION['site_id'] ?? ($_GET['site'] ?? 'default'));
 //
 
+if (!empty($_REQUEST['redirect'])) {
+    // let's add the redirect back in case there are any errors or other problems.
+    $landingpage .= "&redirect=" . urlencode($_REQUEST['redirect']);
+}
+
 // checking whether the request comes from index.php
 if (!isset($_SESSION['itsme'])) {
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
@@ -63,8 +68,18 @@ $ignoreAuth_onsite_portal = true;
 
 // Authentication
 require_once('../interface/globals.php');
+
+if (
+    $GLOBALS['enforce_signin_email']
+    && (!isset($_POST['passaddon']) || empty($_POST['passaddon']))
+) {
+    OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+    header('Location: ' . $landingpage . '&w&c');
+    exit();
+}
+
 require_once(dirname(__FILE__) . "/lib/appsql.class.php");
-require_once("$srcdir/user.inc");
+require_once("$srcdir/user.inc.php");
 
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -245,8 +260,8 @@ if ($userData = sqlQuery($sql, array($auth['pid']))) { // if query gets executed
         $_SESSION['patient_portal_onsite_two'] = 1;
 
         $tmp = getUserIDInfo($userData['providerID']);
-        $_SESSION['providerName'] = $tmp['fname'] . ' ' . $tmp['lname'];
-        $_SESSION['providerUName'] = $tmp['username'];
+        $_SESSION['providerName'] = ($tmp['fname'] ?? '') . ' ' . ($tmp['lname'] ?? '');
+        $_SESSION['providerUName'] = $tmp['username'] ?? null;
         $_SESSION['sessionUser'] = '-patient-'; // $_POST['uname'];
         $_SESSION['providerId'] = $userData['providerID'] ? $userData['providerID'] : 'undefined';
         $_SESSION['ptName'] = $userData['fname'] . ' ' . $userData['lname'];
@@ -268,6 +283,18 @@ if ($userData = sqlQuery($sql, array($auth['pid']))) { // if query gets executed
     OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
     header('Location: ' . $landingpage . '&w');
     exit();
+}
+
+// now that we are authorized, we need to check for the redirect, sanitize it (or eliminate it if we can't), and then redirect
+
+if (!empty($_REQUEST['redirect'])) {
+    // for now we are only going to allow redirects to locations in the module directories, we can open this up more
+    // in future requests once we consider the threat vectors
+    $safeRedirect = \OpenEMR\Core\ModulesApplication::filterSafeLocalModuleFiles([$_REQUEST['redirect']]);
+    if (!empty($safeRedirect)) {
+        header('Location: ' . $safeRedirect[0]);
+        exit();
+    }
 }
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 header("Cache-Control: no-cache");

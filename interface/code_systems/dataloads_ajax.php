@@ -131,7 +131,7 @@ $activeAccordionSection = isset($_GET['aas']) ? $_GET['aas'] : '0';
     //
     // placemaker for when support DSMIV
     //$db_list = array("DSMIV", "ICD9", "ICD10", "RXNORM", "SNOMED");
-    $db_list = array("ICD9", "ICD10", "RXNORM", "SNOMED","CQM_VALUESET");
+    $db_list = array("ICD10", "RXNORM", "SNOMED","CQM_VALUESET");
     foreach ($db_list as $db) {
         ?>
         <div class="card">

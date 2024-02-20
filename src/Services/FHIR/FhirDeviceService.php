@@ -66,7 +66,7 @@ class FhirDeviceService extends FhirServiceBase implements IResourceUSCIGProfile
     {
         $device = new FHIRDevice();
 
-        $device->setMeta(UtilsService::createFhirMeta('1', gmdate('c')));
+        $device->setMeta(UtilsService::createFhirMeta('1', UtilsService::getDateFormattedAsUTC()));
 
         $id = new FHIRId();
         $id->setValue($dataRecord['uuid']);

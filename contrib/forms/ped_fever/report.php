@@ -3,7 +3,7 @@
 //
 
 require_once("../../globals.php");
-require_once($GLOBALS["srcdir"] . "/api.inc");
+require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
 function ped_fever_report($pid, $encounter, $cols, $id)
 {

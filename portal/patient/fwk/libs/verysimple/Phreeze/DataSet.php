@@ -33,6 +33,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
     private $_current; // the current object in the set
     private $_last; // the previous object in the set
     private $_totalcount;
+    private $_eof;
     private $_no_exception; // used during iteration to suppress exception on the final Next call
     private $_cache_timeout; // length of time to cache query results
     public $UnableToCache = true;
@@ -111,7 +112,7 @@ class DataSet implements Iterator // @TODO implement Countable, ArrayAccess
         $this->_verifyRs();
 
         $this->_current = null;
-        $this->_counter ++;
+        $this->_counter++;
 
         if ($this->_eof) {
             if (! $this->_no_exception) {

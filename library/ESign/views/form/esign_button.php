@@ -23,4 +23,4 @@
  **/
 
 ?>
-<a target="<?php echo $this->target; ?>" href="#esign-mask-content" class="esign-button-form btn btn-secondary btn-sm" data-formdir="<?php echo attr($this->formDir); ?>" data-formid="<?php echo attr($this->formId); ?>" data-encounterid="<?php echo attr($this->encounterId); ?>"><i class="fa fa-signature"></i>&nbsp;<?php echo xlt('eSign'); ?></a>
+<a target="<?php echo $this->target; ?>" href="#esign-mask-content" class="esign-button-form btn btn-text btn-sm" data-formdir="<?php echo attr($this->formDir); ?>" data-formid="<?php echo attr($this->formId); ?>" data-encounterid="<?php echo attr($this->encounterId); ?>"><i class="fa fa-signature"></i>&nbsp;<?php echo xlt('eSign'); ?></a>

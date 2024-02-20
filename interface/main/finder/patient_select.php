@@ -11,9 +11,9 @@
  */
 
 require_once("../../globals.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once("$srcdir/report_database.inc");
+require_once("$srcdir/report_database.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -221,7 +221,7 @@ if ($popup) {
 
     // Custom filtering which enables module developer to filter patients out of search
     $patientSelectFilterEvent = new PatientSelectFilterEvent(new BoundFilter());
-    $patientSelectFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch(PatientSelectFilterEvent::EVENT_HANDLE, $patientSelectFilterEvent, 10);
+    $patientSelectFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientSelectFilterEvent, PatientSelectFilterEvent::EVENT_HANDLE, 10);
     $boundFilter = $patientSelectFilterEvent->getBoundFilter();
     $sqlBindArray = array_merge($boundFilter->getBoundValues(), $sqlBindArray);
     $customWhere = $boundFilter->getFilterClause();

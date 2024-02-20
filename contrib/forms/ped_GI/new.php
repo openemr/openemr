@@ -14,7 +14,7 @@
 
 require_once("../../globals.php");
 
-require_once("../../../library/api.inc");
+require_once("../../../library/api.inc.php");
 
 use OpenEMR\Core\Header;
 

@@ -22,15 +22,15 @@
 // any questions contact Daniel Pflieger at daniel@growlingflea.com
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/appointments.inc.php");
 require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
-require_once("$srcdir/api.inc");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/api.inc.php");
+require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/../controllers/C_Document.class.php");
 require_once("$srcdir/documents.php");
 require_once("$srcdir/options.inc.php");
-require_once "$srcdir/user.inc";
+require_once "$srcdir/user.inc.php";
 
 use Mpdf\Mpdf;
 use OpenEMR\Billing\InvoiceSummary;
@@ -39,8 +39,10 @@ use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Pdf\Config_Mpdf;
 
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("EOB Posting - Search")]);
@@ -59,7 +61,7 @@ $form_cb = false;
 /* Load dependencies only if we need them */
 if (!empty($GLOBALS['portal_onsite_two_enable'])) {
     /* Addition of onsite portal patient notify of invoice and reformated invoice - sjpadgett 01/2017 */
-    require_once("../../portal/lib/portal_mail.inc");
+    require_once("../../portal/lib/portal_mail.inc.php");
     require_once("../../portal/lib/appsql.class.php");
 
     function is_auth_portal($pid = 0)
@@ -168,13 +170,6 @@ function era_callback(&$out)
     }
 }
 
-function bucks($amount)
-{
-    if ($amount) {
-        return oeFormatMoney($amount);
-    }
-}
-
 function validEmail($email)
 {
     if (preg_match("^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,3})$^", $email)) {
@@ -280,24 +275,7 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
     global $srcdir;
 
     if ($GLOBALS['statement_appearance'] == '1') {
-        $config_mpdf = array(
-            'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
-            'mode' => $GLOBALS['pdf_language'],
-            'format' => $GLOBALS['pdf_size'],
-            'default_font_size' => '9',
-            'default_font' => 'dejavusans',
-            'margin_left' => $GLOBALS['pdf_left_margin'],
-            'margin_right' => $GLOBALS['pdf_right_margin'],
-            'margin_top' => $GLOBALS['pdf_top_margin'],
-            'margin_bottom' => $GLOBALS['pdf_bottom_margin'],
-            'margin_header' => '',
-            'margin_footer' => '',
-            'orientation' => $GLOBALS['pdf_layout'],
-            'shrink_tables_to_fit' => 1,
-            'use_kwt' => true,
-            'autoScriptToLang' => true,
-            'keep_table_proportions' => true
-        );
+        $config_mpdf = Config_Mpdf::getConfigMpdf();
         $pdf2 = new mPDF($config_mpdf);
         if ($_SESSION['language_direction'] == 'rtl') {
             $pdf2->SetDirectionality('rtl');
@@ -305,29 +283,10 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
         ob_start();
         // this file contains the HTML to be converted to pdf.
         readfile($file_to_send, "r");
-
         $content = ob_get_clean();
-
-        // Fix a nasty html2pdf bug - it ignores document root!
-        // TODO - now use mPDF, so should test if still need this fix
-        global $web_root, $webserver_root;
-        $i = 0;
-        $wrlen = strlen($web_root);
-        $wsrlen = strlen($webserver_root);
-        if (!empty($content)) {
-            $i = stripos($content, " src='/", $i + 1);
-            if ($i != false) {
-                if (
-                    substr($content, $i + 6, $wrlen) === $web_root &&
-                    substr($content, $i + 6, $wsrlen) !== $webserver_root
-                ) {
-                    $content = substr($content, 0, $i + 6) . $webserver_root . substr($content, $i + 6 + $wrlen);
-                }
-            }
-            $pdf2->WriteHTML($content);
-            $temp_filename = $STMT_TEMP_FILE_PDF;
-            $content_pdf = $pdf2->Output($STMT_TEMP_FILE_PDF, 'F');
-        }
+        $pdf2->WriteHTML($content);
+        $temp_filename = $STMT_TEMP_FILE_PDF;
+        $pdf2->Output($temp_filename, 'F');
     } else {
         $pdf = new Cezpdf('LETTER');//pdf creation starts
         $pdf->ezSetMargins(45, 9, 36, 10);
@@ -605,6 +564,35 @@ if (
                         $tmp .= "<br />\n\014<br /><br />";
                     }
                     fwrite($fhprint, $tmp);
+                    // now save it to pt documents
+                    $d = new Document();
+                    $doc_pid = $inv_pid[$inv_count];
+                    $invoice_category_id = 0;
+                    $catrow = sqlQuery("SELECT id FROM categories WHERE name = ?", ['Invoices']);
+                    if (!empty($catrow['id'])) {
+                        $invoice_category_id = $catrow['id'];
+                    }
+                    // even if click download pdf the file content in $tmp is text
+                    // set mimetype and fileext based on statement appearance
+                    $isPdf = ($GLOBALS['statement_appearance'] == 1);
+                    $fileext = $isPdf ? '.pdf' : '.txt';
+                    $inv_filename = 'Invoice-' . date('Y-m-d-H:i:s') . $fileext;
+                    $mimetype = $isPdf ? 'pdf' : 'text/plain';
+                    if ($isPdf) {
+                        $pdf2 = new mPDF(Config_Mpdf::getConfigMpdf());
+                        if ($_SESSION['language_direction'] == 'rtl') {
+                            $pdf2->SetDirectionality('rtl');
+                        }
+                        $pdf2->WriteHTML($tmp);
+                        $tmp = $pdf2->Output('', 'S');
+                    }
+                    $invoice = $d->createDocument(
+                        $doc_pid,
+                        $invoice_category_id, // TBD: Make sure not 0
+                        $inv_filename,
+                        $mimetype,
+                        $tmp
+                    );
                 }
             }
         }
@@ -1028,7 +1016,7 @@ if (
                             // Notes that as of release 4.1.1 the copays are stored
                             // in the ar_activity table marked with a PCP in the account_code column.
                             $query = "SELECT f.id, f.pid, f.encounter, f.date, " .
-                            "f.last_level_billed, f.last_level_closed, f.last_stmt_date, f.stmt_count, " .
+                            "f.last_level_billed, f.last_level_closed, f.last_stmt_date, f.stmt_count, f.in_collection, " .
                             "p.fname, p.mname, p.lname, p.pubpid, p.billing_note, " .
                             "( SELECT SUM(b.fee) FROM billing AS b WHERE " .
                             "b.pid = f.pid AND b.encounter = f.encounter AND " .
@@ -1098,7 +1086,8 @@ if (
                                 // Determine if customer is in collections.
                                 //
                                 $billnote = $row['billing_note'];
-                                $in_collections = stristr($billnote, 'IN COLLECTIONS') !== false;
+                                $in_collections = stristr($billnote, 'IN COLLECTIONS') !== false
+                                    || $row['in_collection'] == 1;
 
                                 // $duncount was originally supposed to be the number of times that
                                 // the patient was sent a statement for this invoice.
@@ -1153,15 +1142,15 @@ if (
                                     <td class="detail">&nbsp;<?php echo text(oeFormatShortDate($svcdate)); ?></td>
                                     <td class="detail">
                                         &nbsp;<?php echo text(oeFormatShortDate($last_stmt_date)); ?></td>
-                                    <td class="detail text-right"><?php echo text(bucks($row['charges'])); ?>&nbsp;
+                                    <td class="detail text-right"><?php echo text(FormatMoney::getBucks($row['charges'])); ?>&nbsp;
                                     </td>
-                                    <td class="detail text-right"><?php echo text(bucks($row['adjustments'])); ?>
+                                    <td class="detail text-right"><?php echo text(FormatMoney::getBucks($row['adjustments'])); ?>
                                         &nbsp;
                                     </td>
-                                    <td class="detail text-right"><?php echo text(bucks($row['payments'] - $row['copays'])); ?>
+                                    <td class="detail text-right"><?php echo text(FormatMoney::getBucks($row['payments'] - $row['copays'])); ?>
                                         &nbsp;
                                     </td>
-                                    <td class="detail text-right"><?php echo text(bucks($balance)); ?>&nbsp;</td>
+                                    <td class="detail text-right"><?php echo text(FormatMoney::getBucks($balance)); ?>&nbsp;</td>
                                     <td class="detail text-center"><?php echo $duncount ? text($duncount) : "&nbsp;" ?></td>
                                     <?php if (!$eracount) { ?>
                                         <td class="detail text-left">
@@ -1214,7 +1203,7 @@ if (
                                     <button type="submit" class="btn btn-secondary btn-download" name='form_download' value="<?php echo xla('Download Selected Statements'); ?>"><?php echo xlt('Download Selected'); ?></button>
                                 <?php } ?>
                                 <button type="submit" class="btn btn-secondary btn-download" name='form_pdf' value="<?php echo xla('PDF Download Selected Statements'); ?>"><?php echo xlt('PDF Download Selected'); ?></button>
-                                <button type="submit" class="btn btn-secondary btn-mail" name='form_download' value="<?php echo xla('Email Selected Statements'); ?>"><?php echo xlt('Email Selected'); ?></button>
+                                <button type="submit" class="btn btn-secondary btn-mail" name='form_email' value="<?php echo xla('Email Selected Statements'); ?>"><?php echo xlt('Email Selected'); ?></button>
                                 <?php
                                 if (!empty($is_portal)) { ?>
                                     <button type="submit" class="btn btn-secondary btn-save" name='form_portalnotify' value="<?php echo xla('Notify via Patient Portal'); ?>"><?php echo xlt('Notify Patients Portal'); ?></button>

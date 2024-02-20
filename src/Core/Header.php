@@ -11,6 +11,7 @@ namespace OpenEMR\Core;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
+use OpenEMR\Services\LogoService;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\Yaml\Exception\ParseException;
 
@@ -80,6 +81,8 @@ class Header
      */
     public static function setupHeader($assets = [], $echoOutput = true)
     {
+        $favicon = self::getFavIcon();
+
         // Required tag
         $output = "\n<meta charset=\"utf-8\" />\n";
         // Makes only compatible with MS Edge
@@ -87,7 +90,7 @@ class Header
         // BS4 required tag
         $output .= "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\" />\n";
         // Favicon
-        $output .= "<link rel=\"shortcut icon\" href=\"" . $GLOBALS['images_static_relative'] . "/favicon.ico\" />\n";
+        $output .= "<link rel=\"shortcut icon\" href=\"$favicon\" />\n";
         $output .= self::setupAssets($assets, true, false);
 
         // we need to grab the script
@@ -126,6 +129,13 @@ class Header
         } else {
             return $output;
         }
+    }
+
+    public static function getFavIcon()
+    {
+        $logoService = new LogoService();
+        $icon = $logoService->getLogo("core/favicon/", "favicon.ico");
+        return $icon;
     }
 
     /**
@@ -228,9 +238,10 @@ class Header
                     self::$scripts[] = $s;
                 }
 
-                if (($k == "bootstrap") && ((!in_array("no_main-theme", $selectedAssets)) || (in_array("patientportal-style", $selectedAssets)))) {
+                if (($k == "bootstrap") && ((!in_array("no_main-theme", $selectedAssets)) || (in_array("portal-theme", $selectedAssets)))) {
                     // Above comparison is to skip bootstrap theme loading when using a main theme or using the patient portal theme
                     //  since bootstrap theme is already including in main themes and portal theme via SASS.
+                    $t = '';
                 } else if ($k == "compact-theme" && (in_array("no_main-theme", $selectedAssets) || empty($GLOBALS['enable_compact_mode']))) {
                   // Do not display compact theme if it is turned off
                 } else {
@@ -362,7 +373,12 @@ class Header
         $template = ($type == 'script') ? $script : $link;
         if (!$alreadyBuilt) {
             $v = $GLOBALS['v_js_includes'];
-            $path = $path . "?v={$v}";
+            // need to handle header elements that may already have a ? in the parameter.
+            if (strrpos($path, "?") !== false) {
+                $path = $path . "&v={$v}";
+            } else {
+                $path = $path . "?v={$v}";
+            }
         }
         return str_replace("%path%", $path, $template);
     }

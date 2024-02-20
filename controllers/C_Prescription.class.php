@@ -14,7 +14,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS['fileroot'] . "/library/registry.inc");
+require_once($GLOBALS['fileroot'] . "/library/registry.inc.php");
 require_once($GLOBALS['fileroot'] . "/library/amc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -317,7 +317,7 @@ class C_Prescription extends Controller
         // Probably the Prescription object should handle this instead, but
         // doing it there will require more careful research and testing.
         $prow = sqlQuery("SELECT pt.pharmacy_id FROM prescriptions AS rx, " .
-            "patient_data AS pt WHERE rx.id = '$id' AND pt.pid = rx.patient_id");
+            "patient_data AS pt WHERE rx.id = ? AND pt.pid = rx.patient_id", [$id]);
         if ($prow['pharmacy_id']) {
             $rx->pharmacy->set_id($prow['pharmacy_id']);
             $rx->pharmacy->populate();

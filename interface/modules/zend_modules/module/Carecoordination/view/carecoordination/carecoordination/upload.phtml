@@ -262,6 +262,16 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
     async function handleFileUpload(files, obj) {
         let fnames = '';
         let uploadURL = "<?php echo $this->basePath();?>/carecoordination/upload";
+        // flash to let user know we're working.
+        let flashText = document.getElementById('uploadFlashText');
+        if (flashText) {
+            document.getElementById('uploadFlash').style.display = '';
+            flashText.innerText = <?php echo xlj("Initializing and Starting Upload Process."); ?>;
+            setInterval(function () {
+                flashText.style.display = (flashText.style.display === 'none' ? '' : 'none');
+            }, 500);
+        }
+
         for (let i = 0; i < files.length; i++) {
             let status = new createStatusbar(obj);
             status.setFileNameSize(files[i].name, files[i].size);
@@ -277,11 +287,11 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
             // this code handles cases like sample.ccd.xml which is why we don't just go strictly off array position.s
             let nameArr = files[i].name.split(".");
             let extension = nameArr.pop();
-            if (nameArr.length > 1 && (extension !== 'xml' && extension !== 'zip')) {
+            if (extension > "" && (extension !== 'xml' && extension !== 'zip')) {
                 if (fnames == '') {
                     fnames = files[i].name;
                 } else {
-                    fnames += ',' + files[i].name;
+                    fnames += ' | ' + files[i].name;
                 }
                 continue;
             }
@@ -300,7 +310,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
             });
         }
         if (fnames != '') {
-            alert('<?php echo $this->listenerObject->z_xlt("Can't upload");?> ' + fnames);
+            alert('<?php echo $this->listenerObject->z_xlt("Abort upload wrong document type for!");?> ' + fnames);
         }
         $('#form_ccda_import').submit();
     }
@@ -383,7 +393,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                 </div>
                 <div id="refresh" onclick="document.getElementById('form_ccda_import').submit();">&nbsp;</div>
                 <?php if (!empty($records)) { ?>
-                <span style="margin-left:10px;">
+                    <span style="margin-left:10px;">
                     <button type="submit" id="chart_all_imports" class="btn btn-secondary" name="chart_all_imports" value="true" title='<?php echo $this->listenerObject->z_xlt("Chart all pending imports"); ?>'>
                         <img style="margin-right: 5px;height:20px;width:auto;" src="<?php echo $this->basePath(); ?>/css/icons/import.png"><span><?php echo $this->listenerObject->z_xlt("Chart Pending"); ?></span>
                     </button>
@@ -394,48 +404,43 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                 </label>
                 <input type="hidden" id="sort_direction" name="sort_direction" value="<?php echo attr($_REQUEST['sort_direction'] ?? 'DESC'); ?>" />
             </div>
-            <div class="clear"></div>
-
-            <!--Display upload status-->
-            <div style="display: none" id="status1"></div>
-            <!---->
 
             <div class="clear"></div>
             <div class="se_in_8">
-                <?php
-                if (count($this->records) > 0) {
-                    ?>
-                    <table class="responsive">
+                <div id="uploadFlash" style="padding-top:35px; height: 60px; width: 60%; margin-left: auto; margin-right: auto; margin-bottom: 1rem; border: 1px solid #CCCCCC; text-align:center; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if (count($this->records) > 0) { ?>display: none; <?php } ?>">
+                    <span id="uploadFlashText"><?php echo $this->listenerObject->z_xlt('Nothing to display'); ?></span>
+                </div>
+                <?php if (count($this->records ?? []) > 0) { ?>
+                    <table class="table responsive">
                         <?php
                         $slno = 0;
                         foreach ($this->records as $row) {
-                            if ($slno % 12 == 0) {
-                            ?>
-                            <tr class="se_in_9">
-                            <th>&nbsp;</th>
-                            <th style="height: 20px;">#</th>
-                            <th><?php echo $this->listenerObject->z_xlt('Date'); ?></th>
-                            <th><?php echo $this->listenerObject->z_xlt('Owner'); ?></th>
-                            <th nowrap><?php echo $this->listenerObject->z_xlt('Patient Name'); ?></th>
-                            <th><?php echo $this->listenerObject->z_xlt('DOB'); ?></th>
-                            <th><?php echo $this->listenerObject->z_xlt('Race'); ?></th>
-                            <th><?php echo $this->listenerObject->z_xlt('Ethnic'); ?></th>
-                            <th><?php echo $this->listenerObject->z_xlt('Enc'); ?></th>
-                            <th><?php echo $this->listenerObject->z_xlt('CP'); ?></th>
-                            <th><?php echo $this->listenerObject->z_xlt('OB'); ?></th>
-                            <th><?php echo $this->listenerObject->z_xlt('Proc'); ?></th>
-                            <th><?php echo $this->listenerObject->z_xlt('Prob'); ?></th>
-                            <th><?php echo $this->listenerObject->z_xlt('Med'); ?></th>
-                            <th nowrap><?php echo $this->listenerObject->z_xlt('Match Found'); ?></th>
-                            <th nowrap><?php echo $this->listenerObject->z_xlt('Matched Patient'); ?></th>
-                            <th><?php echo $this->listenerObject->z_xlt('Duplicate'); ?></th>
-                            <th nowrap><?php echo $this->listenerObject->z_xlt('Type'); ?></th>
-                            <th>
-                                <button type="submit" id="delete_all_imports" class="btn btn-secondary" name="delete_all_imports" value="true" title='<?php echo $this->listenerObject->z_xlt("Undo all pending imports"); ?>'>
-                                    <img src="<?php echo $this->basePath(); ?>/css/icons/undo.png"><span style="margin-left: 5px;"><?php echo $this->listenerObject->z_xlt("Undo Imports"); ?></span>
-                                </button>
-                            </th>
-                            </tr>
+                            if ($slno % 12 == 0) { ?>
+                                <thead class="se_in_9">
+                                    <th>&nbsp;</th>
+                                    <th style="height: 20px;">#</th>
+                                    <th><?php echo $this->listenerObject->z_xlt('Date'); ?></th>
+                                    <th nowrap><?php echo $this->listenerObject->z_xlt('Owner'); ?></th>
+                                    <th nowrap><?php echo $this->listenerObject->z_xlt('Patient Name'); ?></th>
+                                    <th><?php echo $this->listenerObject->z_xlt('DOB'); ?></th>
+                                    <th><?php echo $this->listenerObject->z_xlt('Race'); ?></th>
+                                    <th><?php echo $this->listenerObject->z_xlt('Ethnic'); ?></th>
+                                    <th><?php echo $this->listenerObject->z_xlt('Enc'); ?></th>
+                                    <th><?php echo $this->listenerObject->z_xlt('CP'); ?></th>
+                                    <th><?php echo $this->listenerObject->z_xlt('OB'); ?></th>
+                                    <th><?php echo $this->listenerObject->z_xlt('Proc'); ?></th>
+                                    <th><?php echo $this->listenerObject->z_xlt('Prob'); ?></th>
+                                    <th><?php echo $this->listenerObject->z_xlt('Med'); ?></th>
+                                    <th nowrap><?php echo $this->listenerObject->z_xlt('Match Found'); ?></th>
+                                    <th nowrap><?php echo $this->listenerObject->z_xlt('Matched Patient'); ?></th>
+                                    <th><?php echo $this->listenerObject->z_xlt('Duplicate'); ?></th>
+                                    <th nowrap><?php echo $this->listenerObject->z_xlt('Type'); ?></th>
+                                    <th nowrap>
+                                        <button type="submit" id="delete_all_imports" class="btn btn-secondary" name="delete_all_imports" value="true" title='<?php echo $this->listenerObject->z_xlt("Undo all pending imports"); ?>'>
+                                            <img src="<?php echo $this->basePath(); ?>/css/icons/undo.png"><span style="margin-left: 5px;"><?php echo $this->listenerObject->z_xlt("Undo All"); ?></span>
+                                        </button>
+                                    </th>
+                                </thead>
                             <?php } ?>
                             <tr>
                                 <td id="expandAuditDetails_<?php echo $this->escapeHtml($row['amid']) . '-' . $this->escapeHtml($row['pid']); ?>" class="expandAuditDetails se_in_23"></td>
@@ -456,7 +461,11 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                                     <?php
                                     if ($row['imported'] == 1) {
                                         if ($row['pid'] > 0) {
-                                            echo "<span style='color: red' title='" . $this->escapeHtml($row['matched_patient']) . " [" . $this->escapeHtml($row['pid']) . "]'>" . $this->listenerObject->z_xlt('Yes') . "</span>";
+                                            $temp_ans = $this->listenerObject->z_xlt('Yes');
+                                            if ($row['is_unstructured_document'] ?? 0) {
+                                                $temp_ans = $this->listenerObject->z_xlt('Will Merge');
+                                            }
+                                            echo "<span style='color: red' title='" . $this->escapeHtml($row['matched_patient']) . " [" . $this->escapeHtml($row['pid']) . "]'>" . $temp_ans . "</span>";
                                         } else {
                                             echo $this->listenerObject->z_xlt('No');
                                         }
@@ -473,6 +482,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                                 <td>
                                     <?php
                                     $type = !empty($row['is_qrda_document']) ? 'QRDA' : 'CCDA';
+                                    $type = !empty($row['is_unstructured_document']) ? 'Document Imports' : $type;
                                     echo $this->listenerObject->z_xlt($type);
                                     ?>
                                 </td>
@@ -514,16 +524,13 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                             </tr>
                         <?php } ?>
                     </table>
+                <?php } ?>
+                <div class="clear"></div>
+                <!--Display upload status-->
+                <div class="container float-right" style="display: none" id="status1"></div>
                 <div style="text-align: center;">
                     <button type="button" class="btn btn-primary" style="margin-top: .250rem;" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"><?php echo xlt('Scroll to Top'); ?></button>
                 </div>
-                <?php } else { ?>
-                    <div style="width: 60%; margin-left: auto; margin-right: auto; border: 1px solid #CCCCCC; text-align:center; padding: 30px; font-size: 15px; font-weight: bold; background: #f7f7f7;<?php if (count($this->records) > 0) { ?>display: none; <?php } ?>">
-                        <?php echo $this->listenerObject->z_xlt('Nothing to display'); ?>
-                    </div>
-                    <?php
-                }
-                ?>
             </div>
         </div>
     </form>

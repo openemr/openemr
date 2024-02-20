@@ -331,7 +331,8 @@ input[type=text] {
 /* REFRACTION PANEL */
 
 #REFRACTION_sections {
-  margin: 0 auto;
+  max-width: 95%;
+  margin: auto;
 }
 
 .refraction_panel {
@@ -643,6 +644,7 @@ body {
   margin-left: auto;
   margin-right: auto;
   text-align: center;
+  font-size: 0.8rem;
 }
 
 .sections {
@@ -696,7 +698,7 @@ body {
 
 .exam_section_left {
   float: left;
-  margin: 5px auto;
+  margin: 5px;
   min-height: 415px;
   padding: 10px;
   top: 0;
@@ -717,7 +719,7 @@ body {
 
 .exam_section_right {
   float: left;
-  margin: 5px auto;
+  margin: 5px;
   min-height: 415px;
   padding: 10px;
   top: 0;
@@ -2156,13 +2158,13 @@ View.php
   float: left;
   height: 1.05in;
   padding: 0.02in;
-  width: 1.9in;
+  width: 2.5in;
 }
 
 
 #DA_EXAM_sections {
   display: inline-table;
-  max-width: 93%;
+  max-width: 90%;
   text-align: center;
 }
 
@@ -2175,7 +2177,7 @@ View.php
   float: left;
   min-height: 1.05in;
   padding: 0.02in;
-  width: 2.2in;
+  width: 2.5in;
 }
 
 #tabs {
@@ -2228,7 +2230,7 @@ View.php
 #Visions_B > input {
   height: 0.19in;
   margin: 2px;
-  width: 0.35in;
+  width: 0.5in;
 }
 
 #Visions_A,
@@ -2293,7 +2295,7 @@ View.php
   height: 0.18in;
   left: 0.5in;
   margin: 2px;
-  width: 0.28in;
+  width: 0.5in;
 }
 
 #Lyr42 > span:nth-of-type(1) {
@@ -2393,8 +2395,11 @@ View.php
 }
 
 #Lyr70 {
-  font-size: 0.8em;
-  padding: 1px 10px 5px 0;
+    border: 1px solid var(--black);
+  float: left;
+  min-height: 1.05in;
+  padding: 0.02in;
+  width: 2.5in;
 }
 
 #Lyr71 {
@@ -2453,7 +2458,7 @@ View.php
 #DIMOSPUPILSIZE2 {
   height: 0.2in;
   white-space: nowrap;
-  width: 0.25in;
+  width: 0.5in;
 }
 
 .pupil_input_2,

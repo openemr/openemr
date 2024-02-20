@@ -36,7 +36,7 @@ $fname = convert_safe_file_dir_name($_GET['key']);
 // The edi directory is the default location.
 
 // the loc, if set, may tell us where the file is
-$location = $_GET['location'];
+$location = $_GET['location'] ?? '';
 $claim_file_found = false;
 if ($location === 'tmp') {
     $claim_file_dir = rtrim($GLOBALS['temporary_files_dir'], DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;

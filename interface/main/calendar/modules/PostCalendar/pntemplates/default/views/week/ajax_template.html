@@ -363,19 +363,14 @@ if (count($facilities) > 1) {
 [-php-]
 if($_SESSION['pc_facility'] == 0){
 [-/php-]
-<div id="facilityColor" class="table-responsive">
- <table class="table table-borderless">
+<ul class="list-group list-group-flush" id="facilityColor">
 [-php-]
 foreach ($facilities as $f){
-echo "   <tr>\n";
-echo "   <td>\n";
-echo "   <div class='view1 font-weight-bold text-ovr-dark p-1 rounded' style='background-color:".$f['color'].";'>" . text($f['name'])."</div>";
-echo "   </td>\n";
-echo "   </tr>\n";
+    echo "<li class='list-group-item' style='border-left: 35px solid ".$f['color'].";'>" . text($f['name'])."</li>";
+
 }
 [-/php-]
- </table>
-</div>
+</ul>
 [-php-]
 }
 [-/php-]
@@ -524,8 +519,8 @@ foreach ($providers as $provider) {
                 }
 
                 // create a numeric start and end for comparison
-                $starth = substr($e1['startTime'], 0, 2);
-                $startm = substr($e1['startTime'], 3, 2);
+                $starth = (int) substr($e1['startTime'], 0, 2);
+                $startm = (int) substr($e1['startTime'], 3, 2);
                 $e1Start = ($starth * 60) + $startm;
                 $e1End = $e1Start + $e1['duration']/60;
 
@@ -588,7 +583,7 @@ foreach ($providers as $provider) {
             // figure the start time and minutes (from midnight)
             $starth = substr($event['startTime'], 0, 2);
 
-            $startm = substr($event['startTime'], 3, 2);
+            $startm = (int) substr($event['startTime'], 3, 2);
             $eStartMin = $starth * 60 + $startm;
             $dispstarth = ($starth > 12) ? ($starth - $timeformat) : $starth;
 
@@ -760,7 +755,7 @@ foreach ($providers as $provider) {
                     $divTitle .= "\r\n[" . $catname . ' ' . $comment . "]" .$fname . " " . $lname;
 
                 $content .= "<span class='appointment" . attr($apptToggle ?? "") . "'>";
-                $content .= create_event_time_anchor($dispstarth . ':' . $startm);
+                $content .= create_event_time_anchor($dispstarth . ':' . sprintf("%02s", $startm));
                 if ($event['recurrtype'] > 0) $content .= "<img src='{$this->_tpl_vars['TPL_IMAGE_PATH']}/repeating8.png' class='border-0' style='margin:0 2px 0 2px;' title='Repeating event' alt='Repeating event' />";
                 $content .= text($event['apptstatus']);
                 if ($patientid) {

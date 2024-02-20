@@ -29,10 +29,10 @@ xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 /* for $GLOBALS[], ?? */
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'].'/api.inc');
+require_once($GLOBALS['srcdir'].'/api.inc.php');
 /* for generate_form_field, ?? */
 require_once($GLOBALS['srcdir'].'/options.inc.php');
-/* note that we cannot include options_listadd.inc here, as it generates code before the <html> tag */
+/* note that we cannot include options_listadd.inc.php here, as it generates code before the <html> tag */
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
@@ -84,7 +84,7 @@ else
 
 <script>
 // this line is to assist the calendar text boxes
-var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
+var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
 <!-- FIXME: this needs to detect access method, and construct a URL appropriately! -->
 function PrintForm() {

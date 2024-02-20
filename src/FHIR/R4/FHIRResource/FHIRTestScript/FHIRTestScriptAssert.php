@@ -743,7 +743,7 @@ class FHIRTestScriptAssert extends FHIRBackboneElement implements \JsonSerializa
     /**
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         $json = parent::jsonSerialize();
         if (isset($this->label)) {

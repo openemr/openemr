@@ -13,7 +13,7 @@
  */
 
 require_once("../../globals.php");
-require_once("../../../library/registry.inc");
+require_once("../../../library/registry.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -41,6 +41,6 @@ if (substr($_GET["formname"], 0, 3) === 'LBF') {
     include_once("$incdir/forms/" . $_GET["formname"] . "/new.php");
 }
 
-if (!empty($GLOBALS['text_templates_enabled'])) { ?>
+if (!empty($GLOBALS['text_templates_enabled']) && !($_GET['formname'] == 'fee_sheet')) { ?>
     <script src="<?php echo $GLOBALS['web_root'] ?>/library/js/CustomTemplateLoader.js"></script>
 <?php } ?>

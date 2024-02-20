@@ -129,6 +129,7 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
             // "grp_save_close = ?, " .
             "grp_init_open = ?, "  .
             "grp_referrals = ?, "  .
+            "grp_unchecked = ?, "  .
             "grp_services = ?, "   .
             "grp_products = ?, "   .
             "grp_diags = ?";
@@ -146,6 +147,7 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
             // empty($_POST['form_save_close']) ? 0 : 1,
             empty($_POST['form_init_open' ]) ? 0 : 1,
             empty($_POST['form_referrals']) ? 0 : 1,
+            empty($_POST['form_unchecked']) ? 0 : 1,
             empty($_POST['form_services']) ? '' : (empty($_POST['form_services_codes']) ? '*' : $_POST['form_services_codes']),
             empty($_POST['form_products']) ? '' : (empty($_POST['form_products_codes']) ? '*' : $_POST['form_products_codes']),
             empty($_POST['form_diags'   ]) ? '' : (empty($_POST['form_diags_codes'   ]) ? '*' : $_POST['form_diags_codes'   ]),
@@ -223,6 +225,7 @@ $row = array(
     // 'grp_save_close' => '0',
     'grp_init_open'  => '0',
     'grp_referrals'  => '0',
+    'grp_unchecked'  => '0',
     'grp_services'   => '',
     'grp_products'   => '',
     'grp_diags'      => '',
@@ -511,6 +514,16 @@ for ($cols = 2; $cols <= 12; ++$cols) {
  </tr>
 
 <?php } ?>
+
+ <tr>
+  <td valign='top' width='1%' nowrap>
+   <input type='checkbox' name='form_unchecked' <?php echo ($row['grp_unchecked']) ? "checked" : ""; ?> />
+    <?php echo xlt('Show Unchecked Boxes'); ?>
+  </td>
+  <td>
+   &nbsp;
+  </td>
+ </tr>
 
 </table>
 

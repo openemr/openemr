@@ -29,7 +29,7 @@ class CcdaServiceDocumentRequestor
             throw new CcdaServiceConnectionException("Socket Creation Failed");
         }
         // Let's check if server is already running but suppress warning with @ operator
-        $server_active = @socket_connect($socket, "localhost", "6661");
+        $server_active = @socket_connect($socket, "127.0.0.1", "6661");
 
         if ($server_active === false) {
             // 1 -> Care coordination module, 2-> portal, 3 -> Both so the local service is on if it's greater than 0
@@ -49,11 +49,11 @@ class CcdaServiceDocumentRequestor
                         error_log("Failed to close pipehandle for ccdaservice");
                     }
                 } else {
-                    $command = 'nodejs';
+                    $command = 'node';
                     if (!$system->command_exists($command)) {
-                        if ($system->command_exists('node')) {
-                            // older or custom Ubuntu systems that have node rather than nodejs command
-                            $command = 'node';
+                        if ($system->command_exists('nodejs')) {
+                            // older or custom Ubuntu systems that have nodejs rather than node command
+                            $command = 'nodejs';
                         } else {
                             error_log("Node is not installed on the system.  Connection failed");
                             throw new CcdaServiceConnectionException('Connection Failed.');
@@ -63,7 +63,7 @@ class CcdaServiceDocumentRequestor
                     exec($cmd . " > /dev/null &");
                 }
                 sleep(2); // give cpu a rest
-                $result = socket_connect($socket, "localhost", "6661");
+                $result = socket_connect($socket, "127.0.0.1", "6661");
                 if ($result === false) { // hmm something is amiss with service. user will likely try again.
                     error_log("Failed to start and connect to local ccdaservice server on port 6661");
                     throw new CcdaServiceConnectionException("Connection Failed");

@@ -10,15 +10,17 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Yash Raj Bothra <yashrajbothra786@gmail.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
  * @copyright Copyright (c) 2018-2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019-2021 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Yash Raj Bothra <yashrajbothra786@gmail.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 /**
- *  @OA\Info(title="OpenEMR API", version="7.0.0")
+ *  @OA\Info(title="OpenEMR API", version="7.0.3")
  *  @OA\Server(url="/apis/default/")
  *  @OA\SecurityScheme(
  *      securityScheme="openemr_auth",
@@ -35,13 +37,13 @@
  *              "api:fhir": "FHIR R4 API",
  *              "patient/AllergyIntolerance.read": "Read allergy intolerance resources for the current patient (api:fhir)",
  *              "patient/Appointment.read": "Read appointment resources for the current patient (api:fhir)",
+ *              "patient/Binary.read": "Read binary document resources for the current patient (api:fhir)",
  *              "patient/CarePlan.read": "Read care plan resources for the current patient (api:fhir)",
  *              "patient/CareTeam.read": "Read care team resources for the current patient (api:fhir)",
  *              "patient/Condition.read": "Read condition resources for the current patient (api:fhir)",
  *              "patient/Coverage.read": "Read coverage resources for the current patient (api:fhir)",
  *              "patient/Device.read": "Read device resources for the current patient (api:fhir)",
  *              "patient/DiagnosticReport.read": "Read diagnostic report resources for the current patient (api:fhir)",
- *              "patient/Document.read": "Read document resources for the current patient (api:fhir)",
  *              "patient/DocumentReference.read": "Read document reference resources for the current patient (api:fhir)",
  *              "patient/DocumentReference.$docref" : "Generate a document for the current patient or returns the most current Clinical Summary of Care Document (CCD)",
  *              "patient/Encounter.read": "Read encounter resources for the current patient (api:fhir)",
@@ -58,13 +60,13 @@
  *              "patient/Procedure.read": "Read procedure resources for the current patient (api:fhir)",
  *              "patient/Provenance.read": "Read provenance resources for the current patient (api:fhir)",
  *              "system/AllergyIntolerance.read": "Read all allergy intolerance resources in the system (api:fhir)",
+ *              "system/Binary.read": "Read all binary document resources in the system (api:fhir)",
  *              "system/CarePlan.read": "Read all care plan resources in the system (api:fhir)",
  *              "system/CareTeam.read": "Read all care team resources in the system (api:fhir)",
  *              "system/Condition.read": "Read all condition resources in the system (api:fhir)",
  *              "system/Coverage.read": "Read all coverage resources in the system (api:fhir)",
  *              "system/Device.read": "Read all device resources in the system (api:fhir)",
  *              "system/DiagnosticReport.read": "Read all diagnostic report resources in the system (api:fhir)",
- *              "system/Document.read": "Read all document resources in the system (api:fhir)",
  *              "system/DocumentReference.read": "Read all document reference resources in the system (api:fhir)",
  *              "system/DocumentReference.$docref" : "Generate a document for any patient in the system or returns the most current Clinical Summary of Care Document (CCD)",
  *              "system/Encounter.read": "Read all encounter resources in the system (api:fhir)",
@@ -82,14 +84,15 @@
  *              "system/PractitionerRole.read": "Read all practitioner role resources in the system (api:fhir)",
  *              "system/Procedure.read": "Read all procedure resources in the system (api:fhir)",
  *              "system/Provenance.read": "Read all provenance resources in the system (api:fhir)",
+ *              "system/ValueSet.read": "Read all valueSet resources in the system (api:fhir)",
  *              "user/AllergyIntolerance.read": "Read all allergy intolerance resources the user has access to (api:fhir)",
+ *              "user/Binary.read" : "Read all binary documents the user has access to (api:fhir)",
  *              "user/CarePlan.read": "Read all care plan resources the user has access to (api:fhir)",
  *              "user/CareTeam.read": "Read all care team resources the user has access to (api:fhir)",
  *              "user/Condition.read": "Read all condition resources the user has access to (api:fhir)",
  *              "user/Coverage.read": "Read all coverage resources the user has access to (api:fhir)",
  *              "user/Device.read": "Read all device resources the user has access to (api:fhir)",
  *              "user/DiagnosticReport.read": "Read all diagnostic report resources the user has access to (api:fhir)",
- *              "user/Document.read" : "Read all documents the user has access to (api:fhir)",
  *              "user/DocumentReference.read": "Read all document reference resources the user has access to (api:fhir)",
  *              "user/DocumentReference.$docref" : "Generate a document for any patient the user has access to or returns the most current Clinical Summary of Care Document (CCD) (api:fhir)",
  *              "user/Encounter.read": "Read all encounter resources the user has access to (api:fhir)",
@@ -109,6 +112,7 @@
  *              "user/PractitionerRole.read": "Read all practitioner role resources the user has access to (api:fhir)",
  *              "user/Procedure.read": "Read all procedure resources the user has access to (api:fhir)",
  *              "user/Provenance.read": "Read all provenance resources the user has access to (api:fhir)",
+ *              "user/ValueSet.read": "Read all valueSet resources the user has access to (api:fhir)",
  *              "api:oemr": "Standard OpenEMR API",
  *              "user/allergy.read": "Read allergies the user has access to (api:oemr)",
  *              "user/allergy.write": "Write allergies the user has access to for (api:oemr)",
@@ -147,6 +151,7 @@
  *              "user/surgery.write": "Write surgeries the user has access to (api:oemr)",
  *              "user/transaction.read": "Read transactions the user has access to (api:oemr)",
  *              "user/transaction.write": "Write transactions the user has access to (api:oemr)",
+ *              "user/user.read": "Read users the current user has access to (api:oemr)",
  *              "user/vital.read": "Read vitals the user has access to (api:oemr)",
  *              "user/vital.write": "Write vitals the user has access to (api:oemr)",
  *              "api:port": "Standard Patient Portal OpenEMR API",
@@ -167,6 +172,26 @@
  *  @OA\Tag(
  *      name="standard-patient",
  *      description="Standard Patient Portal OpenEMR API"
+ *  )
+ *  @OA\Parameter(
+ *          name="_sort",
+ *          in="query",
+ *          parameter="_sort",
+ *          description="The sort criteria specified in comma separated order with Descending order being specified by a dash before the search parameter name. (Example: name,-category)",
+ *          required=false,
+ *          @OA\Schema(
+ *              type="string"
+ *          )
+ *  )
+ *  @OA\Parameter(
+ *          name="_lastUpdated",
+ *          in="query",
+ *          parameter="_lastUpdated",
+ *          description="The date the resource was last updated.",
+ *          required=false,
+ *          @OA\Schema(
+ *              type="string"
+ *          )
  *  )
  *  @OA\Response(
  *      response="standard",
@@ -296,12 +321,15 @@ use OpenEMR\RestControllers\ConditionRestController;
 use OpenEMR\RestControllers\ONoteRestController;
 use OpenEMR\RestControllers\DocumentRestController;
 use OpenEMR\RestControllers\DrugRestController;
+use OpenEMR\RestControllers\EmployerRestController;
 use OpenEMR\RestControllers\ImmunizationRestController;
 use OpenEMR\RestControllers\InsuranceRestController;
 use OpenEMR\RestControllers\MessageRestController;
 use OpenEMR\RestControllers\PrescriptionRestController;
 use OpenEMR\RestControllers\ProcedureRestController;
 use OpenEMR\RestControllers\TransactionRestController;
+use OpenEMR\RestControllers\UserRestController;
+use OpenEMR\Services\Search\SearchQueryConfig;
 
 // Note some Http clients may not send auth as json so a function
 // is implemented to determine and parse encoding on auth route's.
@@ -863,6 +891,9 @@ RestConfig::$ROUTE_MAP = array(
      *      description="Retrieves a list of patients",
      *      tags={"standard"},
      *      @OA\Parameter(
+     *        ref="#/components/parameters/_sort"
+     *      ),
+     *      @OA\Parameter(
      *          name="fname",
      *          in="query",
      *          description="The first name for the patient.",
@@ -997,6 +1028,35 @@ RestConfig::$ROUTE_MAP = array(
      *              type="string"
      *          )
      *      ),
+     *      @OA\Parameter(
+     *          name="date",
+     *          in="query",
+     *          description="The date this patient resource was last modified.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_offset",
+     *          in="query",
+     *          description="The number of records to offset from this index in the search result.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="integer"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_limit",
+     *          in="query",
+     *          description="The maximum number of resources to return in the result set. 0 means unlimited.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="integer"
+     *              ,minimum=0
+     *              ,maximum=200
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          ref="#/components/responses/standard"
@@ -1014,7 +1074,8 @@ RestConfig::$ROUTE_MAP = array(
      */
     "GET /api/patient" => function () {
         RestConfig::authorization_check("patients", "demo");
-        $return = (new PatientRestController())->getAll($_GET);
+        $config = SearchQueryConfig::createConfigFromQueryParams($_GET);
+        $return = (new PatientRestController())->getAll($_GET, $config);
         RestConfig::apiLog($return);
         return $return;
     },
@@ -3651,7 +3712,7 @@ RestConfig::$ROUTE_MAP = array(
      */
     "GET /api/patient/:puuid/medical_problem" => function ($puuid) {
         RestConfig::authorization_check("encounters", "notes");
-        $return = (new ConditionRestController())->getAll($puuid, "medical_problem");
+        $return = (new ConditionRestController())->getAll(['puuid' => $puuid, 'condition_uuid' => $muuid], "medical_problem");
         RestConfig::apiLog($return);
         return $return;
     },
@@ -5354,6 +5415,339 @@ RestConfig::$ROUTE_MAP = array(
 
     /**
      *  @OA\Get(
+     *      path="/api/user",
+     *      description="Retrieves a list of users",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="query",
+     *          description="The id for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="title",
+     *          in="query",
+     *          description="The title for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="fname",
+     *          in="query",
+     *          description="The first name for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="lname",
+     *          in="query",
+     *          description="The last name for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="mname",
+     *          in="query",
+     *          description="The middle name for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="federaltaxid",
+     *          in="query",
+     *          description="The federal tax id for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="federaldrugid",
+     *          in="query",
+     *          description="The federal drug id for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="upin",
+     *          in="query",
+     *          description="The upin for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="facility_id",
+     *          in="query",
+     *          description="The facility id for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="facility",
+     *          in="query",
+     *          description="The facility for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="npi",
+     *          in="query",
+     *          description="The npi for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="email",
+     *          in="query",
+     *          description="The email for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="specialty",
+     *          in="query",
+     *          description="The specialty for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="billname",
+     *          in="query",
+     *          description="The billname for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="url",
+     *          in="query",
+     *          description="The url for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="assistant",
+     *          in="query",
+     *          description="The assistant for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="organization",
+     *          in="query",
+     *          description="The organization for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="valedictory",
+     *          in="query",
+     *          description="The valedictory for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="street",
+     *          in="query",
+     *          description="The street for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="streetb",
+     *          in="query",
+     *          description="The street (line 2) for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="city",
+     *          in="query",
+     *          description="The city for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="state",
+     *          in="query",
+     *          description="The state for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="zip",
+     *          in="query",
+     *          description="The zip for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="phone",
+     *          in="query",
+     *          description="The phone for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="fax",
+     *          in="query",
+     *          description="The fax for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="phonew1",
+     *          in="query",
+     *          description="The phonew1 for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *         name="phonecell",
+     *          in="query",
+     *          description="The phonecell for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="notes",
+     *          in="query",
+     *          description="The notes for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="state_license_number2",
+     *          in="query",
+     *          description="The state license number for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="username",
+     *          in="query",
+     *          description="The username for the user.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /api/user" => function () {
+        RestConfig::authorization_check("admin", "users");
+        $return = (new UserRestController())->getAll($_GET);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/api/user/{uuid}",
+     *      description="Retrieves a single user by their uuid",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the user.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /api/user/:uuid" => function ($uuid) {
+        RestConfig::authorization_check("admin", "users");
+        $return = (new UserRestController())->getOne($uuid);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
      *      path="/api/version",
      *      description="Retrieves the OpenEMR version information",
      *      tags={"standard"},
@@ -5804,13 +6198,13 @@ RestConfig::$ROUTE_MAP = array(
 
     /**
      *  @OA\Get(
-     *      path="/api/patient/{pid}/insurance",
-     *      description="Retrieves all insurances for a patient",
+     *      path="/api/patient/{puuid}/employer",
+     *      description="Retrieves all the employer data for a patient. Returns an array of the employer data for the patient.",
      *      tags={"standard"},
      *      @OA\Parameter(
      *          name="pid",
      *          in="path",
-     *          description="The pid for the patient.",
+     *          description="The uuid for the patient.",
      *          required=true,
      *          @OA\Schema(
      *              type="string"
@@ -5831,21 +6225,66 @@ RestConfig::$ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /api/patient/:pid/insurance" => function ($pid) {
-        $return = (new InsuranceRestController())->getAll($pid);
+    "GET /api/patient/:puuid/employer" => function ($puuid, HttpRestRequest $request) {
+        $searchParams = $request->getQueryParams();
+        $searchParams['puuid'] = $puuid;
+        if ($request->isPatientRequest()) {
+            $searchParams['puuid'] = $request->getPatientUUIDString();
+        }
+        $return = (new EmployerRestController())->getAll($searchParams);
         RestConfig::apiLog($return);
         return $return;
     },
 
     /**
      *  @OA\Get(
-     *      path="/api/patient/{pid}/insurance/{type}",
-     *      description="Retrieves a insurance (by type) for a patient",
+     *      path="/api/patient/{puuid}/insurance",
+     *      description="Retrieves all insurances for a patient",
      *      tags={"standard"},
      *      @OA\Parameter(
      *          name="pid",
      *          in="path",
-     *          description="The pid for the patient.",
+     *          description="The uuid for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /api/patient/:puuid/insurance" => function ($puuid, HttpRestRequest $request) {
+        $searchParams = $request->getQueryParams();
+        $searchParams['puuid'] = $puuid;
+        if ($request->isPatientRequest()) {
+            $searchParams['puuid'] = $request->getPatientUUIDString();
+        }
+        $return = (new InsuranceRestController())->getAll($searchParams);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/api/patient/{puuid}/insurance/$swap-insurance",
+     *      description="Updates the insurance for the passed in uuid to be a policy of type `type` and updates (if one exists) the current or most recent insurance for the passed in `type` for a patient to be the `type` of the insurance for the given `uuid`. Validations on the swap operation are performed to make sure the effective `date` of the src and target policies being swapped can be received in each given policy `type` as a policy `type` and `date` must together be unique per patient.",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="pid",
+     *          in="path",
+     *          description="The uuid for the patient.",
      *          required=true,
      *          @OA\Schema(
      *              type="string"
@@ -5853,8 +6292,17 @@ RestConfig::$ROUTE_MAP = array(
      *      ),
      *      @OA\Parameter(
      *          name="type",
-     *          in="path",
-     *          description="The insurance type for the patient. (options are 'primary', 'secondary', or 'tertiary')",
+     *          in="query",
+     *          description="The type or category of OpenEMR insurance policy, 'primary', 'secondary', or 'tertiary'.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="query",
+     *          description="The insurance uuid that will be swapped into the list of insurances for the type query parameter",
      *          required=true,
      *          @OA\Schema(
      *              type="string"
@@ -5875,15 +6323,69 @@ RestConfig::$ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /api/patient/:pid/insurance/:type" => function ($pid, $type) {
-        $return = (new InsuranceRestController())->getOne($pid, $type);
+    'GET /api/patient/:puuid/insurance/$swap-insurance' => function ($puuid, HttpRestRequest $request) {
+        if ($request->isPatientRequest()) {
+            $puuid = $request->getPatientUUIDString();
+        }
+        $type = $request->getQueryParam('type');
+        $insuranceUuid = $request->getQueryParam('uuid');
+
+        $return = (new InsuranceRestController())->operationSwapInsurance($puuid, $type, $insuranceUuid);
         RestConfig::apiLog($return);
         return $return;
     },
 
     /**
-     * Schema for the insurance request
+     *  @OA\Get(
+     *      path="/api/patient/{puuid}/insurance/{uuid}",
+     *      description="Retrieves all insurances for a patient",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="pid",
+     *          in="path",
+     *          description="The uuid for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /api/patient/:puuid/insurance/:uuid" => function ($puuid, $uuid, HttpRestRequest $request) {
+        if ($request->isPatientRequest()) {
+            $puuid = $request->getPatientUUIDString();
+        }
+        $return = (new InsuranceRestController())->getOne($uuid, $puuid);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     * Schema for the insurance request.  Note the following additional validation checks on the request.
+     * If the subscriber_relationship value is of type 'self' then the subscriber_fname and subscriber_lname fields
+     * must match the patient's first and last name or a patient's previous first and last name.
      *
+     * If the subscriber_relationship value is of type 'self' then the subscriber_ss field must match the patient's
+     * social security number.
+     *
+     * If the subscriber_relationship value is not of type 'self' then the subscriber_ss field MUST not be the current patient's social security number.
+     *
+     * If the system's global configuration permits only a single insurance type option then any insurance rquest where the type is NOT 'primary' will fail.
+     *
+     * An insurance is considered the current policy for the policy type if the policy date_end field is null.  Only one of these records per policy type can exist for a patient.
      *  @OA\Schema(
      *      schema="api_insurance_request",
      *      @OA\Property(
@@ -5893,22 +6395,22 @@ RestConfig::$ROUTE_MAP = array(
      *      ),
      *      @OA\Property(
      *          property="plan_name",
-     *          description="The plan name of insurance.",
+     *          description="The plan name of insurance. (2-255 characters)",
      *          type="string"
      *      ),
      *      @OA\Property(
      *          property="policy_number",
-     *          description="The policy number of insurance.",
+     *          description="The policy number of insurance. (2-255 characters)",
      *          type="string"
      *      ),
      *      @OA\Property(
      *          property="group_number",
-     *          description="The group number of insurance.",
+     *          description="The group number of insurance.(2-255 characters)",
      *          type="string"
      *      ),
      *      @OA\Property(
      *          property="subscriber_lname",
-     *          description="The subscriber last name of insurance.",
+     *          description="The subscriber last name of insurance.(2-255 characters).",
      *          type="string"
      *      ),
      *      @OA\Property(
@@ -5923,7 +6425,7 @@ RestConfig::$ROUTE_MAP = array(
      *      ),
      *      @OA\Property(
      *          property="subscriber_relationship",
-     *          description="The subscriber relationship of insurance.",
+     *          description="The subscriber relationship of insurance. `subscriber_relationship` can be found by querying `resource=/api/list/subscriber_relationship`",
      *          type="string"
      *      ),
      *      @OA\Property(
@@ -6003,7 +6505,12 @@ RestConfig::$ROUTE_MAP = array(
      *      ),
      *      @OA\Property(
      *          property="date",
-     *          description="The date of insurance.",
+     *          description="The effective date of insurance in YYYY-MM-DD format.  This value cannot be after the date_end property and cannot be the same date as any other insurance policy for the same insurance type ('primary, 'secondary', etc).",
+     *          type="string"
+     *      ),
+     *      @OA\Property(
+     *          property="date_end",
+     *          description="The effective end date of insurance in YYYY-MM-DD format.  This value cannot be before the date property. If it is null then this policy is the current policy for this policy type for the patient.  There can only be one current policy per type and the request will fail if there is already a current policy for this type.",
      *          type="string"
      *      ),
      *      @OA\Property(
@@ -6018,10 +6525,15 @@ RestConfig::$ROUTE_MAP = array(
      *      ),
      *      @OA\Property(
      *          property="policy_type",
-     *          description="The policy_type of insurance.",
+     *          description="The 837p list of policy types for an insurance.  See src/Billing/InsurancePolicyType.php for the list of valid values.",
      *          type="string"
      *      ),
-     *      required={"provider", "plan_name", "policy_number", "group_number", "subscriber_fname", "subscriber_lname", "subscriber_relationship", "subscriber_ss", "subscriber_DOB", "subscriber_street", "subscriber_postal_code", "subscriber_city", "subscriber_state", "subscriber_country", "subscriber_phone", "subscriber_sex", "accept_assignment", "policy_type"},
+     *      @OA\Property(
+     *          property="type",
+     *          description="The type or category of OpenEMR insurance policy, 'primary', 'secondary', or 'tertiary'. If this field is missing it will default to 'primary'.",
+     *          type="string"
+     *      ),
+     *      required={"provider", "policy_number", "subscriber_fname", "subscriber_lname", "subscriber_relationship", "subscriber_ss", "subscriber_DOB", "subscriber_street", "subscriber_postal_code", "subscriber_city", "subscriber_state", "subscriber_country", "subscriber_sex", "accept_assignment"},
      *      example={
      *          "provider": "33",
      *          "plan_name": "Some Plan",
@@ -6049,80 +6561,30 @@ RestConfig::$ROUTE_MAP = array(
      *          "date": "2018-10-15",
      *          "subscriber_sex": "Female",
      *          "accept_assignment": "TRUE",
-     *          "policy_type": "a"
+     *          "policy_type": "a",
+     *          "type": "primary"
      *      }
      *  )
      */
-    /**
-     *  @OA\Post(
-     *      path="/api/patient/{pid}/insurance/{type}",
-     *      description="Submits a new patient insurance (with type)",
-     *      tags={"standard"},
-     *      @OA\Parameter(
-     *          name="pid",
-     *          in="path",
-     *          description="The pid for the patient.",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string"
-     *          )
-     *      ),
-     *      @OA\Parameter(
-     *          name="type",
-     *          in="path",
-     *          description="The insurance type for the patient. (options are 'primary', 'secondary', or 'tertiary')",
-     *          required=true,
-     *          @OA\Schema(
-     *              type="string"
-     *          )
-     *      ),
-     *      @OA\RequestBody(
-     *          required=true,
-     *          @OA\MediaType(
-     *              mediaType="application/json",
-     *              @OA\Schema(ref="#/components/schemas/api_insurance_request")
-     *          )
-     *      ),
-     *      @OA\Response(
-     *          response="200",
-     *          ref="#/components/responses/standard"
-     *      ),
-     *      @OA\Response(
-     *          response="400",
-     *          ref="#/components/responses/badrequest"
-     *      ),
-     *      @OA\Response(
-     *          response="401",
-     *          ref="#/components/responses/unauthorized"
-     *      ),
-     *      security={{"openemr_auth":{}}}
-     *  )
-     */
-    "POST /api/patient/:pid/insurance/:type" => function ($pid, $type) {
-        $data = (array) (json_decode(file_get_contents("php://input")));
-        $return = (new InsuranceRestController())->post($pid, $type, $data);
-        RestConfig::apiLog($return, $data);
-        return $return;
-    },
 
     /**
      *  @OA\Put(
-     *      path="/api/patient/{pid}/insurance/{type}",
-     *      description="Edit a patient insurance (by type)",
+     *      path="/api/patient/{puuid}/insurance/{insuranceUuid}",
+     *      description="Edit a specific patient insurance policy. Requires the patients/demo/write ACL to call. This method is the preferred method for updating a patient insurance policy. The {insuranceId} can be found by querying /api/patient/{pid}/insurance",
      *      tags={"standard"},
      *      @OA\Parameter(
-     *          name="pid",
+     *          name="puuid",
      *          in="path",
-     *          description="The pid for the patient.",
+     *          description="The uuid for the patient.",
      *          required=true,
      *          @OA\Schema(
      *              type="string"
      *          )
      *      ),
      *      @OA\Parameter(
-     *          name="type",
+     *          name="insuranceUuid",
      *          in="path",
-     *          description="The insurance type for the patient. (options are 'primary', 'secondary', or 'tertiary')",
+     *          description="The insurance policy uuid for the patient.",
      *          required=true,
      *          @OA\Schema(
      *              type="string"
@@ -6150,13 +6612,57 @@ RestConfig::$ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "PUT /api/patient/:pid/insurance/:type" => function ($pid, $type) {
+    "PUT /api/patient/:puuid/insurance/:insuranceUuid" => function ($puuid, $insuranceUuid, HttpRestRequest $request) {
+        RestConfig::authorization_check("patients", "demo", '', 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
-        $return = (new InsuranceRestController())->put($pid, $type, $data);
+        $return = (new InsuranceRestController())->put($puuid, $insuranceUuid, $data);
         RestConfig::apiLog($return, $data);
         return $return;
     },
 
+    /**
+     *  @OA\Post(
+     *      path="/api/patient/{puuid}/insurance",
+     *      description="Submits a new patient insurance.",
+     *      tags={"standard"},
+     *      @OA\Parameter(
+     *          name="puuid",
+     *          in="path",
+     *          description="The uuid for the patient.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\RequestBody(
+     *          required=true,
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(ref="#/components/schemas/api_insurance_request")
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          ref="#/components/responses/standard"
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "POST /api/patient/:puuid/insurance" => function ($puuid) {
+        RestConfig::authorization_check("patients", "demo", '', ['write','addonly']);
+        $data = (array) (json_decode(file_get_contents("php://input")));
+        $return = (new InsuranceRestController())->post($puuid, $data);
+        RestConfig::apiLog($return, $data);
+        return $return;
+    },
     /**
      * Schema for the message request
      *
@@ -6530,7 +7036,7 @@ RestConfig::$ROUTE_MAP = array(
      *          )
      *      ),
      *      @OA\Parameter(
-     *          name="eid",
+     *          name="mid",
      *          in="path",
      *          description="The id for the pnote message.",
      *          required=true,
@@ -7091,9 +7597,11 @@ use OpenEMR\RestControllers\FHIR\FhirPractitionerRoleRestController;
 use OpenEMR\RestControllers\FHIR\FhirPractitionerRestController;
 use OpenEMR\RestControllers\FHIR\FhirProcedureRestController;
 use OpenEMR\RestControllers\FHIR\FhirProvenanceRestController;
+use OpenEMR\RestControllers\FHIR\FhirValueSetRestController;
 use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationExportRestController;
 use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDocRefRestController;
+use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDefinitionRestController;
 
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded
@@ -8732,7 +9240,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *                          {
      *                              "attachment": {
      *                                  "contentType": "image/gif",
-     *                                  "url": "https://localhost:9300/apis/default/fhir/Document/7/Binary"
+     *                                  "url": "https://localhost:9300/apis/default/fhir/Binary/7"
      *                              },
      *                              "format": {
      *                                  "system": "http://ihe.net/fhir/ValueSet/IHE.FormatCode.codesystem",
@@ -8775,7 +9283,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
 
     /**
      *  @OA\Get(
-     *      path="/fhir/Document/{id}/Binary",
+     *      path="/fhir/Binary/{id}",
      *      description="Used for downloading binary documents generated either with BULK FHIR Export or with the $docref CCD export operation.  Documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
      *      tags={"fhir"},
      *      @OA\Parameter(
@@ -8802,15 +9310,16 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    'GET /fhir/Document/:id/Binary' => function ($documentId, HttpRestRequest $request) {
-        // TODO: @adunsulag we need to be able to retrieve our CCDA documents this way...
-        // currently only allow users with the same permissions as export to take a file out
-        // this could be relaxed to allow other types of files ie such as patient access etc.
-        RestConfig::authorization_check("admin", "users");
-
-        // Grab the document id
+    'GET /fhir/Binary/:id' => function ($documentId, HttpRestRequest $request) {
         $docController = new \OpenEMR\RestControllers\FHIR\FhirDocumentRestController($request);
-        $response = $docController->downloadDocument($documentId);
+
+        if ($request->isPatientRequest()) {
+            $response = $docController->downloadDocument($documentId, $request->getPatientUUIDString());
+        } else {
+            RestConfig::authorization_check("admin", "users");
+            $response = $docController->downloadDocument($documentId);
+        }
+
         return $response;
     },
 
@@ -9298,6 +9807,15 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *      path="/fhir/Group/{id}/$export",
      *      description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
      *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="id",
+     *          in="path",
+     *          description="The id for the Group resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description="The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
@@ -9321,8 +9839,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         $return = $fhirExportService->processExport(
             $exportParams,
             'Group',
-            $request->getHeader('Accept'),
-            $request->getHeader('Prefer')
+            $request->getHeader('Accept')[0] ?? '',
+            $request->getHeader('Prefer')[0] ?? ''
         );
         RestConfig::apiLog($return);
         return $return;
@@ -11089,6 +11607,9 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *              type="string"
      *          )
      *      ),
+     *      @OA\Parameter(
+     *        ref="#/components/parameters/_lastUpdated"
+     *      ),
      *      @OA\Response(
      *          response="200",
      *          description="Standard Response",
@@ -11171,8 +11692,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         $return = $fhirExportService->processExport(
             $request->getQueryParams(),
             'Patient',
-            $request->getHeader('Accept'),
-            $request->getHeader('Prefer')
+            $request->getHeader('Accept')[0] ?? '',
+            $request->getHeader('Prefer')[0] ?? ''
         );
         RestConfig::apiLog($return);
         return $return;
@@ -11584,8 +12105,20 @@ RestConfig::$FHIR_ROUTE_MAP = array(
      *  )
      */
     "GET /fhir/Person/:uuid" => function ($uuid, HttpRestRequest $request) {
-        RestConfig::authorization_check("admin", "users");
-        $return = (new FhirPersonRestController())->getOne($uuid);
+        // if the api user is requesting their own user we need to let it through
+        // this is because the /Person endpoint needs to be responsive to the fhirUser return value
+        // for the currently logged in user
+        if ($request->getRequestUserUUIDString() == $uuid) {
+            $return = (new FhirPersonRestController())->getOne($uuid);
+        } else if (!$request->isPatientRequest()) {
+            // not a patient ,make sure we have access to the users ACL
+            RestConfig::authorization_check("admin", "users");
+            $return = (new FhirPersonRestController())->getOne($uuid);
+        } else {
+            // if we are a patient bound request we need to make sure we are only bound to the patient
+            $return = (new FhirPersonRestController())->getOne($uuid, $request->getPatientUUIDString());
+        }
+
         RestConfig::apiLog($return);
         return $return;
     },
@@ -12504,6 +13037,156 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
 
+    /**
+     *  @OA\Get(
+     *      path="/fhir/ValueSet",
+     *      description="Returns a list of ValueSet resources.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="_id",
+     *          in="query",
+     *          description="The uuid for the ValueSet resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/ValueSet"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/ValueSet" => function (HttpRestRequest $request) {
+        RestConfig::authorization_check("admin", "super");
+        $return = (new FhirValueSetRestController())->getAll($request->getQueryParams());
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/ValueSet/{uuid}",
+     *      description="Returns a single ValueSet resource.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="uuid",
+     *          in="path",
+     *          description="The uuid for the ValueSet resource.",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "resourceType": "ValueSet",
+     *                      "id": "appointment-type",
+     *                      "compose": {
+     *                          "include": {
+     *                              {
+     *                                  "concept": {
+     *                                      {
+     *                                          "code": "no_show",
+     *                                          "display": "No Show"
+     *                                      },
+     *                                      {
+     *                                          "code": "office_visit",
+     *                                          "display": "Office Visit"
+     *                                      },
+     *                                      {
+     *                                          "code": "established_patient",
+     *                                          "display": "Established Patient"
+     *                                      },
+     *                                      {
+     *                                          "code": "new_patient",
+     *                                          "display": "New Patient"
+     *                                      },
+     *                                      {
+     *                                          "code": "health_and_behavioral_assessment",
+     *                                          "display": "Health and Behavioral Assessment"
+     *                                      },
+     *                                      {
+     *                                          "code": "preventive_care_services",
+     *                                          "display": "Preventive Care Services"
+     *                                      },
+     *                                      {
+     *                                          "code": "ophthalmological_services",
+     *                                          "display": "Ophthalmological Services"
+     *                                      }
+     *                                  }
+     *                              }
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      @OA\Response(
+     *          response="404",
+     *          ref="#/components/responses/uuidnotfound"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+    "GET /fhir/ValueSet/:uuid" => function ($uuid, HttpRestRequest $request) {
+        RestConfig::authorization_check("admin", "super");
+        $return = (new FhirValueSetRestController())->getOne($uuid);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
     // other endpoints
 
     /**
@@ -12541,6 +13224,87 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         return $return;
     },
 
+    /**
+     *  @OA\Get(
+     *      path="/fhir/OperationDefinition",
+     *      description="Returns a list of the OperationDefinition resources that are specific to this OpenEMR installation",
+     *      tags={"fhir"},
+     *      @OA\Response(
+     *          response="200",
+     *          description="Return list of OperationDefinition resources"
+     *      )
+     *  )
+     */
+    "GET /fhir/OperationDefinition" => function (HttpRestRequest $request) {
+        // for now we will just hard code the custom resources
+        $operationDefinitionController = new FhirOperationDefinitionRestController();
+        $return = $operationDefinitionController->getAll($request->getQueryParams());
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/OperationDefinition/{operation}",
+     *      description="Returns a single OperationDefinition resource that is specific to this OpenEMR installation",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="operation",
+     *          in="path",
+     *          description="The name of the operation to query. For example $bulkdata-status",
+     *          required=true,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "resourceType": "OperationDefinition",
+     *                      "name": "$bulkdata-status",
+     *                      "status": "active",
+     *                      "kind": "operation",
+     *                      "parameter": {
+     *                      {
+     *                          "name": "job",
+     *                          "use": "in",
+     *                          "min": 1,
+     *                          "max": 1,
+     *                          "type": {
+     *                              "system": "http://hl7.org/fhir/data-types",
+     *                              "code": "string",
+     *                              "display": "string"
+     *                          },
+     *                          "searchType": {
+     *                              "system": "http://hl7.org/fhir/ValueSet/search-param-type",
+     *                              "code": "string",
+     *                              "display": "string"
+     *                          }
+     *                      }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *  )
+     */
+    "GET /fhir/OperationDefinition/:operation" => function ($operation, HttpRestRequest $request) {
+        // for now we will just hard code the custom resources
+        $operationDefinitionController = new FhirOperationDefinitionRestController();
+        $return = $operationDefinitionController->getOne($operation);
+        RestConfig::apiLog($return);
+        return $return;
+    },
+
     // FHIR root level operations
 
     /**
@@ -12569,8 +13333,8 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         $return = $fhirExportService->processExport(
             $request->getQueryParams(),
             'System',
-            $request->getHeader('Accept'),
-            $request->getHeader('Prefer')
+            $request->getHeader('Accept')[0] ?? '',
+            $request->getHeader('Prefer')[0] ?? ''
         );
         RestConfig::apiLog($return);
         return $return;

@@ -9,7 +9,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS["srcdir"] . "/api.inc");
+require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
 use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
@@ -21,7 +21,8 @@ function questionnaire_assessments_report($pid, $encounter, $cols, $id)
 {
     $form = formFetch("form_questionnaire_assessments", $id);
     if (!$form) {
-        die(xlt('Nothing to report.'));
+        echo xlt('Nothing to report.');
+        return;
     }
     $responseService = new QuestionnaireResponseService();
     try {
@@ -33,6 +34,6 @@ function questionnaire_assessments_report($pid, $encounter, $cols, $id)
         $html = $responseService->buildQuestionnaireResponseHtml($answers, '|');
         echo $html;
     } catch (Exception $e) {
-        die(xlt('Nothing to report. Rendering Exception error.'));
+        echo xlt("Error") . " " . text($e->getMessage());
     }
 }

@@ -348,7 +348,7 @@ if (!empty($_POST['form_save'])) {
         CsrfUtils::csrfNotVerified();
     }
 
-    $form_quantity = $_POST['form_quantity'] + 0;
+    $form_quantity = is_numeric($_POST['form_quantity']) ? intval($_POST['form_quantity']) : 0;
     $form_cost = sprintf('%0.2f', $_POST['form_cost']);
     // $form_source_lot = $_POST['form_source_lot'] + 0;
 
@@ -592,7 +592,7 @@ $title = $lot_id ? xl("Update Lot") : xl("Add Lot");
 <table class="table table-borderless w-100">
 
  <tr id='row_sale_date'>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Date'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Date'); ?>:</td>
   <td>
    <input type='text' class="datepicker" size='10' name='form_sale_date' id='form_sale_date'
     value='<?php echo attr(date('Y-m-d')) ?>'
@@ -601,7 +601,7 @@ $title = $lot_id ? xl("Update Lot") : xl("Add Lot");
  </tr>
 
  <tr>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Transaction Type'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Transaction Type'); ?>:</td>
   <td>
    <select name='form_trans_type' class='form-control' onchange='trans_type_changed()'>
 <?php
@@ -645,21 +645,21 @@ foreach (
  </tr>
 
  <tr id='row_lot_number'>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Lot Number'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Lot Number'); ?>:</td>
   <td>
    <input class="form-control w-100" type='text' size='40' name='form_lot_number' maxlength='40' value='<?php echo attr($row['lot_number']) ?>' />
   </td>
  </tr>
 
  <tr id='row_manufacturer'>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Manufacturer'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Manufacturer'); ?>:</td>
   <td>
    <input class="form-control w-100" type='text' size='40' name='form_manufacturer' maxlength='250' value='<?php echo attr($row['manufacturer']) ?>' />
   </td>
  </tr>
 
  <tr id='row_expiration'>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Expiration'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Expiration'); ?>:</td>
   <td>
    <input type='text' class='datepicker form-control w-50' size='10' name='form_expiration' id='form_expiration'
     value='<?php echo attr($row['expiration']) ?>'
@@ -668,7 +668,7 @@ foreach (
  </tr>
 
  <tr id='row_source_lot'>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Source Lot'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Source Lot'); ?>:</td>
   <td>
    <select name='form_source_lot' class='form-control'>
     <option value='0'> </option>
@@ -705,7 +705,7 @@ while ($lrow = sqlFetchArray($lres)) {
  </tr>
 
  <tr id='row_vendor'>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Vendor'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Vendor'); ?>:</td>
   <td>
 <?php
 // Address book entries for vendors.
@@ -720,7 +720,7 @@ generate_form_field(
  </tr>
 
  <tr id='row_warehouse'>
-  <td class="font-weight-bold text-nowrap align-top" id="label_warehouse"><?php echo xlt('Warehouse'); ?>:</td>
+  <td class="text-nowrap align-top" id="label_warehouse"><?php echo xlt('Warehouse'); ?>:</td>
   <td>
 <?php
 if (
@@ -738,28 +738,28 @@ if (
  </tr>
 
  <tr id='row_on_hand'>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('On Hand'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('On Hand'); ?>:</td>
   <td>
     <span><?php echo text($row['on_hand'] + 0); ?></span>
   </td>
  </tr>
 
  <tr id='row_quantity'>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Quantity'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Quantity'); ?>:</td>
   <td>
    <input class="form-control" type='text' size='5' name='form_quantity' maxlength='7' />
   </td>
  </tr>
 
  <tr id='row_cost'>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Total Cost'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Total Cost'); ?>:</td>
   <td>
    <input class="form-control" type='text' size='7' name='form_cost' maxlength='12' />
   </td>
  </tr>
 
  <tr id='row_notes' title='<?php echo xla('Include your initials and details of reason for transaction.'); ?>'>
-  <td class="font-weight-bold text-nowrap align-top"><?php echo xlt('Comments'); ?>:</td>
+  <td class="text-nowrap align-top"><?php echo xlt('Comments'); ?>:</td>
   <td>
    <input class="form-control w-100" type='text' size='40' name='form_notes' maxlength='255' />
   </td>

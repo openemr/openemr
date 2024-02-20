@@ -13,6 +13,8 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAppointment;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAppointmentStatus;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRInstant;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
@@ -35,6 +37,10 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
     use FhirBulkExportDomainResourceTrait;
     use PatientSearchTrait;
 
+    const APPOINTMENT_TYPE_LOCATION = "LOC";
+    const APPOINTMENT_TYPE_LOCATION_TEXT = "Location";
+    const PARTICIPANT_TYPE_LOCATION = "LOC";
+    const PARTICIPANT_TYPE_LOCATION_TEXT = "Location";
     const PARTICIPANT_TYPE_PARTICIPANT = "PART";
     const PARTICIPANT_TYPE_PRIMARY_PERFORMER = "PPRF";
     const PARTICIPANT_TYPE_PRIMARY_PERFORMER_TEXT = "Primary Performer";
@@ -59,6 +65,8 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         return  [
             'patient' => $this->getPatientContextSearchField(),
             '_id' => new FhirSearchParameterDefinition('_id', SearchFieldType::TOKEN, [new ServiceField('pc_uuid', ServiceField::TYPE_UUID)]),
+            '_lastUpdated' => new FhirSearchParameterDefinition('_lastUpdated', SearchFieldType::DATETIME, ['pc_time']),
+            'date' => new FhirSearchParameterDefinition('date', SearchFieldType::DATE, ['pc_eventDate']),
         ];
     }
 
@@ -75,7 +83,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
 
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId("1");
-        $fhirMeta->setLastUpdated(gmdate('c'));
+        $fhirMeta->setLastUpdated(UtilsService::getLocalDateAsUTC($dataRecord['pc_time']));
         $appt->setMeta($fhirMeta);
 
         $id = new FHIRId();
@@ -89,6 +97,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
                 // None of the participant(s) have finalized their acceptance of the appointment request, and the start/end time might not be set yet.
                 $statusCode = 'proposed';
                 break;
+
             case '#': // insurance / financial issue
             case '^': // pending
                 // Some or all of the participant(s) have not finalized their acceptance of the appointment request.
@@ -133,6 +142,22 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
         $apptStatus = new FHIRAppointmentStatus();
         $apptStatus->setValue($statusCode);
         $appt->setStatus($apptStatus);
+
+        // now add appointmentType coding
+        if (!empty($dataRecord['pc_catid'])) {
+            $category = $this->appointmentService->getOneCalendarCategory($dataRecord['pc_catid']);
+            $appointmentType = new FHIRCodeableConcept();
+            $code = new FHIRCoding();
+            $code->setCode($category[ 0 ][ 'pc_constant_id' ]);
+            $code->setDisplay($category[ 0 ][ 'pc_catname' ]);
+            // var_dump( $_SERVER );
+            $system = str_replace('/Appointment', '/ValueSet/appointment-type', $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? ''));
+            $code->setSystem($system);
+            $appointmentType->addCoding($code);
+            $appt->setAppointmentType($appointmentType);
+        }
+
+
         // now parse out the participants
         // patient first
         if (!empty($dataRecord['puuid'])) {
@@ -177,27 +202,46 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
             $appt->addParticipant($provider);
         }
 
+        // now location
+        if (!empty($dataRecord['facility_uuid'])) {
+            $location = new FHIRAppointmentParticipant();
+            $participantType = UtilsService::createCodeableConcept([
+                self::PARTICIPANT_TYPE_LOCATION =>
+                    [
+                        'code' => self::PARTICIPANT_TYPE_LOCATION
+                        ,'description' => self::PARTICIPANT_TYPE_LOCATION_TEXT
+                        ,'system' => FhirCodeSystemConstants::HL7_PARTICIPATION_TYPE
+                    ]
+            ]);
+            $location->addType($participantType);
+            $location->setActor(UtilsService::createRelativeReference('Location', $dataRecord['facility_uuid']));
+            $status = new FHIRParticipationStatus();
+            $status->setValue('accepted'); // we don't really track any other field right now in FHIR
+            $location->setStatus($status);
+            $appt->addParticipant($location);
+        }
+
         // now let's get start and end dates
 
         // start time
         if (!empty($dataRecord['pc_eventDate'])) {
             $concatenatedDate = $dataRecord['pc_eventDate'] . ' ' . $dataRecord['pc_startTime'];
-            $startInstant = gmdate('c', strtotime($concatenatedDate));
+            $startInstant = UtilsService::getLocalDateAsUTC($concatenatedDate);
             $appt->setStart(new FHIRInstant($startInstant));
-        } else if ($dataRecord['pc_endDate'] != '0000-00-00' && !empty($dataRecord['pc_startTime'])) {
+        } elseif ($dataRecord['pc_endDate'] != '0000-00-00' && !empty($dataRecord['pc_startTime'])) {
             $concatenatedDate = $dataRecord['pc_endDate'] . ' ' . $dataRecord['pc_startTime'];
-            $startInstant = gmdate('c', strtotime($concatenatedDate));
+            $startInstant = UtilsService::getLocalDateAsUTC($concatenatedDate);
             $appt->setStart(new FHIRInstant($startInstant));
         }
 
         // if we have a start date and and end time we will use that
         if (!empty($dataRecord['pc_eventDate']) && !empty($dataRecord['pc_endTime'])) {
             $concatenatedDate = $dataRecord['pc_eventDate'] . ' ' . $dataRecord['pc_endTime'];
-            $endInstant = gmdate('c', strtotime($concatenatedDate));
+            $endInstant = UtilsService::getLocalDateAsUTC($concatenatedDate);
             $appt->setEnd(new FHIRInstant($endInstant));
-        } else if (!empty($dataRecord['pc_endDate']) && !empty($dataRecord['pc_endTime'])) {
+        } elseif (!empty($dataRecord['pc_endDate']) && !empty($dataRecord['pc_endTime'])) {
             $concatenatedDate = $dataRecord['pc_endDate'] . ' ' . $dataRecord['pc_endTime'];
-            $endInstant = gmdate('c', strtotime($concatenatedDate));
+            $endInstant = UtilsService::getLocalDateAsUTC($concatenatedDate);
             $appt->setEnd(new FHIRInstant($endInstant));
         }
 

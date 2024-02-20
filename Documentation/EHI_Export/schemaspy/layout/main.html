@@ -1,0 +1,213 @@
+<!-- Content Header (Page header) -->
+                <section class="content-header">
+                    <h1>Tables</h1><br />
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="callout callout-info">
+                                <h4>EHI Export Format For {{databaseName}}{{#schemaName}}.{{schemaName}}{{/schemaName}}</h4>
+                                <!-- <p>Generated on {{database.connectTime}}</p> -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="box box-primary">
+                                <div class="box-header with-border">
+                                    <h3 class="box-title">Documentation Explanation</h3>
+                                </div>
+                                <div class="box-body">
+                                    <p>This is the documentation for the ONC (2015) §170.315(b)(10) Electronic Health Information export feature in OpenEMR</p>
+                                    <p>The Electronic Health Information Export files are all contained inside a zip folder where each zip contains a batch of 1 or more patients.  A single patient export will contain only 1 patient in the batch.</p>
+                                    <p>Zips are between aproximately 1MB-4GB in size which is configurable at the time of export.  Each zip file is structured as follows</p>
+                                    <p><b>ehi-export-&lt;UNIQUEID&gt;.zip</b></p>
+                                    <ul>
+                                        <li><b>/images/</b> - Contains any images that are used as part of the data export such as the visual pain map form.  If a data element stores images in this directory it will be specified in the Table's column comments description.
+                                        <li><b>/documents/&lt;pid&gt;/</b> - Holds the exported patient documents stored in the patient document storage system.  Each patient will have their own folder where the folder name is the unique patient identifier (pid) stored in the patient_data.pid column.  Document meta information will be found in the documents table stored in the documents.csv file.  If the exporter chose to skip documents being exported or there are no patient documents in the system, this folder will not be present in the zip file.</li>
+                                        <li><b>README</b> - The readme file that includes the links to this documentation</li>
+                                        <li><b>&lt;table_name&gt;</b>.csv - For each table name that patient data was found to be exported for the given batch there will be a corresponding file in comma separated value (CSV) format.  The definition of the data and its relationships are described in this documentation site.  If a patient does not have data for a specific table there will be no CSV file for that table in the zip file.</li>
+                                    </ul>
+                                    <p>The definitions of each of the data elements, their data types and any relevant comments on interpreting the data element can be found by reading the table definition documentation on this page or finding the specific column in the <a href="{{rootPath}}columns.html" title="All of the columns in the schema">Columns</a> page.</p>
+                                    <p>A visual representation of the relationships between the data elements can be found on the <a href="{{rootPath}}relationships.html" title="Diagram of table relationships">Relationships</a></p>
+                                    <p>Every batch zip file is self-contained and can be used to import that batch of patients into another EHR. Zip files will have duplicate data for supporting entity elements such as insurance companies, list_options, users, etc.  These supporting table elements will need to have duplicate checks added when importing an entire patient population</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{#description}}
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="box box-solid">
+                                <div class="box-body">
+                                    <p>{{{description}}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{/description}}
+                    <a href="{{xmlName}}.xml" title="XML Representation">XML Representation for each of the EHI table elements that are being exported</a><br />
+                    <a href="insertionOrder.txt" title="Useful for loading data into a database">Insertion Order</a> - Useful for knowing the order of loading data into a database
+                    <a href="deletionOrder.txt" title="Useful for purging data from a database">Deletion Order</a> - Useful for knowing the order of purging data from a database
+                </section>
+                <!-- Main content -->
+                <section class="content">
+                    <div class="row">
+                        <div class="col-md-2 col-sm-4 col-xs-12">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-aqua"><i class="fa fa-table"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">TABLES</span>
+                                    <span class="info-box-number">{{tablesAmount}}</span>
+                                </div>
+                                <!-- /.info-box-content -->
+                            </div>
+                            <!-- /.info-box -->
+                        </div>
+                        <!-- /.col -->
+                        <!-- <div class="col-md-2 col-sm-4 col-xs-12">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-teal"><i class="fa fa-table"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">VIEWS</span>
+                                    <span class="info-box-number">{{viewsAmount}}</span>
+                                </div> -->
+                                <!-- /.info-box-content -->
+                            <!-- </div> -->
+                            <!-- /.info-box -->
+                        <!-- </div> -->
+                        <!-- /.col -->
+                        <div class="col-md-2 col-sm-4 col-xs-12">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-green"><span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">COLUMNS</span>
+                                    <span class="info-box-number">{{columnsAmount}}</span>
+                                </div>
+                                <!-- /.info-box-content -->
+                            </div>
+                            <!-- /.info-box -->
+                        </div>
+                        <!-- /.col -->
+                        <!-- <div class="col-md-2 col-sm-4 col-xs-12">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-yellow"><i class="ion ion-key"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Constraints</span>
+                                    <span class="info-box-number">{{constraintsAmount}}</span>
+                                </div> -->
+                                <!-- /.info-box-content -->
+                            <!-- </div> -->
+                            <!-- /.info-box -->
+                        <!-- </div> -->
+                        <!-- /.col -->
+                        <!-- <div class="col-md-2 col-sm-4 col-xs-12">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-red-active"><i class="fa fa-question" aria-hidden="true"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Anomalies</span>
+                                    <span class="info-box-number">{{anomaliesAmount}}</span>
+                                </div> -->
+                                <!-- /.info-box-content -->
+                            <!-- </div> -->
+                            <!-- /.info-box -->
+                        <!-- </div> -->
+                        <!-- /.col -->
+                        <!-- <div class="col-md-2 col-sm-4 col-xs-12">
+                            <div class="info-box">
+                                <span class="info-box-icon bg-navy"><i class="fa fa-file-code-o" aria-hidden="true"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Routines</span>
+                                    <span class="info-box-number">{{routinesAmount}}</span>
+                                </div> -->
+                                <!-- /.info-box-content -->
+                            <!-- </div> -->
+                            <!-- /.info-box -->
+                        <!-- </div> -->
+                        <!-- /.col -->
+                    </div>
+                    <!-- <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Database Properties</h3>
+                            <span class="label label-primary pull-right"><i class="fa fa-cog fa-2x"></i></span>
+                        </div> -->
+                        <!-- /.box-header -->
+                        <!-- <div class="box-body">
+                            <p>Database Type: {{database.databaseProduct}}</p>
+                        </div> -->
+                        <!-- /.box-body -->
+                    <!-- </div> -->
+                    {{#catalog}}
+                    {{#catalog.comment}}
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Catalog {{catalog.name}}</h3>
+                            <span class="label label-primary pull-right"><i class="fa fa-cog fa-2x"></i></span>
+                        </div><!-- /.box-header -->
+                        <div class="box-body">
+                            <p> {{{catalog.comment}}} </p>
+                        </div><!-- /.box-body -->
+                    </div>
+                    {{/catalog.comment}}
+                    {{/catalog}}
+                    {{#schema}}
+                    {{#schema.comment}}
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Schema {{schema.name}}</h3>
+                            <span class="label label-primary pull-right"><i class="fa fa-cog fa-2x"></i></span>
+                        </div><!-- /.box-header -->
+                        <div class="box-body">
+                            <p> {{{schema.comment}}} </p>
+                        </div><!-- /.box-body -->
+                    </div>
+                    {{/schema.comment}}
+                    {{/schema}}
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Tables</h3>
+                            <span class="label label-primary pull-right"><i class="fa fa-database fa-2x"></i></span>
+                        </div><!-- /.box-header -->
+                        <div class="box-body">
+                            <table
+                                    id="database_objects"
+                                    class="table table-bordered table-striped dataTable"
+                                    role="grid"
+                                    data-paging="{{dataTableConfig.databaseObjects.paging}}"
+                                    data-page-length="{{dataTableConfig.databaseObjects.pageLength}}"
+                                    data-length-change="{{dataTableConfig.databaseObjects.lengthChange}}">
+                                <thead>
+                                    <tr>
+                                        <th valign="bottom">Table / View</th>
+                                        <th align="right" valign="bottom">Children</th>
+                                        <th align="right" valign="bottom">Parents</th>
+                                        <th align="right" valign="bottom">Columns</th>
+                                        {{#displayNumRows}}
+                                        <th align="right" valign="bottom">Rows</th>
+                                        {{/displayNumRows}}
+                                        <!-- <th align="right" valign="bottom">Type</th> -->
+                                        <th class="toggle">Comments</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{#tables}}
+                                    <tr class="tbl even" valign="top">
+                                        <td class="detail"><a href="tables/{{#toFileName}}{{{table.name}}}{{/toFileName}}.html">{{table.name}}</a></td>
+                                        <td class="detail" align="right">{{table.maxChildren}}</td>
+                                        <td class="detail" align="right">{{table.maxParents}}</td>
+                                        <td class="detail" align="right">{{table.columns.size}}</td>
+                                        {{#displayNumRows}}
+                                        <td class="detail" align="right">{{table.numRows}}</td>
+                                        {{/displayNumRows}}
+                                        <!-- <td class="detail" align="right">{{table.type}}</td> -->
+                                        <td class="comment detail" style="display: table-cell;">{{{comments}}}</td>
+                                    </tr>
+                                    {{/tables}}
+                            </table>
+                        </div>
+                    </div><!-- /.box-body -->
+                </section>
+                <!-- /.content -->
+                <script>
+                    var config = {
+                        pagination: {{paginationEnabled}}
+                    }
+                </script>

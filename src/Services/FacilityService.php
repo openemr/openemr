@@ -145,7 +145,8 @@ class FacilityService extends BaseService
             // Not okay to throw exception here. Most UI are pulldowns which init to empty.
             return false;
         }
-        $result = $this->search(['id' => new TokenSearchField('id', $id, false)]);
+        // $id has to be a string for TokenSearchField()
+        $result = $this->search(['id' => new TokenSearchField('id', (string) $id, false)]);
         if (!empty($result->getData())) {
             $facility_result = $result->getData();
             $facility = array_pop($facility_result);
@@ -212,7 +213,7 @@ class FacilityService extends BaseService
         );
 
         $facilityUpdatedEvent = new FacilityUpdatedEvent($dataBeforeUpdate, $data);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(FacilityUpdatedEvent::EVENT_HANDLE, $facilityUpdatedEvent, 10);
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($facilityUpdatedEvent, FacilityUpdatedEvent::EVENT_HANDLE, 10);
 
         return $result;
     }
@@ -228,7 +229,7 @@ class FacilityService extends BaseService
         );
 
         $facilityCreatedEvent = new FacilityCreatedEvent(array_merge($data, ['id' => $facilityId]));
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(FacilityCreatedEvent::EVENT_HANDLE, $facilityCreatedEvent, 10);
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($facilityCreatedEvent, FacilityCreatedEvent::EVENT_HANDLE, 10);
 
         return $facilityId;
     }
@@ -286,7 +287,8 @@ class FacilityService extends BaseService
             $sql .= "        FAC.mail_zip,";
             $sql .= "        FAC.oid,";
             $sql .= "        FAC.iban,";
-            $sql .= "        FAC.info";
+            $sql .= "        FAC.info,";
+            $sql .= "        FAC.inactive";
             $sql .= " FROM facility FAC";
 
             $records = self::selectHelper($sql, $map);

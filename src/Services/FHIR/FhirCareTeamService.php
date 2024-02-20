@@ -83,7 +83,7 @@ class FhirCareTeamService extends FhirServiceBase implements IResourceUSCIGProfi
 
         $fhirMeta = new FHIRMeta();
         $fhirMeta->setVersionId('1');
-        $fhirMeta->setLastUpdated(gmdate('c'));
+        $fhirMeta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $careTeamResource->setMeta($fhirMeta);
 
         $id = new FHIRId();

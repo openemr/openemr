@@ -1,0 +1,160 @@
+{#
+# Handles the main display of the EHI export page.
+#
+# @package   OpenEMR
+# @link      http://www.open-emr.org
+#
+# @author    Stephen Nielson <snielson@discoverandchange.com
+# @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
+# @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+*
+#}
+<html>
+<head>
+    <title>{{ "Electronic Health Information Export"|xlt }}</title>
+    {{ setupHeader() }}
+    <script src="{{ assetPath }}js/{{ "ehi-exporter.js"|addCacheParam()}}"></script>
+</head>
+    <body class="p-3">
+    {% if result %}
+        {% if result.getStatus() == 'completed' %}
+            <h1>{{ "Exported Electronic Health Information (EHI) Zip Files"|xlt }}</h1>
+            {% for task in result.getJobTasks() %}
+                <h4><a download href="{{ task.exportedResult.downloadLink|attr }}">{{ task.document.get_name()|text }} - {{ "Download"|xlt }}</a></h4>
+                <h6>{{ task.document.get_hash_algo_title()|text }} <small>{{ task.document.get_hash()|text }}</small></h6>
+
+            <details class="mb-5">
+                <summary>
+                    {{ "Expand for Export Zip Details"|xlt }}
+                </summary>
+                {% if task.exportedResult.exportedTables %}
+                <p>{{ "Records Exported"|xlt }}</p>
+                <ol>
+                    {% for tableResult in task.exportedResult.exportedTables %}
+                    <li>{{ tableResult.tableName|text}}: {{tableResult.count|text}}</li>
+                    {% endfor %}
+                </ol>
+                {% endif %}
+
+                {% if result.include_patient_documents %}
+                <p>{{ "Documents Exported"|xlt }}: {{ task.exportedResult.exportedDocumentCount|text }}</p>
+                {% endif %}
+
+            </details>
+            {% endfor %}
+
+            <a href="{{postAction|attr}}" class="btn btn-primary">{{ "Go Back"|xlt }}</a>
+        {% elseif result.getStatus() == 'failed' %}
+            <div class="alert alert-danger">
+                {{ "Check system logs as export failed to process"|xlt }}
+                <ul>
+                    {% for task in result.getJobTasks() %}
+                        {% if task.getStatus() == "failed" %}
+                        <li>{{ task.error_message|text }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+
+                {% if not memoryLimitUpdated %}
+                    {{ "The php.ini memory_limit setting could not be set to -1 to allow unlimited memory. This could have caused your export to fail"|xlt }}
+                {% endif %}
+            </div>
+            <a href="{{postAction|attr}}" class="btn btn-primary">{{ "Go Back"|xlt }}</a>
+        {% endif %}
+    {% else %}
+        {% if errorMessage %}
+        <div class="alert alert-danger">
+            {{ errorMessage|text }}
+        </div>
+        {% endif %}
+        <h1 class="mt-3">{{ "Run Electronic Health Information Export"|xlt }}</h1>
+        <div>
+            <p>
+                {{ "Total Number of Patients in System"|xlt }}: <b>{{ exportSizeSettings.total_patients|text }}</b>
+            </p>
+        </div>
+        <div>
+            <p>{{ "The maximum file size stored is"|xlt }}: <b>{{ exportSizeSettings.max_document_size|text }}</b>.</p>
+            <p>{{ "Your server must have enough available memory (RAM) to hold twice this value if this value is greater than the Zip file limit setting."|xlt}}
+        </div>
+        <!-- add form to run export.  Form needs to have an input checkbox to include documents, an input textbox to specify a patient pid -->
+        <div>
+            <p>
+                {{ "Current PHP Memory Limit"|xlt }}: <b>{{ exportSizeSettings.php_memory_limit|text }}</b>
+            </p>
+        </div>
+        <div>
+            <p>
+                {{ "Disk Free Space"|xlt }}: <b>{{ exportSizeSettings.disk_free_space|text }}</b>
+            </p>
+        </div>
+        {% if site_addr_oath is empty %}
+            test
+            <div class="alert alert-danger">
+                {{ "No Site Address Override has been configured for this installation. Please set this address in order for the export readme to have the correct documentation links"|xlt }}
+            </div>
+        {% endif %}
+
+        <hr />
+        <form method="post" action="{{ postAction|attr }}">
+
+            <div>
+                <label>
+                    {{ "Specific Patient To Export (specify pid)"|xlt }}
+                    <input type="text" name="pid" value="" />
+                </label>
+            </div>
+            <div>
+                <label>
+                    {{ "Zip file limit setting in MBs (Max Setting is 4000MB)"|xlt }}
+                    <input type="text" name="file_size_limit" value="{{ exportSizeSettings.default_zip_size|attr }}" />
+                </label>
+                <p>{{ "Exports will break patients up at this file size, if a single patient's file size exceeds this limit the file size may be larger than this setting."|xlt}}</p>
+                <p>{{ "Your runtime environment (server/container/etc) must have at least twice this memory limit in available RAM."|xlt}}</p>
+            </div>
+            <div>
+                <label>
+                    {{ "Include Patient Document Files From Storage (this will make the export much larger)"|xlt }}
+                    <input type="checkbox" name="include_documents" value="1" checked="checked" />
+                </label>
+            </div>
+            <p class="alert alert-info"> {{ "The export process will attempt to set the ram memory usage to unlimited in order to process the export."|xlt}}
+                {{ "If this setting is disabled in your environment you will need to manually set your php.ini memory_limit setting."|xlt}}</p>
+            {{ csrfToken() }}
+            <script>
+                window.document.addEventListener("DOMContentLoaded", function() {
+                    var form = document.querySelector("form");
+                    form.addEventListener("submit", function(event) {
+                        if (oeExporter && oeExporter.displayExportStartDialog) {
+                            oeExporter.displayExportStartDialog("ehi-export-start-dialog");
+                            // we want the page to submit as it will take a moment for the processing to come back
+                            // so we won't prevent the default action
+                        }
+                    });
+                })
+            </script>
+            <input type="hidden" name="action" value="createExport" />
+            <input type="submit" name="submit" class="btn btn-primary" value="Export">
+        </form>
+    {% endif %}
+    <div class="modal fade" id="ehi-export-start-dialog" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog mw-50 ml-auto mr-auto">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ "Starting Electronic Health Information Export" | xlt }}</h5>
+                    <button type="button" class="close btn-telehealth-confirm-cancel" aria-label="{{ "Close" | xla }}">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col">
+                            <p>{{ "Please wait while your export job is being created and setup"|xlt }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

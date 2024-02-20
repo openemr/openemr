@@ -23,12 +23,12 @@
  * 07-2015: Ensoftek: Edited for MU2 170.314(b)(5)(A)
  */
 
-require_once($GLOBALS['srcdir'] . "/forms.inc");
-require_once($GLOBALS['srcdir'] . "/pnotes.inc");
+require_once($GLOBALS['srcdir'] . "/forms.inc.php");
+require_once($GLOBALS['srcdir'] . "/pnotes.inc.php");
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use phpseclib\Net\SFTP;
+use phpseclib3\Net\SFTP;
 
 $rhl7_return = array();
 
@@ -1089,7 +1089,6 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                     // Create order.
                     // Need to identify the ordering provider and, if possible, a recent encounter.
                     $datetime_report = rhl7DateTime($a[22]);
-                    $date_report = substr($datetime_report, 0, 10) . ' 00:00:00';
                     $encounter_id = 0;
                     $provider_id = 0;
                     $external_id = rhl7Text($a[3]) ?? null;
@@ -1098,7 +1097,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                         "SELECT encounter FROM form_encounter WHERE " .
                         "pid = ? AND date <= ? AND DATE_ADD(date, INTERVAL 30 DAY) > ? " .
                         "ORDER BY date DESC, encounter DESC LIMIT 1",
-                        array($patient_id, $date_report, $date_report)
+                        array($patient_id, $datetime_report, $datetime_report)
                     );
                     if (!empty($encrow)) {
                         $encounter_id = intval($encrow['encounter']);
@@ -1488,7 +1487,7 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
                 $amain[$alast]['res'][0]['facility'] .= $performingOrganization . $commentdelim;
             }
         } else {
-            return rhl7LogMsg(xl('Segment name') . " '${a[0]}' " . xl('is misplaced or unknown'));
+            return rhl7LogMsg(xl('Segment name') . " '{$a[0]}' " . xl('is misplaced or unknown'));
         }
     }
 

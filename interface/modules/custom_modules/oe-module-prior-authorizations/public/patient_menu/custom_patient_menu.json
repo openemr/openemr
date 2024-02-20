@@ -1,0 +1,128 @@
+[	{
+    "label": "Dashboard",
+    "menu_id": "dashboard",
+    "target": "main",
+    "on_click":"top.restoreSession()",
+    "url": "../summary/demographics.php",
+    "pid":"false",
+    "children": [],
+    "requirement": 0
+    },
+    {
+        "label": "Authorizations",
+        "menu_id": "priorauth",
+        "target": "main",
+        "on_click":"top.restoreSession()",
+        "url": "../../modules/custom_modules/oe-module-prior-authorizations/",
+        "pid":"false",
+        "children": [],
+        "requirement": 0
+    },
+    {
+        "label": "Intake",
+        "menu_id": "history",
+        "target": "main",
+        "on_click":"top.restoreSession()",
+        "url": "../history/history.php",
+        "pid":"false",
+        "children": [],
+        "requirement": 0
+    },
+    {
+        "label": "Report",
+        "menu_id": "report",
+        "target": "main",
+        "on_click":"top.restoreSession()",
+        "url": "../report/patient_report.php",
+        "pid":"false",
+        "children": [],
+        "requirement": 0,
+        "acl_req": [
+            "patients",
+            "pat_rep"
+        ]
+    },
+    {
+        "label": "Documents",
+        "menu_id": "documents",
+        "target": "main",
+        "on_click":"top.restoreSession()",
+        "url": "../../../controller.php?document&list&patient_id=",
+        "pid":"true",
+        "children": [],
+        "requirement": 0
+    },
+    {
+        "label": "Referrals",
+        "menu_id": "transactions",
+        "target": "main",
+        "on_click":"top.restoreSession()",
+        "url": "../transaction/transactions.php",
+        "pid":"false",
+        "children": [],
+        "requirement": 0
+    },
+    {
+        "label": "Diagnoses",
+        "menu_id": "issues",
+        "target": "main",
+        "on_click":"top.restoreSession()",
+        "url": "../summary/stats_full.php?active=all",
+        "pid":"false",
+        "children": [],
+        "requirement": 0
+    },
+    {
+        "label": "Ledger",
+        "menu_id": "ledger",
+        "target": "main",
+        "on_click":"top.restoreSession()",
+        "url": "../../reports/pat_ledger.php?form=1&patient_id=",
+        "pid":"true",
+        "children": [],
+        "requirement": 2,
+        "acl_req": [
+            "acct",
+            "bill",
+            "write"
+        ]
+    },
+    {
+        "label": "External Data",
+        "menu_id": "external_data",
+        "target": "main",
+        "on_click":"top.restoreSession()",
+        "url": "/interface/reports/external_data.php",
+        "pid":"false",
+        "children": [],
+        "requirement": 2,
+        "acl_req": [
+            "admin",
+            "acct"
+        ]
+    },
+    {
+        "label": "PRO{{Patient Reported Outcomes}}",
+        "menu_id": "patient_reported_outcomes",
+        "target": "main",
+        "on_click":"top.restoreSession()",
+        "url": "/interface/easipro/pro.php",
+        "pid":"false",
+        "children": [],
+        "requirement": 0,
+        "global_req_strict": [
+            "easipro_enable",
+            "easipro_server",
+            "easipro_name"
+        ]
+    },
+    {
+        "label": "Modules",
+        "children": [],
+        "requirement": 0,
+        "acl_req": [
+            "admin",
+            "acct"
+        ]
+    }
+]

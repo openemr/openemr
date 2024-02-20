@@ -12,6 +12,7 @@
 
 namespace Application\Model;
 
+use Laminas\Db\Adapter\ExceptionInterface;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use Laminas\Db\ResultSet\ResultSet;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -61,7 +62,7 @@ class ApplicationTable extends AbstractTableGateway
             $statement  = $this->adapter->query($sql);
             $return     = $statement->execute($params);
             $result     = true;
-        } catch (\Laminas\Db\Adapter\ExceptionInterface $e) {
+        } catch (ExceptionInterface $e) {
             if ($error) {
                 $this->errorHandler($e, $sql, $params);
             }
@@ -91,7 +92,7 @@ class ApplicationTable extends AbstractTableGateway
      * All error display and log
      * Display the Error, Line and File
      * Same behavior of HelpfulDie fuction in OpenEMR
-     * Path /library/sql.inc
+     * Path /library/sql.inc.php
      *
      * @param type    $e
      * @param string  $sql
@@ -432,7 +433,7 @@ class ApplicationTable extends AbstractTableGateway
     }
 
     /*
-    * Using generate id function from OpenEMR sql.inc library file
+    * Using generate id function from OpenEMR sql.inc.php library file
     * @param  string  $seqname     table name containing sequence (default is adodbseq)
     * @param  integer $startID     id to start with for a new sequence (default is 1)
     * @return integer              returns the sequence integer

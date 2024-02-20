@@ -52,7 +52,7 @@ $sqlBindArray = array();
 $query = "SELECT u.*, lo.option_id AS ab_name, lo.option_value as ab_option FROM users AS u " .
   "LEFT JOIN list_options AS lo ON " .
   "list_id = 'abook_type' AND option_id = u.abook_type AND activity = 1 " .
-  "WHERE u.active = 1 AND ( u.authorized = 1 OR u.username = '' ) ";
+  "WHERE u.active = 1 AND ( u.authorized = 1 OR ( u.username = '' OR u.username IS NULL )) ";
 if ($form_organization) {
     $query .= "AND u.organization LIKE ? ";
     array_push($sqlBindArray, $form_organization . "%");
@@ -84,7 +84,7 @@ if ($form_abook_type) {
 }
 
 if ($form_external) {
-    $query .= "AND u.username = '' ";
+    $query .= "AND u.abook_type = 'external_provider' ";
 }
 
 if ($form_lname) {
@@ -242,7 +242,12 @@ function refreshme() {
 // Process click to pop up the add window.
 function doedclick_add(type) {
  top.restoreSession();
- dlgopen('addrbook_edit.php?type=' + encodeURIComponent(type), '_blank', 650, (screen.availHeight * 75/100));
+ let url = 'addrbook_edit.php?type=' + encodeURIComponent(type);
+ const urlParams = new URLSearchParams(window.location.search);
+ if (urlParams.has("popup")) {
+    url += "&popup=" + urlParams.get("popup");
+ }
+ dlgopen(url, '_blank', 650, (screen.availHeight * 75/100));
 }
 
 // Process click to pop up the edit window.

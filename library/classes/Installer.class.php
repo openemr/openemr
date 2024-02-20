@@ -19,6 +19,42 @@ use OpenEMR\Gacl\GaclApi;
 
 class Installer
 {
+    public $iuser;
+    public $iuserpass;
+    public $iuname;
+    public $iufname;
+    public $igroup;
+    public $i2faEnable;
+    public $i2faSecret;
+    public $server;
+    public $loginhost;
+    public $port;
+    public $root;
+    public $rootpass;
+    public $login;
+    public $pass;
+    public $dbname;
+    public $collate;
+    public $site;
+    public $source_site_id;
+    public $clone_database;
+    public $no_root_db_access;
+    public $development_translations;
+    public $new_theme;
+    public $ippf_specific;
+    public $conffile;
+    public $main_sql;
+    public $translation_sql;
+    public $devel_translation_sql;
+    public $ippf_sql;
+    public $icd9;
+    public $cvx;
+    public $additional_users;
+    public $dumpfiles;
+    public $error_message;
+    public $debug_message;
+    public $dbh;
+
     public function __construct($cgi_variables)
     {
         // Installation variables
@@ -40,7 +76,7 @@ class Installer
         $this->pass                     = isset($cgi_variables['pass']) ? ($cgi_variables['pass']) : '';
         $this->dbname                   = isset($cgi_variables['dbname']) ? ($cgi_variables['dbname']) : '';
         $this->collate                  = isset($cgi_variables['collate']) ? ($cgi_variables['collate']) : '';
-        $this->site                     = isset($cgi_variables['site']) ? ($cgi_variables['site']) : '';
+        $this->site                     = isset($cgi_variables['site']) ? ($cgi_variables['site']) : 'default'; // set to default if not set in order for install script to work correctly
         $this->source_site_id           = isset($cgi_variables['source_site_id']) ? ($cgi_variables['source_site_id']) : '';
         $this->clone_database           = isset($cgi_variables['clone_database']) ? ($cgi_variables['clone_database']) : '';
         $this->no_root_db_access        = isset($cgi_variables['no_root_db_access']) ? ($cgi_variables['no_root_db_access']) : ''; // no root access to database. user/privileges pre-configured
@@ -161,7 +197,7 @@ class Installer
     {
         $this->dbh = $this->connect_to_database($this->server, $this->root, $this->rootpass, $this->port);
         if ($this->dbh) {
-            if (! $this->set_sql_strict()) {
+            if (!$this->set_sql_strict()) {
                 $this->error_message = 'unable to set strict sql setting';
                 return false;
             }
@@ -240,7 +276,15 @@ class Installer
             return $returnSql;
         } else {
             // the mysql user does not yet exist, so create the user
-            return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'");
+            if (getenv('FORCE_DATABASE_X509_CONNECT', true) == 1) {
+                // this use case is to allow enforcement of x509 database connection use in applicable docker and kubernetes auto installations
+                return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "' REQUIRE X509");
+            } elseif (getenv('FORCE_DATABASE_SSL_CONNECT', true) == 1) {
+                // this use case is to allow enforcement of ssl database connection use in applicable docker and kubernetes auto installations
+                return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "' REQUIRE SSL");
+            } else {
+                return $this->execute_sql("CREATE USER '" . $this->escapeSql($this->login) . "'@'" . $this->escapeSql($this->loginhost) . "' IDENTIFIED BY '" . $this->escapeSql($this->pass) . "'");
+            }
         }
     }
 
@@ -446,6 +490,7 @@ class Installer
 
     /**
      * Generates the initial user's 2FA QR Code
+     * @deprecated Recommended to use get_initial_user_mfa_totp() instead
      * @return bool|string|void
      */
     public function get_initial_user_2fa_qr()
@@ -454,6 +499,19 @@ class Installer
             $adminTotp = new Totp($this->i2faSecret, $this->iuser);
             $qr = $adminTotp->generateQrCode();
             return $qr;
+        }
+        return false;
+    }
+
+    /**
+     * Generates the initial user's 2FA QR Code
+     * @return bool|string|void
+     */
+    public function get_initial_user_mfa_totp()
+    {
+        if (($this->i2faEnable) && (!empty($this->i2faSecret)) && (class_exists('Totp'))) {
+            $adminTotp = new Totp($this->i2faSecret, $this->iuser);
+            return $adminTotp;
         }
         return false;
     }
@@ -483,6 +541,9 @@ class Installer
 
     public function write_configuration_file()
     {
+        if (!file_exists($GLOBALS['OE_SITE_DIR'])) {
+            $this->create_site_directory();
+        }
         @touch($this->conffile); // php bug
         $fd = @fopen($this->conffile, 'w');
         if (! $fd) {
@@ -1330,10 +1391,15 @@ $config = 1; /////////////
                 );
             }
         }
-        if ($mysqlSsl) {
-            $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306, '', MYSQLI_CLIENT_SSL);
-        } else {
-            $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306);
+        try {
+            if ($mysqlSsl) {
+                $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306, '', MYSQLI_CLIENT_SSL);
+            } else {
+                $ok = mysqli_real_connect($mysqli, $server, $user, $password, $dbname, (int)$port != 0 ? (int)$port : 3306);
+            }
+        } catch (mysqli_sql_exception $e) {
+            $this->error_message = "unable to connect to sql server because of mysql error: " . $e->getMessage();
+            return false;
         }
         if (!$ok) {
             $this->error_message = 'unable to connect to sql server because of: (' . mysqli_connect_errno() . ') ' . mysqli_connect_error();

@@ -13,6 +13,7 @@ namespace OpenEMR\Services\FHIR\DocumentReference;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDocumentReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAttachment;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
@@ -100,7 +101,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
         $docReference = new FHIRDocumentReference();
         $meta = new FHIRMeta();
         $meta->setVersionId('1');
-        $meta->setLastUpdated(gmdate('c'));
+        $meta->setLastUpdated(UtilsService::getDateFormattedAsUTC());
         $docReference->setMeta($meta);
 
         $id = new FHIRId();
@@ -114,7 +115,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
         // TODO: @adunsulag need to support content.attachment.url
 
         if (!empty($dataRecord['date'])) {
-            $docReference->setDate(gmdate('c', strtotime($dataRecord['date'])));
+            $docReference->setDate(UtilsService::getLocalDateAsUTC($dataRecord['date']));
         } else {
             $docReference->setDate(UtilsService::createDataMissingExtension());
         }
@@ -125,7 +126,7 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
             // we currently don't track anything dealing with start and end date for the context
             if (!empty($dataRecord['encounter_date'])) {
                 $period = new FHIRPeriod();
-                $period->setStart(gmdate('c', strtotime($dataRecord['encounter_date'])));
+                $period->setStart(UtilsService::getLocalDateAsUTC($dataRecord['encounter_date']));
                 $context->setPeriod($period);
             }
             $context->addEncounter(UtilsService::createRelativeReference('Encounter', $dataRecord['euuid']));
@@ -134,11 +135,12 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
 
         // populate the link to download the patient document
         if (!empty($dataRecord['uuid'])) {
-            $url = $this->getFhirApiURL() . '/fhir/Document/' . $dataRecord['uuid'] . '/Binary';
+            $url = $this->getFhirApiURL() . '/fhir/Binary/' . $dataRecord['uuid'];
             $content = new FHIRDocumentReferenceContent();
             $attachment = new FHIRAttachment();
             $attachment->setContentType($dataRecord['mimetype']);
             $attachment->setUrl(new FHIRUrl($url));
+            $attachment->setTitle($dataRecord['name'] ?? '');
             $content->setAttachment($attachment);
             // TODO: if we support tagging a specific document with a reference code we can put that here.
             // since it's plain text we have no other interpretation so we just use the mime type sufficient IHE Format code
@@ -165,10 +167,16 @@ class FhirPatientDocumentReferenceService extends FhirServiceBase
                 $docReference->addCategory(UtilsService::createCodeableConcept($codeableConcept));
             }
         } else {
-            // although the category is extensible, ONC inferno fails to validate with an extended code set so we are
-            // going to create data absent reasons.  The codes come from the document categories codes column.  If we are
-            // missing the codes we will just go with a Data Absent Reason (DAR)
-            $docReference->addCategory(UtilsService::createDataAbsentUnknownCodeableConcept());
+            if (!empty($dataRecord['category_name'])) {
+                $concept = new FHIRCodeableConcept();
+                $concept->setText($dataRecord['category_name']);
+                $docReference->addCategory($concept);
+            } else {
+                // although the category is extensible, ONC inferno fails to validate with an extended code set so we are
+                // going to create data absent reasons.  The codes come from the document categories codes column.  If we are
+                // missing the codes we will just go with a Data Absent Reason (DAR)
+                $docReference->addCategory(UtilsService::createDataAbsentUnknownCodeableConcept());
+            }
         }
 
         $fhirOrganizationService = new FhirOrganizationService();

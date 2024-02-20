@@ -21,7 +21,7 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 
 @set_time_limit(600);
 
-require_once('../profiler.inc');
+require_once('../profiler.inc.php');
 $profiler = new Profiler(true,true);
 
 require_once("gacl_admin.inc.php");

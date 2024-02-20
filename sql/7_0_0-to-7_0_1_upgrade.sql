@@ -105,6 +105,10 @@
 --    desc: Change Layout edit options.
 --    arguments: mode(add or remove) layout_form_id the_edit_option comma_separated_list_of_field_ids
 
+--  #IfVitalsDatesNeeded
+--    desc: Change date from zeroes to date of vitals form creation.
+--    arguments: none
+
 #IfNotTable questionnaire_repository
 CREATE TABLE `questionnaire_repository` (
     `id` bigint(21) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -129,30 +133,9 @@ CREATE TABLE `questionnaire_repository` (
 ) ENGINE=InnoDB;
 #EndIf
 
-#IfNotTable questionnaire_response
-CREATE TABLE `questionnaire_response` (
-  `id` bigint(21) NOT NULL AUTO_INCREMENT,
-  `uuid` binary(16) DEFAULT NULL,
-  `questionnaire_foreign_id` bigint(21) DEFAULT NULL COMMENT 'questionnaire_repository id for subject questionnaire',
-  `questionnaire_id` varchar(255) DEFAULT NULL,
-  `questionnaire_name` varchar(255) DEFAULT NULL,
-  `audit_user_id` int(11) DEFAULT NULL,
-  `creator_user_id` int(11) DEFAULT NULL COMMENT 'user id if answers are provider',
-  `create_time` datetime DEFAULT current_timestamp(),
-  `last_updated` datetime DEFAULT NULL,
-  `patient_id` int(11) DEFAULT NULL,
-  `version` int(11) NOT NULL DEFAULT 1,
-  `status` varchar(63) DEFAULT NULL COMMENT 'form current status. completed,active,incomplete',
-  `questionnaire` longtext COMMENT 'the subject questionnaire json',
-  `questionnaire_response` longtext COMMENT 'questionnaire response json',
-  `form_response` longtext COMMENT 'lform answers array json',
-  `form_score` int(11) DEFAULT NULL COMMENT 'Arithmetic scoring of questionnaires',
-  `tscore` double DEFAULT NULL COMMENT 'T-Score',
-  `error` double DEFAULT NULL COMMENT 'Standard error for the T-Score',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uuid` (`uuid`),
-  KEY `questionnaire_foreign_id` (`questionnaire_foreign_id`,`questionnaire_id`,`questionnaire_name`)
-) ENGINE=InnoDB;
+-- At this point below table was never used. Simply recreating with additions
+#IfMissingColumn questionnaire_response response_id
+DROP TABLE `questionnaire_response`;
 #EndIf
 
 #IfMissingColumn questionnaire_repository lform
@@ -204,10 +187,137 @@ ALTER TABLE `prescriptions` CHANGE `route` `route` VARCHAR(100) NULL DEFAULT NUL
 
 #IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2022-10-01 load_filename 2023 Code Descriptions in Tabular Order.zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
-('ICD10', 'CMS', '2022-10-01', '2023 Code Descriptions in Tabular Order.zip', 'a2bd2e87d6fac3f861b03dba9ca87cbc');
+    ('ICD10', 'CMS', '2022-10-01', '2023 Code Descriptions in Tabular Order.zip', 'a2bd2e87d6fac3f861b03dba9ca87cbc');
 #EndIf
 
 #IfNotRow4D supported_external_dataloads load_type ICD10 load_source CMS load_release_date 2022-10-01 load_filename Zip File 3 2023 ICD-10-PCS Codes File.zip
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
-('ICD10', 'CMS', '2022-10-01', 'Zip File 3 2023 ICD-10-PCS Codes File.zip', 'a4c0e6026557d770dc3d994718acaa21');
+    ('ICD10', 'CMS', '2022-10-01', 'Zip File 3 2023 ICD-10-PCS Codes File.zip', 'a4c0e6026557d770dc3d994718acaa21');
+
+#IfNotTable questionnaire_response
+CREATE TABLE `questionnaire_response` (
+ `id` bigint(21) NOT NULL AUTO_INCREMENT,
+ `uuid` binary(16) DEFAULT NULL,
+ `response_id` varchar(255) DEFAULT NULL COMMENT 'A globally unique id for answer set. String version of UUID',
+ `questionnaire_foreign_id` bigint(21) DEFAULT NULL COMMENT 'questionnaire_repository id for subject questionnaire',
+ `questionnaire_id` varchar(255) DEFAULT NULL COMMENT 'Id for questionnaire content. String version of UUID',
+ `questionnaire_name` varchar(255) DEFAULT NULL,
+ `patient_id` int(11) DEFAULT NULL,
+ `encounter` int(11) DEFAULT NULL COMMENT 'May or may not be associated with an encounter',
+ `audit_user_id` int(11) DEFAULT NULL,
+ `creator_user_id` int(11) DEFAULT NULL COMMENT 'user id if answers are provider',
+ `create_time` datetime DEFAULT current_timestamp(),
+ `last_updated` datetime DEFAULT NULL,
+ `version` int(11) NOT NULL DEFAULT 1,
+ `status` varchar(63) DEFAULT NULL COMMENT 'form current status. completed,active,incomplete',
+ `questionnaire` longtext COMMENT 'the subject questionnaire json',
+ `questionnaire_response` longtext COMMENT 'questionnaire response json',
+ `form_response` longtext COMMENT 'lform answers array json',
+ `form_score` int(11) DEFAULT NULL COMMENT 'Arithmetic scoring of questionnaires',
+ `tscore` double DEFAULT NULL COMMENT 'T-Score',
+ `error` double DEFAULT NULL COMMENT 'Standard error for the T-Score',
+ PRIMARY KEY (`id`),
+ UNIQUE KEY `uuid` (`uuid`),
+ KEY `response_index` (`response_id`, `patient_id`, `questionnaire_id`, `questionnaire_name`)
+) ENGINE=InnoDB;
+#EndIf
+
+#IfMissingColumn form_questionnaire_assessments response_id
+ALTER TABLE `form_questionnaire_assessments` CHANGE `last_date` `response_id` TEXT COMMENT 'The foreign id to the questionnaire_response repository';
+ALTER TABLE `form_questionnaire_assessments` CHANGE `code` `response_meta` TEXT COMMENT 'json meta data for the response resource';
+ALTER TABLE `form_questionnaire_assessments` CHANGE `code_type` `questionnaire_id` TEXT COMMENT 'The foreign id to the questionnaire_repository';
+#EndIf
+
+#IfNotRow2D list_options list_id Document_Template_Categories option_id questionnaire
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`, `toggle_setting_1`, `toggle_setting_2`, `activity`) VALUES ('Document_Template_Categories','questionnaire','Questionnaires',10,0,0,'','','',0,0,1);
+#EndIf
+
+#IfMissingColumn layout_group_properties grp_unchecked
+ALTER TABLE `layout_group_properties` ADD `grp_unchecked` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf
+
+#IfMissingColumn form_encounter in_collection
+ALTER TABLE `form_encounter` ADD `in_collection` tinyint(1) DEFAULT NULL;
+#EndIf
+
+#IfVitalsDatesNeeded
+#EndIf
+
+#IfRow2D categories aco_spec patients|docs name Patient Information
+UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient Information';
+#EndIf
+
+#IfRow2D categories aco_spec patients|docs name Patient ID card
+UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient ID card';
+#EndIf
+
+#IfRow2D categories aco_spec patients|docs name Patient Photograph
+UPDATE `categories` SET `aco_spec` = 'patients|demo' WHERE `name` = 'Patient Photograph';
+#EndIf
+
+#IfNotColumnType audit_details field_value LONGTEXT
+ALTER TABLE `audit_details` CHANGE `field_value` `field_value` LONGTEXT COMMENT 'openemr table field value';
+#EndIf
+
+#IfMissingColumn audit_master is_unstructured_document
+ALTER TABLE `audit_master` ADD `is_unstructured_document` BOOLEAN NULL DEFAULT FALSE;
+#EndIf
+
+#IfNotColumnType ccda ccda_data LONGTEXT
+ALTER TABLE `ccda` CHANGE `ccda_data` `ccda_data` LONGTEXT;
+#EndIf
+
+#IfNotRow2D background_services name phimail require_once /library/direct_message_check.inc.php
+UPDATE `background_services` SET `require_once` = '/library/direct_message_check.inc.php' WHERE `name` = 'phimail';
+#EndIf
+
+#IfRow2D registry directory procedure_order category Administrative
+UPDATE `registry` SET `category` = 'Orders' WHERE `directory` = 'procedure_order' AND `category` = 'Administrative';
+#EndIf
+
+#IfMissingColumn insurance_data date_end
+ALTER TABLE `insurance_data` ADD `date_end` date NULL;
+#EndIf
+
+#IfNotColumnType form_questionnaire_assessments user VARCHAR(255)
+ALTER TABLE `form_questionnaire_assessments` CHANGE `user` `user` VARCHAR(255) NULL DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn module_configuration date_created
+ALTER TABLE `module_configuration` ADD COLUMN `date_created` DATETIME DEFAULT NULL COMMENT 'Datetime the record was created';
+#EndIf
+
+#IfRow2D globals gl_name login_page_layout gl_value center
+UPDATE `globals` SET `gl_value` = 'login/layouts/vertical_box.html.twig' WHERE `gl_name` = 'login_page_layout' AND `gl_value` = 'center';
+#EndIf
+
+#IfRow2D globals gl_name login_page_layout gl_value left
+UPDATE `globals` SET `gl_value` = 'login/layouts/horizontal_box_left_logo.html.twig' WHERE `gl_name` = 'login_page_layout' AND `gl_value` = 'left';
+#EndIf
+
+#IfRow2D globals gl_name login_page_layout gl_value right
+UPDATE `globals` SET `gl_value` = 'login/layouts/horizontal_band_right_logo.html.twig' WHERE `gl_name` = 'login_page_layout' AND `gl_value` = 'right';
+#EndIf
+
+#IfMissingColumn ar_activity payer_claim_number
+ALTER TABLE `ar_activity` ADD `payer_claim_number` VARCHAR(30) DEFAULT NULL;
+#EndIf
+
+#IfNotTable onetime_auth
+CREATE TABLE `onetime_auth` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `pid` bigint(20) DEFAULT NULL,
+  `create_user_id` bigint(20) DEFAULT NULL,
+  `context` varchar(64) DEFAULT NULL,
+  `access_count` int(11) NOT NULL DEFAULT 0,
+  `remote_ip` varchar(32) DEFAULT NULL,
+  `onetime_pin` varchar(10) DEFAULT NULL COMMENT 'Max 10 numeric. Default 6',
+  `onetime_token` tinytext,
+  `redirect_url` tinytext,
+  `expires` int(11) DEFAULT NULL,
+  `date_created` datetime DEFAULT current_timestamp(),
+  `last_accessed` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `pid` (`pid`,`onetime_token`(255))
+) ENGINE=InnoDB;
 #EndIf

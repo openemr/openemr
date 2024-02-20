@@ -1,0 +1,65 @@
+{#
+ # Waiting room template html
+ #
+ # @package openemr
+ # @link      http://www.open-emr.org
+ # @author    Stephen Nielson <snielson@discoverandchange.com>
+ # @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
+ # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+#}
+<div class="container p-3 waiting-room">
+    <div class="row d-lg-none">
+        <div class="col-12">
+            <div class="row pt-2 pb-2">
+                <div class="col">
+                    <a class="btn btn-primary" data-toggle="collapse" href="#waitingRoomProfile" role="button" aria-expanded="false" aria-controls="waitingRoomProfile">{{ "Appointment Information"|xlt }}<br/>({{ "Click here for more information"|xlt }})</a>
+                </div>
+                <div class="col">
+                    <input disabled class="disabled btn btn-primary btn-comlink-conference-join d-inline-block d-lg-none" type="button" value="{{ "Join Now"|xla }}">
+                </div>
+            </div>
+            <div class="row no-gutters pt-2">
+                <div class="col card collapse flex-column" id="waitingRoomProfile">
+                    {% if isPatient %}
+                        {% include 'comlink/waiting-room-patient.twig' with {patient: patient, provider:provider, appointment: appointment} %}
+                    {% else %}
+                        {% include 'comlink/waiting-room-provider.twig' with {patient: patient, provider:provider, appointment: appointment} %}
+                    {%  endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-lg-6" id="local-video-container">
+            <div class="row bg-dark no-gutters">
+                <div class="col-12">
+                    {% include 'comlink/local-participant-container.html.twig' with {callerName: callerName} %}
+{#                <video class="w-100" autoplay="true" muted="muted"#}
+{#                       playsinline="true" preload="none" id="local-video"></video>#}
+                    {% include 'comlink/video-control-bar.twig' %}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 d-lg-flex d-none flex-column appointment-info">
+            <div  class="card-height card">
+                <div  class="height">
+                    {% if isPatient %}
+                        {% include 'comlink/waiting-room-patient.twig' with {patient: patient, provider:provider, appointment: appointment} %}
+                    {% else %}
+                        {% include 'comlink/waiting-room-provider.twig' with {patient: patient, provider:provider, appointment: appointment} %}
+                    {%  endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row d-none permissions-box mt-5">
+        <div class="col">
+            <p class="alert alert-danger">{{ "You must enable a microphone or camera order to use this service. Verify you have a device connected, that the device is not being used by another media source, or that you have not disabled permissions for this application." | xlt }}</p>
+            <input class="btn btn-secondary restart-media-btn" type="button" value="{{ "Request Media Permissions"|xla }}">
+        </div>
+    </div>

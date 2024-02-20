@@ -41,7 +41,7 @@ class EncountermanagerController extends AbstractActionController
 {
     // TODO: is there a better place for this?  These are the values from the applications/sendto/sendto.phtml for
     // the document types.  We should probably extract these into a model somewhere...
-    const VALID_CCDA_DOCUMENT_TYPES = ['ccd', 'referral', 'toc', 'careplan'];
+    const VALID_CCDA_DOCUMENT_TYPES = ['ccd', 'referral', 'toc', 'careplan', 'unstructured'];
 
     const DEFAULT_DATE_SEARCH_TYPE = "encounter";
     const DATE_SEARCH_TYPE_PATIENT_CREATION = "patient_date_created";
@@ -75,7 +75,7 @@ class EncountermanagerController extends AbstractActionController
         $status = $request->getPost('form_status', null);
 
         if (!$pid && !$encounter && !$status) {
-            $fromDate = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400 * 14));
+            $fromDate = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime("-3 months", $fromDate));
             $toDate = $request->getPost('form_date_to', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_to', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
         }
 
@@ -333,7 +333,7 @@ class EncountermanagerController extends AbstractActionController
         $document_type = $this->params('document_type') ?? '';
         if ($pids != '') {
             $zip = new Zip();
-            $parent_dir = sys_get_temp_dir() . "/CCDA_" . time();
+            $parent_dir = sys_get_temp_dir() . "/CCDA_Patient_Documents_" . time();
             if (!is_dir($parent_dir)) {
                 if (!mkdir($parent_dir, true) && !is_dir($parent_dir)) {
                     throw new \RuntimeException(sprintf('Directory "%s" was not created', $parent_dir));
@@ -341,36 +341,49 @@ class EncountermanagerController extends AbstractActionController
                 chmod($parent_dir, 0777);
             }
 
+            $dir = $parent_dir . "/";
             $arr = explode('|', $pids);
             foreach ($arr as $row) {
                 $pid = $row;
-                $row = $this->getEncountermanagerTable()->getFileID($pid);
-                $id = $row['id'];
-                $dir = $parent_dir . "/CCDA_{$row['lname']}_{$row['fname']}/";
-                $filename = "CCDA_{$row['lname']}_{$row['fname']}";
-                if (!empty($document_type) && in_array($document_type, self::VALID_CCDA_DOCUMENT_TYPES)) {
-                    $filename .= "_" . $document_type;
-                }
-                $filename .= "_" . date("Y_m_d_H_i");
-                $filename_html = $filename . ".html";
-                $filename .= ".xml";
-                if (!is_dir($dir)) {
-                    if (!mkdir($dir, true) && !is_dir($dir)) {
-                        throw new \RuntimeException(sprintf('Directory "%s" was not created', $dir));
+                $ids = $this->getEncountermanagerTable()->getFileID($pid, 2);
+                $doc_type = $document_type;
+                foreach ($ids as $row_inner) {
+                    $id = $row_inner['id'];
+                    // xml version for parsing or transfer.
+                    $ccdaDocuments = \Document::getDocumentsForForeignReferenceId('ccda', $id);
+                    $content = !empty($ccdaDocuments) ? $ccdaDocuments[0]->get_data() : ""; // nothing here to export
+                    // From header oid for an unstructured document.
+                    // used if the auto create patient document export is on in ccda service.
+                    // else document_type is correctly set if purposely sent as unstructured from CCM
+                    if (stripos($content, '2.16.840.1.113883.10.20.22.1.10') > 0) {
+                        $doc_type = 'unstructured';
                     }
-                    chmod($dir, 0777);
+                    /* let's not have a dir per patient for now! though we'll keep for awhile.
+                     * $dir = $parent_dir . "/CCDA_{$row_inner['lname']}_{$row_inner['fname']}/";*/
+                    $filename = "CCDA_{$row_inner['lname']}_{$row_inner['fname']}";
+                    if (!empty($doc_type) && in_array($doc_type, self::VALID_CCDA_DOCUMENT_TYPES)) {
+                        $filename .= "_" . $doc_type;
+                    }
+                    $filename .= "_" . date("Y_m_d_His"); // ensure somewhat unique
+                    $filename_html = $filename . ".html";
+                    $filename .= ".xml";
+                    if (!is_dir($dir)) {
+                        if (!mkdir($dir, true) && !is_dir($dir)) {
+                            throw new \RuntimeException(sprintf('Directory "%s" was not created', $dir));
+                        }
+                        chmod($dir, 0777);
+                    }
+                    $f2 = fopen($dir . $filename, "w");
+                    fwrite($f2, $content);
+                    fclose($f2);
+                    if ($doc_type != 'unstructured') {
+                        // html version for viewing
+                        $content = $this->buildCCDAHtml($content);
+                        $f2 = fopen($dir . $filename_html, "w");
+                        fwrite($f2, $content);
+                        fclose($f2);
+                    }
                 }
-                // xml version for parsing or transfer.
-                $ccdaDocuments = \Document::getDocumentsForForeignReferenceId('ccda', $id);
-                $content = !empty($ccdaDocuments) ? $ccdaDocuments[0]->get_data() : ""; // nothing here to export
-                $f2 = fopen($dir . $filename, "w");
-                fwrite($f2, $content);
-                fclose($f2);
-                // html version for viewing
-                $content = $this->buildCCDAHtml($content);
-                $f2 = fopen($dir . $filename_html, "w");
-                fwrite($f2, $content);
-                fclose($f2);
                 copy(__DIR__ . "/../../../../../public/xsl/cda.xsl", $dir . "CDA.xsl");
             }
 
@@ -379,9 +392,9 @@ class EncountermanagerController extends AbstractActionController
             // since we are sending this out to the filesystem we need to whitelist these document types so that we don't
             // get any kind of filesystem injection attack here.
             if (!empty($document_type) && in_array($document_type, self::VALID_CCDA_DOCUMENT_TYPES)) {
-                $zip_name .= "_" . $document_type;
+                $zip_name .= "_All";
             }
-            $zip_name .= "_" . date("Y_m_d_H_i") . ".zip";
+            $zip_name .= "_" . date("Y_m_d_His") . ".zip";
             $zip->setArchive($zip_dir . $zip_name);
             $zip->compress($parent_dir);
 

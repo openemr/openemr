@@ -17,7 +17,7 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/calendar.inc");
+require_once("$srcdir/calendar.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclExtended;
@@ -350,6 +350,10 @@ if ($iter["portal_user"]) {
 
 <TR>
 <td><span class=text><?php echo xlt('Last Name'); ?>: </span></td><td><input type="text" name=lname id=lname style="width:150px;"  class="form-control" value="<?php echo attr($iter["lname"]); ?>"><span class="mandatory"></span></td>
+<td><span class=text><?php echo xlt('Suffix'); ?>: </span></td><td><input type="text" name=suffix id=suffix style="width:150px;"  class="form-control" value="<?php echo attr($iter["suffix"]); ?>"></td>
+</tr>
+<tr>
+<td><span class=text><?php echo xlt('Valedictory'); ?>: </span></td><td><input type="text" name=valedictory id=valedictory style="width:150px;"  class="form-control" value="<?php echo attr($iter["valedictory"]); ?>"></td>
 <td><span class=text><?php echo xlt('Default Facility'); ?>: </span></td><td><select name=facility_id style="width:150px;" class="form-control">
 <?php
 $fres = $facilityService->getAllServiceLocations();
@@ -368,6 +372,7 @@ if ($fres) {
 }
 ?>
 </select></td>
+
 </tr>
 
 <?php if ($GLOBALS['restrict_user_facility']) { ?>
@@ -540,7 +545,7 @@ foreach (array(1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('
     if ($fres) {
         while ($frow = sqlFetchArray($fres)) {
             // Get the warehouses that are linked to this user and facility.
-            $whids = getUserFacWH($_GET['id'], $frow['id']); // from calendar.inc
+            $whids = getUserFacWH($_GET['id'], $frow['id']); // from calendar.inc.php
             // Generate an option for just the facility with no warehouse restriction.
             echo "    <option";
             if (empty($whids) && in_array($frow['id'], $ufid)) {

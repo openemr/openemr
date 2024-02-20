@@ -55,11 +55,11 @@ class HttpRestParsedRouteTest extends TestCase
 
     public function testGetResourceWithDocumentBinaryFormat()
     {
-        $request = '/fhir/Document/15/Binary';
-        $definition = 'GET /fhir/Document/:id/Binary';
+        $request = '/fhir/Binary/15';
+        $definition = 'GET /fhir/Binary/:id';
 
         $parsedRoute = new HttpRestParsedRoute("GET", $request, $definition);
-        $this->assertEquals("Document", $parsedRoute->getResource());
+        $this->assertEquals("Binary", $parsedRoute->getResource());
     }
 
     public function testIsOperation()

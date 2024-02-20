@@ -6,17 +6,21 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2019-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once(__DIR__ . "/../library/forms.inc");
-require_once(__DIR__ . "/../library/patient.inc");
+require_once(__DIR__ . "/../library/forms.inc.php");
+require_once(__DIR__ . "/../library/patient.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Events\PatientDocuments\PatientDocumentTreeViewFilterEvent;
@@ -33,6 +37,8 @@ class C_Document extends Controller
     public $_last_node;
     private $Document;
     private $cryptoGen;
+    private bool $skip_acl_check = false;
+    private DocumentTemplateService $templateService;
 
     public function __construct($template_mod = "general")
     {
@@ -64,6 +70,7 @@ class C_Document extends Controller
 
         // Create a crypto object that will be used for for encryption/decryption
         $this->cryptoGen = new CryptoGen();
+        $this->templateService = new DocumentTemplateService();
     }
 
     public function upload_action($patient_id, $category_id)
@@ -98,31 +105,9 @@ class C_Document extends Controller
         }
         $this->assign("TEMPLATES_LIST", $templates_options);
 
-        // duplicate template list for new template form editor sjp 05/20/2019
         // will call as module or individual template.
-        $templatedir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates';
-        $templates_options = "<option value=''>-- " . xlt('Open Forms Module') . " --</option>";
-        if (file_exists($templatedir)) {
-            $dh = opendir($templatedir);
-        }
-        if ($dh) {
-            $templateslist = array();
-            while (false !== ($sfname = readdir($dh))) {
-                if (substr($sfname, 0, 1) == '.') {
-                    continue;
-                }
-                if (substr(strtolower($sfname), strlen($sfname) - 4) == '.tpl') {
-                    $templateslist[$sfname] = $sfname;
-                }
-            }
-            closedir($dh);
-            ksort($templateslist);
-            foreach ($templateslist as $sfname) {
-                $optname = str_replace('_', ' ', basename($sfname, ".tpl"));
-                $templates_options .= "<option value='" . attr($sfname) . "'>" . text($optname) . "</option>";
-            }
-        }
-        $this->assign("TEMPLATES_LIST_PATIENT", $templates_options);
+        $templates_list = $this->templateService->renderPortalTemplateMenu($patient_id, '-patient-', false) ?? [];
+        $this->assign("TEMPLATES_LIST_PATIENT", $templates_list);
 
         $activity = $this->fetch($GLOBALS['template_dir'] . "documents/" . $this->template_mod . "_upload.html");
         $this->assign("activity", $activity);
@@ -202,6 +187,8 @@ class C_Document extends Controller
 
         if (is_numeric($_POST['category_id'])) {
             $category_id = $_POST['category_id'];
+        } else {
+            $category_id = 1;
         }
 
         $patient_id = 0;
@@ -211,7 +198,18 @@ class C_Document extends Controller
             $patient_id = $_POST['patient_id'];
         }
 
-        if (!empty($_FILES['dicom_folder']['name'][0])) {
+        // ensure user has access to the category that is being uploaded to
+        $skipUpload = false;
+        if (!$this->isSkipAclCheck()) {
+            $acoSpec = sqlQuery("SELECT `aco_spec` from `categories` WHERE `id` = ?", [$category_id])['aco_spec'];
+            if (AclMain::aclCheckAcoSpec($acoSpec) === false) {
+                $error = xl("Not authorized to upload to the selected category.\n");
+                $skipUpload = true;
+                (new SystemLogger())->debug("An attempt was made to upload a document to an unauthorized category", ['user-id' => $_SESSION['authUserID'], 'patient-id' => $patient_id, 'category-id' => $category_id]);
+            }
+        }
+
+        if (!$skipUpload && !empty($_FILES['dicom_folder']['name'][0])) {
             // let's zip um up then pass along new zip
             $study_name = $_POST['destination'] ? (trim($_POST['destination']) . ".zip") : 'DicomStudy.zip';
             $study_name =  preg_replace('/\s+/', '_', $study_name);
@@ -225,7 +223,7 @@ class C_Document extends Controller
         }
 
         $sentUploadStatus = array();
-        if (count($_FILES['file']['name']) > 0) {
+        if (!$skipUpload && count($_FILES['file']['name']) > 0) {
             $upl_inc = 0;
 
             foreach ($_FILES['file']['name'] as $key => $value) {
@@ -274,7 +272,6 @@ class C_Document extends Controller
                             }
                             $za->close();
                             if ($mimetype == "application/dicom+zip") {
-                                $_FILES['file']['type'][$key] = $mimetype;
                                 sleep(1); // Timing insurance in case of re-compression. Only acted on index so...!
                                 $_FILES['file']['size'][$key] = filesize($_FILES['file']['tmp_name'][$key]); // file may have grown.
                             }
@@ -293,14 +290,22 @@ class C_Document extends Controller
                     if ($_POST['destination'] != '') {
                         $fname = $_POST['destination'];
                     }
-                    // set mime, test for single DICOM and assign extension if missing.
-                    $mimetype = $_FILES['file']['type'][$key];
+                    // test for single DICOM and assign extension if missing.
                     if (strpos($filetext, 'DICM') !== false) {
                         $mimetype = 'application/dicom';
                         $parts = pathinfo($fname);
                         if (!$parts['extension']) {
                             $fname .= '.dcm';
                         }
+                    }
+                    // set mimetype (if not already set above)
+                    if (empty($mimetype)) {
+                        $mimetype = mime_content_type($_FILES['file']['tmp_name'][$key]);
+                    }
+                    // if mimetype still empty, then do not upload the file
+                    if (empty($mimetype)) {
+                        $error = xl("Unable to discover mimetype, so did not upload " . $_FILES['file']['tmp_name'][$key]) . ".\n";
+                        continue;
                     }
                     $d = new Document();
                     $rc = $d->createDocument(
@@ -437,7 +442,7 @@ class C_Document extends Controller
     {
         global $ISSUE_TYPES;
 
-        require_once(dirname(__FILE__) . "/../library/lists.inc");
+        require_once(dirname(__FILE__) . "/../library/lists.inc.php");
 
         $d = new Document($doc_id);
         $notes = $d->get_notes();
@@ -604,6 +609,22 @@ class C_Document extends Controller
         }
 
         $d = new Document($document_id);
+
+        // ensure user/patient has access
+        if (isset($_SESSION['patient_portal_onsite_two']) && isset($_SESSION['pid'])) {
+            // ensure patient has access (called from patient portal)
+            if (!$d->can_patient_access($_SESSION['pid'])) {
+                (new SystemLogger())->debug("An attempt was made by a patient to download a document from an unauthorized category", ['patient-id' => $_SESSION['pid'], 'document-id' => $document_id]);
+                die(xlt("Not authorized to view requested file"));
+            }
+        } else {
+            // ensure user has access
+            if (!$d->can_access()) {
+                (new SystemLogger())->debug("An attempt was made by a user to download a document from an unauthorized category", ['user-id' => $_SESSION['authUserID'], 'patient-id' => $patient_id, 'document-id' => $document_id]);
+                die(xlt("Not authorized to view requested file"));
+            }
+        }
+
         $url =  $d->get_url();
         $th_url = $d->get_thumb_url();
 
@@ -1367,5 +1388,19 @@ class C_Document extends Controller
             sqlStatement("update documents set encounter_id='0' where foreign_id=? and id = ?", array($patient_id,$document_id));
         }
         return $this->view_action($patient_id, $document_id);
+    }
+
+    // this will set flag to skip acl check
+    // this is needed for when uploading via services that piggyback on any user (ie. the background services) or via cron/cli
+    public function skipAclCheck(): void
+    {
+        $this->skip_acl_check = true;
+    }
+
+    // this will check if flag has been set to skip the acl check
+    // this is needed for when uploading via services that piggyback on any user (ie. the background services) or via cron/cli
+    public function isSkipAclCheck(): bool
+    {
+        return $this->skip_acl_check;
     }
 }

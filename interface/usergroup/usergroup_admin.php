@@ -16,13 +16,12 @@
  * @copyright Copyright (c) 2021 Daniel Pflieger <daniel@mi-squared.com> <daniel@growlingflea.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Rod Roark <rod@sunsetsystems.com>
- * @copyright Copyright (c) 2022 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2022-2023 Robert Down <robertdown@live.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 $sessionAllowWrite = true;
 require_once("../globals.php");
-require_once("$srcdir/auth.inc");
 
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
@@ -35,14 +34,8 @@ use OpenEMR\Services\UserService;
 use OpenEMR\Events\User\UserUpdatedEvent;
 use OpenEMR\Events\User\UserCreatedEvent;
 
-if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
-}
-
-if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+if (!empty($_REQUEST)) {
+    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -139,6 +132,14 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
 
         if ($_POST["lname"]) {
             sqlStatement("update users set lname=? where id= ? ", array($_POST["lname"], $_POST["id"]));
+        }
+
+        if ($_POST["suffix"]) {
+            sqlStatement("update users set suffix=? where id= ? ", array($_POST["suffix"], $_POST["id"]));
+        }
+
+        if ($_POST["valedictory"]) {
+            sqlStatement("update users set valedictory=? where id= ? ", array($_POST["valedictory"], $_POST["id"]));
         }
 
         if ($_POST["job"]) {
@@ -253,7 +254,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         sqlStatement("UPDATE users SET authorized = ?, active = ?, " .
         "calendar = ?, portal_user = ?, see_auth = ? WHERE " .
         "id = ? ", array($tqvar, $actvar, $calvar, $portalvar, $_POST['see_auth'], $_POST["id"]));
-      //Display message when Emergency Login user was activated
+        //Display message when Emergency Login user was activated
         if (is_countable($_POST['access_group'])) {
             $bg_count = count($_POST['access_group']);
             for ($i = 0; $i < $bg_count; $i++) {
@@ -271,28 +272,28 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             }
         }
 
-        if ($_POST["comments"]) {
+        if (isset($_POST["comments"])) {
             sqlStatement("update users set info = ? where id = ? ", array($_POST["comments"], $_POST["id"]));
         }
 
-        $erxrole = isset($_POST['erxrole']) ? $_POST['erxrole'] : '';
+        $erxrole = $_POST['erxrole'] ?? '';
         sqlStatement("update users set newcrop_user_role = ? where id = ? ", array($erxrole, $_POST["id"]));
 
-        if ($_POST["physician_type"]) {
+        if (isset($_POST["physician_type"])) {
             sqlStatement("update users set physician_type = ? where id = ? ", array($_POST["physician_type"], $_POST["id"]));
         }
 
-        if ($_POST["main_menu_role"]) {
+        if (isset($_POST["main_menu_role"])) {
               $mainMenuRole = filter_input(INPUT_POST, 'main_menu_role');
               sqlStatement("update `users` set `main_menu_role` = ? where `id` = ? ", array($mainMenuRole, $_POST["id"]));
         }
 
-        if ($_POST["patient_menu_role"]) {
+        if (isset($_POST["patient_menu_role"])) {
             $patientMenuRole = filter_input(INPUT_POST, 'patient_menu_role');
             sqlStatement("update `users` set `patient_menu_role` = ? where `id` = ? ", array($patientMenuRole, $_POST["id"]));
         }
 
-        if ($_POST["erxprid"]) {
+        if (isset($_POST["erxprid"])) {
             sqlStatement("update users set weno_prov_id = ? where id = ? ", array($_POST["erxprid"], $_POST["id"]));
         }
 
@@ -321,7 +322,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         // TODO: why are we sending $user_data here when its overwritten with just the 'username' of the user updated
         // instead of the entire user data?  This makes the pre event data not very useful w/o doing a database hit...
         $userUpdatedEvent = new UserUpdatedEvent($user_data, $_POST);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(UserUpdatedEvent::EVENT_HANDLE, $userUpdatedEvent, 10);
+        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($userUpdatedEvent, UserUpdatedEvent::EVENT_HANDLE, 10);
     }
 }
 
@@ -349,6 +350,8 @@ if (isset($_POST["mode"])) {
             "', fname = '"         . add_escape_custom(trim((isset($_POST['fname']) ? $_POST['fname'] : ''))) .
             "', mname = '"         . add_escape_custom(trim((isset($_POST['mname']) ? $_POST['mname'] : ''))) .
             "', lname = '"         . add_escape_custom(trim((isset($_POST['lname']) ? $_POST['lname'] : ''))) .
+            "', suffix = '"         . add_escape_custom(trim((isset($_POST['suffix']) ? $_POST['suffix'] : ''))) .
+            "', valedictory = '"         . add_escape_custom(trim((isset($_POST['valedictory']) ? $_POST['valedictory'] : ''))) .
             "', federaltaxid = '"  . add_escape_custom(trim((isset($_POST['federaltaxid']) ? $_POST['federaltaxid'] : ''))) .
             "', state_license_number = '"  . add_escape_custom(trim((isset($_POST['state_license_number']) ? $_POST['state_license_number'] : ''))) .
             "', newcrop_user_role = '"  . add_escape_custom(trim((isset($_POST['erxrole']) ? $_POST['erxrole'] : ''))) .
@@ -449,7 +452,7 @@ if (isset($_POST["mode"])) {
             $submittedData['username'] = $submittedData['rumple'] ?? null;
             $userCreatedEvent = new UserCreatedEvent($submittedData);
             unset($submittedData); // clear things out in case we have any sensitive data here
-            $GLOBALS["kernel"]->getEventDispatcher()->dispatch(UserCreatedEvent::EVENT_HANDLE, $userCreatedEvent, 10);
+            $GLOBALS["kernel"]->getEventDispatcher()->dispatch($userCreatedEvent, UserCreatedEvent::EVENT_HANDLE, 10);
         }
     } elseif ($_POST["mode"] == "new_group") {
         $res = sqlStatement("select distinct name, user from `groups`");
@@ -523,13 +526,13 @@ if (isset($_GET["mode"])) {
         }
     }
 }
-// added for form submit's from usergroup_admin_add and user_admin.php
+// added for form submits from usergroup_admin_add and user_admin.php
 // sjp 12/29/17
 if (isset($_REQUEST["mode"])) {
     exit(text(trim($alertmsg)));
 }
 
-$form_inactive = empty($_POST['form_inactive']) ? false : true;
+$form_inactive = !empty($_POST['form_inactive']);
 
 ?>
 <html>
@@ -558,6 +561,21 @@ function authorized_clicked() {
  var f = document.forms[0];
  f.calendar.disabled = !f.authorized.checked;
  f.calendar.checked  =  f.authorized.checked;
+}
+
+function resetCounter(username) {
+    top.restoreSession();
+    request = new FormData;
+    request.append("function", "resetUsernameCounter");
+    request.append("username", username);
+    request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('counter')); ?>);
+    fetch("<?php echo $GLOBALS["webroot"]; ?>/library/ajax/login_counter_ip_tracker.php", {
+        method: 'POST',
+        credentials: 'same-origin',
+        body: request
+    });
+    let loginCounterElement = document.getElementById('login-counter-' + username);
+    loginCounterElement.innerHTML = "0";
 }
 
 </script>
@@ -619,6 +637,7 @@ function authorized_clicked() {
                                 echo '<th>' . xlt('Password Expiration') . '</th>';
                             }
                             ?>
+                            <th><?php echo xlt('Failed Login Counter'); ?></th>
                         </tr>
                     <tbody>
                         <?php
@@ -688,6 +707,41 @@ function authorized_clicked() {
                                 }
                                 echo '</td>';
                             }
+                            if (empty($iter["active"])) {
+                                echo '<td>';
+                                echo xlt('Not Applicable');
+                            } else {
+                                echo '<td id="login-counter-' . attr($iter["username"]) .  '">';
+                                $queryCounter = privQuery("SELECT `login_fail_counter`, `last_login_fail`, TIMESTAMPDIFF(SECOND, `last_login_fail`, NOW()) as `seconds_last_login_fail` FROM `users_secure` WHERE BINARY `username` = ?", [$iter["username"]]);
+                                if (!empty($queryCounter['login_fail_counter'])) {
+                                    echo text($queryCounter['login_fail_counter']);
+                                    if (!empty($queryCounter['last_login_fail'])) {
+                                        echo ' (' . xlt('last on') . ' ' . text(oeFormatDateTime($queryCounter['last_login_fail'])) . ')';
+                                    }
+                                    echo ' ' . '<button type="button" class="btn btn-sm btn-danger ml-1" onclick="resetCounter(' . attr_js($iter["username"]) . ')">' . xlt("Reset Counter") . '</button>';
+                                    $autoBlocked = false;
+                                    $autoBlockEnd = null;
+                                    if ((int)$GLOBALS['password_max_failed_logins'] != 0 && ($queryCounter['login_fail_counter'] > (int)$GLOBALS['password_max_failed_logins'])) {
+                                        if ((int)$GLOBALS['time_reset_password_max_failed_logins'] != 0) {
+                                            if ($queryCounter['seconds_last_login_fail'] < (int)$GLOBALS['time_reset_password_max_failed_logins']) {
+                                                $autoBlocked = true;
+                                                $autoBlockEnd = date('Y-m-d H:i:s', (time() + ((int)$GLOBALS['time_reset_password_max_failed_logins'] - $queryCounter['seconds_last_login_fail'])));
+                                            }
+                                        } else {
+                                            $autoBlocked = true;
+                                        }
+                                    }
+                                    if ($autoBlocked) {
+                                        echo '<br>' . xlt("Currently Autoblocked");
+                                        if (!empty($autoBlockEnd)) {
+                                            echo ' (' . xlt("Autoblock ends on") . ' ' . text(oeFormatDateTime($autoBlockEnd)) . ')';
+                                        }
+                                    }
+                                } else {
+                                    echo '0';
+                                }
+                            }
+                            echo '</td>';
                             print "</tr>\n";
                         }
                         ?>

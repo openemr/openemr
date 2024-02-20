@@ -32,6 +32,8 @@ use InvalidArgumentException;
 use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Key;
 use OpenEMR\Common\Logging\SystemLogger;
+use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\Crypt\RSA;
 use Psr\Log\LoggerInterface;
 
 class RsaSha384Signer implements Signer
@@ -98,13 +100,10 @@ class RsaSha384Signer implements Signer
     {
 
         $this->logger->debug("RsaSha384Signer->verify() beginning jwt verification");
-        if (!class_exists('\phpseclib\Crypt\RSA') && !class_exists('Crypt_RSA')) {
-            throw new JWKValidatorException('Crypt_RSA support unavailable.');
-        }
 
         if ($key instanceof JsonWebKeySet) {
             $kid = $this->headers['kid'] ?? null;
-            $this->logger->debug("RsaSha384Signer->verify() attempting to retrieve jwk");
+            $this->logger->debug("RsaSha384Signer->verify() attempting to retrieve jwk", ['kid' => $kid]);
             $jwk = $key->getJSONWebKey($kid, $this->algorithmId());
         } else {
             $key = $key instanceof Key ? $key->contents() : $key;
@@ -129,17 +128,8 @@ class RsaSha384Signer implements Signer
             '  <Modulus>' . $this->b64url2b64($jwk->n) . "</Modulus>\r\n" .
             '  <Exponent>' . $this->b64url2b64($jwk->e) . "</Exponent>\r\n" .
             '</RSAKeyValue>';
-        if (class_exists('Crypt_RSA', false)) {
-            $rsa = new Crypt_RSA();
-            $rsa->setHash(self::CRYPT_ALGORITHM);
-            $rsa->loadKey($public_key_xml, Crypt_RSA::PUBLIC_FORMAT_XML);
-            $rsa->signatureMode = Crypt_RSA::SIGNATURE_PKCS1;
-        } else {
-            $rsa = new \phpseclib\Crypt\RSA();
-            $rsa->setHash(self::CRYPT_ALGORITHM);
-            $rsa->loadKey($public_key_xml, \phpseclib\Crypt\RSA::PUBLIC_FORMAT_XML);
-            $rsa->signatureMode = \phpseclib\Crypt\RSA::SIGNATURE_PKCS1;
-        }
+        $rsa = PublicKeyLoader::load($public_key_xml)->withPadding(RSA::SIGNATURE_PKCS1)->withHash(self::CRYPT_ALGORITHM);
+
         return $rsa->verify($payload, $expected);
     }
 

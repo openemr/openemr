@@ -19,6 +19,7 @@
  */
 
 if (!opener) {
+    /* eslint-disable-next-line no-global-assign */
     opener = top.get_opener(window.name);
 }
 

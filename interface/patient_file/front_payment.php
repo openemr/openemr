@@ -13,9 +13,9 @@
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc");
+require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/payment.inc.php");
-require_once("$srcdir/forms.inc");
+require_once("$srcdir/forms.inc.php");
 require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
@@ -24,10 +24,14 @@ use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
+use OpenEMR\Events\Billing\Payments\PostFrontPayment;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\FacilityService;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+
 
 if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
     if (!AclMain::aclCheckCore('acct', 'bill') && !AclMain::aclCheckCore('acct', 'rep_a') && !AclMain::aclCheckCore('patients', 'rx')) {
@@ -67,25 +71,6 @@ $facilityService = new FacilityService();
         <script src=<?php echo $script; ?> charset="utf-8"></script>
     <?php } ?>
 <?php
-// Format dollars for display.
-
-function bucks($amount)
-{
-    if ($amount) {
-        $amount = oeFormatMoney($amount);
-        return $amount;
-    }
-    return '';
-}
-
-function rawbucks($amount)
-{
-    if ($amount) {
-        $amount = sprintf("%.2f", $amount);
-        return $amount;
-    }
-    return '';
-}
 
 // Display a row of data for an encounter.
 //
@@ -94,19 +79,19 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
 {
     global $var_index;
     $var_index++;
-    $balance = bucks($charges - $ptpaid - $inspaid);
+    $balance = FormatMoney::getBucks($charges - $ptpaid - $inspaid);
     $balance = (round($duept, 2) != 0) ? 0 : $balance;//if balance is due from patient, then insurance balance is displayed as zero
     $encounter = $encounter ? $encounter : '';
     echo " <tr id='tr_" . attr($var_index) . "' >\n";
     echo "  <td>" . text(oeFormatShortDate($date)) . "</td>\n";
     echo "  <td class='text-center' id='" . attr($date) . "'>" . text($encounter) . "</td>\n";
-    echo "  <td class='text-center' id='td_charges_$var_index' >" . text(bucks($charges)) . "</td>\n";
-    echo "  <td class='text-center' id='td_inspaid_$var_index' >" . text(bucks($inspaid * -1)) . "</td>\n";
-    echo "  <td class='text-center' id='td_ptpaid_$var_index' >" . text(bucks($ptpaid * -1)) . "</td>\n";
-    echo "  <td class='text-center' id='td_patient_copay_$var_index' >" . text(bucks($patcopay)) . "</td>\n";
-    echo "  <td class='text-center' id='td_copay_$var_index' >" . text(bucks($copay)) . "</td>\n";
-    echo "  <td class='text-center' id='balance_$var_index'>" . text(bucks($balance)) . "</td>\n";
-    echo "  <td class='text-center' id='duept_$var_index'>" . text(bucks(round($duept, 2) * 1)) . "</td>\n";
+    echo "  <td class='text-center' id='td_charges_$var_index' >" . text(FormatMoney::getBucks($charges)) . "</td>\n";
+    echo "  <td class='text-center' id='td_inspaid_$var_index' >" . text(FormatMoney::getBucks($inspaid * -1)) . "</td>\n";
+    echo "  <td class='text-center' id='td_ptpaid_$var_index' >" . text(FormatMoney::getBucks($ptpaid * -1)) . "</td>\n";
+    echo "  <td class='text-center' id='td_patient_copay_$var_index' >" . text(FormatMoney::getBucks($patcopay)) . "</td>\n";
+    echo "  <td class='text-center' id='td_copay_$var_index' >" . text(FormatMoney::getBucks($copay)) . "</td>\n";
+    echo "  <td class='text-center' id='balance_$var_index'>" . text(FormatMoney::getBucks($balance)) . "</td>\n";
+    echo "  <td class='text-center' id='duept_$var_index'>" . text(FormatMoney::getBucks(round($duept, 2) * 1)) . "</td>\n";
     echo "  <td class='text-right'><input type='text' class='form-control' name='" . attr($iname) . "'  id='paying_" . attr($var_index) . "' " .
         " value='' onchange='coloring();calctotal()'  autocomplete='off' " .
         "onkeyup='calctotal()'/></td>\n";
@@ -177,6 +162,8 @@ $patdata = sqlQuery("SELECT " .
     "i.pid = p.pid AND i.type = 'primary' " .
     "WHERE p.pid = ? ORDER BY i.date DESC LIMIT 1", array($pid));
 
+$invoice_refno = BillingUtilities::updateInvoiceRefNumber();
+
 $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Save button was clicked...
@@ -187,9 +174,15 @@ if (!empty($_POST['form_save'])) {
 
     $form_pid = $_POST['form_pid'];
     $form_method = trim($_POST['form_method']);
-    $form_source = trim($_POST['form_source']);
+    $form_source = trim($_POST['form_source'] ?? ''); // check number not always entered
     $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
+
+    //Update the invoice_refno
+    sqlStatement(
+        "update form_encounter set invoice_refno=? where encounter=? and pid=? ",
+        array($invoice_refno, $encounter, $form_pid)
+    );
 
     if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
             $payment_id = sqlInsert(
@@ -505,65 +498,198 @@ function toencounter(enc, datestr, topframe) {
             display: none;
         }
     }
+    .main-section {
+        display: grid;
+        grid-template-columns: 50% auto;
+        grid-template-areas: "section-2 section-1";
+    }
+    .section-1 {
+        grid-area: section-1;
+        height: fit-content;
+        align-self: center;
+        padding-left: 208px;
+        margin-top: -7em;
+    }
+    .section-2 {
+        grid-area: section-2;
+        text-align: left;
+    }
+    table,td,th {
+        border: 1px solid black; text-align: left;
+    }
+    table {
+        border-collapse: collapse; width: 100%;
+    }
+    th,td {
+        padding: 7px;
+    }
+    .table td {
+        padding: 7px;
+    }
+    .mini_table {
+        width: 100%;
+    }
+    table.mini_table>tbody>tr>th {
+        background-color: var(--secondary);
+        text-align: center;
+    }
+    body>table.mini_table>tbody>tr>td {
+        text-align: center;
+    }
+    body>table.mini_table>tbody>tr>td {
+        border: 1px solid #fff;
+    }
+    body>table.mini_table>tbody>tr>th {
+        border: 1px solid var(--secondary);
+    }
+    .bg-color {
+        background-color: var(--secondary);
+        padding: 2px;
+        font-weight: 600;
+        -webkit-print-color-adjust: exact;
+    }
+    .bg-color-w {
+        background-color: var(--secondary);
+        font-weight: 600;
+        -webkit-print-color-adjust: exact!important; }
+    @media print {
+        body {
+            -webkit-print-color-adjust: exact !important;
+        }
+
+        tr.bg-color-w{
+            background-color: var(--secondary)!important;
+            -webkit-print-color-adjust: exact;
+        }
+        tr.bg-color{
+            background-color: var(--secondary) !important;
+            -webkit-print-color-adjust: exact;
+        }
+    }
 </style>
 </head>
 <body>
     <div class="container mt-3">
         <div class="row">
-            <div class="col-12 text-center">
-                <h2><?php echo xlt('Receipt for Payment'); ?></h2>
-                <p>
-                    <?php echo text($frow['name']) ?>
-                    <br />
-                    <?php echo text($frow['street']) ?>
-                    <br />
-                    <?php echo text($frow['city'] . ', ' . $frow['state']) . ' ' . text($frow['postal_code']) ?>
-                    <br />
-                    <?php echo text($frow['phone']) ?>
-                </p>
+            <!-- Omega -->
+            <div class="col-12 justify-content-center">
+                <h2 class="text-center"><?php echo xlt('Receipt for Payment'); ?></h2>
+                <div class="main-section mb-5 mt-10">
+                    <div class="section-2">
+                        <p style="font-weight:600;">
+                            <bold class="bg-color"><?php echo text($frow['name']) ?></bold> <br /> <br />
+                            <?php echo text($frow['street']) ?><br />
+                            <?php echo text($frow['city'] . ', ' . $frow['state']) . ' ' . text($frow['postal_code']) ?><br />
+                            <?php echo text("[Phone]" . $frow['phone']) ?><br />
+                            <?php echo text("[Email] " . $frow['email']) ?><br />
 
-                <div class="table-responsive">
-                    <table class="table table-borderless">
-                        <tr>
-                            <td><?php echo xlt('Date'); ?>:</td>
-                            <td><?php echo text(oeFormatSDFT(strtotime($payrow['dtime']))) ?></td>
-                        </tr>
-                        <tr>
-                            <td><?php echo xlt('Patient'); ?>:</td>
-                            <td><?php echo text($patdata['fname']) . " " . text($patdata['mname']) . " " .
-                            text($patdata['lname']) . " (" . text($patdata['pubpid']) . ")" ?></td>
-                        </tr>
-                        <tr>
-                            <td><?php echo xlt('How Paid'); ?>:</td>
-                            <td><?php echo generate_display_field(array('data_type' => '1', 'list_id' => 'payment_method'), $payrow['method']); ?></td>
-                        </tr>
-                        <tr>
-                            <td><?php echo xlt('Check or Reference Number'); ?>:</td>
-                            <td><?php echo text($payrow['source']) ?></td>
-                        </tr>
-                        <tr>
-                            <td><?php echo xlt('Amount for This Visit'); ?>:</td>
-                            <td><?php echo text(oeFormatMoney($payrow['amount1'])) ?></td>
-                        </tr>
-                        <tr>
-                            <td>
+
+                            <br />
+                            <?php echo xlt('How Paid'); ?>:
+                            <?php echo generate_display_field(array('data_type' => '1', 'list_id' => 'payment_method'), $payrow['method']); ?>
+
+                            <br />
+                            <?php echo xlt('Check or Reference Number'); ?>:
+                            <?php echo text($payrow['source']); ?>
+
+                            <br />
                             <?php
                             if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
                                 echo xlt('Pre-payment Amount');
                             } else {
                                 echo xlt('Amount for Past Balance');
                             }
-                            ?>
-                            :</td>
-                            <td><?php echo text(oeFormatMoney($payrow['amount2'])) ?></td>
-                        </tr>
-                        <tr>
-                            <td><?php echo xlt('Received By'); ?>:</td>
-                            <td><?php echo text($payrow['user']) ?></td>
-                        </tr>
-                    </table>
+                            ?>:
+                            <?php echo text(oeFormatMoney($payrow['amount2'])); ?>
+
+                            <br />
+                            <?php echo xlt('Amount for This Visit'); ?>:
+                            <?php echo text(oeFormatMoney($payrow['amount1'])); ?>
+
+                            <br />
+                            <?php echo xlt('Received By'); ?>:
+                            <?php echo text($payrow['user']); ?>
+                        </p>
+
+                    </div>
+                    <div class="section-1">
+                        <?php if (file_exists($GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_1.png")) { ?>
+                            <img src=<?php echo $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_1.png" ?> alt="facility_logo" class="img-fluid">
+                        <?php } ?>
+
+                        <table class="mini_table text-center">
+                            <tr>
+                                <th><?php echo xlt('Invoice No.'); ?></th>
+                                <th><?php echo xlt('Date'); ?></th>
+                            </tr>
+                            <tr class="text-center">
+                                <td class="text-center"><?php echo text($invoice_refno); ?></td>
+                                <td class="text-center"><?php echo text(oeFormatSDFT(strtotime($payrow['dtime']))); ?></td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
-                <div id='hideonprint'>
+
+                <div class="table-responsive">
+
+                    <table>
+                        <!-- Omega Itemized Invoice -->
+                        <tr class="bg-color-w">
+                            <th><?php echo xlt('Description'); ?></th>
+                            <th><?php echo xlt('Price'); ?></th>
+                            <th><?php echo xlt('Qty'); ?></th>
+                            <th><?php echo xlt('Total'); ?></th>
+                        </tr>
+                        <!-- Omega Itemized Invoice -->
+                        <?php
+                            $row_data = sqlStatement(
+                                "SELECT * FROM billing WHERE " .
+                                "pid = ? AND encounter = ? AND " .
+                                // "code_type != 'COPAY' AND activity = 1 AND fee != 0 " .
+                                "code_type != 'COPAY' AND activity = 1 " .
+                                "ORDER BY id",
+                                array($pid,$encounter)
+                            );
+                        while ($each_row = sqlFetchArray($row_data)) {
+                            ?>
+                                <tr>
+                                    <td><?php echo text($each_row['code_text']); ?></td>
+                                    <td><?php echo text($each_row['fee']); ?></td>
+                                    <td><?php echo text($each_row['units']); ?></td>
+                                    <td><?php echo text($each_row['fee'] * $each_row['units']); ?></td>
+                                </tr>
+                        <?php } ?>
+
+                        <?php
+                            $query = "SELECT s.sale_id, s.sale_date, s.prescription_id, s.fee, " .
+                            "s.quantity, s.encounter, s.drug_id, d.name, r.provider_id " .
+                            "FROM drug_sales AS s " .
+                            "LEFT JOIN drugs AS d ON d.drug_id = s.drug_id " .
+                            "LEFT OUTER JOIN prescriptions AS r ON r.id = s.prescription_id " .
+                            "WHERE s.pid = ? AND s.encounter = ? AND s.billed = 0 " .
+                            "ORDER BY s.encounter DESC, s.sale_id ASC";
+                            $dres = sqlStatement($query, array($pid, $encounter));
+                        while ($myproducts = sqlFetchArray($dres)) {
+                            ?>
+                            <tr>
+                                <td><?php echo text($myproducts['name']); ?></td>
+                                <td><?php echo text($myproducts['fee']); ?></td>
+                                <td><?php echo text($myproducts['quantity']); ?></td>
+                                <td><?php echo text($myproducts['fee'] * $myproducts['quantity']); ?></td>
+                            </tr>
+                        <?php } ?>
+
+                        <tr>
+                            <td style="border-right-color:white !important;"></td>
+                            <td ></td>
+                            <td class="text-right bg-color-w"><?php echo text("Total"); ?></td>
+                            <td class="text-left bg-color-w"><?php echo text(oeFormatMoney($payrow['amount1'] + $payrow['amount2'])); ?></td>
+                        </tr>
+
+                    </table>
+
+                </div>
+                <div id='hideonprint' class="text-center pt-4">
                     <button type="button" class="btn btn-primary btn-print" value='<?php echo xla('Print'); ?>' id='printbutton'>
                         <?php echo xlt('Print'); ?>
                     </button>
@@ -584,7 +710,7 @@ function toencounter(enc, datestr, topframe) {
                     </button>
                     <?php } ?>
                 </div>
-                <div class='mt-3' id='showonprint'>
+                <div class='mt-3 text-center' id='showonprint'>
                     <button type="button" class="btn btn-secondary btn-cancel" value='<?php echo xla('Exit'); ?>' id='donebutton' onclick="closeHow(event)">
                         <?php echo xlt('Exit'); ?>
                     </button>
@@ -1012,17 +1138,30 @@ function make_insurance() {
                     <input name='form_pid' type='hidden' value='<?php echo attr($pid) ?>' />
                     <fieldset>
                         <legend><?php echo xlt('Payment'); ?></legend>
+                        <?php
+                            $prepayment_bal = get_unallocated_patient_balance($pid);
+                        if ($prepayment_bal > 0) : ?>
+                                <div class="col-12 oe-custom-line">
+                                    <label class="control-label" for="unallocated"><?php
+                                                echo xlt('Patient has an unallocated pre-payment amount of ') .
+                                                    text($prepayment_bal); ?></label><br>
+                                    <a href="../billing/edit_payment.php?payment_id=<?php
+                                        echo attr_url(get_unallocated_payment_id($pid)); ?>"
+                                       target="_self"><?php echo xlt('Apply unallocated pre-payments here') ?></a>
+                                </div><br>
+                            <?php endif;  ?>
                         <div class="col-12 oe-custom-line">
                             <label class="control-label" for="form_method"><?php echo xlt('Payment Method'); ?>:</label>
                             <select class="form-control" id="form_method" name="form_method" onchange='CheckVisible("yes")'>
                                 <?php
-                                $query1112 = "SELECT * FROM list_options where activity=1 AND list_id=?  ORDER BY seq, title ";
+                                $query1112 = "SELECT * FROM `list_options` where activity=1 AND list_id=?  ORDER BY seq, title ";
                                 $bres1112 = sqlStatement($query1112, array('payment_method'));
                                 while ($brow1112 = sqlFetchArray($bres1112)) {
                                     if ($brow1112['option_id'] == 'electronic' || $brow1112['option_id'] == 'bank_draft') {
                                         continue;
                                     }
-                                    echo "<option value='" . attr($brow1112['option_id']) . "'>" . text(xl_list_label($brow1112['title'])) . "</option>";
+                                    echo "<option value='" . attr($brow1112['option_id']) . "'" .
+                                        ($brow1112['is_default'] ? ' selected' : '') . ">" . text(xl_list_label($brow1112['title'])) . "</option>";
                                 }
                                 ?>
                             </select>
@@ -1075,17 +1214,17 @@ function make_insurance() {
                             <table class="table" id="table_display">
                                 <thead>
                                     <tr class="table-active" id="tr_head">
-                                        <th class="font-weight-bold" width="70"><?php echo xlt('DOS'); ?></td>
-                                        <th class="font-weight-bold" width="65"><?php echo xlt('Encounter'); ?></td>
-                                        <th class="font-weight-bold text-center" id="td_head_total_charge" width="80"><?php echo xlt('Total Charge'); ?></td>
-                                        <th class="font-weight-bold text-center" id="td_head_rep_doc" style='display:none' width="70"><?php echo xlt('Report/ Form'); ?></td>
-                                        <th class="font-weight-bold text-center" id="td_head_description" style='display:none' width="200"><?php echo xlt('Description'); ?></td>
-                                        <th class="font-weight-bold text-center" id="td_head_insurance_payment" width="80"><?php echo xlt('Insurance Payment'); ?></td>
-                                        <th class="font-weight-bold text-center" id="td_head_patient_payment" width="80"><?php echo xlt('Patient Payment'); ?></td>
-                                        <th class="font-weight-bold text-center" id="td_head_patient_co_pay" width="55"><?php echo xlt('Co Pay Paid'); ?></td>
-                                        <th class="font-weight-bold text-center" id="td_head_co_pay" width="55"><?php echo xlt('Required Co Pay'); ?></td>
-                                        <th class="font-weight-bold text-center" id="td_head_insurance_balance" width="80"><?php echo xlt('Insurance Balance'); ?></td>
-                                        <th class="font-weight-bold text-center" id="td_head_patient_balance" width="80"><?php echo xlt('Patient Balance'); ?></td>
+                                        <th class="font-weight-bold" width="70"><?php echo xlt('DOS'); ?></th>
+                                        <th class="font-weight-bold" width="65"><?php echo xlt('Encounter'); ?></th>
+                                        <th class="font-weight-bold text-center" id="td_head_total_charge" width="80"><?php echo xlt('Total Charge'); ?></th>
+                                        <th class="font-weight-bold text-center" id="td_head_rep_doc" style='display:none' width="70"><?php echo xlt('Report/ Form'); ?></th>
+                                        <th class="font-weight-bold text-center" id="td_head_description" style='display:none' width="200"><?php echo xlt('Description'); ?></th>
+                                        <th class="font-weight-bold text-center" id="td_head_insurance_payment" width="80"><?php echo xlt('Insurance Payment'); ?></th>
+                                        <th class="font-weight-bold text-center" id="td_head_patient_payment" width="80"><?php echo xlt('Patient Payment'); ?></th>
+                                        <th class="font-weight-bold text-center" id="td_head_patient_co_pay" width="55"><?php echo xlt('Co Pay Paid'); ?></th>
+                                        <th class="font-weight-bold text-center" id="td_head_co_pay" width="55"><?php echo xlt('Required Co Pay'); ?></th>
+                                        <th class="font-weight-bold text-center" id="td_head_insurance_balance" width="80"><?php echo xlt('Insurance Balance'); ?></th>
+                                        <th class="font-weight-bold text-center" id="td_head_patient_balance" width="80"><?php echo xlt('Patient Balance'); ?></th>
                                         <th class="font-weight-bold text-center" width="50"><?php echo xlt('Paying'); ?></th>
                                     </tr>
                                 </thead>
@@ -1121,7 +1260,7 @@ function make_insurance() {
                                         $encs[$key]['charges'] += $brow['fee'];
                                         // Add taxes.
                                         $sql_array = array();
-                                        $query = "SELECT taxrates FROM codes WHERE " .
+                                        $query = "SELECT taxrates FROM `codes` WHERE " .
                                         "code_type = ? AND " .
                                         "code = ? AND ";
                                         array_push($sql_array, ($code_types[$brow['code_type']]['id'] ?? null), $brow['code']);
@@ -1163,7 +1302,7 @@ function make_insurance() {
 
                                     $encs[$key]['charges'] += $drow['fee'];
                                     // Add taxes.
-                                    $trow = sqlQuery("SELECT taxrates FROM drug_templates WHERE drug_id = ? " .
+                                    $trow = sqlQuery("SELECT taxrates FROM `drug_templates` WHERE drug_id = ? " .
                                     "ORDER BY selector LIMIT 1", array($drow['drug_id']));
                                     $encs[$key]['charges'] += calcTaxes($trow, $drow['fee']);
                                 }
@@ -1221,16 +1360,16 @@ function make_insurance() {
 
                                     //------------------------------------------------------------------------------------
                                     //NumberOfInsurance
-                                    $ResultNumberOfInsurance = sqlStatement("SELECT COUNT( DISTINCT TYPE ) NumberOfInsurance FROM insurance_data
+                                    $ResultNumberOfInsurance = sqlStatement("SELECT COUNT( DISTINCT TYPE ) NumberOfInsurance FROM `insurance_data`
                                     where pid = ? and provider>0 ", array($pid));
                                     $RowNumberOfInsurance = sqlFetchArray($ResultNumberOfInsurance);
                                     $NumberOfInsurance = $RowNumberOfInsurance['NumberOfInsurance'] * 1;
                                     //------------------------------------------------------------------------------------
                                     $duept = 0;
                                     if ((($NumberOfInsurance == 0 || $value['last_level_closed'] == 4 || $NumberOfInsurance == $value['last_level_closed']))) {//Patient balance
-                                        $brow = sqlQuery("SELECT SUM(fee) AS amount FROM billing WHERE " .
+                                        $brow = sqlQuery("SELECT SUM(fee) AS amount FROM `billing` WHERE " .
                                             "pid = ? and encounter = ? AND activity = 1", array($pid, $enc));
-                                        $srow = sqlQuery("SELECT SUM(fee) AS amount FROM drug_sales WHERE " .
+                                        $srow = sqlQuery("SELECT SUM(fee) AS amount FROM `drug_sales` WHERE " .
                                             "pid = ? and encounter = ? ", array($pid, $enc));
                                         $drow = sqlQuery("SELECT SUM(pay_amount) AS payments, " .
                                             "SUM(adj_amount) AS adjustments FROM ar_activity WHERE " .
@@ -1272,7 +1411,7 @@ function make_insurance() {
                     </fieldset>
                     <div class="form-group">
                         <div class="col-sm-12 text-left position-override">
-                            <div class="form-group" role="group">
+                            <div class="form-group" role="group" id="button-group">
                                 <button type='submit' class="btn btn-primary btn-save" name='form_save' value='<?php echo xla('Generate Invoice');?>'><?php echo xlt('Generate Invoice');?></button>
                                 <?php if (!empty($GLOBALS['cc_front_payments']) && $GLOBALS['payment_gateway'] != 'InHouse') {
                                     if ($GLOBALS['payment_gateway'] == 'Sphere') {
@@ -1732,4 +1871,5 @@ function make_insurance() {
 } // forms else close
 ?>
 </body>
+<?php $GLOBALS['kernel']->getEventDispatcher()->dispatch(new PostFrontPayment(), PostFrontPayment::ACTION_POST_FRONT_PAYMENT, 10); ?>
 </html>

@@ -4,7 +4,9 @@
 * @package   OpenEMR
 * @link      http://www.open-emr.org
 * @author    Brady Miller <brady.g.miller@gmail.com>
+* @author    Jerry Padgett <sjpadgett@gmail.com>
 * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+* @copyright Copyright (c) 2019-2024 Jerry Padgett <sjpadgett@gmail.com>
 * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 *}
 <html>
@@ -18,7 +20,7 @@ height: 35px!important;
 border-radius: 4px 0 0 4px!important;
 }
 .warn_diagnostic {
-    margin: 10 auto 10 auto;
+    margin: 10px auto 10px auto;
     color: rgb(255, 0, 0);
     font-size: 1.5rem;
 }
@@ -33,11 +35,15 @@ border-radius: 4px 0 0 4px!important;
 <script src="{$GLOBALS.assets_static_relative}/dropzone/dist/dropzone.js"></script>
 
 <script>
-	function callTemplateModule() {
+	function callTemplateModule(patient_id, cuser, templateName, id, edit) {
 		top.restoreSession();
-		let tele  = document.getElementById("template_filename");
-		let tname = encodeURIComponent(tele.options[tele.selectedIndex].value);
-        let callUrl = '{$GLOBALS.webroot}/portal/patient/onsitedocuments?pid=' + {if !empty($patient_id)}{$patient_id|js_url}{/if} + '&catid=' + {if !empty($category_id)}{$category_id|js_url}{/if} + '&is_module=true&new=' + tname;
+        let callUrl = '{$GLOBALS.webroot}/portal/patient/onsitedocuments?is_module=1' +
+            '&catid=' + {$category_id|js_url} +
+            '&pid=' + encodeURIComponent(patient_id) +
+            '&cuser=' + encodeURIComponent(cuser) +
+            '&recid=' + encodeURIComponent(id) +
+            '&edit=' + encodeURIComponent(edit) +
+            '&new=' + encodeURIComponent(templateName)
 		location.assign(callUrl);
 	}
 </script>
@@ -53,7 +59,7 @@ border-radius: 4px 0 0 4px!important;
 	<div class="row">
 		<div class="col-sm-12">
 			<div class="title">
-				<h2>{xlt t='Documents'} <a href='interface/patient_file/summary/demographics.php' onclick='top.restoreSession()' title="{xla t='Go Back'}" ><i id='advanced-tooltip' class='fa fa-undo fa-2x small' aria-hidden='true'></i></a></h2>
+				<h2>{xlt t='Documents'} <a href='interface/patient_file/summary/demographics.php' onclick='top.restoreSession()' title="{xla t='Go Back'}" ><i id='advanced-tooltip' class='fa fa-solid fa-backward fa-sm' aria-hidden='true'></i></a></h2>
 			</div>
 		</div>
 	</div>
@@ -154,7 +160,6 @@ $(function () {
 $("#list_collapse").detach().appendTo("#objTreeMenu_1_node_1 nobr");
 
 // functions to view and pop out documents as needed.
-//
 $(function () {
     $("img[id^='icon_objTreeMenu_']").tooltip({
         items: $("img[src*='file3.png']"),

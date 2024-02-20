@@ -256,60 +256,62 @@ function msfFileChanged() {
 
 <?php if ($GLOBALS['secure_upload']) { ?>
 <div id="file_type_whitelist">
-    <h2><?php echo xlt('Create custom white list of MIME content type of a files to secure your documents system');?></h2>
+    <h3 class='text-center'><?php echo xlt('White list files by MIME content type');?></h3>
     <form id="whitelist_form" method="post">
-        <div class="subject-black-list">
-            <div class="top-list">
-                <h2 class="text-center"><?php echo xlt('Black list'); ?></h2>
-                <div class="form-row align-items-center">
-                    <div class="col-2">
-                        <label for="filter-black-list" class="font-weight-bold"><?php echo xlt('Filter');?>:</label>
-                    </div>
-                    <div class="col">
-                        <input type="text" id="filter-black-list" class="form-control" />
+        <div class="form-row">
+            <div class="subject-black-list col">
+                <div class="form-group">
+                    <h2 class="text-center"><?php echo xlt('Black list'); ?></h2>
+                    <div class="form-row align-items-center">
+                        <div class="col-2">
+                            <label for="filter-black-list" class="font-weight-bold"><?php echo xlt('Filter');?>:</label>
+                        </div>
+                        <div class="col">
+                            <input type="text" id="filter-black-list" class="form-control" />
+                        </div>
                     </div>
                 </div>
+                <select multiple="multiple" id='black-list' class="form-control w-100">
+                    <?php
+                    foreach ($mime_types as $type) {
+                        if (!in_array($type, $white_list)) {
+                            echo "<option value='" . attr($type) . "'> " . text($type) . "</option>";
+                        }
+                    }
+                    ?>
+                </select>
             </div>
-            <select multiple="multiple" id='black-list' class="form-control">
-                <?php
-                foreach ($mime_types as $type) {
-                    if (!in_array($type, $white_list)) {
+
+            <div class="subject-info-arrows">
+                <input type="button" id="btnAllRight" value=">>" class="btn btn-secondary btn-sm" /><br />
+                <input type="button" id="btnRight" value=">" class="btn btn-secondary btn-sm" /><br />
+                <input type="button" id="btnLeft" value="<" class="btn btn-secondary btn-sm" /><br />
+                <input type="button" id="btnAllLeft" value="<<" class="btn btn-secondary btn-sm" />
+            </div>
+
+            <div class="subject-white-list col">
+                <div class="form-group">
+                    <h2 class="text-center"><?php echo xlt('White list'); ?></h2>
+                    <div class="form-row">
+                        <div class="col-2">
+                            <label><?php echo xlt('Add manually');?>:</label>
+                        </div>
+                        <div class="col">
+                            <input type="text" id="add-manually-input" class="form-control" />
+                        </div>
+                        <div class="col">
+                            <input type="button" class="btn btn-primary" id="add-manually" value="+" />
+                        </div>
+                    </div>
+                </div>
+                <select name="white_list[]" multiple="multiple" id='white-list' class="form-control w-100">
+                    <?php
+                    foreach ($white_list as $type) {
                         echo "<option value='" . attr($type) . "'> " . text($type) . "</option>";
                     }
-                }
-                ?>
-            </select>
-        </div>
-
-        <div class="subject-info-arrows">
-            <input type="button" id="btnAllRight" value=">>" class="btn btn-secondary btn-sm" /><br />
-            <input type="button" id="btnRight" value=">" class="btn btn-secondary btn-sm" /><br />
-            <input type="button" id="btnLeft" value="<" class="btn btn-secondary btn-sm" /><br />
-            <input type="button" id="btnAllLeft" value="<<" class="btn btn-secondary btn-sm" />
-        </div>
-
-        <div class="subject-white-list">
-            <div class="top-list">
-                <h2 class="text-center"><?php echo xlt('White list'); ?></h2>
-                <div class="form-row">
-                    <div class="col-2">
-                        <label><?php echo xlt('Add manually');?>:</label>
-                    </div>
-                    <div class="col">
-                        <input type="text" id="add-manually-input" class="form-control" />
-                    </div>
-                    <div class="col">
-                        <input type="button" class="btn btn-primary" id="add-manually" value="+" />
-                    </div>
-                </div>
+                    ?>
+                </select>
             </div>
-            <select name="white_list[]" multiple="multiple" id='white-list' class="form-control">
-                <?php
-                foreach ($white_list as $type) {
-                    echo "<option value='" . attr($type) . "'> " . text($type) . "</option>";
-                }
-                ?>
-            </select>
         </div>
         <div class="subject-info-save">
             <input type="button" id="submit-whitelist" class="btn btn-primary" value="<?php echo xla('Save'); ?>" />
