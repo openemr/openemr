@@ -262,6 +262,24 @@ the /openemr/Documentation/README.phpgacl file, and the online documentation at
 http://www.open-emr.org . Also recommend reading the comments at top of
 src/Common/Acl/AclMain.php .
 
+Note: This section provides information on setting up access control in OpenEMR.
+If you encounter permission issues during the setup or use of OpenEMR, it's essential to ensure that the correct permissions are granted. Below, we document a common permission issue and its resolution.
+
+Issue: 
+Permission Denied when Changing Ownership and Permissions for Git Repository within a Docker Container
+
+Background:
+Working on a project stored in a Git repository.
+The project is running within a Docker container.
+
+Resolution:
+Verify your Git email configuration by running the following command in your OpenEMR directory: git config user.email
+
+If the email displayed is different from the one associated with your GitHub account, you can set the correct email using: git config user.email "your_correct_email@example.com"
+
+In addition to the above steps, it's advisable to set the email associated with your GitHub account as the primary email in your MyOpenEMR account. This ensures consistency between your Git and MyOpenEMR accounts and can help prevent permission issues.
+
+
 V. Upgrading
 
 NOTE: Most recent documentation can be found on the online documentation at
