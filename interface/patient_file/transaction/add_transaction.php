@@ -424,7 +424,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 if ($thisid == $form_id) {
                                     echo ' selected';
                                 }
-                                echo ">" . text($ttrow['grp_title']) . "</option>\n";
+                                echo ">" . xlt($ttrow['grp_title']) . "</option>\n";
                             }
                             echo "</select>\n";
                             ?>
