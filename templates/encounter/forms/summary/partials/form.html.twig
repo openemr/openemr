@@ -1,0 +1,15 @@
+<div class="w-100" id="partable">
+{% for f in forms %}
+    {% include "encounter/forms/summary/partials/form_header.html.twig" %}
+
+    <div class="{{ form_detail_container_class|default(["form-detail", "formrow"])|join(" ") }}">
+        <div id="divid_{{ divnos|attr }}" class="mb-5 collapse {{ expand_default|attr }}">
+            {{ f.form }}
+        </div>
+    </div>
+
+    {% if f.esign.isLogViewable() %}
+        {% include "encounter/forms/summary/partials/esign_log.html.twig" %}
+    {% endif %}
+{% endfor %}
+</div>
