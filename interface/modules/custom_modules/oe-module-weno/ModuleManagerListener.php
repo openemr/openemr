@@ -31,10 +31,11 @@
 */
 
 use OpenEMR\Core\AbstractModuleActionListener;
+use OpenEMR\Modules\WenoModule\Services\ModuleService;
 
 /* Allows maintenance of background tasks depending on Module Manager action. */
 
-class ModuleManagerAfterActionListener extends AbstractModuleActionListener
+class ModuleManagerListener extends AbstractModuleActionListener
 {
     public function __construct()
     {
@@ -73,9 +74,9 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
      * Required method to return this class object,
      * so it is instantiated in Laminas Manager.
      *
-     * @return ModuleManagerAfterActionListener
+     * @return ModuleManagerListener
      */
-    public static function initListenerSelf(): ModuleManagerAfterActionListener
+    public static function initListenerSelf(): ModuleManagerListener
     {
         return new self();
     }
@@ -95,10 +96,31 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
      * @param $currentActionStatus
      * @return mixed
      */
+    private function preenable($modId, $currentActionStatus): mixed
+    {
+        $modService = new ModuleService();
+        if ($modService->isWenoConfigured()) {
+            $modService::setModuleState($modId, '0', '0');
+            return $currentActionStatus;
+        }
+        $modService::setModuleState($modId, '0', '1');
+        return $currentActionStatus;
+    }
+
+    /**
+     * @param $modId
+     * @param $currentActionStatus
+     * @return mixed
+     */
     private function enable($modId, $currentActionStatus): mixed
     {
-        $rtn = $this->setTaskState('1');
-        return $currentActionStatus;
+        $modService = new ModuleService();
+        if ($modService->isWenoConfigured()) {
+            $modService::setModuleState($modId, '1', '0');
+            return $currentActionStatus;
+        }
+        $modService::setModuleState($modId, '1', '1');
+        return xlt("Weno eRx Service is not configured. Please configure Weno eRx Service in the Weno Module Setup.");
     }
 
     /**
@@ -108,7 +130,7 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
      */
     private function disable($modId, $currentActionStatus): mixed
     {
-        $rtn = $this->setTaskState('0');
+        ModuleService::setModuleState($modId, '0', '0');
         return $currentActionStatus;
     }
 
@@ -161,15 +183,5 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
         }
 
         return $registry;
-    }
-
-    /**
-     * @param $flag
-     * @return mixed
-     */
-    private function setTaskState($flag): mixed
-    {
-        $sql_next = "UPDATE `background_services` SET `active` = ? WHERE `name` = ? OR `name` = ?";
-        return sqlQuery($sql_next, array($flag, 'WenoExchange', 'WenoExchangePharmacies'));
     }
 }

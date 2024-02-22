@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  *  @package OpenEMR
  *  @link    http://www.open-emr.org
  *  @author  Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -12,12 +12,13 @@
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Modules\WenoModule\Services\LogProperties;
+use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 
 /*
  * access control is on Weno side based on the user login
  */
 if (!AclMain::aclCheckCore('patient', 'med')) {
-    echo xlt('Prescriptions Review Not Authorized');
+    echo TransmitProperties::styleErrors(xlt('Prescriptions Review Not Authorized'));
     exit;
 }
 
@@ -26,18 +27,13 @@ $logurlparam = $log_properties->logReview();
 $provider_info = $log_properties->getProviderEmail();
 
 if ($logurlparam == 'error') {
-    echo xlt("Cipher failure check encryption key");
+    echo TransmitProperties::styleErrors(xlt("Cipher failure check encryption key"));
     exit;
 }
 
 $url = "https://online.wenoexchange.com/en/EPCS/RxLog?useremail=";
 
-// I don't understand why you wouldn't escape email
-// Let me know if there is a good reason not to.
-//**warning** do not add urlencode to  $provider_info['email'].
-$urlOut = $url . urlencode($provider_info['email']) . "&data=" . urlencode($logurlparam);
-// Setting a location header here overrides tab html and iFrame.
-//header("Location: " . $urlOut);
+$urlOut = $url . urlencode($provider_info['email'] ?? '') . "&data=" . urlencode($logurlparam);
 
 ?>
 <title><?php echo xlt("Weno RxLog") ?></title>

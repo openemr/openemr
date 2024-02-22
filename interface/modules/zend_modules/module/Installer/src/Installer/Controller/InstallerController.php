@@ -140,6 +140,13 @@ class InstallerController extends AbstractActionController
             $registryEntry = $this->getInstallerTable()->getRegistryEntry($modId, "mod_directory");
             $dirModule = $registryEntry->modDirectory;
             $modType = $registryEntry->type;
+            // cleanup action.
+            if ($modType == InstModuleTable::MODULE_TYPE_CUSTOM) {
+                $status = $this->callModuleAfterAction("pre" . $request->getPost('modAction'), $modId, $dirModule, $status);
+                if ($status == 'bypass') {
+                    // future use
+                }
+            }
             if ($request->getPost('modAction') == "enable") {
                 $status = $this->EnableModule($request->getPost('modId'));
             } elseif ($request->getPost('modAction') == "disable") {
@@ -196,8 +203,8 @@ class InstallerController extends AbstractActionController
     private function callModuleAfterAction($action, $modId, $dirModule, $currentStatus): mixed
     {
         $modPath = $GLOBALS['fileroot'] . "/" . $GLOBALS['baseModDir'] . "custom_modules/" . $dirModule;
-        $moduleClassPath = $modPath . '/ModuleManagerAfterActionListener.php';
-        $className = 'ModuleManagerAfterActionListener';
+        $moduleClassPath = $modPath . '/ModuleManagerListener.php';
+        $className = 'ModuleManagerListener';
         $action = trim($action);
         if (!file_exists($moduleClassPath)) {
             return $currentStatus;
@@ -213,7 +220,7 @@ class InstallerController extends AbstractActionController
         $instance = $className::initListenerSelf();
         if (class_exists($instance::class)) {
             if (method_exists($instance, 'moduleManagerAction')) {
-                return call_user_func([$instance, 'moduleManagerAction'], $methodName, $modId);
+                return call_user_func([$instance, 'moduleManagerAction'], $methodName, $modId, $currentStatus);
             } else {
                 return $currentStatus;
             }

@@ -144,7 +144,7 @@ class PharmacyService
         $sql .= "24hr = ? ";
 
         try {
-            sqlInsert($sql, [
+            sqlStatementNoLog($sql, [
                 $insertdata['ncpdp'],
                 $insertdata['npi'],
                 $insertdata['business_name'],
@@ -158,7 +158,7 @@ class PharmacyService
                 $insertdata['pharmacy_phone'],
                 $insertdata['on_weno'],
                 $insertdata['test_pharmacy'],
-                $insertdata['state_wide_mail'],
+                $insertdata['state_wide_mail'] ?? '',
                 $insertdata['fullDay'],
             ]);
         } catch (Exception $e) {
