@@ -48,9 +48,9 @@ $validate_errors = $validate->errors['string'];
 $pid = ($pid ?? '') ?: $_SESSION['pid'] ?? '';
 $res = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND indication IS NOT NULL", array($pid));
 
-function getProviderByWenoId($external_id): string
+function getProviderByWenoId($external_id, $provider_id = ''): string
 {
-    $provider = sqlQuery("SELECT fname, mname, lname FROM users WHERE weno_prov_id = ? OR id = ?", array($external_id, $external_id));
+    $provider = sqlQuery("SELECT fname, mname, lname FROM users WHERE weno_prov_id = ? OR id = ?", array($external_id, $provider_id));
     if ($provider) {
         return $provider['fname'] . " " . $provider['mname'] . " " . $provider['lname'];
     } else {
@@ -103,7 +103,7 @@ if ($hasWarnings || $hasErrors) { ?>
         while ($row = sqlFetchArray($res)) { ?>
             <tr>
                 <td><?php echo text($row["drug"]); ?></td>
-                <td><?php echo text(getProviderByWenoId($row['external_id'])); ?></td>
+                <td><?php echo text(getProviderByWenoId($row['external_id'], $row['provider_id'])); ?></td>
             </tr>
         <?php } ?>
         </tbody>

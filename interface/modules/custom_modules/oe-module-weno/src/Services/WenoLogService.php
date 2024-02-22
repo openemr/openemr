@@ -81,8 +81,8 @@ class WenoLogService
             $message .= $node->nodeValue;
         }
         $type = 'other';
-        if (stripos($message, 'credentials') !== false) {
-            $type = 'credentials';
+        if (stripos($message, "loginfail") !== false) {
+            $type = "loginfail";
         }
         return ['is_error' => true, 'type' => $type, 'messageText' => trim($message), 'messageHtml' => trim($content_html)];
     }
