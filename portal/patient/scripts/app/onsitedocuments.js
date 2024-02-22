@@ -71,7 +71,7 @@ var page = {
         // make the rows clickable ('rendered' is a custom event, not a standard backbone event)
         this.collectionView.on('rendered', function () {
             if (page.isDashboard) {
-                $("#topnav").hide();
+                $("#topNav").hide();
             }
             // attach click handler to the table rows for editing
             $('table.collection tbody tr').click(function (e) {
@@ -100,7 +100,7 @@ var page = {
             });
             $('.template-item').unbind().on('click', function (e) {
                 if (!isModule) {
-                    $("#topnav").hide();
+                    $("#topNav").hide();
                     parent.document.getElementById('topNav').classList.add('collapse');
                 }
             });
@@ -497,11 +497,6 @@ var page = {
                 )
             }
         });
-
-        if (newFilename) { // autoload new on init. once only.
-            page.newDocument(cpid, cuser, newFilename, id);
-            newFilename = '';
-        }
         // These are set on init for save alerts
         page.isFlattened = false;
         page.isSaved = true;
@@ -641,9 +636,6 @@ var page = {
         $('#template_id').val('template_id');
         $('#status').val('New');
         page.isSaved = true;
-        if (docid !== 'Help') {
-            //page.isSaved = false;
-        }
         page.showDetailDialog(m); // saved in rendered event
     },
 
@@ -673,7 +665,7 @@ var page = {
         page.encounterFormId = 0;
         page.encounterFormName = '';
         if (page.currentName !== 'Help') {
-            $("#topnav").hide();
+            $("#topNav").hide();
         }
         if (page.currentName === templateName && page.currentName && !page.isNewDoc) {
             // update form for any submits.(downloads and prints)

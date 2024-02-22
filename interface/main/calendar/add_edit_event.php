@@ -69,7 +69,7 @@ if (!AclMain::aclCheckCore('patients', 'appt', '', array('write','wsome'))) {
 $eid           = $_GET['eid'] ?? null; // only for existing events
 $date          = $_GET['date'] ?? null;        // this and below only for new events
 $userid        = $_GET['userid'] ?? null;
-$default_catid = !empty($_GET['catid']) ? $_GET['catid'] : '5';
+$default_catid = !empty($_GET['catid']) ? $_GET['catid'] : (!empty($GLOBALS['default_visit_category'] ?? '') ? $GLOBALS['default_visit_category'] : '5');
 
 // form logic fails if not set to boolean
 if (isset($_GET['group'])) {
