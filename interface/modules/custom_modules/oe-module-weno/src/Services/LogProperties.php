@@ -1,11 +1,13 @@
 <?php
 
 /**
- *  @package OpenEMR
- *  @link    http://www.open-emr.org
- *  @author  Sherwin Gaddis <sherwingaddis@gmail.com>
- *  @copyright Copyright (c) 2020 Sherwin Gaddis <sherwingaddis@gmail.com>
- *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Modules\WenoModule\Services;
@@ -13,7 +15,6 @@ namespace OpenEMR\Modules\WenoModule\Services;
 use Exception;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 class LogProperties
 {
@@ -70,11 +71,11 @@ class LogProperties
         $this->cryptoGen = new CryptoGen();
         $this->method = "aes-256-cbc";
         $this->rxsynclog = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/logsync.csv";
-        $this->enc_key = $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);
+        $this->enc_key = $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key'] ?? '');
         $this->key = substr(hash('sha256', $this->enc_key, true), 0, 32);
         $this->iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
-        $this->weno_admin_email = $GLOBALS['weno_admin_username'];
-        $this->weno_admin_password = $this->cryptoGen->decryptStandard($GLOBALS['weno_admin_password']);
+        $this->weno_admin_email = $GLOBALS['weno_admin_username'] ?? '';
+        $this->weno_admin_password = $this->cryptoGen->decryptStandard($GLOBALS['weno_admin_password'] ?? '');
     }
 
     /**
@@ -83,8 +84,8 @@ class LogProperties
     public function logEpcs()
     {
         $email['email'] = $this->weno_admin_email;
-        $prov_pass =  $this->weno_admin_password;                // gets the password stored for the
-        $md5 = md5($prov_pass);                       // hash the current password
+        $prov_pass = $this->weno_admin_password; // gets the password stored for the
+        $md5 = md5($prov_pass); // hash the current password
         $workday = date("l");
         //Checking Saturday for any prescriptions that were written.
         if ($workday == 'Monday') {
@@ -147,8 +148,7 @@ class LogProperties
             error_log("Cipher failure check encryption key", time());
             exit;
         }
-        //**warning** do not add urlencode to  $provider_info['email'] per Weno design
-        $urlOut = $syncLogs . $provider_info['email'] . "&data=" . urlencode($logurlparam);
+        $urlOut = $syncLogs . urlencode($provider_info['email']) . "&data=" . urlencode($logurlparam);
 
         $ch = curl_init($urlOut);
         curl_setopt($ch, CURLOPT_TIMEOUT, 200);
@@ -161,37 +161,50 @@ class LogProperties
         curl_close($ch);
         if ($statusCode == 200) {
             file_put_contents($this->rxsynclog, $rpt);
-            $logstring = "prescription log import initiated successfully";
-            EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$logstring");
+            $isError = $wenolog->scrapeWenoErrorHtml($rpt);
+            if ($isError['is_error']) {
+                $error = $isError['messageText'];
+                error_log('Prescription download failed: ' . $error);
+                $wenolog->insertWenoLog("prescription", "loginfail");
+                $wenolog->insertWenoLog("prescription", "Failed");
+                EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, $error);
+                die(js_escape($error));
+            }
             $wenolog->insertWenoLog("prescription", "Success");
         } else {
-            EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "$statusCode");
+            // yes record failures.
+            EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "$statusCode");
             $wenolog->insertWenoLog("prescription", "Failed");
             return false;
         }
 
         if (file_exists($this->rxsynclog)) {
             $log = new LogImportBuild();
-            $log->buildInsertArray();
-            return true;
+            $rtn = $log->buildInsertArray();
+            if (!$rtn) {
+                return false;
+            }
+        } else {
+            return false;
         }
+        return true;
     }
 
     /**
      * @return mixed
      */
-    public function getProviderEmail()
+    public function getProviderEmail(): mixed
     {
         if ($_SESSION['authUser']) {
             $provider_info = ['email' => $GLOBALS['weno_provider_email']];
-            if (!empty($provider_info)) {
+            if (!empty($provider_info['email'])) {
                 return $provider_info;
             } else {
-                $error = xlt("Provider email address is missing. Go to [User settings > Email] to add provider's weno registered email address");
+                $error = xlt("Provider email address is missing. Go to User settings Email to add provider's weno registered email address");
                 error_log($error);
-                TransmitProperties::errorWithDie($error);
+                TransmitProperties::echoError($error);
             }
-        } else if ($GLOBALS['weno_admin_username']) {
+        } elseif ($GLOBALS['weno_admin_username'] ?? false) {
             $provider_info["email"] = $GLOBALS['weno_admin_username'];
             return $provider_info;
         } else {
@@ -205,7 +218,7 @@ class LogProperties
     /**
      * @return mixed
      */
-    public function getProviderPassword()
+    public function getProviderPassword(): mixed
     {
         if ($_SESSION['authUser']) {
             if (!empty($GLOBALS['weno_admin_password'])) {
@@ -214,7 +227,7 @@ class LogProperties
                 echo xlt('Provider Password is missing');
                 die;
             }
-        } else if ($GLOBALS['weno_admin_password']) {
+        } elseif ($GLOBALS['weno_admin_password']) {
             return $this->cryptoGen->decryptStandard($GLOBALS['weno_admin_password']);
         } else {
             error_log("Admin password not set");

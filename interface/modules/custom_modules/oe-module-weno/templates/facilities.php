@@ -5,6 +5,7 @@
  *  @link    http://www.open-emr.org
  *  @author  Sherwin Gaddis <sherwingaddis@gmail.com>
  *  @author  Kofi Appiah <kkappiah@medsov.com>
+ *  @author  Jerry Padgett <sjpadgett@gmail.com>
  *  @copyright Copyright (c) 2020 Sherwin Gaddis <sherwingaddis@gmail.com>
  *  @copyright Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
  *  @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -41,7 +42,6 @@ $facilities = $data->getFacilities();
 $pres_log = $logService->getLastPrescriptionLogStatus();
 $pharm_log = $logService->getLastPharmacyDownloadStatus();
 
-
 ?>
 <html>
 <head>
@@ -73,7 +73,7 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
         }
         
         function downloadPharmacies(){
-            if (!window.confirm(xl("This download may take several minutes. Do you want to continue?"))) {
+            if (!window.confirm(xl("This download may take several minutes but normally under one. Do you want to continue?"))) {
                 return false;
             }
             $('#notch-pharm').removeClass("hide");
@@ -82,15 +82,28 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
                 url: "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/scripts/file_download.php",
                 type: "GET",
                 success: function (data) {
+                    if (data.includes('Error') || data.includes('failed')) {
+                        let alertDiv = document.getElementById('alertDiv');
+                        let errorMsgSpan = document.getElementById('error-msg');
+                        errorMsgSpan.textContent = jsText(data);
+                        $("#alertDiv").removeClass("d-none");
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 10000);
+                    }
                     $('#notch-pharm').addClass("hide");
                     $('#pharm-btn').attr("disabled", false);
-                    alert('Update Complete');
+                    if (!data.includes('Error') && !data.includes('failed')) {
+                        alert('Update Complete');
+                        window.location.reload();
+                    }
                 },
                 // Error handling
                 error: function (error) {
                     $('#notch-pharm').addClass("hide");
                     $('#pharm-btn').attr("disabled", false);
                     console.log(`Error ${error}`);
+                    window.location.reload();
                 }
             });
         }
@@ -103,15 +116,28 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
                 type: "GET",
                 data: {key:'downloadLog'},
                 success: function (data) {
+                    if (data.includes('Error') || data.includes('failed')) {
+                        let alertDiv = document.getElementById('alertDiv');
+                        let errorMsgSpan = document.getElementById('error-msg');
+                        errorMsgSpan.textContent = jsText(data);
+                        $("#alertDiv").removeClass("d-none");
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 10000);
+                    }
                     $('#notch-presc').addClass("hide");
                     $('#presc-btn').attr("disabled", false);
-                    alert('Update Complete');
+                    if (!data.includes('Error') && !data.includes('failed')) {
+                        alert('Update Complete');
+                        window.location.reload();
+                    }
                 },
                 // Error handling
                 error: function (error) {
                     $('#notch-presc').addClass("hide");
                     $('#presc-btn').attr("disabled", false);
                     console.log(`Error ${error}`);
+                    window.location.reload();
                 }
             });
         }
@@ -120,14 +146,14 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
 <body class="body_top">
 <div class="container">
     <button class="btn btn-primary btn-small" id="fac-btn" onclick="activateFacility()"><?php echo xlt("Facility"); ?></button>
-    <button class="btn btn-primary btn-small" id="mgt-btn" onclick="activateManagement()"><?php echo xlt("Management"); ?></button>
+    <button class="btn btn-primary btn-small" id="mgt-btn" onclick="activateManagement()"><?php echo xlt("Download Management"); ?></button>
 </div>
 <div>
     <div class="container" id="facility"><br><br>
         <h1><?php print xlt("Facility ID's") ?></h1>
-
         <form name="wenofacilityinfo" method="post" action="facilities.php" onsubmit="return top.restoreSession()">
             <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
+            <button type="submit" value="update" id="save_weno_id_top" class="btn btn-primary my-2"><?php echo xla('Update'); ?></button>
         <table class="table">
             <thead>
                 <th></th>
@@ -149,7 +175,7 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
             }
             ?>
         </table>
-            <input type="<?php echo xla('Submit'); ?>" value="update" id="save_weno_id" class="btn_primary">
+            <button type="submit" value="update" id="save_weno_id" class="btn btn-primary float-right"><?php echo xla('Update'); ?></button>
         </form>
     </div>
     <div class="container hide" id="pharmacy">
@@ -157,7 +183,11 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
         <div>
             <?php echo xlt("Use this page to download Weno Pharmacy Directory and Weno Prescription Log"); ?>
         </div>
-        
+        <div id="alertDiv" class="alert alert-danger d-none">
+            <button type="button" class="close" onclick="window.location.reload();">&times;</button>
+            <strong><?php echo xlt("Error!"); ?></strong>
+            <span id="error-msg"></span>
+        </div>
         <table class="table">
             <thead>
                 <tr>
@@ -172,8 +202,8 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
                 <tr>
                     <th scope="row">1</th>
                     <td><?php echo xlt("Weno Pharmacy Directory"); ?></td>
-                    <td><?php echo text($pharm_log['created_at']); ?></td>
-                    <td><?php echo xlt($pharm_log['status']); ?></td>
+                    <td><?php echo text($pharm_log['created_at'] ?? ''); ?></td>
+                    <td><?php echo xlt($pharm_log['status'] ?? ''); ?></td>
                     <td>
                         <button type="button" id="btn-pharm" onclick="downloadPharmacies();" class="btn btn-primary btn-sm">
                             <?php echo xlt("Download")?>
@@ -186,8 +216,8 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
                 <tr>
                     <th scope="row">2</th>
                     <td><?php echo xlt("Prescription log"); ?></td>
-                    <td><?php echo text($pres_log['created_at']); ?></td>
-                    <td><?php echo xlt($pres_log['status']); ?></td>
+                    <td><?php echo text($pres_log['created_at'] ?? ''); ?></td>
+                    <td><?php echo xlt($pres_log['status'] ?? ''); ?></td>
                     <td>
                         <button type="button" id="presc-btn" onclick="downloadPresLog();" class="btn btn-primary btn-sm">
                             <?php echo xlt("Download")?>

@@ -12,8 +12,8 @@
  */
 
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pharmacy Selector")]);
@@ -21,11 +21,11 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 }
 
 $pharmacyService = new PharmacyService();
-$prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? [];
-$alt_pharmacy = $pharmacyService->getWenoAlternatePharm($_SESSION['pid']) ?? [];
+$prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? false;
+$alt_pharmacy = $pharmacyService->getWenoAlternatePharm($_SESSION['pid']) ?? false;
 
-$primary_pharmacy = $prim_pharmacy['business_name'] ?? '' . ' - ' . $prim_pharmacy['address_line_1'] ?? '';
-$alternate_pharmacy = $alt_pharmacy['business_name'] ?? '' . ' - ' . $alt_pharmacy['address_line_1'] ?? '';
+$primary_pharmacy = ($prim_pharmacy['business_name'] ?? false) ? ($prim_pharmacy['business_name'] . ' - ' . $prim_pharmacy['address_line_1'] ?? '') : '';
+$alternate_pharmacy = ($alt_pharmacy['business_name'] ?? false) ? ($alt_pharmacy['business_name'] . ' - ' . $alt_pharmacy['address_line_1'] ?? '') : '';
 ?>
 
 <div class="row col-12">
