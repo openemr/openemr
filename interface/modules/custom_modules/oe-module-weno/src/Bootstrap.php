@@ -1,21 +1,32 @@
 <?php
 
+/**
+ * Contains all of the Weno global settings and configuration
+ *
+ * @package   openemr
+ * @link      http://www.open-emr.org
+ * @author    Kofi Appiah <kkappiah@medsov.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2023 Omega Systems Group <https://omegasystemsgroup.com/>
+ * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Modules\WenoModule;
 
-use OpenEMR\Modules\WenoModule\WenoGlobalConfig;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
+use OpenEMR\Events\Patient\PatientBeforeCreatedAuxEvent;
+use OpenEMR\Events\Patient\PatientUpdatedEventAux;
+use OpenEMR\Events\PatientDemographics\RenderEvent as pRenderEvent;
+use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
+use OpenEMR\Menu\MenuEvent;
+use OpenEMR\Modules\WenoModule\Services\ModuleService;
+use OpenEMR\Modules\WenoModule\Services\SelectedPatientPharmacy;
 use OpenEMR\Services\Globals\GlobalSetting;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
-use OpenEMR\Menu\MenuEvent;
-use OpenEMR\Events\PatientDemographics\RenderEvent as pRenderEvent;
-use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
-use OpenEMR\Events\Patient\PatientBeforeCreatedAuxEvent;
-use OpenEMR\Events\Patient\PatientUpdatedEventAux;
-use OpenEMR\Modules\WenoModule\Services\SelectedPatientPharmacy;
 
 class Bootstrap
 {
@@ -33,6 +44,7 @@ class Bootstrap
 
     /**
      * The OpenEMR Twig Environment
+     *
      * @var Environment
      */
     private $twig;
@@ -47,18 +59,24 @@ class Bootstrap
      */
     private $logger;
 
-    private $modulePath;
+    private string $modulePath;
 
     /**
      * @var SelectedPatientPharmacy
      */
-    private $selectedPatientPharmacy;
+    private SelectedPatientPharmacy $selectedPatientPharmacy;
 
     /**
      * @return void
      */
-    public function subscribeToEvents()
+    public function subscribeToEvents(): void
     {
+        $modService = new ModuleService();
+        if (!$modService->isWenoConfigured()) {
+            // let Admin configure Weno if module is not configured.
+            $this->addGlobalSettings();
+            return;
+        }
         $this->addGlobalSettings();
         $this->registerMenuItems();
         $this->registerDemographicsEvents();
@@ -66,16 +84,13 @@ class Bootstrap
         $this->demographicsDisplaySelectedEvents();
         $this->patientSaveEvents();
         $this->patientUpdateEvents();
+        $modService::setModuleState('oe-module-weno', '1', '0');
     }
 
-    public function __construct(EventDispatcher $dispatcher, ?Kernel $kernel = null)
+    public function __construct(EventDispatcher $dispatcher)
     {
-        if (empty($kernel)) {
-            $kernel = new Kernel();
-        }
         $this->eventDispatcher = $dispatcher;
-
-        $this->globalsConfig = new WenoGlobalConfig($GLOBALS);
+        $this->globalsConfig = new WenoGlobalConfig();
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->modulePath = dirname(__DIR__);
         $this->logger = new SystemLogger();
@@ -85,7 +100,7 @@ class Bootstrap
     /**
      * @return \Twig\Environment
      */
-    public function getTwig()
+    public function getTwig(): Environment
     {
         return $this->twig;
     }
@@ -94,7 +109,7 @@ class Bootstrap
      * @param GlobalsInitializedEvent $event
      * @return void
      */
-    public function addGlobalWenoSettings(GlobalsInitializedEvent $event)
+    public function addGlobalWenoSettings(GlobalsInitializedEvent $event): void
     {
         $settings = $this->globalsConfig->getGlobalSettingSectionConfiguration();
 
@@ -139,7 +154,7 @@ class Bootstrap
     /**
      * @return void
      */
-    public function registerDemographicsEvents()
+    public function registerDemographicsEvents(): void
     {
         $this->eventDispatcher->addListener(pRenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE, [$this, 'renderWenoSection']);
     }
@@ -148,49 +163,49 @@ class Bootstrap
      * @param pRenderEvent $event
      * @return void
      */
-    public function renderWenoSection(pRenderEvent $event)
+    public function renderWenoSection(pRenderEvent $event): void
     {
         $path = __DIR__;
         $path = str_replace("src", "templates", $path);
         $pid = $event->getPid();
         ?>
         <section class="card mb-2">
-        <?php
-        // Weno expand collapse widget
-        $widgetTitle = self::MODULE_MENU_NAME;
-        $widgetLabel = "wenocard";
-        $widgetButtonLabel = xl("Edit");
-        $widgetButtonLink = ""; // "return newEvt();";
-        $widgetButtonClass = "d-none";
-        $linkMethod = "html";
-        $bodyClass = "notab";
-        $widgetAuth = false;
-        $fixedWidth = false;
-        $forceExpandAlways = false;
+            <?php
+            // Weno expand collapse widget
+            $widgetTitle = self::MODULE_MENU_NAME . " " . xlt("eRx");
+            $widgetLabel = "wenocard";
+            $widgetButtonLabel = xl("Edit");
+            $widgetButtonLink = ""; // "return newEvt();";
+            $widgetButtonClass = "d-none";
+            $linkMethod = "html";
+            $bodyClass = "notab";
+            $widgetAuth = false;
+            $fixedWidth = false;
+            $forceExpandAlways = false;
 
-        expand_collapse_widget(
-            $widgetTitle,
-            $widgetLabel,
-            $widgetButtonLabel,
-            $widgetButtonLink,
-            $widgetButtonClass,
-            $linkMethod,
-            $bodyClass,
-            $widgetAuth,
-            $fixedWidth,
-            $forceExpandAlways
-        );
-        ?>
-        
-        <div> <?php include $path . "/weno_fragment.php";?> </div>
-    </section>
+            expand_collapse_widget(
+                $widgetTitle,
+                $widgetLabel,
+                $widgetButtonLabel,
+                $widgetButtonLink,
+                $widgetButtonClass,
+                $linkMethod,
+                $bodyClass,
+                $widgetAuth,
+                $fixedWidth,
+                $forceExpandAlways
+            );
+            ?>
+
+            <div> <?php include $path . "/weno_fragment.php"; ?> </div>
+        </section>
         <?php
     }
 
     /**
      * @return void
      */
-    public function addGlobalSettings()
+    public function addGlobalSettings(): void
     {
         $this->eventDispatcher->addListener(GlobalsInitializedEvent::EVENT_HANDLE, [$this, 'addGlobalWenoSettings']);
     }
@@ -198,7 +213,7 @@ class Bootstrap
     /**
      * @return void
      */
-    public function registerMenuItems()
+    public function registerMenuItems(): void
     {
         $this->eventDispatcher->addListener(MenuEvent::MENU_UPDATE, [$this, 'addCustomMenuItem']);
     }
@@ -207,7 +222,7 @@ class Bootstrap
      * @param MenuEvent $event
      * @return MenuEvent
      */
-    public function addCustomMenuItem(MenuEvent $event)
+    public function addCustomMenuItem(MenuEvent $event): MenuEvent
     {
         $menu = $event->getMenu();
         //Prescription Log
@@ -260,7 +275,7 @@ class Bootstrap
     /**
      * @return void
      */
-    public function demographicsSelectorEvents()
+    public function demographicsSelectorEvents(): void
     {
         $this->eventDispatcher->addListener(RenderPharmacySectionEvent::RENDER_AFTER_PHARMACY_SECTION, [$this, 'renderWenoPharmacySelector']);
     }
@@ -268,7 +283,7 @@ class Bootstrap
     /**
      * @return void
      */
-    public function renderWenoPharmacySelector()
+    public function renderWenoPharmacySelector(): void
     {
         include_once($this->modulePath) . "/templates/pharmacy_list_form.php";
     }
@@ -276,7 +291,7 @@ class Bootstrap
     /**
      * @return void
      */
-    public function demographicsDisplaySelectedEvents()
+    public function demographicsDisplaySelectedEvents(): void
     {
         $this->eventDispatcher->addListener(RenderPharmacySectionEvent::RENDER_AFTER_SELECTED_PHARMACY_SECTION, [$this, 'renderSelectedWenoPharmacies']);
     }
@@ -284,7 +299,7 @@ class Bootstrap
     /**
      * @return void
      */
-    public function renderSelectedWenoPharmacies()
+    public function renderSelectedWenoPharmacies(): void
     {
         echo "<br>";
         include_once($this->modulePath) . "/templates/pharmacy_list_display.php";
@@ -293,7 +308,7 @@ class Bootstrap
     /**
      * @return void
      */
-    public function patientSaveEvents()
+    public function patientSaveEvents(): void
     {
         $this->eventDispatcher->addListener(PatientBeforeCreatedAuxEvent::EVENT_HANDLE, [$this, 'persistPatientWenoPharmacies']);
     }
@@ -302,7 +317,7 @@ class Bootstrap
      * @param PatientBeforeCreatedAuxEvent $event
      * @return void
      */
-    public function persistPatientWenoPharmacies(PatientBeforeCreatedAuxEvent $event)
+    public function persistPatientWenoPharmacies(PatientBeforeCreatedAuxEvent $event): void
     {
         $patientData = $event->getPatientData();
         $this->selectedPatientPharmacy->prepSelectedPharmacy($patientData);
@@ -311,7 +326,7 @@ class Bootstrap
     /**
      * @return void
      */
-    public function patientUpdateEvents()
+    public function patientUpdateEvents(): void
     {
         $this->eventDispatcher->addListener(PatientUpdatedEventAux::EVENT_HANDLE, [$this, 'updatePatientWenoPharmacies']);
     }
@@ -320,7 +335,7 @@ class Bootstrap
      * @param PatientUpdatedEventAux $event
      * @return void
      */
-    public function updatePatientWenoPharmacies(PatientUpdatedEventAux $event)
+    public function updatePatientWenoPharmacies(PatientUpdatedEventAux $event): void
     {
         $updatedPatientData = $event->getUpdatedPatientData();
         $this->selectedPatientPharmacy->prepForUpdatePharmacy($updatedPatientData);

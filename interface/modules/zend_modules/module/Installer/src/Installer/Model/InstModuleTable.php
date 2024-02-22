@@ -899,7 +899,9 @@ class InstModuleTable
         if ($objHooks) {
             $hooksArr = $objHooks->getHookConfig();
         } else {
-            error_log(errorLogEscape($moduleDirectory) . " " . "does not have a controller object");
+            if (self::MODULE_TYPE_CUSTOM != 0) {
+                error_log(errorLogEscape($moduleDirectory) . " " . "does not have a controller object");
+            }
         }
 
         return $hooksArr;

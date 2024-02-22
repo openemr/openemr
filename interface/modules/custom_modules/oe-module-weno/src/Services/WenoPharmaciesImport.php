@@ -53,41 +53,41 @@ class WenoPharmaciesImport
                     }
                     if (!empty($line)) {
                         if (date("l") == 'Monday' || !$has_data) { //build for weekly file
-                            $ncpdp = str_replace(['[', ']'], '', $line[3]);
-                            $npi = str_replace(['[', ']'], '', $line[5]);
-                            $business_name = $line[6];
-                            $address_line_1 = $line[7];
-                            $address_line_2 = $line[8];
-                            $city = $line[9];
-                            $state = $line[10];
-                            $zipcode = str_replace(['[', ']'], '', $line[11]);
-                            $country = $line[12];
-                            $international = $line[13];
-                            $pharmacy_phone = str_replace(['[', ']'], '', $line[16]);
-                            $on_weno = $line[21];
-                            $test_pharmacy = $line[17];
-                            $state_wide_mail = $line[18];
-                            $fullDay = $line[22];
+                            $ncpdp = str_replace(['[', ']'], '', $line[3] ?? '');
+                            $npi = str_replace(['[', ']'], '', $line[5] ?? '');
+                            $business_name = $line[6] ?? '';
+                            $address_line_1 = $line[7] ?? '';
+                            $address_line_2 = $line[8] ?? '';
+                            $city = $line[9] ?? '';
+                            $state = $line[10] ?? '';
+                            $zipcode = str_replace(['[', ']'], '', $line[11] ?? '');
+                            $country = $line[12] ?? '';
+                            $international = $line[13] ?? '';
+                            $pharmacy_phone = str_replace(['[', ']'], '', $line[16] ?? '');
+                            $on_weno = $line[21] ?? '';
+                            $test_pharmacy = $line[17] ?? '';
+                            $state_wide_mail = $line[18] ?? '';
+                            $fullDay = $line[22] ?? '';
                         } else {
-                            $ncpdp = str_replace(['[', ']'], '', $line[3]);
-                            $npi = str_replace(['[', ']'], '', $line[7]);
-                            $business_name = $line[8];
-                            $city = $line[11];
-                            $state = $line[12];
-                            $zipcode = str_replace(['[', ']'], '', $line[14]);
-                            $country = $line[15];
-                            $address_line_1 = $line[9];
-                            $address_line_2 = $line[10];
-                            $international = $line[16];
-                            $pharmacy_phone = str_replace(['[', ']'], '', $line[20]);
-                            $county = $line[33];
-                            $on_weno = $line[37];
-                            $compounding = $line[41];
-                            $medicaid_id = $line[45];
-                            $dea = $line[44];
-                            $test_pharmacy = $line[29];
-                            $fullDay = $line[40];
-                            $state_wide_mail = $line[47];
+                            $ncpdp = str_replace(['[', ']'], '', $line[3] ?? '');
+                            $npi = str_replace(['[', ']'], '', $line[7] ?? '');
+                            $business_name = $line[8] ?? '';
+                            $city = $line[11] ?? '';
+                            $state = $line[12] ?? '';
+                            $zipcode = str_replace(['[', ']'], '', $line[14] ?? '');
+                            $country = $line[15] ?? '';
+                            $address_line_1 = $line[9] ?? '';
+                            $address_line_2 = $line[10] ?? '';
+                            $international = $line[16] ?? '';
+                            $pharmacy_phone = str_replace(['[', ']'], '', $line[20] ?? '');
+                            $county = $line[33] ?? '';
+                            $on_weno = $line[37] ?? '';
+                            $compounding = $line[41] ?? '';
+                            $medicaid_id = $line[45] ?? '';
+                            $dea = $line[44] ?? '';
+                            $test_pharmacy = $line[29] ?? '';
+                            $fullDay = $line[40] ?? '';
+                            $state_wide_mail = $line[47] ?? '';
                         }
 
                         $insertdata['ncpdp'] = $ncpdp;
@@ -129,9 +129,10 @@ class WenoPharmaciesImport
                     unlink($file);
                 }
             }
-            return "Imported";
+            return text("Imported");
         } else {
-            error_log("file missing");
+            error_log("Missing Downloaded File");
+            return text("Missing Downloaded File");
         }
     }
 }

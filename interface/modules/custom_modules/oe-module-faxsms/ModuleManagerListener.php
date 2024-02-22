@@ -32,7 +32,7 @@ use OpenEMR\Modules\FaxSMS\BootstrapService;
     $classLoader->registerNamespaceIfNotExists("OpenEMR\\Modules\\FaxSMS\\", __DIR__ . DIRECTORY_SEPARATOR . 'src');
 */
 
-class ModuleManagerAfterActionListener extends AbstractModuleActionListener
+class ModuleManagerListener extends AbstractModuleActionListener
 {
     public $service;
     private $authUser;
@@ -75,9 +75,9 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
      * Required method to return this class object,
      * so it is instantiated in Laminas Manager.
      *
-     * @return ModuleManagerAfterActionListener
+     * @return ModuleManagerListener
      */
-    public static function initListenerSelf(): ModuleManagerAfterActionListener
+    public static function initListenerSelf(): ModuleManagerListener
     {
         return new self();
     }
