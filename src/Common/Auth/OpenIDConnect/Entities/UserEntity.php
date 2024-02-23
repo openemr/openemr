@@ -36,13 +36,7 @@ class UserEntity implements ClaimSetInterface, UserEntityInterface
             $userRole = $uuidToUser->getUserRole();
             $fhirUserResource = "Person";
             if ($userRole == UuidUserAccount::USER_ROLE_USERS) {
-                // need to find out if its a practitioner or not
-                $practitionerService = new PractitionerService();
-                // ONC validation does not accept Person as a valid test case so we have to differentiate practitioners
-                // from the more generic Person resource.
-                if ($practitionerService->isValidPractitionerUuid($this->identifier)) {
-                    $fhirUserResource = "Practitioner";
-                }
+                $fhirUserResource = "Practitioner";
             } else if ($userRole == UuidUserAccount::USER_ROLE_PATIENT) {
                 $fhirUserResource = "Patient";
             } else {
