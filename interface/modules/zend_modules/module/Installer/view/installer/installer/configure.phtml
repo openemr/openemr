@@ -7,6 +7,8 @@
  * @author    Jacob T.Paul <jacob@zhservices.com>
  * @author    Vipin Kumar <vipink@zhservices.com>
  * @author    Remesh Babu S <remesh@zhservices.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -27,7 +29,7 @@ $customDir = $GLOBALS['customModDir'];
 $zendModDir = $GLOBALS['zendModDir'];
 $confirmationMSG = $listener->z_xlt("Do you really want to delete?");
 // TODO: Change all of these magic numbers into constants, set them in the view and use them here so we can know what this all means.
-if (count($TabSettings) > 0) { ?>
+if (count($TabSettings ?? []) > 0) { ?>
     <div class="easyui-tabs container" id="tab<?php echo $this->escapeHtml($mod_id); ?>" style="width:950px;height:auto;">
         <?php
         if (isset($TabSettings[1]) && $TabSettings[1] > 0) {
@@ -77,7 +79,7 @@ if (count($TabSettings) > 0) { ?>
                                         ?>
                                     </tr>
                                     <?php
-                                    if (count($Hooks) > 0) {
+                                    if (count($Hooks ?? []) > 0) {
                                         foreach ($Hooks as $obj_hooks) {
                                             ?>
                                             <tr>
@@ -168,7 +170,7 @@ if (count($TabSettings) > 0) { ?>
             <?php
         }
         ?>
-        <?php if (count($setup) > 0) { ?>
+        <?php if (count($setup ?? []) > 0) { ?>
             <div title="<?php echo $listener->z_xla($setup['title']); ?>" style="height:auto;"
                 id="tab_config<?php echo $this->escapeHtml($mod_id); ?>"
                 iconCls="icon-setup">
@@ -180,7 +182,7 @@ if (count($TabSettings) > 0) { ?>
         <?php } ?>
     </div>
     <?php
-} elseif (count($setup) > 0) { ?>
+} elseif (count($setup ?? []) > 0) { ?>
     <div class="easyui-tabs container" id="tab<?php echo $this->escapeHtml($mod_id); ?>" style="height:auto;">
         <div title="<?php echo $listener->z_xla($setup['title']); ?>"
             id="tab_config<?php echo $this->escapeHtml($mod_id); ?>"
@@ -195,7 +197,7 @@ if (count($TabSettings) > 0) { ?>
 } else {
     // Final check for config
     // TBD : clsOeModule
-    $rs_mod = sqlQuery('select * from modules where mod_id=? and (mod_active=1 or mod_ui_active=1)', [$mod_id]);
+    $rs_mod = sqlQuery('select * from modules where `mod_id` = ?', [$mod_id]);
     $fConfig = dirname(realpath('.')) . '/custom_modules/' . $rs_mod['mod_directory'] . '/moduleConfig.php';
     if (($rs_mod['type'] == 0) && file_exists($fConfig)) {
         ?>
@@ -205,12 +207,10 @@ if (count($TabSettings) > 0) { ?>
             </iframe>
         </div>
         <?php
-    } else {
-        ?>
+    } else { ?>
         <div class="easyui-tabs container" id="tab<?php echo $this->escapeHtml($mod_id); ?>" style="height:auto;">
             <?php echo $listener->z_xlt('No Configuration Defined for this Module'); ?>
         </div>
         <?php
     }
 }
-?>
