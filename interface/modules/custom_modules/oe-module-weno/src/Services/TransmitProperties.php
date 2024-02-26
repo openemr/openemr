@@ -512,7 +512,7 @@ insurance;
         // get the weno provider id from the user table (weno_prov_id
         $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
         if (!empty(trim($provider['weno_prov_id'] ?? ''))) {
-            $doIt = $GLOBALS['weno_provider_uid'] != trim($provider['weno_prov_id']);
+            $doIt = ($GLOBALS['weno_provider_uid'] ?? '') != trim($provider['weno_prov_id']);
             if ($doIt) {
                 $GLOBALS['weno_provider_uid'] = trim($provider['weno_prov_id']);
                 $sql = "UPDATE `user_settings` SET `setting_value` = ? WHERE `setting_user` = ? AND `setting_label` = 'global:weno_provider_uid'";
