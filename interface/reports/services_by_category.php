@@ -12,8 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../globals.php");
-require_once("../../custom/code_types.inc.php");
+require_once "../globals.php";
+require_once "../../custom/code_types.inc.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Utils\FormatMoney;
@@ -163,12 +163,11 @@ if (!empty($_POST['form_refresh'])) {
 <th class='bold'><?php echo xlt('Description'); ?></th>
     <?php if (related_codes_are_used()) { ?>
    <th class='bold'><?php echo xlt('Related'); ?></th>
-<?php } ?>
-    <?php
-    $pres = sqlStatement("SELECT title FROM list_options " .
-     "WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq");
+    <?php }
+
+    $pres = sqlStatement("SELECT title FROM list_options WHERE list_id = 'pricelevel' AND activity = 1 ORDER BY seq");
     while ($prow = sqlFetchArray($pres)) {
-    // Added 5-09 by BM - Translate label if applicable
+        // Added 5-09 by BM - Translate label if applicable
         echo "   <th class='bold' align='right' nowrap>" . text(xl_list_label($prow['title'])) . "</th>\n";
     }
     ?>
@@ -188,10 +187,12 @@ if (!empty($_POST['form_refresh'])) {
         $where .= " AND c.superbill != '' AND c.superbill != '0'";
     }
 
-    $res = sqlStatement("SELECT c.*, lo.title FROM codes AS c " .
-    "LEFT OUTER JOIN list_options AS lo ON lo.list_id = 'superbill' " .
-    "AND lo.option_id = c.superbill AND lo.activity = 1 " .
-    "WHERE $where ORDER BY lo.title, c.code_type, c.code, c.modifier", $sqlBindArray);
+    $res = sqlStatement(
+        "SELECT c.*, lo.title FROM codes AS c " .
+        "LEFT OUTER JOIN list_options AS lo ON lo.list_id = 'superbill' AND lo.option_id = c.superbill AND lo.activity = 1 " .
+        "WHERE $where ORDER BY lo.title, c.code_type, c.code, c.modifier",
+        $sqlBindArray
+    );
 
     $last_category = '';
     $irow = 0;
@@ -222,23 +223,28 @@ if (!empty($_POST['form_refresh'])) {
         if (related_codes_are_used()) {
             // Show related codes.
             echo "   <td class='text'>";
-            $arel = explode(';', $row['related_code']);
-            foreach ($arel as $tmp) {
-                list($reltype, $relcode) = explode(':', $tmp);
-                $reltype = $code_types[$reltype]['id'];
-                $relrow = sqlQuery("SELECT code_text FROM codes WHERE " .
-                "code_type = ? AND code = ? LIMIT 1", array($reltype, $relcode));
-                echo text($relcode) . ' ' . text(trim($relrow['code_text'])) . '<br />';
+            if ($row['related_code'] != "") {
+                $arel = explode(';', $row['related_code']);
+                foreach ($arel as $tmp) {
+                    list($reltype, $relcode) = explode(':', $tmp);
+                    $reltype = $code_types[$reltype]['id'];
+                    $relrow = sqlQuery(
+                        "SELECT code_text FROM codes WHERE code_type = ? AND code = ? LIMIT 1",
+                        array($reltype, $relcode)
+                    );
+                    echo text($relcode) . ' ' . text(trim($relrow['code_text'])) . '<br />';
+                }
             }
 
             echo "</td>\n";
         }
 
-        $pres = sqlStatement("SELECT p.pr_price " .
-        "FROM list_options AS lo LEFT OUTER JOIN prices AS p ON " .
-        "p.pr_id = ? AND p.pr_selector = '' " .
-        "AND p.pr_level = lo.option_id " .
-        "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq", array($row['id']));
+        $pres = sqlStatement(
+            "SELECT p.pr_price FROM list_options AS lo " .
+            "LEFT OUTER JOIN prices AS p ON p.pr_id = ? AND p.pr_selector = '' AND p.pr_level = lo.option_id " .
+            "WHERE lo.list_id = 'pricelevel' AND lo.activity = 1 ORDER BY lo.seq",
+            array($row['id'])
+        );
         while ($prow = sqlFetchArray($pres)) {
             echo "   <td class='text' align='right'>" . text(FormatMoney::getBucks($prow['pr_price'])) . "</td>\n";
         }

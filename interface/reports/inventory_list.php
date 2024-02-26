@@ -12,9 +12,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once("../globals.php");
-require_once("$srcdir/options.inc.php");
-require_once("$include_root/drugs/drugs.inc.php");
+require_once "../globals.php";
+require_once "$srcdir/options.inc.php";
+require_once "$include_root/drugs/drugs.inc.php";
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -176,7 +176,7 @@ function zeroDays($product_id, $begdate, $extracond, $extrabind, $min_sale = 1)
         "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
         "WHERE " .
         "di.destroy_date IS NOT NULL AND di.destroy_date >= ? " .
-        "$prodcond $extracond" .
+        "$prodcond $extracond " .
         "GROUP BY di.destroy_date ORDER BY di.destroy_date",
         array_merge(array($begdate), $prodbind, $extrabind)
     );
@@ -198,7 +198,7 @@ function zeroDays($product_id, $begdate, $extracond, $extrabind, $min_sale = 1)
         "WHERE " .
         "ds.sale_date >= ? AND " .
         "di.inventory_id = ds.inventory_id " .
-        "$prodcond $extracond" .
+        "$prodcond $extracond " .
         "GROUP BY ds.sale_date ORDER BY ds.sale_date",
         array_merge(array($begdate), $prodbind, $extrabind)
     );
@@ -220,7 +220,7 @@ function zeroDays($product_id, $begdate, $extracond, $extrabind, $min_sale = 1)
         "WHERE " .
         "ds.sale_date >= ? AND " .
         "di.inventory_id = ds.xfer_inventory_id " .
-        "$prodcond $extracond" .
+        "$prodcond $extracond " .
         "GROUP BY ds.sale_date ORDER BY ds.sale_date",
         array_merge(array($begdate), $prodbind, $extrabind)
     );
@@ -393,8 +393,7 @@ function write_report_line(&$row)
     // activity, then this message doesn't matter any more either.
     if ($form_details == 2) {
         if (checkReorder($drug_id, $row['pw_min_level'], $warehouse_id)) {
-            addWarning(xl("Reorder point has been reached for warehouse") .
-                " '" . $row['title'] . "'");
+            addWarning(xl("Reorder point has been reached for warehouse") . " '" . $row['title'] . "'");
         }
     }
 
@@ -845,9 +844,7 @@ table.mymaintable td, table.mymaintable th {
     }
     ?></select>&nbsp;
 
-   <input type='checkbox' name='form_inactive' value='1'<?php if ($form_inactive) {
-        echo " checked";} ?>
-   /><?php echo xlt('Include Inactive'); ?>&nbsp;
+   <input type='checkbox' name='form_inactive' value='1'<?php echo $form_inactive ? " checked" : ""; ?>/><?php echo xlt('Include Inactive'); ?>&nbsp;
 
     <?php
     echo "   <select name='form_details'>\n";
@@ -886,7 +883,8 @@ table.mymaintable td, table.mymaintable th {
    <th>
     <a href="#" onclick="return dosort('name')"
         <?php if ($form_orderby == "name") {
-            echo " style=\"color:#00cc00\"";} ?>>
+            echo " style=\"color:#00cc00\"";
+        } ?>>
         <?php echo xlt('Name'); ?> </a>
    </th>
    <th><?php echo xlt('Relates To'); ?></th>
@@ -906,8 +904,8 @@ table.mymaintable td, table.mymaintable th {
    <th><?php echo xlt('Facility'); ?></th>
             <?php if ($form_details == 2) { ?>
    <th><?php echo xlt('Warehouse'); ?></th>
-<?php } ?>
-<?php } ?>
+            <?php } ?>
+        <?php } ?>
    <th align='right'><?php echo text("$mmtype " . xl('Min')); ?></th>
    <th align='right'><?php echo text("$mmtype " . xl('Max')); ?></th>
    <th align='right'><?php echo xlt('QOH'); ?></th>
