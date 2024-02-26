@@ -129,7 +129,12 @@ class ModuleService
         $config = $this->getVendorGlobals();
         $keys = array_keys($config);
         foreach ($keys as $key) {
-            if ($key === 'weno_rx_enable_test') {
+            if (
+                $key === 'weno_rx_enable_test'
+                || $key === 'weno_secondary_admin_username'
+                || $key === 'weno_secondary_admin_password'
+                || $key === 'weno_secondary_encryption_key'
+            ) {
                 continue;
             }
             $value = $GLOBALS[$key] ?? null;
@@ -161,7 +166,7 @@ class ModuleService
     /**
      * @param $modId   string|int module id or directory name
      * @param $flag    string|int 1 or 0 to activate or deactivate module.
-     * @param $flag_ui string|int custom module ui flag to activate or deactivate Manager UI states.
+     * @param $flag_ui string|int custom flag to activate or deactivate Manager UI button states.
      * @return array|bool|null
      */
     public static function setModuleState($modId, $flag, $flag_ui): array|bool|null

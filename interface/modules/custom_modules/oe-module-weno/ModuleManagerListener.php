@@ -88,6 +88,13 @@ class ModuleManagerListener extends AbstractModuleActionListener
      */
     private function install($modId, $currentActionStatus): mixed
     {
+        $modService = new ModuleService();
+        /* setting the active ui flag here will allow the config button to show
+         * before enable. This is a good thing because it allows the user to
+         * configure the module before enabling it. However, if the module is disabled
+         * this flag is reset by MM.
+        */
+        $modService::setModuleState($modId, '0', '1');
         return $currentActionStatus;
     }
 
@@ -98,12 +105,6 @@ class ModuleManagerListener extends AbstractModuleActionListener
      */
     private function preenable($modId, $currentActionStatus): mixed
     {
-        $modService = new ModuleService();
-        if ($modService->isWenoConfigured()) {
-            $modService::setModuleState($modId, '0', '0');
-            return $currentActionStatus;
-        }
-        $modService::setModuleState($modId, '0', '1');
         return $currentActionStatus;
     }
 
@@ -130,7 +131,8 @@ class ModuleManagerListener extends AbstractModuleActionListener
      */
     private function disable($modId, $currentActionStatus): mixed
     {
-        ModuleService::setModuleState($modId, '0', '0');
+        // allow config button to show before enable.
+        ModuleService::setModuleState($modId, '0', '1');
         return $currentActionStatus;
     }
 

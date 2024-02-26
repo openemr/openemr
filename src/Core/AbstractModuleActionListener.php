@@ -155,4 +155,23 @@ abstract class AbstractModuleActionListener
 
         return $registry;
     }
+
+    /**
+     * Set enable/disable module state.
+     * If the mod_ui_active flag is set to 1, then the module config button
+     * is allowed in modules disabled state. In this state calling the config
+     * script will be in the Laminas namespace and not the module namespace.
+     * So remember to set namespace in the config script.
+     *
+     * @param $modId   string|int module id or directory name
+     * @param $flag    string|int 1 or 0 to activate or deactivate module.
+     * @param $flag_ui string|int custom flag to activate or deactivate Manager UI button states.
+     * @return array|bool|null
+     */
+    public static function setModuleActiveState($modId, $flag, $flag_ui): array|bool|null
+    {
+        // set module state.
+        $sql = "UPDATE `modules` SET `mod_active` = ?, `mod_ui_active` = ? WHERE `mod_id` = ? OR `mod_directory` = ?";
+        return sqlQuery($sql, array($flag, $flag_ui, $modId, $modId));
+    }
 }
