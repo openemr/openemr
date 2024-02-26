@@ -51,7 +51,6 @@ $coreModules = $this->coreModules ?? [];
 
   table {
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 1rem;
   }
 
   .fa-2x {
@@ -65,7 +64,7 @@ $coreModules = $this->coreModules ?? [];
     padding: 5px;
     text-align: center;
     cursor: pointer;
-    margin: 5px 5px 0px 0px;
+    margin: 5px 5px 0 0;
     color: gray;
     width: 97%;
   }
@@ -76,7 +75,7 @@ $coreModules = $this->coreModules ?? [];
     border: 1px solid #c9c6c6;
     padding: 5px;
     width: 95%;
-    border-top: 0px;
+    border-top: 0;
   }
 
   .modal {
@@ -112,58 +111,7 @@ $coreModules = $this->coreModules ?? [];
                 </thead>
                 <tbody>
                 <?php
-                /* Laminas directory Unregistered scan */
-                $slno = 0;
-                $dpath = $GLOBALS['srcdir'] . "/../{$baseModuleDir}{$zendModDir}/module";
-                $dp = opendir($dpath);
-                $inDir = array();
-                for ($i = 0; false != ($fname = readdir($dp)); $i++) {
-                    if ($fname != "." && $fname != ".." && (!in_array($fname, $coreModules)) && is_dir($dpath . "/" . $fname))
-                        $inDir[$i] = $fname;
-                }
-                if (sizeof($InstallersExisting) > 0) {
-                    foreach ($InstallersExisting as $modules) {
-                        $key = "";
-                        $key = array_search($modules->modDirectory, $inDir);  /* returns integer or FALSE */
-                        if ($key !== false)
-                            unset($inDir[$key]);
-                    }
-                }
-                foreach ($inDir as $fname) {
-                    $slno++; ?>
-                    <tr>
-                        <td><?php echo $this->escapeHtml($slno); ?></td>
-                        <td>
-                            <?php
-                            $form_title_file = null;
-                            if (is_file($GLOBALS['srcdir'] . "/../{$baseModuleDir}{$zendModDir}/$fname/info.txt")) {
-                                $form_title_file = file($GLOBALS['srcdir'] . "/../{$baseModuleDir}{$zendModDir}/module/$fname/info.txt");
-                            }
-                            if (!empty($form_title_file)) {
-                                $form_title = $form_title_file[0];
-                            } else {
-                                $form_title = $fname;
-                            }
-                            echo $this->escapeHtml($listener->z_xlt($form_title));
-                            ?>
-                        </td>
-                        <td>--</td>
-                        <td>--</td>
-                        <td>--</td>
-                        <td>
-                            <?php echo $listener->z_xlt('Laminas'); ?>
-                        </td>
-                        <td>--</td>
-                        <td>
-                            <a href="javascript:void(0)" onclick="register(1,'<?php echo $this->escapeHtml($form_title); ?>','<?php echo $this->escapeHtml($fname) ?>','register','zend');"><input type='button' class='activate' value="<?php echo $listener->z_xla('Register'); ?>" /></a>
-                        </td>
-                        <td>--</td>
-                    </tr>
-                <?php }
-
-                flush();
-                /*
-                 * Custorm modules directory Unregistered scan
+                /* Laminas and Custom modules directory Unregistered scan
                  * moved to InstallerController auto register.
                  * */
                 /******** Laminas Module List Creation ********/
@@ -185,7 +133,7 @@ $coreModules = $this->coreModules ?? [];
                                 <?php
                                 if ($moduleResult->sqlRun == 0) {
                                     ?>
-                                    <?php echo $listener->z_xlt('Not Installed'); ?>
+                                    <?php echo $listener->z_xlt('Registered'); ?>
                                     <?php
                                 } elseif ($moduleResult->modActive == 1) { ?>
                                     <?php echo $listener->z_xlt('Active'); ?>
@@ -296,8 +244,7 @@ $coreModules = $this->coreModules ?? [];
                             </td>
                             <td>
                                 <?php
-                                if ($moduleResult->sqlRun == 0) {
-                                    ?>
+                                if ($moduleResult->sqlRun == 0) { ?>
                                     <input type="text" onchange="validateNickName('<?php echo $this->escapeHtml($moduleResult->modId); ?>');" name="mod_nick_name_<?php echo $this->escapeHtml($moduleResult->modId); ?>" id="mod_nick_name_<?php echo $this->escapeHtml($moduleResult->modId); ?>" value="">
                                     <div class="mod_nick_name_message" id="mod_nick_name_message_<?php echo $this->escapeHtml($moduleResult->modId); ?>"></div>
                                     <?php

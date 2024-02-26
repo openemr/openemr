@@ -96,9 +96,10 @@ class InstallerController extends AbstractActionController
         $baseModuleDir = $GLOBALS['baseModDir'];
         $customDir = $GLOBALS['customModDir'];
         $zendModDir = $GLOBALS['zendModDir'];
+        $coreModules = ['Application', 'Acl', 'Installer', 'FHIR', 'PatientFlowBoard'];
+        $allModules = array();
 
         $result = $this->getInstallerTable()->allModules();
-        $allModules = array();
         foreach ($result as $dataArray) {
             $mod = new InstModule();
             $mod->exchangeArray($dataArray);
@@ -107,34 +108,44 @@ class InstallerController extends AbstractActionController
             $allModules[] = $mod;
         }
 
-        $dpath = $GLOBALS['srcdir'] . "/../$baseModuleDir$customDir/";
-        $dp = opendir($dpath);
-        $inDir = array();
-        for ($i = 0; false != ($fname = readdir($dp)); $i++) {
-            if ($fname != "." && $fname != ".." && $fname != "Application" && is_dir($dpath . $fname)) {
-                $inDir[$i] = $fname;
+        $dir_path = $GLOBALS['srcdir'] . "/../$baseModuleDir$customDir/";
+        $dp = opendir($dir_path);
+        $inDirCustom = array();
+        for ($i = 0; false != ($file_name = readdir($dp)); $i++) {
+            if ($file_name != "." && $file_name != ".." && $file_name != "Application" && is_dir($dir_path . $file_name)) {
+                $inDirCustom[$i] = $file_name;
+            }
+        }
+        /* Laminas directory Unregistered scan */
+        $dir_path = $GLOBALS['srcdir'] . "/../$baseModuleDir$zendModDir/module";
+        $dp = opendir($dir_path);
+        $inDirLaminas = array();
+        for ($i = 0; false != ($file_name = readdir($dp)); $i++) {
+            if ($file_name != "." && $file_name != ".." && (!in_array($file_name, $coreModules)) && is_dir($dir_path . "/" . $file_name)) {
+                $inDirLaminas[$i] = $file_name;
             }
         }
         // do not show registered modules in the unregistered list
         if (sizeof($allModules) > 0) {
             foreach ($allModules as $modules) {
-                $key = array_search($modules->modDirectory, $inDir);
+                $key = array_search($modules->modDirectory, $inDirLaminas);
                 if ($key !== false) {
-                    unset($inDir[$key]);
+                    unset($inDirLaminas[$key]);
+                    continue;
+                }
+                $key = array_search($modules->modDirectory, $inDirCustom);
+                if ($key !== false) {
+                    unset($inDirCustom[$key]);
                 }
             }
         }
-        foreach ($inDir as $fname) {
-            $form_title_file = @file($GLOBALS['srcdir'] . "/../$baseModuleDir$customDir/$fname/info.txt");
-            if ($form_title_file) {
-                $form_title = trim($form_title_file[0]);
-            } else {
-                $form_title = $fname;
-            }
-            $rel_path = $fname . "/index.php";
-            if ($this->getInstallerTable()->register($fname, $rel_path)) {
-                $status = true;
-            }
+        foreach ($inDirLaminas as $file_name) {
+            $rel_path = $file_name . "/index.php";
+            $status = $this->getInstallerTable()->register($file_name, $rel_path, 0, $zendModDir);
+        }
+        foreach ($inDirCustom as $file_name) {
+            $rel_path = $file_name . "/index.php";
+            $status = $this->getInstallerTable()->register($file_name, $rel_path);
         }
     }
 
