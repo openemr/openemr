@@ -3391,13 +3391,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         $mimeType = "text/xml";
 
-	// Let listeners know we are about to save a C-CDA
-	$send = array("CCDA" => $content, 'pid' => $pid);
-	$event = new ServiceSaveEvent($patientService, $send);
-	$updatedPreSaveEvent = $this->getEventDispatcher()->dispatch(
-          $event,
-          ServiceSaveEvent::EVENT_PRE_SAVE
-	);
+        // Let listeners know we are about to save a C-CDA
+        $send = array("CCDA" => $content, 'pid' => $pid);
+        $event = new ServiceSaveEvent($patientService, $send);
+        $updatedPreSaveEvent = $this->getEventDispatcher()->dispatch($event, ServiceSaveEvent::EVENT_PRE_SAVE);
 
         if (!$updatedPreSaveEvent instanceof ServiceSaveEvent) {
             $this->getLogger()->error(self::class .
