@@ -205,9 +205,12 @@ if (count($TabSettings ?? []) > 0) { ?>
             </iframe>
         </div>
         <?php
+        exit;
     } else { ?>
         <div class="easyui-tabs container" id="tab<?php echo $this->escapeHtml($mod_id); ?>" style="height:auto;">
             <?php echo $listener->z_xlt('No Configuration Defined for this Module'); ?>
         </div>
-    <?php }
+    <?php
+        exit;
+    }
 }
