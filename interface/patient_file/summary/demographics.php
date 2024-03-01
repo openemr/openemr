@@ -74,7 +74,7 @@ if (isset($_GET['set_pid'])) {
 // want smart support in their system.
 $smartLaunchController = new SMARTLaunchController($GLOBALS["kernel"]->getEventDispatcher());
 $smartLaunchController->registerContextEvents();
-$activeCards = getActiveDashboardCards();
+$hiddenCards = getHiddenDashboardCards();
 
 /**
  * @var EventDispatcher
@@ -1080,7 +1080,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=allergy')"
                         ];
                         echo "<div class=\"$col\">";
-                        if (in_array('card_allergies', $activeCards)) {
+                        if (in_array('card_allergies', $hiddenCards)) {
                             echo $t->render('patient/card/allergies.html.twig', $viewArgs);
                         }
                         echo "</div>";
@@ -1106,7 +1106,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medical_problem')"
                         ];
                         echo "<div class=\"$col\">";
-                        if (in_array('card_medicalproblems', $activeCards)) {
+                        if (in_array('card_medicalproblems', $hiddenCards)) {
                             echo $t->render('patient/card/medical_problems.html.twig', $viewArgs);
                         }
                         echo "</div>";
@@ -1130,7 +1130,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=medication')"
                         ];
                         echo "<div class=\"$col\">";
-                        if (in_array('card_medication', $activeCards)) {
+                        if (in_array('card_medication', $hiddenCards)) {
                             echo $t->render('patient/card/medication.html.twig', $viewArgs);
                         }
                         echo "</div>";
@@ -1461,7 +1461,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
-                        if (in_array('card_patientreminders', $activeCards)) {
+                        if (in_array('card_patientreminders', $hiddenCards)) {
                             echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
                         }
                     endif; //end if prw is activated
@@ -1484,7 +1484,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
-                        if (in_array('card_disclosure', $activeCards)) {
+                        if (in_array('card_disclosure', $hiddenCards)) {
                             echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
                         }
                     endif; // end if disclosures authorized
@@ -1514,7 +1514,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
-                        if (in_array('card_amendments', $activeCards)) {
+                        if (in_array('card_amendments', $hiddenCards)) {
                             echo $twig->getTwig()->render('patient/card/amendments.html.twig', $viewArgs);
                         }
                     endif; // end amendments authorized
@@ -1544,7 +1544,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
-                        if (in_array('card_lab', $activeCards)) {
+                        if (in_array('card_lab', $hiddenCards)) {
                             echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
                         }
                     endif; // end labs authorized
@@ -1569,7 +1569,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
-                        if (in_array('card_vitals', $activeCards)) {
+                        if (in_array('card_vitals', $hiddenCards)) {
                              echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
                         }
                     endif; // end vitals

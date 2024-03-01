@@ -13640,11 +13640,11 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'ZW', 'Zimbabwean', '2500', '0', '0', '', 'Zimbabwe', 'ZWE:716');
 
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'Hide_Dashboard_Cards', 'Hide Dashboard Cards');
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`,`activity`) VALUES ('Hide_Dashboard_Cards', 'card_allergies', 'Allergies', 10, 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_amendments', 'Amendments', 60, 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_disclosure', 'Disclosures', 50, 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_lab', 'Lab', 70, 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`,  `activity`) VALUES ('Hide_Dashboard_Cards', 'card_medicalproblems', 'Medical Problems', 20, 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_medication', 'Medication', 30, 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_rx', 'Prescriptions', 40, 1);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_vitals', 'Vitals', 80, 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`,`activity`) VALUES ('Hide_Dashboard_Cards', 'card_allergies', 'Allergies', 10, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_amendments', 'Amendments', 60, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_disclosure', 'Disclosures', 50, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_lab', 'Lab', 70, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`,  `activity`) VALUES ('Hide_Dashboard_Cards', 'card_medicalproblems', 'Medical Problems', 20, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_medication', 'Medication', 30, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_rx', 'Prescriptions', 40, 0);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_vitals', 'Vitals', 80, 0);

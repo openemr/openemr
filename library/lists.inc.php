@@ -143,7 +143,7 @@ function setListTouch($patient_id, $type)
     }
 }
 
-function getActiveDashboardCards()
+function getHiddenDashboardCards()
 {
     $hideList = [];
     $ret = sqlStatement("SELECT option_id FROM list_options WHERE list_id = 'Hide_Dashboard_Cards' AND activity = '1'");

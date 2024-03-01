@@ -163,7 +163,7 @@ require_once("../../interface/globals.php");
                 <div class="col-sm-12">
                     <h4 class="oe-help-heading"><?php echo xlt("Data Section"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
 
-                    <p><?php echo xlt("The some of the cards on the dashboard can be turned off if not being utilized by the clinic");?></p>
+                    <p><?php echo xlt("Some of the cards on the dashboard can be turned off if not being utilized by the clinic");?></p>
 
                     <p><?php echo xlt("To see which cards can be hidden, go to Admin, Forms, Lists, then search for Hide Dashboard Cards");?>.</p>
 
