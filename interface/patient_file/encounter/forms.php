@@ -106,6 +106,14 @@ if (!empty($_GET['attachid'])) {
 }
 ?>
 
+
+<?php
+// If google sign-in enable then add scripts.
+if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_client_id'])) {?>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="<?php echo $GLOBALS['web_root']?>/library/js/gSignIn.js"></script>
+<?php } ?>
+
 <script>
 $(function () {
     var formConfig = <?php echo $esignApi->formConfigToJson(); ?>;
