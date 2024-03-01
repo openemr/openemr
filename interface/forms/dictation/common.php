@@ -21,13 +21,12 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
-$mode = filter_input(INPUT_GET, 'mode', FILTER_SANITIZE_SPECIAL_CHARS);
-$id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
 
 if ($mode == 'new') {
     $save_action = "save.php?mode=new";
 } else {
     $save_action = "save.php?mode=update&id=" . $id;
+    $obj = formFetch("form_dictation", $_GET["id"]);
 }
 ?>
 <html>
@@ -44,13 +43,13 @@ if ($mode == 'new') {
     </div>
     <div class="row">
         <div class="col-12" id="toptext">
-            <form name="my_form" method=post action="<?php echo $rootdir;?>/forms/dictation/"<?php echo $save_action ?> onsubmit="return top.restoreSession()">
+            <form name="my_form" method=post action="<?php echo $rootdir;?>/forms/dictation/<?php echo $save_action ?>" onsubmit="return top.restoreSession()">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <fieldset>
                     <legend><?php echo xlt('Dictation')?></legend>
                     <div class="container">
                         <div class="form-group">
-                            <textarea name="dictation" id="editor1" class="form-control" cols="80" rows="15"></textarea>
+                            <textarea name="dictation" id="editor1" class="form-control" cols="80" rows="15"><?php if ($mode = 'update') { echo text($obj["dictation"]); }?></textarea>
                         </div>
                     </div>
                 </fieldset>
@@ -58,7 +57,7 @@ if ($mode == 'new') {
                     <legend><?php echo xlt('Additional Notes'); ?></legend>
                     <div class="container">
                         <div class="form-group">
-                            <textarea name="additional_notes" id="editor2" class="form-control" cols="80" rows="5"></textarea>
+                            <textarea name="additional_notes" id="editor2" class="form-control" cols="80" rows="5"><?php if ($mode = 'update') {echo text($obj["additional_notes"]); } ?></textarea>
                         </div>
                     </div>
                 </fieldset>

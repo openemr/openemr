@@ -15,4 +15,6 @@
  **/
 
 require_once(__DIR__ . "/../../globals.php");
+$mode = 'new';
 require_once 'common.php';
+
