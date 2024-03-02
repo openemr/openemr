@@ -113,7 +113,7 @@
 ALTER TABLE `form_encounter` ADD `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 #EndIf
 
-#IfNotRow2D list_options list_id lists option_id Hide_Dashboard_Cards
+#IfNotRow lists option_id Hide_Dashboard_Cards
 -- Create new list Hide Dashboard Cards
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'Hide_Dashboard_Cards', 'Hide Dashboard Cards');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`,`activity`) VALUES ('Hide_Dashboard_Cards', 'card_allergies', 'Allergies', 10, 0);
