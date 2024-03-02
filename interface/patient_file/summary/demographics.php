@@ -1080,7 +1080,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'btnLink' => "return load_location('{$GLOBALS['webroot']}/interface/patient_file/summary/stats_full.php?active=all&category=allergy')"
                         ];
                         echo "<div class=\"$col\">";
-                        if (in_array('card_allergies', $hiddenCards)) {
+                        if (!in_array('card_allergies', $hiddenCards)) {
                             echo $t->render('patient/card/allergies.html.twig', $viewArgs);
                         }
                         echo "</div>";
