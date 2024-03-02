@@ -49,7 +49,7 @@ if ($mode == 'new') {
                     <legend><?php echo xlt('Dictation')?></legend>
                     <div class="container">
                         <div class="form-group">
-                            <textarea name="dictation" id="editor1" class="form-control" cols="80" rows="15"><?php if ($mode = 'update') { echo text($obj["dictation"]); }?></textarea>
+                            <textarea name="dictation" id="editor1" class="form-control" cols="80" rows="15"><?php echo $d_display = ($mode = 'update') ? text($obj["dictation"]) : ''; ?></textarea>
                         </div>
                     </div>
                 </fieldset>
@@ -57,7 +57,7 @@ if ($mode == 'new') {
                     <legend><?php echo xlt('Additional Notes'); ?></legend>
                     <div class="container">
                         <div class="form-group">
-                            <textarea name="additional_notes" id="editor2" class="form-control" cols="80" rows="5"><?php if ($mode = 'update') { echo text($obj["additional_notes"]); } ?></textarea>
+                            <textarea name="additional_notes" id="editor2" class="form-control" cols="80" rows="5"><?php echo $a_display = ($mode = 'update') ? text($obj["additional_notes"]) : ''; ?></textarea>
                         </div>
                     </div>
                 </fieldset>
