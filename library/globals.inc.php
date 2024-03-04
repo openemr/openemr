@@ -4053,7 +4053,7 @@ $GLOBALS_METADATA = array(
         'pdf_font_size' => array(
             xl('Font Size in Pt'),
             'num',                           // data type
-            '12',
+            '10',
             xl('Sets the font size of the most PDF text in pt')
         ),
 
