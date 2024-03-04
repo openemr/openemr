@@ -86,7 +86,7 @@
 <?php if ($this->form->displayGoogleSignin) { ?>
 <script type="text/javascript">
     let gsi = Object.create(GoogleSigin);
-    gsi.init("<?php echo $this->form->googleSigninClientID; ?>", {
+    gsi.init(<?php echo js_escape($this->form->googleSigninClientID); ?>, {
       ele : '#esign-form-container',
       signin_btn : '#esign-sign-button-encounter',
       error_container : '#esign-signature-form'
