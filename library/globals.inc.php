@@ -4051,10 +4051,10 @@ $GLOBALS_METADATA = array(
         ),
 
         'pdf_font_size' => array(
-            xl('Font Size in Pt'),
-            'num',                           // data type
+            xl('PDF Font Size in Pt'),
+            'num',
             '10',
-            xl('Sets the font size of the most PDF text in pt')
+            xl('Sets the font size for most PDF text in pt')
         ),
 
         'pdf_left_margin' => array(
@@ -4146,7 +4146,7 @@ $GLOBALS_METADATA = array(
         ),
 
         'env_font_size' => array(
-            xl('Font Size in Pt'),
+            xl('Envelope Font Size in Pt'),
             'num',                           // data type
             '14',
             xl('Sets the font of the address text on the envelope in mm')
