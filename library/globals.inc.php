@@ -4049,6 +4049,14 @@ $GLOBALS_METADATA = array(
             'LETTER',
             xl('Choose Paper Size')
         ),
+
+        'pdf_font_size' => array(
+            xl('Font Size in Pt'),
+            'num',                           // data type
+            '12',
+            xl('Sets the font size of the most PDF text in pt')
+        ),
+
         'pdf_left_margin' => array(
             xl('Left Margin (mm)'),
             'num',
