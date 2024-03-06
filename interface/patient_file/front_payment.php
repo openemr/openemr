@@ -7,8 +7,10 @@
  * @link      http://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Stephen Waite <stephen.waite@open-emr.org>
  * @copyright Copyright (c) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2024 Stephen Waite <stephen.waite@open-emr.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -79,7 +81,7 @@ function echoLine($iname, $date, $charges, $ptpaid, $inspaid, $duept, $encounter
 {
     global $var_index;
     $var_index++;
-    $balance = FormatMoney::getBucks($charges - $ptpaid - $inspaid);
+    $balance = $charges - $ptpaid - $inspaid;
     $balance = (round($duept, 2) != 0) ? 0 : $balance;//if balance is due from patient, then insurance balance is displayed as zero
     $encounter = $encounter ? $encounter : '';
     echo " <tr id='tr_" . attr($var_index) . "' >\n";
