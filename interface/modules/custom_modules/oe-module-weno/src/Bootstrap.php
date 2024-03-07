@@ -72,12 +72,11 @@ class Bootstrap
     public function subscribeToEvents(): void
     {
         $modService = new ModuleService();
+        // let Admin configure Weno if module is not configured.
+        $this->addGlobalSettings();
         if (!$modService->isWenoConfigured()) {
-            // let Admin configure Weno if module is not configured.
-            $this->addGlobalSettings();
             return;
         }
-        $this->addGlobalSettings();
         $this->registerMenuItems();
         $this->registerDemographicsEvents();
         $this->demographicsSelectorEvents();

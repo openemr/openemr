@@ -196,9 +196,11 @@ class TransmitProperties
         $wenObj['PrimaryPhone'] = $phonePrimary;
         $wenObj['SupportsSMS'] = 'Y';
 
-        $wenObj['PatientHeight'] = substr($this->vitals['height'] ?? '', 0, -3);
-        $wenObj['PatientWeight'] = substr($this->vitals['weight'] ?? '', 0, -3);
-        $wenObj['HeightWeightObservationDate'] = $heightDate[0];
+        if ($age < 19) {
+            $wenObj['PatientHeight'] = substr($this->vitals['height'] ?? '', 0, -3);
+            $wenObj['PatientWeight'] = substr($this->vitals['weight'] ?? '', 0, -3);
+            $wenObj['HeightWeightObservationDate'] = $heightDate[0];
+        }
         $wenObj["ResponsiblePartySameAsPatient"] = $age < 19 ? 'N' : 'Y';
         if ($age < 19 && !empty($this->responsibleParty)) {
             $wenObj['ResponsiblePartyLastName'] = $this->responsibleParty['ResponsiblePartyLastName'];
@@ -431,7 +433,7 @@ insurance;
         // Check if vitals are empty or missing height and weight
         if (empty($vitals) || ($vitals['height'] <= 0) || ($vitals['weight'] <= 0)) {
             return [
-                "REQED:{vitals}" . xlt("A Vitals Height and Weight are required to transmit a prescription. Create or add Vitals in an encounter.")
+                "REQED:{vitals}" . xlt("Vitals Height and Weight required for patient under 19 yo. Create or add Vitals in an encounter.")
             ];
         }
         return $vitals;

@@ -129,22 +129,21 @@ class ModuleService
         $config = $this->getVendorGlobals();
         $keys = array_keys($config);
         foreach ($keys as $key) {
+            // these are always required to run module.
             if (
-                $key === 'weno_rx_enable_test'
-                || $key === 'weno_secondary_admin_username'
-                || $key === 'weno_secondary_admin_password'
-                || $key === 'weno_secondary_encryption_key'
+                $key === 'weno_rx_enable'
+                || $key === 'weno_admin_username'
+                || $key === 'weno_admin_password'
+                || $key === 'weno_encryption_key'
             ) {
-                continue;
-            }
-            $value = $GLOBALS[$key] ?? null;
-
-            if (empty($value)) {
-                self::setTaskState('0', false);
-                return false;
+                $value = $config[$key] ?? null;
+                if (empty($value)) {
+                    self::setTaskState('0');
+                    return false;
+                }
             }
         }
-        self::setTaskState('1', false);
+        self::setTaskState('1');
         return true;
     }
 

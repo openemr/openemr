@@ -10,14 +10,21 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-$sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../../globals.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\WenoModule\Services\ModuleService;
 
 $module_config = 1;
+
+if (!AclMain::aclCheckCore('admin', 'super')) {
+    // renders in MM iFrame
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Must be an Admin")]);
+    exit;
+}
 
 $vendors = [];
 $vendors['weno_rx_enable'] = '';
@@ -51,6 +58,7 @@ $vendors = $boot->getVendorGlobals();
     }
 
     Header::setupHeader();
+
     ?>
     <script>
         $(function () {
@@ -66,7 +74,7 @@ $vendors = $boot->getVendorGlobals();
             // Auto save on change
             const persistChange = document.querySelectorAll('.persist');
             persistChange.forEach(persist => {
-                persist.addEventListener('change', (event) => {
+                persist.addEventListener('change', () => {
                     $("#form_save").click();
                 });
             });

@@ -68,15 +68,15 @@ function renderDialog(action, uid, event) {
         'weno_manage': '/interface/modules/custom_modules/oe-module-weno/templates/facilities.php',
         'users': '/interface/usergroup/user_admin.php'
     };
-    // Construct action URL
-    const urlPart = urls[action].includes('?') ? '&' : '?';
-    const actionUrl = `${urls[action]}${urlPart}id=${encodeURIComponent(uid)}&csrf_token_form=${encodeURIComponent(csrf)}`;
-
     if (urls[action] === undefined) {
         console.error('Invalid action URL');
         alert(action.toUpperCase() + " " + xl('Direct action not implemented yet.'));
         return;
     }
+    // Construct action URL
+    const urlPart = urls[action].includes('?') ? '&' : '?';
+    const actionUrl = `${urls[action]}${urlPart}id=${encodeURIComponent(uid)}&csrf_token_form=${encodeURIComponent(csrf)}`;
+
     // Open modal dialog
     dlgopen('', 'dialog-mod', '900', 'full', '', '', {
         buttons: [
