@@ -261,8 +261,8 @@ class Claim
             $this->payers[$ins]['object']  = $orow;
         }
 
-        // if the claim was previously billed to another primary insurance
-        // that has now been removed from the patient't insurance data
+        // if the claim was previously billed to another insurance
+        // that has now been removed from the patient's insurance data
         // then we need to skip this for validation of the claim in the
         // billing manager so that it grabs a valid insurance
         if (empty($this->payers[0]['data'] ?? '')) {
