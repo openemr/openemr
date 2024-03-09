@@ -69,5 +69,4 @@ class PatientDocumentStoreOffsite extends Event
     {
         return $this->patientId;
     }
-
 }
