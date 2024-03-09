@@ -992,14 +992,17 @@ class Document extends ORDataObject
         } else {
             // Store it remotely.
             $offSiteUpload = new PatientDocumentStoreOffsite($data);
+            $offSiteUpload->setPatientId($patient_id);
             $offSiteUpload->setRemoteFileName($filename);
+            $offSiteUpload->setRemoteMimeType($mimetype);
+            $offSiteUpload->setRemoteCategory($category_id);
             /**
              * There must be a return to terminate processing.
              */
-            $this->eventDispatcher->dispatch($offSiteUpload, PatientDocumentStoreOffsite::REMOTE_STORAGE_LOCATION);
+             $this->eventDispatcher->dispatch($offSiteUpload, PatientDocumentStoreOffsite::REMOTE_STORAGE_LOCATION);
 
             /**
-             * If the listener is not null then the file was uploaded to another location.
+             * If the response from the listener is true then the file was uploaded to another location.
              * Else resume the local file storage
              */
 

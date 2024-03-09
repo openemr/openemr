@@ -19,6 +19,9 @@ class PatientDocumentStoreOffsite extends Event
     const REMOTE_STORAGE_LOCATION = 'documents.remote.storage.location';
     private mixed $data;
     private string $remoteFileName;
+    private string $mimeType;
+    private string $category;
+    private string $patientId;
 
     public function __construct($data)
     {
@@ -38,4 +41,33 @@ class PatientDocumentStoreOffsite extends Event
     {
         return $this->remoteFileName;
     }
+
+    public function setRemoteMimeType(string $mimeType): void
+    {
+        $this->mimeType = $mimeType;
+    }
+
+    public function getRemoteMimeType(): string
+    {
+        return $this->mimeType;
+    }
+    public function setRemoteCategory(string $category): void
+    {
+        $this->category = $category;
+    }
+
+    public function getRemoteCategory(): string
+    {
+        return $this->category;
+    }
+
+    public function setPatientId(string $patientId): void
+    {
+        $this->patientId = $patientId;
+    }
+    public function getPatientId(): string
+    {
+        return $this->patientId;
+    }
+
 }
