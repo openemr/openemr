@@ -992,10 +992,10 @@ class Document extends ORDataObject
         } else {
             // Store it remotely.
             $offSiteUpload = new PatientDocumentStoreOffsite($data);
-            $offSiteUpload->setPatientId($patient_id);
-            $offSiteUpload->setRemoteFileName($filename);
-            $offSiteUpload->setRemoteMimeType($mimetype);
-            $offSiteUpload->setRemoteCategory($category_id);
+            $offSiteUpload->setPatientId($patient_id) ?? '';
+            $offSiteUpload->setRemoteFileName($filename) ?? '';
+            $offSiteUpload->setRemoteMimeType($mimetype) ?? '';
+            $offSiteUpload->setRemoteCategory($category_id) ?? '';
             /**
              * There must be a return to terminate processing.
              */
