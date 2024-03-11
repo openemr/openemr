@@ -261,6 +261,14 @@ class Claim
             $this->payers[$ins]['object']  = $orow;
         }
 
+        // if the claim was previously billed to another insurance
+        // that has now been removed from the patient's insurance data
+        // then we need to skip this for validation of the claim in the
+        // billing manager so that it grabs a valid insurance
+        if (empty($this->payers[0]['data'] ?? '')) {
+            array_shift($this->payers);
+        }
+
         // This kludge hands most cases of a rare ambiguous situation, where
         // the primary insurance company is the same as the secondary.  It seems
         // nobody planned for that!
