@@ -20,8 +20,8 @@ class PatientDocumentStoreOffsite extends Event
     private mixed $data;
     private string $remoteFileName;
     private string $mimeType;
-    private string $category;
-    private string $patientId;
+    private mixed $category;
+    private mixed $patientId;
 
     public function __construct($data)
     {
@@ -56,7 +56,7 @@ class PatientDocumentStoreOffsite extends Event
         $this->category = $category;
     }
 
-    public function getRemoteCategory(): string
+    public function getRemoteCategory(): mixed
     {
         return $this->category;
     }
@@ -65,7 +65,7 @@ class PatientDocumentStoreOffsite extends Event
     {
         $this->patientId = $patientId;
     }
-    public function getPatientId(): string
+    public function getPatientId(): mixed
     {
         return $this->patientId;
     }
