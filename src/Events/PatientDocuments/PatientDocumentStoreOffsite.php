@@ -51,7 +51,7 @@ class PatientDocumentStoreOffsite extends Event
     {
         return $this->mimeType;
     }
-    public function setRemoteCategory(string $category): void
+    public function setRemoteCategory($category): void
     {
         $this->category = $category;
     }
