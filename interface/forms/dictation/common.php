@@ -25,7 +25,7 @@ $returnurl = 'encounter_top.php';
 if ($mode == 'new') {
     $save_action = "save.php?mode=new";
 } else {
-    $save_action = "save.php?mode=update&id=" . $id;
+    $save_action = "save.php?mode=update&id=" . attr_url($id);
     $obj = formFetch("form_dictation", $_GET["id"]);
 }
 ?>
