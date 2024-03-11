@@ -16,5 +16,5 @@
 
 require_once(__DIR__ . "/../../globals.php");
 $mode = 'update';
-$id = htmlspecialchars($_GET['id']);
+$id = $_GET['id'];
 require_once 'common.php';
