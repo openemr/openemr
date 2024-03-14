@@ -29,19 +29,5 @@ $ignoreAuth = true;
 $sessionAllowWrite = true;
 require_once __DIR__ . '/../interface/globals.php';
 
-use OpenEMR\Common\Command\AclModify;
-use OpenEMR\Common\Command\CcdaNewpatientImport;
-use OpenEMR\Common\Command\CcdaNewpatient;
-use OpenEMR\Common\Command\CcdaImport;
-use OpenEMR\Common\Command\Register;
-use OpenEMR\Common\Command\ZfcModule;
-use Symfony\Component\Console\Application;
-
-$app = new Application();
-$app->add(new AclModify());
-$app->add(new CcdaNewpatientImport());
-$app->add(new CcdaNewpatient());
-$app->add(new CcdaImport());
-$app->add(new Register());
-$app->add(new ZfcModule());
-$app->run();
+$commandRunner = new \OpenEMR\Common\Command\SymfonyCommandRunner();
+$commandRunner->run();
