@@ -43,6 +43,8 @@ class CommandRunner
 
     public function run()
     {
+        echo "This Command Runner is deprecated and will be removed at a future date.  Use php bin/console as a replacement runner\n";
+
         $shortOpts = "c:hl";
         $options = getopt($shortOpts);
 
