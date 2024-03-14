@@ -15,7 +15,7 @@ $cryptoGen = new CryptoGen();
 $weno_username = $GLOBALS['weno_admin_username'] ?? '';
 $weno_password = $cryptoGen->decryptStandard($GLOBALS['weno_admin_password'] ?? '');
 $encryption_key = $cryptoGen->decryptStandard($GLOBALS['weno_encryption_key'] ?? '');
-$baseurl = "https://online.wenoexchange.com/en/EPCS/DownloadPharmacyDirectory";
+$baseurl = "https://dev.wenoexchange.com/en/EPCS/DownloadPharmacyDirectory";
 
 $data = array(
     "UserEmail" => $weno_username,

@@ -94,6 +94,7 @@ class ModuleService
         $vendors['weno_secondary_admin_password'] = $items['weno_secondary_admin_password'];
 
         foreach ($vendors as $key => $vendor) {
+            $GLOBALS[$key] = $vendor;
             sqlQuery(
                 "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `gl_name` = ?, `gl_value` = ?",
                 array($key, $vendor, $key, $vendor)

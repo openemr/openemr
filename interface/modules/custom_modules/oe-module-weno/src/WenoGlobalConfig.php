@@ -51,7 +51,7 @@ class WenoGlobalConfig
         return [
             self::WENO_RX_ENABLE => [
                 'title' => 'Enable Weno eRx Service'
-                , 'description' => xl('Enable Weno eRx Service') . ' ' . xl('Contact https://online.wenoexchange.com to sign up for Weno Free eRx service.')
+                , 'description' => xl('Enable Weno eRx Service') . ' ' . xl('Contact https://dev.wenoexchange.com to sign up for Weno Free eRx service.')
                 , 'type' => GlobalSetting::DATA_TYPE_BOOL
                 , 'default' => ''
                 , 'user_setting' => false

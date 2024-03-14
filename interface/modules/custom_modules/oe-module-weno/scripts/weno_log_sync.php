@@ -14,15 +14,18 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Modules\WenoModule\Services\LogProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoPharmaciesJson;
+use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 
 function downloadWenoPharmacy()
 {
     $cryptoGen = new CryptoGen();
     $localPharmacyJson = new WenoPharmaciesJson($cryptoGen);
-
+    // ensure a valid key is set.
+    // first check if the key is valid. If not, request a new key and set it.
+    $wenoValidate = new WenoValidate();
+    $isKey = $wenoValidate->validateAdminCredentials(true);
+    error_log('Background Initiated Encryption Verify returned.' . text($isKey ?: 'false'));
     // Check if the background service is active. Intervals are set to once a day
-    // Weno has decided to not force the import of pharmacies since they are using the iframe
-    // and the pharmacy can be selected at the time of creating the prescription.
     $value = $localPharmacyJson->checkBackgroundService();
 
     EventAuditLogger::instance()->newEvent(

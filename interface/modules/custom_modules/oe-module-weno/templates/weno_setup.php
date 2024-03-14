@@ -6,7 +6,7 @@
  * @package   OpenEMR Module
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2023-24 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2023-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,8 +17,6 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\WenoModule\Services\ModuleService;
-
-$module_config = 1;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     // renders in MM iFrame
@@ -47,6 +45,7 @@ if (($_POST['form_save'] ?? null)) {
 
 $vendors = $boot->getVendorGlobals();
 ?>
+
 <!DOCTYPE HTML>
 <html lang="eng">
 <head>
@@ -56,9 +55,7 @@ $vendors = $boot->getVendorGlobals();
     if (count($vendors ?? []) === 0) {
         $vendors = $boot->getVendorGlobals();
     }
-
     Header::setupHeader();
-
     ?>
     <script>
         $(function () {
@@ -70,7 +67,6 @@ $vendors = $boot->getVendorGlobals();
             }).on('hide.bs.collapse', function () {
                 $(this).prev(".card-header").find(".fa").removeClass("fa-minus").addClass("fa-expand");
             });
-
             // Auto save on change
             const persistChange = document.querySelectorAll('.persist');
             persistChange.forEach(persist => {
@@ -78,6 +74,21 @@ $vendors = $boot->getVendorGlobals();
                     $("#form_save").click();
                 });
             });
+
+            function togglePasswordVisibility(inputField) {
+                inputField.type = inputField.type === "password" ? "text" : "password";
+            }
+
+            const passwordFields = document.querySelectorAll('input[type="password"]');
+            passwordFields.forEach(function (field) {
+                const eyeIcon = document.createElement("span");
+                eyeIcon.innerHTML = '<button type="button" class="btn btn-outline-primary"><i class="fa fa-eye"></i></button>';
+                eyeIcon.addEventListener("click", function () {
+                    togglePasswordVisibility(field);
+                });
+                field.parentNode.insertBefore(eyeIcon, field.nextSibling);
+            });
+            document.getElementById('weno_secondary_admin_username').scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
         });
     </script>
 </head>
@@ -85,7 +96,7 @@ $vendors = $boot->getVendorGlobals();
     <div class="container-xl">
         <div class="form-group text-center m-2 p-2">
             <h2><?php echo xlt("Weno eRx Service Admin Setup"); ?></h2>
-            <h4><small><?php echo xlt("Changes are automatically saved."); ?></small></h4>
+            <h6><small><?php echo xlt("Required Primary Admin section changes are automatically saved."); ?></small></h6>
         </div>
         <form id="set_form" name="set_form" class="form" role="form" method="post" action="">
             <div id="set-weno">
@@ -93,7 +104,7 @@ $vendors = $boot->getVendorGlobals();
                 <div class="form-group">
                     <div class="row form-group">
                         <label for="weno_rx_enable" class="col-sm-6"><?php echo xlt("Enable Weno eRx Service"); ?></label>
-                        <div class="col-sm-6" title="<?php echo xla("Contact https://online.wenoexchange.com to sign up for Weno Free eRx service.") ?>">
+                        <div class="col-sm-6" title="<?php echo xla("Contact https://dev.wenoexchange.com to sign up for Weno Free eRx service.") ?>">
                             <input type="checkbox" class="checkbox persist" name="weno_rx_enable" id="weno_rx_enable" value="1" <?php echo $vendors['weno_rx_enable'] == '1' ? 'checked' : ''; ?>>
                         </div>
                     </div>
@@ -107,14 +118,18 @@ $vendors = $boot->getVendorGlobals();
                         <div class="col-12 text-center">
                             <h5>
                                 <hr class="text-dark bg-light" />
-                                <?php echo xlt("Weno Primary Admin"); ?>
+                                <button type="button" class="btn btn-sm btn-outline-danger btn-refresh float-right" id="app_refresh_top" onclick="top.location.reload()"
+                                    title="<?php echo xla("Same as a browser refresh. Click to implement any new menus and Configuration items."); ?>"><?php echo xlt("Restart OpenEMR"); ?>
+                                </button>
+                                <button type="submit" id="form_save_top" name="form_save" class="btn btn-success btn-sm btn-save float-left" value="Save"><?php echo xlt("Save Setup"); ?></button>
+                                <?php echo xlt("Weno Primary Admin Section") . ' <cite>(' . xlt('Required') . ')</cite>'; ?>
                                 <hr class="text-dark bg-light" />
                             </h5>
                         </div>
                     </div>
                     <div class="row form-group">
                         <label for="" class="col-sm-6"><?php echo xlt("Weno Primary Encryption Key") ?></label>
-                        <div class="col-sm-6" title="<?php echo xla("Encryption key issued by Weno eRx service on the Weno Developer Page.") ?>">
+                        <div class="col-sm-6 input-group-append" title="<?php echo xla("Encryption key issued by Weno eRx service on the Weno Developer Page.") ?>">
                             <input type="password" class="form-control persist" maxlength="255" name="weno_encryption_key" id="weno_encryption_key" value="<?php echo attr($vendors['weno_encryption_key']); ?>" />
                         </div>
                     </div>
@@ -126,7 +141,7 @@ $vendors = $boot->getVendorGlobals();
                     </div>
                     <div class="row form-group">
                         <label for="weno_admin_password" class="col-sm-6"><?php echo xlt("Weno Primary Admin Password") ?></label>
-                        <div class="col-sm-6" title="<?php echo xla("Required Weno account password") ?>">
+                        <div class="col-sm-6 input-group-append" title="<?php echo xla("Required Weno account password") ?>">
                             <input type="password" class="form-control persist" maxlength="255" name="weno_admin_password" id="weno_admin_password" value="<?php echo attr($vendors['weno_admin_password']); ?>" />
                         </div>
                     </div>
@@ -134,7 +149,7 @@ $vendors = $boot->getVendorGlobals();
                         <div class="col-12 text-center">
                             <h5>
                                 <hr class="text-dark bg-light" />
-                                <?php echo xlt("Weno Secondary Admin Not Required"); ?>
+                                <?php echo xlt("Weno Secondary Admin Section") . ' <cite>(' . xlt('Not Required') . ')</cite>'; ?>
                                 <hr class="text-dark bg-light" />
                             </h5>
                         </div>
@@ -143,29 +158,29 @@ $vendors = $boot->getVendorGlobals();
                 <div class="form-group">
                     <div class="row form-group">
                         <label for="weno_secondary_encryption_key" class="col-sm-6"><?php echo xlt("Weno Secondary Encryption Key") ?></label>
-                        <div class="col-sm-6" title="<?php echo xla("Backup Encryption key issued by Weno eRx service on the Weno Developer Page.") ?>">
-                            <input type="password" class="form-control persist" maxlength="255" name="weno_secondary_encryption_key" id="weno_secondary_encryption_key" value="<?php echo attr($vendors['weno_secondary_encryption_key']); ?>" />
+                        <div class="col-sm-6 input-group-append" title="<?php echo xla("Backup Encryption key issued by Weno eRx service on the Weno Developer Page.") ?>">
+                            <input type="password" class="form-control" maxlength="255" name="weno_secondary_encryption_key" id="weno_secondary_encryption_key" value="<?php echo attr($vendors['weno_secondary_encryption_key']); ?>" />
                         </div>
                     </div>
                     <div class="row form-group">
                         <label for="weno_secondary_admin_username" class="col-sm-6"><?php echo xlt("Weno Secondary Admin Username") ?></label>
                         <div class="col-sm-6" title="<?php echo xla("This is required for Weno Pharmacy Directory Download in Background Services. Same as email for logging in into Weno") ?>">
-                            <input type="text" class="form-control persist" maxlength="255" name="weno_secondary_admin_username" id="weno_secondary_admin_username" value="<?php echo attr($vendors['weno_secondary_admin_username']); ?>" />
+                            <input type="text" class="form-control" maxlength="255" name="weno_secondary_admin_username" id="weno_secondary_admin_username" value="<?php echo attr($vendors['weno_secondary_admin_username']); ?>" />
                         </div>
                     </div>
                     <div class="row form-group">
                         <label for="weno_secondary_admin_password" class="col-sm-6"><?php echo xlt("Weno Secondary Admin Password") ?></label>
-                        <div class="col-sm-6" title="<?php echo xla("Required Weno account password") ?>">
-                            <input type="password" class="form-control persist" maxlength="255" name="weno_secondary_admin_password" id="weno_secondary_admin_password" value="<?php echo attr($vendors['weno_secondary_admin_password']); ?>" />
+                        <div class="col-sm-6 input-group-append" title="<?php echo xla("Required Weno account password") ?>">
+                            <input type="password" class="form-control" maxlength="255" name="weno_secondary_admin_password" id="weno_secondary_admin_password" value="<?php echo attr($vendors['weno_secondary_admin_password']); ?>" />
                         </div>
                     </div>
                     <hr class="text-dark bg-light" />
                     <div class="row form-group">
                         <div class="col-12">
-                            <button type="button" class="btn btn-primary btn-refresh float-right" id="app_refresh" onclick="top.location.reload()"
+                            <button type="button" class="btn btn-sm btn-outline-danger btn-refresh float-left" id="app_refresh" onclick="top.location.reload()"
                                 title="<?php echo xla("Same as a browser refresh. Click to implement any new menus and Configuration items."); ?>"><?php echo xlt("Restart OpenEMR"); ?>
                             </button>
-                            <button type="submit" id="form_save" name="form_save" class="btn btn-primary btn-save float-right d-none" value="Save"><?php echo xlt("Save Setup"); ?></button>
+                            <button type="submit" id="form_save" name="form_save" class="btn btn-sm btn-success btn-save float-right" value="Save"><?php echo xlt("Save Setup"); ?></button>
                         </div>
                     </div>
                 </div>
@@ -189,7 +204,7 @@ $vendors = $boot->getVendorGlobals();
                             text('3. Find top Patient Bar User icon and click Settings. Scroll down or find the Weno button in left sidebar and click. Enter your email and password in the Weno Provider Email and Weno Provider Password fields and Save.') . '<br /><br />' .
                             '<h5>' . text('Patient Chart Requirements.') . '</h5>' .
                             text('1. Each Patient is required to have an assigned primary pharmacy from Demographics->Choices. It is good practice to assign an Alternate Pharmacy too.') . '<br />' .
-                            text('2. Each Patient is required to have a Vitals Height and Weight assigned. Create or enter in from an encounter vitals form') . '<br /><br />';
+                            text('2. Each Patient under the age of 19 years old are required to have a Vitals Height and Weight assigned. Create or enter values from an encounter vitals form') . '<br /><br />';
                         ?>
                         <p><cite><?php echo xlt("Note if these credentials are absent or wrong, you will be required to log into eRx Compose to prescribe prescriptions."); ?></cite>></p>
                     </div>

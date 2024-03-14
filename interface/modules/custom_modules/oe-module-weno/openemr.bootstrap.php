@@ -3,7 +3,7 @@
 /**
  *
  * @package     OpenEMR Weno Module
- * @link        https://online.wenoexchange.com
+ * @link        https://dev.wenoexchange.com
  *
  * @author      Kofi Appiah <kkappiah@medsov.com>
  *   Copyright (c) 2023 Omega Systems Group Corp <omegasystemsgroup.com>

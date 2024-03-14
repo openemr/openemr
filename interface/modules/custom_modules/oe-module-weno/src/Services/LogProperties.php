@@ -142,7 +142,7 @@ class LogProperties
         $wenolog = new WenoLogService();
 
         $logurlparam = $this->logEpcs();
-        $syncLogs = "https://online.wenoexchange.com/en/EPCS/DownloadNewRxSyncDataVal?useremail=";
+        $syncLogs = "https://dev.wenoexchange.com/en/EPCS/DownloadNewRxSyncDataVal?useremail=";
         if ($logurlparam == 'error') {
             echo TransmitProperties::styleErrors(xlt("Cipher failure check encryption key"));
             error_log("Cipher failure check encryption key", time());
@@ -191,9 +191,9 @@ class LogProperties
     }
 
     /**
-     * @return mixed
+     * @return string|array
      */
-    public function getProviderEmail(): mixed
+    public function getProviderEmail(): string|array
     {
         if ($_SESSION['authUser']) {
             $provider_info = ['email' => $GLOBALS['weno_provider_email']];
@@ -213,6 +213,7 @@ class LogProperties
             echo TransmitProperties::styleErrors($error);
             exit;
         }
+        return '';
     }
 
     /**

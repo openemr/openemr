@@ -20,70 +20,126 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
+use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 
-//ensure user has proper access
+//ensure user has proper access permissions.
 if (!AclMain::aclCheckCore('patients', 'rx')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Weno eRx")]);
     exit;
 }
 
+$wenoValidate = new WenoValidate();
+// Let's see if letting user decide to reset fly's!
+// We really don't need because we can do transparently but Weno requested so...
+if (isset($_GET['form_reset_key'])) {
+    unset($_GET['form_reset_key']);
+    // if we are here then we need to reset the key.
+    $newKey = $wenoValidate->requestEncryptionKeyReset();
+    $wenoValidate->setNewEncryptionKey($newKey);
+    // Redirect to the same page to refresh the page with the new key.
+    $isValidKey = true;
+} else {
+    // Validate if the user has a valid encryption key.
+    // If not, show a reset button below.
+    // This is a manual process for now.
+    $isValidKey = $wenoValidate->verifyEncryptionKey();
+}
+/*
+// We can automate! If the key is not valid, request a new key and set it
+// for the user. This will be transparent to the user.
+// This is easier, but for now we want to alert user by showing button.
+// Clicking will do the same as the below function.
+    $isKey = $wenoValidate->validateAdminCredentials(true);
+*/
+
 $pharmacyService = new PharmacyService();
+$wenoProperties = new TransmitProperties();
 $primary_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? [];
 $alt_pharmacy = $pharmacyService->getWenoAlternatePharm($_SESSION['pid']) ?? [];
-$wenoProperties = new TransmitProperties();
 $provider_info = $wenoProperties->getProviderEmail();
-$urlParam = $wenoProperties->cipherPayload(); //lets encrypt the data
+$urlParam = $wenoProperties->cipherPayload();
 $vitals = $wenoProperties->getVitals();
 $provider_name = $wenoProperties->getProviderName();
 $patient_name = $wenoProperties->getPatientName();
 $facility_name = $wenoProperties->getFacilityInfo();
 
-$newRxUrl = "https://online.wenoexchange.com/en/NewRx/ComposeRx?useremail=";
+//set the url for the iframe
+$newRxUrl = "https://dev.wenoexchange.com/en/NewRx/ComposeRx?useremail=";
 if ($urlParam == 'error') {   //check to make sure there were no errors
     echo TransmitProperties::styleErrors(xlt("Cipher failure check encryption key"));
     exit;
 }
 ?>
-
-<style>
-  .row {
-    display: flex;
-    flex-direction: row;
-  }
-
-  .col {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .center {
-    justify-content: center;
-  }
-</style>
-
 <!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <title><?php echo xlt('Weno eRx') ?></title>
     <?php Header::setupHeader(); ?>
+    <style>
+      .row {
+        display: flex;
+        flex-direction: row;
+      }
+
+      .col {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .center {
+        justify-content: center;
+      }
+
+      /* Styling for sticky container */
+      .sticky-container {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      b {
+        font-weight: 500;
+        color: var(--primary);
+      }
+    </style>
+    <script>
+        $(function () {
+            $('#form_reset_key').addClass('d-none');
+        });
+        /* Toggle reset button. */
+        <?php if (!$isValidKey) { ?>
+        $(function () {
+            $('#form_reset_key').removeClass('d-none');
+        });
+        <?php } else { ?>
+        $(function () {
+            $('#form_reset_key').addClass('d-none');
+        });
+        <?php } ?>
+    </script>
 </head>
 <body>
     <?php
     $urlOut = $newRxUrl . urlencode($provider_info['email']) . "&data=" . urlencode($urlParam);
     ?>
-    <div class="container-xl mt-3">
-        <header>
-            <h2>
-                <a href="<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>" class="text-primary" title="<?php echo xla("Return to Patient Demographics"); ?>"><?php echo xlt("e-Prescribe"); ?>
-                <i class="small fa fa-arrow-left"></i></a>
-            </h2>
-        </header>
-        <div class="container">
+    <div class="container-xl">
+        <div class="container-xl sticky-container bg-light text-dark">
+            <form>
+                <header class="bg-dark text-light text-center">
+                    <h2>
+                        <a href="<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>" class="text-primary" title="<?php echo xla("Return to Patient Demographics"); ?>"><?php echo xlt("e-Prescribe"); ?>
+                            <cite class="small font-weight-bold text-primary"><i class="fa fa-arrow-left mr-1"></i><?php echo xla("Return to Patient"); ?></cite>
+                        </a>
+                        <button type="submit" id="form_reset_key" name="form_reset_key" class="btn btn-danger btn-sm btn-refresh p-1 m-0 mt-1 mr-2 float-right d-none" value="Save" title="<?php echo xla("The Encryption key did not pass validation. Clicking this button will reset your encryption key so you may continue."); ?>"><?php echo xlt("Session is invalid!. Click to Reset?"); ?></button>
+                    </h2>
+                </header>
+            </form>
             <div class="row ml-1 center">
                 <div class="col">
                     <div class="row">
-                        <div><b><?php echo xlt("Presriber"); ?></b>: <?php echo text($provider_name); ?> </div>
+                        <div><b><?php echo xlt("Prescriber"); ?></b>: <?php echo text($provider_name); ?> </div>
                     </div>
                     <div class="row">
                         <div><b><?php echo xlt("Patient Name"); ?></b>: <?php echo text($patient_name) ?></div>
@@ -94,25 +150,28 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
                         </div>
                     </div>
                 </div>
-                <div class="col" style="margin-top: -14px !important">
-                    <table>
-                        <tr>
-                            <th><?php echo xlt("Vitals"); ?></th>
-                            <th><?php echo xlt("Date Observed"); ?></th>
-                        </tr>
-                        <tr>
-                            <td><?php echo xlt("Height"); ?>:<?php echo text(number_format($vitals['height'], 2)); ?> </td>
-                            <td><?php echo text(oeFormatShortDate(date("Y-m-d", strtotime($vitals['date'])))); ?></td>
-                        </tr>
-                        <tr>
-                            <td><?php echo xlt("Weight: "); ?><?php echo text(number_format($vitals['weight'], 2)); ?> </td>
-                            <td><?php echo text(oeFormatShortDate(date("Y-m-d", strtotime($vitals['date'])))); ?></td>
-                        </tr>
-                    </table>
-                </div>
+                <!-- Only show vitals when patient is under 19 yo. Not required to be sent otherwise so why show! -->
+                <?php if ($vitals['height'] > 0 && $vitals['weight'] > 0) { ?>
+                    <div class="col" style="margin-top: -4px !important">
+                        <table>
+                            <tr>
+                                <th><?php echo xlt("Vitals"); ?></th>
+                                <th><?php echo xlt("Date Observed"); ?></th>
+                            </tr>
+                            <tr>
+                                <td><?php echo xlt("Height"); ?>:<?php echo text(number_format($vitals['height'], 2)); ?> </td>
+                                <td><?php echo text(oeFormatShortDate(date("Y-m-d", strtotime($vitals['date'])))); ?></td>
+                            </tr>
+                            <tr>
+                                <td><?php echo xlt("Weight: "); ?><?php echo text(number_format($vitals['weight'], 2)); ?> </td>
+                                <td><?php echo text(oeFormatShortDate(date("Y-m-d", strtotime($vitals['date'])))); ?></td>
+                            </tr>
+                        </table>
+                    </div>
+                <?php } ?>
                 <div class="col">
-                    <div><?php echo xlt("Primary Pharmacy"); ?> : <?php echo text($primary_pharmacy['business_name'] . " / " . $primary_pharmacy['address_line_1'] . " / " . $primary_pharmacy['city']); ?></div>
-                    <div><?php echo xlt("Weno Alt"); ?> : <?php echo text($alt_pharmacy['business_name'] . " / " . $alt_pharmacy['address_line_1'] . " / " . $alt_pharmacy['city']); ?></div>
+                    <div><b><?php echo xlt("Primary Pharmacy"); ?> : </b><?php echo text($primary_pharmacy['business_name'] . " / " . $primary_pharmacy['address_line_1'] . " / " . $primary_pharmacy['city']); ?></div>
+                    <div><b><?php echo xlt("Weno Alt"); ?> : </b><?php echo text($alt_pharmacy['business_name'] . " / " . $alt_pharmacy['address_line_1'] . " / " . $alt_pharmacy['city']); ?></div>
                 </div>
             </div>
         </div>
