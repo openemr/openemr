@@ -220,7 +220,6 @@ function initInteractors(dragContext = document, resizeContext = '') {
         target.setAttribute('data-x', x);
         target.setAttribute('data-y', y);
     });
-
 }
 
 /*
@@ -345,40 +344,34 @@ function oeSortable(callBackFn) {
     }
 }
 
+// Universal async BS alert message with promise
+async function asyncAlertMsg(message, timer = 5000, type = 'danger', size = '') {
+    const alertMsg = xl("Alert Notice");
+    const alertBox = $('#alert_box');
 
-/*
-* Universal async BS alert message with promise
-* Note the use of new javaScript translate function xl().
-*
-*/
-if (typeof asyncAlertMsg !== "function") {
-    /* eslint-disable-next-line no-inner-declarations */
-    function asyncAlertMsg(message, timer = 5000, type = 'danger', size = '') {
-        let alertMsg = xl("Alert Notice");
-        $('#alert_box').remove();
-        size = (size == 'lg') ? 'left:25%;width:50%;' : 'left:35%;width:30%;';
-        let style = "position:fixed;top:25%;" + size + " bottom:0;z-index:9999;";
-        $("body").prepend("<div class='container text-center' id='alert_box' style='" + style + "'></div>");
-        let mHtml = '<div id="alertmsg" class="alert alert-' + type + ' alert-dismissable">' +
-            '<button type="button" class="close btn btn-link btn-cancel" data-dismiss="alert" aria-hidden="true"></button>' +
-            '<h5 class="alert-heading text-center">' + alertMsg + '</h5><hr>' +
-            '<p>' + message + '</p>' +
-            '</div>';
-        $('#alert_box').append(mHtml);
-        return new Promise(resolve => {
-            $('#alertmsg').on('closed.bs.alert', function () {
-                clearTimeout(AlertMsg);
+    alertBox.remove();
+    size = (size === 'lg') ? 'left:25%;width:50%;' : 'left:35%;width:30%;';
+    let style = "position:fixed;top:25%;" + size + " bottom:0;z-index:9999;";
+    $("body").prepend("<div class='container text-center' id='alert_box' style='" + style + "'></div>");
+    let mHtml = '<div id="alertmsg" class="alert alert-' + type + ' alert-dismissable">' +
+        '<button type="button" class="close btn btn-link btn-cancel" data-dismiss="alert" aria-hidden="true"></button>' +
+        '<h5 class="alert-heading text-center">' + alertMsg + '</h5><hr>' +
+        '<p>' + message + '</p>' +
+        '</div>';
+    alertBox.append(mHtml);
+    return new Promise(resolve => {
+        $('#alertmsg').on('closed.bs.alert', function () {
+            clearTimeout(AlertMsg);
+            $('#alert_box').remove();
+            resolve('closed');
+        });
+        let AlertMsg = setTimeout(function () {
+            $('#alertmsg').fadeOut(800, function () {
                 $('#alert_box').remove();
-                resolve('closed');
+                resolve('timedout');
             });
-            let AlertMsg = setTimeout(function () {
-                $('#alertmsg').fadeOut(800, function () {
-                    $('#alert_box').remove();
-                    resolve('timedout');
-                });
-            }, timer);
-        })
-    }
+        }, timer);
+    });
 }
 
 /*
@@ -401,24 +394,24 @@ async function syncAlertMsg(message, timer = 5000, type = 'danger', size = '') {
 
 /* Handy function to set values in globals user_settings table */
 if (typeof persistUserOption !== "function") {
-    const persistUserOption = function (option, value) {
-        return $.ajax({
-            url: top.webroot_url + "/library/ajax/user_settings.php",
-            type: 'post',
-            contentType: 'application/x-www-form-urlencoded',
-            data: {
-                csrf_token_form: top.csrf_token_js,
-                target: option,
-                setting: value
-            },
-            beforeSend: function () {
-                top.restoreSession();
-            },
-            error: function (jqxhr, status, errorThrown) {
-                console.log(errorThrown);
-            }
-        });
-    };
+const persistUserOption = function (option, value) {
+    return $.ajax({
+        url: top.webroot_url + "/library/ajax/user_settings.php",
+        type: 'post',
+        contentType: 'application/x-www-form-urlencoded',
+        data: {
+            csrf_token_form: top.csrf_token_js,
+            target: option,
+            setting: value
+        },
+        beforeSend: function () {
+            top.restoreSession();
+        },
+        error: function (jqxhr, status, errorThrown) {
+            console.log('Error persisting user option:', errorThrown);
+        }
+    });
+};
 }
 
 /**
@@ -432,72 +425,69 @@ if (typeof persistUserOption !== "function") {
 
 if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDebug === '3')) {
     window.onerror = function (msg, url, lineNo, columnNo, error) {
-        const is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
-        const is_firefox = navigator.userAgent.indexOf('Firefox') > -1;
-        const is_safari = navigator.userAgent.indexOf("Safari") > -1;
+        const isChrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+        const isFirefox = navigator.userAgent.indexOf('Firefox') > -1;
+        const isSafari = navigator.userAgent.indexOf("Safari") > -1;
 
-        var showDebugAlert = function (message) {
-            let errorMsg = [
+        const showDebugAlert = function (message) {
+            const errorMsg = [
                 'URL: ' + message.URL,
                 'Line: ' + message.Line + ' Column: ' + message.Column,
                 'Error object: ' + JSON.stringify(message.Error)
             ].join("\n");
 
-            let msg = message.Message + "\n" + errorMsg;
+            const formattedMsg = message.Message + "\n" + errorMsg;
             console.error(xl('User Debug Error Catch'), message);
-            alert(msg);
+            alert(formattedMsg);
 
             return false;
         };
-        try {
-            let string = msg.toLowerCase();
-            let substring = xl("script error"); // translate to catch for language of browser.
-            if (string.indexOf(substring) > -1) {
-                let xlated = xl('Script Error: See Browser Console for Detail');
-                showDebugAlert(xlated);
-            } else {
-                let message = {
-                    Message: msg,
-                    URL: url,
-                    Line: lineNo,
-                    Column: columnNo,
-                    Error: JSON.stringify(error)
-                };
 
+        try {
+            const string = msg.toLowerCase();
+            const substring = xl("script error"); // translate to catch for language of browser.
+            if (string.indexOf(substring) > -1) {
+                const xlated = xl('Script Error: See Browser Console for Detail');
+                showDebugAlert({ Message: xlated, URL: url, Line: lineNo, Column: columnNo, Error: JSON.stringify(error) });
+            } else {
+                const message = { Message: msg, URL: url, Line: lineNo, Column: columnNo, Error: JSON.stringify(error) };
                 showDebugAlert(message);
             }
         } catch (e) {
-            let xlated = xl('Unknown Script Error: See Browser Console for Detail');
-            showDebugAlert(xlated);
+            const xlated = xl('Unknown Script Error: See Browser Console for Detail');
+            showDebugAlert({ Message: xlated, URL: url, Line: lineNo, Column: columnNo, Error: JSON.stringify(error) });
         }
 
         return false;
     };
 }
 
-(function(window, oeSMART) {
-    oeSMART.initLaunch = function(webroot, csrfToken) {
+
+(function (window, oeSMART) {
+    oeSMART.initLaunch = function (webroot, csrfToken) {
         // allows this to be lazy defined
-        let xl = window.top.xl || function(text) { return text; };
+        let xl = window.top.xl || function (text) {
+            return text;
+        };
         let smartLaunchers = document.querySelectorAll('.smart-launch-btn');
         for (let launch of smartLaunchers) {
-                launch.addEventListener('click', function (evt) {
-                    let node = evt.target;
-                    let intent = node.dataset.intent;
-                    let clientId = node.dataset.clientId;
-                    if (!intent || !clientId) {
-                        console.error("mising intent parameter or client-id parameter");
-                        return;
-                    }
+            launch.addEventListener('click', function (evt) {
+                let node = evt.target;
+                let intent = node.dataset.intent;
+                let clientId = node.dataset.clientId;
+                if (!intent || !clientId) {
+                    console.error("mising intent parameter or client-id parameter");
+                    return;
+                }
 
-                    let url = webroot + '/interface/smart/ehr-launch-client.php?intent='
-                        + encodeURIComponent(intent) + '&client_id=' + encodeURIComponent(clientId)
-                        + "&csrf_token=" + encodeURIComponent(csrfToken);
-                    let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
-                    // we allow external dialog's  here because that is what a SMART app is
-                    let height = window.top.innerHeight; // do our full height here
-                    dlgopen(url, '_blank', 'modal-full', height, '', title, {allowExternal: true});
-                });
+                let url = webroot + '/interface/smart/ehr-launch-client.php?intent='
+                    + encodeURIComponent(intent) + '&client_id=' + encodeURIComponent(clientId)
+                    + "&csrf_token=" + encodeURIComponent(csrfToken);
+                let title = node.dataset.smartName || JSON.stringify(xl("Smart App"));
+                // we allow external dialog's  here because that is what a SMART app is
+                let height = window.top.innerHeight; // do our full height here
+                dlgopen(url, '_blank', 'modal-full', height, '', title, {allowExternal: true});
+            });
         }
     };
     window.oeSMART = oeSMART;

@@ -32,7 +32,7 @@ class WenoLogService
     public function getLastPharmacyDownloadStatus(): bool|array|null
     {
         $params = "pharmacy";
-        $v = ['count' => 0, 'created_at' => '', 'status' => ''];
+        $v = ['count' => 0, 'created_at' => '', 'status' => 'Unknown'];
         $vsql = sqlQuery("SELECT * FROM `weno_download_log` WHERE `value` = ? ORDER BY `created_at` DESC LIMIT 1", [$params]);
         if (!$vsql) {
             return $v;
@@ -81,8 +81,8 @@ class WenoLogService
             $message .= $node->nodeValue;
         }
         $type = 'other';
-        if (stripos($message, "loginfail") !== false) {
-            $type = "loginfail";
+        if (stripos($message, "Exceeded_download_limits") !== false) {
+            $type = "Exceeded_download_limits";
         }
         return ['is_error' => true, 'type' => $type, 'messageText' => trim($message), 'messageHtml' => trim($content_html)];
     }

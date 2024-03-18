@@ -1,0 +1,89 @@
+<?php
+
+require_once(dirname(__DIR__, 4) . "/globals.php");
+
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
+
+
+if ($_POST) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
+    }
+}
+
+$fetch = sqlStatement("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active=1 and authorized = 1");
+while ($row = sqlFetchArray($fetch)) {
+    $usersData[] = $row;
+}
+
+if (isset($_POST['save'])) {
+    foreach ($_POST['weno_provider_id'] as $id => $weno_prov_id) {
+        sqlStatement("UPDATE `users` SET weno_prov_id = ? WHERE id = ?", [$weno_prov_id, $id]);
+    }
+    Header("Location: " . $GLOBALS['webroot'] . "/interface/modules/custom_modules/oe-module-weno/templates/weno_users.php");
+    exit;
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo xlt("Prescriber Weno Ids"); ?></title>
+    <?php Header::setupHeader(); ?>
+    <script src="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
+    <script>
+        $(function () {
+            const persistChange = document.querySelectorAll('.persist-uid');
+            persistChange.forEach(persist => {
+                persist.addEventListener('change', () => {
+                    $("#form_save_users").click();
+                });
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <h6 class="text-center"><small><?php echo xlt("Auto Save On for Weno UID."); ?></small></h6>
+        <form method="POST">
+            <input type="hidden" id="csrf_token_form" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
+            <table class="table table-sm table-hover table-striped">
+                <thead>
+                <tr>
+                    <th><?php echo xlt("ID"); ?></th>
+                    <th><?php echo xlt("Username"); ?></th>
+                    <th><?php echo xlt("Last"); ?></th>
+                    <th><?php echo xlt("First"); ?></th>
+                    <th><?php echo xlt("Weno Provider"); ?></th>
+                    <th><?php echo xlt("Facility"); ?></th>
+                    <th><?php echo xlt("Edit"); ?></th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($usersData as $user) {
+                    if (empty($user['facility'])) {
+                        $user['facility'] = xlt("Please add Users Default Facility");
+                    }
+                    ?>
+                    <td><?php echo text($user['id']); ?></td>
+                    <td><?php echo text($user['username']); ?></td>
+                    <td><?php echo text($user['lname']); ?></td>
+                    <td><?php echo text($user['fname']); ?></td>
+                    <td><input class="persist-uid" type="text" name="weno_provider_id[<?php echo attr($user['id']); ?>]" placeholder="<?php echo xlt("Uxxxx Provided by Weno"); ?>" value="<?php echo attr($user['weno_prov_id']); ?>"></td>
+                    <td><?php echo $user['facility']; ?></td>
+                    <td><i onclick='renderDialog("users", <?php echo attr_js($user['id']); ?>, event)' role='button' class='fas fa-pen text-warning'></i></td>
+                    </tr>
+                <?php } ?>
+                </tbody>
+            </table>
+            <button type="submit" id="form_save_users" name="save" class="btn btn-primary float-right d-none"><?php echo xlt("Update Users Weno ID"); ?></button>
+        </form>
+    </div>
+</body>
+
+</html>

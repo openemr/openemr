@@ -30,7 +30,7 @@ $cite = '';
 
 $logService = new WenoLogService();
 $pharmacyLog = $logService->getLastPharmacyDownloadStatus();
-$status = xlt("Last pharmacy update failed! Current count") . ": " . text($pharmacyLog['count'] ?? 0) . ". " . "Last success was" . ": " . text($pharmacyLog['created_at'] ?? '');
+$status = xlt("Last pharmacy update failed! Current number of Pharmacies") . ": " . text($pharmacyLog['count'] ?? 0) . ". " . "Last success was" . ": " . text($pharmacyLog['created_at'] ?? '');
 $cite = <<<CITE
 <cite class="h6 text-danger p-1 mt-1">
     <span>$status</span>

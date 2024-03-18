@@ -80,15 +80,6 @@ function renderDialog(action, uid, event) {
     // Open modal dialog
     dlgopen('', 'dialog-mod', '900', 'full', '', '', {
         buttons: [
-            /*{
-            text: jsText('Click'),
-            close: false,
-            id: jsAttr('click-me'),
-            click: function () {
-                //tidyUp();
-            },
-            style: 'primary'
-            },*/
             {
             text: jsText('Return to eRx Widget'),
             close: true,

@@ -28,9 +28,9 @@ if (!AclMain::aclCheckCore('patients', 'rx')) {
     exit;
 }
 
-$wenoValidate = new WenoValidate();
 // Let's see if letting user decide to reset fly's!
 // We really don't need because we can do transparently but Weno requested so...
+$wenoValidate = new WenoValidate();
 if (isset($_GET['form_reset_key'])) {
     unset($_GET['form_reset_key']);
     // if we are here then we need to reset the key.
@@ -52,6 +52,10 @@ if (isset($_GET['form_reset_key'])) {
     $isKey = $wenoValidate->validateAdminCredentials(true);
 */
 
+// test if the user has a valid key json.
+$wenoValidate->validateAdminCredentialsJson();
+
+// set up the dependencies for the page.
 $pharmacyService = new PharmacyService();
 $wenoProperties = new TransmitProperties();
 $primary_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? [];
@@ -93,7 +97,6 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
 
       /* Styling for sticky container */
       .sticky-container {
-        position: -webkit-sticky;
         position: sticky;
         top: 0;
         z-index: 1000;
@@ -112,6 +115,11 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
         <?php if (!$isValidKey) { ?>
         $(function () {
             $('#form_reset_key').removeClass('d-none');
+            const warnMsg = "<?php
+                echo xlt('Decryption failed! The Encryption key is incorrect') . "<br>" .
+                xlt('Click newly shown top Reset button to reset your account encryption key.') . "<br>" .
+                xlt('Afterwards you may continue and no other action is required by you.'); ?>";
+            syncAlertMsg(warnMsg, 8000, 'danger', 'lg');
         });
         <?php } else { ?>
         $(function () {
@@ -136,7 +144,7 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
                     </h2>
                 </header>
             </form>
-            <div class="row ml-1 center">
+            <div class="row mx-1 center">
                 <div class="col">
                     <div class="row">
                         <div><b><?php echo xlt("Prescriber"); ?></b>: <?php echo text($provider_name); ?> </div>

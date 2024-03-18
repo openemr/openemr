@@ -16,7 +16,9 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Modules\WenoModule\Bootstrap;
 use OpenEMR\Modules\WenoModule\Services\ModuleService;
+use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     // renders in MM iFrame
@@ -34,13 +36,31 @@ $vendors['weno_secondary_encryption_key'] = '';
 $vendors['weno_secondary_admin_username'] = '';
 $vendors['weno_secondary_admin_password'] = '';
 
+$facilityUrl = Bootstrap::MODULE_INSTALLATION_PATH . "/templates/facilities.php?setup=true";
+$usersUrl = Bootstrap::MODULE_INSTALLATION_PATH . "/templates/weno_users.php";
+$saveAction = false;
+$isValidKey = true;
 $boot = new ModuleService();
+$wenoValidate = new WenoValidate();
 if (($_POST['form_save'] ?? null)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
     unset($_POST['form_save'], $_POST['csrf_token_form']);
     $boot->saveVendorGlobals($_POST);
+    $isValidKey = $wenoValidate->verifyEncryptionKey();
+    $saveAction = true;
+}
+if (isset($_REQUEST['form_reset_key'])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        CsrfUtils::csrfNotVerified();
+    }
+    unset($_GET['form_reset_key']);
+    // if we are here then we need to reset the key.
+    $newKey = $wenoValidate->requestEncryptionKeyReset();
+    $wenoValidate->setNewEncryptionKey($newKey);
+    // Redirect to the same page to refresh the page with the new key.
+    $isValidKey = true;
 }
 
 $vendors = $boot->getVendorGlobals();
@@ -59,6 +79,8 @@ $vendors = $boot->getVendorGlobals();
     ?>
     <script>
         $(function () {
+            let isValidKey = <?php echo js_escape($isValidKey); ?>;
+            let saveAction = <?php echo js_escape($saveAction); ?>;
             $(".collapse.show").each(function () {
                 $(this).prev(".card-header").find(".fa").addClass("fa-minus").removeClass("fa-expand");
             });
@@ -67,13 +89,14 @@ $vendors = $boot->getVendorGlobals();
             }).on('hide.bs.collapse', function () {
                 $(this).prev(".card-header").find(".fa").removeClass("fa-minus").addClass("fa-expand");
             });
-            // Auto save on change
-            const persistChange = document.querySelectorAll('.persist');
+
+            // Auto save on changes. Will activate when we add a admin setting choice to turn on.
+            /*const persistChange = document.querySelectorAll('.persist');
             persistChange.forEach(persist => {
                 persist.addEventListener('change', () => {
-                    $("#form_save").click();
+                    $("#form_save_top").click();
                 });
-            });
+            });*/
 
             function togglePasswordVisibility(inputField) {
                 inputField.type = inputField.type === "password" ? "text" : "password";
@@ -88,7 +111,23 @@ $vendors = $boot->getVendorGlobals();
                 });
                 field.parentNode.insertBefore(eyeIcon, field.nextSibling);
             });
-            document.getElementById('weno_secondary_admin_username').scrollIntoView({ behavior: "smooth", block: "end", inline: "nearest" });
+            document.getElementById('userFrame').scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
+
+            if (isValidKey === false) {
+                $('#form_reset_key').removeClass('d-none');
+                const warnMsg = "<?php echo xlt('The Encryption key did not pass validation. Clicking Reset button will reset your account encryption key.'); ?>";
+                syncAlertMsg(warnMsg, 5000, 'danger', 'lg');
+            } else if (isValidKey >= 100) {
+                $('#form_reset_key').addClass('d-none');
+                const warnMsg = "<?php echo xlt('Primary Admin Username and or Primary Admin Password is invalid. Try to reenter or correct in your Weno Dashboard.'); ?>";
+                syncAlertMsg(warnMsg, 5000, 'danger', 'lg');
+            } else {
+                if (saveAction) {
+                    const successMsg = "<?php echo xlt('Admin Settings Successfully Validated and Saved!'); ?>";
+                    syncAlertMsg(successMsg, 3000, 'success');
+                }
+                $('#form_reset_key').addClass('d-none');
+            }
         });
     </script>
 </head>
@@ -96,7 +135,7 @@ $vendors = $boot->getVendorGlobals();
     <div class="container-xl">
         <div class="form-group text-center m-2 p-2">
             <h2><?php echo xlt("Weno eRx Service Admin Setup"); ?></h2>
-            <h6><small><?php echo xlt("Required Primary Admin section changes are automatically saved."); ?></small></h6>
+            <h6><small><?php echo xlt("May use Secondary Admin section to backup Primary Admin section."); ?></small></h6>
         </div>
         <form id="set_form" name="set_form" class="form" role="form" method="post" action="">
             <div id="set-weno">
@@ -118,10 +157,6 @@ $vendors = $boot->getVendorGlobals();
                         <div class="col-12 text-center">
                             <h5>
                                 <hr class="text-dark bg-light" />
-                                <button type="button" class="btn btn-sm btn-outline-danger btn-refresh float-right" id="app_refresh_top" onclick="top.location.reload()"
-                                    title="<?php echo xla("Same as a browser refresh. Click to implement any new menus and Configuration items."); ?>"><?php echo xlt("Restart OpenEMR"); ?>
-                                </button>
-                                <button type="submit" id="form_save_top" name="form_save" class="btn btn-success btn-sm btn-save float-left" value="Save"><?php echo xlt("Save Setup"); ?></button>
                                 <?php echo xlt("Weno Primary Admin Section") . ' <cite>(' . xlt('Required') . ')</cite>'; ?>
                                 <hr class="text-dark bg-light" />
                             </h5>
@@ -144,8 +179,35 @@ $vendors = $boot->getVendorGlobals();
                         <div class="col-sm-6 input-group-append" title="<?php echo xla("Required Weno account password") ?>">
                             <input type="password" class="form-control persist" maxlength="255" name="weno_admin_password" id="weno_admin_password" value="<?php echo attr($vendors['weno_admin_password']); ?>" />
                         </div>
+                        <div class="col form-group mt-1">
+                            <button type="submit" id="form_reset_key" name="form_reset_key" class="d-none btn btn-success btn-sm btn-refresh m-1 float-right" value="Reset" title="<?php echo xla("The Encryption key did not pass validation. Clicking this button will reset your encryption key so you may continue."); ?>"><?php echo xlt("Encryption Reset"); ?></button>
+                        </div>
+                        <div class="col-12 form-group">
+                            <button type="button" class="btn btn-sm btn-outline-danger btn-refresh float-left" id="app_refresh_top" onclick="top.location.reload()"
+                                title="<?php echo xla("Same as a browser refresh. Click to implement any new menus and Configuration items."); ?>"><?php echo xlt("Restart OpenEMR"); ?>
+                            </button>
+                            <button type="submit" id="form_save_top" name="form_save" class="btn btn-success btn-sm btn-save float-right" value="Save"><?php echo xlt("Validate and Save Admin"); ?></button>
+                        </div>
                     </div>
                     <div class="row form-group">
+                        <div class="col-12 text-center">
+                            <h5>
+                                <hr class="text-dark bg-light" />
+                                <?php echo xlt("Map Weno User Id's") . ' <cite>(' . xlt('Required') . ')</cite>'; ?>
+                            </h5>
+                        </div>
+                        <iframe id="userFrame" src="<?php echo $usersUrl; ?>" class="w-100" style="border: none; min-height: 300px; max-height:600px;" height="250" title="<?php echo xla("Users") ?>"></iframe>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-12 text-center">
+                            <h5>
+                                <hr class="text-dark bg-light" />
+                                <?php echo xlt("Map Weno Facility Id's") . ' <cite>(' . xlt('Required') . ')</cite>'; ?>
+                            </h5>
+                        </div>
+                        <iframe src="<?php echo $facilityUrl; ?>" class="w-100" style="border: none; min-height: 300px; max-height:600px;" height="250" title="<?php echo xla("Facilities") ?>"></iframe>
+                    </div>
+                    <div class="row form-group d-none">
                         <div class="col-12 text-center">
                             <h5>
                                 <hr class="text-dark bg-light" />
@@ -154,33 +216,33 @@ $vendors = $boot->getVendorGlobals();
                             </h5>
                         </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <div class="row form-group">
-                        <label for="weno_secondary_encryption_key" class="col-sm-6"><?php echo xlt("Weno Secondary Encryption Key") ?></label>
-                        <div class="col-sm-6 input-group-append" title="<?php echo xla("Backup Encryption key issued by Weno eRx service on the Weno Developer Page.") ?>">
-                            <input type="password" class="form-control" maxlength="255" name="weno_secondary_encryption_key" id="weno_secondary_encryption_key" value="<?php echo attr($vendors['weno_secondary_encryption_key']); ?>" />
+                    <div class="form-group d-none">
+                        <div class="row form-group">
+                            <label for="weno_secondary_encryption_key" class="col-sm-6"><?php echo xlt("Weno Secondary Encryption Key") ?></label>
+                            <div class="col-sm-6 input-group-append" title="<?php echo xla("Backup Encryption key issued by Weno eRx service on the Weno Developer Page.") ?>">
+                                <input type="password" class="form-control" maxlength="255" name="weno_secondary_encryption_key" id="weno_secondary_encryption_key" value="<?php echo attr($vendors['weno_secondary_encryption_key']); ?>" />
+                            </div>
                         </div>
-                    </div>
-                    <div class="row form-group">
-                        <label for="weno_secondary_admin_username" class="col-sm-6"><?php echo xlt("Weno Secondary Admin Username") ?></label>
-                        <div class="col-sm-6" title="<?php echo xla("This is required for Weno Pharmacy Directory Download in Background Services. Same as email for logging in into Weno") ?>">
-                            <input type="text" class="form-control" maxlength="255" name="weno_secondary_admin_username" id="weno_secondary_admin_username" value="<?php echo attr($vendors['weno_secondary_admin_username']); ?>" />
+                        <div class="row form-group">
+                            <label for="weno_secondary_admin_username" class="col-sm-6"><?php echo xlt("Weno Secondary Admin Username") ?></label>
+                            <div class="col-sm-6" title="<?php echo xla("This is required for Weno Pharmacy Directory Download in Background Services. Same as email for logging in into Weno") ?>">
+                                <input type="text" class="form-control" maxlength="255" name="weno_secondary_admin_username" id="weno_secondary_admin_username" value="<?php echo attr($vendors['weno_secondary_admin_username']); ?>" />
+                            </div>
                         </div>
-                    </div>
-                    <div class="row form-group">
-                        <label for="weno_secondary_admin_password" class="col-sm-6"><?php echo xlt("Weno Secondary Admin Password") ?></label>
-                        <div class="col-sm-6 input-group-append" title="<?php echo xla("Required Weno account password") ?>">
-                            <input type="password" class="form-control" maxlength="255" name="weno_secondary_admin_password" id="weno_secondary_admin_password" value="<?php echo attr($vendors['weno_secondary_admin_password']); ?>" />
+                        <div class="row form-group">
+                            <label for="weno_secondary_admin_password" class="col-sm-6"><?php echo xlt("Weno Secondary Admin Password") ?></label>
+                            <div class="col-sm-6 input-group-append" title="<?php echo xla("Required Weno account password") ?>">
+                                <input type="password" class="form-control" maxlength="255" name="weno_secondary_admin_password" id="weno_secondary_admin_password" value="<?php echo attr($vendors['weno_secondary_admin_password']); ?>" />
+                            </div>
                         </div>
-                    </div>
-                    <hr class="text-dark bg-light" />
-                    <div class="row form-group">
-                        <div class="col-12">
-                            <button type="button" class="btn btn-sm btn-outline-danger btn-refresh float-left" id="app_refresh" onclick="top.location.reload()"
-                                title="<?php echo xla("Same as a browser refresh. Click to implement any new menus and Configuration items."); ?>"><?php echo xlt("Restart OpenEMR"); ?>
-                            </button>
-                            <button type="submit" id="form_save" name="form_save" class="btn btn-sm btn-success btn-save float-right" value="Save"><?php echo xlt("Save Setup"); ?></button>
+                        <hr class="text-dark bg-light" />
+                        <div class="row form-group">
+                            <div class="col-12">
+                                <button type="button" class="btn btn-sm btn-outline-danger btn-refresh float-left" id="app_refresh" onclick="top.location.reload()"
+                                    title="<?php echo xla("Same as a browser refresh. Click to implement any new menus and Configuration items."); ?>"><?php echo xlt("Restart OpenEMR"); ?>
+                                </button>
+                                <button type="submit" id="form_save" name="form_save" class="btn btn-sm btn-success btn-save float-right" value="Save"><?php echo xlt("Validate and Save"); ?></button>
+                            </div>
                         </div>
                     </div>
                 </div>

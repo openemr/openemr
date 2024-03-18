@@ -98,7 +98,7 @@ if ($zip->open($storelocation) === true) {
     $isError = $wenolog->scrapeWenoErrorHtml($rpt);
     if ($isError['is_error']) {
         error_log('Pharmacy download failed: ' . $isError['messageText']);
-        $wenolog->insertWenoLog("pharmacy", "loginfail");
+        $wenolog->insertWenoLog("pharmacy", "Exceeded_download_limits");
     }
     EventAuditLogger::instance()->newEvent("pharmacy_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, $isError['messageText']);
     $wenolog->insertWenoLog("pharmacy", "Failed");

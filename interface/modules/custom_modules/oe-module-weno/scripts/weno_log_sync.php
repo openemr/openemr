@@ -28,13 +28,6 @@ function downloadWenoPharmacy()
     // Check if the background service is active. Intervals are set to once a day
     $value = $localPharmacyJson->checkBackgroundService();
 
-    EventAuditLogger::instance()->newEvent(
-        "pharmacy_background",
-        $_SESSION['authUser'],
-        $_SESSION['authProvider'],
-        1,
-        "Init Background Pharmacy Download Service Status:"  . text(ucfirst($value))
-    );
     if ($value == 'active' || $value == 'live') {
         error_log('Background Initiated Pharmacy Download Started.');
 
