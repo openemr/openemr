@@ -1,0 +1,23 @@
+{
+  "version": "2.2.0",
+  "summary": {
+    "title": "New Threat Model",
+    "owner": "",
+    "description": "OpenEMR is a Free and Open Source electronic health records and medical practice management application. It features fully integrated electronic health records, practice management, scheduling, electronic billing, internationalization, free support, a vibrant community, and a whole lot more.",
+    "id": 0
+  },
+  "detail": {
+    "contributors": [
+      {
+        "name": "riyagori1203"
+      },
+      {
+        "name": "sinchanashetty11"
+      }
+    ],
+    "diagrams": [],
+    "diagramTop": 0,
+    "reviewer": "",
+    "threatTop": 0
+  }
+}
