@@ -548,7 +548,7 @@ class InstallerController extends AbstractActionController
      * @param $sqldir
      * @return array|false
      */
-    public function getFilesForUpgrade($modDirectory, $sqldir)
+    public function getFilesForUpgrade($modDirectory, $sqldir): false|array
     {
         $ModulePath = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $modDirectory;
         $versions = [];
