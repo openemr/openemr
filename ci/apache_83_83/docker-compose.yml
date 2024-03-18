@@ -1,0 +1,22 @@
+# docker-compose.yml for travis ci testing
+version: '3.1'
+services:
+  mysql:
+    restart: always
+    image: mysql:8.3
+    command: ['mysqld','--character-set-server=utf8mb4','--default-authentication-plugin=mysql_native_password']
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+  openemr:
+    restart: always
+    image: openemr/openemr:flex-3.19
+    ports:
+    - 80:80
+    - 443:443
+    volumes:
+    - ../../:/var/www/localhost/htdocs/openemr
+    environment:
+      FORCE_NO_BUILD_MODE: "yes"
+      EMPTY: "yes"
+    depends_on:
+    - mysql
