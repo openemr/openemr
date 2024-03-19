@@ -245,11 +245,23 @@ class Bootstrap
         $mgtMenu->acl_req = ["admin", "super"];
         $mgtMenu->global_req = ["weno_rx_enable"];
 
+        //Weno log
+        $dlMenu = new \stdClass();
+        $dlMenu->requirement = 0;
+        $dlMenu->target = 'adm0';
+        $dlMenu->menu_id = 'adm';
+        $dlMenu->label = xlt("Weno Download Log");
+        $dlMenu->url = "/interface/modules/custom_modules/oe-module-weno/templates/download_log_viewer.php";
+        $dlMenu->children = [];
+        $dlMenu->acl_req = ["admin", "super"];
+        $dlMenu->global_req = ["weno_rx_enable"];
+
         foreach ($menu as $item) {
             if ($item->menu_id == 'admimg') {
                 foreach ($item->children as $other) {
                     if ($other->label == 'Other') {
                         $other->children[] = $mgtMenu;
+                        $other->children[] = $dlMenu;
                         break;
                     }
                 }

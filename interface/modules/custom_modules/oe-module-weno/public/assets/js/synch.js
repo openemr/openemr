@@ -38,7 +38,7 @@ function wenoAlertManager(option, element, spinElement) {
                 element.classList.add("d-none");
                 element.classList.remove("alert", "alert-success");
                 element.innerHTML = "";
-                window.location.replace(window.location.href);
+                window.location.replace(window.location.href + "?sync=success")
             }, 3000
         );
 

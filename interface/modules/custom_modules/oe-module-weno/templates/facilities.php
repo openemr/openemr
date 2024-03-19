@@ -55,6 +55,11 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
     </style>
 
     <script>
+        $(function () {
+        <?php if (isset($_GET['sync'])) { ?>
+            $("#mgt-btn").click();
+        <?php } ?>
+        });
         function activateManagement(){
             var pharm = document.getElementById('pharmacy');
             var exists = pharm.classList.contains('hide');
@@ -89,14 +94,14 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
                         errorMsgSpan.textContent = jsText(data);
                         $("#alertDiv").removeClass("d-none");
                         setTimeout(function() {
-                            window.location.replace(window.location.href);
+                            window.location.replace(window.location.href + "?sync=fail");
                         }, 10000);
                     }
                     $('#notch-pharm').addClass("hide");
                     $('#pharm-btn').attr("disabled", false);
                     if (!data.includes('Error') && !data.includes('failed')) {
                         alert('Update Complete');
-                        window.location.replace(window.location.href);
+                        window.location.replace(window.location.href + "?sync=success");
                     }
                 },
                 // Error handling
@@ -104,7 +109,7 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
                     $('#notch-pharm').addClass("hide");
                     $('#pharm-btn').attr("disabled", false);
                     console.log(`Error ${error}`);
-                    window.location.replace(window.location.href);
+                    window.location.replace(window.location.href + "?sync=fail");
                 }
             });
         }
@@ -123,14 +128,14 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
                         errorMsgSpan.textContent = jsText(data);
                         $("#alertDiv").removeClass("d-none");
                         setTimeout(function() {
-                            window.location.replace(window.location.href);
+                            window.location.replace(window.location.href + "?sync=fail");
                         }, 10000);
                     }
                     $('#notch-presc').addClass("hide");
                     $('#presc-btn').attr("disabled", false);
                     if (!data.includes('Error') && !data.includes('failed')) {
                         alert('Update Complete');
-                        window.location.replace(window.location.href);
+                        window.location.replace(window.location.href + "?sync=success");
                     }
                 },
                 // Error handling
@@ -138,7 +143,7 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
                     $('#notch-presc').addClass("hide");
                     $('#presc-btn').attr("disabled", false);
                     console.log(`Error ${error}`);
-                    window.location.replace(window.location.href);
+                    window.location.replace(window.location.href + "?sync=fail");
                 }
             });
         }
@@ -146,11 +151,11 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
 </head>
 <body class="body_top">
 <div class="container">
-    <button class="btn btn-primary btn-small" id="fac-btn" onclick="activateFacility()"><?php echo xlt("Facility"); ?></button>
-    <button class="btn btn-primary btn-small" id="mgt-btn" onclick="activateManagement()"><?php echo xlt("Download Management"); ?></button>
+    <button class="btn btn-primary my-2" id="fac-btn" onclick="activateFacility()"><?php echo xlt("Facility"); ?></button>
+    <button class="btn btn-primary" id="mgt-btn" onclick="activateManagement()"><?php echo xlt("Download Management"); ?></button>
 </div>
 <div>
-    <div class="container" id="facility"><br><br>
+    <div class="container" id="facility">
         <h1><?php print xlt("Facility ID's") ?></h1>
         <form name="wenofacilityinfo" method="post" action="facilities.php" onsubmit="return top.restoreSession()">
             <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">

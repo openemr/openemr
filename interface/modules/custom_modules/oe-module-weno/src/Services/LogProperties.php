@@ -71,6 +71,10 @@ class LogProperties
         $this->cryptoGen = new CryptoGen();
         $this->method = "aes-256-cbc";
         $this->rxsynclog = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/logsync.csv";
+        $logDir = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno";
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0775, true);
+        }
         $this->enc_key = $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key'] ?? '');
         $this->key = substr(hash('sha256', $this->enc_key, true), 0, 32);
         $this->iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
@@ -165,7 +169,7 @@ class LogProperties
             if ($isError['is_error']) {
                 $error = $isError['messageText'];
                 error_log('Prescription download failed: ' . $error);
-                $wenolog->insertWenoLog("prescription", "Exceeded_download_limits");
+                $wenolog->insertWenoLog("prescription", "possible_invalid_credentials");
                 $wenolog->insertWenoLog("prescription", "Failed");
                 EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, $error);
                 die(js_escape($error));
@@ -174,6 +178,8 @@ class LogProperties
         } else {
             // yes record failures.
             EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "$statusCode");
+            error_log("Prescription download failed: $statusCode");
+            $wenolog->insertWenoLog("prescription", "http_error_$statusCode");
             $wenolog->insertWenoLog("prescription", "Failed");
             return false;
         }

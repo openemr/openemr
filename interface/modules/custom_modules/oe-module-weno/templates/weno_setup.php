@@ -16,7 +16,6 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Modules\WenoModule\Bootstrap;
 use OpenEMR\Modules\WenoModule\Services\ModuleService;
 use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 
@@ -111,7 +110,7 @@ $vendors = $boot->getVendorGlobals();
                 });
                 field.parentNode.insertBefore(eyeIcon, field.nextSibling);
             });
-            document.getElementById('userFrame').scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
+            document.getElementById('app_refresh_top').scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
 
             if (isValidKey === false) {
                 $('#form_reset_key').removeClass('d-none');
@@ -165,19 +164,19 @@ $vendors = $boot->getVendorGlobals();
                     <div class="row form-group">
                         <label for="" class="col-sm-6"><?php echo xlt("Weno Primary Encryption Key") ?></label>
                         <div class="col-sm-6 input-group-append" title="<?php echo xla("Encryption key issued by Weno eRx service on the Weno Developer Page.") ?>">
-                            <input type="password" class="form-control persist" maxlength="255" name="weno_encryption_key" id="weno_encryption_key" value="<?php echo attr($vendors['weno_encryption_key']); ?>" />
+                            <input type="password" class="form-control persist-admin" maxlength="255" name="weno_encryption_key" id="weno_encryption_key" value="<?php echo attr($vendors['weno_encryption_key']); ?>" />
                         </div>
                     </div>
                     <div class="row form-group">
                         <label for="weno_admin_username" class="col-sm-6"><?php echo xlt("Weno Primary Admin Username") ?></label>
                         <div class="col-sm-6" title="<?php echo xla("This is required for Weno Pharmacy Directory Download in Background Services. Same as email for logging in into Weno") ?>">
-                            <input type="text" class="form-control persist" maxlength="255" name="weno_admin_username" id="weno_admin_username" value="<?php echo attr($vendors['weno_admin_username']); ?>" />
+                            <input type="text" class="form-control persist-admin" maxlength="255" name="weno_admin_username" id="weno_admin_username" value="<?php echo attr($vendors['weno_admin_username']); ?>" />
                         </div>
                     </div>
                     <div class="row form-group">
                         <label for="weno_admin_password" class="col-sm-6"><?php echo xlt("Weno Primary Admin Password") ?></label>
                         <div class="col-sm-6 input-group-append" title="<?php echo xla("Required Weno account password") ?>">
-                            <input type="password" class="form-control persist" maxlength="255" name="weno_admin_password" id="weno_admin_password" value="<?php echo attr($vendors['weno_admin_password']); ?>" />
+                            <input type="password" class="form-control persist-admin" maxlength="255" name="weno_admin_password" id="weno_admin_password" value="<?php echo attr($vendors['weno_admin_password']); ?>" />
                         </div>
                         <div class="col form-group mt-1">
                             <button type="submit" id="form_reset_key" name="form_reset_key" class="d-none btn btn-success btn-sm btn-refresh m-1 float-right" value="Reset" title="<?php echo xla("The Encryption key did not pass validation. Clicking this button will reset your encryption key so you may continue."); ?>"><?php echo xlt("Encryption Reset"); ?></button>
