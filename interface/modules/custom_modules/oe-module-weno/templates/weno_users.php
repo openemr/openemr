@@ -1,18 +1,35 @@
 <?php
 
+/**
+ * Weno users id.
+ *
+ * @package   OpenEMR Module
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 require_once(dirname(__DIR__, 4) . "/globals.php");
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 
+if (!AclMain::aclCheckCore('admin', 'super')) {
+    // a recheck as was checked in setup script that calls this script in an iframe.
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Must be an Admin")]);
+    exit;
+}
 if ($_POST) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 }
 
-$fetch = sqlStatement("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active=1 and authorized = 1");
+$fetch = sqlStatement("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 and authorized = 1");
 while ($row = sqlFetchArray($fetch)) {
     $usersData[] = $row;
 }
@@ -28,7 +45,6 @@ if (isset($_POST['save'])) {
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -46,7 +62,6 @@ if (isset($_POST['save'])) {
         });
     </script>
 </head>
-
 <body>
     <div class="container-fluid">
         <h6 class="text-center"><small><?php echo xlt("Auto Save On for Weno UID."); ?></small></h6>
@@ -85,5 +100,4 @@ if (isset($_POST['save'])) {
         </form>
     </div>
 </body>
-
 </html>

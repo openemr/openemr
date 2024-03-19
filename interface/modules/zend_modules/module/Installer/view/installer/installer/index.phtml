@@ -37,7 +37,7 @@ $help_items = [
     xlt('The "Type" column indicates the module framework.'),
     xlt('The "Dependency Modules" column indicates the modules that this module depends on.'),
     xlt('The "Action" column allows you to install, enable, disable, and unregister modules.'),
-    xlt('The "Settings" column allows you to configure and unregister modules.'),
+    xlt('The "Configuration" column allows you to configure and unregister modules.'),
     xlt('The "Install SQL" and "Upgrade SQL" buttons allow you to install and upgrade the SQL for the module. Only appears if needed'),
     xlt('The "Trash can icon" button allows you to uninstall the module.'),
     xlt('Clicking the Registered icon will unregister and then register the module. Basically like starting over.'),
@@ -71,10 +71,13 @@ $help_items = [
     font-family: Arial, Helvetica, sans-serif;
   }
 
-  .fa-2x {
+  .fa-1x {
     font-size: 1.25rem;
   }
 
+  .fa-2x {
+    font-size: 1.25rem;
+  }
   /* installer log for upgrades maybe? Appears broken! */
   .show_hide_log {
     border-radius: 5px;
@@ -142,14 +145,14 @@ $help_items = [
                 <thead>
                 <tr style="font-size: 16px;">
                     <th scope="col"><?php echo $listener->z_xlt('ID'); ?></th>
-                    <th scope="col"><?php echo $listener->z_xlt('Module'); ?> </th>
-                    <th scope="col"><?php echo $listener->z_xlt('Status'); ?> </th>
-                    <th scope="col"><?php echo $listener->z_xlt('Menu Text'); ?> </th>
-                    <th scope="col"><?php echo $listener->z_xlt('Nick Name'); ?> </th>
+                    <th scope="col"><?php echo $listener->z_xlt('Module'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Status'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Menu Text'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Nick Name'); ?></th>
                     <th scope="col"><?php echo $listener->z_xlt('Type'); ?> </th>
-                    <th scope="col"><?php echo $listener->z_xlt('Dependency Modules'); ?> </th>
-                    <th scope="col"><?php echo $listener->z_xlt('Action'); ?> </th>
-                    <th scope="col"><?php echo $listener->z_xlt('Settings'); ?> </th>
+                    <th scope="col"><?php echo $listener->z_xlt('Dependency Modules'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Action'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Configuration'); ?></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -229,23 +232,25 @@ $help_items = [
                                     <a href="javascript:void(0)" class="link_submit upgrade_acl" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','upgrade_acl');" title="<?php echo $listener->z_xla('Click Here to Upgrade ACL for module'); ?>"><input type='button' onclick="blockInput(this);" value="<?php echo $listener->z_xla('Upgrade ACL'); ?>" /></a>
                                 <?php } ?>
                             </td>
-                            <td><!-- We should be able to unregister even if not installed i.e sql_run = 0 -->
+                            <td>
+                                <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','help_requested');" title="<?php echo $listener->z_xla('If module has a help, clicking here will show it.'); ?>"><i class="fa fa-question-circle text-primary fa-1x" aria-hidden="true"></i></a>
+                                <!-- We should be able to unregister even if not installed i.e sql_run = 0 -->
                                 <?php if ($moduleResult->sqlRun == 0 && $moduleResult->modActive == 0) { ?>
-                                    <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><i class="fa fa-registered text-warning fa-2x" aria-hidden="true"></i></a>
+                                    <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><i class="fa fa-registered text-warning fa-1x" aria-hidden="true"></i></a>
                                 <?php } elseif ($moduleResult->modActive == 1) { ?>
-                                    <a href="javascript:void(0)" class="link_submit active" onclick="configure('<?php echo $this->escapeHtml($moduleResult->modId) ?>','<?php echo $this->basePath() ?>');" title="<?php echo $listener->z_xla('Click Here to Configure This module'); ?>"><i class="fa fa-cog fa-2x <?php echo $moduleResult->modUiActive == 1 ? ' fa-spin text-danger' : 'text-dark'; ?>"></i></a>
+                                    <a href="javascript:void(0)" class="link_submit active" onclick="configure('<?php echo $this->escapeHtml($moduleResult->modId) ?>','<?php echo $this->basePath() ?>');" title="<?php echo $listener->z_xla('Click Here to Configure This module'); ?>"><i class="fa fa-cog fa-1x <?php echo $moduleResult->modUiActive == 1 ? ' fa-spin text-danger' : 'text-dark'; ?>"></i></a>
                                     <?php if ($moduleResult->modUiActive == 1 && $moduleResult->type == 0) { ?>
-                                        <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><i class="fa fa-trash text-warning fa-2x" aria-hidden="true"></i></a>
+                                        <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><i class="fa fa-trash text-warning fa-1x" aria-hidden="true"></i></a>
                                     <?php } ?>
                                 <?php } elseif ($moduleResult->modActive == 0 && $moduleResult->type == 0) { ?>
                                     <?php if ($moduleResult->modUiActive == 1) {
                                         // only allow if module requests by setting the mod_ui_active column
                                         // because module will have to deal with namespace setting for called config script.
                                         ?>
-                                        <a href="javascript:void(0)" class="link_submit active" onclick="configure('<?php echo $this->escapeHtml($moduleResult->modId) ?>','<?php echo $this->basePath() ?>');" title="<?php echo $listener->z_xla('Click Here to Configure This module'); ?>"><i class="fa fa-cog fa-2x text-dark"></i>
+                                        <a href="javascript:void(0)" class="link_submit active" onclick="configure('<?php echo $this->escapeHtml($moduleResult->modId) ?>','<?php echo $this->basePath() ?>');" title="<?php echo $listener->z_xla('Click Here to Configure This module'); ?>"><i class="fa fa-cog fa-1x text-dark"></i>
                                         </a>
                                     <?php } ?>
-                                    <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><i class="fa fa-trash text-warning fa-2x" aria-hidden="true"></i></a>
+                                    <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><i class="fa fa-trash text-warning fa-1x" aria-hidden="true"></i></a>
                                 <?php } else { ?>
                                     --
                                 <?php } ?>
@@ -333,14 +338,14 @@ $help_items = [
                             </td>
                             <td>
                                 <?php if ($moduleResult->sqlRun == 0) { ?>
-                                    <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><i class="fa fa-registered text-warning fa-2x" aria-hidden="true"></i></a>
+                                    <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><i class="fa fa-registered text-warning fa-1x" aria-hidden="true"></i></a>
                                 <?php } elseif ($moduleResult->modActive == 1) { ?>
-                                    <a href="javascript:void(0)" class="link_submit active" onclick="configure('<?php echo $this->escapeHtml($moduleResult->modId) ?>','<?php echo $this->basePath() ?>');" title="<?php echo $listener->z_xla('Click Here to Configure This module'); ?>"><i class="fa fa-cog fa-2x <?php echo $moduleResult->modUiActive == 1 ? ' fa-spin text-danger' : 'text-dark'; ?>"></i></a>
+                                    <a href="javascript:void(0)" class="link_submit active" onclick="configure('<?php echo $this->escapeHtml($moduleResult->modId) ?>','<?php echo $this->basePath() ?>');" title="<?php echo $listener->z_xla('Click Here to Configure This module'); ?>"><i class="fa fa-cog fa-1x <?php echo $moduleResult->modUiActive == 1 ? ' fa-spin text-danger' : 'text-dark'; ?>"></i></a>
                                     <?php if ($moduleResult->modUiActive == 1) { ?>
-                                        <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><i class="fa fa-trash text-warning fa-2x" aria-hidden="true"></i></a>
+                                        <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><i class="fa fa-trash text-warning fa-1x" aria-hidden="true"></i></a>
                                     <?php } ?>
                                 <?php } elseif ($moduleResult->modActive == 0) { ?>
-                                    <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><i class="fa fa-trash text-warning fa-2x" aria-hidden="true"></i></a>
+                                    <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><i class="fa fa-trash text-warning fa-1x" aria-hidden="true"></i></a>
                                 <?php } else { ?>
                                     --
                                 <?php } ?>

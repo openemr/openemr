@@ -36,7 +36,7 @@ $vendors['weno_secondary_encryption_key'] = '';
 $vendors['weno_secondary_admin_username'] = '';
 $vendors['weno_secondary_admin_password'] = '';
 
-$facilityUrl = Bootstrap::MODULE_INSTALLATION_PATH . "/templates/facilities.php?setup=true";
+$facilityUrl = Bootstrap::MODULE_INSTALLATION_PATH . "/templates/setup_facilities.php";
 $usersUrl = Bootstrap::MODULE_INSTALLATION_PATH . "/templates/weno_users.php";
 $saveAction = false;
 $isValidKey = true;

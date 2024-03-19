@@ -27,8 +27,6 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     exit;
 }
 
-$isSetup = ($_GET['setup'] ?? false) !== false;
-$container = 'container';
 $data = new FacilityProperties();
 $logService = new WenoLogService();
 
@@ -45,6 +43,7 @@ $pres_log = $logService->getLastPrescriptionLogStatus();
 $pharm_log = $logService->getLastPharmacyDownloadStatus();
 
 ?>
+<!DOCTYPE html>
 <html>
 <head>
     <title><?php echo xlt('Weno Admin'); ?></title>
@@ -146,25 +145,16 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
     </script>
 </head>
 <body class="body_top">
-<?php
-$container = 'container-fluid';
-if (!$isSetup) {
-    $container = 'container';
-    ?>
 <div class="container">
-    <br />
     <button class="btn btn-primary btn-small" id="fac-btn" onclick="activateFacility()"><?php echo xlt("Facility"); ?></button>
     <button class="btn btn-primary btn-small" id="mgt-btn" onclick="activateManagement()"><?php echo xlt("Download Management"); ?></button>
 </div>
-    <br />
-<?php } else {
-    $container = 'container-fluid';} ?>
 <div>
-    <div class="<?php echo $container; ?>" id="facility">
-        <?php if (!$isSetup) {
-            ?><h1><?php print xlt("Facility ID's") ?></h1> <?php } ?>
+    <div class="container" id="facility"><br><br>
+        <h1><?php print xlt("Facility ID's") ?></h1>
         <form name="wenofacilityinfo" method="post" action="facilities.php" onsubmit="return top.restoreSession()">
             <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
+            <button type="submit" value="update" id="save_weno_id_top" class="btn btn-primary my-2"><?php echo xla('Update'); ?></button>
         <table class="table">
             <thead>
             <tr>
