@@ -89,14 +89,14 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
                         errorMsgSpan.textContent = jsText(data);
                         $("#alertDiv").removeClass("d-none");
                         setTimeout(function() {
-                            window.location.reload();
+                            window.location.replace(window.location.href);
                         }, 10000);
                     }
                     $('#notch-pharm').addClass("hide");
                     $('#pharm-btn').attr("disabled", false);
                     if (!data.includes('Error') && !data.includes('failed')) {
                         alert('Update Complete');
-                        window.location.reload();
+                        window.location.replace(window.location.href);
                     }
                 },
                 // Error handling
@@ -104,7 +104,7 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
                     $('#notch-pharm').addClass("hide");
                     $('#pharm-btn').attr("disabled", false);
                     console.log(`Error ${error}`);
-                    window.location.reload();
+                    window.location.replace(window.location.href);
                 }
             });
         }
@@ -123,14 +123,14 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
                         errorMsgSpan.textContent = jsText(data);
                         $("#alertDiv").removeClass("d-none");
                         setTimeout(function() {
-                            window.location.reload();
+                            window.location.replace(window.location.href);
                         }, 10000);
                     }
                     $('#notch-presc').addClass("hide");
                     $('#presc-btn').attr("disabled", false);
                     if (!data.includes('Error') && !data.includes('failed')) {
                         alert('Update Complete');
-                        window.location.reload();
+                        window.location.replace(window.location.href);
                     }
                 },
                 // Error handling
@@ -138,7 +138,7 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
                     $('#notch-presc').addClass("hide");
                     $('#presc-btn').attr("disabled", false);
                     console.log(`Error ${error}`);
-                    window.location.reload();
+                    window.location.replace(window.location.href);
                 }
             });
         }
@@ -187,7 +187,7 @@ $pharm_log = $logService->getLastPharmacyDownloadStatus();
             <?php echo xlt("Use this page to download Weno Pharmacy Directory and Weno Prescription Log"); ?>
         </div>
         <div id="alertDiv" class="alert alert-danger d-none">
-            <button type="button" class="close" onclick="window.location.reload();">&times;</button>
+            <button type="button" class="close" onclick="window.location.replace(window.location.href);">&times;</button>
             <strong><?php echo xlt("Error!"); ?></strong>
             <span id="error-msg"></span>
         </div>

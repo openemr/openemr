@@ -38,7 +38,7 @@ function wenoAlertManager(option, element, spinElement) {
                 element.classList.add("d-none");
                 element.classList.remove("alert", "alert-success");
                 element.innerHTML = "";
-                window.location.reload();
+                window.location.replace(window.location.href);
             }, 3000
         );
 
@@ -94,6 +94,7 @@ function renderDialog(action, uid, event) {
         url: top.webroot_url + actionUrl
     }).then(function (dialog) {
         top.restoreSession();
-        window.location.reload();
+        // learned a lesson here, if you don't do this, the page will repost the form.
+        window.location.replace(window.location.href);
     });
 }

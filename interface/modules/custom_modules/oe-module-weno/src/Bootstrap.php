@@ -30,9 +30,6 @@ use Twig\Environment;
 
 class Bootstrap
 {
-    const OPENEMR_GLOBALS_LOCATION = "../../../../globals.php";
-    const MODULE_INSTALLATION_PATH = "/interface/modules/custom_modules/oe-module-weno";
-    const MODULE_NAME = "";
     const MODULE_MENU_NAME = "Weno";
 
     /**
@@ -65,6 +62,18 @@ class Bootstrap
      * @var SelectedPatientPharmacy
      */
     private SelectedPatientPharmacy $selectedPatientPharmacy;
+    public string $installPath;
+
+    public function __construct(EventDispatcher $dispatcher)
+    {
+        $this->installPath = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-weno";
+        $this->eventDispatcher = $dispatcher;
+        $this->globalsConfig = new WenoGlobalConfig();
+        $this->moduleDirectoryName = basename(dirname(__DIR__));
+        $this->modulePath = dirname(__DIR__);
+        $this->logger = new SystemLogger();
+        $this->selectedPatientPharmacy = new SelectedPatientPharmacy();
+    }
 
     /**
      * @return void
@@ -84,16 +93,6 @@ class Bootstrap
         $this->patientSaveEvents();
         $this->patientUpdateEvents();
         $modService::setModuleState('oe-module-weno', '1', '0');
-    }
-
-    public function __construct(EventDispatcher $dispatcher)
-    {
-        $this->eventDispatcher = $dispatcher;
-        $this->globalsConfig = new WenoGlobalConfig();
-        $this->moduleDirectoryName = basename(dirname(__DIR__));
-        $this->modulePath = dirname(__DIR__);
-        $this->logger = new SystemLogger();
-        $this->selectedPatientPharmacy = new SelectedPatientPharmacy();
     }
 
     /**
@@ -230,7 +229,7 @@ class Bootstrap
         $menuItem->target = 'rep';
         $menuItem->menu_id = 'rep0';
         $menuItem->label = xlt("Prescription Log");
-        $menuItem->url = self::MODULE_INSTALLATION_PATH . "/templates/rxlogmanager.php";
+        $menuItem->url = "/interface/modules/custom_modules/oe-module-weno/templates/rxlogmanager.php";
         $menuItem->children = [];
         $menuItem->acl_req = ["patients", "rx"];
         $menuItem->global_req = ["weno_rx_enable"];
@@ -241,7 +240,7 @@ class Bootstrap
         $mgtMenu->target = 'adm0';
         $mgtMenu->menu_id = 'adm';
         $mgtMenu->label = xlt("Weno Management");
-        $mgtMenu->url = self::MODULE_INSTALLATION_PATH . "/templates/facilities.php";
+        $mgtMenu->url = "/interface/modules/custom_modules/oe-module-weno/templates/facilities.php";
         $mgtMenu->children = [];
         $mgtMenu->acl_req = ["admin", "super"];
         $mgtMenu->global_req = ["weno_rx_enable"];
