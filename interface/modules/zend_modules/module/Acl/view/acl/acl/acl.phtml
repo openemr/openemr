@@ -10,6 +10,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// Control access
+if (!OpenEMR\Common\Acl\AclMain::aclCheckCore('admin', 'manage_modules')) {
+    echo xlt('Not Authorized');
+    exit;
+}
+
 ?>
 <script>
     ajax_path = "<?php echo $GLOBALS['webroot'];?>/interface/modules/zend_modules/public/acl/ajax";

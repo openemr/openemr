@@ -10,6 +10,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+// Control access
+if (!OpenEMR\Common\Acl\AclMain::aclCheckCore('admin', 'super')) {
+    echo xlt('Not Authorized');
+    exit;
+}
+
 echo $this->headLink()->prependStylesheet($this->basePath() . '/css/autosuggest/autosuggest.css');
 echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autosuggest.js');
 ?>
