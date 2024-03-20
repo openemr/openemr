@@ -645,7 +645,7 @@ $apiUrl = $serverConfig->getInternalBaseApiUrl();
                                                     echo "</option>\n";
                                                 }
                                                 echo "  </select>\n";
-                                            }  elseif ($fldtype == GlobalSetting::DATA_TYPE_MULTI_DASHBOARD_CARDS) {
+                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_MULTI_DASHBOARD_CARDS) {
                                                 $res = sqlStatement("SELECT * FROM dashboard_card_visibility");
                                                 echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='3'>\n";
                                                 while ($row = sqlFetchArray($res)) {
