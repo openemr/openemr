@@ -202,7 +202,7 @@ $provider  = trim($_POST['form_provider'] ?? '');
                         <?php echo xlt('Begin Date'); ?>:
                       </td>
                       <td>
-                         <input type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo attr(oeFormatDateTime($begin_date, 0, true)); ?>' class='datepicker form-control' />
+                         <input type='text' name='form_begin_date' id="form_begin_date" size='20' value='<?php echo attr(oeFormatDateTime($begin_date, "global", true)); ?>' class='datepicker form-control' />
                       </td>
                  </tr>
 
@@ -211,7 +211,7 @@ $provider  = trim($_POST['form_provider'] ?? '');
                             <?php echo xlt('End Date'); ?>:
                         </td>
                         <td>
-                           <input type='text' name='form_end_date' id="form_end_date" size='20' value='<?php echo attr(oeFormatDateTime($end_date, 0, true)); ?>' class='datepicker form-control' />
+                           <input type='text' name='form_end_date' id="form_end_date" size='20' value='<?php echo attr(oeFormatDateTime($end_date, "global", true)); ?>' class='datepicker form-control' />
                         </td>
                 </tr>
 

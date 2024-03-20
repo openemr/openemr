@@ -43,7 +43,7 @@ function addForm(
     }
 
     //print_r($_SESSION['therapy_group']);die;
-        $arraySqlBind = array();
+    $arraySqlBind = array();
     $sql = "insert into forms (date, encounter, form_name, form_id, pid, " .
         "user, groupname, authorized, formdir, therapy_group_id) values (";
     if ($date == "NOW()") {

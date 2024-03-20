@@ -32,11 +32,6 @@ if ($_GET['id'] != "") {
     $obj = formFetch("form_" . $form_name, $_GET["id"]);
 }
 
-/* remove the time-of-day from the date fields */
-if ($obj['date_of_signature'] != "") {
-    $dateparts = explode(" ", $obj['date_of_signature']);
-    $obj['date_of_signature'] = $dateparts[0];
-}
 ?>
 <html><head>
 
@@ -45,6 +40,16 @@ if ($obj['date_of_signature'] != "") {
 <script>
 // required for textbox date verification
 var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+
+$(function () {
+            $('.datepicker').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
+            });
+        });
 
 function PrintForm() {
     newwin = window.open(<?php echo js_escape($rootdir . "/forms/" . $form_name . "/print.php?id=" . urlencode($_GET["id"])); ?>,"mywin");
@@ -86,8 +91,8 @@ function PrintForm() {
 </td><td>
 <span class="text"><?php echo xlt('Date'); ?></span>
    <input type='text' size='10' class='datepicker' name='date_of_signature' id='date_of_signature'
-    value='<?php echo attr($obj['date_of_signature']); ?>'
-    title='<?php echo xla('yyyy-mm-dd'); ?>' />
+    value='<?php echo attr(oeFormatShortDate($obj['date_of_signature'])); ?>'
+    title='<?php echo xla('Date of Signature'); ?>' />
 </td></tr>
 </table>
 
@@ -116,14 +121,6 @@ $(function () {
     $("input").keydown(function() { $(".printform").attr("disabled","disabled"); });
     $("select").change(function() { $(".printform").attr("disabled","disabled"); });
     $("textarea").keydown(function() { $(".printform").attr("disabled","disabled"); });
-
-    $('.datepicker').datetimepicker({
-        <?php $datetimepicker_timepicker = false; ?>
-        <?php $datetimepicker_showseconds = false; ?>
-        <?php $datetimepicker_formatInput = false; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
-        <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
-    });
 });
 
 </script>

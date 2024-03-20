@@ -46,12 +46,12 @@ function formatPatientReportData($report_id, &$data, $type_report, $amc_report_t
                 $failed_items = $row['pass_filter'] - $row['pass_target'] - $row['excluded'];
             }
             $row['display_field_sub'] = ($displayFieldSubHeader != "") ? "($displayFieldSubHeader)" : null;
-        } else if (isset($row['is_sub'])) {
+        } elseif (isset($row['is_sub'])) {
             $row['display_field'] = generate_display_field(array('data_type' => '1', 'list_id' => 'rule_action_category'), $row['action_category'])
                 . ': ' . generate_display_field(array('data_type' => '1', 'list_id' => 'rule_action'), $row['action_item']);
             // Excluded is not part of denominator in standard rules so do not use in calculation
             $failed_items = $main_pass_filter - $row['pass_target'];
-        } else if (isset($row['is_plan'])) {
+        } elseif (isset($row['is_plan'])) {
             $row['display_field'] = generate_display_field(array('data_type' => '1', 'list_id' => 'clinical_plans'), $row['id']);
         }
 
@@ -201,7 +201,7 @@ if (!empty($report_view)) {
     $subTitle = '';
     if ($report_view['provider'] == "group_calculation") {
         $subTitle = xl("Group Calculation Method");
-    } else if (is_numeric($report_view['provider'])) {
+    } elseif (is_numeric($report_view['provider'])) {
         // grab the provider
         $userService = new \OpenEMR\Services\UserService();
         $provider = $userService->getUser($report_view['provider']);

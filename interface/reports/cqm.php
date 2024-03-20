@@ -104,13 +104,13 @@ if (!empty($report_id)) {
 $show_help = false;
 if ($type_report == "standard") {
     $heading_title = xl('Standard Measures');
-} else if ($type_report == "cqm") {
+} elseif ($type_report == "cqm") {
     $heading_title = xl('Clinical Quality Measures (CQM)');
-} else if ($type_report == 'cqm_2011') {
+} elseif ($type_report == 'cqm_2011') {
     $heading_title = 'Clinical Quality Measures (CQM) - 2011';
-} else if ($type_report == "cqm_2014") {
+} elseif ($type_report == "cqm_2014") {
     $heading_title = 'Clinical Quality Measures (CQM) - 2014';
-} else if ($is_amc_report) {
+} elseif ($is_amc_report) {
     $heading_title = $amc_report_types[$type_report]['title'];
     $show_help = true;
     $help_file_name = "cqm_amc_help.php";
@@ -179,7 +179,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
         ,['value' => 'cqm_2011', 'selected' => $plan_filter == 'cqm_2011', 'label' => xl('2011 Official Clinical Quality Measures (CQM) Measure Groups')]
         ,['value' => 'cqm_2014', 'selected' => $plan_filter == 'cqm_2014', 'label' => xl('2014 Official Clinical Quality Measures (CQM) Measure Groups')]
     ];
-} else if ($is_amc_report) {
+} elseif ($is_amc_report) {
     // latest AMC doesn't have collate options
     if (empty($report_id)) {
         // truncate to just the first option
@@ -205,7 +205,7 @@ if (($type_report == "cqm") || ($type_report == "cqm_2011") || ($type_report == 
     }
     $formData['providerReportOptions'][] = ['value' => 'group_calculation', 'selected' => $provider == 'group_calculation'
         , 'label' => xl('All EP/EC Group Calculation')];
-} else if ($type_report == 'standard') {
+} elseif ($type_report == 'standard') {
     $formData['rule_filters'] = [
         ['value' => 'passive_alert', 'selected' => $type_report == 'passive_alert', 'label' => xl('Passive Alert Rules')]
         ,['value' => 'active_alert', 'selected' => $type_report == 'active_alert', 'label' => xl('Active Alert Rules')]
