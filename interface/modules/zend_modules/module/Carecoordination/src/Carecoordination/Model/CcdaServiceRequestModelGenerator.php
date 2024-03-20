@@ -76,7 +76,7 @@ class CcdaServiceRequestModelGenerator
                     $end = date('YmdHisO', $end);
                 }
             }
-        } else if ($document_type == 'ccd' || $document_type == 'toc') {
+        } elseif ($document_type == 'ccd' || $document_type == 'toc') {
             if (empty($end)) {
                 $end = date('YmdHisO'); // current date
             }

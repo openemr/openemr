@@ -30,6 +30,13 @@ if (isset($_GET['portal_auth'])) {
         header('Location: ' . $landingpage . '?w');
         exit;
     }
+} else {
+    // Check authorization.
+    $thisauth = AclMain::aclCheckCore('patients', 'pat_rep');
+    if (!$thisauth) {
+        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Create CCR")]);
+        exit;
+    }
 }
 
 require_once(dirname(__FILE__) . "/../interface/globals.php");
