@@ -215,6 +215,7 @@ class ClientEntity implements ClientEntityInterface
 
     public function getContacts()
     {
+        $this->contacts = (!empty($this_contacts)) ?: [];
         return $this->contacts;
     }
 
