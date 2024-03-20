@@ -125,6 +125,7 @@ if (file_exists($csvFile)) {
             sqlStatementNoLog('START TRANSACTION');
         }
         while (!feof($records)) {
+            $isError = false;
             $line = fgetcsv($records);
 
             if ($l <= 1) {
@@ -190,9 +191,9 @@ if (file_exists($csvFile)) {
                 $insertdata['fullDay'] = $fullDay;
 
                 if ($data['Daily'] == 'Y') {
-                    $insertPharmacy->updatePharmacies($insertdata);
+                    $isError = $insertPharmacy->updatePharmacies($insertdata);
                 } else {
-                    $insertPharmacy->insertPharmacies($insertdata);
+                    $isError = $insertPharmacy->insertPharmacies($insertdata);
                 }
                 ++$l;
             }
@@ -211,6 +212,17 @@ if (file_exists($csvFile)) {
         if (is_file($file)) {
             unlink($file);
         }
+    }
+    if ($isError) {
+        EventAuditLogger::instance()->newEvent(
+            "pharmacy_log",
+            $_SESSION['authUser'],
+            $_SESSION['authProvider'],
+            0,
+            "Pharmacy Import download failed SQL Insert error."
+        );
+        $wenolog->insertWenoLog("pharmacy", "Failed");
+        error_log("User Initialed Pharmacy Import Failed Insert error");
     }
     // let's brag about it.
     EventAuditLogger::instance()->newEvent(

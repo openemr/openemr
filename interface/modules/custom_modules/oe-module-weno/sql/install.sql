@@ -85,3 +85,6 @@ UPDATE `globals` SET gl_name='weno_admin_password' WHERE gl_name='weno_provider_
 UPDATE `globals` SET gl_name='weno_admin_username' WHERE gl_name='weno_provider_username';
 #EndIf
 
+#IfNotColumnType weno_download_log status varchar(255)
+ALTER TABLE `weno_download_log` CHANGE `value` `value` VARCHAR(63) NOT NULL, CHANGE `status` `status` VARCHAR(255) NOT NULL;
+#EndIf

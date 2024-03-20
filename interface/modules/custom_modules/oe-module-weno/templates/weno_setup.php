@@ -134,11 +134,19 @@ $vendors = $boot->getVendorGlobals();
     <div class="container-xl">
         <div class="form-group text-center m-2 p-2">
             <h2><?php echo xlt("Weno eRx Service Admin Setup"); ?></h2>
-            <h6><small><?php echo xlt("May use Secondary Admin section to backup Primary Admin section."); ?></small></h6>
+            <h6><small><?php echo xlt("Admin section must be validated. Other sections auto save."); ?></small></h6>
         </div>
         <form id="set_form" name="set_form" class="form" role="form" method="post" action="">
             <div id="set-weno">
                 <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <div class="row form-group">
+                    <div class="col-12 text-center">
+                        <h5>
+                            <?php echo xlt("Weno Primary Admin Section") . ' <cite>(' . xlt('Required') . ')</cite>'; ?>
+                            <hr class="text-dark bg-light" />
+                        </h5>
+                    </div>
+                </div>
                 <div class="form-group">
                     <div class="row form-group">
                         <label for="weno_rx_enable" class="col-sm-6"><?php echo xlt("Enable Weno eRx Service"); ?></label>
@@ -150,15 +158,6 @@ $vendors = $boot->getVendorGlobals();
                         <label for="weno_rx_enable_test" class="col-sm-6"><?php echo xlt("Enable Weno eRx Service Test Mode"); ?></label>
                         <div class="col-sm-6" title="<?php echo xla("Enable Weno eRx Service Test mode. This option will automatically include test pharmacies in your pharmacy download.") ?>">
                             <input type="checkbox" class="checkbox persist" name="weno_rx_enable_test" id="weno_rx_enable_test" value="1" <?php echo $vendors['weno_rx_enable_test'] == '1' ? 'checked' : ''; ?>>
-                        </div>
-                    </div>
-                    <div class="row form-group">
-                        <div class="col-12 text-center">
-                            <h5>
-                                <hr class="text-dark bg-light" />
-                                <?php echo xlt("Weno Primary Admin Section") . ' <cite>(' . xlt('Required') . ')</cite>'; ?>
-                                <hr class="text-dark bg-light" />
-                            </h5>
                         </div>
                     </div>
                     <div class="row form-group">
