@@ -52,6 +52,8 @@ class GlobalSetting
     const DATA_TYPE_HOUR = "hour";
     // textbox
     const DATA_TYPE_TEXT = "text";
+    // textarea
+    const DATA_TYPE_TEXTAREA = "textarea";
 
     // html display section
     const DATA_TYPE_HTML_DISPLAY_SECTION = "html_display_section";
