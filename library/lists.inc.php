@@ -145,10 +145,11 @@ function setListTouch($patient_id, $type)
 
 function getHiddenDashboardCards()
 {
-    $hideList = [];
-    $ret = sqlStatement("SELECT option_id FROM list_options WHERE list_id = 'Hide_Dashboard_Cards' AND activity = '1'");
+    $hiddenList = [];
+    $ret = sqlStatement("SELECT gl_value FROM `globals` WHERE `gl_name` = 'hide_dashboard_cards'");
     while ($row = sqlFetchArray($ret)) {
-        $hideList[] = $row['option_id'];
+        $hiddenList[] = $row['gl_value'];
     }
-    return $hideList;
+
+    return $hiddenList;
 }

@@ -113,15 +113,21 @@
 ALTER TABLE `form_encounter` ADD `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 #EndIf
 
+#IfNotTable dashboard_card_visibility
+CREATE TABLE IF NOT EXISTS dashboard_card_visibility (
+ `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+ `card_abrev `VARCHAR(75) NOT NULL,
+ `card_name` VARCHAR(75) NOT NULL
+)Engine=InnoDB;
+#EndIfTable
+
 #IfNotRow lists option_id Hide_Dashboard_Cards
 -- Create new list Hide Dashboard Cards
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`) VALUES ('lists', 'Hide_Dashboard_Cards', 'Hide Dashboard Cards');
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`,`activity`) VALUES ('Hide_Dashboard_Cards', 'card_allergies', 'Allergies', 10, 0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_amendments', 'Amendments', 60, 0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_disclosure', 'Disclosures', 50, 0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_lab', 'Lab', 70, 0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`,  `activity`) VALUES ('Hide_Dashboard_Cards', 'card_medicalproblems', 'Medical Problems', 20, 0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_medication', 'Medication', 30, 0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_rx', 'Prescriptions', 40, 0);
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `activity`) VALUES ('Hide_Dashboard_Cards', 'card_vitals', 'Vitals', 80, 0);
+INSERT INTO `dashboard_card_visibility` (`id`, `card_abrev`, `card_name`) VALUES (NULL, 'card_allergies', 'Allergies');
+INSERT INTO `dashboard_card_visibility` (`id`, `card_abrev`, `card_name`) VALUES (NULL, 'card_amendments', 'Amendments');
+INSERT INTO `dashboard_card_visibility` (`id`, `card_abrev`, `card_name`) VALUES (NULL, 'card_disclosure', 'Disclosures');
+INSERT INTO `dashboard_card_visibility` (`id`, `card_abrev`, `card_name`) VALUES (NULL, 'card_lab', 'Lab');
+INSERT INTO `dashboard_card_visibility` (`id`, `card_abrev`, `card_name`) VALUES (NULL, 'card_medicalproblems', 'Medical Problems');
+INSERT INTO `dashboard_card_visibility` (`id`, `card_abrev`, `card_name`) VALUES (NULL, 'card_medication', 'Medication');
+INSERT INTO `dashboard_card_visibility` (`id`, `card_abrev`, `card_name`) VALUES (NULL, 'card_vitals', 'Vitals');
 #EndIf
