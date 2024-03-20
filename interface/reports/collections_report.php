@@ -1082,9 +1082,9 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
     <th>&nbsp;<?php echo xlt('Act Date')?></th>
     <?php } ?>
     <?php } ?>
-    <th align="right"><?php echo xlt('Charge') ?>&nbsp;</th>
-    <th align="right"><?php echo xlt('Adjust') ?>&nbsp;</th>
-    <th align="right"><?php echo xlt('Paid') ?>&nbsp;</th>
+        <th align="right"><?php echo xlt('Charge') ?>&nbsp;</th>
+        <th align="right"><?php echo xlt('Adjust') ?>&nbsp;</th>
+        <th align="right"><?php echo xlt('Paid') ?>&nbsp;</th>
         <?php
     // Generate aging headers if appropriate, else balance header.
         if ($form_age_cols) {
