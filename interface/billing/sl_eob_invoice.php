@@ -395,7 +395,7 @@ if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POS
 // Maintain which insurances are marked as finished.
 
         $form_done = 0 + $_POST['form_done'];
-        $form_stmt_count = 0 + $_POST['form_stmt_count'];
+        $form_stmt_count = 0 + (int) $_POST['form_stmt_count'];
         sqlStatement("UPDATE form_encounter SET last_level_closed = ?, stmt_count = ? WHERE pid = ? AND encounter = ?", array($form_done, $form_stmt_count, $patient_id, $encounter_id));
 
         if (!empty($_POST['form_secondary'])) {
