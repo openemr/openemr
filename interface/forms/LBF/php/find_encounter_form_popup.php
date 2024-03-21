@@ -62,7 +62,7 @@ while ($rowresult4 = sqlFetchArray($result4)) {
 
 <html>
 <head>
-    <title><?php echo htmlspecialchars(xl('Select Encounter'), ENT_NOQUOTES); ?></title>
+    <title><?php echo xl('Select Encounter'); ?></title>
     <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
     <?php Header::setupHeader(['opener', 'dialog', 'jquery', 'jquery-ui', 'jquery-ui-base', 'fontawesome', 'main-theme']); ?>
 
@@ -84,7 +84,7 @@ while ($rowresult4 = sqlFetchArray($result4)) {
 
         function selEncounterForm(encounter_id, form_id, pid) {
             if (opener.closed || ! opener.setEncounterForm)
-            alert("<?php echo htmlspecialchars(xl('The destination form was closed; I cannot act on your selection.'), ENT_QUOTES); ?>");
+            alert("<?php echo xl('The destination form was closed; I cannot act on your selection.'); ?>");
             else
             opener.setEncounterForm(encounter_id, form_id, pid);
             window.close();
@@ -116,7 +116,7 @@ while ($rowresult4 = sqlFetchArray($result4)) {
 
                 ?>
                 <li>
-                   <a href="javascript: void(0)" onClick="selectEncounter('<?php echo $encounter_id; ?>', '<?php echo $form_id; ?>', '<?php echo $pid; ?>')"><?php echo $titleLink; ?></a>
+                   <a href="javascript: void(0)" onClick="selectEncounter(<?php echo attr_js($encounter_id); ?>, <?php echo attr_js($form_id); ?>, <?php echo attr_js($pid); ?>)"><?php echo $titleLink; ?></a>
                 </li>
             <?php } ?>
         </ul>

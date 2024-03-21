@@ -150,7 +150,7 @@ $formhistory = 0 + $lobj['grp_repeats'];
 $grp_last_update = $lobj['grp_last_update'];
 
 // Is copy section functionality active
-$isGrpsecCopyAllow = isset($lobj['grpsec_copy_allow']) ? $lobj['grpsec_copy_allow'] : 0;
+$isGrpsecCopyAllow = $lobj['grpsec_copy_allow'] ?? 0;
 
 // When the layout specifies display of historical values of input fields,
 // we abandon responsive design of the form and instead present it in a
@@ -398,7 +398,7 @@ if (
 
 // If section id is set for copy form data
 if (
-    isset($_POST['form_cp_group_id']) && !empty($_POST['form_cp_group_id'])
+    !empty($_POST['form_cp_group_id'] ?? '')
 ) {
     $formScrollPosition = isset($_POST['form_scroll_position']) ? $_POST['form_scroll_position'] : "";
     $cpencounterid = isset($_POST['form_cp_encounter_id']) ? $_POST['form_cp_encounter_id'] : "";
@@ -965,7 +965,7 @@ if (
 
         // This invokes the find lbf forms popup.
         function handleLBFFormsPopup(formname = '', encounter = '', pid = '') {
-            let url = '<?php echo $GLOBALS['webroot']; ?>/interface/forms/LBF/php/find_encounter_form_popup.php?pid=' + pid + '&formname=' + formname + '&encounter=' + encounter;
+            let url = '<?php echo $GLOBALS['webroot']; ?>/interface/forms/LBF/php/find_encounter_form_popup.php?pid=' + encodeURIComponent(pid) + '&formname=' + encodeURIComponent(formname) + '&encounter=' + encodeURIComponent(encounter);
             let title = "<?php echo xlt('Select Encounter'); ?>";
 
             // Open Popup
@@ -1282,7 +1282,7 @@ if (
                         if (strlen($gname)) {
                             // <label> was inheriting .justify-content-center from .form-inline,
                             // dunno why but we fix that here.
-                            echo "<br /><span class='d-flex'><label class='mb-1 justify-content-start w-100' role='button'><input class='mr-1' type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " . "onclick='return divclick(this," . attr_js('div_' . $group_seq) . ");'";
+                            echo "<br /><span class='d-flex'><label class='mb-1 justify-content-start w-100' role='button'><input class='mr-1' type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " . "onclick='return divclick(this," . attr_js("div_" . $group_seq) . ");'";
                             if ($display_style == 'block') {
                                 echo " checked";
                             }
@@ -2008,7 +2008,7 @@ if (
 
                 <input type='hidden' name='from_issue_form' value='<?php echo attr($from_issue_form); ?>' />
                 <?php if (!$is_core) {
-                    echo '<input type="hidden" name="csrf_token_form" value="' . CsrfUtils::collectCsrfToken() . '" />';
+                    echo '<input type="hidden" name="csrf_token_form" value="' . attr(CsrfUtils::collectCsrfToken()) . '" />';
                     echo "\n<input type='hidden' name='bn_save_continue' value='set' />\n";
                 } ?>
 

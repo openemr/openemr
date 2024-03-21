@@ -529,7 +529,7 @@ for ($cols = 2; $cols <= 12; ++$cols) {
 
  <tr>
   <td valign='top' width='1%' nowrap>
-   <input type='checkbox' name='form_grpsec_copy_allow' <?php echo ($row['grpsec_copy_allow']) ? "checked" : ""; ?> />
+   <input type='checkbox' name='form_grpsec_copy_allow' <?php echo text($row['grpsec_copy_allow'] ?? '') ? "checked" : ""; ?> />
     <?php echo xlt('Allow Group & Section Copy'); ?>
   </td>
   <td>
