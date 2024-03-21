@@ -54,7 +54,6 @@ function wenoAlertManager(option, element, spinElement) {
     }
 }
 
-// Reserved for future use.
 function renderDialog(action, uid, event) {
     event.preventDefault();
     // Trim action URL

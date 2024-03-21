@@ -152,13 +152,14 @@ class ModuleService
     {
         $logService = new WenoLogService();
         $log = $logService->getLastPharmacyDownloadStatus();
-        if ($log['status'] ?? '' != 'Success') {
+        if ($log['status'] ?? '' == 'Failed') {
             if (($log['count'] ?? 0) > 0) {
                 return true;
             }
-            $sql = "UPDATE `background_services` SET `next_run` = current_timestamp(), `active` = '1' WHERE `name` = ? && `next_run` > current_timestamp()";
-            sqlQuery($sql, array('WenoExchangePharmacies'));
-            return true;
+            // TODO need to add lookup for last 3 failed status and if it's been over three attempts then stop trying.
+            //$sql = "UPDATE `background_services` SET `next_run` = current_timestamp(), `active` = '1' WHERE `name` = ? && `next_run` > current_timestamp()";
+            //sqlQuery($sql, array('WenoExchangePharmacies'));
+            //return true;
         }
         return false;
     }
