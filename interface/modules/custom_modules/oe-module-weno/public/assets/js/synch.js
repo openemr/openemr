@@ -88,13 +88,12 @@ function renderDialog(action, uid, event) {
         ],
         allowResize: true,
         allowDrag: true,
+        onClosed: 'reload',
         dialogId: 'error-dialog',
         type: 'iframe',
         resolvePromiseOn: 'close',
         url: top.webroot_url + actionUrl
     }).then(function (dialog) {
         top.restoreSession();
-        // learned a lesson here, if you don't do this, the page will repost the form.
-        window.location.replace(window.location.href);
     });
 }
