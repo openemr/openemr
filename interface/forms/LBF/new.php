@@ -727,6 +727,19 @@ if (
         function validate(f, restore = true) {
             var errMsgs = new Array();
             <?php generate_layout_validation($formname); ?>
+
+            // Show validation error messages
+            if(errMsgs.length > 0) {
+                let errMsgStr = new Array();
+                errMsgs.forEach((errMsg, i) => {
+                    errMsgStr.push("- " + errMsg + " " + <?php echo xlj("field is required."); ?>);
+                });
+
+                if (errMsgStr.length > 0) {
+                   alert(errMsgStr.join("\n"));
+                }
+            }
+
             // Validation for Fee Sheet stuff. Skipping this because CV decided (2015-11-03)
             // that these warning messages are not appropriate for layout based visit forms.
             //
