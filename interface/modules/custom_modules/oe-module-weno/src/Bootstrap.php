@@ -256,6 +256,17 @@ class Bootstrap
         $dlMenu->acl_req = ["admin", "super"];
         $dlMenu->global_req = ["weno_rx_enable"];
 
+        //Weno Setup
+        $setupMenu = new \stdClass();
+        $setupMenu->requirement = 0;
+        $setupMenu->target = 'adm0';
+        $setupMenu->menu_id = 'adm';
+        $setupMenu->label = xlt("Weno Admin Setup");
+        $setupMenu->url = "/interface/modules/custom_modules/oe-module-weno/templates/weno_setup.php";
+        $setupMenu->children = [];
+        $setupMenu->acl_req = ["admin", "super"];
+        $setupMenu->global_req = ["weno_rx_enable"];
+
         foreach ($menu as $item) {
             if ($item->menu_id == 'admimg') {
                 foreach ($item->children as $other) {

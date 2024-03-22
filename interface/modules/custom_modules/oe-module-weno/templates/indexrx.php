@@ -68,7 +68,7 @@ $patient_name = $wenoProperties->getPatientName();
 $facility_name = $wenoProperties->getFacilityInfo();
 
 //set the url for the iframe
-$newRxUrl = "https://dev.wenoexchange.com/en/NewRx/ComposeRx?useremail=";
+$newRxUrl = "https://online.wenoexchange.com/en/NewRx/ComposeRx?useremail=";
 if ($urlParam == 'error') {   //check to make sure there were no errors
     echo TransmitProperties::styleErrors(xlt("Cipher failure check encryption key"));
     exit;

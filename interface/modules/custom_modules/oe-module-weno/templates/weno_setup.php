@@ -68,7 +68,7 @@ $vendors = $boot->getVendorGlobals();
 <!DOCTYPE HTML>
 <html lang="eng">
 <head>
-    <title>><?php echo xlt("Weno Config") ?></title>
+    <title><?php echo xlt("Weno Config") ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php
     if (count($vendors ?? []) === 0) {
@@ -136,6 +136,31 @@ $vendors = $boot->getVendorGlobals();
             <h2><?php echo xlt("Weno eRx Service Admin Setup"); ?></h2>
             <h6><small><?php echo xlt("Admin section must be validated. Other sections auto save."); ?></small></h6>
         </div>
+        <div class="card mb-1">
+            <div class="card-header p-1 mb-3 bg-light text-dark collapsed collapsed" role="button" data-toggle="collapse" href="#collapseOne">
+                <h6 class="mb-0"><i class="fa fa-expand mr-2"></i><?php echo xlt("Setup Help"); ?></h6>
+            </div>
+            <div id="collapseOne" class="card-body collapse" data-parent="#accordion">
+                <!-- Currently no plans to translate. -->
+                <?php
+                echo nl2br(text("There are three sections within the Weno eRx Service Admin Setup that allow the user to setup almost all the necessary settings to successfully start e-prescribing. The only other item is that each Weno prescriber credentials are set up in their User Settings.
+
+*** The Weno Primary Admin Section.
+- All values must be entered and validated.
+- If validation fails because either email and/or password are invalid an alert will be shown stating such.
+- If the encryption key is deemed invalid an alert will show and a new Encryption Reset button enabled. First try re-entering the key but if that doesn't work clicking the Reset button will create a new key. This change will also be reflected in the Admins main Weno account and no other actions are needed by the user. You may look on the key as an API token which may be a more familiar term to the reader.
+
+*** The Map Weno User Id`s (Required)  Section.
+- This section presents a table of all authorised users showing their default facility if assigned and an input field to enter their Weno user id Uxxxx. This value is important in order to form a relationship between Weno and the OpenEMR user for tracking prescriptions.
+- All values are automatically saved for the user whenever the Weno Provider ID is entered or changed.
+- As a convenience, an edit button is supplied to present a dialog containing the Users settings in edit mode. From here user may edit any setting such as assigning a default facility. This would be the same as accessing Users from top menu Admin->Users selected provider.
+
+*** The Map Weno Facility Id`s (Required)  Section.
+- This section is pretty self explanatory with perhaps noting this same data may be accessed from top menu Admin->Other->Weno Management as explained below.
+- This section also auto saves for convenience."));
+                ?>
+            </div>
+        </div>
         <form id="set_form" name="set_form" class="form" role="form" method="post" action="">
             <div id="set-weno">
                 <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
@@ -150,7 +175,7 @@ $vendors = $boot->getVendorGlobals();
                 <div class="form-group">
                     <div class="row form-group">
                         <label for="weno_rx_enable" class="col-sm-6"><?php echo xlt("Enable Weno eRx Service"); ?></label>
-                        <div class="col-sm-6" title="<?php echo xla("Contact https://dev.wenoexchange.com to sign up for Weno Free eRx service.") ?>">
+                        <div class="col-sm-6" title="<?php echo xla("Contact https://online.wenoexchange.com to sign up for Weno Free eRx service.") ?>">
                             <input type="checkbox" class="checkbox persist" name="weno_rx_enable" id="weno_rx_enable" value="1" <?php echo $vendors['weno_rx_enable'] == '1' ? 'checked' : ''; ?>>
                         </div>
                     </div>
@@ -250,23 +275,27 @@ $vendors = $boot->getVendorGlobals();
             <div id="accordion" class="accordion">
                 <div class="card mb-1">
                     <div class="card-header p-1 mb-1 bg-dark text-light collapsed collapsed" data-toggle="collapse" href="#collapseOne">
-                        <h5 class="mb-0"><i class="fa fa-expand mr-2"></i><?php echo xlt("Chores After Setup"); ?></h5>
+                        <h5 class="mb-0"><i class="fa fa-expand mr-2"></i><?php echo xlt("Setup Help"); ?></h5>
                     </div>
                     <div id="collapseOne" class="card-body collapse" data-parent="#accordion">
                         <!-- Currently no plans to translate. -->
-                        <?php echo '<h5>' . text('Additional values from Weno for finishing setup are:') . '</h5>' .
-                            text('1. Weno Provider Id: Uxxxx') . '<br />' .
-                            text('2. Assigned Location Id for all the facilities used by the above User Id: Lxxxxx') . '<br />' .
-                            text('3. The provider credentials assign to each prescriber: username(email address) and password.') . '<br /><br />' .
-                            '<h5>' . text('To continue setup follow the below steps.') . '</h5>' .
-                            text('1. Find top menu Admin->Users and select the user associated with the Weno Provider ID Uxxx and enter and save the assigned ID in the Weno Provider ID field.') . '<br />' .
-                            text('2. Find top menu  Admin->Other->Weno Management and enter the assigned Location Id Lxxxxx for the location facilities.') . '<br />' .
-                            text('3. Find top Patient Bar User icon and click Settings. Scroll down or find the Weno button in left sidebar and click. Enter your email and password in the Weno Provider Email and Weno Provider Password fields and Save.') . '<br /><br />' .
-                            '<h5>' . text('Patient Chart Requirements.') . '</h5>' .
-                            text('1. Each Patient is required to have an assigned primary pharmacy from Demographics->Choices. It is good practice to assign an Alternate Pharmacy too.') . '<br />' .
-                            text('2. Each Patient under the age of 19 years old are required to have a Vitals Height and Weight assigned. Create or enter values from an encounter vitals form') . '<br /><br />';
+                        <?php
+                        echo nl2br(text("There are three sections within the Weno eRx Service Admin Setup that allow the user to setup almost all the necessary settings to successfully start e-prescribing. The only other item is that each Weno prescriber credentials are set up in their User Settings.
+
+*** The Weno Primary Admin Section.
+- All values must be entered and validated.
+- If validation fails because either email and/or password are invalid an alert will be shown stating such.
+- If the encryption key is deemed invalid an alert will show and a new Encryption Reset button enabled. First try re-entering the key but if that doesn't work clicking the Reset button will create a new key. This change will also be reflected in the Admins main Weno account and no other actions are needed by the user. You may look on the key as an API token which may be a more familiar term to the reader.
+
+*** The Map Weno User Id`s (Required)  Section.
+- This section presents a table of all authorised users showing their default facility if assigned and an input field to enter their Weno user id Uxxxx. This value is important in order to form a relationship between Weno and the OpenEMR user for tracking prescriptions.
+- All values are automatically saved for the user whenever the Weno Provider ID is entered or changed.
+- As a convenience, an edit button is supplied to present a dialog containing the Users settings in edit mode. From here user may edit any setting such as assigning a default facility. This would be the same as accessing Users from top menu Admin->Users selected provider.
+
+*** The Map Weno Facility Id`s (Required)  Section.
+- This section is pretty self explanatory with perhaps noting this same data may be accessed from top menu Admin->Other->Weno Management as explained below.
+- This section also auto saves for convenience."));
                         ?>
-                        <p><cite><?php echo xlt("Note if these credentials are absent or wrong, you will be required to log into eRx Compose to prescribe prescriptions."); ?></cite>></p>
                     </div>
                 </div>
                 <div id="help-links" class="card d-none">

@@ -80,7 +80,7 @@ class WenoPharmaciesJson
 
     private function wenoPharmacyDirectoryLink(): string
     {
-        return "https://dev.wenoexchange.com/en/EPCS/DownloadPharmacyDirectory";
+        return "https://online.wenoexchange.com/en/EPCS/DownloadPharmacyDirectory";
     }
 
     public function checkBackgroundService(): string
