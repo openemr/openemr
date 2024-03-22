@@ -395,6 +395,8 @@ if (
     }
 }
 
+// Group checkbox values
+$prevgrpinitopenvals = array();
 
 // If section id is set for copy form data
 if (
@@ -448,6 +450,9 @@ if (
             if ($cpgroupid != "global" && ($cpgroupid != $group_id && $nested_group === false)) {
                 continue;
             }
+
+            // Set value to make group section open
+            $prevgrpinitopenvals["form_cb_lbf" . $group_id] = "1";
 
             // Set value
             $prevfieldvals[$field_id] = lbf_current_value($frow, $cpformid, $cpencounterid);
@@ -1358,6 +1363,14 @@ if (
                         }
                     }
 
+                    // If any field of group has value
+                    if (!isset($cpgroupid)) {
+                        if (!empty($currvalue) && !array_key_exists("form_cb_lbf" . $group_levels, $prevgrpinitopenvals)) {
+                            // Set value to make group section open
+                            $prevgrpinitopenvals["form_cb_lbf" . $group_levels] = "1";
+                        }
+                    }
+
                     // Handle starting of a new row.
                     if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
                         end_row();
@@ -2020,6 +2033,22 @@ if (
                     var skipArray = [
                         <?php echo $condition_str; ?>
                     ];
+
+                    <?php if (!empty($prevgrpinitopenvals)) { ?>
+                    // Make group section visible if any field has value 
+                    $(function () {
+                        var anyGroupFieldHasValue = <?php echo json_encode($prevgrpinitopenvals); ?>;
+                        for (var gid in anyGroupFieldHasValue) {
+                            let groupCheck = document.querySelector('input[name="' + gid + '"]');
+
+                            if(groupCheck && anyGroupFieldHasValue[gid] === "1") {
+                                // Mark the checkbox as checked
+                                groupCheck.checked = true;
+                                groupCheck.onclick();
+                            }
+                        }
+                    });
+                    <?php } ?>
 
                     <?php echo $date_init; ?>
                     <?php
