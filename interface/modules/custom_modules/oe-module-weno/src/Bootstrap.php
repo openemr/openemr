@@ -223,23 +223,35 @@ class Bootstrap
     public function addCustomMenuItem(MenuEvent $event): MenuEvent
     {
         $menu = $event->getMenu();
+        // Top level menu
+        $topMenu = new \stdClass();
+        $topMenu->requirement = 0;
+        $topMenu->target = 'adm0';
+        $topMenu->menu_id = 'adm';
+        $topMenu->label = xlt("Weno eRx Tools");
+        $topMenu->icon = "fa-caret-right";
+        $topMenu->children = [];
+        $topMenu->acl_req = ["admin", "super"];
+        $topMenu->global_req = ["weno_rx_enable"];
+
         //Prescription Log
         $menuItem = new \stdClass();
         $menuItem->requirement = 0;
         $menuItem->target = 'rep';
         $menuItem->menu_id = 'rep0';
-        $menuItem->label = xlt("Prescription Log");
+        $menuItem->label = xlt("Online Prescription Log");
         $menuItem->url = "/interface/modules/custom_modules/oe-module-weno/templates/rxlogmanager.php";
         $menuItem->children = [];
         $menuItem->acl_req = ["patients", "rx"];
         $menuItem->global_req = ["weno_rx_enable"];
+
 
         //Weno Management
         $mgtMenu = new \stdClass();
         $mgtMenu->requirement = 0;
         $mgtMenu->target = 'adm0';
         $mgtMenu->menu_id = 'adm';
-        $mgtMenu->label = xlt("Weno Management");
+        $mgtMenu->label = xlt("Locations and Downloads");
         $mgtMenu->url = "/interface/modules/custom_modules/oe-module-weno/templates/facilities.php";
         $mgtMenu->children = [];
         $mgtMenu->acl_req = ["admin", "super"];
@@ -248,9 +260,9 @@ class Bootstrap
         //Weno log
         $dlMenu = new \stdClass();
         $dlMenu->requirement = 0;
-        $dlMenu->target = 'adm0';
+        $dlMenu->target = 'adm1';
         $dlMenu->menu_id = 'adm';
-        $dlMenu->label = xlt("Weno Download Log");
+        $dlMenu->label = xlt("Manage Download Log");
         $dlMenu->url = "/interface/modules/custom_modules/oe-module-weno/templates/download_log_viewer.php";
         $dlMenu->children = [];
         $dlMenu->acl_req = ["admin", "super"];
@@ -261,7 +273,7 @@ class Bootstrap
         $setupMenu->requirement = 0;
         $setupMenu->target = 'adm0';
         $setupMenu->menu_id = 'adm';
-        $setupMenu->label = xlt("Weno Admin Setup");
+        $setupMenu->label = xlt("Weno eRx Service Setup");
         $setupMenu->url = "/interface/modules/custom_modules/oe-module-weno/templates/weno_setup.php";
         $setupMenu->children = [];
         $setupMenu->acl_req = ["admin", "super"];
@@ -269,19 +281,13 @@ class Bootstrap
 
         foreach ($menu as $item) {
             if ($item->menu_id == 'admimg') {
+                $item->children[] = $topMenu;
                 foreach ($item->children as $other) {
-                    if ($other->label == 'Other') {
+                    if ($other->label == 'Weno eRx Tools') {
+                        $other->children[] = $menuItem;
+                        $other->children[] = $setupMenu;
                         $other->children[] = $mgtMenu;
                         $other->children[] = $dlMenu;
-                        break;
-                    }
-                }
-            }
-
-            if ($item->menu_id == 'repimg') {
-                foreach ($item->children as $clientReport) {
-                    if ($clientReport->label == 'Clients') {
-                        $clientReport->children[] = $menuItem;
                         break;
                     }
                 }

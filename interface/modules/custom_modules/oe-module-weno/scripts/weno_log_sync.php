@@ -18,16 +18,26 @@ use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 
 function downloadWenoPharmacy()
 {
+    // Check if the encryption key is valid. If not, request a new key and then set it.
+    $wenoValidate = new WenoValidate();
+    $isKey = $wenoValidate->validateAdminCredentials(true); // auto reset on invalid.
+    if ((int)$isKey >= 998) {
+        EventAuditLogger::instance()->newEvent(
+            "pharmacy_background",
+            $_SESSION['authUser'],
+            $_SESSION['authProvider'],
+            1,
+            text("Background Initiated Pharmacy download attempt failed. Internet problem!")
+        );
+        error_log('Background Initiated Pharmacy Download not ran. Internet problem: ' . text($isKey));
+        die;
+    }
+    error_log('Background Initiated Encryption Verify returned: ' . text($isKey == '1' ? 'Verified key is valid.' : 'Invalid Key'));
+
     $cryptoGen = new CryptoGen();
     $localPharmacyJson = new WenoPharmaciesJson($cryptoGen);
-    // ensure a valid key is set.
-    // first check if the key is valid. If not, request a new key and set it.
-    $wenoValidate = new WenoValidate();
-    $isKey = $wenoValidate->validateAdminCredentials(true);
-    error_log('Background Initiated Encryption Verify returned.' . text($isKey ?: 'false'));
     // Check if the background service is active. Intervals are set to once a day
     $value = $localPharmacyJson->checkBackgroundService();
-
     if ($value == 'active' || $value == 'live') {
         error_log('Background Initiated Pharmacy Download Started.');
 

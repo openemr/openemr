@@ -186,7 +186,7 @@ class LogProperties
 
         if (file_exists($this->rxsynclog)) {
             $log = new LogImportBuild();
-            $rtn = $log->buildInsertArray();
+            $rtn = $log->buildPrescriptionInserts();
             if (!$rtn) {
                 return false;
             }

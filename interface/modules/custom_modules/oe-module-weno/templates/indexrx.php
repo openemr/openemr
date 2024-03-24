@@ -52,9 +52,6 @@ if (isset($_GET['form_reset_key'])) {
     $isKey = $wenoValidate->validateAdminCredentials(true);
 */
 
-// test if the user has a valid key json.
-$wenoValidate->validateAdminCredentialsJson();
-
 // set up the dependencies for the page.
 $pharmacyService = new PharmacyService();
 $wenoProperties = new TransmitProperties();
@@ -110,22 +107,29 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
     <script>
         $(function () {
             $('#form_reset_key').addClass('d-none');
-        });
         /* Toggle reset button. */
-        <?php if (!$isValidKey) { ?>
-        $(function () {
-            $('#form_reset_key').removeClass('d-none');
-            const warnMsg = "<?php
-                echo xlt('Decryption failed! The Encryption key is incorrect') . "<br>" .
-                xlt('Click newly shown top Reset button to reset your account encryption key.') . "<br>" .
-                xlt('Afterwards you may continue and no other action is required by you.'); ?>";
-            syncAlertMsg(warnMsg, 8000, 'danger', 'lg');
-        });
+        <?php if ((int)$isValidKey > 997) { ?>
+            $(function () {
+                const warnMsg = "<?php echo xlt('Internet connection problem. Returning to Patient chart when alert closes!'); ?>";
+                syncAlertMsg(warnMsg, 8000, 'danger', 'lg').then(() => {
+                    window.location.href = "<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>";
+                });
+            });
+        <?php } else if (!$isValidKey) { ?>
+            $(function () {
+                $('#form_reset_key').removeClass('d-none');
+                const warnMsg = "<?php
+                    echo xlt('Decryption failed! The Encryption key is incorrect') . "<br>" .
+                        xlt('Click newly shown top Reset button to reset your account encryption key.') . "<br>" .
+                        xlt('Afterwards you may continue and no other action is required by you.'); ?>";
+                syncAlertMsg(warnMsg, 8000, 'danger', 'lg');
+            });
         <?php } else { ?>
-        $(function () {
-            $('#form_reset_key').addClass('d-none');
-        });
+                $(function () {
+                    $('#form_reset_key').addClass('d-none');
+                });
         <?php } ?>
+        });
     </script>
 </head>
 <body>

@@ -62,7 +62,7 @@ class WenoValidate extends ModuleService
     /**
      * @return string
      */
-    private function buildVerifyEncryptionKeyXML(): string
+    private function buildVerifyEncryptionKey(): string
     {
         $this->setMessageProperties();
         return "<?xml version='1.0' encoding='utf-8'?>
@@ -89,7 +89,7 @@ class WenoValidate extends ModuleService
     /**
      * @return string
      */
-    private function buildResetEncryptionKeyXML(): string
+    private function buildResetEncryptionKey(): string
     {
         $this->setMessageProperties();
         return "<?xml version='1.0' encoding='utf-8'?>
@@ -140,17 +140,25 @@ class WenoValidate extends ModuleService
     /**
      * @return false|string
      */
-    public function requestEncryptionKeyReset(): false|string
+    public function requestEncryptionKeyReset(): false|int|string
     {
-        $payload = $this->buildResetEncryptionKeyXML();
+        $payload = $this->buildResetEncryptionKey();
         try {
-            $response = $this->sendXMLRequest($payload);
+            $response = $this->sendRequest($payload);
+            // check for wire error
+            if (is_string($response) && (stripos($response, 'connection_problem_') !== false)) {
+                $this->handleValidationFailure('reset_encryption_key', $response);
+                if (stripos($response, 'notconnected') !== false) {
+                    return 999;
+                }
+                return 998;
+            }
             if (isset($response['Body']['Error'])) {
                 $this->handleValidationFailure('reset_encryption_key', $response['Body']['Error']['Description'] ?? 'reset_failed');
                 return false;
             }
-            $newKey = $response['Body']['Success']['NewEncryptionKey'] ?? '';
 
+            $newKey = $response['Body']['Success']['NewEncryptionKey'] ?? '';
             return ($response !== false && !empty($newKey)) ? trim($newKey) : false;
         } catch (GuzzleException $e) {
             // Handle Guzzle Exception
@@ -163,11 +171,19 @@ class WenoValidate extends ModuleService
      */
     public function verifyEncryptionKey(): bool|int|string
     {
-        $payload = $this->buildVerifyEncryptionKeyXML();
+        $payload = $this->buildVerifyEncryptionKey();
         try {
-            $response = $this->sendXMLRequest($payload);
-            $code = $response['Body']['Error']['Code'] ?? '';
+            $response = $this->sendRequest($payload);
+            // check for wire error
+            if (is_string($response) && (stripos($response, 'connection_problem_') !== false)) {
+                $this->handleValidationFailure('verify_encryption_key', $response);
+                if (stripos($response, 'notconnected') !== false) {
+                    return 999;
+                }
+                return 998;
+            }
 
+            $code = $response['Body']['Error']['Code'] ?? '';
             if ($response === false) {
                 $this->handleValidationFailure('verify_encryption_key', 'empty_response');
                 return false;
@@ -194,7 +210,7 @@ class WenoValidate extends ModuleService
      * @param $payload
      * @return array|false
      */
-    private function sendXMLRequest($payload): array|false
+    private function sendRequest($payload): false|array|string
     {
         try {
             $response = $this->client->post($this->requestUrl, [
@@ -215,128 +231,12 @@ class WenoValidate extends ModuleService
                 $result = json_decode(json_encode($result), true); // make associative array.
                 return $result ?: [];
             } else {
-                return false;
+                error_log("invalid_http_status_$httpCode");
+                return "connection_problem_$httpCode";
             }
         } catch (GuzzleException $e) {
-            // Handle Guzzle Exception
-            return false;
-        }
-    }
-
-    // Weno is working to get JSON requests to work!
-    // Retain for future.
-    /**
-     * @param $bodyType
-     * @return string|null
-     */
-    private function buildJsonRequestPayload($bodyType): ?string
-    {
-        $payload = [
-            'MessageType' => [
-                'Header' => [
-                    'MessageID' => $this->messageID,
-                    'SentTime' => date('Y-m-d\TH:i:s.v'),
-                    'AdminUser' => [
-                        'Email' => $this->userEmail,
-                        'MD5Password' => $this->md5UserPassword,
-                    ],
-                    'SenderSoftware' => [
-                        'SenderSoftwareDeveloper' => 'sjpadgett@gmail.com',
-                        'SenderSoftwareProduct' => 'OpenEMR Weno EZ eRx',
-                        'SenderSoftwareVersionRelease' => '7.0.2(1)',
-                    ],
-                ],
-                'Body' => $bodyType,
-            ],
-        ];
-        return json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-    }
-
-    /**
-     * @return false|string
-     */
-    public function requestEncryptionKeyResetJson(): false|string
-    {
-        $this->setMessageProperties();
-        $payload = $this->buildJsonRequestPayload('{"ResetEncKey": "True"}');
-        try {
-            $response = $this->sendRequest($payload);
-            if (isset($response['Body']['Error'])) {
-                $this->handleValidationFailure('reset_encryption_key', $response['Body']['Error']['Description'] ?? 'reset_failed');
-                return false;
-            }
-            $newKey = $response['Body']['Success']['NewEncryptionKey'] ?? '';
-
-            return ($response !== false && !empty($newKey)) ? trim($newKey) : false;
-        } catch (GuzzleException $e) {
-            // Handle Guzzle Exception
-            return false;
-        }
-    }
-
-    /**
-     * @return bool
-     */
-    public function verifyEncryptionKeyJson(): bool
-    {
-        $this->setMessageProperties();
-        $payload = $this->buildJsonRequestPayload('{"ValidateEncKey": "' . $this->encryptionKey . '"}');
-        try {
-            $response = $this->sendRequest($payload);
-            $code = $response['Body']['Error']['Code'] ?? '';
-
-            if ($response === false) {
-                $this->handleValidationFailure('verify_encryption_key', 'empty_response');
-                return false;
-            }
-            // extract the result
-            $valid = $this->extractValidationResult($response);
-            // check for valid response
-            if ($valid === false) {
-                $this->handleValidationFailure('verify_encryption_key', 'invalid_response');
-                return false;
-            } elseif (stripos($valid, 'ERROR') !== false || $code !== '') {
-                $this->handleValidationFailure('verify_encryption_key', $valid);
-                return false;
-            } else {
-                $valid = (strtolower($valid) === 'true') || ($valid == '1') && !empty($valid);
-            }
-            return $valid;
-        } catch (\Exception $e) {
-            // Handle Guzzle Exception
-            return false;
-        }
-    }
-
-    /**
-     * @param string $payload
-     * @return bool|array
-     */
-    private function sendRequest(string $payload): bool|array
-    {
-        try {
-            $response = $this->client->post($this->requestUrl, [
-                'body' => $payload,
-                'headers' => [
-                    'Content-Type' => 'text/json',
-                ],
-            ]);
-            $httpCode = $response->getStatusCode();
-            $isError = false;
-            if ($httpCode >= 200 && $httpCode < 300) {
-                $bodyContent = json_decode($response->getBody()->getContents());
-                $result = json_decode($bodyContent, true);
-                if (is_array($result) && isset($result["MessageType"]["Body"]["Error"])) {
-                    $isError = true;
-                    $errorCode = $result["MessageType"]["Body"]["Error"]["Code"] ?? '';
-                    $errorDescription = $result["MessageType"]["Body"]["Error"]["Description"] ?? '';
-                }
-                return (is_array($result) && !$isError) ? $result : false;
-            } else {
-                return false;
-            }
-        } catch (GuzzleException $e) {
-            return false;
+            error_log($e->getMessage());
+            return 'connection_problem_notconnected';
         }
     }
 
@@ -348,23 +248,11 @@ class WenoValidate extends ModuleService
     {
         $newKey = '';
         $isKeyValid = $this->verifyEncryptionKey();
+        if ($isKeyValid >= 998) {
+            return $isKeyValid;
+        }
         if (!$isKeyValid && $resetOnInvalid) {
             $newKey = $this->requestEncryptionKeyReset();
-            if (!empty($newKey)) {
-                // save new admin production key.
-                $this->setNewEncryptionKey($newKey);
-            }
-        }
-        // return new key or encrypted key status (default).
-        return !empty($newKey) ? trim($newKey) : $isKeyValid;
-    }
-
-    public function validateAdminCredentialsJson($resetOnInvalid = false): bool
-    {
-        $newKey = '';
-        $isKeyValid = $this->verifyEncryptionKeyJson();
-        if (!$isKeyValid && $resetOnInvalid) {
-            $newKey = $this->requestEncryptionKeyResetJson();
             if (!empty($newKey)) {
                 // save new admin production key.
                 $this->setNewEncryptionKey($newKey);
