@@ -1025,91 +1025,100 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                     $temp_track_pass = 1;
                 }
 
-                foreach ($target_dates as $dateFocus) {
-                    //Skip if date is set to SKIP
-                    if ($dateFocus == "SKIP") {
-                        $dateCounter++;
-                        continue;
-                    }
+                // Check if pass filter
+                /*
+                HR: moved the test_filter() check to this location, outside
+                    foreach ($target_dates as $dateFocus)
+                Filters do not need to be tested against each $dateFocus value (see below) and filters were inappropriately failing to evaluate to true when
+                filters were evaluated against $dateFoucs rather than $dateTarget.
+                */
+                $passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateTarget);
+                if ($passFilter === "EXCLUDED") {
+                    // increment EXCLUDED and pass_filter counters
+                    //  and set as FALSE for reminder functionality.
+                    $pass_filter++;
+                    $exclude_filter++;
+                    $passFilter = false;
+                }
 
-                    //Set date counter and reminder token (applicable for reminders only)
-                    if ($dateCounter == 1) {
-                        $reminder_due = "not_due";
-                    } elseif ($dateCounter == 2) {
-                        $reminder_due = "soon_due";
-                    } else { // $dateCounter == 3
-                        $reminder_due = "due";
+                if ($passFilter) {
+                    // increment pass filter counter
+                    $pass_filter++;
+                    // If report itemization is turned on, trigger flag.
+                    if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
+                        $temp_track_pass = 0;
                     }
+                } else {
+                    // did not pass filters.
+                    // skip analysis of individual targets via check on $passFilter below
+                    ;
+                }
 
-                    // Check if pass filter
-                    $passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateFocus);
-                    if ($passFilter === "EXCLUDED") {
-                        // increment EXCLUDED and pass_filter counters
-                        //  and set as FALSE for reminder functionality.
-                        $pass_filter++;
-                        $exclude_filter++;
-                        $passFilter = false;
-                    }
-
-                    if ($passFilter) {
-                        // increment pass filter counter
-                        $pass_filter++;
-                        // If report itemization is turned on, trigger flag.
-                        if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
-                            $temp_track_pass = 0;
-                        }
-                    } else {
-                        $dateCounter++;
-                        continue;
-                    }
-
-                    // Check if pass target
-                    $passTarget = test_targets($rowPatient['pid'], $rowRule['id'], '', $dateFocus);
-                    if ($passTarget) {
-                        // increment pass target counter (used for reporting)
-                        $pass_target++;
-                        // If report itemization is turned on, then record the "passed" item and set the flag
-                        if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
-                            insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $rowPatient['pid']);
-                            $temp_track_pass = 1;
+                if ($passFilter) {
+                    foreach ($target_dates as $dateFocus) {
+                        //Skip if date is set to SKIP
+                        if ($dateFocus == "SKIP") {
+                            $dateCounter++;
+                            continue;
                         }
 
-                        if (
-                            ($mode != "report") &&
-                            (($mode == "reminders-all") || (($mode != "reminders-all") && ($reminder_due != "not_due")))
-                        ) {
-                            // Place the actions into the reminder return array.
-                            // There are 2 reminder modes, reminders-due and reminders-all. The not_due reminders are not
-                            //  shown in reminders-due mode but are shown in reminders-all mode. So this block is skipped
-                            //  if due_status is 'not_due' and mode is not 'reminders-all'.
-                            $actionArray = resolve_action_sql($rowRule['id'], '1');
-                            foreach ($actionArray as $action) {
-                                $action_plus = $action;
-                                $action_plus['due_status'] = $reminder_due;
-                                $action_plus['pid'] = $rowPatient['pid'];
-                                $action_plus['rule_id'] = $rowRule['id'];
-                                $results = reminder_results_integrate($results, $action_plus, $mode);
+                        //Set date counter and reminder token (applicable for reminders only)
+                        if ($dateCounter == 1) {
+                            $reminder_due = "not_due";
+                        } elseif ($dateCounter == 2) {
+                            $reminder_due = "soon_due";
+                        } else { // $dateCounter == 3
+                            $reminder_due = "due";
+                        }
+
+                        // Check if pass target
+                        $passTarget = test_targets($rowPatient['pid'], $rowRule['id'], '', $dateFocus);
+                        if ($passTarget) {
+                            // increment pass target counter (used for reporting)
+                            $pass_target++;
+                            // If report itemization is turned on, then record the "passed" item and set the flag
+                            if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
+                                insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $rowPatient['pid']);
+                                $temp_track_pass = 1;
+                            }
+
+                            if (
+                                ($mode != "report") &&
+                                (($mode == "reminders-all") || (($mode != "reminders-all") && ($reminder_due != "not_due")))
+                            ) {
+                                // Place the actions into the reminder return array.
+                                // There are 2 reminder modes, reminders-due and reminders-all. The not_due reminders are not
+                                //  shown in reminders-due mode but are shown in reminders-all mode. So this block is skipped
+                                //  if due_status is 'not_due' and mode is not 'reminders-all'.
+                                $actionArray = resolve_action_sql($rowRule['id'], '1');
+                                foreach ($actionArray as $action) {
+                                    $action_plus = $action;
+                                    $action_plus['due_status'] = $reminder_due;
+                                    $action_plus['pid'] = $rowPatient['pid'];
+                                    $action_plus['rule_id'] = $rowRule['id'];
+                                    $results = reminder_results_integrate($results, $action_plus, $mode);
+                                }
+                            }
+
+                            break;
+                        } else {
+                            if (($mode != "report") && ($dateCounter == 3)) {
+                                // Did not pass any of the target dates, so place the past_due actions into the reminder
+                                //  return array when runnning in one of the reminders mode (either reminders-due mode
+                                //  or reminders-all mode).
+                                $actionArray = resolve_action_sql($rowRule['id'], '1');
+                                foreach ($actionArray as $action) {
+                                    $action_plus = $action;
+                                    $action_plus['due_status'] = 'past_due';
+                                    $action_plus['pid'] = $rowPatient['pid'];
+                                    $action_plus['rule_id'] = $rowRule['id'];
+                                    $results = reminder_results_integrate($results, $action_plus, $mode);
+                                }
                             }
                         }
 
-                        break;
-                    } else {
-                        if (($mode != "report") && ($dateCounter == 3)) {
-                            // Did not pass any of the target dates, so place the past_due actions into the reminder
-                            //  return array when runnning in one of the reminders mode (either reminders-due mode
-                            //  or reminders-all mode).
-                            $actionArray = resolve_action_sql($rowRule['id'], '1');
-                            foreach ($actionArray as $action) {
-                                $action_plus = $action;
-                                $action_plus['due_status'] = 'past_due';
-                                $action_plus['pid'] = $rowPatient['pid'];
-                                $action_plus['rule_id'] = $rowRule['id'];
-                                $results = reminder_results_integrate($results, $action_plus, $mode);
-                            }
-                        }
+                        $dateCounter++;
                     }
-
-                    $dateCounter++;
                 }
 
                 // If report itemization is turned on, then record the "failed" item if it did not pass
@@ -1160,85 +1169,83 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         $temp_track_pass = 1;
                     }
 
-                    foreach ($target_dates as $dateFocus) {
-                        //Skip if date is set to SKIP
-                        if ($dateFocus == "SKIP") {
-                            $dateCounter++;
-                            continue;
-                        }
+                    $passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateTarget);
+                    if ($passFilter === "EXCLUDED") {
+                        $passFilter = false;
+                    }
 
-                        //Set date counter and reminder token (applicable for reminders only)
-                        if ($dateCounter == 1) {
-                            $reminder_due = "not_due";
-                        } elseif ($dateCounter == 2) {
-                            $reminder_due = "soon_due";
-                        } else { // $dateCounter == 3
-                            $reminder_due = "due";
+                    if ($passFilter) {
+                        // If report itemization is turned on, trigger flag.
+                        if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
+                            $temp_track_pass = 0;
                         }
+                    }
 
-                        // Check if pass filter
-                        $passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateFocus);
-                        if ($passFilter === "EXCLUDED") {
-                            $passFilter = false;
-                        }
-
-                        if (!$passFilter) {
-                            $dateCounter++;
-                            continue;
-                        } else {
-                            // If report itemization is turned on, trigger flag.
-                            if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
-                                $temp_track_pass = 0;
-                            }
-                        }
-
-                        //Check if pass target
-                        $passTarget = test_targets($rowPatient['pid'], $rowRule['id'], $i, $dateFocus);
-                        if ($passTarget) {
-                            // increment pass target counter (used for reporting)
-                            $pass_target++;
-                            // If report itemization is turned on, then record the "passed" item and set the flag
-                            if ($GLOBALS['report_itemizing_temp_flag_and_id'] ?? null) {
-                                insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $rowPatient['pid']);
-                                $temp_track_pass = 1;
+                    if ($passFilter) {
+                        foreach ($target_dates as $dateFocus) {
+                            //Skip if date is set to SKIP
+                            if ($dateFocus == "SKIP") {
+                                $dateCounter++;
+                                continue;
                             }
 
-                            if (
-                                ($mode != "report") &&
-                                (($mode == "reminders-all") || (($mode != "reminders-all") && ($reminder_due != "not_due")))
-                            ) {
-                                // Place the actions into the reminder return array.
-                                // There are 2 reminder modes, reminders-due and reminders-all. The not_due reminders are not
-                                //  shown in reminders-due mode but are shown in reminders-all mode. So this block is skipped
-                                //  if due_status is 'not_due' and mode is not 'reminders-all'.
-                                $actionArray = resolve_action_sql($rowRule['id'], $i);
-                                foreach ($actionArray as $action) {
-                                    $action_plus = $action;
-                                    $action_plus['due_status'] = $reminder_due;
-                                    $action_plus['pid'] = $rowPatient['pid'];
-                                    $action_plus['rule_id'] = $rowRule['id'];
-                                    $results = reminder_results_integrate($results, $action_plus, $mode);
+                            //Set date counter and reminder token (applicable for reminders only)
+                            if ($dateCounter == 1) {
+                                $reminder_due = "not_due";
+                            } elseif ($dateCounter == 2) {
+                                $reminder_due = "soon_due";
+                            } else { // $dateCounter == 3
+                                $reminder_due = "due";
+                            }
+
+                            //Check if pass target
+                            $passTarget = test_targets($rowPatient['pid'], $rowRule['id'], $i, $dateFocus);
+                            if ($passTarget) {
+                                // increment pass target counter (used for reporting)
+                                $pass_target++;
+                                // If report itemization is turned on, then record the "passed" item and set the flag
+                                if ($GLOBALS['report_itemizing_temp_flag_and_id'] ?? null) {
+                                    insertItemReportTracker($GLOBALS['report_itemizing_temp_flag_and_id'], $GLOBALS['report_itemized_test_id_iterator'], 1, $rowPatient['pid']);
+                                    $temp_track_pass = 1;
+                                }
+
+                                if (
+                                    ($mode != "report") &&
+                                    (($mode == "reminders-all") || (($mode != "reminders-all") && ($reminder_due != "not_due")))
+                                ) {
+                                    // Place the actions into the reminder return array.
+                                    // There are 2 reminder modes, reminders-due and reminders-all. The not_due reminders are not
+                                    //  shown in reminders-due mode but are shown in reminders-all mode. So this block is skipped
+                                    //  if due_status is 'not_due' and mode is not 'reminders-all'.
+                                    $actionArray = resolve_action_sql($rowRule['id'], $i);
+                                    foreach ($actionArray as $action) {
+                                        $action_plus = $action;
+                                        $action_plus['due_status'] = $reminder_due;
+                                        $action_plus['pid'] = $rowPatient['pid'];
+                                        $action_plus['rule_id'] = $rowRule['id'];
+                                        $results = reminder_results_integrate($results, $action_plus, $mode);
+                                    }
+                                }
+
+                                break;
+                            } else {
+                                if (($mode != "report") && ($dateCounter == 3)) {
+                                    // Did not pass any of the target dates, so place the past_due actions into the reminder
+                                    //  return array when runnning in one of the reminders mode (either reminders-due mode
+                                    //  or reminders-all mode).
+                                    $actionArray = resolve_action_sql($rowRule['id'], $i);
+                                    foreach ($actionArray as $action) {
+                                        $action_plus = $action;
+                                        $action_plus['due_status'] = 'past_due';
+                                        $action_plus['pid'] = $rowPatient['pid'];
+                                        $action_plus['rule_id'] = $rowRule['id'];
+                                        $results = reminder_results_integrate($results, $action_plus, $mode);
+                                    }
                                 }
                             }
 
-                            break;
-                        } else {
-                            if (($mode != "report") && ($dateCounter == 3)) {
-                                // Did not pass any of the target dates, so place the past_due actions into the reminder
-                                //  return array when runnning in one of the reminders mode (either reminders-due mode
-                                //  or reminders-all mode).
-                                $actionArray = resolve_action_sql($rowRule['id'], $i);
-                                foreach ($actionArray as $action) {
-                                    $action_plus = $action;
-                                    $action_plus['due_status'] = 'past_due';
-                                    $action_plus['pid'] = $rowPatient['pid'];
-                                    $action_plus['rule_id'] = $rowRule['id'];
-                                    $results = reminder_results_integrate($results, $action_plus, $mode);
-                                }
-                            }
+                            $dateCounter++;
                         }
-
-                        $dateCounter++;
                     }
 
                     // If report itemization is turned on, then record the "failed" item if it did not pass
