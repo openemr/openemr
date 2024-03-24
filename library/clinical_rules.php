@@ -1048,13 +1048,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                     if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
                         $temp_track_pass = 0;
                     }
-                } else {
-                    // did not pass filters.
-                    // skip analysis of individual targets via check on $passFilter below
-                    ;
-                }
 
-                if ($passFilter) {
                     foreach ($target_dates as $dateFocus) {
                         //Skip if date is set to SKIP
                         if ($dateFocus == "SKIP") {
@@ -1169,6 +1163,13 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         $temp_track_pass = 1;
                     }
 
+                    // Check if pass filter
+                    /*
+                    HR: moved the test_filter() check to this location, outside
+                        foreach ($target_dates as $dateFocus)
+                    Filters do not need to be tested against each $dateFocus value (see below) and filters were inappropriately failing to evaluate to true when
+                    filters were evaluated against $dateFoucs rather than $dateTarget.
+                    */
                     $passFilter = test_filter($rowPatient['pid'], $rowRule['id'], $dateTarget);
                     if ($passFilter === "EXCLUDED") {
                         $passFilter = false;
@@ -1179,9 +1180,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                         if (!empty($GLOBALS['report_itemizing_temp_flag_and_id'])) {
                             $temp_track_pass = 0;
                         }
-                    }
 
-                    if ($passFilter) {
                         foreach ($target_dates as $dateFocus) {
                             //Skip if date is set to SKIP
                             if ($dateFocus == "SKIP") {
