@@ -5,6 +5,7 @@ require_once(dirname(__DIR__, 4) . "/globals.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     // renders in MM iFrame
@@ -12,32 +13,165 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     exit;
 }
 
+$logService = new WenoLogService();
+$pres_log = $logService->getLastPrescriptionLogStatus();
+$pharm_log = $logService->getLastPharmacyDownloadStatus();
+
 $startDate = $_GET['startDate'] ?? date('m/d/Y'); // just default to today
 $endDate = $_GET['endDate'] ?? date('m/d/Y');
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo xlt('Weno Log'); ?></title>
+    <title><?php echo xlt('Weno Downloads'); ?></title>
     <?php Header::setupHeader(['datetime-picker']); ?>
-</head>
-<script>
-    $(function () {
-        $('.datepicker').datetimepicker({
-            <?php $datetimepicker_timepicker = false; ?>
-            <?php $datetimepicker_showseconds = false; ?>
-            <?php $datetimepicker_formatInput = true; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <style>
+      .hide {
+        display: none;
+      }
+    </style>
+    <script>
+        $(function () {
+            $('.datepicker').datetimepicker({
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
+                <?php $datetimepicker_formatInput = true; ?>
+                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            });
         });
-    });
-</script>
+    </script>
+    <script>
+        function downloadPharmacies(){
+            if (!window.confirm(
+                xl("This download may take several minutes depending on connection speed but normally is under one minute. Do you want to continue?")
+            )) {
+                return false;
+            }
+            $('#notch-pharm').removeClass("hide");
+            $('#pharm-btn').attr("disabled", true);
+            $.ajax({
+                url: "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/scripts/file_download.php",
+                type: "GET",
+                success: function (data) {
+                    if (data.includes('Error') || data.includes('failed')) {
+                        let alertDiv = document.getElementById('alertDiv');
+                        let errorMsgSpan = document.getElementById('error-msg');
+                        errorMsgSpan.textContent = jsText(data);
+                        $("#alertDiv").removeClass("d-none");
+                        setTimeout(function() {
+                            window.location.replace(window.location.href);
+                        }, 10000);
+                    }
+                    $('#notch-pharm').addClass("hide");
+                    $('#pharm-btn').attr("disabled", false);
+                    if (!data.includes('Error') && !data.includes('failed')) {
+                        alert('Update Complete');
+                        window.location.replace(window.location.href);
+                    }
+                },
+                // Error handling
+                error: function (error) {
+                    $('#notch-pharm').addClass("hide");
+                    $('#pharm-btn').attr("disabled", false);
+                    console.log(`Error ${error}`);
+                    window.location.replace(window.location.href);
+                }
+            });
+        }
+        function downloadPresLog(){
+            $('#notch-presc').removeClass("hide");
+            $('#presc-btn').attr("disabled", true);
+            $.ajax({
+                url: "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/templates/synch.php",
+                type: "GET",
+                data: {key:'downloadLog'},
+                success: function (data) {
+                    if (data.includes('Error') || data.includes('failed')) {
+                        let alertDiv = document.getElementById('alertDiv');
+                        let errorMsgSpan = document.getElementById('error-msg');
+                        errorMsgSpan.textContent = jsText(data);
+                        $("#alertDiv").removeClass("d-none");
+                        setTimeout(function() {
+                            window.location.replace(window.location.href);
+                        }, 10000);
+                    }
+                    $('#notch-presc').addClass("hide");
+                    $('#presc-btn').attr("disabled", false);
+                    if (!data.includes('Error') && !data.includes('failed')) {
+                        alert('Update Complete');
+                        window.location.replace(window.location.href);
+                    }
+                },
+                // Error handling
+                error: function (error) {
+                    $('#notch-presc').addClass("hide");
+                    $('#presc-btn').attr("disabled", false);
+                    console.log(`Error ${error}`);
+                    window.location.replace(window.location.href);
+                }
+            });
+        }
+    </script>
+</head>
 <body>
-    <div class="container mt-5">
-        <h1 class="mb-0"><?php echo xlt('Weno Download Log'); ?></h1>
-        <cite class="h6 text-warning p-1 mx-1">
+    <div class="container mt-2">
+        <h1><?php print xlt("Weno Downloads Management") ?></h1>
+    </div>
+    <div class="container mt-3" id="pharmacy">
+        <h3><?php print xlt("Weno Downloads") ?></h3>
+        <div>
+            <cite class="text-info text-center p-1 mx-1"><?php echo xlt("Use this section to download Weno Pharmacy Directory and Weno Prescription Log"); ?></cite>
+        </div>
+        <div id="alertDiv" class="alert alert-danger d-none">
+            <button type="button" class="close" onclick="window.location.replace(window.location.href);">&times;</button>
+            <strong><?php echo xlt("Error!"); ?></strong>
+            <span id="error-msg"></span>
+        </div>
+        <table class="table table-sm mt-3">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col"><?php echo xlt("Description"); ?></th>
+                <th scope="col"><?php echo xlt("Last Update"); ?></th>
+                <th scope="col"><?php echo xlt("Status"); ?></th>
+                <th scope="col"><?php echo xlt("Action"); ?></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th scope="row">1</th>
+                <td><?php echo xlt("Weno Pharmacy Directory"); ?></td>
+                <td><?php echo text($pharm_log['created_at'] ?? ''); ?></td>
+                <td><?php echo xlt($pharm_log['status'] ?? ''); ?></td>
+                <td>
+                    <button type="button" id="btn-pharm" onclick="downloadPharmacies();" class="btn btn-primary btn-sm">
+                        <?php echo xlt("Download") ?>
+                        <span class="hide" id="notch-pharm">
+                                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                            </span>
+                    </button>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">2</th>
+                <td><?php echo xlt("Prescription log"); ?></td>
+                <td><?php echo text($pres_log['created_at'] ?? ''); ?></td>
+                <td><?php echo xlt($pres_log['status'] ?? ''); ?></td>
+                <td>
+                    <button type="button" id="presc-btn" onclick="downloadPresLog();" class="btn btn-primary btn-sm">
+                        <?php echo xlt("Download") ?>
+                        <span class="hide" id="notch-presc"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
+                    </button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="container mt-2">
+        <h3 class="mb-0"><?php echo xlt('Weno Download Log'); ?></h3>
+        <cite class="h6 text-info p-1 mx-1">
             <span><?php echo xlt("Note: Only prescription logs are deleted. Pharmacy status and errors are preserved."); ?></span>
         </cite>
         <form method="GET" class="mt-4 mb-2">
@@ -57,7 +191,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
                         <button type="submit" onclick="function areYouSure() {
                             top.restoreSession();
                             return confirm('<?php echo xlt("Are you sure you want to delete date range logs?"); ?>');
-                        } return areYouSure();" name="delete" class="btn btn-danger"><?php echo xlt("Delete Date Range"); ?></button>
+                            } return areYouSure();" name="delete" class="btn btn-danger"><?php echo xlt("Delete Date Range"); ?></button>
                     </div>
                 </div>
             </div>
@@ -95,7 +229,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             // Display logs in a table
             if ($result ?? false) {
                 echo '<div class="table-responsive">';
-                echo '<table class="table table-bordered">';
+                echo '<table class="table table-hover table-striped table-sm">';
                 echo '<thead>';
                 echo '<tr>';
                 echo '<th>' . xlt("ID") . '</th>';

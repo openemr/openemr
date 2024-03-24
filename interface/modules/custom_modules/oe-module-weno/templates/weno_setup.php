@@ -145,20 +145,18 @@ $vendors = $boot->getVendorGlobals();
             <div id="collapseOne" class="card-body collapse" data-parent="#accordion">
                 <!-- Currently no plans to translate. -->
                 <?php
-                echo nl2br(text("There are three sections within the Weno eRx Service Admin Setup that allow the user to setup almost all the necessary settings to successfully start e-prescribing. The only other item is that each Weno prescriber credentials are set up in their User Settings.
-
+                echo nl2br(text("This page is enabled in Module Config and at Admin->Weno eRx Tools->Weno eRx Service after module is enabled.\nThere are three sections within the Weno eRx Service Admin Setup that allow the user to setup almost all the necessary settings to successfully start e-prescribing. An additional item is each Weno prescriber credentials are set up in their individual User Settings.\n
 *** The Weno Primary Admin Section.
 - All values must be entered and validated.
 - If validation fails because either email and/or password are invalid an alert will be shown stating such.
-- If the encryption key is deemed invalid an alert will show and a new Encryption Reset button enabled. First try re-entering the key but if that doesn't work clicking the Reset button will create a new key. This change will also be reflected in the Admins main Weno account and no other actions are needed by the user. You may look on the key as an API token which may be a more familiar term to the reader.
-
+- If the encryption key is deemed invalid then an alert will show and the Encryption Reset button is enabled. First try re-entering the key but if that doesn't work then clicking the Reset button will create a new key. This change will also be reflected in the Admins main Weno account and no other actions are required by the user. You may look on the key as an API token which may be a more familiar term to the reader.\n
 *** The Map Weno User Id`s (Required)  Section.
 - This section presents a table of all authorised users showing their default facility if assigned and an input field to enter their Weno user id Uxxxx. This value is important in order to form a relationship between Weno and the OpenEMR user for tracking prescriptions.
 - All values are automatically saved for the user whenever the Weno Provider ID is entered or changed.
-- As a convenience, an edit button is supplied to present a dialog containing the Users settings in edit mode. From here user may edit any setting such as assigning a default facility. This would be the same as accessing Users from top menu Admin->Users selected provider.
-
+- As a convenience, an edit button is supplied to present a dialog containing the Users settings in edit mode. From here user may edit any setting such as assigning a default facility. This would be the same as accessing Users from top menu Admin->Users selected provider.\n
 *** The Map Weno Facility Id`s (Required)  Section.
-- This section is pretty self explanatory with perhaps noting this same data may be accessed from top menu Admin->Other->Weno Management as explained below.
+- This section is pretty self explanatory with perhaps noting this same data may be accessed from top menu Admin->Weno eRx Tools->Weno eRx Service.
+- It is important to note that the prescribing user should have their default facility set in their User settings. This is the same as the Weno User ID section in that it is required to form a relationship between Weno and the OpenEMR facility for tracking prescriptions.
 - This section also auto saves for convenience."));
                 ?>
             </div>

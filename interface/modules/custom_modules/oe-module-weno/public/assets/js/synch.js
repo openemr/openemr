@@ -38,7 +38,7 @@ function wenoAlertManager(option, element, spinElement) {
                 element.classList.add("d-none");
                 element.classList.remove("alert", "alert-success");
                 element.innerHTML = "";
-                window.location.replace(window.location.href + "?sync=success")
+                window.location.replace(window.location.href)
             }, 3000
         );
 
@@ -64,7 +64,7 @@ function renderDialog(action, uid, event) {
     const urls = {
         'demographics': '/interface/patient_file/summary/demographics_full.php',
         'user_settings': '/interface/super/edit_globals.php?mode=user',
-        'weno_manage': '/interface/modules/custom_modules/oe-module-weno/templates/facilities.php',
+        'weno_manage': '/interface/modules/custom_modules/oe-module-weno/templates/weno_setup.php',
         'users': '/interface/usergroup/user_admin.php'
     };
     if (urls[action] === undefined) {

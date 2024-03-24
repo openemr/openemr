@@ -233,41 +233,26 @@ class Bootstrap
         $topMenu->children = [];
         $topMenu->acl_req = ["admin", "super"];
         $topMenu->global_req = ["weno_rx_enable"];
-
         //Prescription Log
         $menuItem = new \stdClass();
         $menuItem->requirement = 0;
         $menuItem->target = 'rep';
         $menuItem->menu_id = 'rep0';
-        $menuItem->label = xlt("Online Prescription Log");
+        $menuItem->label = xlt("Weno Prescription Log");
         $menuItem->url = "/interface/modules/custom_modules/oe-module-weno/templates/rxlogmanager.php";
         $menuItem->children = [];
         $menuItem->acl_req = ["patients", "rx"];
         $menuItem->global_req = ["weno_rx_enable"];
-
-
-        //Weno Management
-        $mgtMenu = new \stdClass();
-        $mgtMenu->requirement = 0;
-        $mgtMenu->target = 'adm0';
-        $mgtMenu->menu_id = 'adm';
-        $mgtMenu->label = xlt("Locations and Downloads");
-        $mgtMenu->url = "/interface/modules/custom_modules/oe-module-weno/templates/facilities.php";
-        $mgtMenu->children = [];
-        $mgtMenu->acl_req = ["admin", "super"];
-        $mgtMenu->global_req = ["weno_rx_enable"];
-
         //Weno log
         $dlMenu = new \stdClass();
         $dlMenu->requirement = 0;
         $dlMenu->target = 'adm1';
         $dlMenu->menu_id = 'adm';
-        $dlMenu->label = xlt("Manage Download Log");
+        $dlMenu->label = xlt("Weno Downloads Management");
         $dlMenu->url = "/interface/modules/custom_modules/oe-module-weno/templates/download_log_viewer.php";
         $dlMenu->children = [];
         $dlMenu->acl_req = ["admin", "super"];
         $dlMenu->global_req = ["weno_rx_enable"];
-
         //Weno Setup
         $setupMenu = new \stdClass();
         $setupMenu->requirement = 0;
@@ -278,16 +263,22 @@ class Bootstrap
         $setupMenu->children = [];
         $setupMenu->acl_req = ["admin", "super"];
         $setupMenu->global_req = ["weno_rx_enable"];
-
+        // Write the menu items to the menu
         foreach ($menu as $item) {
             if ($item->menu_id == 'admimg') {
                 $item->children[] = $topMenu;
                 foreach ($item->children as $other) {
                     if ($other->label == 'Weno eRx Tools') {
-                        $other->children[] = $menuItem;
-                        $other->children[] = $setupMenu;
-                        $other->children[] = $mgtMenu;
                         $other->children[] = $dlMenu;
+                        $other->children[] = $setupMenu;
+                        break;
+                    }
+                }
+            }
+            if ($item->menu_id == 'repimg') {
+                foreach ($item->children as $clientReport) {
+                    if ($clientReport->label == 'Clients') {
+                        $clientReport->children[] = $menuItem;
                         break;
                     }
                 }

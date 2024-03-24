@@ -322,7 +322,7 @@ insurance;
             }
             if (empty($default_facility['weno_id'])) {
                 // still no joy so let user know and get it set!
-                $default_facility['error'] = "REQED:{weno_manage}" . xlt('Facility ID is missing. From Admin select Other then Weno Management. Enter the Weno ID of your facility');
+                $default_facility['error'] = "REQED:{weno_manage}" . xlt('Facility ID is missing. From Admin select Weno eRx Tools then Weno eRx Service Setup. Enter the Weno ID of your facility');
             }
             return $default_facility;
         }
