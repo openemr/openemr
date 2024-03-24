@@ -355,8 +355,11 @@ $partners = $x->_utility_array($x->x12_partner_factory());
         // Process a click to go to an patient.
         function topatient(pid, pubpid, pname, enc, datestr, dobstr) {
             top.restoreSession();
-            paturl = 'patient_file/summary/demographics_full.php?pid=' + encodeURIComponent(pid);
+            paturl = 'patient_file/summary/insurance_edit.php?pid=' + encodeURIComponent(pid);
             parent.left_nav.setPatient(pname, pid, pubpid, '', dobstr);
+            parent.left_nav.loadFrame('ens1', 'enc',
+                'patient_file/history/encounters.php?pid=' + encodeURIComponent(pid));
+            parent.left_nav.loadFrame('dem1', 'pat', paturl);
         }
 
         function popMBO(pid, enc, mboid) {
