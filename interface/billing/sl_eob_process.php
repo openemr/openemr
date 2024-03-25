@@ -345,7 +345,7 @@ function era_callback(&$out)
             writeMessageLine($bgcolor, 'infdetail', rtrim($out['warnings']), true);
         }
 
-    // Simplify some claim attributes for cleaner code.
+        // Simplify some claim attributes for cleaner code.
         $service_date = parse_date(isset($out['dos']) ? $out['dos'] : $out['claim_date']);
         $check_date      = $paydate ? $paydate : parse_date($out['check_date']);
         $production_date = $paydate ? $paydate : parse_date($out['production_date']);
@@ -359,7 +359,19 @@ function era_callback(&$out)
 
         $error = $inverror;
 
-    // This loops once for each service item in this claim.
+        // create array of cpts and mods for complex matching
+        $codes_arr_keys = array_keys($codes);
+        foreach ($codes_arr_keys as $key => $value) {
+            $tmp = explode(":", $value);
+            $count = count($tmp) - 1;
+            $cpt = $tmp[0];
+            $cpts[] = $cpt;
+            for ($i = 1; $i <= $count; $i++) {
+                $mods[$cpt][] = $tmp[$i] ?? null;
+            }
+        }
+
+        // This loops once for each service item in this claim.
         foreach ($out['svc'] as $svc) {
           // Treat a modifier in the remit data as part of the procedure key.
           // This key will then make its way into SQL-Ledger.
@@ -369,6 +381,21 @@ function era_callback(&$out)
             }
 
             $prev = $codes[$codekey] ?? '';
+            // However sometimes a secondary insurance (take USAA LIFE for instance)
+            // sometimes doesn't return the modifier that was on the service item
+            // processed by the primary payer so try to deal with that
+            if (!$prev) {
+                if (!$svc['mod']) {
+                    if (in_array($svc['code'], $cpts)) {
+                        foreach ($cpts as $k => $v) {
+                            if ($v == $codekey) {
+                                $codekey = $cpt . ':' . implode(':', $mods[$v]);
+                            }
+                        }
+                    }
+                }
+                $prev = $codes[$codekey] ?? '';
+            }
             $codetype = ''; //will hold code type, if exists
 
             // This reports detail lines already on file for this service item.
