@@ -416,9 +416,15 @@ function era_callback(&$out)
                 unset($codes[$codekey]);
             } else { // If the service item is not in our database...
                 // This is not an error. If we are not in error mode and not debugging,
-                // insert the service item into SL.  Then display it (in green if it
+                // insert the service item into billing. Then display it (in green if it
                 // was inserted, or in red if we are in error mode).
-                $description = "CPT4:$codekey Added by $inslabel $production_date";
+                // Check the global to see if this is preferred to be an error.
+                if ($GLOBALS['add_unmatched_code_from_ins_co_era_to_billing'] ?? '') {
+                    $description = "CPT4:$codekey Added by $inslabel $production_date";
+                } else {
+                    $error = true;
+                    $description = "CPT4:$codekey returned by $inslabel $production_date";
+                }
                 if (!$error && !$debug) {
                     SLEOB::arPostCharge(
                         $pid,
