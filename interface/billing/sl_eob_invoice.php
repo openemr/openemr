@@ -431,7 +431,7 @@ if (!empty($_POST['form_save']) || !empty($_POST['form_cancel']) || !empty($_POS
         }
 
         if ($_POST['enc_billing_note']) {
-            // save last closed level
+            // save enc billing note
             sqlStatement("UPDATE form_encounter SET billing_note = ? WHERE pid = ? AND encounter = ?", array($_POST['enc_billing_note'], $patient_id, $encounter_id));
         }
 
