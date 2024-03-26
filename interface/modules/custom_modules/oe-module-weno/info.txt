@@ -1,1 +1,1 @@
-Weno EZ Integration eRx Module v1.2.0
+Weno EZ Integration eRx Module v1.0.0

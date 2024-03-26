@@ -21,16 +21,14 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
     exit;
 }
 
-$logService = new WenoLogService();
-$pharmacy_log = $logService->getLastPharmacyDownloadStatus();
-
 $validate = new TransmitProperties(true);
 $validate_errors = "";
 $cite = '';
 
 $logService = new WenoLogService();
 $pharmacyLog = $logService->getLastPharmacyDownloadStatus();
-$status = xlt("Last pharmacy update failed! Current count") . ": " . text($pharmacyLog['count'] ?? 0) . ". " . "Last success was" . ": " . text($pharmacyLog['created_at'] ?? '');
+
+$status = xlt("Last pharmacy update failed! Status") . ": " . text($pharmacyLog['status'] ?? '') . ". " . xlt("Current number of Pharmacies available") . ": " . text($pharmacyLog['count'] ?? 0) . " " . xlt("that is from last successful update on") . ": " . text($pharmacyLog['created_at'] ?? '');
 $cite = <<<CITE
 <cite class="h6 text-danger p-1 mt-1">
     <span>$status</span>
