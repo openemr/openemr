@@ -9,7 +9,7 @@
  * @author    Vipin Kumar <vipink@zhservices.com>
  * @author    Remesh Babu S <remesh@zhservices.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2020-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2013 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -246,10 +246,6 @@ class InstModuleTable
     /**
      * this will be used to register a module
      *
-     * @param unknown_type $directory
-     * @param unknown_type $rel_path
-     * @param unknown_type $state
-     * @param unknown_type $base
      * @return boolean
      */
     public function register($directory, $rel_path, $state = 0, $base = "custom_modules")
@@ -420,9 +416,7 @@ class InstModuleTable
                 $results = $this->applicationTable->zQuery($sql, $params);
             }
         } else {
-            $sql = "UPDATE modules SET sql_run=1, mod_nick_name=?, mod_enc_menu=?,
-                                 date=NOW(), sql_version = ?, acl_version = ?
-                             WHERE mod_id = ?";
+            $sql = "UPDATE modules SET sql_run=1, mod_nick_name=?, mod_enc_menu=?, date=NOW(), sql_version = ?, acl_version = ? WHERE mod_id = ?";
             $params = array(
                 $values[0],
                 $values[1],

@@ -196,9 +196,11 @@ class TransmitProperties
         $wenObj['PrimaryPhone'] = $phonePrimary;
         $wenObj['SupportsSMS'] = 'Y';
 
-        $wenObj['PatientHeight'] = substr($this->vitals['height'] ?? '', 0, -3);
-        $wenObj['PatientWeight'] = substr($this->vitals['weight'] ?? '', 0, -3);
-        $wenObj['HeightWeightObservationDate'] = $heightDate[0];
+        if ($age < 19) {
+            $wenObj['PatientHeight'] = substr($this->vitals['height'] ?? '', 0, -3);
+            $wenObj['PatientWeight'] = substr($this->vitals['weight'] ?? '', 0, -3);
+            $wenObj['HeightWeightObservationDate'] = $heightDate[0];
+        }
         $wenObj["ResponsiblePartySameAsPatient"] = $age < 19 ? 'N' : 'Y';
         if ($age < 19 && !empty($this->responsibleParty)) {
             $wenObj['ResponsiblePartyLastName'] = $this->responsibleParty['ResponsiblePartyLastName'];
@@ -299,7 +301,7 @@ insurance;
      */
     public function getFacilityInfo(): array|null|false
     {
-        // is user logged into facility
+        // is user logged into a facility
         if (!empty($_SESSION['facilityId'])) {
             $locId = sqlQuery("select name, street, city, state, postal_code, phone, fax, weno_id from facility where id = ?", [$_SESSION['facilityId'] ?? null]);
         } else {
@@ -308,15 +310,23 @@ insurance;
             $locId = $facilityService->getFacilityForUser($_SESSION['authUserID']);
         }
 
-        if (empty($locId['weno_id'])) {
-            //if not in an encounter then get the first facility location id as default
-            $default_facility = sqlQuery("SELECT name, street, city, state, postal_code, phone, fax, weno_id from facility order by id limit 1");
-
+        if (empty($locId['weno_id'] ?? '')) {
+            if (!empty($locId['id'])) {
+                // weno_id is not set in service so at least we have their facility id
+                // so we'll look if it's set there anyway. Bottom line is get users default facility.
+                $default_facility = sqlQuery("SELECT name, street, city, state, postal_code, phone, fax, weno_id from facility where `id` = ? limit 1", [$locId['id']]);
+            }
+            if (empty($default_facility['weno_id'] ?? '')) {
+                //if no default for user then get the first facility location id as default
+                $default_facility = sqlQuery("SELECT name, street, city, state, postal_code, phone, fax, weno_id from facility order by id limit 1");
+            }
             if (empty($default_facility['weno_id'])) {
-                $default_facility['error'] = "REQED:{weno_manage}" . xlt('Facility ID is missing. From Admin select Other then Weno Management. Enter the Weno ID of your facility');
+                // still no joy so let user know and get it set!
+                $default_facility['error'] = "REQED:{weno_manage}" . xlt('Facility ID is missing. From Admin select Weno eRx Tools then Weno eRx Service Setup. Enter the Weno ID of your facility');
             }
             return $default_facility;
         }
+
         return $locId;
     }
 
@@ -429,9 +439,18 @@ insurance;
     {
         $vitals = sqlQuery("SELECT date, height, weight FROM form_vitals WHERE pid = ? ORDER BY id DESC", [$_SESSION["pid"] ?? null]);
         // Check if vitals are empty or missing height and weight
-        if (empty($vitals) || ($vitals['height'] <= 0) || ($vitals['weight'] <= 0)) {
-            return [
-                "REQED:{vitals}" . xlt("A Vitals Height and Weight are required to transmit a prescription. Create or add Vitals in an encounter.")
+        $patient = $this->getPatientInfo();
+        if (self::getAge($patient['dob']) < 19) {
+            if (empty($vitals) || ($vitals['height'] <= 0) || ($vitals['weight'] <= 0)) {
+                return [
+                    "REQED:{vitals}" . xlt("Vitals Height and Weight required for patient under 19 yo. Create or add Vitals in an encounter.")
+                ];
+            }
+        } elseif (empty($vitals)) {
+            $vitals = [
+               "date" => date('Y-m-d H:i:s'),
+               "height" => 0,
+               "weight" => 0
             ];
         }
         return $vitals;
@@ -509,19 +528,19 @@ insurance;
         if (empty($id)) {
             $id = $_SESSION['authUserID'] ?? '';
         }
-        // get the weno provider id from the user table (weno_prov_id
+        // get the weno provider id from the user table (weno_prov_id)
         $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
         if (!empty(trim($provider['weno_prov_id'] ?? ''))) {
-            $doIt = $GLOBALS['weno_provider_uid'] != trim($provider['weno_prov_id']);
+            $doIt = ($GLOBALS['weno_provider_uid'] ?? '') != trim($provider['weno_prov_id']);
             if ($doIt) {
                 $GLOBALS['weno_provider_uid'] = trim($provider['weno_prov_id']);
                 $sql = "UPDATE `user_settings` SET `setting_value` = ? WHERE `setting_user` = ? AND `setting_label` = 'global:weno_provider_uid'";
-                //sqlQuery($sql, [$GLOBALS['weno_provider_uid'], $_SESSION['authUserID']]);
+                sqlQuery($sql, [$GLOBALS['weno_provider_uid'], $_SESSION['authUserID']]);
             }
             return $provider['weno_prov_id'];
         } elseif (!empty($GLOBALS['weno_provider_uid'])) { // if not in user table then check globals
-            // update user table with weno provider id
-            //sqlQuery("UPDATE `users` SET `weno_prov_id` = ? WHERE `id` = ? OR `weno_prov_id` = ?", [$GLOBALS['weno_provider_uid'], $id, $id]);
+            //update user table with weno provider id
+            sqlQuery("UPDATE `users` SET `weno_prov_id` = ? WHERE `id` = ? OR `weno_prov_id` = ?", [$GLOBALS['weno_provider_uid'], $id, $id]);
             return $GLOBALS['weno_provider_uid'];
         } else {
             return "REQED:{users}" . xlt("Weno Provider Id missing. Select Admin then Users and edit the user to add Weno Provider Id");

@@ -19,7 +19,7 @@ function register(status, title, name, method, type) {
             if (data == "Success") {
                 window.location.reload();
             } else {
-                var resultTranslated = js_xl(data);
+                const resultTranslated = js_xl(data);
                 $('#err').html(resultTranslated.msg).fadeIn().delay(2000).fadeOut();
             }
         }

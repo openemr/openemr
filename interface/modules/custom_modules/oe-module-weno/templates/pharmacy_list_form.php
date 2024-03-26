@@ -222,40 +222,43 @@ $error = false;
 
     function pharmSelChanged() {
         const e = document.getElementById("weno_pharmacy");
-        this.wenoValChanged = e.options[e.selectedIndex].value;
-        this.wenoPrimPharm = e.options[e.selectedIndex].text;
+        this.wenoValChanged = e ? e.options[e.selectedIndex].value : '';
+        this.wenoPrimPharm = e ? e.options[e.selectedIndex].text : '';
     }
 
     function zipChanged() {
-        var wenoZip = document.getElementById('weno_zipcode').selectedOptions[0].value;
-        this.wenoZipCode = wenoZip;
+        var wenoZip = document.getElementById('weno_zipcode').value;
+        this.wenoZipCode = wenoZip ? wenoZip : '';
+
+        $('#weno_zipcode').removeClass("is-invalid");
+        $('.warn').text('');
     }
 
     function stateChanged() {
-        var wenoState = document.getElementById('weno_state').selectedOptions[0].value;
-        this.wenoState = wenoState;
+        var wenoState = document.getElementById('weno_state').selectedOptions[0];
+        this.wenoState = wenoState ? wenoState.value : '';
     }
 
     function cityChanged() {
-        var wenoCity = document.getElementById('weno_city').selectedOptions[0].value;
-        this.wenoCity = wenoCity;
+        var wenoCity = document.getElementById('weno_city').selectedOptions[0];
+        this.wenoCity = wenoCity ? wenoCity.value : '';
     }
 
     function onWenoChanged(cb) {
-        this.wenoOnly = cb.checked;
+        this.wenoOnly = cb ? cb.checked : false;
     }
 
     function coverageChanged() {
-        var coverage = document.getElementById('weno_coverage').selectedOptions[0].value;
-        this.coverage = coverage;
+        var coverage = document.getElementById('weno_coverage').selectedOptions[0];
+        this.coverage = coverage ? coverage.value : '';
     }
 
     function fullDayChanged(cb) {
-        this.fullDay = cb.checked;
+        this.fullDay = cb ? cb.checked : false;
     }
 
     function testPharmaciesChanged(cb) {
-        this.testPharmacies = cb.checked;
+        this.testPharmacies = cb ? cb.checked : false;
     }
 
     function doAjax() {
@@ -358,7 +361,7 @@ $error = false;
         const isValidCityAndState = wenoCity && wenoState && !wenoZipcode;
 
         if (isValidZipcode || isValidCityAndState) {
-            $('#weno_city, #weno_state, #weno_coverage').removeClass("is-invalid");
+            $('#weno_city, #weno_state, #weno_coverage, #weno_zipcode').removeClass("is-invalid");
             $('.warn').text('');
 
             if ($('#weno_pharmacy').hasClass('select2-hidden-accessible')) {
@@ -435,11 +438,11 @@ $error = false;
     }
 
     function resetForm() {
-        var searchbox = document.getElementById("weno_state");
+        const searchbox = document.getElementById("weno_state");
         searchbox.selectedIndex = 0;
 
         document.getElementById('weno_state').selectedOptions[0].value = '';
-        document.getElementById('weno_zipcode').selectedOptions.value = '';
+        document.getElementById('weno_zipcode').value = '';
         $('#weno_primary').text('');
         $('#weno_primary').val('');
         $('#primary_pharmacy').val();

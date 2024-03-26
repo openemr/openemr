@@ -53,7 +53,8 @@ class ModuleManagerListener extends AbstractModuleActionListener
         if (method_exists(self::class, $methodName)) {
             return self::$methodName($modId, $currentActionStatus);
         } else {
-            return "Module cleanup method $methodName does not exist.";
+            // no reason to report action method is missing.
+            return $currentActionStatus;
         }
     }
 
@@ -71,8 +72,8 @@ class ModuleManagerListener extends AbstractModuleActionListener
     }
 
     /**
-     * Required method to return this class object,
-     * so it is instantiated in Laminas Manager.
+     * Required method to return this class object
+     * so it will be instantiated in Laminas Manager.
      *
      * @return ModuleManagerListener
      */
@@ -88,6 +89,30 @@ class ModuleManagerListener extends AbstractModuleActionListener
      */
     private function install($modId, $currentActionStatus): mixed
     {
+        $modService = new ModuleService();
+        /* setting the active ui flag here will allow the config button to show
+         * before enable. This is a good thing because it allows the user to
+         * configure the module before enabling it. However, if the module is disabled
+         * this flag is reset by MM.
+        */
+        $modService::setModuleState($modId, '0', '1');
+        return $currentActionStatus;
+    }
+
+    /**
+     * @param $modId
+     * @param $currentActionStatus
+     * @return mixed
+     */
+    private function help_requested($modId, $currentActionStatus): mixed
+    {
+        // must call a script that implements a dialog to show help.
+        // I can't find a way to override the Laminas UI except using a dialog.
+        try {
+            include 'show_help.php';
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
         return $currentActionStatus;
     }
 
@@ -98,12 +123,6 @@ class ModuleManagerListener extends AbstractModuleActionListener
      */
     private function preenable($modId, $currentActionStatus): mixed
     {
-        $modService = new ModuleService();
-        if ($modService->isWenoConfigured()) {
-            $modService::setModuleState($modId, '0', '0');
-            return $currentActionStatus;
-        }
-        $modService::setModuleState($modId, '0', '1');
         return $currentActionStatus;
     }
 
@@ -130,7 +149,8 @@ class ModuleManagerListener extends AbstractModuleActionListener
      */
     private function disable($modId, $currentActionStatus): mixed
     {
-        ModuleService::setModuleState($modId, '0', '0');
+        // allow config button to show before enable.
+        ModuleService::setModuleState($modId, '0', '1');
         return $currentActionStatus;
     }
 

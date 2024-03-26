@@ -38,7 +38,7 @@ function wenoAlertManager(option, element, spinElement) {
                 element.classList.add("d-none");
                 element.classList.remove("alert", "alert-success");
                 element.innerHTML = "";
-                window.location.reload();
+                window.location.replace(window.location.href)
             }, 3000
         );
 
@@ -54,7 +54,6 @@ function wenoAlertManager(option, element, spinElement) {
     }
 }
 
-// Reserved for future use.
 function renderDialog(action, uid, event) {
     event.preventDefault();
     // Trim action URL
@@ -65,30 +64,21 @@ function renderDialog(action, uid, event) {
     const urls = {
         'demographics': '/interface/patient_file/summary/demographics_full.php',
         'user_settings': '/interface/super/edit_globals.php?mode=user',
-        'weno_manage': '/interface/modules/custom_modules/oe-module-weno/templates/facilities.php',
+        'weno_manage': '/interface/modules/custom_modules/oe-module-weno/templates/weno_setup.php',
         'users': '/interface/usergroup/user_admin.php'
     };
-    // Construct action URL
-    const urlPart = urls[action].includes('?') ? '&' : '?';
-    const actionUrl = `${urls[action]}${urlPart}id=${encodeURIComponent(uid)}&csrf_token_form=${encodeURIComponent(csrf)}`;
-
     if (urls[action] === undefined) {
         console.error('Invalid action URL');
         alert(action.toUpperCase() + " " + xl('Direct action not implemented yet.'));
         return;
     }
+    // Construct action URL
+    const urlPart = urls[action].includes('?') ? '&' : '?';
+    const actionUrl = `${urls[action]}${urlPart}id=${encodeURIComponent(uid)}&csrf_token_form=${encodeURIComponent(csrf)}`;
+
     // Open modal dialog
     dlgopen('', 'dialog-mod', '900', 'full', '', '', {
         buttons: [
-            /*{
-            text: jsText('Click'),
-            close: false,
-            id: jsAttr('click-me'),
-            click: function () {
-                //tidyUp();
-            },
-            style: 'primary'
-            },*/
             {
             text: jsText('Return to eRx Widget'),
             close: true,
@@ -97,12 +87,12 @@ function renderDialog(action, uid, event) {
         ],
         allowResize: true,
         allowDrag: true,
+        onClosed: 'reload',
         dialogId: 'error-dialog',
         type: 'iframe',
         resolvePromiseOn: 'close',
         url: top.webroot_url + actionUrl
     }).then(function (dialog) {
         top.restoreSession();
-        window.location.reload();
     });
 }
