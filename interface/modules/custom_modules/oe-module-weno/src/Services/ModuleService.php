@@ -94,6 +94,7 @@ class ModuleService
         $vendors['weno_secondary_admin_password'] = $items['weno_secondary_admin_password'];
 
         foreach ($vendors as $key => $vendor) {
+            $GLOBALS[$key] = $vendor;
             sqlQuery(
                 "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `gl_name` = ?, `gl_value` = ?",
                 array($key, $vendor, $key, $vendor)
@@ -129,22 +130,21 @@ class ModuleService
         $config = $this->getVendorGlobals();
         $keys = array_keys($config);
         foreach ($keys as $key) {
+            // these are always required to run module.
             if (
-                $key === 'weno_rx_enable_test'
-                || $key === 'weno_secondary_admin_username'
-                || $key === 'weno_secondary_admin_password'
-                || $key === 'weno_secondary_encryption_key'
+                $key === 'weno_rx_enable'
+                || $key === 'weno_admin_username'
+                || $key === 'weno_admin_password'
+                || $key === 'weno_encryption_key'
             ) {
-                continue;
-            }
-            $value = $GLOBALS[$key] ?? null;
-
-            if (empty($value)) {
-                self::setTaskState('0', false);
-                return false;
+                $value = $config[$key] ?? null;
+                if (empty($value)) {
+                    self::setTaskState('0');
+                    return false;
+                }
             }
         }
-        self::setTaskState('1', false);
+        self::setTaskState('1');
         return true;
     }
 
@@ -152,13 +152,14 @@ class ModuleService
     {
         $logService = new WenoLogService();
         $log = $logService->getLastPharmacyDownloadStatus();
-        if ($log['status'] ?? '' != 'Success') {
+        if ($log['status'] ?? '' == 'Failed') {
             if (($log['count'] ?? 0) > 0) {
                 return true;
             }
-            $sql = "UPDATE `background_services` SET `next_run` = current_timestamp(), `active` = '1' WHERE `name` = ? && `next_run` > current_timestamp()";
-            sqlQuery($sql, array('WenoExchangePharmacies'));
-            return true;
+            // TODO need to add lookup for last 3 failed status and if it's been over three attempts then stop trying.
+            //$sql = "UPDATE `background_services` SET `next_run` = current_timestamp(), `active` = '1' WHERE `name` = ? && `next_run` > current_timestamp()";
+            //sqlQuery($sql, array('WenoExchangePharmacies'));
+            //return true;
         }
         return false;
     }

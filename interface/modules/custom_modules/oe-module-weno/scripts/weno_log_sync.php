@@ -14,24 +14,30 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Modules\WenoModule\Services\LogProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoPharmaciesJson;
+use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 
 function downloadWenoPharmacy()
 {
+    // Check if the encryption key is valid. If not, request a new key and then set it.
+    $wenoValidate = new WenoValidate();
+    $isKey = $wenoValidate->validateAdminCredentials(true); // auto reset on invalid.
+    if ((int)$isKey >= 998) {
+        EventAuditLogger::instance()->newEvent(
+            "pharmacy_background",
+            $_SESSION['authUser'],
+            $_SESSION['authProvider'],
+            1,
+            text("Background Initiated Pharmacy download attempt failed. Internet problem!")
+        );
+        error_log('Background Initiated Pharmacy Download not ran. Internet problem: ' . text($isKey));
+        die;
+    }
+    error_log('Background Initiated Encryption Verify returned: ' . text($isKey == '1' ? 'Verified key is valid.' : 'Invalid Key'));
+
     $cryptoGen = new CryptoGen();
     $localPharmacyJson = new WenoPharmaciesJson($cryptoGen);
-
     // Check if the background service is active. Intervals are set to once a day
-    // Weno has decided to not force the import of pharmacies since they are using the iframe
-    // and the pharmacy can be selected at the time of creating the prescription.
     $value = $localPharmacyJson->checkBackgroundService();
-
-    EventAuditLogger::instance()->newEvent(
-        "pharmacy_background",
-        $_SESSION['authUser'],
-        $_SESSION['authProvider'],
-        1,
-        "Init Background Pharmacy Download Service Status:"  . text(ucfirst($value))
-    );
     if ($value == 'active' || $value == 'live') {
         error_log('Background Initiated Pharmacy Download Started.');
 

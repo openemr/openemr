@@ -53,7 +53,8 @@ class ModuleManagerListener extends AbstractModuleActionListener
         if (method_exists(self::class, $methodName)) {
             return self::$methodName($modId, $currentActionStatus);
         } else {
-            return "Module cleanup method $methodName does not exist.";
+            // no reason to report action method is missing.
+            return $currentActionStatus;
         }
     }
 
@@ -71,8 +72,8 @@ class ModuleManagerListener extends AbstractModuleActionListener
     }
 
     /**
-     * Required method to return this class object,
-     * so it is instantiated in Laminas Manager.
+     * Required method to return this class object
+     * so it will be instantiated in Laminas Manager.
      *
      * @return ModuleManagerListener
      */
@@ -95,6 +96,23 @@ class ModuleManagerListener extends AbstractModuleActionListener
          * this flag is reset by MM.
         */
         $modService::setModuleState($modId, '0', '1');
+        return $currentActionStatus;
+    }
+
+    /**
+     * @param $modId
+     * @param $currentActionStatus
+     * @return mixed
+     */
+    private function help_requested($modId, $currentActionStatus): mixed
+    {
+        // must call a script that implements a dialog to show help.
+        // I can't find a way to override the Laminas UI except using a dialog.
+        try {
+            include 'show_help.php';
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
         return $currentActionStatus;
     }
 
