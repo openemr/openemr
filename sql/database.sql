@@ -13598,3 +13598,18 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'YE', 'Yemeni', '2480', '0', '0', '', 'Yemen', 'YEM:887');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'ZM', 'Zambian', '2490', '0', '0', '', 'Zambia', 'ZMB:894');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'ZW', 'Zimbabwean', '2500', '0', '0', '', 'Zimbabwe', 'ZWE:716');
+
+DROP TABLE IF EXISTS `dashboard_card_visibility`;
+CREATE TABLE IF NOT EXISTS dashboard_card_visibility (
+ `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+ `card_abrev` VARCHAR(75) NOT NULL,
+ `card_name` VARCHAR(75) NOT NULL
+)Engine=InnoDB;
+
+INSERT INTO `dashboard_card_visibility` (`id`, `card_abrev`, `card_name`) VALUES (NULL, 'card_allergies', 'Allergies');
+INSERT INTO `dashboard_card_visibility` (`id`, `card_abrev`, `card_name`) VALUES (NULL, 'card_amendments', 'Amendments');
+INSERT INTO `dashboard_card_visibility` (`id`, `card_abrev`, `card_name`) VALUES (NULL, 'card_disclosure', 'Disclosures');
+INSERT INTO `dashboard_card_visibility` (`id`, `card_abrev`, `card_name`) VALUES (NULL, 'card_lab', 'Lab');
+INSERT INTO `dashboard_card_visibility` (`id`, `card_abrev`, `card_name`) VALUES (NULL, 'card_medicalproblems', 'Medical Problems');
+INSERT INTO `dashboard_card_visibility` (`id`, `card_abrev`, `card_name`) VALUES (NULL, 'card_medication', 'Medication');
+INSERT INTO `dashboard_card_visibility` (`id`, `card_abrev`, `card_name`) VALUES (NULL, 'card_vitals', 'Vitals');

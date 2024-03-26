@@ -142,3 +142,14 @@ function setListTouch($patient_id, $type)
         sqlStatement("INSERT INTO `lists_touch` ( `pid`,`type`,`date` ) VALUES ( ?, ?, NOW() )", array($patient_id,$type));
     }
 }
+
+function getHiddenDashboardCards()
+{
+    $hiddenList = [];
+    $ret = sqlStatement("SELECT gl_value FROM `globals` WHERE `gl_name` = 'hide_dashboard_cards'");
+    while ($row = sqlFetchArray($ret)) {
+        $hiddenList[] = $row['gl_value'];
+    }
+
+    return $hiddenList;
+}
