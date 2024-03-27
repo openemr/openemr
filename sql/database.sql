@@ -3432,6 +3432,7 @@ CREATE TABLE `layout_group_properties` (
   grp_products    varchar(4095)  not null default '',
   grp_diags       varchar(4095)  not null default '',
   grp_last_update timestamp      NULL,
+  grpsec_copy_allow tinyint(1)   not null default 0,
   PRIMARY KEY (grp_form_id, grp_group_id)
 ) ENGINE=InnoDB;
 

@@ -149,6 +149,9 @@ $formtitle = $lobj['grp_title'];
 $formhistory = 0 + $lobj['grp_repeats'];
 $grp_last_update = $lobj['grp_last_update'];
 
+// Is copy section functionality active
+$isGrpsecCopyAllow = $lobj['grpsec_copy_allow'] ?? 0;
+
 // When the layout specifies display of historical values of input fields,
 // we abandon responsive design of the form and instead present it in a
 // horizontally scrollable table. There seems no better way to show the
@@ -389,6 +392,81 @@ if (
         formJump();
         formFooter();
         exit;
+    }
+}
+
+// Group checkbox values
+$prevgrpinitopenvals = array();
+
+// If section id is set for copy form data
+if (
+    !empty($_POST['form_cp_group_id'] ?? '')
+) {
+    $formScrollPosition = isset($_POST['form_scroll_position']) ? $_POST['form_scroll_position'] : "";
+    $cpencounterid = isset($_POST['form_cp_encounter_id']) ? $_POST['form_cp_encounter_id'] : "";
+    $cpformid = isset($_POST['form_cp_form_id']) ? $_POST['form_cp_form_id'] : "";
+    $cpgroupid = isset($_POST['form_cp_group_id']) ? $_POST['form_cp_group_id'] : "";
+    $prevfieldvals = array();
+    $prevgrpinitopenvals = array();
+
+    if (isset($_POST['form_provider_id'])) {
+        $form_provider_id = $_POST['form_provider_id'];
+    }
+
+    if (!empty($cpencounterid) && !empty($cpformid) && !empty($cpgroupid)) {
+        // Fetch layout option info
+        $shrow = getHistoryData($pid);
+        $fres = sqlStatement("SELECT * FROM layout_options " .
+        "WHERE form_id = ? AND uor > 0 " .
+        "ORDER BY group_id, seq", array($formname));
+        while ($frow = sqlFetchArray($fres)) {
+            $field_id = $frow['field_id'];
+            $data_type = $frow['data_type'];
+            $group_id = $frow['group_id'];
+
+            // Support for nested group
+            $nested_group = false;
+
+            for ($i = 1; $i < strlen($group_id); ++$i) {
+                $parent_group_id = substr($group_id, 0, $i);
+
+                if ($parent_group_id == $cpgroupid) {
+                    // Set value if group is nested group.
+                    $nested_group = true;
+                    continue;
+                }
+            }
+
+            if (isOption($frow['edit_options'], 'H') !== false) {
+                if (isset($shrow[$field_id])) {
+                    $prevfieldvals[$field_id] = $shrow[$field_id];
+                }
+            } else {
+                // Get field value
+                $prevfieldvals[$field_id] = get_layout_form_value($frow);
+            }
+
+            // Skip if section is not global
+            if ($cpgroupid != "global" && ($cpgroupid != $group_id && $nested_group === false)) {
+                continue;
+            }
+
+            // Set value to make group section open
+            $prevgrpinitopenvals["form_cb_lbf" . $group_id] = "1";
+
+            // Set value
+            $prevfieldvals[$field_id] = lbf_current_value($frow, $cpformid, $cpencounterid);
+        }
+
+        foreach ($_POST as $fkey => $value) {
+            // If group section was open
+            if (strpos($fkey, 'form_cb_') === 0) {
+                $prevgrpinitopenvals[$fkey] = $_POST[$fkey];
+            }
+        }
+
+        // Clear POST request data
+        $_POST = array();
     }
 }
 ?>
@@ -649,6 +727,19 @@ if (
         function validate(f, restore = true) {
             var errMsgs = new Array();
             <?php generate_layout_validation($formname); ?>
+
+            // Show validation error messages
+            if(errMsgs.length > 0) {
+                let errMsgStr = new Array();
+                errMsgs.forEach((errMsg, i) => {
+                    errMsgStr.push("- " + errMsg + " " + <?php echo xlj("field is required."); ?>);
+                });
+
+                if (errMsgStr.length > 0) {
+                   alert(errMsgStr.join("\n"));
+                }
+            }
+
             // Validation for Fee Sheet stuff. Skipping this because CV decided (2015-11-03)
             // that these warning messages are not appropriate for layout based visit forms.
             //
@@ -884,6 +975,65 @@ if (
         ?>
 
     </script>
+
+    <script type="text/javascript">
+
+        // Support for section id to copy form values.
+        var cpgroupid = '';
+
+        // This invokes the find lbf forms popup.
+        function handleLBFFormsPopup(formname = '', encounter = '', pid = '') {
+            let url = '<?php echo $GLOBALS['webroot']; ?>/interface/forms/LBF/php/find_encounter_form_popup.php?pid=' + encodeURIComponent(pid) + '&formname=' + encodeURIComponent(formname) + '&encounter=' + encodeURIComponent(encounter);
+            let title = <?php echo xlj('Select Encounter'); ?>;
+
+            // Open Popup
+            dlgopen(url, 'findEncounterForm', 600, 400, '', title);
+        }
+
+        // This invokes copy all section fields data
+        function handleCopy(event, pid, formname, encounter, groupid) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            // Set Group id
+            cpgroupid = groupid;
+
+            // Call LBF Forms Popup
+            handleLBFFormsPopup(formname, encounter, pid);
+        }
+
+        // This will set selected encounter form
+        function setEncounterForm(encounterid, formid, pid) {
+
+            if (encounterid == "" || formid == "") {
+                alert(<?php echo xlj('Something went wrong.'); ?>);
+                return false;
+            }
+
+            if (confirm(<?php echo xlj('Load data from selected encounter form into this form?'); ?> + "\n" + <?php echo xlj('Current data in this form will be overwritten.'); ?>)) {
+
+                let f = document.forms[0];
+                f.form_cp_encounter_id.value = encounterid;
+                f.form_cp_form_id.value = formid;
+                f.form_cp_group_id.value = cpgroupid;
+
+                f.form_scroll_position.value = window.scrollY || window.pageYOffset;
+
+                cpgroupid = ''; // Set empty value
+                somethingChanged = false; // turn off "are you sure you want to leave"
+
+                f.submit(); // Submit form data for copy form data
+            }
+        }
+
+        // If window scroll position is found 
+        <?php if (isset($formScrollPosition) && $formScrollPosition > 0) { ?>
+        window.onload = (event) => {
+            // If scroll position is found, scroll to that position
+            window.scrollTo(0, parseInt(<?php echo js_escape($formScrollPosition); ?>));
+        }
+        <?php } ?>
+    </script>
 </head>
 
 <body class="body_top"<?php if ($from_issue_form) {
@@ -966,6 +1116,13 @@ if (
                                 echo "</select>\n";
                             }
                             ?>
+
+                            <!-- Global copy element to copy data from other forms -->
+                            <?php if ($isGrpsecCopyAllow) {  ?>
+                            <div class="global-copy-container float-right">
+                                <a href="javascript: void(0);" class='btn btn-text btn-sm form-edit-button' onClick="handleCopy(event, <?php echo attr_js($pid); ?>, <?php echo attr_js($formname); ?>, <?php echo attr_js($encounter); ?>, 'global')"><i class="fa fa-clone" aria-hidden="true"></i> <?php echo xlt('Global Copy'); ?></a>
+                            </div>
+                            <?php } ?>
                         </div>
                     </div>
                     <?php $cmsportal_login = $enrow['cmsportal_login'] ?? '';
@@ -1086,6 +1243,12 @@ if (
                         } // End "P" option logic.
                     }
 
+                    // If previous field value exists
+                    if (isset($prevfieldvals[$field_id]) && !empty($prevfieldvals[$field_id])) {
+                        // Set previous field value if exists
+                        $currvalue = $prevfieldvals[$field_id];
+                    }
+
                     $this_levels = $this_group;
                     $i = 0;
                     $mincount = min(strlen($this_levels), strlen($group_levels));
@@ -1128,15 +1291,30 @@ if (
 
                         $display_style = $grouprow['grp_init_open'] ? 'block' : 'none';
 
+                        // Set display block if previously section value set
+                        if (isset($prevgrpinitopenvals["form_cb_" . $group_seq]) && $prevgrpinitopenvals["form_cb_" . $group_seq] == "1") {
+                            $display_style = 'block';
+                        }
+
                         // If group name is blank, no checkbox or div.
                         if (strlen($gname)) {
                             // <label> was inheriting .justify-content-center from .form-inline,
                             // dunno why but we fix that here.
-                            echo "<br /><span><label class='mb-1 justify-content-start' role='button'><input class='mr-1' type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " . "onclick='return divclick(this," . attr_js('div_' . $group_seq) . ");'";
+                            echo "<br /><span class='d-flex'><label class='mb-1 justify-content-start w-100' role='button'><input class='mr-1' type='checkbox' name='form_cb_" . attr($group_seq) . "' value='1' " . "onclick='return divclick(this," . attr_js("div_" . $group_seq) . ");'";
                             if ($display_style == 'block') {
                                 echo " checked";
                             }
-                            echo " /><strong>" . text(xl_layout_label($group_name)) . "</strong></label></span>\n";
+                            echo " /><strong>" . text(xl_layout_label($group_name)) . "</strong></label>";
+
+                            // If true then allow to copy section value from other form.
+                            if ($isGrpsecCopyAllow) {
+                                echo "<div class='sub-section-copy-container flex-shrink-1' style='min-width:122px;'>\n";
+                                echo "<a href='javascript: void(0)' class='btn btn-text btn-sm form-edit-button' onClick='handleCopy(event, " . attr_js($pid) . "," . attr_js($formname) . "," . attr_js($encounter) . "," . attr_js($this_group) . ")'><i class='fa fa-clone' aria-hidden='true'></i> " . xlt('Section Copy') . "</a>\n";
+                                echo "</div>";
+                            }
+
+                            echo "</span>\n";
+
                             // table-responsive removed below because it added a scrollbar regardless of screen width.
                             echo "<div id='div_" . attr($group_seq) . "' class='section clearfix' style='display:" . attr($display_style) . ";'>\n";
                         }
@@ -1195,6 +1373,14 @@ if (
 
                                 echo " </tr>";
                             }
+                        }
+                    }
+
+                    // If any field of group has value
+                    if (!isset($cpgroupid)) {
+                        if (!empty($currvalue) && !array_key_exists("form_cb_lbf" . $group_levels, $prevgrpinitopenvals)) {
+                            // Set value to make group section open
+                            $prevgrpinitopenvals["form_cb_lbf" . $group_levels] = "1";
                         }
                     }
 
@@ -1839,9 +2025,16 @@ if (
 
                 <?php } ?>
 
+                <?php if ($isGrpsecCopyAllow) {  ?>    
+                <input type='hidden' name='form_scroll_position' value='' />
+                <input type='hidden' name='form_cp_encounter_id' value='' />
+                <input type='hidden' name='form_cp_form_id' value='' />
+                <input type='hidden' name='form_cp_group_id' value='' />
+                <?php } ?>
+
                 <input type='hidden' name='from_issue_form' value='<?php echo attr($from_issue_form); ?>' />
                 <?php if (!$is_core) {
-                    echo '<input type="hidden" name="csrf_token_form" value="' . CsrfUtils::collectCsrfToken() . '" />';
+                    echo '<input type="hidden" name="csrf_token_form" value="' . attr(CsrfUtils::collectCsrfToken()) . '" />';
                     echo "\n<input type='hidden' name='bn_save_continue' value='set' />\n";
                 } ?>
 
@@ -1853,6 +2046,22 @@ if (
                     var skipArray = [
                         <?php echo $condition_str; ?>
                     ];
+
+                    <?php if (!empty($prevgrpinitopenvals)) { ?>
+                    // Make group section visible if any field has value 
+                    $(function () {
+                        var anyGroupFieldHasValue = <?php echo json_encode($prevgrpinitopenvals); ?>;
+                        for (var gid in anyGroupFieldHasValue) {
+                            let groupCheck = document.querySelector('input[name="' + gid + '"]');
+
+                            if(groupCheck && anyGroupFieldHasValue[gid] === "1") {
+                                // Mark the checkbox as checked
+                                groupCheck.checked = true;
+                                groupCheck.onclick();
+                            }
+                        }
+                    });
+                    <?php } ?>
 
                     <?php echo $date_init; ?>
                     <?php
