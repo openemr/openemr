@@ -6,12 +6,15 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2023 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use Particle\Validator\Validator;
 
 class PhoneNumberService extends BaseService
@@ -62,7 +65,7 @@ class PhoneNumberService extends BaseService
         $phoneNumbersSql .= "     type=?,";
         $phoneNumbersSql .= "     foreign_id=?";
 
-        $phoneNumbersSqlResults = sqlInsert(
+        $phoneNumbersSqlResults = QueryUtils::sqlInsert(
             $phoneNumbersSql,
             array(
                 $freshId,
@@ -91,9 +94,8 @@ class PhoneNumberService extends BaseService
         $phoneNumbersSql .= "     country_code=?,";
         $phoneNumbersSql .= "     area_code=?,";
         $phoneNumbersSql .= "     prefix=?,";
-        $phoneNumbersSql .= "     number=?,";
-        $phoneNumbersSql .= "     type=?";
-        $phoneNumbersSql .= "     WHERE foreign_id=?";
+        $phoneNumbersSql .= "     number=? ";
+        $phoneNumbersSql .= "     WHERE foreign_id=? AND type=?";
 
         $phoneNumbersSqlResults = sqlStatement(
             $phoneNumbersSql,
@@ -102,8 +104,8 @@ class PhoneNumberService extends BaseService
                 $this->area_code ,
                 $this->prefix,
                 $this->number,
-                $this->type,
-                $this->foreignId
+                $this->foreignId,
+                $this->type
             )
         );
 

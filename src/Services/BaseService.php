@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -588,13 +590,16 @@ class BaseService
             return $clause;
         }
         foreach ($joins as $tableDefinition) {
-            $clause .= $tableDefinition['type'] . ' `' . $tableDefinition['table'] . "` `{$tableDefinition['alias']}` "
-                . ' ON `';
+            // if it is a temporary table that starts with a ( then we don't need to wrap it in backticks
+            $table = $tableDefinition['table'][0] === '(' ? $tableDefinition['table'] : '`' . $tableDefinition['table'] . '`';
+
+            $clause .= $tableDefinition['type'] . ' ' . $table . " `{$tableDefinition['alias']}` "
+                . ' ON ';
             if (isset($tableDefinition['join_clause'])) {
                 $clause .= $tableDefinition['join_clause'];
             } else {
                 $table = $tableDefinition['join_table'] ?? $this->getTable();
-                $clause .= $table . '`.`' . $tableDefinition['column']
+                $clause .= "`" . $table . '`.`' . $tableDefinition['column']
                 . '` = `' . $tableDefinition['alias'] . '`.`' . $tableDefinition['join_column'] . '` ';
             }
         }

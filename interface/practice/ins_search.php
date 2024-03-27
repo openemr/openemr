@@ -17,9 +17,11 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2005 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -92,11 +94,29 @@ td {
 
  // The ins_list.php window calls this to set the selected insurance.
  function set_insurance(ins_id, ins_name) {
-  if (opener.closed || ! opener.set_insurance)
-   alert('The target form was closed; I cannot apply your selection.');
-  else
-   opener.set_insurance(ins_id, ins_name);
-   dlgclose('InsSaveClose',false);
+     window.top.restoreSession(); // make sure to restore the session before we do anything else
+     if (!window.opener) {
+         return; // nothing to do here as somehow we got here without the opener
+     }
+     let postMessage = {
+         action: 'insurance-search-set-insurance'
+         ,insuranceId: ins_id
+         ,insuranceName: ins_name
+     };
+     // fire off a message so we can decouple things so we don't have to have a specific function
+     // name in the global scope of the opener
+     opener.postMessage(postMessage, window.location.origin);
+    if (opener.closed) {
+      alert('The target form was closed; I cannot apply your selection.');
+    }
+    else if (opener.set_insurance) {
+      opener.set_insurance(ins_id, ins_name);
+      dlgclose('InsSaveClose', false);
+    } else {
+        // if we don't have a set_insurance function then we will just close the window as the opener is
+        // using post message to receive events.
+        dlgclose('InsSaveClose', false);
+    }
  }
 
  // This is set to true on a mousedown of the Save button.  The
@@ -140,7 +160,7 @@ function clearForm() {
   f.form_city.value = '';
   f.form_state.value = '';
   f.form_country.value = '';
-  f.form_zip.value = ''; 
+  f.form_zip.value = '';
   f.form_phone.value = '';
   f.form_cms_id.value = '';
   f.form_ins_type_code.value = '';
@@ -225,9 +245,10 @@ if (
         echo " alert(" . js_escape($info_msg) . ");\n";
     }
 
-    echo " top.restoreSession();\n";
-    echo " if (opener.set_insurance) opener.set_insurance(" . js_escape($ins_id) . "," . js_escape($ins_name) . ");\n";
-    echo " dlgclose();\n";
+    // we need to follow the global settings for the display of this name so we will return the name in the set_insurance method
+    $ins_name = (new InsuranceCompanyService())->getInsuranceDisplayName($ins_id);
+    // call the set_insurance method in our header
+    echo " set_insurance(" . js_escape($ins_id) . "," . js_escape($ins_name) . ");\n";
     echo "</script></body></html>\n";
     exit();
 } else {
@@ -267,7 +288,7 @@ if (
  <tr>
   <td class="font-weight-bold" nowrap><?php echo xlt('Attention');?>:</td>
   <td>
-   <input type='text' size='20' name='form_attn' maxlength='35' class='form-control form-control-sm' title='<?php echo xla('Contact name'); ?>' 
+   <input type='text' size='20' name='form_attn' maxlength='35' class='form-control form-control-sm' title='<?php echo xla('Contact name'); ?>'
        value='<?php echo attr($ins_co['attn'] ?? ''); ?>' />
   </td>
  </tr>
@@ -275,7 +296,7 @@ if (
  <tr>
   <td class="font-weight-bold" nowrap><?php echo xlt('Address1'); ?>:</td>
   <td>
-   <input type='text' size='20' name='form_addr1' maxlength='35' class='form-control form-control-sm' title='First address line' 
+   <input type='text' size='20' name='form_addr1' maxlength='35' class='form-control form-control-sm' title='First address line'
        value='<?php echo attr($ins_co_address['line1'] ?? ''); ?>' />
   </td>
  </tr>
@@ -283,7 +304,7 @@ if (
  <tr>
   <td class="font-weight-bold" nowrap><?php echo xlt('Address2'); ?>:</td>
   <td>
-   <input type='text' size='20' name='form_addr2' maxlength='35' class='form-control form-control-sm' title='Second address line, if any' 
+   <input type='text' size='20' name='form_addr2' maxlength='35' class='form-control form-control-sm' title='Second address line, if any'
        value='<?php echo attr($ins_co_address['line2'] ?? ''); ?>' />
   </td>
  </tr>
@@ -292,11 +313,11 @@ if (
      <td class="font-weight-bold" nowrap><?php echo xlt('City/State'); ?>:</td>
      <td class="form-row">
          <div class="col">
-             <input type='text' size='20' name='form_city' maxlength='25' class='form-control form-control-sm' title='City name' 
+             <input type='text' size='20' name='form_city' maxlength='25' class='form-control form-control-sm' title='City name'
                  value='<?php echo attr($ins_co_address['city'] ?? ''); ?>' />
          </div>
          <div class="col">
-             <input type='text' size='3' name='form_state' maxlength='35' class='form-control form-control-sm' title='State or locality' 
+             <input type='text' size='3' name='form_state' maxlength='35' class='form-control form-control-sm' title='State or locality'
                  value='<?php echo attr($ins_co_address['state'] ?? ''); ?>' />
          </div>
      </td>
@@ -306,11 +327,11 @@ if (
      <td class="font-weight-bold" nowrap><?php echo xlt('Zip/Country:'); ?></td>
      <td class="form-row">
          <div class="col">
-             <input type='text' size='20' name='form_zip' maxlength='10' class='form-control form-control-sm' title='Postal code' 
+             <input type='text' size='20' name='form_zip' maxlength='10' class='form-control form-control-sm' title='Postal code'
                  value='<?php echo attr(($ins_co_address['zip'] ?? '') . ($ins_co_address['plus_four'] ?? '')); ?>' />
          </div>
          <div class="col">
-             <input type='text' size='20' class="form-control form-control-sm" name='form_country' value='USA' maxlength='35' title='Country name' 
+             <input type='text' size='20' class="form-control form-control-sm" name='form_country' value='USA' maxlength='35' title='Country name'
                  value='<?php echo attr($ins_co_address['country'] ?? ''); ?>' />
          </div>
      </td>
@@ -324,14 +345,14 @@ if (
          ($ins_co_phone['area_code'] ?? '') .
          ($ins_co_phone['prefix'] ?? '') .
          ($ins_co_phone['number'] ?? '')
-       )); ?>' 
+       )); ?>'
     />
   </td>
  </tr>
  <tr>
   <td class="font-weight-bold" nowrap><?php echo xlt('Payer ID'); ?>:</td>
   <td>
-   <input type='text' size='20' name='form_cms_id' maxlength='15' class='form-control form-control-sm' title='Identifier assigned by CMS' 
+   <input type='text' size='20' name='form_cms_id' maxlength='15' class='form-control form-control-sm' title='Identifier assigned by CMS'
      value='<?php echo attr($ins_co['cms_id'] ?? ''); ?>' />
   </td>
  </tr>
