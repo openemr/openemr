@@ -984,7 +984,7 @@ if (
         // This invokes the find lbf forms popup.
         function handleLBFFormsPopup(formname = '', encounter = '', pid = '') {
             let url = '<?php echo $GLOBALS['webroot']; ?>/interface/forms/LBF/php/find_encounter_form_popup.php?pid=' + encodeURIComponent(pid) + '&formname=' + encodeURIComponent(formname) + '&encounter=' + encodeURIComponent(encounter);
-            let title = "<?php echo xlt('Select Encounter'); ?>";
+            let title = <?php echo xlj('Select Encounter'); ?>;
 
             // Open Popup
             dlgopen(url, 'findEncounterForm', 600, 400, '', title);
@@ -1010,7 +1010,7 @@ if (
                 return false;
             }
 
-            if (confirm(<?php echo xlj('Load data from selected encounter form into this form?') . '' ?> + '\n' + <?php echo xlj('Current data in this form will be overwritten.'); ?>)) {
+            if (confirm(<?php echo xlj('Load data from selected encounter form into this form?'); ?> + "\n" + <?php echo xlj('Current data in this form will be overwritten.'); ?>)) {
 
                 let f = document.forms[0];
                 f.form_cp_encounter_id.value = encounterid;

@@ -115,5 +115,5 @@ ALTER TABLE `form_encounter` ADD `last_update` timestamp NOT NULL DEFAULT CURREN
 
 
 #IfMissingColumn layout_group_properties grpsec_copy_allow
-ALTER TABLE `layout_group_properties` ADD `grpsec_copy_allow` tinyint(1) DEFAULT 0 AFTER `grp_last_update`;
+ALTER TABLE `layout_group_properties` ADD `grpsec_copy_allow` tinyint(1) NOT NULL DEFAULT 0;
 #EndIf

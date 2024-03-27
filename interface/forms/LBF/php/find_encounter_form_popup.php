@@ -62,9 +62,9 @@ while ($rowresult4 = sqlFetchArray($result4)) {
 
 <html>
 <head>
-    <title><?php echo xl('Select Encounter'); ?></title>
+    <title><?php echo xlt('Select Encounter'); ?></title>
     <link rel="stylesheet" href='<?php echo $css_header ?>' type='text/css'>
-    <?php Header::setupHeader(['opener', 'dialog', 'jquery', 'jquery-ui', 'jquery-ui-base', 'fontawesome', 'main-theme']); ?>
+    <?php Header::setupHeader(['opener', 'jquery-ui', 'jquery-ui-base']); ?>
 
     <style type="text/css">
         .encounter-container {
@@ -84,7 +84,7 @@ while ($rowresult4 = sqlFetchArray($result4)) {
 
         function selEncounterForm(encounter_id, form_id, pid) {
             if (opener.closed || ! opener.setEncounterForm)
-            alert("<?php echo xl('The destination form was closed; I cannot act on your selection.'); ?>");
+            alert(<?php echo xlj('The destination form was closed; I cannot act on your selection.'); ?>);
             else
             opener.setEncounterForm(encounter_id, form_id, pid);
             window.close();
@@ -104,12 +104,12 @@ while ($rowresult4 = sqlFetchArray($result4)) {
                     $pName = ' - ' . $pName;
                 }
 
-                $signed = $item['signed'] === true ? 'Signed' : 'Unsigned';
+                $signed = $item['signed'] === true ? xl('Signed') : xl('Unsigned');
                 if (!empty($signed)) {
-                    $signed = ' - <i>' . $signed . '</i>';
+                    $signed = ' - <i>' . text($signed) . '</i>';
                 }
 
-                $titleLink = trim($edate . ' ' . $cCat . $pName . $signed);
+                $titleLink = trim(text($edate) . ' ' . text($cCat) . text($pName) . text($signed));
 
                 $encounter_id = isset($item['encounter']) ? $item['encounter'] : '';
                 $form_id = isset($item['form_id']) ? $item['form_id'] : '';
