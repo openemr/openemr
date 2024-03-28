@@ -263,6 +263,7 @@ class AppointmentService extends BaseService
                        pce.pc_room,
                        pce.pc_pid,
                        pce.pc_hometext,
+                       pce.pc_title,
                        f1.name as facility_name,
                        f1_map.uuid as facility_uuid,
                        f2.name as billing_location_name,
