@@ -289,8 +289,8 @@ class AppointmentService extends BaseService
     public function insert($pid, $data)
     {
         $startTime = date("H:i:s", strtotime($data['pc_startTime']));
-        // TODO: Why are we adding strings with numbers?  How is this even working
-        $endTime = $startTime . $data['pc_duration'];
+        // We need to keep this an addition rather than concatination.
+        $endTime = $startTime + $data['pc_duration'];
         $uuid = (new UuidRegistry())->createUuid();
 
         $sql  = " INSERT INTO openemr_postcalendar_events SET";
