@@ -7,8 +7,10 @@
  * @link      https://www.open-emr.org
  * @author    duhlman
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) duhlman
  * @copyright Copyright (c) 2021 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -73,7 +75,7 @@ class InsuranceCompany extends ORDataObject
     /**
      * Constructor sets all Insurance Company attributes to their default value
      */
-    public function __construct($id = "", $prefix = "")
+    public function __construct($id = "", $prefix = "", InsuranceCompanyService $insuranceCompanyService = null)
     {
         $this->id = $id;
         $this->name = "";
@@ -84,15 +86,19 @@ class InsuranceCompany extends ORDataObject
         $fax->set_type(TYPE_FAX);
         $this->address = new Address();
         $this->phone_numbers = array($phone, $fax);
-        $this->InsuranceCompany = new InsuranceCompanyService();
-        $this->ins_type_code_array = $this->InsuranceCompany->getInsuranceTypes();
+        if ($insuranceCompanyService === null) {
+            $this->InsuranceCompany = new InsuranceCompanyService();
+        } else {
+            $this->InsuranceCompany = $insuranceCompanyService;
+        }
+        $this->ins_type_code_array = $this->InsuranceCompany->getInsuranceTypesCached();
         $this->ins_claim_type_array = $this->InsuranceCompany->getInsuranceClaimTypes();
         if ($id != "") {
             $this->populate();
         }
 
         $this->X12Partner = new X12Partner();
-        $this->cqm_sop_array = $this->InsuranceCompany->getInsuranceCqmSop();
+        $this->cqm_sop_array = $this->InsuranceCompany->getInsuranceCqmSopCached();
     }
 
     public function set_id($id = "")
@@ -156,6 +162,19 @@ class InsuranceCompany extends ORDataObject
     public function get_name()
     {
         return $this->name;
+    }
+
+    public function get_display_name()
+    {
+        return InsuranceCompanyService::getDisplayNameForInsuranceRecord([
+            'name' => $this->name,
+            'line1' => $this->address->get_line1(),
+            'line2' => $this->address->get_line2(),
+            'city' => $this->address->get_city(),
+            'state' => $this->address->get_state(),
+            'zip' => $this->address->get_zip(),
+            'cms_id' => $this->cms_id
+        ]);
     }
     public function set_attn($attn)
     {
@@ -315,19 +334,29 @@ class InsuranceCompany extends ORDataObject
 
     public function insurance_companies_factory()
     {
-        $p = new InsuranceCompany();
+        $insuranceCompanyService = new InsuranceCompanyService();
         $icompanies = array();
-        $sql = "SELECT p.id, a.city " .
-            "FROM " . escape_table_name($p->_table) . " AS p " .
-            "INNER JOIN addresses as a on p.id = a.foreign_id ORDER BY name, id";
 
-        //echo $sql . "<bR />";
-        $results = sqlQ($sql);
-        //echo "sql: $sql";
-        //print_r($results);
-        while ($row = sqlFetchArray($results)) {
-                $icompanies[] = new InsuranceCompany($row['id']);
+        $listAll = $insuranceCompanyService->search([]);
+        if ($listAll->hasData()) {
+            $data = $listAll->getData();
+            foreach ($data as $record) {
+                // we pass in the service array so we don't recreate it each time
+                $company = new InsuranceCompany("", "", $insuranceCompanyService);
+                $company->populate_array($record);
+                if (!empty($record['work_id'])) {
+                    $company->set_phone($record['work_number']);
+                }
+                if (!empty($record['fax_id'])) {
+                    $company->set_fax($record['fax_number']);
+                }
+                $icompanies[] = $company;
+            }
         }
+        // sort by name since we don't know that the sql query will return them in the correct order
+        usort($icompanies, function ($a, $b) {
+            return strcasecmp($a->name, $b->name);
+        });
 
         return $icompanies;
     }
