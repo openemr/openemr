@@ -289,9 +289,14 @@ class AppointmentService extends BaseService
 
     public function insert($pid, $data)
     {
-        $startTime = date("H:i:s", strtotime($data['pc_startTime']));
-        // TODO: Why are we adding strings with numbers?  How is this even working
-        $endTime = $startTime . $data['pc_duration'];
+        $startUnixTime = strtotime($data['pc_startTime']);
+        $startTime = date('H:i:s', $startUnixTime);
+
+        // DateInterval _needs_ a valid constructor, so set it to 0s then update.
+        $endTimeInterval = new \DateInterval('PT0S');
+        $endTimeInterval->s = $data['pc_duration'];
+
+        $endTime = (new \DateTime())->setTimestamp($startUnixTime)->add($endTimeInterval);
         $uuid = (new UuidRegistry())->createUuid();
 
         $sql  = " INSERT INTO openemr_postcalendar_events SET";
@@ -324,7 +329,7 @@ class AppointmentService extends BaseService
                 $data["pc_eventDate"],
                 $data['pc_apptstatus'],
                 $startTime,
-                $endTime,
+                $endTime->format('H:i:s'),
                 $data["pc_facility"],
                 $data["pc_billing_location"],
                 $data["pc_aid"] ?? null
