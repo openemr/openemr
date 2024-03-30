@@ -1529,6 +1529,13 @@ $GLOBALS_METADATA = array(
             xl('Enable swap secondary insurance')
         ),
 
+        'add_unmatched_code_from_ins_co_era_to_billing' => array(
+            xl('Enable adding unmatched code from insurance company to billing table'),
+            'bool',                           // data type
+            '0',                              // default
+            xl('Enable adding unmatched code from insurance company to billing table')
+        ),
+
     ),
 
     // E-Sign Tab

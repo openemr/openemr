@@ -183,7 +183,7 @@ class ParseERA
                 }
                 $out['loopid'] = '1000A';
                 $out['payer_name'] = trim($seg[2]);
-                $out['payer_id'] = trim($seg[4] ?? null); // will be overwritten if in REF*2U below
+                $out['payer_id'] = trim($seg[4] ?? ''); // will be overwritten if in REF*2U below
             } elseif ($segid == 'N3' && $out['loopid'] == '1000A') {
                 $out['payer_street'] = trim($seg[1]);
                 // TBD: N302 may exist as an additional address line.
