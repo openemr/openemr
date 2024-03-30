@@ -89,8 +89,8 @@ if (isset($_POST['save'])) {
                     <td><?php echo text($user['username']); ?></td>
                     <td><?php echo text($user['lname']); ?></td>
                     <td><?php echo text($user['fname']); ?></td>
-                    <td><input class="persist-uid" type="text" name="weno_provider_id[<?php echo attr($user['id']); ?>]" placeholder="<?php echo xlt("Uxxxx Provided by Weno"); ?>" value="<?php echo attr($user['weno_prov_id']); ?>"></td>
-                    <td><?php echo $user['facility']; ?></td>
+                    <td><input class="persist-uid" type="text" name="weno_provider_id[<?php echo attr($user['id']); ?>]" placeholder="<?php echo xla("Uxxxx Provided by Weno"); ?>" value="<?php echo attr($user['weno_prov_id']); ?>"></td>
+                    <td><?php echo text($user['facility']); ?></td>
                     <td><i onclick='renderDialog("users", <?php echo attr_js($user['id']); ?>, event)' role='button' class='fas fa-pen text-warning'></i></td>
                     </tr>
                 <?php } ?>

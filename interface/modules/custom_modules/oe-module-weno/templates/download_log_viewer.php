@@ -37,7 +37,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
-                <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_formatInput = false; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             });
         });

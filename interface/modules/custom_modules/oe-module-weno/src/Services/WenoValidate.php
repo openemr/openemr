@@ -54,9 +54,9 @@ class WenoValidate extends ModuleService
         // save the new key to the database.
         // save will also set the global to stay current.
         $this->saveVendorGlobals($gbl);
-        error_log('A new encryption key ' . $key . ' was created and saved: ' . date('Y-d-m H:i:s', time()));
+        error_log('A new encryption key was created and saved: ' . date('Y-d-m H:i:s', time()));
         $wenoLog = new WenoLogService();
-        $wenoLog->insertWenoLog("new_encryption_key", "saved new key value " . $key);
+        $wenoLog->insertWenoLog("new_encryption_key", "saved new key");
     }
 
     /**
