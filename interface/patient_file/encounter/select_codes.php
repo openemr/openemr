@@ -83,17 +83,17 @@ if (!empty($codetype)) {
                     }
                 },
                 initComplete: function () {
-                    var input = $('.dataTables_filter input').unbind(),
+                    const input = $('.dataTables_filter input').unbind(),
                         self = this.api(),
-                        $searchButton = $('<button class="btn btn-sm btn-outline-primary btn-search">').click(function () {
+                        $searchButton = $('<button class="btn btn-sm btn-outline-primary fa fa-search p-2">').click(function () {
                             event.preventDefault();
                             event.stopPropagation();
                             self.search(input.val()).draw();
                         }),
-                        $clearButton = $('<button class="btn btn-sm btn-outline-warning btn-refresh">').click(function () {
+                        $clearButton = $('<button type="button" class="btn btn-sm btn-outline-warning fa-solid fa-eraser p-2">')
+                        .click(function () {
                             input.val('');
-                            $searchButton.click();
-                        })
+                        });
                     $('.dataTables_filter').append($searchButton, $clearButton);
                 }
             });
