@@ -356,6 +356,7 @@ if (count($facilities) > 1) {
    if ($provider['username'] == $username) echo " selected";
   echo ">" . text($doc['lname']) . ", " . text($doc['fname']) . "</option>\n";
  echo "   </select>\n";
+    }
 [-/php-]
 </div>
 [-php-]
@@ -365,7 +366,6 @@ if($_SESSION['pc_facility'] == 0){
 [-php-]
 foreach ($facilities as $f){
     echo "<li class='list-group-item' style='border-left: 35px solid ".$f['color'].";'>" . text($f['name'])."</li>";
-
 }
 [-/php-]
 </ul>
