@@ -94,8 +94,8 @@ class DownloadWenoPharmacies
             } else {
                 EventAuditLogger::instance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy Failed download! Weno error Other");
                 error_log("Pharmacy Failed download! Weno error: Other");
+                $wenoLog->insertWenoLog("pharmacy", "Failed");
             }
-            $wenoLog->insertWenoLog("pharmacy", "Failed");
             die;
         }
     }

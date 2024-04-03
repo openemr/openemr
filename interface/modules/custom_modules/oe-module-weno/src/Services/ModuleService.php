@@ -93,6 +93,9 @@ class ModuleService
         $vendors['weno_secondary_admin_username'] = $items['weno_secondary_admin_username'];
         $vendors['weno_secondary_admin_password'] = $items['weno_secondary_admin_password'];
 
+        $GLOBALS['weno_encryption_key'] = $items['weno_encryption_key'];
+        $GLOBALS['weno_admin_password'] = $items['weno_admin_password'];
+
         foreach ($vendors as $key => $vendor) {
             $GLOBALS[$key] = $vendor;
             sqlQuery(

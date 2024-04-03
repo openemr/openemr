@@ -175,7 +175,7 @@ $vendors = $boot->getVendorGlobals();
                 <div class="form-group">
                     <div class="row form-group">
                         <label for="weno_rx_enable" class="col-sm-6"><?php echo xlt("Enable Weno eRx Service"); ?></label>
-                        <div class="col-sm-6" title="<?php echo xla("Contact https://online.wenoexchange.com to sign up for Weno Free eRx service.") ?>">
+                        <div class="col-sm-6" title="<?php echo xla("Contact https://dev.wenoexchange.com to sign up for Weno Free eRx service.") ?>">
                             <input type="checkbox" class="checkbox persist" name="weno_rx_enable" id="weno_rx_enable" value="1" <?php echo $vendors['weno_rx_enable'] == '1' ? 'checked' : ''; ?>>
                         </div>
                     </div>

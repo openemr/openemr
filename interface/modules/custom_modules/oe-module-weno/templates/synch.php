@@ -24,8 +24,11 @@ if (!AclMain::aclCheckCore('patient', 'med')) {
     exit;
 }
 
-$logproperties = new LogProperties();
-$result = $logproperties->logSync();
+$logProperties = new LogProperties();
+try {
+    $result = $logProperties->logSync();
+} catch (Exception $e) {
+}
 
 if ($result) {
     http_response_code(200);

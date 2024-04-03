@@ -8,14 +8,13 @@ require_once dirname(__DIR__, 4) . "/globals.php";
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
-use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 $cryptoGen = new CryptoGen();
 $weno_username = $GLOBALS['weno_admin_username'] ?? '';
 $weno_password = $cryptoGen->decryptStandard($GLOBALS['weno_admin_password'] ?? '');
 $encryption_key = $cryptoGen->decryptStandard($GLOBALS['weno_encryption_key'] ?? '');
-$baseurl = "https://online.wenoexchange.com/en/EPCS/DownloadPharmacyDirectory";
+$baseurl = "https://dev.wenoexchange.com/en/EPCS/DownloadPharmacyDirectory";
 
 $data = array(
     "UserEmail" => $weno_username,
@@ -44,7 +43,7 @@ $storelocation = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/weno_p
 $path_to_extract = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/";
 
 // takes URL of image and Path for the image as parameter
-function download_zipfile($fileUrl, $zipped_file)
+function download_zipfile($fileUrl, $zipped_file): void
 {
     $fp = fopen($zipped_file, 'w+');
 
@@ -74,8 +73,8 @@ EventAuditLogger::instance()->newEvent(
 download_zipfile($fileUrl, $storelocation);
 
 $zip = new ZipArchive();
-$wenolog = new WenoLogService();
-
+$wenoLog = new WenoLogService();
+$csvFile = '';
 if ($zip->open($storelocation) === true) {
     $zip->extractTo($path_to_extract);
 
@@ -95,13 +94,13 @@ if ($zip->open($storelocation) === true) {
     }
 } else {
     $rpt = file_get_contents($storelocation);
-    $isError = $wenolog->scrapeWenoErrorHtml($rpt);
+    $isError = $wenoLog->scrapeWenoErrorHtml($rpt);
     if ($isError['is_error']) {
         error_log('Pharmacy download failed: ' . $isError['messageText']);
-        $wenolog->insertWenoLog("pharmacy", "Exceeded_download_limits");
+        $wenoLog->insertWenoLog("pharmacy", "Exceeded_download_limits");
     }
     EventAuditLogger::instance()->newEvent("pharmacy_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, $isError['messageText']);
-    $wenolog->insertWenoLog("pharmacy", "Failed");
+    $wenoLog->insertWenoLog("pharmacy", "Failed");
     // no need to continue
     // send error to UI alert
     die(js_escape($isError['messageText']));
@@ -221,7 +220,7 @@ if (file_exists($csvFile)) {
             0,
             "Pharmacy Import download failed SQL Insert error."
         );
-        $wenolog->insertWenoLog("pharmacy", "Failed");
+        $wenoLog->insertWenoLog("pharmacy", "Failed");
         error_log("User Initialed Pharmacy Import Failed Insert error");
     }
     // let's brag about it.
@@ -232,7 +231,7 @@ if (file_exists($csvFile)) {
         1,
         "User Initiated Pharmacy Download was Imported Successfully."
     );
-    $wenolog->insertWenoLog("pharmacy", "Success");
+    $wenoLog->insertWenoLog("pharmacy", "Success");
     error_log("User Initialed Pharmacy Imported");
 } else {
     EventAuditLogger::instance()->newEvent(
@@ -242,6 +241,6 @@ if (file_exists($csvFile)) {
         0,
         "Pharmacy Import download failed."
     );
-    $wenolog->insertWenoLog("pharmacy", "Failed");
+    $wenoLog->insertWenoLog("pharmacy", "Failed");
     error_log("User Initialed Pharmacy Import Failed File Missing");
 }

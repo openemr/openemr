@@ -33,7 +33,7 @@ class WenoLogService
     {
         $params = "pharmacy";
         $v = ['count' => 0, 'created_at' => '', 'status' => 'Unknown'];
-        $vsql = sqlQuery("SELECT * FROM `weno_download_log` WHERE `value` = ? ORDER BY `created_at` DESC LIMIT 1", [$params]);
+        $vsql = sqlQuery("SELECT * FROM `weno_download_log` WHERE `value` = ? ORDER BY `created_at` DESC, `id` DESC LIMIT 1", [$params]);
         if (!$vsql) {
             return $v;
         }
