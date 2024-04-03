@@ -31,6 +31,7 @@ $depObj = $this->dependencyObject;
 $coreModules = $this->coreModules ?? [];
 
 $help_items = [
+    xlt('') . '<a  class="text-dark" href="https://www.open-emr.org/wiki/index.php/OpenEMR_Modules" target="_blank">' . xlt("Visit additional modules for OpenEMR developed and listed by third party vendors.") . '</a>',
     xlt('Laminas Modules are the original modules framework.'),
     xlt('Custom Modules were added to allow developers more freedom by using other development frameworks.'),
     xlt('The "Nick Name" is used to identify the module in the menu and not required.'),
@@ -49,19 +50,6 @@ $help_items = [
     xlt('To enable or disable a module, select the module and click the "Enable" or "Disable" button.'),
 ];
 ?>
-<!-- Retain for future use. Config and enable new page buttons here. -->
-<!--<ul class="tabNav bg-light text-dark">
-    <li class="current divMenu" onclick="$('.registered').show();$('.unregistered').hide();$('.divMenu').removeClass('current');$(this).addClass('current');">
-        <button type="button" class="btn btn-primary" id="header_tab_Registered">
-            <?php /*echo $listener->z_xlt('Custom Modules'); */ ?>
-        </button>
-    </li>
-    <li class="divMenu" onclick="$('.registered').hide();$('.unregistered').show();$('.divMenu').removeClass('current');$(this).addClass('current');">
-        <button type="button" class="btn btn-primary" href="javascript:void(0)" id="header_tab_UnReg">
-            <?php /*echo $listener->z_xlt('Laminas Modules'); */ ?> <span id='ct'></span>
-        </button>
-    </li>
-</ul>-->
 <style>
   body {
     font-family: Arial, Helvetica, sans-serif !important;
@@ -121,14 +109,15 @@ $help_items = [
     }
 </script>
 <div class="installer bg-light text-dark">
-    <div class="container bg-light text-dark" id="helpPanel">
+    <div class="bg-light text-dark" id="helpPanel">
         <button class="btn btn-outline-primary btn-sm btn-show my-2" type="button" onclick="toggleHelp()"><?php echo xlt('Modules Help'); ?></button>
-        <div class="help-content container bg-dark text-light d-none" id="helpContent">
-            <ul>
+        <a class="btn btn-outline-info btn-sm btn-show bg-light text-dark my-2" href="https://www.open-emr.org/wiki/index.php/OpenEMR_Modules" target="_blank"><?php echo xlt('Visit Third Party Modules Wiki'); ?></a>
+        <div class="help-content bg-light text-dark d-none" id="helpContent">
+            <ul style="font-size: 1.0rem;">
                 <?php
                 echo '';
                 foreach ($help_items as $item) {
-                    echo '<li>' . $item . '</li>' . "\n";
+                    echo '<li class="text-dark">' . $item . '</li>' . "\n";
                 }
                 echo '';
                 ?>
@@ -365,35 +354,3 @@ $help_items = [
         </div>
     </div>
 </div>
-<!-- Future use for new tab. Enable buttons at top. -->
-<div class="installer_code notranslate unregistered bg-light" style="display:none">
-    <table id="table-6" class="table table-light table-hover table-condensed" align="center">
-        <thead>
-        <tr>
-            <th class="bg-light text-dark">
-                <span style="font-size: 1.25rem"><?php echo $listener->z_xlt('Manage Laminas Modules'); ?></span>
-            </th>
-        <tr>
-        <tr style="font-size: 16px;">
-            <th scope="col"><?php echo $listener->z_xlt('ID'); ?></th>
-            <th scope="col"><?php echo $listener->z_xlt('Module'); ?> </th>
-            <th scope="col"><?php echo $listener->z_xlt('Status'); ?> </th>
-            <th scope="col"><?php echo $listener->z_xlt('Menu Text'); ?> </th>
-            <th scope="col"><?php echo $listener->z_xlt('Nick Name'); ?> </th>
-            <th scope="col"><?php echo $listener->z_xlt('Type'); ?> </th>
-            <th scope="col"><?php echo $listener->z_xlt('Dependency Modules'); ?> </th>
-            <th scope="col"><?php echo $listener->z_xlt('Action'); ?> </th>
-            <th scope="col"><?php echo $listener->z_xlt('Config'); ?> </th>
-        </tr>
-        </thead>
-        <?php ?>
-    </table>
-</div>
-<?php
-/*if ($slno > 0) {
-    */ ?><!--
-    <script>
-        $('#ct').html('(<?php /*echo $this->escapeHtml($slno) */ ?>)');
-    </script>
-    --><?php
-/*}*/ ?>
