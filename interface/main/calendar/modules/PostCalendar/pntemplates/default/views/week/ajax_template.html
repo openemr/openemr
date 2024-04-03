@@ -347,7 +347,6 @@ if (count($facilities) > 1) {
 // EOS FF
 // ==============================
  echo "</div>";
-    if ($_SESSION['seeAuth'] != '2') {
  echo "   <select multiple size='5' name='pc_username[]' id='pc_username' class='view2 form-control'>\n";
  echo "    <option value='__PC_ALL__'>" . xlt("All Users") . "</option>\n";
  foreach ($provinfo as $doc) {
@@ -356,7 +355,6 @@ if (count($facilities) > 1) {
   foreach ($providers as $provider)
    if ($provider['username'] == $username) echo " selected";
   echo ">" . text($doc['lname']) . ", " . text($doc['fname']) . "</option>\n";
- }
  echo "   </select>\n";
 }
 [-/php-]
