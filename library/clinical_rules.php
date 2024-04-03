@@ -1162,9 +1162,9 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
             }
         }
 
-        // Calculate and save the data for the rule
-        $percentage = calculate_percentage($pass_filter, $exclude_filter, $pass_target);
         if ($mode == "report") {
+            // Calculate and save the data for the rule (only pertinent for report mode)
+            $percentage = calculate_percentage($pass_filter, $exclude_filter, $pass_target);
             $newRow = array('is_main' => true,'total_patients' => $total_patients,'excluded' => $exclude_filter,'pass_filter' => $pass_filter,'pass_target' => $pass_target,'percentage' => $percentage);
             $newRow = array_merge($newRow, $rowRule);
 
@@ -1294,8 +1294,10 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
                     }
                 }
 
-                // Calculate and save the data for the rule
-                $percentage = calculate_percentage($pass_filter, $exclude_filter, $pass_target);
+                if ($mode == "report") {
+                    // Calculate percentage for the rule (only pertinent for report mode)
+                    $percentage = calculate_percentage($pass_filter, $exclude_filter, $pass_target);
+                }
 
                 // Collect action for title (just use the first one, if more than one)
                 $actionArray = resolve_action_sql($rowRule['id'], $i);
