@@ -113,3 +113,7 @@
 ALTER TABLE `form_encounter` ADD `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 #EndIf
 
+
+#IfMissingColumn layout_group_properties grpsec_copy_allow
+ALTER TABLE `layout_group_properties` ADD `grpsec_copy_allow` tinyint(1) NOT NULL DEFAULT 0;
+#EndIf

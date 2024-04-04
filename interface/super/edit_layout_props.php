@@ -132,7 +132,8 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
             "grp_unchecked = ?, "  .
             "grp_services = ?, "   .
             "grp_products = ?, "   .
-            "grp_diags = ?";
+            "grp_diags = ?, "      .
+            "grpsec_copy_allow = ? ";
         $sqlvars = array(
             $_POST['form_title'],
             $_POST['form_subtitle'],
@@ -151,6 +152,7 @@ if (!empty($_POST['form_submit']) && !$alertmsg) {
             empty($_POST['form_services']) ? '' : (empty($_POST['form_services_codes']) ? '*' : $_POST['form_services_codes']),
             empty($_POST['form_products']) ? '' : (empty($_POST['form_products_codes']) ? '*' : $_POST['form_products_codes']),
             empty($_POST['form_diags'   ]) ? '' : (empty($_POST['form_diags_codes'   ]) ? '*' : $_POST['form_diags_codes'   ]),
+            empty($_POST['form_grpsec_copy_allow']) ? 0 : 1,
         );
     }
 
@@ -519,6 +521,16 @@ for ($cols = 2; $cols <= 12; ++$cols) {
   <td valign='top' width='1%' nowrap>
    <input type='checkbox' name='form_unchecked' <?php echo ($row['grp_unchecked']) ? "checked" : ""; ?> />
     <?php echo xlt('Show Unchecked Boxes'); ?>
+  </td>
+  <td>
+   &nbsp;
+  </td>
+ </tr>
+
+ <tr>
+  <td valign='top' width='1%' nowrap>
+   <input type='checkbox' name='form_grpsec_copy_allow' <?php echo text($row['grpsec_copy_allow'] ?? '') ? "checked" : ""; ?> />
+    <?php echo xlt('Allow Group & Section Copy'); ?>
   </td>
   <td>
    &nbsp;
