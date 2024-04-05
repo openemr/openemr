@@ -825,7 +825,7 @@ class CdaTemplateImportDispose
                 $appTable->zQuery($qc_insert, array($value['cvx_code_text'], $value['cvx_code'], $ct_id));
             }
 
-            if (trim($value['amount_administered_unit'] ?? '') != '') {
+            if (!empty(trim($value['amount_administered_unit'] ?? ''))) {
                 $q1_unit = "SELECT * FROM list_options WHERE list_id='drug_units' AND title=?";
                 $res_q1_unit = $appTable->zQuery($q1_unit, array($value['amount_administered_unit']));
                 foreach ($res_q1_unit as $val) {
@@ -922,9 +922,10 @@ class CdaTemplateImportDispose
                 do {
                     $printDebug = xl('Print debug information');
                     $choice = $this->getCommandLineStyler()->choice(
-                        "Proceed with creating immunization for cvx code " . $value['cvx_code'] . "?"
-                        , [$yesContinue, $printDebug]
-                        , $yesContinue);
+                        "Proceed with creating immunization for cvx code " . $value['cvx_code'] . "?",
+                        [$yesContinue, $printDebug],
+                        $yesContinue
+                    );
                     if ($choice == $printDebug) {
                         $this->getCommandLineStyler()->info("Displaying CDA Value");
                         var_dump($value);
@@ -1065,7 +1066,7 @@ class CdaTemplateImportDispose
             }
 
             //unit, only process if we have a value
-            if (trim($value['rate_unit'] ?? '') != '') {
+            if (!empty(trim($value['rate_unit'] ?? ''))) {
                 if ($revapprove == 1) {
                     $value['rate_unit'] = $carecoordinationTable->getListTitle($value['rate_unit'], 'drug_units', '');
                 }
@@ -1179,9 +1180,10 @@ class CdaTemplateImportDispose
                 do {
                     $printDebug = xl('Print debug information');
                     $choice = $this->getCommandLineStyler()->choice(
-                        "Proceed with creating prescription for drug " . $value['drug_text'] . "?"
-                        , [$yesContinue, $printDebug]
-                        , $yesContinue);
+                        "Proceed with creating prescription for drug " . $value['drug_text'] . "?",
+                        [$yesContinue, $printDebug],
+                        $yesContinue
+                    );
                     if ($choice == $printDebug) {
                         $this->getCommandLineStyler()->info("Displaying CDA Value");
                         var_dump($value);
