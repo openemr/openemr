@@ -126,6 +126,9 @@ foreach ($insurance as $row) {
                     $data = $eligibilityData->mapped271;
                 }
 
+                if ($data == null) {
+                    continue;
+                }
                 if (property_exists($data, 'dependent')) {
                     $dependent = $data->dependent;
                     if ($dependent != null) {
