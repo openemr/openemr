@@ -86,6 +86,9 @@ $audienceUrl = (new ServerConfig())->getFhirUrl();
         .errorResponse {
             color: red;
         }
+        .successResponse {
+            color: green;
+        }
     </style>
     <script>
         (function(window, fhirRegistrationURL) {
@@ -157,6 +160,9 @@ $audienceUrl = (new ServerConfig())->getFhirUrl();
                     document.querySelector(".errorResponse").classList.add("hidden");
                     document.querySelector("#clientID").value = resultJSON.client_id;
                     document.querySelector("#clientSecretID").value = resultJSON.client_secret;
+                    msgText = js_xl('Your app has been registered!');
+                    document.querySelector(".successResponse").classList.remove("hidden");
+                    document.querySelector("#successResponseContainer").textContent = msgText;
                 })
                 .catch(error => {
                     console.error(error);
@@ -461,6 +467,10 @@ $audienceUrl = (new ServerConfig())->getFhirUrl();
                 </div>
                 <div class="form-group errorResponse hidden">
                     <div id="errorResponseContainer">
+                    </div>
+                </div>
+                <div class="form-group successResponse hidden">
+                    <div id="successResponseContainer">
                     </div>
                 </div>
             </div>

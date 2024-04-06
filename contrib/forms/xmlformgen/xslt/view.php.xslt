@@ -84,7 +84,7 @@ else
 
 <script>
 // this line is to assist the calendar text boxes
-var mypcc = '<?php echo $GLOBALS['phone_country_code']; ?>';
+var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 
 <!-- FIXME: this needs to detect access method, and construct a URL appropriately! -->
 function PrintForm() {

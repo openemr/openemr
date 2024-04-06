@@ -20,7 +20,7 @@ class Config_Mpdf
             'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
             'mode' => $GLOBALS['pdf_language'],
             'format' => $GLOBALS['pdf_size'],
-            'default_font_size' => '9',
+            'default_font_size' => $GLOBALS['pdf_font_size'] ?? '9',
             'default_font' => 'dejavusans',
             'margin_left' => $GLOBALS['pdf_left_margin'],
             'margin_right' => $GLOBALS['pdf_right_margin'],

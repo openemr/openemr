@@ -225,7 +225,7 @@ class EncountermanagerController extends AbstractActionController
             if (!$document->can_access()) {
                 echo $twig->getTwig()->render("templates/error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']);
                 exit;
-            } else if ($document->is_deleted()) {
+            } elseif ($document->is_deleted()) {
                 echo $twig->getTwig()->render("templates/error/404.html.twig");
                 exit;
             }

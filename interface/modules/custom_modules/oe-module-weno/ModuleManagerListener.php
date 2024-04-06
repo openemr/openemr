@@ -31,10 +31,11 @@
 */
 
 use OpenEMR\Core\AbstractModuleActionListener;
+use OpenEMR\Modules\WenoModule\Services\ModuleService;
 
 /* Allows maintenance of background tasks depending on Module Manager action. */
 
-class ModuleManagerAfterActionListener extends AbstractModuleActionListener
+class ModuleManagerListener extends AbstractModuleActionListener
 {
     public function __construct()
     {
@@ -52,7 +53,8 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
         if (method_exists(self::class, $methodName)) {
             return self::$methodName($modId, $currentActionStatus);
         } else {
-            return "Module cleanup method $methodName does not exist.";
+            // no reason to report action method is missing.
+            return $currentActionStatus;
         }
     }
 
@@ -70,12 +72,12 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
     }
 
     /**
-     * Required method to return this class object,
-     * so it is instantiated in Laminas Manager.
+     * Required method to return this class object
+     * so it will be instantiated in Laminas Manager.
      *
-     * @return ModuleManagerAfterActionListener
+     * @return ModuleManagerListener
      */
-    public static function initListenerSelf(): ModuleManagerAfterActionListener
+    public static function initListenerSelf(): ModuleManagerListener
     {
         return new self();
     }
@@ -87,6 +89,40 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
      */
     private function install($modId, $currentActionStatus): mixed
     {
+        $modService = new ModuleService();
+        /* setting the active ui flag here will allow the config button to show
+         * before enable. This is a good thing because it allows the user to
+         * configure the module before enabling it. However, if the module is disabled
+         * this flag is reset by MM.
+        */
+        $modService::setModuleState($modId, '0', '1');
+        return $currentActionStatus;
+    }
+
+    /**
+     * @param $modId
+     * @param $currentActionStatus
+     * @return mixed
+     */
+    private function help_requested($modId, $currentActionStatus): mixed
+    {
+        // must call a script that implements a dialog to show help.
+        // I can't find a way to override the Laminas UI except using a dialog.
+        try {
+            include 'show_help.php';
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
+        return $currentActionStatus;
+    }
+
+    /**
+     * @param $modId
+     * @param $currentActionStatus
+     * @return mixed
+     */
+    private function preenable($modId, $currentActionStatus): mixed
+    {
         return $currentActionStatus;
     }
 
@@ -97,8 +133,13 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
      */
     private function enable($modId, $currentActionStatus): mixed
     {
-        $rtn = $this->setTaskState('1');
-        return $currentActionStatus;
+        $modService = new ModuleService();
+        if ($modService->isWenoConfigured()) {
+            $modService::setModuleState($modId, '1', '0');
+            return $currentActionStatus;
+        }
+        $modService::setModuleState($modId, '1', '1');
+        return xlt("Weno eRx Service is not configured. Please configure Weno eRx Service in the Weno Module Setup.");
     }
 
     /**
@@ -108,7 +149,8 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
      */
     private function disable($modId, $currentActionStatus): mixed
     {
-        $rtn = $this->setTaskState('0');
+        // allow config button to show before enable.
+        ModuleService::setModuleState($modId, '0', '1');
         return $currentActionStatus;
     }
 
@@ -161,15 +203,5 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
         }
 
         return $registry;
-    }
-
-    /**
-     * @param $flag
-     * @return mixed
-     */
-    private function setTaskState($flag): mixed
-    {
-        $sql_next = "UPDATE `background_services` SET `active` = ? WHERE `name` = ? OR `name` = ?";
-        return sqlQuery($sql_next, array($flag, 'WenoExchange', 'WenoExchangePharmacies'));
     }
 }

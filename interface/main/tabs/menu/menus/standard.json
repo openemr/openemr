@@ -501,7 +501,7 @@
       {
         "label": "Manage Modules",
         "menu_id": "adm0",
-        "target": "pat",
+        "target": "adm",
         "url": "/interface/modules/zend_modules/public/Installer",
         "children": [],
         "requirement": 0,

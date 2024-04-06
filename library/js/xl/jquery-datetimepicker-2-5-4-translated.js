@@ -82,6 +82,8 @@ function datetimepickerTranslated(selector, params) {
         if (params.showSeconds) {
             if (params.formatInput) {
                 defaults.format = DateFormatRead("jquery-datetimepicker") + ' H:i:s';
+            } else {
+                defaults.format = 'Y-m-d H:i:s';
             }
         } else {
             if (params.formatInput) {

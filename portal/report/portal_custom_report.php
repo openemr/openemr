@@ -545,7 +545,7 @@ if ($printable) {
     <h2><?php echo text($facility['name']); ?></h2>
     <?php echo text($facility['street']); ?><br />
     <?php echo text($facility['city']); ?>, <?php echo text($facility['state']); ?> <?php echo text($facility['postal_code']); ?><br clear='all'>
-    <?php echo $facility['phone'] ?><br />
+    <?php echo text($facility['phone']) ?><br />
 
 <a href="javascript:window.close();"><span class='title'><?php echo text($titleres['fname']) . " " . text($titleres['lname']); ?></span></a><br />
 <span class='text'><?php echo xlt('Generated on'); ?>: <?php echo text(oeFormatShortDate()); ?></span>
