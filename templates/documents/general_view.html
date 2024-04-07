@@ -232,7 +232,7 @@ function tagProcedure() {
 		</td>
 	</tr>
 	<tr id="DocContents" class="h-100">
-		<td>
+		<td class="align-top">
       {if $file->get_mimetype() eq "image/tiff" or $file->get_mimetype() eq "text/plain"}
 			<embed  style="height:84vh; border: 0px" type="{$file->get_mimetype()|attr}" src="{$web_path|attr}as_file=false"></embed>
 			{elseif $file->get_mimetype() eq "image/png" or
