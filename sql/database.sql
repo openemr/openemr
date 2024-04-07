@@ -8925,7 +8925,8 @@ CREATE TABLE `users_secure` (
   `last_login_fail` datetime DEFAULT NULL,
   `auto_block_emailed` tinyint DEFAULT 0,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `USERNAME_ID` (`id`,`username`)
+  UNIQUE KEY `USERNAME_ID` (`id`,`username`),
+  CONSTRAINT `min_password_length` CHECK ((LENGTH(`password`) >= 12))
 ) ENGINE=InnoDb;
 
 -- --------------------------------------------------------

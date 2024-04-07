@@ -2117,7 +2117,7 @@ $GLOBALS_METADATA = array(
                 '19' => '19',
                 '20' => '20',
             ),
-            '9',                              // default
+            '12',                              // default
             xl('Minimum length of password.')
         ),
 
