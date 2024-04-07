@@ -84,7 +84,6 @@ $primaryInfos = ConnectorApi::getPrimaryInfos('');
 <html>
 <head>
         <?php Header::setupHeader(['opener']);?>
-        <link rel="stylesheet" href="../../../../../public/assets/bootstrap/dist/css/bootstrap.min.css">
     </head>
     <body>
     <form method='post' name='theform' action="route_edit.php?labGuid=<?php echo attr_url($labGuid); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>">
@@ -103,7 +102,7 @@ $primaryInfos = ConnectorApi::getPrimaryInfos('');
                         <?php
                         foreach ($primaryInfos as $pInfo) {
                             ?>
-                            <option <?php echo DisplayHelper::SelectOption(attr($_POST['form_primaries']), attr($pInfo->npi)) ?>  value='<?php echo attr($pInfo->npi) ?>' ><?php echo text($pInfo->primaryName); ?> (<?php echo text($pInfo->npi); ?>)</option>
+                            <option <?php echo DisplayHelper::SelectOption($_POST['form_primaries'] ?? '', $pInfo->npi ?? '') ?>  value='<?php echo attr($pInfo->npi) ?>' ><?php echo text($pInfo->primaryName); ?> (<?php echo text($pInfo->npi); ?>)</option>
                             <?php
                         }
                         ?>
@@ -124,7 +123,7 @@ $primaryInfos = ConnectorApi::getPrimaryInfos('');
             <div class="col-sm-6">
                 <button type="submit" name="SubmitButton" class="btn btn-primary"><?php echo xlt("Save") ?></button>
                 <?php
-                    echo $message;
+                    echo text($message);
                 ?>
             </div>
         </div>

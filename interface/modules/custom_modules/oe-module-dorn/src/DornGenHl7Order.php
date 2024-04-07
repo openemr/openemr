@@ -41,9 +41,8 @@ class DornGenHl7Order extends GenHl7OrderBase
     /**
      * Generate HL7 for the specified procedure order.
      *
-     * @param  integer $orderid Procedure order ID.
-     * @param  string  &$out    Container for target HL7 text.
-     * @param  string  &$reqStr
+     * @param integer  $orderid Procedure order ID.
+     * @param string  &$out     Container for target HL7 text.
      * @return string            Error text, or empty if no errors.
      */
     public function genHl7Order($orderid, &$out)

@@ -55,7 +55,6 @@ if ($npi) {
 <html>
     <head>
         <?php Header::setupHeader(['opener']);?>
-        <link rel="stylesheet" href="../../../../../public/assets/bootstrap/dist/css/bootstrap.min.css">
     </head>
     <body>
         <form method='post' name='theform' action="primary_config_edit.php?npi=<?php echo attr_url($data->npi); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>">

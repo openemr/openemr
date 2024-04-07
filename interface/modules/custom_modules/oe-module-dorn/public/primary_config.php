@@ -39,7 +39,6 @@ if (!empty($_POST)) {
 <html>
     <head>
         <?php Header::setupHeader(); ?>
-        <link rel="stylesheet" href="../../../../../public/assets/bootstrap/dist/css/bootstrap.min.css">
     </head>
 <title> <?php echo xlt("DORN Configuration"); ?>  </title>
 <script>
@@ -47,7 +46,7 @@ if (!empty($_POST)) {
 function doedclick_edit(npi) {
     top.restoreSession();
     var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?>;
-    let scriptTitle = 'primary_config_edit.php?npi=' + npi +'&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+    let scriptTitle = 'primary_config_edit.php?npi=' + encodeURIComponent(npi) +'&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
     dlgopen(scriptTitle, '_blank', 800, 750, false, addTitle);
 }
 function doedclick_add() {
@@ -76,8 +75,8 @@ function doedclick_add() {
                 <div class="row">
                     <div class="col">
                         <p>
-                            The DORN network requires basic address setup for your clinic. This setup is based on NPI. The first and default entry will be your billing NPI. If there are other NPI's in your clinic that have their own account at a lab, 
-                            then more than 1 entry can be created here.
+                            <?php echo xlt("The DORN network requires basic address setup for your clinic. This setup is based on NPI. The first and default entry will be your billing NPI. If there are other NPI's in your clinic that have their own account at a lab, 
+                            then more than 1 entry can be created here."); ?>
                         </p>
                     </div>
                 </div>
@@ -99,7 +98,6 @@ function doedclick_add() {
                                     </div>
                                     <div class="col-md-3">
                                         <button type="button" class="btn btn-primary btn-add" onclick="doedclick_edit()"><?php echo xlt('Add New');?></button>
-                            
                                     </div>
                                 </div>           
                             </div>
@@ -150,7 +148,7 @@ function doedclick_add() {
                                             </div>
                                         </td>
                                         <td scope="row">
-                                            <button type="button" class="btn btn-primary btn-add" onclick="doedclick_edit(<?php echo text($data->npi); ?>)"><?php echo xlt('Edit');?></button>
+                                            <button type="button" class="btn btn-primary btn-add" onclick="doedclick_edit(<?php echo attr_js($data->npi); ?>)"><?php echo xlt('Edit');?></button>
                                         </td>
                                     </tr>
                                         <?php
@@ -158,9 +156,6 @@ function doedclick_add() {
                                     ?>
                                 </tbody>
                             </table>
-
-
-
                             <?php
                         }//end empty data
                         ?>
@@ -169,14 +164,11 @@ function doedclick_add() {
             </div> <!-- End Card -->
         </div>
     </div>
-
-
     <div class="row"> 
         <div class="col">
         <?php
             require '../templates/contact.php';
         ?>
-        
         </div>
     </div>
 </body>

@@ -11,6 +11,7 @@
  */
 
 require_once "../../../../globals.php";
+
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -19,7 +20,7 @@ use OpenEMR\Core\Header;
 //this is needed along with setupHeader() to get the pop up to appear
 
 $tab = "orders";
-$pageTitle = "DORN Orders";
+$pageTitle = xlt("DORN Orders");
 if (!AclMain::aclCheckCore('admin', 'users')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl($pageTitle)]);
     exit;
@@ -35,14 +36,20 @@ if (!empty($_POST)) {
     }
 }
 ?>
-<html>
+<html lang="">
 <head>
         <?php Header::setupHeader(); ?>
-        <link rel="stylesheet" href="../../../../../public/assets/bootstrap/dist/css/bootstrap.min.css">
-    </head>
-<title> <?php echo xlt($pageTitle); ?>  </title>
+    <title> <?php echo $pageTitle; ?>  </title>
+</head>
 <script>
-
+    $(function () {
+        $('.datepicker').datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = true; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        });
+    });
 </script>
 <body>
     <div class="row"> 
@@ -84,13 +91,13 @@ if (!empty($_POST)) {
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="form_startDateTime"><?php echo xlt("Start Date") ?>:</label>
-                                            <input type="date" class="form-control" id="form_startDateTime" name="form_startDateTime" value="<?php echo isset($_POST['form_startDateTime']) ? attr($_POST['form_startDateTime']) : '' ?>"/>
+                                            <input type="date" class="form-control datepicker" id="form_startDateTime" name="form_startDateTime" value="<?php echo isset($_POST['form_startDateTime']) ? attr($_POST['form_startDateTime']) : '' ?>"/>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="form_endDateTime"><?php echo xlt("End Date") ?>:</label>
-                                            <input type="date" class="form-control" id="form_endDateTime" name="form_endDateTime" value="<?php echo isset($_POST['form_endDateTime']) ? attr($_POST['form_endDateTime']) : '' ?>"/>
+                                            <input type="date" class="form-control datepicker" id="form_endDateTime" name="form_endDateTime" value="<?php echo isset($_POST['form_endDateTime']) ? attr($_POST['form_endDateTime']) : '' ?>"/>
                                         </div>
                                     </div>                                                
                                 </div>
