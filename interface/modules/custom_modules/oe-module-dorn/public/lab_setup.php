@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package OpenEMR
@@ -9,23 +10,23 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
- require_once "../../../../globals.php";
-
- use OpenEMR\Common\Acl\AclMain;
- use OpenEMR\Common\Csrf\CsrfUtils;
- use OpenEMR\Common\Twig\TwigContainer;
- use OpenEMR\Modules\Dorn\ConnectorApi;
- use OpenEMR\Core\Header; //this is needed along with setupHeader() to get the pop up to appear
+require_once "../../../../globals.php";
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Modules\Dorn\ConnectorApi;
+use OpenEMR\Core\Header;
+//this is needed along with setupHeader() to get the pop up to appear
 
 $tab = "lab setup";
-
 if (!AclMain::aclCheckCore('admin', 'users')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Procedure Provider")]);
     exit;
 }
 
 if (!empty($_POST)) {
-    if (isset($_POST['SubmitButton'])) { //check if form was submitted
+    if (isset($_POST['SubmitButton'])) {
+    //check if form was submitted
         $datas = ConnectorApi::searchLabs($_POST['form_labName'], $_POST['form_phone'], $_POST['form_fax'], $_POST['form_city'], $_POST['form_state'], $_POST['form_zip'], $_POST['form_active'], $_POST['form_connected']);
         if ($datas == null) {
             $datas = [];
@@ -125,8 +126,8 @@ function installCompendiumClick(labGuid) {
                                 <label for="form_connected"><?php echo xlt("Is Connected") ?>:</label>
                                 <select id="form_connected" name="form_connected">
                                     <option value="" >All</option>
-                                    <option value="yes" <?php echo isset($_POST['form_connected']) ? attr($_POST['form_connected'])=='yes' ? ' selected ':'' : '' ?> >Yes</option>
-                                    <option value="no" <?php echo isset($_POST['form_connected']) ? attr($_POST['form_connected'])=='no' ? ' selected ':'' : '' ?> >No</option>
+                                    <option value="yes" <?php echo isset($_POST['form_connected']) ? attr($_POST['form_connected']) == 'yes' ? ' selected ' : '' : '' ?> >Yes</option>
+                                    <option value="no" <?php echo isset($_POST['form_connected']) ? attr($_POST['form_connected']) == 'no' ? ' selected ' : '' : '' ?> >No</option>
                                 </select>
                             </div>                                 
                         </div>
@@ -135,8 +136,8 @@ function installCompendiumClick(labGuid) {
                                 <label for="form_active"><?php echo xlt("Is Active") ?>:</label>
                                 <select id="form_active" name="form_connected">
                                     <option value="" >All</option>
-                                    <option value="yes" <?php echo isset($_POST['form_active']) ? attr($_POST['form_active'])=='yes' ? ' selected ':'' : '' ?> >Yes</option>
-                                    <option value="no" <?php echo isset($_POST['form_active']) ? attr($_POST['form_active'])=='no' ? ' selected ':'' : '' ?> >No</option>
+                                    <option value="yes" <?php echo isset($_POST['form_active']) ? attr($_POST['form_active']) == 'yes' ? ' selected ' : '' : '' ?> >Yes</option>
+                                    <option value="no" <?php echo isset($_POST['form_active']) ? attr($_POST['form_active']) == 'no' ? ' selected ' : '' : '' ?> >No</option>
                                 </select>
                             </div>    
                              

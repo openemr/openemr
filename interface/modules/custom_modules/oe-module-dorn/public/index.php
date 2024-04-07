@@ -14,7 +14,7 @@
 
     use OpenEMR\Common\Acl\AclMain;
     use OpenEMR\Common\Twig\TwigContainer;
-    
+
     $tab = "home";
 
 

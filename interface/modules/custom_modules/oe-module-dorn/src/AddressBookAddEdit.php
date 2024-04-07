@@ -31,7 +31,7 @@ class AddressBookAddEdit
         }
         return $uid;
     }
-    
+
     public static function updateRecordInAddressBook($uid, $organization, $street, $streetb, $city, $state, $zip, $url, $phone, $fax, $notes)
     {
         $sql = "UPDATE users SET organization = ?, street = ?, streetb = ?, city = ?, 
@@ -80,7 +80,7 @@ class AddressBookAddEdit
         $phonew1        = "";
         $phonew2        = "";
         $phonecell      = "";
-        
+
         $sqlArr = array($$userName, $password, $authorized, $info, $source
             ,$title, $fname, $lname, $mname, $suffix
             ,$federaltaxid, $federaldrugid,$upin,$facility,$see_auth,$active,$npi,$taxonomy,$cpoe
@@ -102,7 +102,8 @@ class AddressBookAddEdit
         ,?, ?,?,?,?,?,?,?,?
         ,?,?,?,?,?,?,?,?
         ,?,?,?,?,?,?,?,?,?,?,?,?
-        ,?,?,?,?,?)", $sqlArr
+        ,?,?,?,?,?)",
+            $sqlArr
         );
 
         return $userid;

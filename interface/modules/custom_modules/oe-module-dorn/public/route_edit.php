@@ -47,7 +47,7 @@ if (!empty($_POST)) {
         $setupRouteInfo = LabRouteSetup::getRouteSetup($apiResponse->labGuid, $apiResponse->routeGuid);
         if ($setupRouteInfo != null) {
             $ppid = $setupRouteInfo["ppid"];
-            $uid =$setupRouteInfo["uid"];
+            $uid = $setupRouteInfo["uid"];
         }
 
         //we've added this lab to the address book here.

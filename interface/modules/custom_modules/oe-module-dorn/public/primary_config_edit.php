@@ -24,13 +24,13 @@ if (!empty($_GET)) {
         CsrfUtils::csrfNotVerified();
     }
 }
-    
+
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 }
-    
+
 if (!AclMain::aclCheckCore('admin', 'users')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Procedure Provider")]);
     exit;
@@ -50,7 +50,7 @@ if (!empty($_POST)) {
 if ($npi) {
     $data = ConnectorApi::getPrimaryInfoByNpi($npi);
 }
-    
+
 ?>
 <html>
     <head>

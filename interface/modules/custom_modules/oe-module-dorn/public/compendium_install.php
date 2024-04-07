@@ -17,7 +17,7 @@
  use OpenEMR\Common\Twig\TwigContainer;
  use OpenEMR\Core\Header;
  use OpenEMR\Modules\Dorn\LabCompendiumInstall;
- 
+
 if (!empty($_GET)) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();

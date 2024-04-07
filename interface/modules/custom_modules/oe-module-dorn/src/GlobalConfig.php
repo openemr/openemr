@@ -24,7 +24,7 @@ class GlobalConfig
     public const CONFIG_OPTION_SCOPE = 'oe_dorn_config_scope';
     public const CONFIG_OPTION_AUTHORITY = 'oe_dorn_config_authority';
 
-   
+
     public const CONFIG_ENABLE_MENU = "oe_dorn_config_add_menu_button";
     private $globalsArray;
 

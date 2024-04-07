@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package OpenEMR
@@ -9,13 +10,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
- require_once "../../../../globals.php";
-
- use OpenEMR\Common\Acl\AclMain;
- use OpenEMR\Common\Csrf\CsrfUtils;
- use OpenEMR\Common\Twig\TwigContainer;
- use OpenEMR\Modules\Dorn\ConnectorApi;
- use OpenEMR\Core\Header; //this is needed along with setupHeader() to get the pop up to appear
+require_once "../../../../globals.php";
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Modules\Dorn\ConnectorApi;
+use OpenEMR\Core\Header;
+//this is needed along with setupHeader() to get the pop up to appear
 
 $tab = "orders";
 $pageTitle = "DORN Orders";
@@ -24,9 +25,9 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
     exit;
 }
 $primaryInfos = ConnectorApi::getPrimaryInfos('');
-
 if (!empty($_POST)) {
-    if (isset($_POST['SubmitButton'])) { //check if form was submitted
+    if (isset($_POST['SubmitButton'])) {
+    //check if form was submitted
         $datas = ConnectorApi::searchOrderStatus($_POST['form_orderNumber'], $_POST['form_primaryId'], $_POST['form_startDateTime'], $_POST['form_endDateTime']);
         if ($datas == null) {
             $datas = [];
@@ -106,7 +107,8 @@ if (!empty($_POST)) {
                      <?php
                         if (empty($datas)) {
                             echo xlt("No results found");
-                        } else { ?>
+                        } else {
+                            ?>
                         <table class="table">
                             <thead>
                                 <tr>
