@@ -39,7 +39,7 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
 if (!empty($_POST)) {
     if (isset($_POST['SubmitButton'])) { //check if form was submitted
         $saveData = CustomerPrimaryInfoView::loadByPost($_POST);
-        echo($saveData->primaryPhone);
+        echo(text($saveData->primaryPhone));
         ConnectorApi::savePrimaryInfo($saveData);
         $npi = $_POST["form_npi"];
     }

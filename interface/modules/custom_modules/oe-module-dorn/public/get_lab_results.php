@@ -63,7 +63,7 @@ if ($resultsGuid) {
 
         foreach ($response as $resultModel) {
             echo '<div class="alert ' . ($resultModel->isSuccess ? 'alert-success' : 'alert-danger') . '" role="alert">';
-            echo '<strong>' . ($resultModel->isSuccess ? 'Success' : 'Error') . ':</strong> ' . text("$resultModel->message");
+            echo '<strong>' . ($resultModel->isSuccess ? xlt('Success') : xlt('Error')) . ':</strong> ' . text("$resultModel->message");
             echo '</div>';
         }
     } else {

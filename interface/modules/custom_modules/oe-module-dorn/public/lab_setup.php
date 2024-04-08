@@ -127,8 +127,8 @@ if (!empty($_POST)) {
                                 <label for="form_connected"><?php echo xlt("Is Connected") ?>:</label>
                                 <select id="form_connected" name="form_connected">
                                     <option value=""><?php echo xlt("All") ?></option>
-                                    <option value="yes" <?php echo isset($_POST['form_connected']) ? attr($_POST['form_connected']) == 'yes' ? ' selected ' : '' : '' ?> >Yes</option>
-                                    <option value="no" <?php echo isset($_POST['form_connected']) ? attr($_POST['form_connected']) == 'no' ? ' selected ' : '' : '' ?> >No</option>
+                                    <option value="yes" <?php echo isset($_POST['form_connected']) ? attr($_POST['form_connected']) == 'yes' ? ' selected ' : '' : '' ?> ><?php echo xlt("Yes"); ?></option>
+                                    <option value="no" <?php echo isset($_POST['form_connected']) ? attr($_POST['form_connected']) == 'no' ? ' selected ' : '' : '' ?> ><?php echo xlt("No"); ?></option>
                                 </select>
                             </div>
                         </div>
@@ -137,8 +137,8 @@ if (!empty($_POST)) {
                                 <label for="form_active"><?php echo xlt("Is Active") ?>:</label>
                                 <select id="form_active" name="form_connected">
                                     <option value=""><?php echo xlt("All") ?></option>
-                                    <option value="yes" <?php echo isset($_POST['form_active']) ? attr($_POST['form_active']) == 'yes' ? ' selected ' : '' : '' ?> >Yes</option>
-                                    <option value="no" <?php echo isset($_POST['form_active']) ? attr($_POST['form_active']) == 'no' ? ' selected ' : '' : '' ?> >No</option>
+                                    <option value="yes" <?php echo isset($_POST['form_active']) ? attr($_POST['form_active']) == 'yes' ? ' selected ' : '' : '' ?> ><?php echo xlt("Yes"); ?></option>
+                                    <option value="no" <?php echo isset($_POST['form_active']) ? attr($_POST['form_active']) == 'no' ? ' selected ' : '' : '' ?> ><?php echo xlt("No"); ?></option>
                                 </select>
                             </div>
 

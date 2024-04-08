@@ -20,9 +20,9 @@ use OpenEMR\Core\Header;
 //this is needed along with setupHeader() to get the pop up to appear
 
 $tab = "orders";
-$pageTitle = xlt("DORN Orders");
+$pageTitle = xl("DORN Orders");
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl($pageTitle)]);
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
     exit;
 }
 $primaryInfos = ConnectorApi::getPrimaryInfos('');
@@ -38,15 +38,15 @@ if (!empty($_POST)) {
 ?>
 <html lang="">
 <head>
-        <?php Header::setupHeader(); ?>
-    <title> <?php echo $pageTitle; ?>  </title>
+    <?php Header::setupHeader(); ?>
+    <title> <?php echo text($pageTitle); ?>  </title>
 </head>
 <script>
     $(function () {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
-            <?php $datetimepicker_formatInput = true; ?>
+            <?php $datetimepicker_formatInput = false; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         });
     });
@@ -73,9 +73,8 @@ if (!empty($_POST)) {
                                             <?php foreach ($primaryInfos as $primaryInfo) {
                                                 $selected = $primaryInfo->primaryId === $_GET['form_primaryId'] ? "selected" : "";
                                                 ?>
-                                            <option value='<?php echo attr($primaryInfo->primaryId) ?>' <?php $selected ?>>
-                                                <?php echo xlt($primaryInfo->primaryName) ?>
-
+                                            <option value='<?php echo attr($primaryInfo->primaryId); ?>' <?php echo $selected; ?>>
+                                                <?php echo text($primaryInfo->primaryName); ?>
                                             </option>
                                             <?php } ?>
                                         </select>

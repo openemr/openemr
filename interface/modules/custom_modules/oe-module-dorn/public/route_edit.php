@@ -22,6 +22,11 @@
  use OpenEMR\Modules\Dorn\LabRouteSetup;
  use OpenEMR\Modules\Dorn\AddressBookAddEdit;
 
+if (!AclMain::aclCheckCore('admin', 'users')) {
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Procedure Provider")]);
+    exit;
+}
+
 $labGuid = "";
 $message = "";
 
@@ -74,12 +79,7 @@ if (!empty($_POST)) {
     }
 }
 
-if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Procedure Provider")]);
-    exit;
-}
 $primaryInfos = ConnectorApi::getPrimaryInfos('');
-
 ?>
 <html>
 <head>

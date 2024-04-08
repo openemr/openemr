@@ -58,7 +58,7 @@ if (!empty($_POST)) {
         $('.datepicker').datetimepicker({
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
-            <?php $datetimepicker_formatInput = true; ?>
+            <?php $datetimepicker_formatInput = false; ?>
             <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         });
     });
@@ -141,7 +141,6 @@ if (!empty($_POST)) {
                                         ?>                                        
                                         <button type="button" class="btn btn-primary" onclick="ackResults(<?php echo attr_js($data->resultGuid); ?>,'false')"><?php echo xlt('Accept Results');?></button>
                                         <button type="button" class="btn btn-primary" onclick="ackResults(<?php echo attr_js($data->resultGuid); ?>,'true')"><?php echo xlt('Reject Results');?></button>
-            
                                     <?php } ?>
                                      </td>
                                 </tr>

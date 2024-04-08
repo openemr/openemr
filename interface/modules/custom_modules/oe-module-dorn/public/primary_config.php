@@ -75,8 +75,7 @@ function doedclick_add() {
                 <div class="row">
                     <div class="col">
                         <p>
-                            <?php echo xlt("The DORN network requires basic address setup for your clinic. This setup is based on NPI. The first and default entry will be your billing NPI. If there are other NPI's in your clinic that have their own account at a lab, 
-                            then more than 1 entry can be created here."); ?>
+                        <?php echo xlt("The DORN network requires basic address setup for your clinic. This setup is based on NPI. The first and default entry will be your billing NPI. If there are other NPI's in your clinic that have their own account at a lab, then more than 1 entry can be created here."); ?>
                         </p>
                     </div>
                 </div>
