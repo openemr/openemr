@@ -2,8 +2,8 @@
 
 /**
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -13,11 +13,10 @@
 namespace OpenEMR\Modules\Dorn;
 
 use DateTime;
-use OpenEMR\Modules\Dorn\Bootstrap;
+use OpenEMR\Modules\Dorn\models\AckViewModel;
 use OpenEMR\Modules\Dorn\models\ApiResponseViewModel;
 use OpenEMR\Modules\Dorn\models\CompendiumInstallDateViewModel;
 use OpenEMR\Modules\Dorn\models\LabOrderViewModel;
-use OpenEMR\Modules\Dorn\models\AckViewModel;
 
 class ConnectorApi
 {
@@ -45,6 +44,7 @@ class ConnectorApi
         $returnData = ConnectorApi::getData($url);
         return $returnData;
     }
+
     public static function sendAck($resultsGuid, $isRejected, $msgs)
     {
         $api_server = ConnectorApi::getServerInfo();
@@ -57,6 +57,7 @@ class ConnectorApi
         }
         return ConnectorApi::postData($url, $data);
     }
+
     public static function setCompendiumLastUpdate($labGuid)
     {
         $api_server = ConnectorApi::getServerInfo();
@@ -66,6 +67,7 @@ class ConnectorApi
         $data->labGuid = $labGuid;
         return ConnectorApi::putData($url, $data);
     }
+
     public static function searchPendingLabResults($labAccountNumber, $startDateTime, $endDateTime)
     {
         $api_server = ConnectorApi::getServerInfo();
@@ -87,6 +89,7 @@ class ConnectorApi
         $returnData = ConnectorApi::getData($url);
         return $returnData;
     }
+
     public static function getLabResults($resultsGuid)
     {
         $api_server = ConnectorApi::getServerInfo();
@@ -94,6 +97,7 @@ class ConnectorApi
         $returnData = ConnectorApi::getData($url);
         return $returnData;
     }
+
     public static function sendOrder($labGuid, $labAccountNumber, $orderNumber, $patientId, $hl7)
     {
         $api_server = ConnectorApi::getServerInfo();
@@ -107,6 +111,7 @@ class ConnectorApi
         $data->labAccountNumber = $labAccountNumber . '';
         return ConnectorApi::postData($url, $data);
     }
+
     public static function getCompendium($labGuid)
     {
         $api_server = ConnectorApi::getServerInfo();
@@ -114,12 +119,14 @@ class ConnectorApi
         $returnData = ConnectorApi::getData($url);
         return $returnData;
     }
+
     public static function createRoute($data)
     {
         $api_server = ConnectorApi::getServerInfo();
         $url = $api_server . "/api/Route/v1/CreateRoute";
         return ConnectorApi::postData($url, $data);
     }
+
     public static function getLab($labGuid)
     {
         $api_server = ConnectorApi::getServerInfo();
@@ -127,6 +134,7 @@ class ConnectorApi
         $returnData = ConnectorApi::getData($url);
         return $returnData;
     }
+
     public static function searchLabs($labName, $phoneNumber, $faxNumber, $city, $state, $zipCode, $isActive, $isConnected)
     {
         $api_server = ConnectorApi::getServerInfo();
@@ -191,6 +199,7 @@ class ConnectorApi
         $returnData = ConnectorApi::getData($url);
         return $returnData;
     }
+
     public static function getPrimaryInfos($npi)
     {
         $api_server = ConnectorApi::getServerInfo();
@@ -219,15 +228,16 @@ class ConnectorApi
             $responseJsonData = json_decode($result);
             return $responseJsonData;
         }
-        error_log("Error " . "Status Code" . $httpcode . " sending in api " . $url . " Message " . $result);
+        error_log("Error " . "Status Code" . text($httpcode) . " sending in api " . text($url) . " Message " . text($result));
         return "";
     }
+
     public static function putData($url, $sendData)
     {
         $headers = ConnectorApi::buildHeader();
         $payload = json_encode($sendData, JSON_UNESCAPED_SLASHES);
         error_log("putting");
-        error_log($payload);
+        error_log(text($payload));
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
@@ -243,12 +253,13 @@ class ConnectorApi
             return $responseJsonData;
         }
 
-        error_log("Error " . "Status Code" . $httpcode . " sending in API " . $url . " Message " . $result);
+        error_log("Error " . "Status Code" . text($httpcode) . " sending in api " . text($url) . " Message " . text($result));
         $response = new ApiResponseViewModel();
         $response->isSuccess = false;
         $response->responseMessage = "Error Putting Data!";
         return $response;
     }
+
     public static function postData($url, $sendData)
     {
         $headers = ConnectorApi::buildHeader();
@@ -266,12 +277,13 @@ class ConnectorApi
             $responseJsonData = json_decode($result);
             return $responseJsonData;
         }
-        error_log("Error " . "Status Code" . $httpcode . " sending in api " . $url . " Message " . $result);
+        error_log("Error " . "Status Code" . text($httpcode) . " sending in api " . text($url) . " Message " . text($result));
         $response = new ApiResponseViewModel();
         $response->isSuccess = false;
         $response->responseMessage = "Error Posting Data!";
         return $response;
     }
+
     public static function getServerInfo()
     {
         $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
@@ -279,6 +291,7 @@ class ConnectorApi
         $api_server = $globalsConfig->getApiServer();
         return $api_server;
     }
+
     public static function buildHeader()
     {
         $token = ConnectorApi::getAccessToken();
@@ -287,7 +300,7 @@ class ConnectorApi
         $headers = [
             $content,
             $bearer
-         ];
+        ];
         return $headers;
     }
 
@@ -300,6 +313,7 @@ class ConnectorApi
         }
         return "Yes";
     }
+
     public static function getAccessToken()
     {
         $bootstrap = new Bootstrap($GLOBALS['kernel']->getEventDispatcher());
@@ -310,7 +324,7 @@ class ConnectorApi
         $client_secret = $globalsConfig->getClientSecret();
         $api_server = $globalsConfig->getApiServer();
         $headers = [
-           'content-type: application/x-www-form-urlencoded'
+            'content-type: application/x-www-form-urlencoded'
         ];
         $payload = "client_id=" . $clientId . "&scope=" . $scope . "&client_secret=" . $client_secret . "&grant_type=client_credentials";
         $ch = curl_init();

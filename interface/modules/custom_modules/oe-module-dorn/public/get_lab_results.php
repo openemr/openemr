@@ -49,26 +49,26 @@ if ($resultsGuid) {
 ?>
 <html>
     <head>
-        <?php Header::setupHeader(['opener']);?>
-        <link rel="stylesheet" href="../../../../../public/assets/bootstrap/dist/css/bootstrap.min.css">
+        <?php Header::setupHeader(['opener']); ?>
+        <title><?php echo xlt("Alert"); ?></title>
     </head>
     <body>
     <?php
     if (isset($response) && is_array($response)) {
         if (count($response) > 1) {
             echo '<div class="alert alert-info" role="alert">';
-            echo 'Results are split.';
+            echo xlt('Results are split.');
             echo '</div>';
         }
 
         foreach ($response as $resultModel) {
             echo '<div class="alert ' . ($resultModel->isSuccess ? 'alert-success' : 'alert-danger') . '" role="alert">';
-            echo '<strong>' . ($resultModel->isSuccess ? 'Success' : 'Error') . ':</strong> ' . $resultModel->message;
+            echo '<strong>' . ($resultModel->isSuccess ? 'Success' : 'Error') . ':</strong> ' . text("$resultModel->message");
             echo '</div>';
         }
     } else {
         echo '<div class="alert alert-warning" role="alert">';
-        echo 'No results to display.';
+        echo xlt('No results to display.');
         echo '</div>';
     }
     ?>

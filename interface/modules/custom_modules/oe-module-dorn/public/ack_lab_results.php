@@ -54,17 +54,16 @@ if ($resultsGuid) {
 <html>
     <head>
         <?php Header::setupHeader(['opener']);?>
-        <link rel="stylesheet" href="../../../../../public/assets/bootstrap/dist/css/bootstrap.min.css">
     </head>
     <body>
     <?php
     if ($rejectResults == true) {
         ?>
-    <h3>Results Rejected</h3>
+    <h3><?php echo xlt("Results Rejected"); ?></h3>
         <?php
     } else {
         ?>
-        <h3>Results Accepted</h3>
+        <h3><?php echo xlt("Results Accepted"); ?></h3>
         <?php
     }
     ?>
