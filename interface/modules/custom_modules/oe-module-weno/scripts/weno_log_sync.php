@@ -10,7 +10,6 @@
  * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use JetBrains\PhpStorm\NoReturn;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Modules\WenoModule\Services\LogProperties;

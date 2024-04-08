@@ -128,7 +128,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             while ($task = sqlFetchArray($backGroundTask)) {
                 $title = $task['title'];
                 $nextRun = $task['next_run'];
-                echo '<span class="mr-5 text-success">' . $title . '  ' . xlt("next run") . ': <span class="text-dark">' . $nextRun . '</span></span>';
+                echo '<span class="mr-5 text-success">' . text($title) . '  ' . xlt("next run") . ': <span class="text-dark">' . text($nextRun) . '</span></span>';
             }
             echo '</h6>';
         }
