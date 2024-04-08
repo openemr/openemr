@@ -1,10 +1,10 @@
 <?php
 
 /**
- * @package OpenEMR
- * @link    http://www.open-emr.org
- * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
- * @author  Jerry Padgett <sjpadgett@gmail.com>
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,8 +13,6 @@
 namespace OpenEMR\Modules\WenoModule\Services;
 
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Modules\WenoModule\Services\WenoLogService;
-use OpenEMR\Modules\WenoModule\Services\WenoPharmaciesImport;
 use ZipArchive;
 
 class DownloadWenoPharmacies
@@ -47,10 +45,14 @@ class DownloadWenoPharmacies
 
     public function extractFile($path_to_extract, $storelocation): ?string
     {
-        $zip = new ZipArchive();
+        try {
+            $zip = new ZipArchive();
+        } catch (\Exception $e) {
+            error_log('Error extracting zip file: ' . $e->getMessage());
+            return "PHPError_install_zip_archive";
+        }
         $wenoLog = new WenoLogService();
         $import = new WenoPharmaciesImport();
-
         if ($zip->open($storelocation) === true) {
             $zip->extractTo($path_to_extract);
 

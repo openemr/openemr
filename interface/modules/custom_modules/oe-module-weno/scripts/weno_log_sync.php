@@ -61,6 +61,8 @@ function performPharmacyDownload(WenoPharmaciesJson $localPharmacyJson)
         "Background Initiated Pharmacy Download Completed with Status:" . text($status)
     );
 
+    $wenoLog = new WenoLogService();
+    $wenoLog->insertWenoLog("pharmacy", text($status));
     error_log('Background Initiated Weno Pharmacies download completed with status:' . text($status));
 }
 
