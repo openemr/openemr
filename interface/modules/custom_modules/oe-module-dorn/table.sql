@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `mod_dorn_compendium` (
   `lab_type` VARCHAR(30) NULL,
   PRIMARY KEY (`compendium_id`));
 
-  CREATE TABLE `openemr`.`mod_dorn_orderable_items` (
+  CREATE TABLE IF NOT EXISTS `mod_dorn_orderable_items` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `compendium_id` BIGINT(20) NULL,
   `code` VARCHAR(50) NULL,

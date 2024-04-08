@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package OpenEMR
@@ -9,27 +10,28 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
- require_once "../../../../globals.php";
+require_once "../../../../globals.php";
 
- use OpenEMR\Common\Acl\AclMain;
- use OpenEMR\Common\Csrf\CsrfUtils;
- use OpenEMR\Common\Twig\TwigContainer;
- use OpenEMR\Modules\Dorn\ConnectorApi;
- use OpenEMR\Core\Header; //this is needed along with setupHeader() to get the pop up to appear
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Modules\Dorn\ConnectorApi;
+use OpenEMR\Core\Header;
+//this is needed along with setupHeader() to get the pop up to appear
 
  // for translation collection pipeline
 // xl('DORN Orders')
 
 $tab = "orders";
-$pageTitle = "DORN Orders";
+$pageTitle = xl("DORN Orders");
 if (!AclMain::aclCheckCore('admin', 'users')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl($pageTitle)]);
+    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
     exit;
 }
 $primaryInfos = ConnectorApi::getPrimaryInfos('');
-
 if (!empty($_POST)) {
-    if (isset($_POST['SubmitButton'])) { //check if form was submitted
+    if (isset($_POST['SubmitButton'])) {
+    //check if form was submitted
         $datas = ConnectorApi::searchOrderStatus($_POST['form_orderNumber'], $_POST['form_primaryId'], $_POST['form_startDateTime'], $_POST['form_endDateTime']);
         if ($datas == null) {
             $datas = [];
@@ -37,13 +39,20 @@ if (!empty($_POST)) {
     }
 }
 ?>
-<html>
+<html lang="">
 <head>
-        <link rel="stylesheet" href="../../../../../public/assets/bootstrap/dist/css/bootstrap.min.css">
-    </head>
-<title> <?php echo xlt($pageTitle); ?>  </title>
+    <?php Header::setupHeader(); ?>
+    <title> <?php echo text($pageTitle); ?>  </title>
+</head>
 <script>
-
+    $(function () {
+        $('.datepicker').datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = false; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        });
+    });
 </script>
 <body>
     <div class="row"> 
@@ -67,9 +76,8 @@ if (!empty($_POST)) {
                                             <?php foreach ($primaryInfos as $primaryInfo) {
                                                 $selected = $primaryInfo->primaryId === $_GET['form_primaryId'] ? "selected" : "";
                                                 ?>
-                                            <option value='<?php echo attr($primaryInfo->primaryId) ?>' <?php $selected ?>>
-                                                <?php echo text($primaryInfo->primaryName) ?>
-
+                                            <option value='<?php echo attr($primaryInfo->primaryId); ?>' <?php echo $selected; ?>>
+                                                <?php echo text($primaryInfo->primaryName); ?>
                                             </option>
                                             <?php } ?>
                                         </select>
@@ -85,13 +93,13 @@ if (!empty($_POST)) {
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="form_startDateTime"><?php echo xlt("Start Date") ?>:</label>
-                                            <input type="date" class="form-control" id="form_startDateTime" name="form_startDateTime" value="<?php echo isset($_POST['form_startDateTime']) ? attr($_POST['form_startDateTime']) : '' ?>"/>
+                                            <input type="date" class="form-control datepicker" id="form_startDateTime" name="form_startDateTime" value="<?php echo isset($_POST['form_startDateTime']) ? attr($_POST['form_startDateTime']) : '' ?>"/>
                                         </div>
                                     </div>
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="form_endDateTime"><?php echo xlt("End Date") ?>:</label>
-                                            <input type="date" class="form-control" id="form_endDateTime" name="form_endDateTime" value="<?php echo isset($_POST['form_endDateTime']) ? attr($_POST['form_endDateTime']) : '' ?>"/>
+                                            <input type="date" class="form-control datepicker" id="form_endDateTime" name="form_endDateTime" value="<?php echo isset($_POST['form_endDateTime']) ? attr($_POST['form_endDateTime']) : '' ?>"/>
                                         </div>
                                     </div>                                                
                                 </div>
@@ -108,7 +116,8 @@ if (!empty($_POST)) {
                      <?php
                         if (empty($datas)) {
                             echo xlt("No results found");
-                        } else { ?>
+                        } else {
+                            ?>
                         <table class="table">
                             <thead>
                                 <tr>

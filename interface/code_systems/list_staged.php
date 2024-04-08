@@ -239,7 +239,7 @@ if (is_dir($mainPATH)) {
                     $supported_file = 1;
                 }
             } elseif ($db == 'CQM_VALUESET') {
-                if (preg_match("/ep_.*_cms_([0-9]{8}).xml.zip/", $file, $matches)) {
+                if (preg_match("/e[p,c]_.*_cms_([0-9]{8}).xml.zip/", $file, $matches)) {
                      $version = "Standard";
                          $date_release = substr($matches[1], 0, 4) . "-" . substr($matches[1], 4, -2) . "-" . substr($matches[1], 6);
                          $temp_date = array('date' => $date_release, 'version' => $version, 'path' => $mainPATH . "/" . $matches[0]);

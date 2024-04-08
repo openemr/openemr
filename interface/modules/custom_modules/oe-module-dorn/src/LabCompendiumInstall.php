@@ -9,6 +9,7 @@
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace OpenEMR\Modules\Dorn;
 
 use OpenEMR\Modules\Dorn\ConnectorApi;
@@ -24,7 +25,7 @@ class LabCompendiumInstall
             while ($record = sqlFetchArray($result)) {
                 $lab_id = $record["ppid"];
                 LabCompendiumInstall::uninstall($lab_id);
-                $parentId =LabCompendiumInstall::loadGroupRecord($compendiumResponse->compendium, $lab_id);
+                $parentId = LabCompendiumInstall::loadGroupRecord($compendiumResponse->compendium, $lab_id);
                 foreach ($compendiumResponse->compendium->orderableItems as $item) {
                     LabCompendiumInstall::loadOrderableItem($item, $parentId, $lab_id);
                 }
@@ -39,7 +40,7 @@ class LabCompendiumInstall
     {
         $sql = "SELECT * FROM procedure_type WHERE parent = ? AND lab_id = ? AND procedure_type = ?";
         $parentRecord = sqlQuery($sql, [0, $lab_id, 'grp']);
-  
+
         if ($parentRecord) {
             $sql = "SELECT * FROM procedure_type WHERE parent = ? AND lab_id = ? AND procedure_type = ? AND description = ?";
             $orderingTests = sqlQuery($sql, [$parentRecord["procedure_type_id"], $lab_id, "grp", "Ordering Tests"]);
@@ -61,8 +62,8 @@ class LabCompendiumInstall
 
         $sqlArr = array($id,$compendium->labName, $lab_id, 'grp','Ordering Tests');
         $id = sqlInsert($sql, $sqlArr);
-    
-       
+
+
         return $id;
     }
     public static function loadOrderableItem($item, $parentId, $lab_id)
@@ -81,7 +82,7 @@ class LabCompendiumInstall
         } else {
             $sql = "INSERT INTO procedure_type (parent, name, lab_id, procedure_type, procedure_code, standard_code) 
             VALUES (?, ?, ?, ?, ?, ?)";
-  
+
             $sqlArr = array($parentId, $item->name, $lab_id, 'ord', $item->code, $item->loinc);
             $id = sqlInsert($sql, $sqlArr);
         }
@@ -115,18 +116,20 @@ class LabCompendiumInstall
 
         // check for existing record
         $qrow = sqlQuery(
-            "SELECT * FROM procedure_questions WHERE lab_id = ? AND procedure_code = ? AND question_code = ?", array(
+            "SELECT * FROM procedure_questions WHERE lab_id = ? AND procedure_code = ? AND question_code = ?",
+            array(
             $lab_id,
             $pcode,
             $qcode
             )
         );
 
-        
+
         // new record
         if (empty($qrow ['procedure_code'])) {
             sqlStatement(
-                "INSERT INTO procedure_questions SET seq = ?, lab_id = ?, procedure_code = ?, question_code = ?, question_text = ?, fldtype = ?, required = ?, tips = ?, activity = ?, options = ?, maxsize = ?", array(
+                "INSERT INTO procedure_questions SET seq = ?, lab_id = ?, procedure_code = ?, question_code = ?, question_text = ?, fldtype = ?, required = ?, tips = ?, activity = ?, options = ?, maxsize = ?",
+                array(
                 $aoeCount,
                 $lab_id,
                 $pcode,
@@ -142,7 +145,8 @@ class LabCompendiumInstall
             );
         } else { // update record
             sqlStatement(
-                "UPDATE procedure_questions SET seq = ?, question_text = ?, fldtype = ?, required = ?, tips = ?, activity = ? WHERE lab_id = ? AND procedure_code = ? AND question_code = ?, options = ?, maxsize = ?", array(
+                "UPDATE procedure_questions SET seq = ?, question_text = ?, fldtype = ?, required = ?, tips = ?, activity = ? WHERE lab_id = ? AND procedure_code = ? AND question_code = ?, options = ?, maxsize = ?",
+                array(
                 $aoeCount,
                 $question,
                 $fldtype,
@@ -158,7 +162,7 @@ class LabCompendiumInstall
             );
         }
     }
-    public static function formatAnswers($answers):string
+    public static function formatAnswers($answers): string
     {
         $returnValue = "";
         foreach ($answers as $answer) {
@@ -178,12 +182,12 @@ class LabCompendiumInstall
         Radio buttons or drop-list, depending on the number of choices. = anything else (maybe S) for a single select
         */
         switch ($questionType) {
-        case 'Free Text':
-            return 'T';
-        case 'List':
-            return 'S';
-        case 'Multi-Select List':
-            return 'M';
+            case 'Free Text':
+                return 'T';
+            case 'List':
+                return 'S';
+            case 'Multi-Select List':
+                return 'M';
         }
         return 'T';
     }

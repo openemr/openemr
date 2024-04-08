@@ -30,12 +30,12 @@
               <span id='esign-signature-form-prompt'><?php echo xlt("Your password is your signature"); ?></span> 
         </div>
 
-        <div class="esign-signature-form-element">
+        <div class="esign-signature-form-element gs-hide-element">
               <label for='password'><?php echo xlt('Password');?></label> 
               <input type='password' id='password' name='password' size='10' />
         </div>
         
-        <div class="esign-signature-form-element">
+        <div class="esign-signature-form-element gs-hide-element">
               <span id='esign-signature-form-prompt'><?php echo xlt("Checking the lock checkbox will prevent any futher edits on any forms in this encounter."); ?></span> 
         </div>
         
@@ -49,6 +49,26 @@
         <div class="esign-signature-form-element">
               <textarea name='amendment' id='amendment' placeholder='<?php echo xla("Enter an amendment..."); ?>'></textarea> 
         </div>
+
+        <!-- Google sign in for esign -->
+        <?php if ($this->form->displayGoogleSignin) { ?>
+          <div class="mb-3 mt-2">
+            <div class="g_id_signin" data-type="standard" ></div>
+            <div>
+              <input type="hidden" id="used-google-signin" name="used_google_signin" value="">
+              <input type="hidden" id="google-signin-token" name="google_signin_token" value="">
+              <div id="google-signin" onclick="return gsi.do_google_signin();">
+                  <!-- This message is displayed if the google platform API cannot render the button -->
+                  <span id="google-signin-service-unreachable-alert" style="display:none;">
+                      <?php echo xlt('Google Sign-In is enabled but the service is unreachable.');?>
+                  </span>
+              </div>
+              <div id="google-signout">
+                  <a href="#" onclick="gsi.signOut();"><?php echo xlt('Sign out');?></a>
+              </div>
+            </div>
+          </div>
+        <?php } ?>
         
         <div class="esign-signature-form-element">
               <input type='submit' class="btn btn-secondary btn-sm" value='<?php echo xla('Back'); ?>' id='esign-back-button' /> 
@@ -61,3 +81,16 @@
         
     </form> 
 </div>
+
+<!-- Google sign in for esign -->
+<?php if ($this->form->displayGoogleSignin) { ?>
+<script type="text/javascript">
+    let gsi = Object.create(GoogleSigin);
+    gsi.init(<?php echo js_escape($this->form->googleSigninClientID); ?>, {
+      ele : '#esign-form-container',
+      signin_btn : '#esign-sign-button-encounter',
+      error_container : '#esign-signature-form'
+    });
+</script>
+<?php } ?>
+<!-- End -->

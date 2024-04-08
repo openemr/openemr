@@ -1074,7 +1074,7 @@ if (
                                     "JOIN form_encounter AS e2 ON " .
                                     "e2.pid = e1.pid AND (e2.date < e1.date OR (e2.date = e1.date AND e2.encounter <= e1.encounter)) " .
                                     "JOIN shared_attributes AS sa ON " .
-                                    "sa.pid = e2.pid AND sa.encounter = e2.encounter AND sa.field_id = ?" .
+                                    "sa.pid = e2.pid AND sa.encounter = e2.encounter AND sa.field_id = ? " .
                                     "WHERE e1.pid = ? AND e1.encounter = ? " .
                                     "ORDER BY e2.date DESC, e2.encounter DESC LIMIT 1",
                                     array($field_id, $pid, $visitid)

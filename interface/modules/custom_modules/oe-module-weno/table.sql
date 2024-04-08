@@ -54,17 +54,17 @@ CREATE TABLE `weno_assigned_pharmacy` (
 #IfNotTable weno_download_log
 CREATE TABLE `weno_download_log` (
     `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
-    `value` VARCHAR(12) NOT NULL,
-    `status` VARCHAR(10) NOT NULL,
+    `value` VARCHAR(63) NOT NULL,
+    `status` VARCHAR(255) NOT NULL,
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `value` (`value`)
 ) ENGINE=InnoDB;
 #EndIf
 
--- For early adopters of weno, incase they need to upgrade to the next/latest release of openEMR
+-- For early adopters of weno, in case they need to upgrade let's delete and add below.
 #IfRow background_services name WenoExchange
-UPDATE `background_services` SET title="Weno Log Sync", `function`="downloadWenoPrescriptionLog", `require_once`="/interface/modules/custom_modules/oe-module-weno/scripts/weno_log_sync.php" WHERE `name`="WenoExchange";
+DELETE FROM `background_services` WHERE `name` = 'WenoExchange';
 #EndIf
 
 #IfNotRow background_services name WenoExchangePharmacies
@@ -78,10 +78,13 @@ VALUES ('WenoExchange', 'Weno Log Sync', '0', '0', current_timestamp(), '30', 'd
 #EndIf
 
 #IfRow globals gl_name weno_provider_password
-UPDATE `globals` SET gl_name="weno_admin_password" WHERE gl_name="weno_provider_password";
+UPDATE `globals` SET gl_name='weno_admin_password' WHERE gl_name='weno_provider_password';
 #EndIf
 
 #IfRow globals gl_name weno_provider_username
-UPDATE `globals` SET gl_name="weno_admin_username" WHERE gl_name="weno_provider_username";
+UPDATE `globals` SET gl_name='weno_admin_username' WHERE gl_name='weno_provider_username';
 #EndIf
 
+#IfNotColumnType weno_download_log status varchar(255)
+ALTER TABLE `weno_download_log` CHANGE `value` `value` VARCHAR(63) NOT NULL, CHANGE `status` `status` VARCHAR(255) NOT NULL;
+#EndIf

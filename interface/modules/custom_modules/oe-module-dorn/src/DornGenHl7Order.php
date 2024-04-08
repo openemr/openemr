@@ -1,25 +1,25 @@
 <?php
+
 /**
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
 namespace OpenEMR\Modules\Dorn;
 
-use OpenEMR\Modules\Dorn\GenHl7OrderBase;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Modules\Dorn\ConnectorApi;
-use OpenEMR\Modules\Dorn\ProcedureSqlStatements;
 
 class DornGenHl7Order extends GenHl7OrderBase
 {
     public function __construct()
     {
     }
+
     public static function isDornLab($ppid)
     {
         $sql = "SHOW TABLES LIKE 'mod_dorn_routes'";
@@ -39,9 +39,8 @@ class DornGenHl7Order extends GenHl7OrderBase
     /**
      * Generate HL7 for the specified procedure order.
      *
-     * @param  integer $orderid Procedure order ID.
-     * @param  string  &$out    Container for target HL7 text.
-     * @param  string  &$reqStr
+     * @param integer  $orderid Procedure order ID.
+     * @param string  &$out     Container for target HL7 text.
      * @return string            Error text, or empty if no errors.
      */
     public function genHl7Order($orderid, &$out)
@@ -50,7 +49,6 @@ class DornGenHl7Order extends GenHl7OrderBase
         $d0 = "\r";
         $d1 = '|';
         $d2 = '^';
-
         $today = time();
         $out = '';
         $porow = ProcedureSqlStatements::getProcedureOrder($orderid);
@@ -59,38 +57,32 @@ class DornGenHl7Order extends GenHl7OrderBase
         }
 
         $pcres = ProcedureSqlStatements::getProcedureCode($orderid);
-        $pdres = ProcedureSqlStatements::getProcedureCode($orderid);//why was this the exact same query? not sure but it was.
-        
-
+        $pdres = ProcedureSqlStatements::getProcedureCode($orderid);
+//why was this the exact same query? not sure but it was.
         $vitals = ProcedureSqlStatements::getVitals($porow['pid'], $porow['encounter']);
-
-
         $bill_type = strtoupper(substr($porow['billing_type'], 0, 1));
         $out .= $this->createMsh($porow['send_app_id'], $porow['send_fac_id'], $porow['recv_app_id'], $porow['recv_fac_id'], date('YmdHisO', $today), "", $orderid, "T", "", "", "AL", "NE", "", "", "", "");
         $out .= $this->createPid("1", "", $porow['pid'], "", $porow['fname'], $porow['lname'], $porow['mname'], "", $porow['DOB'], $porow['sex'], "", $porow['race'], $porow['street'], "", $porow['city'], $porow['state'], $porow['postal_code'], "", $porow['phone_home'], "", "", "", "", "", "", "", "", "");
         $out .= $this->createPv1("U", $bill_type);
-        // Insurance stuff.
+// Insurance stuff.
         $payers = $this->loadPayerInfo($porow['pid'], $porow['date_ordered']);
         $setid = 0;
-
         if ($bill_type == 'T') {
             // only send primary and secondary insurance
             foreach ($payers as $payer) {
                 $payer_object = $payer['object'];
                 $payer_address = $payer_object->get_address();
                 $full_address = $payer_address->get_line1();
-
                 $payer_address1 = $payer_address->get_line1();
                 $payer_address2 = $payer_address->get_line2();
                 $payer_addressCity = $payer_address->get_city();
                 $payer_addressState = $payer_address->get_state();
                 $payer_addressZip = $payer_address->get_zip();
                 $payer_addressPhone = $payer_object->get_phone();
-
                 if (!empty($payer_address->get_line2())) {
                     $full_address .= "," . $payer_address->get_line2();
                 }
-                $setid = $setid +1;
+                $setid = $setid + 1;
                 $out .= $this->createIn1(
                     $setid,
                     $payer['company']['cms_id'], //this is a guess
@@ -123,63 +115,27 @@ class DornGenHl7Order extends GenHl7OrderBase
             }
         }
 
-        /*
-        bill_type is T = Third Party
-                     P = Self Pay
-                     C = Clinic
-        */
         if ($bill_type == "T") {
             $guarantors = $this->loadGuarantorInfo($porow['pid'], $porow['date_ordered']);
-            //this is returning an array but in the query we have a limit 1!
+//this is returning an array but in the query we have a limit 1!
             foreach ($guarantors as $guarantor) {
-                $out .= $this->createGt1(
-                    "1",
-                    $guarantor['data']['subscriber_fname'],
-                    $guarantor['data']['subscriber_lname'],
-                    $guarantor['data']['subscriber_mname'],
-                    $guarantor['data']['subscriber_street'],
-                    "",
-                    $guarantor['data']['subscriber_city'],
-                    $guarantor['data']['subscriber_state'],
-                    $guarantor['data']['subscriber_postal_code'],
-                    "P",
-                    $guarantor['data']['subscriber_relationship']
-                );
+                $out .= $this->createGt1("1", $guarantor['data']['subscriber_fname'], $guarantor['data']['subscriber_lname'], $guarantor['data']['subscriber_mname'], $guarantor['data']['subscriber_street'], "", $guarantor['data']['subscriber_city'], $guarantor['data']['subscriber_state'], $guarantor['data']['subscriber_postal_code'], "P", $guarantor['data']['subscriber_relationship']);
             }
         } elseif ($bill_type == "P") {
-            //need to figure out what data to pull here, I feel like this should pull patient info. rather than
+//need to figure out what data to pull here, I feel like this should pull patient info. rather than
             //insurance info
         } elseif ($bill_type == "C") {
-            //need to figure out what data to pull here
+//need to figure out what data to pull here
         }
-        
-
         $setid2 = 0;
-
         $vvalue = strtoupper($_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
         $isFasting = strtoupper($_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
-        //        $ht = str_pad(round($vitals['height']), 3, "0", STR_PAD_LEFT);
+//        $ht = str_pad(round($vitals['height']), 3, "0", STR_PAD_LEFT);
         $lb = floor((float)$vitals['weight']);
         $lb = str_pad($lb, 3, "0", STR_PAD_LEFT);
-
-
         $setid = 0;
         while ($pcrow = sqlFetchArray($pcres)) {
-            $out .= $this->createOrc(
-                "NW",
-                $orderid,
-                $orderid,
-                $porow['docnpi'],
-                $porow['docfname'],
-                $porow['doclname'],
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                ""
-            );
+            $out .= $this->createOrc("NW", $orderid, $orderid, $porow['docnpi'], $porow['docfname'], $porow['doclname'], "", "", "", "", "", "", "");
             if ($this->hl7Priority($porow['order_priority']) == "S") {
                 $out .= $this->createTq1("", "");
             }
@@ -189,7 +145,6 @@ class DornGenHl7Order extends GenHl7OrderBase
             // is there in teh database, I this note is a reminder to me to look.
 
             $specprocedure = ProcedureSqlStatements::getSpecimen($pcrow['procedure_code']);
-
             $out .= $this->createObr(
                 ++$setid,
                 $orderid,
@@ -205,7 +160,6 @@ class DornGenHl7Order extends GenHl7OrderBase
                 "",
                 ""
             );
-
             //this is where an NTE segment should be placed.
 
             // now from each test order list
@@ -219,7 +173,6 @@ class DornGenHl7Order extends GenHl7OrderBase
                         }
                         list($codetype, $code) = explode(':', $codestring);
                         $desc = lookup_code_descriptions($codestring);
-
                         $out .= $this->createDg1(++$setid2, $code, $desc, $codetype);
                         $hasDiagnosisSegment = true;
                         if ($setid2 < 9) {
@@ -234,7 +187,6 @@ class DornGenHl7Order extends GenHl7OrderBase
 
             // Order entry questions and answers.
             $qres = ProcedureSqlStatements::getProcedureAnswers($porow['ppid'], $pcrow['procedure_code'], $orderid, $pcrow['procedure_order_seq']);
-
             $setid2 = 0;
             $fastflag = false;
             while ($qrow = sqlFetchArray($qres)) {
@@ -256,50 +208,28 @@ class DornGenHl7Order extends GenHl7OrderBase
                     $days = $answer % 7;
                     $answer = $weeks . 'wks ' . $days . 'days';
                 }
-                $out .= $this->createObx(
-                    ++$setid2,
-                    $datatype,
-                    $qrow['tips'],
-                    $answer,
-                    "",
-                    "",
-                    "F",
-                    "",
-                    "",
-                    ""
-                );
+                $out .= $this->createObx(++$setid2, $datatype, $qrow['tips'], $answer, "", "", "F", "", "", "");
             }
 
             $vvalue = strtoupper($_REQUEST['form_specimen_fasting']) === 'YES' ? "Y" : "N";
             $C[24] = $vvalue === "Y" ? ($vvalue . '12') : $vvalue;
             $T[$setid] = $this->hl7Text($pcrow['procedure_code']);
             if ($vvalue === "Y" && $fastflag === false) {
-                $out .= $this->createObx(
-                    ++$setid2,
-                    "ST",
-                    "FASTIN^FASTING^L",
-                    $vvalue,
-                    "",
-                    "",
-                    "F",
-                    "",
-                    "",
-                    ""
-                );
+                $out .= $this->createObx(++$setid2, "ST", "FASTIN^FASTING^L", $vvalue, "", "", "F", "", "", "");
             }
         }
         return '';
     }
- 
 
-        /**
-         * Generate HL7 for the specified procedure order.
-         *
-         * @param  integer $orderid Procedure order ID.
-         * @param  string  &$out    Container for target HL7 text.
-         * @param  string  &$reqStr
-         * @return string            Error text, or empty if no errors.
-         */
+
+    /**
+     * Generate HL7 for the specified procedure order.
+     *
+     * @param integer  $orderid Procedure order ID.
+     * @param string  &$out     Container for target HL7 text.
+     * @param string  &$reqStr
+     * @return string            Error text, or empty if no errors.
+     */
     public function genHl7OrderBarCode($orderid, &$reqStr)
     {
         $today = time();
@@ -358,32 +288,25 @@ class DornGenHl7Order extends GenHl7OrderBase
         $B = "B|||||||||||||||||||||";
         $K = "K|^|||||||||||||||^^^^||||||";
         $I = "I|^^|^^|^^|^^|^^|^^|^^|^^|";
-
         $porow = ProcedureSqlStatements::getProcedureOrder($orderid);
         if (empty($porow)) {
             return "Procedure order, ordering provider or lab is missing for order ID '$orderid'";
         }
 
         $pcres = ProcedureSqlStatements::getProcedureCode($orderid);
-        $pdres = ProcedureSqlStatements::getProcedureCode($orderid);//why was this the exact same query? not sure but it was.
-        
-
+        $pdres = ProcedureSqlStatements::getProcedureCode($orderid);
+//why was this the exact same query? not sure but it was.
         $vitals = ProcedureSqlStatements::getVitals($porow['pid'], $porow['encounter']);
-
         $P[68] = $vitals['weight'];
         $P[70] = $vitals['height'];
         $P[88] = $vitals['bps'] . '^' . $vitals['bpd'];
         $P[89] = $vitals['waist_circ'];
         $C[17] = parent::hl7Date(date("Ymd", strtotime($porow['date_collected'])));
-        
         $bill_type = strtoupper(substr($porow['billing_type'], 0, 1));
-               
         $H[1] = $porow['send_app_id'];
         $H[2] = date('Ymd', $today);
         $P[1] = $porow['pid'];
         $P[7] = $porow['recv_fac_id'];
-
-
         $P[9] = $this->hl7Text($porow['lname']) . '^' . $this->hl7Text($porow['fname']) . '^' . $this->hl7Text($porow['mname']);
         $P[10] = $this->hl7Date($porow['DOB']);
         $P[11] = $this->hl7Sex($porow['sex']);
@@ -395,8 +318,6 @@ class DornGenHl7Order extends GenHl7OrderBase
         $P[17] = $this->hl7Phone($porow['phone_home']);
         $P[57] = $orderid;
         $P[58] = $porow['pid'];
-
-
         if ($bill_type == 'T') {
             $P[18] = "XI";
         } elseif ($bill_type == 'P') {
@@ -408,10 +329,9 @@ class DornGenHl7Order extends GenHl7OrderBase
         $P[29] = $this->hl7Text($porow['doclname']) . "^" . $this->hl7Text($porow['docfname']);
         $P[30] = $this->hl7Text($porow['docnpi']);
         $P[71] = $this->hl7Text($porow['docnpi']);
-            // Insurance stuff.
+// Insurance stuff.
         $payers = $this->loadPayerInfo($porow['pid'], $porow['date_ordered']);
         $setid = 0;
-
         if ($bill_type == 'T') {
             // only send primary and secondary insurance
             foreach ($payers as $payer) {
@@ -423,9 +343,11 @@ class DornGenHl7Order extends GenHl7OrderBase
                     $full_address .= "," . $payer_address->get_line2();
                 }
 
-                if ($payer_object->get_ins_type_code() === '2') { //medicare
+                if ($payer_object->get_ins_type_code() === '2') {
+//medicare
                     $P[19] = $this->hl7Text($payer['data']['policy_number']);
-                } elseif ($payer_object->get_ins_type_code() === '3') { // medicaid
+                } elseif ($payer_object->get_ins_type_code() === '3') {
+                    // medicaid
                     $P[53] = $this->hl7Text($payer['data']['policy_number']);
                 } else {
                     $P[40] = $this->hl7Text($payer['data']['policy_number']);
@@ -462,7 +384,7 @@ class DornGenHl7Order extends GenHl7OrderBase
         */
         if ($bill_type == "T") {
             $guarantors = $this->loadGuarantorInfo($porow['pid'], $porow['date_ordered']);
-            //this is returning an array but in the query we have a limit 1!
+//this is returning an array but in the query we have a limit 1!
             foreach ($guarantors as $guarantor) {
                 $P[20] = $this->hl7Text($guarantor['data']['subscriber_lname']) . '^' . $this->hl7Text($guarantor['data']['subscriber_fname']) . '^';
                 $P[21] = $this->hl7Date($guarantor['data']['subscriber_ss']);
@@ -470,28 +392,25 @@ class DornGenHl7Order extends GenHl7OrderBase
                 $P[23] = $this->hl7Text($guarantor['data']['subscriber_city']);
                 $P[24] = $this->hl7Text($guarantor['data']['subscriber_state']);
                 $P[25] = $this->hl7Zip($guarantor['data']['subscriber_postal_code']);
-                // $P[26] = // employer;
+// $P[26] = // employer;
                 $P[27] = $this->hl7Relation($guarantor['data']['subscriber_relationship']);
                 $P[56] = $this->hl7Phone($guarantor['data']['subscriber_phone']);
             }
         } elseif ($bill_type == "P") {
-            //need to figure out what data to pull here, I feel like this should pull patient info. rather than
+//need to figure out what data to pull here, I feel like this should pull patient info. rather than
             //insurance info
         } elseif ($bill_type == "C") {
-            //need to figure out what data to pull here
+//need to figure out what data to pull here
         }
-        
+
 
         $setid2 = 0;
-        
         $D[1] = substr($D[1], 0, strlen($D[1]) - 1);
         $vvalue = strtoupper($_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
         $isFasting = strtoupper($_REQUEST['form_specimen_fasting']) == 'YES' ? "Y" : "N";
-        //        $ht = str_pad(round($vitals['height']), 3, "0", STR_PAD_LEFT);
+//        $ht = str_pad(round($vitals['height']), 3, "0", STR_PAD_LEFT);
         $lb = floor((float)$vitals['weight']);
         $lb = str_pad($lb, 3, "0", STR_PAD_LEFT);
-
-
         $setid = 0;
         while ($pcrow = sqlFetchArray($pcres)) {
             //this is where an NTE segment should be placed.
@@ -507,7 +426,6 @@ class DornGenHl7Order extends GenHl7OrderBase
                         }
                         list($codetype, $code) = explode(':', $codestring);
                         $desc = lookup_code_descriptions($codestring);
-
                         $out .= $this->createDg1(++$setid2, $code, $desc, $codetype);
                         $hasDiagnosisSegment = true;
                         if ($setid2 < 9) {
@@ -522,7 +440,6 @@ class DornGenHl7Order extends GenHl7OrderBase
 
             // Order entry questions and answers.
             $qres = ProcedureSqlStatements::getProcedureAnswers($porow['ppid'], $pcrow['procedure_code'], $orderid, $pcrow['procedure_order_seq']);
-
             $setid2 = 0;
             $fastflag = false;
             while ($qrow = sqlFetchArray($qres)) {
@@ -550,41 +467,35 @@ class DornGenHl7Order extends GenHl7OrderBase
             $C[24] = $vvalue === "Y" ? ($vvalue . '12') : $vvalue;
             $T[$setid] = $this->hl7Text($pcrow['procedure_code']);
             if ($vvalue === "Y" && $fastflag === false) {
-                $out .= $this->createObx(
-                    ++$setid2,
-                    "ST",
-                    "FASTIN^FASTING^L",
-                    $vvalue,
-                    "",
-                    "",
-                    "F",
-                    "",
-                    "",
-                    ""
-                );
+                $out .= $this->createObx(++$setid2, "ST", "FASTIN^FASTING^L", $vvalue, "", "", "F", "", "", "");
             }
         }
 
         $reqStr = "";
         for ($i = 0; $i < 6; $i++) {
             $reqStr .= $H[$i] . '|';
-        }$reqStr .= "\x0D";
+        }
+        $reqStr .= "\x0D";
         for ($i = 0; $i < 98; $i++) {
             $reqStr .= $P[$i] . '|';
-        }$reqStr .= "\x0D";
+        }
+        $reqStr .= "\x0D";
         for ($i = 0; $i < 27; $i++) {
             $reqStr .= $C[$i] . '|';
-        }$reqStr .= "\x0D";
+        }
+        $reqStr .= "\x0D";
         for ($i = 0; $i < 41; $i++) {
             $reqStr .= $A[$i] . '|';
-        }$reqStr .= "\x0D";
+        }
+        $reqStr .= "\x0D";
         for ($i = 0; $i < 41; $i++) {
             $reqStr .= $T[$i] . '|';
-        }$reqStr .= "\x0D";
+        }
+        $reqStr .= "\x0D";
         for ($i = 0; $i < 6; $i++) {
             $reqStr .= $M[$i] . '|';
-        }$reqStr .= "\x0D";
-
+        }
+        $reqStr .= "\x0D";
         $reqStr .= $D[0] . '|' . $D[1] . '||' . "\x0D";
         $l = strlen($reqStr);
         $reqStr .= "L|$l|\x0D";
@@ -592,25 +503,15 @@ class DornGenHl7Order extends GenHl7OrderBase
         $reqStr = strtoupper($reqStr);
         return '';
     }
- 
+
     /*
     The OBX segment is conditional and only required if/when AOE response information
     or AUC data is available. Each AOE response or AUC determination will be included as
     an individual OBX segment nested beneath the OBR segment of the corresponding
     ordered test or imaging service.
     */
-    private function createObx(
-        $setId,
-        $valueType,
-        $observationIdent,
-        $observationValue,
-        $units,
-        $interpretationCodes,
-        $observationResultStatus,
-        $producersReference,
-        $observationType,
-        $observationValueAbsentReason
-    ) {
+    private function createObx($setId, $valueType, $observationIdent, $observationValue, $units, $interpretationCodes, $observationResultStatus, $producersReference, $observationType, $observationValueAbsentReason)
+    {
         $fields = [
             $this->buildHL7Field($setId),
             $this->buildHL7Field($valueType), //2
@@ -649,7 +550,7 @@ class DornGenHl7Order extends GenHl7OrderBase
         $segment = $this->buildHl7Segment("OBX", $fields);
         return $segment;
     }
- 
+
 
     /*
         The DG1 segment is used to communicate one or more diagnoses associated with an
@@ -658,12 +559,8 @@ class DornGenHl7Order extends GenHl7OrderBase
         The DG1 segment is required and may appear one or more times for each OBR
         segment.
     */
-    private function createDg1(
-        $setId,
-        $diagCode,
-        $diagDesc,
-        $diagType
-    ) {
+    private function createDg1($setId, $diagCode, $diagDesc, $diagType)
+    {
         $diagDesc = $this->replaceNewLine($diagDesc);
         $fields = [
             $this->buildHL7Field($setId),//1
@@ -685,26 +582,13 @@ class DornGenHl7Order extends GenHl7OrderBase
     An OBR segment will appear once for each test placed in an individual order message.
     An ORC segment will accompany each OBR segment in a message.
     */
-    private function createObr(
-        $setId,
-        $placerOrderNumber,
-        $procedureCode,
-        $procedureName,
-        $observationStartDateTime,
-        $observationEndDateTime,
-        $specimenActionCode,
-        $fastingStatus,
-        $placerField1,
-        $placerField2,
-        $fillerField1,
-        $resultsCopiesTo,
-        $scheduledDateTime
-    ):string {
+    private function createObr($setId, $placerOrderNumber, $procedureCode, $procedureName, $observationStartDateTime, $observationEndDateTime, $specimenActionCode, $fastingStatus, $placerField1, $placerField2, $fillerField1, $resultsCopiesTo, $scheduledDateTime): string
+    {
         $fields = [
             $this->buildHL7Field($setId),
             $this->buildHL7Field($placerOrderNumber), //2
             "", //3
-            $this->buildHL7Field([$procedureCode,$procedureName ]), //4
+            $this->buildHL7Field([$procedureCode, $procedureName]), //4
             "", //5
             "", //6
             $this->hl7DateTime($observationStartDateTime), //7
@@ -747,10 +631,8 @@ class DornGenHl7Order extends GenHl7OrderBase
         order.
         The TQ1 segment is conditional and omitted if the order is not a STAT or a future order.
     */
-    private function createTq1(
-        $startDateTime,
-        $endDateTime
-    ):string {
+    private function createTq1($startDateTime, $endDateTime): string
+    {
         $fields = [
             "1", //1
             "", //2
@@ -761,10 +643,11 @@ class DornGenHl7Order extends GenHl7OrderBase
             $this->buildHL7Field($startDateTime), //7
             $this->buildHL7Field($endDateTime), //8
             "S", //9
-           ];
+        ];
         $segment = $this->buildHl7Segment("TQ1", $fields);
         return $segment;
     }
+
     /**
      * Order Common (ORC)
      * The ORC segment contains data and information common to all the tests contained in
@@ -786,7 +669,7 @@ class DornGenHl7Order extends GenHl7OrderBase
         $orderingProviderCity,
         $orderingProviderState,
         $orderingProviderZip,
-    ) :string {
+    ): string {
         $fields = [
             $this->buildHL7Field($orderControl), //1
             $this->buildHL7Field($placerOrderNumber), //2
@@ -799,7 +682,7 @@ class DornGenHl7Order extends GenHl7OrderBase
             "", //9
             "",//10
             "",//11
-            $this->buildHL7Field([$orderingProviderNpi, $orderingProviderLastName, $orderingProviderFirstName, $orderingProviderMiddle, "", "", "", "", "", "", "", "", "NPI" ]),//12
+            $this->buildHL7Field([$orderingProviderNpi, $orderingProviderLastName, $orderingProviderFirstName, $orderingProviderMiddle, "", "", "", "", "", "", "", "", "NPI"]),//12
             "", //13
             $this->buildHL7Field($callBackPhoneNumber), //14
             "", //15
@@ -822,19 +705,8 @@ class DornGenHl7Order extends GenHl7OrderBase
     payment of services.
     The GT1 segment is required and may only appear once
     */
-    private function createGt1(
-        $setId,
-        $subscriberFirstName,
-        $subscriberLastName,
-        $subscriberMiddleName,
-        $subscriberAddress1,
-        $subscriberAddress2,
-        $subscriberCity,
-        $subscriberState,
-        $subscriberZip,
-        $subscriberType,
-        $relationship
-    ): string {
+    private function createGt1($setId, $subscriberFirstName, $subscriberLastName, $subscriberMiddleName, $subscriberAddress1, $subscriberAddress2, $subscriberCity, $subscriberState, $subscriberZip, $subscriberType, $relationship): string
+    {
         $fields = [
             $this->buildHL7Field($setId),
             "",
@@ -846,10 +718,11 @@ class DornGenHl7Order extends GenHl7OrderBase
             "", //8
             "", //9
             $this->buildHL7Field($subscriberType),//10
-            $this->hl7Relation($relationship)        ];
+            $this->hl7Relation($relationship)];
         $segment = $this->buildHl7Segment("GT1", $fields);
         return $segment;
     }
+
     /*
     The IN1 segment is used to communicate insurance policy coverage information to the
     Order Filler when such information is relevant for a requisition.
@@ -881,7 +754,7 @@ class DornGenHl7Order extends GenHl7OrderBase
         $subscriberState,
         $subscriberZip,
         $policyNumber
-    ):string {
+    ): string {
         $fields = [
             $this->buildHL7Field($setId),
             $this->buildHL7Field($insPlanId),
@@ -924,10 +797,9 @@ class DornGenHl7Order extends GenHl7OrderBase
         $segment = $this->buildHl7Segment("IN1", $fields);
         return $segment;
     }
-    private function createPv1(
-        $patientClass,
-        $financialClass
-    ):string {
+
+    private function createPv1($patientClass, $financialClass): string
+    {
         $fields = [
             "1",//1
             $this->buildHL7Field($patientClass),
@@ -953,6 +825,7 @@ class DornGenHl7Order extends GenHl7OrderBase
         $segment = $this->buildHl7Segment("PV1", $fields);
         return $segment;
     }
+
     private function createPid(
         $setPid,
         $pid,
@@ -982,12 +855,12 @@ class DornGenHl7Order extends GenHl7OrderBase
         $patDriversLicense,
         $mothersId,
         $ethnicGroup,
-    ):string {
+    ): string {
 
         $fields = [
             $this->buildHL7Field($setPid),
             $this->buildHL7Field($pid),
-            $this->buildHL7Field([$patientIdentList,"","","","AN"]),
+            $this->buildHL7Field([$patientIdentList, "", "", "", "AN"]),
             $this->buildHL7Field($altPid),
             $this->buildHL7Field([$patientLastName, $patientFirstName, $patientMiddleName]),
             $this->buildHL7Field($mothersMaidenName),
@@ -1008,11 +881,10 @@ class DornGenHl7Order extends GenHl7OrderBase
             $this->buildHL7Field($mothersId),
             $this->buildHL7Field($ethnicGroup),
         ];
-
-
         $segment = $this->buildHl7Segment("PID", $fields);
         return $segment;
     }
+
     private function createMsh(
         $sendingApplication,
         $sendingFacility,
@@ -1030,13 +902,13 @@ class DornGenHl7Order extends GenHl7OrderBase
         $characterSet,
         $principleLangMsg,
         $altCharScheme
-    ):string {
+    ): string {
 
         // Combine encoding characters
         $encodingCharacters = $this->componentSeparator .
-                              $this->repetitionSeparator .
-                              $this->escapeSeparator .
-                              $this->subComponentSeparator;
+            $this->repetitionSeparator .
+            $this->escapeSeparator .
+            $this->subComponentSeparator;
         $fields = [
             $encodingCharacters, //POS 1 & 2
             $this->buildHL7Field($sendingApplication),// POS 3
@@ -1045,7 +917,7 @@ class DornGenHl7Order extends GenHl7OrderBase
             $this->buildHL7Field($receivingFacility),//POS 6
             $this->buildHL7Field($msgDateTime),//POS 7
             $this->buildHL7Field($security),//POS 8
-            $this->buildHL7Field(["OML","O21","OML_O21"]),//POS 9
+            $this->buildHL7Field(["OML", "O21", "OML_O21"]),//POS 9
             $this->buildHL7Field($msgCtrlId),//POS 10
             $this->buildHL7Field($processingId),//POS 11
             $this->buildHL7Field("2.5.1"),//POS 12
@@ -1059,18 +931,18 @@ class DornGenHl7Order extends GenHl7OrderBase
             $this->buildHL7Field($altCharScheme),//POS 20
             $this->buildHL7Field("ELINCS_MT-OML-1_1.0"),//POS 21
         ];
-
         foreach ($fields as $field) {
             $segment .= $this->fieldSeparator . $field;
         }
         $segment = "MSH" . $segment . $this->lineBreakChar;
         return $segment;
     }
+
     /**
      * Transmit HL7 for the specified lab.
      *
-     * @param  integer $ppid Procedure provider ID.
-     * @param  string  $out  The HL7 text to be sent.
+     * @param integer $ppid Procedure provider ID.
+     * @param string  $out  The HL7 text to be sent.
      * @return string         Error text, or empty if no errors.
      */
     public function sendHl7Order($ppid, $orderId, $out)
@@ -1078,8 +950,7 @@ class DornGenHl7Order extends GenHl7OrderBase
         $responseMessage = "";
         global $srcdir;
         $pid = null;
-        $porow = sqlQuery(
-            "SELECT " .
+        $porow = sqlQuery("SELECT " .
             "po.date_collected, po.date_ordered, po.order_priority,po.billing_type,po.clinical_hx,po.account,po.order_diagnosis, " .
             "pp.*, " .
             "pd.pid, pd.pubpid, pd.fname, pd.lname, pd.mname, pd.DOB, pd.ss, pd.race, " .
@@ -1093,20 +964,16 @@ class DornGenHl7Order extends GenHl7OrderBase
             "f.formdir = 'procedure_order' AND " .
             "f.form_id = po.procedure_order_id AND " .
             "pd.pid = f.pid AND " .
-            "u.id = po.provider_id",
-            array($orderId)
-        );
+            "u.id = po.provider_id", array($orderId));
         if (!empty($porow)) {
             $pid = $porow['pid'];
         }
 
         $d0 = "\r";
-
-        $ppSql ="SELECT * FROM procedure_providers AS pp
+        $ppSql = "SELECT * FROM procedure_providers AS pp
             INNER JOIN mod_dorn_routes AS mdr ON
                 pp.ppid = mdr.ppid
             WHERE pp.ppid = ?";
-
         $pprow = sqlQuery($ppSql, array($ppid));
         if (empty($pprow)) {
             return xl('Procedure provider') . " $ppid " . xl('not found');
@@ -1115,8 +982,7 @@ class DornGenHl7Order extends GenHl7OrderBase
         $labGuid = $pprow['lab_guid'];
         $labAccountNumber = $pprow['lab_account_number'];
         $protocol = $pprow['protocol'];
-
-        // Extract MSH-10 which is the message control ID.
+// Extract MSH-10 which is the message control ID.
         $segmsh = explode(substr($out, 3, 1), substr($out, 0, strpos($out, $d0)));
         $msgid = $segmsh[9];
         if (empty($msgid)) {
@@ -1141,13 +1007,7 @@ class DornGenHl7Order extends GenHl7OrderBase
         }
 
         // Falling through to here indicates success.
-        EventAuditLogger::instance()->newEvent(
-            "proc_order_xmit",
-            $_SESSION['authUser'],
-            $_SESSION['authProvider'],
-            1,
-            "ID: $msgid Protocol: $protocol Host: DORN"
-        );
+        EventAuditLogger::instance()->newEvent("proc_order_xmit", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "ID: $msgid Protocol: $protocol Host: DORN");
         return $responseMessage;
     }
 }

@@ -8,7 +8,15 @@
  * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+// Control access
+if (!OpenEMR\Common\Acl\AclMain::aclCheckCore('admin', 'manage_modules')) {
+    echo xlt('Not Authorized');
+    exit;
+}
+
 ?>
+
 <?php echo $this->headScript()->prependFile($this->basePath() . '/js/application/sendTo.js')
     ->prependFile($this->basePath() . '/js/lib/jquery-ui.js')
 ?>
@@ -135,7 +143,7 @@ $(function () {
                 }
                 ?>
                 <li class='ui-state-default sortable_li <?php echo $this->escapeHtml($rowforms[1]);?>' id='<?php echo preg_replace('/\s/','_',$this->escapeHtml($rowforms[0]));?>'>
-                    <?php echo $rowforms[0];
+                    <?php echo text($rowforms[0]);
                     if(is_array($rowforms[2] ?? null)){
                         ?>
                         <ul class='droptrue' style='display: none;' id='sub_<?php echo preg_replace('/\s/','_',$this->escapeHtml($rowforms[0]));?>'>

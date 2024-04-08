@@ -78,15 +78,15 @@ class LabRouteSetup
             ,recv_fac_id, DorP, direction, protocol, remote_host,orders_path,results_path,notes
             ,lab_director, active,type) 
             VALUES (?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    
+
             $sql_pp_insert_sqlarr = array(
                 $labName, $npi, $send_app_id, $send_fac_id, $recv_app_id,
                 $recv_fac_id, $DorP, $direction, $protocol, $remote_host, $orders_path, $results_path, $notes,
                 $lab_director, $active, $type
             );
-    
+
             $result = sqlStatement($sql_pp_insert, $sql_pp_insert_sqlarr);
-          
+
             if (sqlNumRows($result) <= 0) {
                 $ppid = LabRouteSetup::findProcedureProvider($npi, $active, $notes);
             }
@@ -126,14 +126,14 @@ class LabRouteSetup
                 VALUES (?,?,?,?,?,?,?)
                 ON DUPLICATE KEY UPDATE lab_name = VALUES(lab_name), ppid = VALUES(ppid),
                 uid = VALUES(uid), text_line_break_character = VALUES(text_line_break_character), lab_account_number = VALUES(lab_account_number)";
-    
+
         $sqlarr = array($labGuid, $labName, $ppid, $routeGuid, $uid, $lineBreakChar, $labAccountNumber);
         $result = sqlStatement($sql, $sqlarr);
-    
+
         if (sqlNumRows($result) <= 0) {
             return true;
         }
-    
+
         return false;
     }
 }

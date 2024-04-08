@@ -91,7 +91,7 @@ Partial twig file that represents the insurance edit screen for a patient
             {% if fieldRow.skip is not defined or fieldRow.skip %}
                 <div class="form-row"><!-- start nested row -->
                     <div class="col-md-3 pb-1 label_custom">
-                        <span data-validation-field="{{ fieldRow.field_id }}" class='{%if fieldRow.required is defined and fieldRow.required %}required{% endif %}'>{{ fieldRow.name|text }}</span>
+                        <span data-validation-field="{{ fieldRow.field_id|attr }}" class='{%if fieldRow.required is defined and fieldRow.required %}required{% endif %}'>{{ fieldRow.name|text }}</span>
                     </div>
                     <div class="col-md-9">
                         {% if fieldRow.compound is defined %}

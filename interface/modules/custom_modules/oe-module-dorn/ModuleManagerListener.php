@@ -20,21 +20,22 @@
 
 /*
  * Do not declare a namespace
- * If you want Laminas manager to set namespace set it in getModuleNamespace
+ * If you want Lamina's manager to set namespace set it in getModuleNamespace
  * otherwise uncomment below and set path.
  *
  * */
 
 /*
     $classLoader = new \OpenEMR\Core\ModulesClassLoader($GLOBALS['fileroot']);
-    $classLoader->registerNamespaceIfNotExists("OpenEMR\\Modules\\WenoModule\\", __DIR__ . DIRECTORY_SEPARATOR . 'src');
+    $classLoader->registerNamespaceIfNotExists("OpenEMR\\Modules\\Dorn\\", __DIR__ . DIRECTORY_SEPARATOR . 'src');
 */
 
 use OpenEMR\Core\AbstractModuleActionListener;
+use OpenEMR\Modules\WenoModule\Services\ModuleService;
 
 /* Allows maintenance of background tasks depending on Module Manager action. */
 
-class ModuleManagerAfterActionListener extends AbstractModuleActionListener
+class ModuleManagerListener extends AbstractModuleActionListener
 {
     public function __construct()
     {
@@ -52,7 +53,8 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
         if (method_exists(self::class, $methodName)) {
             return self::$methodName($modId, $currentActionStatus);
         } else {
-            return "Module cleanup method $methodName does not exist.";
+            // no reason to report action method is missing.
+            return $currentActionStatus;
         }
     }
 
@@ -66,16 +68,16 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
     public static function getModuleNamespace(): string
     {
         // Module Manager will register this namespace.
-        return 'OpenEMR\\Modules\\WenoModule\\';
+        return 'OpenEMR\\Modules\\Dorn\\';
     }
 
     /**
-     * Required method to return this class object,
-     * so it is instantiated in Laminas Manager.
+     * Required method to return this class object
+     * so it will be instantiated in Laminas Manager.
      *
-     * @return ModuleManagerAfterActionListener
+     * @return ModuleManagerListener
      */
-    public static function initListenerSelf(): ModuleManagerAfterActionListener
+    public static function initListenerSelf(): ModuleManagerListener
     {
         return new self();
     }
@@ -87,6 +89,37 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
      */
     private function install($modId, $currentActionStatus): mixed
     {
+        /* setting the active ui flag here will allow the config button to show
+         * before enable. This is a good thing because it allows the user to
+         * configure the module before enabling it. However, if the module is disabled
+         * this flag is reset by MM.
+        */
+        self::setModuleState($modId, '0', '1');
+        return $currentActionStatus;
+    }
+
+    /**
+     * @param $modId
+     * @param $currentActionStatus
+     * @return mixed
+     */
+    private function help_requested($modId, $currentActionStatus): mixed
+    {
+        // must call a script that implements a dialog to show help.
+        // I can't find a way to override the Lamina's UI except using a dialog.
+        if (file_exists(__DIR__ . '/show_help.php')) {
+            include __DIR__ . '/show_help.php';
+        }
+        return $currentActionStatus;
+    }
+
+    /**
+     * @param $modId
+     * @param $currentActionStatus
+     * @return mixed
+     */
+    private function preenable($modId, $currentActionStatus): mixed
+    {
         return $currentActionStatus;
     }
 
@@ -97,7 +130,7 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
      */
     private function enable($modId, $currentActionStatus): mixed
     {
-        $rtn = $this->setTaskState('1');
+        self::setModuleState($modId, '1', '0');
         return $currentActionStatus;
     }
 
@@ -108,7 +141,8 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
      */
     private function disable($modId, $currentActionStatus): mixed
     {
-        $rtn = $this->setTaskState('0');
+        // allow config button to show before enable.
+        self::setModuleState($modId, '0', '1');
         return $currentActionStatus;
     }
 
@@ -119,8 +153,6 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
      */
     private function unregister($modId, $currentActionStatus): mixed
     {
-        $sql = "DELETE FROM `background_services` WHERE `name` = ? OR `name` = ?";
-        sqlQuery($sql, array('WenoExchange', 'WenoExchangePharmacies'));
         return $currentActionStatus;
     }
 
@@ -151,7 +183,7 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
      * @param string $col
      * @return array
      */
-    function getModuleRegistry($modId, $col = '*'): array
+    public function getModuleRegistry($modId, $col = '*'): array
     {
         $registry = [];
         $sql = "SELECT $col FROM modules WHERE mod_id = ?";
@@ -164,12 +196,40 @@ class ModuleManagerAfterActionListener extends AbstractModuleActionListener
     }
 
     /**
-     * @param $flag
-     * @return mixed
+     * @param      $flag
+     * @param      $serviceArray
+     * @param bool $reset
+     * @param bool $removeTask
+     * @return void
      */
-    private function setTaskState($flag): mixed
+    private static function setTaskState($flag, $serviceArray, bool $reset = false, bool $removeTask = false): void
     {
-        $sql_next = "UPDATE `background_services` SET `active` = ? WHERE `name` = ? OR `name` = ?";
-        return sqlQuery($sql_next, array($flag, 'WenoExchange', 'WenoExchangePharmacies'));
+        $sql_next = "UPDATE `background_services` SET `active` = ? WHERE `name` = ?";
+        if ($reset) {
+            $sql_next = "UPDATE `background_services` SET `active` = ?, next_run = NOW() WHERE `name` = ?";
+        }
+        if ($removeTask) {
+            $sql_next = "DELETE FROM background_services WHERE `name` = ?";
+            foreach ($serviceArray as $name) {
+                sqlQuery($sql_next, array($name));
+            }
+            return;
+        }
+        foreach ($serviceArray as $name) {
+            sqlQuery($sql_next, array($flag, $name));
+        }
+    }
+
+    /**
+     * @param $modId   int|string module id or directory name
+     * @param $flag    int|string 1 or 0 to activate or deactivate module.
+     * @param $flag_ui int|string custom flag to activate or deactivate Manager UI button states.
+     * @return array|bool|null
+     */
+    private static function setModuleState(int|string $modId, int|string $flag, int|string $flag_ui): array|bool|null
+    {
+        // set module state.
+        $sql = "UPDATE `modules` SET `mod_active` = ?, `mod_ui_active` = ? WHERE `mod_id` = ? OR `mod_directory` = ?";
+        return sqlQuery($sql, array($flag, $flag_ui, $modId, $modId));
     }
 }

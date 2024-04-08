@@ -2,22 +2,19 @@
 
 /**
  *
- * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
- require_once "../../../../globals.php";
+require_once "../../../../globals.php";
 
- use OpenEMR\Common\Acl\AclMain;
- use OpenEMR\Common\Csrf\CsrfUtils;
- use OpenEMR\Common\Twig\TwigContainer;
- use OpenEMR\Core\Header;
- use OpenEMR\Modules\Dorn\LabCompendiumInstall;
- 
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Modules\Dorn\LabCompendiumInstall;
+
 if (!empty($_GET)) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();

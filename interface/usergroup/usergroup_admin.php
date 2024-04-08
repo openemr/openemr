@@ -34,14 +34,8 @@ use OpenEMR\Services\UserService;
 use OpenEMR\Events\User\UserUpdatedEvent;
 use OpenEMR\Events\User\UserCreatedEvent;
 
-if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
-        CsrfUtils::csrfNotVerified();
-    }
-}
-
-if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+if (!empty($_REQUEST)) {
+    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -260,7 +254,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         sqlStatement("UPDATE users SET authorized = ?, active = ?, " .
         "calendar = ?, portal_user = ?, see_auth = ? WHERE " .
         "id = ? ", array($tqvar, $actvar, $calvar, $portalvar, $_POST['see_auth'], $_POST["id"]));
-      //Display message when Emergency Login user was activated
+        //Display message when Emergency Login user was activated
         if (is_countable($_POST['access_group'])) {
             $bg_count = count($_POST['access_group']);
             for ($i = 0; $i < $bg_count; $i++) {
@@ -278,28 +272,28 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             }
         }
 
-        if ($_POST["comments"]) {
+        if (isset($_POST["comments"])) {
             sqlStatement("update users set info = ? where id = ? ", array($_POST["comments"], $_POST["id"]));
         }
 
-        $erxrole = isset($_POST['erxrole']) ? $_POST['erxrole'] : '';
+        $erxrole = $_POST['erxrole'] ?? '';
         sqlStatement("update users set newcrop_user_role = ? where id = ? ", array($erxrole, $_POST["id"]));
 
-        if ($_POST["physician_type"]) {
+        if (isset($_POST["physician_type"])) {
             sqlStatement("update users set physician_type = ? where id = ? ", array($_POST["physician_type"], $_POST["id"]));
         }
 
-        if ($_POST["main_menu_role"]) {
+        if (isset($_POST["main_menu_role"])) {
               $mainMenuRole = filter_input(INPUT_POST, 'main_menu_role');
               sqlStatement("update `users` set `main_menu_role` = ? where `id` = ? ", array($mainMenuRole, $_POST["id"]));
         }
 
-        if ($_POST["patient_menu_role"]) {
+        if (isset($_POST["patient_menu_role"])) {
             $patientMenuRole = filter_input(INPUT_POST, 'patient_menu_role');
             sqlStatement("update `users` set `patient_menu_role` = ? where `id` = ? ", array($patientMenuRole, $_POST["id"]));
         }
 
-        if ($_POST["erxprid"]) {
+        if (isset($_POST["erxprid"])) {
             sqlStatement("update users set weno_prov_id = ? where id = ? ", array($_POST["erxprid"], $_POST["id"]));
         }
 
@@ -532,13 +526,13 @@ if (isset($_GET["mode"])) {
         }
     }
 }
-// added for form submit's from usergroup_admin_add and user_admin.php
+// added for form submits from usergroup_admin_add and user_admin.php
 // sjp 12/29/17
 if (isset($_REQUEST["mode"])) {
     exit(text(trim($alertmsg)));
 }
 
-$form_inactive = empty($_POST['form_inactive']) ? false : true;
+$form_inactive = !empty($_POST['form_inactive']);
 
 ?>
 <html>

@@ -136,7 +136,6 @@ class CoverageValidator extends BaseValidator
                         }
                         return true;
                     });
-                $context->required('subscriber_ss')->lengthBetween(2, 255);
                 $context->required('subscriber_DOB')->datetime('Y-m-d');
                 $context->required('subscriber_street')->lengthBetween(2, 255);
                 $context->required('subscriber_postal_code')->lengthBetween(2, 255);

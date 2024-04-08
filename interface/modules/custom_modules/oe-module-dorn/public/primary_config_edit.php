@@ -24,13 +24,13 @@ if (!empty($_GET)) {
         CsrfUtils::csrfNotVerified();
     }
 }
-    
+
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 }
-    
+
 if (!AclMain::aclCheckCore('admin', 'users')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Procedure Provider")]);
     exit;
@@ -39,7 +39,7 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
 if (!empty($_POST)) {
     if (isset($_POST['SubmitButton'])) { //check if form was submitted
         $saveData = CustomerPrimaryInfoView::loadByPost($_POST);
-        echo($saveData->primaryPhone);
+        echo(text($saveData->primaryPhone));
         ConnectorApi::savePrimaryInfo($saveData);
         $npi = $_POST["form_npi"];
     }
@@ -50,12 +50,11 @@ if (!empty($_POST)) {
 if ($npi) {
     $data = ConnectorApi::getPrimaryInfoByNpi($npi);
 }
-    
+
 ?>
 <html>
     <head>
         <?php Header::setupHeader(['opener']);?>
-        <link rel="stylesheet" href="../../../../../public/assets/bootstrap/dist/css/bootstrap.min.css">
     </head>
     <body>
         <form method='post' name='theform' action="primary_config_edit.php?npi=<?php echo attr_url($data->npi); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>">

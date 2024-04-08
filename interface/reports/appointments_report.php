@@ -471,7 +471,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     } else {
         $pid_list = array();  // Initialize list of PIDs for Superbill option
         $apptdate_list = array(); // same as above for the appt details
-        $totalAppontments = count($appointments);
+        $totalAppointments = count($appointments);
+        $canceledAppointments = 0;
 
         $cntr = 1; // column labels above start at 1
         foreach ($appointments as $appointment) {
@@ -479,7 +480,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 $appointment['pc_apptstatus'] == "x"
                 && empty($chk_with_canceled_appt)
             ) {
+                $canceledAppointments++;
                 continue;
+            } elseif (
+                $appointment['pc_apptstatus'] == "x"
+                && !empty($chk_with_canceled_appt)
+            ) {
+                $canceledAppointments++;
             }
             $cntr++;
             array_push($pid_list, $appointment['pid']);
@@ -572,7 +579,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
     if (empty($_POST['form_csvexport'])) { ?>
     <tr>
-        <td colspan="10" align="left"><?php echo xlt('Total number of appointments'); ?>:&nbsp;<?php echo text($totalAppontments);?></td>
+        <td colspan="2" align="left"><?php echo xlt('Total number of appointments'); ?>:&nbsp;<?php echo text($totalAppointments);?></td>
+        <td colspan="2" align="left"><?php echo xlt('Total number of canceled appointments'); ?>:&nbsp;<?php echo text($canceledAppointments);?></td>
     </tr>
     </tbody>
 </table>

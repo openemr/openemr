@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * @package OpenEMR
@@ -9,23 +10,23 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
- require_once "../../../../globals.php";
-
- use OpenEMR\Common\Acl\AclMain;
- use OpenEMR\Common\Csrf\CsrfUtils;
- use OpenEMR\Common\Twig\TwigContainer;
- use OpenEMR\Modules\Dorn\ConnectorApi;
- use OpenEMR\Core\Header; //this is needed along with setupHeader() to get the pop up to appear
+require_once "../../../../globals.php";
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Modules\Dorn\ConnectorApi;
+use OpenEMR\Core\Header;
+//this is needed along with setupHeader() to get the pop up to appear
 
 $tab = "results";
-
 if (!AclMain::aclCheckCore('admin', 'users')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Procedure Provider")]);
     exit;
 }
 
 if (!empty($_POST)) {
-    if (isset($_POST['SubmitButton'])) { //check if form was submitted
+    if (isset($_POST['SubmitButton'])) {
+    //check if form was submitted
         $datas = ConnectorApi::searchPendingLabResults($_POST['form_labAcctNumber'], $_POST['form_startDateTime'], $_POST['form_endDateTime']);
         if ($datas == null) {
             $datas = [];
@@ -36,22 +37,31 @@ if (!empty($_POST)) {
 <html>
 <head>
         <?php Header::setupHeader(); ?>
-        <link rel="stylesheet" href="../../../../../public/assets/bootstrap/dist/css/bootstrap.min.css">
     </head>
 <title> <?php echo xlt("DORN Pending Results"); ?>  </title>
 <script>
     function getResults(resultGuid) {
+        // dialog calls restoreSession() to keep session alive
+        // will keep
         top.restoreSession();
-        var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?>;
-        let scriptTitle = 'get_lab_results.php?resultGuid=' + resultGuid +'&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+        let addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?>;
+        let scriptTitle = 'get_lab_results.php?resultGuid=' + encodeURIComponent(resultGuid) +'&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
         dlgopen(scriptTitle, '_blank', 800, 750, false, addTitle);
     }
     function ackResults(resultGuid, isRejected) {
         top.restoreSession();
-        var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?>;
-        let scriptTitle = 'ack_lab_results.php?resultGuid=' + resultGuid +'&rejectResults='+ isRejected +'&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+        let addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' +;
+        let scriptTitle = 'ack_lab_results.php?resultGuid=' + encodeURIComponent(resultGuid) +'&rejectResults='+ encodeURIComponent(isRejected) +'&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
         dlgopen(scriptTitle, '_blank', 800, 750, false, addTitle);
     }
+    $(function () {
+        $('.datepicker').datetimepicker({
+            <?php $datetimepicker_timepicker = false; ?>
+            <?php $datetimepicker_showseconds = false; ?>
+            <?php $datetimepicker_formatInput = false; ?>
+            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        });
+    });
 </script>
 <body>
     <div class="row"> 
@@ -79,14 +89,14 @@ if (!empty($_POST)) {
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="form_startDateTime"><?php echo xlt("Start Date") ?>:</label>
-                                            <input type="date" class="form-control" id="form_startDateTime" name="form_startDateTime" value="<?php echo isset($_POST['form_startDateTime']) ? attr($_POST['form_startDateTime']) : '' ?>"/>
+                                            <input type="date" class="form-control datepicker" id="form_startDateTime" name="form_startDateTime" value="<?php echo isset($_POST['form_startDateTime']) ? attr($_POST['form_startDateTime']) : '' ?>"/>
                                         </div>
                                     </div>
 
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="form_endDateTime"><?php echo xlt("End Date") ?>:</label>
-                                            <input type="date" class="form-control" id="form_endDateTime" name="form_endDateTime" value="<?php echo isset($_POST['form_endDateTime']) ? attr($_POST['form_endDateTime']) : '' ?>"/>
+                                            <input type="date" class="form-control datepicker" id="form_endDateTime" name="form_endDateTime" value="<?php echo isset($_POST['form_endDateTime']) ? attr($_POST['form_endDateTime']) : '' ?>"/>
                                         </div>
                                     </div>                                        
                                 </div> 
@@ -103,7 +113,8 @@ if (!empty($_POST)) {
                      <?php
                         if (empty($datas)) {
                             echo xlt("No results found");
-                        } else { ?>
+                        } else {
+                            ?>
                         <table class="table">
                             <thead>
                                 <tr>
@@ -124,12 +135,12 @@ if (!empty($_POST)) {
                                     <td scope="row"><?php echo text($data->hasAbnormalFlags); ?></td>
                                     <td scope="row"><?php echo text($data->labName); ?></td>
                                     <td scope="row">
-                                        <button type="button" class="btn btn-primary" onclick="getResults('<?php echo text($data->resultGuid); ?>')"><?php echo xlt('Retrieve Results');?></button>
+                                        <button type="button" class="btn btn-primary" onclick="getResults(<?php echo attr_js($data->resultGuid); ?>)"><?php echo xlt('Retrieve Results');?></button>
                                    
-                                    <?php if (!$data->isPending) { ?>                                        
-                                        <button type="button" class="btn btn-primary" onclick="ackResults('<?php echo text($data->resultGuid); ?>','false')"><?php echo xlt('Accept Results');?></button>
-                                        <button type="button" class="btn btn-primary" onclick="ackResults('<?php echo text($data->resultGuid); ?>','true')"><?php echo xlt('Reject Results');?></button>
-            
+                                    <?php if (!$data->isPending) {
+                                        ?>                                        
+                                        <button type="button" class="btn btn-primary" onclick="ackResults(<?php echo attr_js($data->resultGuid); ?>,'false')"><?php echo xlt('Accept Results');?></button>
+                                        <button type="button" class="btn btn-primary" onclick="ackResults(<?php echo attr_js($data->resultGuid); ?>,'true')"><?php echo xlt('Reject Results');?></button>
                                     <?php } ?>
                                      </td>
                                 </tr>

@@ -28,7 +28,6 @@ use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\Services\QuestLabTransmitEvent;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use OpenEMR\Modules\Dorn\DornGenHl7Order;//wanting to keep everything in the module for easy updating. I hope this works, from what I've read it should.
 
 if (!$encounter) { // comes from globals.php
     die("Internal error: we do not seem to be in an encounter!");
@@ -370,20 +369,22 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         formFooter();
         exit;
     }
- 
+
     $alertmsg = '';
     $isDorn = false;
     $dornConnector = null;
-    try {
-        $isDorn = DornGenHl7Order::isDornLab($ppid);
-        if ($isDorn) {
-            $dornConnector = new DornGenHl7Order();
+    if (class_exists('OpenEMR\Modules\Dorn\DornGenHl7Order')) {
+        try {
+            $isDorn = \OpenEMR\Modules\Dorn\DornGenHl7Order::isDornLab($ppid) && class_exists('OpenEMR\Modules\Dorn\DornGenHl7Order');
+            if ($isDorn) {
+                $dornConnector = new \OpenEMR\Modules\Dorn\DornGenHl7Order();
+            }
+        } catch (Exception $e) {
+            $isDorn = false;
+            $dornConnector = null;
         }
-    } catch (Exception $e) {
-        $isDorn = false;
-        $dornConnector = null;
     }
-    
+
     if (!empty($_POST['bn_xmit'])) {
         // Validate, log and send order. Sets up documents and requisition buttons
         $gbl_lab = get_lab_name($ppid);

@@ -23,13 +23,13 @@ if (!empty($_GET)) {
         CsrfUtils::csrfNotVerified();
     }
 }
-    
+
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 }
-    
+
 if (!AclMain::aclCheckCore('admin', 'users')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Edit/Add Procedure Provider")]);
     exit;
@@ -49,22 +49,21 @@ if ($rejectResults == "true") {
 if ($resultsGuid) {
     ConnectorApi::sendAck($resultsGuid, $rejectResults, null);
 }
-    
+
 ?>
 <html>
     <head>
         <?php Header::setupHeader(['opener']);?>
-        <link rel="stylesheet" href="../../../../../public/assets/bootstrap/dist/css/bootstrap.min.css">
     </head>
     <body>
     <?php
     if ($rejectResults == true) {
         ?>
-    <h3>Results Rejected</h3>
+    <h3><?php echo xlt("Results Rejected"); ?></h3>
         <?php
     } else {
         ?>
-        <h3>Results Accepted</h3>
+        <h3><?php echo xlt("Results Accepted"); ?></h3>
         <?php
     }
     ?>
