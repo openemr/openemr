@@ -17,6 +17,9 @@
  use OpenEMR\Modules\Dorn\ConnectorApi;
  use OpenEMR\Core\Header; //this is needed along with setupHeader() to get the pop up to appear
 
+ // for translation collection pipeline
+// xl('DORN Orders')
+
 $tab = "orders";
 $pageTitle = "DORN Orders";
 if (!AclMain::aclCheckCore('admin', 'users')) {
@@ -36,7 +39,6 @@ if (!empty($_POST)) {
 ?>
 <html>
 <head>
-        <?php Header::setupHeader(); ?>
         <link rel="stylesheet" href="../../../../../public/assets/bootstrap/dist/css/bootstrap.min.css">
     </head>
 <title> <?php echo xlt($pageTitle); ?>  </title>
@@ -66,7 +68,7 @@ if (!empty($_POST)) {
                                                 $selected = $primaryInfo->primaryId === $_GET['form_primaryId'] ? "selected" : "";
                                                 ?>
                                             <option value='<?php echo attr($primaryInfo->primaryId) ?>' <?php $selected ?>>
-                                                <?php echo xlt($primaryInfo->primaryName) ?>
+                                                <?php echo text($primaryInfo->primaryName) ?>
 
                                             </option>
                                             <?php } ?>
