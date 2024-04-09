@@ -290,18 +290,18 @@ class RestControllerHelper
             $fhirOperation->setName($operationName);
             $fhirOperation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/uv/bulkdata/OperationDefinition/' . $definitionName));
             $capResource->addOperation($fhirOperation);
-        } else if ($operation === '$bulkdata-status') {
+        } elseif ($operation === '$bulkdata-status') {
             $fhirOperation = new FHIRCapabilityStatementOperation();
             $fhirOperation->setName($operation);
             $fhirOperation->setDefinition($this->restURL . '/OperationDefinition/$bulkdata-status');
             $capResource->addOperation($fhirOperation);
             // TODO: @adunsulag we should document in our capability statement how to use the bulkdata-status operation
-        } else if ($operation === '$docref') {
+        } elseif ($operation === '$docref') {
             $fhirOperation = new FHIRCapabilityStatementOperation();
             $fhirOperation->setName($operation);
             $fhirOperation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/us/core/OperationDefinition/docref'));
             $capResource->addOperation($fhirOperation);
-        } else if (is_string($operation) && strpos($operation, '$') === 0) {
+        } elseif (is_string($operation) && strpos($operation, '$') === 0) {
             (new SystemLogger())->debug("Found operation that is not supported in system", ['resource' => $resource, 'operation' => $operation, 'items' => $items]);
         }
     }

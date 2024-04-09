@@ -12110,7 +12110,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         // for the currently logged in user
         if ($request->getRequestUserUUIDString() == $uuid) {
             $return = (new FhirPersonRestController())->getOne($uuid);
-        } else if (!$request->isPatientRequest()) {
+        } elseif (!$request->isPatientRequest()) {
             // not a patient ,make sure we have access to the users ACL
             RestConfig::authorization_check("admin", "users");
             $return = (new FhirPersonRestController())->getOne($uuid);
