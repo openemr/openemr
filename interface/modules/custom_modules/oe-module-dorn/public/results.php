@@ -36,7 +36,7 @@ if (!empty($_POST)) {
 ?>
 <html>
 <head>
-        <?php Header::setupHeader(); ?>
+        <?php Header::setupHeader(['datetime-picker']); ?>
     </head>
 <title> <?php echo xlt("DORN Pending Results"); ?>  </title>
 <script>
@@ -50,7 +50,7 @@ if (!empty($_POST)) {
     }
     function ackResults(resultGuid, isRejected) {
         top.restoreSession();
-        let addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' +;
+        let addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Results"); ?>;
         let scriptTitle = 'ack_lab_results.php?resultGuid=' + encodeURIComponent(resultGuid) +'&rejectResults='+ encodeURIComponent(isRejected) +'&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
         dlgopen(scriptTitle, '_blank', 800, 750, false, addTitle);
     }

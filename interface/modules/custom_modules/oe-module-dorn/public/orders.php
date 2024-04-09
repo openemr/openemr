@@ -38,7 +38,7 @@ if (!empty($_POST)) {
 ?>
 <html lang="">
 <head>
-    <?php Header::setupHeader(); ?>
+    <?php Header::setupHeader(['datetime-picker']); ?>
     <title> <?php echo text($pageTitle); ?>  </title>
 </head>
 <script>

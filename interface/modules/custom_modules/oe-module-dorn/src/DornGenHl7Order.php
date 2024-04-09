@@ -571,7 +571,7 @@ class DornGenHl7Order extends GenHl7OrderBase
             $this->buildHL7Field($diagType) //6
         ];
         $segment = $this->buildHl7Segment("DG1", $fields);
-        error_log($segment);
+        error_log(text($segment));
         return $segment;
     }
 
