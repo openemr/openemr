@@ -77,7 +77,8 @@ function is_tracker_encounter_exist($apptdate, $appttime, $pid, $eid)
  # or will return false if no tracker id was managed (in the case of a recurrent appointment)
 function manage_tracker_status($apptdate, $appttime, $eid, $pid, $user, $status = '', $room = '', $enc_id = '')
 {
-    return PatientTrackerService::manage_tracker_status($apptdate, $appttime, $eid, $pid, $user, $status, $room, $enc_id);
+    $patientTrackerService = new PatientTrackerService();
+    return $patientTrackerService->manage_tracker_status($apptdate, $appttime, $eid, $pid, $user, $status, $room, $enc_id);
 }
 
 # This is used to break apart the information contained in the notes field of

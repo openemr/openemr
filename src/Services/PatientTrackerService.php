@@ -167,7 +167,7 @@ class PatientTrackerService extends BaseService
      * @param string $enc_id
      * @return bool|int
      */
-    public static function manage_tracker_status($apptdate, $appttime, $eid, $pid, $user, $status = '', $room = '', $enc_id = '')
+    public function manage_tracker_status($apptdate, $appttime, $eid, $pid, $user, $status = '', $room = '', $enc_id = '')
     {
         #First ensure the eid is not a recurrent appointment. If it is, then do not do anything and return false.
         $pc_appt =  sqlQuery("SELECT `pc_recurrtype` FROM `openemr_postcalendar_events` WHERE `pc_eid` = ?", array($eid));
