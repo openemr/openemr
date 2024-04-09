@@ -19,9 +19,6 @@ use OpenEMR\Modules\Dorn\ConnectorApi;
 use OpenEMR\Core\Header;
 //this is needed along with setupHeader() to get the pop up to appear
 
- // for translation collection pipeline
-// xl('DORN Orders')
-
 $tab = "orders";
 $pageTitle = xl("DORN Orders");
 if (!AclMain::aclCheckCore('admin', 'users')) {

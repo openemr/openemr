@@ -31,9 +31,9 @@ class LabCompendiumInstall
                 }
             }
             ConnectorApi::setCompendiumLastUpdate($labGuid);
-            echo "Compendium has been updated for lab: " . $compendiumResponse->compendium->labName;
+            echo "Compendium has been updated for lab: " . text($compendiumResponse->compendium->labName);
         } else {
-            echo "Error Getting Compendium! " . $compendiumResponse->responseMessage;
+            echo "Error Getting Compendium! " . text($compendiumResponse->responseMessage);
         }
     }
     public static function loadGroupRecord($compendium, $lab_id)
