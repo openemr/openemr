@@ -29,7 +29,7 @@ try {
     $result = $logProperties->logSync();
 } catch (Exception $e) {
     $result = false;
-    error_log('Error syncing log: ' . $e->getMessage());
+    error_log('Error syncing log: ' . errorLogEscape($e->getMessage()));
 }
 
 if ($result) {

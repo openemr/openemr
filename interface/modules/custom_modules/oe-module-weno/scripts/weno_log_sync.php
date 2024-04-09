@@ -57,7 +57,7 @@ function performPharmacyDownload(WenoPharmaciesJson $localPharmacyJson)
         $_SESSION['authUser'],
         $_SESSION['authProvider'],
         1,
-        "Background Initiated Pharmacy Download Completed with Status:" . text($status)
+        "Background Initiated Pharmacy Download Completed with Status:" . ($status)
     );
 
     $wenoLog = new WenoLogService();
@@ -101,10 +101,10 @@ function handleDownloadError(string $errorMessage)
         $_SESSION['authUser'],
         $_SESSION['authProvider'],
         1,
-        text($errorMessage)
+        ($errorMessage)
     );
 
-    error_log($errorMessage);
+    error_log(errorLogEscape($errorMessage));
     die;
 }
 

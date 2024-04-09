@@ -48,7 +48,7 @@ class DownloadWenoPharmacies
         try {
             $zip = new ZipArchive();
         } catch (\Exception $e) {
-            error_log('Error extracting zip file: ' . $e->getMessage());
+            error_log('Error extracting zip file: ' . errorLogEscape($e->getMessage()));
             return "PHPError_install_zip_archive";
         }
         $wenoLog = new WenoLogService();
@@ -91,7 +91,7 @@ class DownloadWenoPharmacies
             $isError = $wenolog->scrapeWenoErrorHtml($scrape);
             if ($isError['is_error']) {
                 EventAuditLogger::instance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy Failed download! Weno error: " . $isError['messageText']);
-                error_log('Pharmacy download failed: ' . $isError['messageText']);
+                error_log('Pharmacy download failed: ' . errorLogEscape($isError['messageText']));
                 $wenolog->insertWenoLog("pharmacy", "Exceeded_download_limits");
             } else {
                 EventAuditLogger::instance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy Failed download! Weno error Other");

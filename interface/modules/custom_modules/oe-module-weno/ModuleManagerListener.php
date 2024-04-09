@@ -60,7 +60,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
 
     /**
      * Required method to return namespace
-     * If namespace isn't provided return empty
+     * If namespace isn't provided return empty string
      * and register namespace at top of this script..
      *
      * @return string

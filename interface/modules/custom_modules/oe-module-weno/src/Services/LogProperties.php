@@ -166,16 +166,16 @@ class LogProperties
             $isError = $wenoLog->scrapeWenoErrorHtml($rpt);
             if ($isError['is_error']) {
                 $error = $isError['messageText'];
-                error_log('Prescription download failed: ' . $error);
+                error_log('Prescription download failed: ' . errorLogEscape($error));
                 $wenoLog->insertWenoLog("prescription", "invalid_credentials");
-                EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, $error);
+                EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, ($error));
                 die(js_escape($error));
             }
             $wenoLog->insertWenoLog("prescription", "Success");
         } else {
             // yes record failures.
-            EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "$statusCode");
-            error_log("Prescription download failed: $statusCode");
+            EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, ("$statusCode"));
+            error_log("Prescription download failed: errorLogEscape($statusCode)");
             $wenoLog->insertWenoLog("prescription", "http_error_$statusCode");
             return false;
         }
@@ -203,7 +203,7 @@ class LogProperties
                 return $provider_info;
             } else {
                 $error = xlt("Provider email address is missing. Go to User settings Email to add provider's weno registered email address");
-                error_log($error);
+                error_log(errorLogEscape($error));
                 TransmitProperties::echoError($error);
             }
         } elseif ($GLOBALS['weno_admin_username'] ?? false) {
