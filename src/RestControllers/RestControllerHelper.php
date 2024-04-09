@@ -136,7 +136,7 @@ class RestControllerHelper
             $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
             (new SystemLogger())->debug("RestControllerHelper::handleProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
         } else {
-            http_response_code($successStatusCode);
+            http_response_code($successStatusCode ?? 0);
             $dataResult = $processingResult->getData();
             $recordsCount = count($dataResult);
             (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => $recordsCount]);

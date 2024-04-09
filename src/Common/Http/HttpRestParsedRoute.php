@@ -56,6 +56,8 @@ class HttpRestParsedRoute
      */
     private $requestRoute;
 
+    private $requestMethod;
+
     public function __construct($requestMethod, $requestRoute, $routeDefinition)
     {
         $this->routeDefinition = $routeDefinition;

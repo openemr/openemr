@@ -137,7 +137,7 @@ class InsuranceViewCard extends CardModel
                     'country' => $adobj->get_country()
                 ],
             ];
-            $row['policy_type'] = (!empty($row['policy_type'])) ? $policy_types[$row['policy_type']] : false;
+            $row['policy_type'] = ($row['policy_type'] !== 'FALSE') ? $policy_types[$row['policy_type']] : false;
             $row['dispFromDate'] = $row['date'] ? true : false;
             $mname = ($row['subscriber_mname'] != "") ? $row['subscriber_mname'] : "";
             $row['subscriber_full_name'] = str_replace("%mname%", $mname, "{$row['subscriber_fname']} %mname% {$row['subscriber_lname']}");
