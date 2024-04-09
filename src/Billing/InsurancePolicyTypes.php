@@ -18,7 +18,7 @@ class InsurancePolicyTypes
 {
     // Hard-coding this array because its values and meanings are fixed by the 837p
 // standard and we don't want people messing with them.
-    const POLICY_TYPE_NOT_APPLICABLE = 'FALSE';
+    const POLICY_TYPE_NOT_APPLICABLE = '';
     const POLICY_TYPE_WORKING_AGED_BENEFICIARY_EMPLOYER_GROUP_HEALTH_PLAN = '12';
 
     const POLICY_TYPE_END_STAGE_RENAL_DISEASE_BENEFICIARY_IN_MCP_WITH_EMPLOYERS_GROUP_PLAN = '13';
