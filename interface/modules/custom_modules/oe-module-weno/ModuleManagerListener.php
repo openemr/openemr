@@ -107,11 +107,9 @@ class ModuleManagerListener extends AbstractModuleActionListener
     private function help_requested($modId, $currentActionStatus): mixed
     {
         // must call a script that implements a dialog to show help.
-        // I can't find a way to override the Laminas UI except using a dialog.
-        try {
-            include 'show_help.php';
-        } catch (Exception $e) {
-            return $e->getMessage();
+        // I can't find a way to override the Lamina's UI except using a dialog.
+        if (file_exists(__DIR__ . '/show_help.php')) {
+            include __DIR__ . '/show_help.php';
         }
         return $currentActionStatus;
     }
