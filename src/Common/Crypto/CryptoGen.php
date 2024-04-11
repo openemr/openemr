@@ -31,6 +31,7 @@ namespace OpenEMR\Common\Crypto;
 use Exception;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
+#[\AllowDynamicProperties]
 class CryptoGen
 {
     # This is the current encrypt/decrypt version
