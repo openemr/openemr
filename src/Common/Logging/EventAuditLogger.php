@@ -650,7 +650,7 @@ MSG;
                 if (strpos($comments, $table) !== false) {
                     foreach ($fields as $field) {
                         $pattern = "/($field)\s*=\s*'([^']+)'/";
-                        $comments = preg_replace_callback($pattern, function($matches) {
+                        $comments = preg_replace_callback($pattern, function ($matches) {
                             $field_name = $matches[1];
                             $field_value = $matches[2];
                             $masked_value = str_repeat('X', strlen($field_value));
