@@ -117,3 +117,7 @@ ALTER TABLE `form_encounter` ADD `last_update` timestamp NOT NULL DEFAULT CURREN
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('CQM_VALUESET', 'NIH_VSAC', '2023-05-04', 'ec_only_cms_20230504.xml.zip', 'b77b3c2a88d23de0ec427c1cfc5088ce');
 #EndIf
+
+#IfRow2D layout_options form_id DEM field_id email
+UPDATE layout_options SET validation = "email" WHERE form_id = "DEM" and field_id = "email";
+#EndIf
