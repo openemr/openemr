@@ -41,12 +41,12 @@ class CryptoGen
     #  to decrypt values from prior versions)
     # Remember to update cryptCheckStandard() and decryptStandard()
     #  when increment this.
-    private $encryptionVersion = "006";
+    private string $encryptionVersion = "006";
     # This is the current key version. As above, will increment this
     #  when update the encrypt/decrypt methodology to allow backward
     #  compatibility.
     # Remember to update decryptStandard() when increment this.
-    private $keyVersion = "six";
+    private string $keyVersion = "six";
 
     # Note that dynamic variables in this class in the collectCryptoKey()
     #  function are used to store the key cache.
@@ -406,6 +406,7 @@ class CryptoGen
 
     // Function to decrypt a given string
     // This specific function is only used for backward compatibility
+    // TODO: Should be removed in the future or now if not needed. Brady should I refactor this?
     public function aes256Decrypt_mycrypt($sValue)
     {
         $sSecretKey = pack('H*', "bcb04b7e103a0cd8b54763051cef08bc55abe029fdebae5e1d417e2ffb2a00a3");
@@ -448,6 +449,7 @@ class CryptoGen
     private function collectCryptoKey($version = "one", $sub = "", $keySource = 'drive')
     {
         // Check if key is in the cache first (and return it if it is)
+        // TODO: I believe method used here is deprecated in PHP 8.2 and will throw error in PHP 9.0
         $cacheLabel = $version . $sub . $keySource;
         if (!empty($this->{$cacheLabel})) {
             return $this->{$cacheLabel};
@@ -515,6 +517,7 @@ class CryptoGen
         }
 
         // Store key in cache and then return the key
+        // TODO: I believe method used here is deprecated in PHP 8.2 and will throw error in PHP 9.0
         $this->{$cacheLabel} = $key;
         return $key;
     }
