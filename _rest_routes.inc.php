@@ -6533,7 +6533,7 @@ RestConfig::$ROUTE_MAP = array(
      *          description="The type or category of OpenEMR insurance policy, 'primary', 'secondary', or 'tertiary'. If this field is missing it will default to 'primary'.",
      *          type="string"
      *      ),
-     *      required={"provider", "policy_number", "subscriber_fname", "subscriber_lname", "subscriber_relationship", "subscriber_ss", "subscriber_DOB", "subscriber_street", "subscriber_postal_code", "subscriber_city", "subscriber_state", "subscriber_country", "subscriber_sex", "accept_assignment"},
+     *      required={"provider", "policy_number", "subscriber_fname", "subscriber_lname", "subscriber_relationship", "subscriber_ss", "subscriber_DOB", "subscriber_street", "subscriber_postal_code", "subscriber_city", "subscriber_state", "subscriber_sex", "accept_assignment"},
      *      example={
      *          "provider": "33",
      *          "plan_name": "Some Plan",
@@ -12110,7 +12110,7 @@ RestConfig::$FHIR_ROUTE_MAP = array(
         // for the currently logged in user
         if ($request->getRequestUserUUIDString() == $uuid) {
             $return = (new FhirPersonRestController())->getOne($uuid);
-        } else if (!$request->isPatientRequest()) {
+        } elseif (!$request->isPatientRequest()) {
             // not a patient ,make sure we have access to the users ACL
             RestConfig::authorization_check("admin", "users");
             $return = (new FhirPersonRestController())->getOne($uuid);
