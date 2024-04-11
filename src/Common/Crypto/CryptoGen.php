@@ -28,9 +28,9 @@
 
 namespace OpenEMR\Common\Crypto;
 
+use Exception;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
-#[\AllowDynamicProperties]
 class CryptoGen
 {
     # This is the current encrypt/decrypt version
@@ -60,9 +60,9 @@ class CryptoGen
     /**
      * Standard function to encrypt
      *
-     * @param  string  $value           This is the data to encrypt.
-     * @param  string  $customPassword  If provide a password, then will derive keys from this.(and will not use the standard keys)
-     * @param  string  $keySource       This is the source of the standard keys. Options are 'drive' and 'database'
+     * @param string $value          This is the data to encrypt.
+     * @param string $customPassword If provide a password, then will derive keys from this.(and will not use the standard keys)
+     * @param string $keySource      This is the source of the standard keys. Options are 'drive' and 'database'
      *
      */
     public function encryptStandard($value, $customPassword = null, $keySource = 'drive')
@@ -75,10 +75,10 @@ class CryptoGen
     /**
      * Standard function to decrypt
      *
-     * @param  string  $value           This is the data to decrypt.
-     * @param  string  $customPassword  If provide a password, then will derive keys from this.(and will not use the standard keys)
-     * @param  string  $keySource       This is the source of the standard keys. Options are 'drive' and 'database'
-     * @param  int     $minimumVersion  This is the minimum encryption version supported (useful if accepting encrypted data
+     * @param string $value              This is the data to decrypt.
+     * @param string $customPassword     If provide a password, then will derive keys from this.(and will not use the standard keys)
+     * @param string $keySource          This is the source of the standard keys. Options are 'drive' and 'database'
+     * @param int    $minimumVersion     This is the minimum encryption version supported (useful if accepting encrypted data
      *                                   from outside OpenEMR to ensure bad actor is not trying to use an older version).
      *
      */
@@ -137,10 +137,10 @@ class CryptoGen
      * Function to encrypt data
      * Should not be called directly (only called by encryptStandard() function)
      *
-     * @param  string  $sValue          Raw data that will be encrypted.
-     * @param  string  $customPassword  If null, then use standard keys. If provide a password, then will derive key from this.
-     * @param  string  $keySource       This is the source of the keys. Options are 'drive' and 'database'
-     * @param  string  $keyNumber       This is the key number/version.
+     * @param string $sValue         Raw data that will be encrypted.
+     * @param string $customPassword If null, then use standard keys. If provide a password, then will derive key from this.
+     * @param string $keySource      This is the source of the keys. Options are 'drive' and 'database'
+     * @param string $keyNumber      This is the key number/version.
      * @return string                   returns the encrypted data.
      */
     private function coreEncrypt($sValue, $customPassword = null, $keySource = 'drive', $keyNumber = null)
@@ -208,10 +208,10 @@ class CryptoGen
      * Function to decrypt data
      * Should not be called directly (only called by decryptStandard() function)
      *
-     * @param  string  $sValue          Encrypted data that will be decrypted.
-     * @param  string  $customPassword  If null, then use standard keys. If provide a password, then will derive key from this.
-     * @param  string  $keySource       This is the source of the keys. Options are 'drive' and 'database'
-     * @param  string  $keyNumber       This is the key number/version.
+     * @param string $sValue         Encrypted data that will be decrypted.
+     * @param string $customPassword If null, then use standard keys. If provide a password, then will derive key from this.
+     * @param string $keySource      This is the source of the keys. Options are 'drive' and 'database'
+     * @param string $keyNumber      This is the key number/version.
      * @return string or false          returns the decrypted data or false if failed.
      */
     private function coreDecrypt($sValue, $customPassword = null, $keySource = 'drive', $keyNumber = null)
@@ -267,16 +267,48 @@ class CryptoGen
                 $iv
             );
         } else {
-            error_log("OpenEMR Error : Decryption failed authentication.");
+            try {
+                // throw an exception
+                throw new Exception("OpenEMR Error: Decryption failed authentication!");
+            } catch (Exception $e) {
+                // log the exception message and call stack then return legacy null as false for
+                // those evaluating the return value as $return == false which with legacy will eval as false.
+                // I've seen this in the codebase, and it's a bit of a hack, but it's a way to return false instead of null.
+                // Dev's should use empty() instead of == false to check return from this function.
+                // The goal here is so the call stack is exposed to track back to where the call originated.
+                $stackTrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+                $formattedStackTrace = $this->formatExceptionMessage($stackTrace);
+                error_log(text($e->getMessage()) . "\n" . text($formattedStackTrace));
+                return false;
+            }
         }
     }
 
+    private function formatExceptionMessage($stackTrace): string
+    {
+        $formattedStackTrace = "Call Stack:\n";
+        foreach ($stackTrace as $index => $call) {
+            $formattedStackTrace .= "#" . $index . " ";
+            if (isset($call['file'])) {
+                $formattedStackTrace .= $call['file'] . " ";
+                if (isset($call['line'])) {
+                    $formattedStackTrace .= "(" . $call['line'] . "): ";
+                }
+            }
+            if (isset($call['class'])) {
+                $formattedStackTrace .= $call['class'] . $call['type'];
+            }
+            if (isset($call['function'])) {
+                $formattedStackTrace .= $call['function'] . "()\n";
+            }
+        }
+    }
 
     /**
      * Function to AES256 decrypt a given string, version 2
      *
-     * @param  string  $sValue          Encrypted data that will be decrypted.
-     * @param  string  $customPassword  If null, then use standard key. If provide a password, then will derive key from this.
+     * @param string $sValue         Encrypted data that will be decrypted.
+     * @param string $customPassword If null, then use standard key. If provide a password, then will derive key from this.
      * @return string or false          returns the decrypted data or false if failed.
      */
     public function aes256DecryptTwo($sValue, $customPassword = null)
@@ -333,8 +365,8 @@ class CryptoGen
     /**
      * Function to AES256 decrypt a given string, version 1
      *
-     * @param  string  $sValue          Encrypted data that will be decrypted.
-     * @param  string  $customPassword  If null, then use standard key. If provide a password, then will derive key from this.
+     * @param string $sValue         Encrypted data that will be decrypted.
+     * @param string $customPassword If null, then use standard key. If provide a password, then will derive key from this.
      * @return string                   returns the decrypted data.
      */
     public function aes256DecryptOne($sValue, $customPassword = null)
@@ -405,9 +437,9 @@ class CryptoGen
      *  key set from database, collect key set from drive, decrypt key set from drive using the database
      *  key; caching the key will bypass all these steps).
      *
-     * @param  string  $version   This is the number/version of they key.
-     * @param  string  $sub       This is the sublabel of the key
-     * @param  string  $keySource This is the source of the standard keys. Options are 'drive' and 'database'
+     * @param string $version     This is the number/version of they key.
+     * @param string $sub         This is the sublabel of the key
+     * @param string $keySource   This is the source of the standard keys. Options are 'drive' and 'database'
      *                            The 'drive' keys are stored at sites/<site-dir>/documents/logs_and_misc/methods
      *                            The 'database' keys are stored in the 'keys' sql table
      * @return string             Returns the key in raw form.
