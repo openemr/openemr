@@ -990,7 +990,7 @@ class DornGenHl7Order extends GenHl7OrderBase
         }
 
 
-        if ($protocol == 'DL' || $pprow['orders_path'] === '') {
+        if ($protocol == 'DL') {
             header("Pragma: public");
             header("Expires: 0");
             header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
