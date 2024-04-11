@@ -380,7 +380,7 @@ if (!empty($_GET)) {
                                                 }
                                                 ?>
                                                 <tr>
-                                                    <td><?php echo text(oeFormatDateTime($iter["date"])); ?></td>
+                                                    <td><?php echo text(oeFormatDateTime($iter["date"], 0, true)); ?></td>
                                                     <td><?php echo text(preg_replace('/select$/', 'Query', $iter["event"])); //Convert select term to Query for MU2 requirements ?></td>
                                                     <td><?php echo text($iter["category"]); ?></td>
                                                     <td><?php echo text($iter["user"]); ?></td>
@@ -412,7 +412,7 @@ if (!empty($_GET)) {
                                                     $comments = xl('Recipient Name') . ":" . $iter["recipient"] . ";" . xl('Disclosure Info') . ":" . $iter["description"];
                                                     ?>
                                                     <tr>
-                                                        <td><?php echo text(oeFormatDateTime($iter["date"])); ?></td>
+                                                        <td><?php echo text(oeFormatDateTime($iter["date"], 0, true)); ?></td>
                                                         <td><?php echo xlt($iter["event"]); ?></td>
                                                         <td><?php echo xlt($iter["category"] ?? ''); ?></td>
                                                         <td><?php echo text($iter["user"]); ?></td>
