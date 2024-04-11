@@ -277,9 +277,9 @@ class CryptoGen
                 // I've seen this in the codebase, and it's a bit of a hack, but it's a way to return false instead of null.
                 // Dev's should use empty() instead of == false to check return from this function.
                 // The goal here is so the call stack is exposed to track back to where the call originated.
-                $stackTrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+                $stackTrace = debug_backtrace();
                 $formattedStackTrace = $this->formatExceptionMessage($stackTrace);
-                error_log(text($e->getMessage()) . "\n" . text($formattedStackTrace));
+                error_log(errorLogEscape($e->getMessage()) . "\n" . text($formattedStackTrace));
                 return false;
             }
         }
@@ -303,6 +303,7 @@ class CryptoGen
                 $formattedStackTrace .= $call['function'] . "()\n";
             }
         }
+        return $formattedStackTrace;
     }
 
     /**
