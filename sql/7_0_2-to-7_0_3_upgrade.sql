@@ -121,3 +121,7 @@ INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_re
 #IfRow2D layout_options form_id DEM field_id email
 UPDATE layout_options SET validation = "email" WHERE form_id = "DEM" and field_id = "email";
 #EndIf
+
+#IfRow2D layout_options form_id DEM field_id email_direct
+UPDATE layout_options SET validation = "email" WHERE form_id = "DEM" and field_id = "email_direct";
+#EndIf
