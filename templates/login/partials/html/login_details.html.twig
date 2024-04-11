@@ -32,6 +32,7 @@ A partial used to build out the login form.
     {{ divApp }}
     {% include "login/partials/input/languages.html.twig" %}
     {% include "login/partials/input/facilities.html.twig" %}
+    <a href="../login/forgot-password.php">{{ "Forgot Password"|xlt }}</a>
     {% include "login/partials/input/buttons.html.twig" %}
 
     {% if displayGoogleSignin %}

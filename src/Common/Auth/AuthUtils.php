@@ -509,8 +509,54 @@ class AuthUtils
      * @param type $new_username    The username for a new user
      * @return boolean              Was the password successfully updated/created? If false, then $this->errorMessage will tell you why it failed.
      */
-    public function updatePassword($activeUser, $targetUser, &$currentPwd, &$newPwd, $create = false, $insert_sql = "", $new_username = null)
+    public function updatePassword($activeUser, $targetUser, &$currentPwd, &$newPwd, $create = false, $insert_sql = "", $new_username = null, $reset_password = null)
     {
+        echo "here";
+        exit();
+        if($reset_password) {
+            $userSQL = "SELECT `password`, `password_history1`, `password_history2`, `password_history3`, `password_history4`" .
+            " FROM `users_secure`" .
+            " WHERE `username` = ?";
+            $userInfo = privQuery($userSQL, [$targetUser]);
+
+            // Everything checks out at this point, so update the password record
+            $newHash = $this->authHashAuth->passwordHash($newPwd);
+            if (empty($newHash)) {
+                // Something is seriously wrong
+                $this->clearFromMemory($newPwd);
+                error_log('OpenEMR Error : OpenEMR is not working because unable to create a hash.');
+                die("OpenEMR Error : OpenEMR is not working because unable to create a hash.");
+            }
+
+            $updateParams = array();
+            $updateSQL = "UPDATE `users_secure`";
+            $updateSQL .= " SET `last_update_password` = NOW()";
+            $updateSQL .= ", `login_fail_counter` = 0";
+            $updateSQL .= ", `last_login_fail` = null";
+            $updateSQL .= ", `auto_block_emailed` = 0";
+            $updateSQL .= ", `password` = ?";
+            array_push($updateParams, $newHash);
+            if ($GLOBALS['password_history'] != 0) {
+                $updateSQL .= ", `password_history1` = ?";
+                array_push($updateParams, $userInfo['password']);
+                $updateSQL .= ", `password_history2` = ?";
+                array_push($updateParams, $userInfo['password_history1']);
+                $updateSQL .= ", `password_history3` = ?";
+                array_push($updateParams, $userInfo['password_history2']);
+                $updateSQL .= ", `password_history4` = ?";
+                array_push($updateParams, $userInfo['password_history3']);
+            }
+
+            $updateSQL .= " WHERE `id` = ?";
+            array_push($updateParams, $targetUser);
+            privStatement($updateSQL, $updateParams);
+
+            // Done with $newPwd, so can clear it now
+            $this->clearFromMemory($newPwd);
+
+            return true;
+        }
+        
         if (empty($activeUser) || empty($currentPwd)) {
             $this->errorMessage = xl("Password update error!");
             $this->clearFromMemory($currentPwd);
