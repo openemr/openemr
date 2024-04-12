@@ -90,12 +90,12 @@ $vendors = $boot->getVendorGlobals();
             });
 
             // Auto save on changes. Will activate when we add a admin setting choice to turn on.
-            /*const persistChange = document.querySelectorAll('.persist');
+            const persistChange = document.querySelectorAll('.persist');
             persistChange.forEach(persist => {
                 persist.addEventListener('change', () => {
                     $("#form_save_top").click();
                 });
-            });*/
+            });
 
             function togglePasswordVisibility(inputField) {
                 inputField.type = inputField.type === "password" ? "text" : "password";

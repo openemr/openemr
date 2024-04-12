@@ -97,7 +97,7 @@ if ($zip->open($storelocation) === true) {
     $isError = $wenoLog->scrapeWenoErrorHtml($rpt);
     if ($isError['is_error']) {
         error_log('Pharmacy download failed: ' . errorLogEscape($isError['messageText']));
-        $wenoLog->insertWenoLog("pharmacy", "Exceeded_download_limits");
+        $wenoLog->insertWenoLog("pharmacy", "Exceeded download limits");
     }
     EventAuditLogger::instance()->newEvent("pharmacy_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, ($isError['messageText']));
     $wenoLog->insertWenoLog("pharmacy", "Failed");
@@ -232,7 +232,7 @@ if (file_exists($csvFile)) {
         "User Initiated Pharmacy Download was Imported Successfully."
     );
     $wenoLog->insertWenoLog("pharmacy", "Success");
-    error_log("User Initialed Pharmacy Imported");
+    error_log("User Initiated Pharmacy Imported");
 } else {
     EventAuditLogger::instance()->newEvent(
         "pharmacy_log",

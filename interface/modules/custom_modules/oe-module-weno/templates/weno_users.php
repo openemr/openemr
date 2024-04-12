@@ -16,6 +16,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -38,6 +39,7 @@ if (isset($_POST['save'])) {
     foreach ($_POST['weno_provider_id'] as $id => $weno_prov_id) {
         sqlStatement("UPDATE `users` SET weno_prov_id = ? WHERE id = ?", [$weno_prov_id, $id]);
     }
+    $updateUserSetting = (new TransmitProperties())->getWenoProviderId();
     Header("Location: " . $GLOBALS['webroot'] . "/interface/modules/custom_modules/oe-module-weno/templates/weno_users.php");
     exit;
 }

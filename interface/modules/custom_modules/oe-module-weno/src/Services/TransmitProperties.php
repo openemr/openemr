@@ -200,6 +200,10 @@ class TransmitProperties
             $wenObj['PatientHeight'] = substr($this->vitals['height'] ?? '', 0, -3);
             $wenObj['PatientWeight'] = substr($this->vitals['weight'] ?? '', 0, -3);
             $wenObj['HeightWeightObservationDate'] = $heightDate[0];
+        } elseif (!empty($this->vitals['height'] ?? '') && !empty($this->vitals['weight'] ?? '')) { // may as well send
+            $wenObj['PatientHeight'] = substr($this->vitals['height'] ?? '', 0, -3);
+            $wenObj['PatientWeight'] = substr($this->vitals['weight'] ?? '', 0, -3);
+            $wenObj['HeightWeightObservationDate'] = $heightDate[0];
         }
         $wenObj["ResponsiblePartySameAsPatient"] = $age < 19 ? 'N' : 'Y';
         if ($age < 19 && !empty($this->responsibleParty)) {
@@ -379,10 +383,7 @@ insurance;
      */
     public static function styleErrors($error): string
     {
-        $log = "<div><p style='font-size: 1.0rem; color: red;'>" .
-            $error . "<br />" . xlt('Please address errors and try again!') .
-            "</p></div>";
-        return $log;
+        return "<div><p style='font-size: 1.0rem; color: red;'>" . $error . "</p></div>";
     }
 
     /**
@@ -426,14 +427,18 @@ insurance;
     public function getProviderPassword(): mixed
     {
         if (!empty($GLOBALS['weno_provider_password'])) {
-            return $this->cryptoGen->decryptStandard($GLOBALS['weno_provider_password']);
+            $ret = $this->cryptoGen->decryptStandard($GLOBALS['weno_provider_password']);
+            if (!$ret) {
+                return ("REQED:{user_settings}" . xlt('Your Provider Password fails decryption. Go to User Settings Weno Tab and reenter your Weno Provider Password'));
+            }
+            return $ret;
         } else {
-            return "REQED:{user_settings}" . xlt('Provider Password is missing. Go to User Settings Weno Tab and enter your Weno Provider Password');
+            return "REQED:{user_settings}" . xlt('Your Provider Password is missing. Go to User Settings Weno Tab and enter your Weno Provider Password');
         }
     }
 
     /**
-     * @return array|false|null
+     * @return array|null
      */
     public function getVitals(): ?array
     {
@@ -530,18 +535,27 @@ insurance;
         }
         // get the weno provider id from the user table (weno_prov_id)
         $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
-        if (!empty(trim($provider['weno_prov_id'] ?? ''))) {
-            $doIt = ($GLOBALS['weno_provider_uid'] ?? '') != trim($provider['weno_prov_id']);
+        if ((!empty($GLOBALS['weno_provider_uid'])) && !empty($provider['weno_prov_id'])) {
+            $doIt = ($GLOBALS['weno_provider_uid']) != trim($provider['weno_prov_id']);
             if ($doIt) {
-                $GLOBALS['weno_provider_uid'] = trim($provider['weno_prov_id']);
+                $GLOBALS['weno_provider_uid'] = $provider['weno_prov_id'];
                 $sql = "UPDATE `user_settings` SET `setting_value` = ? WHERE `setting_user` = ? AND `setting_label` = 'global:weno_provider_uid'";
-                sqlQuery($sql, [$GLOBALS['weno_provider_uid'], $_SESSION['authUserID']]);
+                sqlQuery($sql, [$provider['weno_prov_id'], $_SESSION['authUserID']]);
             }
+
+            $GLOBALS['weno_provider_uid'] = $GLOBALS['weno_prov_id'] = $provider['weno_prov_id']; // update globals
             return $provider['weno_prov_id'];
-        } elseif (!empty($GLOBALS['weno_provider_uid'])) { // if not in user table then check globals
-            //update user table with weno provider id
+        } elseif (!empty($provider['weno_prov_id'] ?? '') && empty($GLOBALS['weno_provider_uid'])) {
+            $sql = "UPDATE `user_settings` SET `setting_value` = ? WHERE `setting_user` = ? AND `setting_label` = 'global:weno_provider_uid'";
+            sqlQuery($sql, [$provider['weno_prov_id'], $_SESSION['authUserID']]);
+
+            $GLOBALS['weno_provider_uid'] = $GLOBALS['weno_prov_id'] = $provider['weno_prov_id'];
+            return $provider['weno_prov_id'];
+        } elseif (empty($provider['weno_prov_id'] ?? '') && !empty($GLOBALS['weno_provider_uid'])) {
             sqlQuery("UPDATE `users` SET `weno_prov_id` = ? WHERE `id` = ? OR `weno_prov_id` = ?", [$GLOBALS['weno_provider_uid'], $id, $id]);
-            return $GLOBALS['weno_provider_uid'];
+
+            $provider['weno_prov_id'] = $GLOBALS['weno_prov_id'] = $GLOBALS['weno_provider_uid'];
+            return $provider['weno_prov_id'];
         } else {
             return "REQED:{users}" . xlt("Weno Provider Id missing. Select Admin then Users and edit the user to add Weno Provider Id");
         }

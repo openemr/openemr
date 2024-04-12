@@ -92,7 +92,7 @@ class DownloadWenoPharmacies
             if ($isError['is_error']) {
                 EventAuditLogger::instance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy Failed download! Weno error: " . $isError['messageText']);
                 error_log('Pharmacy download failed: ' . errorLogEscape($isError['messageText']));
-                $wenolog->insertWenoLog("pharmacy", "Exceeded_download_limits");
+                $wenolog->insertWenoLog("pharmacy", "Exceeded download limits");
             } else {
                 EventAuditLogger::instance()->newEvent("pharmacy_background", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Pharmacy Failed download! Weno error Other");
                 error_log("Pharmacy Failed download! Weno error: Other");

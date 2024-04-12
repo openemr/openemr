@@ -40,7 +40,7 @@ global $pid; // we need to grab our pid from our global settings.
 $pid = ($frow['blank_form'] ?? null) ? 0 : $pid;
 
 $logService = new WenoLogService();
-$pharmacy_log = $logService->getLastPharmacyDownloadStatus();
+$pharmacy_log = $logService->getLastPharmacyDownloadStatus('Success');
 
 $activeStatus = sqlQuery("SELECT `active` FROM background_services WHERE `name` = 'WenoExchangePharmacies'");
 
@@ -79,7 +79,7 @@ $error = false;
             <?php echo xlt("Weno Pharmacy Selector"); ?>
         </span>
         <?php if (!empty($pharmacy_log['count'] ?? 0)) {
-            $error = false;  ?>
+            $error = false; ?>
             <cite class="h6 text-primary p-1 mt-1">
                 <?php
                 echo xlt("Status") . ": " . (text($pharmacy_log['status']) ?? xlt("No Data")) . " " . xlt("Last success") . ": " . (text($pharmacy_log['created_at']) ?? xlt("No Data"));
@@ -95,52 +95,54 @@ $error = false;
         <?php } ?>
     </div>
     <?php if (!$error) { ?>
-    <div class="row col-12 m-0 p-0 mb-1">
-        <div class="col pl-0">
-            <input type="checkbox" name="24hr" id="24hr" onclick='fullDayChanged(this);'>
-            <span class="mr-1"><?php echo xlt("Open 24 Hours"); ?></span>
-            <input type="checkbox" name="weno_only" id="weno_only" onclick='onWenoChanged(this);'>
-            <span class="mr-1"><?php echo xlt("On Weno Only"); ?></span>
-            <input type="checkbox" name="weno_test_pharmacies" id="weno_test_pharmacies" onchange="testPharmaciesChanged(this);">
-            <span><?php echo xlt("Test Pharmacies"); ?></span>
+        <div class="row col-12 m-0 p-0 mb-1">
+            <div class="col pl-0">
+                <input type="checkbox" name="24hr" id="24hr" onclick='fullDayChanged(this);'>
+                <span class="mr-1"><?php echo xlt("Open 24 Hours"); ?></span>
+                <input type="checkbox" name="weno_only" id="weno_only" onclick='onWenoChanged(this);'>
+                <span class="mr-1"><?php echo xlt("On Weno Only"); ?></span>
+                <input type="checkbox" name="weno_test_pharmacies" id="weno_test_pharmacies" onchange="testPharmaciesChanged(this);">
+                <span><?php echo xlt("Test Pharmacies"); ?></span>
+            </div>
         </div>
-    </div>
-    <cite class="small mb-1">
-        <?php echo xlt("Search by Zipcode OR City and State."); ?>
-    </cite>
-    <div class="row px-0 mx-0">
-        <select name="weno_coverage" class="form-control form-control-sm" id="weno_coverage" onchange="coverageChanged()">
-            <option value=""><?php echo xlt("Select Coverage") . " *" ?></option>
-            <option value="State"><?php echo xlt("State Wide Mail Order") ?></option>
-            <option value="Local" selected><?php echo xlt("Local Retail") ?></option>
-        </select>
+        <div id="test-hide" class="test-hide">
+            <cite class="small mb-1">
+                <?php echo xlt("Search by Zipcode OR City and State."); ?>
+            </cite>
+            <div class="row px-0 mx-0">
+                <select name="weno_coverage" class="form-control form-control-sm" id="weno_coverage" onchange="coverageChanged()">
+                    <option value=""><?php echo xlt("Select Coverage") . " *" ?></option>
+                    <option value="State"><?php echo xlt("State Wide Mail Order") ?></option>
+                    <option value="Local" selected><?php echo xlt("Local Retail") ?></option>
+                </select>
+                <div>
+                    <input type="text" size="16" class="form-control form-control-sm" name="weno_zipcode" id="weno_zipcode" placeholder="Zipcode" onchange="zipChanged()" value="">
+                    <div class="warn"></div>
+                </div>
+                <span class="mx-1"><?php echo xlt("or"); ?></span>
+                <select class="form-control form-control-sm" name="weno_state" id="weno_state" onchange="stateChanged()">
+                    <option value=""><?php echo xlt("State"); ?></option>
+                    <?php while ($row = sqlFetchArray($res)) { ?>
+                        <option value="<?php echo attr($row['option_id']); ?>"><?php echo text($row['title']); ?></option>
+                        <?php
+                    } ?>
+                </select>
+                <select class="form-control" name="weno_city" id="weno_city" onchange="cityChanged()"><?php echo xlt("Enter City"); ?></select>
+                <button type="button" class="btn btn-primary btn-sm mb-3" onclick="search()"><?php echo xlt("Search"); ?></button>
+            </div>
+        </div>
         <div>
-            <input type="text" size="16" class="form-control form-control-sm" name="weno_zipcode" id="weno_zipcode" placeholder="Zipcode" onchange="zipChanged()" value="">
-            <div class="warn"></div>
         </div>
-        <span class="mx-1"><?php echo xlt("or"); ?></span>
-        <select class="form-control form-control-sm" name="weno_state" id="weno_state" onchange="stateChanged()">
-            <option value=""><?php echo xlt("State"); ?></option>
-            <?php while ($row = sqlFetchArray($res)) { ?>
-                <option value="<?php echo attr($row['option_id']); ?>"><?php echo text($row['title']); ?></option>
-                <?php
-            } ?>
-        </select>
-        <select class="form-control" name="weno_city" id="weno_city" onchange="cityChanged()"><?php echo xlt("Enter City"); ?></select>
-        <button type="button" class="btn btn-primary btn-sm mb-3" onclick="search()"><?php echo xlt("Search"); ?></button>
-    </div>
-    <div>
-    </div>
-    <div class="show-hide">
-        <select class="form-control form-control-sm" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()">
-            <option value=""></option>
-        </select>
-    </div>
-    <div class="mt-2 mb-1">
-        <button type="button" class="btn btn-primary btn-sm mr-3 show-hide" onclick="assignPrimaryPharmacy()"><?php echo xlt("Assign Primary Pharmacy"); ?></button>
-        <button type="button" class="btn btn-primary btn-sm ml-3 show-hide" onclick="assignAlternatePharmacy()"><?php echo xlt("Assign Alternate Pharmacy"); ?></button>
-        <button type="button" class="btn btn-secondary btn-sm" onclick="resetForm()"><?php echo xlt("Reset"); ?></button>
-    </div>
+        <div class="show-hide">
+            <select class="form-control form-control-sm" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()">
+                <option value=""></option>
+            </select>
+        </div>
+        <div class="mt-2 mb-1">
+            <button type="button" class="btn btn-primary btn-sm mr-3 show-hide" onclick="assignPrimaryPharmacy()"><?php echo xlt("Assign Primary Pharmacy"); ?></button>
+            <button type="button" class="btn btn-primary btn-sm ml-3 show-hide" onclick="assignAlternatePharmacy()"><?php echo xlt("Assign Alternate Pharmacy"); ?></button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="resetForm()"><?php echo xlt("Reset"); ?></button>
+        </div>
     <?php } ?>
     <div class="small mb-1">
         <?php echo xlt("Current Weno Selected Pharmacies"); ?>
@@ -258,13 +260,20 @@ $error = false;
     }
 
     function testPharmaciesChanged(cb) {
+        let test = $('#weno_pharmacy');
         this.testPharmacies = cb ? cb.checked : false;
+        $(".test-hide").toggleClass('d-none');
+        if (cb.checked) {
+            if (test.hasClass('select2-hidden-accessible')) {
+                test.select2('destroy').off('select2:open');
+            }
+            makeRequest();
+        }
     }
 
     function doAjax() {
-        var state = document.getElementById('form_weno_state').selectedOptions[0].value;
-        var coverage = document.getElementById('weno_coverage').selectedOptions[0].value;
-
+        const state = document.getElementById('form_weno_state').selectedOptions[0].value;
+        const coverage = document.getElementById('weno_coverage').selectedOptions[0].value;
         $.ajax({
             url: url,
             cache: false,
@@ -388,6 +397,13 @@ $error = false;
     }
 
     function makeRequest() {
+        if (testPharmacies) {
+            wenoState = '';
+            wenoCity = '';
+            coverage = '';
+            wenoZipcode = '';
+            fullDay = '';
+        }
         let data = {
             searchFor: 'weno_drop',
             weno_state: wenoState,

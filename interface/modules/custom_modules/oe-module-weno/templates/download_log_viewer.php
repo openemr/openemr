@@ -154,8 +154,8 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             <tbody>
             <tr>
                 <td><?php echo xlt("Weno Pharmacy Directory"); ?></td>
-                <td><?php echo text($pharm_log['created_at'] ?? ''); ?></td>
-                <td><?php echo xlt($pharm_log['status'] ?? ''); ?></td>
+                <td><?php echo text($pharm_log['created_at'] ?? 'Never'); ?></td>
+                <td><?php echo xlt($pharm_log['status'] ?? 'Needs download'); ?></td>
                 <td>
                     <button type="button" id="btn-pharm" onclick="downloadPharmacies();" class="btn btn-primary btn-sm">
                         <?php echo xlt("Download") ?>

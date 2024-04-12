@@ -26,7 +26,7 @@ $validate_errors = "";
 $cite = '';
 
 $logService = new WenoLogService();
-$pharmacyLog = $logService->getLastPharmacyDownloadStatus();
+$pharmacyLog = $logService->getLastPharmacyDownloadStatus('Success');
 
 $status = xlt("Last pharmacy update failed! Status") . ": " . text($pharmacyLog['status'] ?? '') . ". " . xlt("Current number of Pharmacies available") . ": " . text($pharmacyLog['count'] ?? 0) . " " . xlt("that is from last successful update on") . ": " . text($pharmacyLog['created_at'] ?? '');
 $cite = <<<CITE
@@ -62,8 +62,8 @@ function getProviderByWenoId($external_id, $provider_id = ''): string
 
 <div class="row float-right mr-1">
     <div role="button">
-        <u><span class="click" onclick="sync_weno()"><i id="sync-icon" class="fa-solid fa-rotate-right mr-1"></i><?php echo xlt("Refresh"); ?></span></u>
-        <a href="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php"><span><i class="fa-solid fa-pen ml-2 mb-2"></i></span></a>
+        <u><span class="click" onclick="top.restoreSession(); sync_weno();"><i id="sync-icon" class="fa-solid fa-rotate-right mr-1"></i><?php echo xlt("Update from Weno"); ?></span></u>
+        <a onclick=""  href="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php"><span class=""><i class="fa fa-solid fa-pen ml-2 mr-1 mb-2"></i><?php echo xlt("Weno Prescriptions"); ?></span></a>
     </div>
 </div>
 <input type="hidden" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default')); ?>" />
