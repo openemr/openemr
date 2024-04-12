@@ -30,7 +30,6 @@ namespace OpenEMR\Common\Crypto;
 
 use OpenEMR\Common\Utils\RandomGenUtils;
 
-#[\AllowDynamicProperties]
 class CryptoGen
 {
     # This is the current encrypt/decrypt version
@@ -45,13 +44,28 @@ class CryptoGen
     #  when update the encrypt/decrypt methodology to allow backward
     #  compatibility.
     # Remember to update decryptStandard() when increment this.
+    # And remember to update the 'dynamic properties' section right below.
     private $keyVersion = "six";
 
-    # Note that dynamic variables in this class in the collectCryptoKey()
-    #  function are used to store the key cache.
-    #   (note this is why this class has the been marked with the
-    #    [AllowDynamicProperties] attribute, or will throw deprecation
-    #    message in PHP 8.2 and throw error in PHP 9.0)
+    # Note that dynamic properties were originally used in this class in
+    #  the collectCryptoKey() to store the key cache. The below properties
+    #  remove this need. Note that when increment the keyVersion above, will
+    #  need to add the pertinent properties below.
+    private $sixadrive = null;
+    private $sixbdrive = null;
+    private $sixadatabase = null;
+    private $sixbdatabase = null;
+    private $fiveadrive = null;
+    private $fivebdrive = null;
+    private $fiveadatabase = null;
+    private $fivebdatabase = null;
+    private $fouradrive = null;
+    private $fourbdrive = null;
+    private $fouradatabase = null;
+    private $fourbdatabase = null;
+    private $twoadrive = null;
+    private $twobdrive = null;
+    private $onedrive = null;
 
     public function __construct()
     {
