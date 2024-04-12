@@ -453,9 +453,9 @@ insurance;
             }
         } elseif (empty($vitals)) {
             $vitals = [
-               "date" => date('Y-m-d H:i:s'),
-               "height" => 0,
-               "weight" => 0
+                "date" => date('Y-m-d H:i:s'),
+                "height" => 0,
+                "weight" => 0
             ];
         }
         return $vitals;
@@ -535,24 +535,31 @@ insurance;
         }
         // get the weno provider id from the user table (weno_prov_id)
         $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
+
         if ((!empty($GLOBALS['weno_provider_uid'])) && !empty($provider['weno_prov_id'])) {
             $doIt = ($GLOBALS['weno_provider_uid']) != trim($provider['weno_prov_id']);
             if ($doIt) {
                 $GLOBALS['weno_provider_uid'] = $provider['weno_prov_id'];
-                $sql = "UPDATE `user_settings` SET `setting_value` = ? WHERE `setting_user` = ? AND `setting_label` = 'global:weno_provider_uid'";
-                sqlQuery($sql, [$provider['weno_prov_id'], $_SESSION['authUserID']]);
+                $sql = "INSERT INTO `user_settings` (`setting_value`, `setting_user`, `setting_label`) 
+                    VALUES (?, ?, 'global:weno_provider_uid') 
+                    ON DUPLICATE KEY UPDATE `setting_value` = ?";
+                sqlQuery($sql, [$provider['weno_prov_id'], $id, $provider['weno_prov_id']]);
             }
 
             $GLOBALS['weno_provider_uid'] = $GLOBALS['weno_prov_id'] = $provider['weno_prov_id']; // update globals
             return $provider['weno_prov_id'];
         } elseif (!empty($provider['weno_prov_id'] ?? '') && empty($GLOBALS['weno_provider_uid'])) {
-            $sql = "UPDATE `user_settings` SET `setting_value` = ? WHERE `setting_user` = ? AND `setting_label` = 'global:weno_provider_uid'";
-            sqlQuery($sql, [$provider['weno_prov_id'], $_SESSION['authUserID']]);
+            $sql = "INSERT INTO `user_settings` (`setting_value`, `setting_user`, `setting_label`) 
+                VALUES (?, ?, 'global:weno_provider_uid') 
+                ON DUPLICATE KEY UPDATE `setting_value` = ?";
+            sqlQuery($sql, [$provider['weno_prov_id'], $id, $provider['weno_prov_id']]);
 
             $GLOBALS['weno_provider_uid'] = $GLOBALS['weno_prov_id'] = $provider['weno_prov_id'];
             return $provider['weno_prov_id'];
         } elseif (empty($provider['weno_prov_id'] ?? '') && !empty($GLOBALS['weno_provider_uid'])) {
-            sqlQuery("UPDATE `users` SET `weno_prov_id` = ? WHERE `id` = ? OR `weno_prov_id` = ?", [$GLOBALS['weno_provider_uid'], $id, $id]);
+            $sql = "INSERT INTO `users` (`weno_prov_id`, `id`) VALUES (?, ?) 
+                ON DUPLICATE KEY UPDATE `weno_prov_id` = ?";
+            sqlQuery($sql, [$GLOBALS['weno_provider_uid'], $id, $GLOBALS['weno_provider_uid']]);
 
             $provider['weno_prov_id'] = $GLOBALS['weno_prov_id'] = $GLOBALS['weno_provider_uid'];
             return $provider['weno_prov_id'];

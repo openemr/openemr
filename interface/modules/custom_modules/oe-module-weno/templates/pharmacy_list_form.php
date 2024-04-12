@@ -73,16 +73,16 @@ $error = false;
     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
     <input type="text" name="primary_pharmacy" id="primary_pharmacy" hidden>
     <input type="text" name="alternate_pharmacy" id="alternate_pharmacy" hidden>
-    <hr class="bg-light font-weight-bold text-dark my-0 mt-1">
+    <hr class="bg-light font-weight-bold text-dark my-0 my-1">
     <div class="d-flex">
         <span class="h4 text-primary">
             <?php echo xlt("Weno Pharmacy Selector"); ?>
         </span>
         <?php if (!empty($pharmacy_log['count'] ?? 0)) {
             $error = false; ?>
-            <cite class="h6 text-primary p-1 mt-1">
+            <cite class="h6 text-success p-1">
                 <?php
-                echo xlt("Status") . ": " . (text($pharmacy_log['status']) ?? xlt("No Data")) . " " . xlt("Last success") . ": " . (text($pharmacy_log['created_at']) ?? xlt("No Data"));
+                echo xlt("Status") . ": " . (text($pharmacy_log['status']) ?? xlt("No Data")) . " " . xlt("Last Download") . ": " . (text($pharmacy_log['created_at']) ?? xlt("No Data"));
                 ?>
             </cite>
         <?php } else {
@@ -96,13 +96,20 @@ $error = false;
     </div>
     <?php if (!$error) { ?>
         <div class="row col-12 m-0 p-0 mb-1">
-            <div class="col pl-0">
-                <input type="checkbox" name="24hr" id="24hr" onclick='fullDayChanged(this);'>
-                <span class="mr-1"><?php echo xlt("Open 24 Hours"); ?></span>
-                <input type="checkbox" name="weno_only" id="weno_only" onclick='onWenoChanged(this);'>
-                <span class="mr-1"><?php echo xlt("On Weno Only"); ?></span>
-                <input type="checkbox" name="weno_test_pharmacies" id="weno_test_pharmacies" onchange="testPharmaciesChanged(this);">
-                <span><?php echo xlt("Test Pharmacies"); ?></span>
+            <div class="col pl-0 form-inline">
+                <label class="ml-1 form-check-inline">
+                    <input type="checkbox" class="form-check-input" name="24hr" id="24hr" onclick="fullDayChanged(this);">
+                    <?php echo xlt("Open 24 Hours"); ?>
+                </label>
+                <label class="ml-1 form-check-inline">
+                    <input type="checkbox" class="form-check-input" name="weno_only" id="weno_only" onclick="onWenoChanged(this);">
+                    <?php echo xlt("On Weno Only"); ?>
+                </label>
+                <label class="ml-1 form-check-inline">
+                    <input type="checkbox" class="form-check-input" name="weno_test_pharmacies" id="weno_test_pharmacies" onchange="testPharmaciesChanged(this);">
+                    <?php echo xlt("Test Pharmacies"); ?>
+                </label>
+                <i role="button" class="text-primary fa fa-search mb-2 test-hide d-none" onclick="makeRequest()"></i>
             </div>
         </div>
         <div id="test-hide" class="test-hide">
@@ -134,7 +141,7 @@ $error = false;
         <div>
         </div>
         <div class="show-hide">
-            <select class="form-control form-control-sm" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()">
+            <select class="form-control bg-dark text-light" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()">
                 <option value=""></option>
             </select>
         </div>
@@ -144,16 +151,17 @@ $error = false;
             <button type="button" class="btn btn-secondary btn-sm" onclick="resetForm()"><?php echo xlt("Reset"); ?></button>
         </div>
     <?php } ?>
-    <div class="small mb-1">
-        <?php echo xlt("Current Weno Selected Pharmacies"); ?>
+    <div class="m-0 text-center">
+        <cite><?php echo xlt("Current Weno Selected Pharmacies"); ?></cite>
     </div>
+    <hr class="m-0 mb1 p-0 font-weight-bold bg-light text-dark" />
     <div>
-        <span><?php echo xlt("Weno Selected Primary Pharmacy: "); ?></span>
-        <span id="weno_primary"></span>
+        <span class="text-primary font-weight-bold mr-2"><?php echo xlt("Weno Selected Primary Pharmacy") . ':'; ?></span>
+        <i id="weno_primary"></i>
     </div>
     <div class="mb-1">
-        <span><?php echo xlt("Weno Selected Alternate Pharmacy: "); ?></span>
-        <span id="weno_alt"></span>
+        <span class="text-success font-weight-bold"><?php echo xlt("Weno Selected Alternate Pharmacy") . ':'; ?></span>
+        <i id="weno_alt"></i>
         <hr class=" font-weight-bold bg-light text-dark" />
     </div>
 </template>
@@ -397,19 +405,19 @@ $error = false;
     }
 
     function makeRequest() {
+        // clear main search fields
         if (testPharmacies) {
             wenoState = '';
             wenoCity = '';
-            coverage = '';
             wenoZipcode = '';
-            fullDay = '';
+            coverage = '';
         }
         let data = {
             searchFor: 'weno_drop',
             weno_state: wenoState,
             weno_city: wenoCity,
-            coverage: coverage,
             weno_zipcode: wenoZipcode,
+            coverage: coverage,
             full_day: fullDay,
             test_pharmacy: testPharmacies,
             csrf_token_form: csrf
@@ -419,24 +427,28 @@ $error = false;
             type: "GET",
             data: data,
             success: function (data) {
-                var html = '';
+                let html = '';
                 data = JSON.parse(data);
-                if (data == null) {
-                    html += ('<option value="' + '">' + jsText(xl("No Data Found")) + '</option>');
+                if (data === null || data.length === 0) { // Check for no data or empty array
+                    html += '<option value="">' + jsText(xl("No Data Found")) + '</option>';
+                    let msg = jsText(xl('No results found.'));
+                    syncAlertMsg(msg, 3000, 'warning'); // Display warning message
                 } else {
-                    html += ('<option value="' + '">' + jsText(xl("Select from the dropdown")) + '</option>');
+                    html += '<option value="">' + jsText(xl("Select from the dropdown")) + '</option>';
                     $.each(data, function (i, value) {
-                        html += ('<option style="width: 100%" value="' + jsAttr(value.ncpdp) + '">' + jsText(value.name) + '</option>');
+                        html += '<option style="width: 100%" value="' + jsAttr(value.ncpdp) + '">' + jsText(value.name) + '</option>';
                     });
+                    let msg = (testPharmacies ? (jsText(xl('Test')) + ' ') : '') + jsText(xl('Pharmacy search completed')) + ': ' + data.length + ' ' + jsText(xl('result(s) found.'));
+                    syncAlertMsg(msg, 3000, 'warning', 'lg'); // Display success message
                 }
-
-                $("#weno_pharmacy").html(html);
+                $("#weno_pharmacy").html(html); // Write HTML options to the select element
             },
             // Error handling
             error: function (error) {
+                let msg = jsText(xl('Something went wrong. Try again!')) + ' ' + jsAttr(error);
+                syncAlertMsg(msg, 3000, 'danger', 'lg'); // Display error message
             }
         });
-
     }
 
     function assignPrimaryPharmacy() {
