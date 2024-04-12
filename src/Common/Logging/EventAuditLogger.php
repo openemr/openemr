@@ -750,6 +750,11 @@ MSG;
             $patientId = null;
         }
 
+        // code to mask SSN on log entry
+        $ssn_Pattern =  '/\b\d{3}-\d{2}-\d{4}\b/';
+        $maskingString = '***';
+        $comments = preg_replace($ssn_Pattern, $maskingString, $comments);
+
         // Encrypt if applicable
         if (!isset($this->cryptoGen)) {
             $this->cryptoGen = new CryptoGen();
