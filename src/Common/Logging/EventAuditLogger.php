@@ -645,8 +645,8 @@ MSG;
          * For any insert operation, if the current table contains any field containing sensitive information,
          * the value for that field is masked to match its length.
          */
-        foreach (self::SENSITIVE_RECORDS as $table => $fields) {
-            if ($querytype == "insert") {
+        if ($querytype == "insert") {
+            foreach (self::SENSITIVE_RECORDS as $table => $fields) {
                 if (strpos($comments, $table) !== false) {
                     foreach ($fields as $field) {
                         $pattern = "/($field)\s*=\s*'([^']+)'/";
