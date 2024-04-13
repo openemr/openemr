@@ -224,6 +224,18 @@ $vendors = $boot->getVendorGlobals();
                             <input type="password" autocomplete="off" class="form-control persist" maxlength="255" name="weno_admin_password" id="weno_admin_password" value="<?php echo attr($vendors['weno_admin_password']); ?>" />
                         </div>
                     </div>
+                    <hr class="text-dark bg-light font-weight-bold m-0 p-0" />
+                    <div class="row form-group my-0">
+                        <div class="col form-group">
+                            <button type="submit" id="form_reset_key" name="form_reset_key" class="d-none btn btn-success btn-sm btn-refresh m-1 float-right" value="Reset" title="<?php echo xla("The Encryption key did not pass validation. Clicking this button will reset your encryption key so you may continue."); ?>"><?php echo xlt("Encryption Reset"); ?></button>
+                        </div>
+                        <div class="col-12 m-0 m-0 form-group">
+                            <button type="button" class="btn btn-sm btn-outline-danger btn-refresh float-left" id="app_refresh_top" onclick="top.location.reload()"
+                                title="<?php echo xla("Same as a browser refresh. Click to implement any new menus and Configuration items."); ?>"><?php echo xlt("Restart OpenEMR"); ?>
+                            </button>
+                            <button type="submit" id="form_save" name="form_save" class="btn btn-success btn-sm btn-save float-right" value="Save"><?php echo xlt("Validate Primary Admin"); ?></button>
+                        </div>
+                    </div>
                     <!-- User Settings Credentials -->
                     <div class="row form-group">
                         <div class="col-12 m-0 text-center">
@@ -245,18 +257,6 @@ $vendors = $boot->getVendorGlobals();
                         <label for="weno_provider_password" class="col-sm-6"><?php echo xlt("Weno Provider Password for") . " " . text($thisUser); ?></label>
                         <div class="col-sm-6 input-group-append" title="<?php echo xla("Required Weno account password") ?>">
                             <input type="password" autocomplete="off" class="form-control persist" maxlength="255" name="weno_provider_password" id="weno_provider_password" value="<?php echo attr($vendors['weno_provider_password']); ?>" />
-                        </div>
-                    </div>
-                    <hr class="text-dark bg-light font-weight-bold m-0 p-0" />
-                    <div class="row form-group">
-                        <div class="col form-group mt-1">
-                            <button type="submit" id="form_reset_key" name="form_reset_key" class="d-none btn btn-success btn-sm btn-refresh m-1 float-right" value="Reset" title="<?php echo xla("The Encryption key did not pass validation. Clicking this button will reset your encryption key so you may continue."); ?>"><?php echo xlt("Encryption Reset"); ?></button>
-                        </div>
-                        <div class="col-12 m-0 m-0 form-group">
-                            <button type="button" class="btn btn-sm btn-outline-danger btn-refresh float-left" id="app_refresh_top" onclick="top.location.reload()"
-                                title="<?php echo xla("Same as a browser refresh. Click to implement any new menus and Configuration items."); ?>"><?php echo xlt("Restart OpenEMR"); ?>
-                            </button>
-                            <button type="submit" id="form_save" name="form_save" class="btn btn-success btn-sm btn-save float-right" value="Save"><?php echo xlt("Validate and Save Admin"); ?></button>
                         </div>
                     </div>
                     <!-- Users -->

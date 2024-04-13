@@ -435,7 +435,7 @@ $error = false;
                         html += '<option style="width: 100%" value="' + jsAttr(value.ncpdp) + '">' + jsText(value.name) + '</option>';
                     });
                     let msg = (testPharmacies ? (jsText(xl('Test')) + ' ') : '') + jsText(xl('Pharmacy search completed')) + ': ' + data.length + ' ' + jsText(xl('result(s) found.'));
-                    syncAlertMsg(msg, 33000, 'warning', 'lg'); // Display success message
+                    syncAlertMsg(msg, 3000, 'warning', 'lg'); // Display success message
                 }
                 $("#weno_pharmacy").html(html); // Write HTML options to the select element
             },
