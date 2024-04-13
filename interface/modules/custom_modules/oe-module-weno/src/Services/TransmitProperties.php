@@ -383,7 +383,7 @@ insurance;
      */
     public static function styleErrors($error): string
     {
-        return "<div><p style='font-size: 1.0rem; color: red;'>" . $error . "</p></div>";
+        return "<div><p style='font-size: 1.0rem; color: red;'>" . text($error) . "</p></div>";
     }
 
     /**

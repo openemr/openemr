@@ -141,7 +141,7 @@ $error = false;
         <div>
         </div>
         <div class="show-hide">
-            <select class="form-control bg-dark text-light" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()">
+            <select class="form-control form-control-sm bg-light text-dark" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()">
                 <option value=""></option>
             </select>
         </div>
@@ -211,15 +211,7 @@ $error = false;
     function init(prevPrimPharmacy, prevAltPharmacy) {
         let jsPrim = JSON.parse(prevPrimPharmacy);
         let jsAlt = JSON.parse(prevAltPharmacy);
-        // may or may not want this!
-        /*if (jsPrim != false) {
-            var html = ('<option value="' + jsAttr(jsPrim.primary_ncpdp) + '">' +
-                jsText(jsPrim.business_name) + ' - ' +
-                jsText(jsPrim.address_line_1) + '</option>');
-            $("#weno_pharmacy").html(html);
-            //setting the form value for Weno Primary Pharmacy and Display Text respectively
-            $('#weno_primary').text(" " + jsPrim.business_name);
-        }*/
+
         if (jsPrim !== false) {
             $('#weno_primary').text(jsAttr(" " + (jsPrim.business_name) + ' - ' + (jsPrim.address_line_1)));
             $('#primary_pharmacy').val(jsAttr(jsPrim.primary_ncpdp));
@@ -434,12 +426,16 @@ $error = false;
                     let msg = jsText(xl('No results found.'));
                     syncAlertMsg(msg, 3000, 'warning'); // Display warning message
                 } else {
-                    html += '<option value="">' + jsText(xl("Select from the dropdown")) + '</option>';
+                    if (testPharmacies) {
+                        html += '<option value="">' + jsText(xl("Select Test Pharmacy Here.")) + '</option>';
+                    } else {
+                        html += '<option value="">' + jsText(xl("Select Pharmacy Here.")) + '</option>';
+                    }
                     $.each(data, function (i, value) {
                         html += '<option style="width: 100%" value="' + jsAttr(value.ncpdp) + '">' + jsText(value.name) + '</option>';
                     });
                     let msg = (testPharmacies ? (jsText(xl('Test')) + ' ') : '') + jsText(xl('Pharmacy search completed')) + ': ' + data.length + ' ' + jsText(xl('result(s) found.'));
-                    syncAlertMsg(msg, 3000, 'warning', 'lg'); // Display success message
+                    syncAlertMsg(msg, 33000, 'warning', 'lg'); // Display success message
                 }
                 $("#weno_pharmacy").html(html); // Write HTML options to the select element
             },

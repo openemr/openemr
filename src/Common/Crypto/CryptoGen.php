@@ -21,8 +21,10 @@
  * @link      https://www.open-emr.org
  * @author    Ensoftek, Inc
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2015 Ensoftek, Inc
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -31,7 +33,6 @@ namespace OpenEMR\Common\Crypto;
 use Exception;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
-#[\AllowDynamicProperties]
 class CryptoGen
 {
     # This is the current encrypt/decrypt version
@@ -53,6 +54,22 @@ class CryptoGen
     #   (note this is why this class has the been marked with the
     #    [AllowDynamicProperties] attribute, or will throw deprecation
     #    message in PHP 8.2 and throw error in PHP 9.0)
+
+    private $sixadrive = null;
+    private $sixbdrive = null;
+    private $sixadatabase = null;
+    private $sixbdatabase = null;
+    private $fiveadrive = null;
+    private $fivebdrive = null;
+    private $fiveadatabase = null;
+    private $fivebdatabase = null;
+    private $fouradrive = null;
+    private $fourbdrive = null;
+    private $fouradatabase = null;
+    private $fourbdatabase = null;
+    private $twoadrive = null;
+    private $twobdrive = null;
+    private $onedrive = null;
 
     public function __construct()
     {
@@ -342,7 +359,6 @@ class CryptoGen
             return false;
         }
 
-
         $ivLength = openssl_cipher_iv_length('aes-256-cbc');
         $hmacHash = mb_substr($raw, 0, 32, '8bit');
         $iv = mb_substr($raw, 32, $ivLength, '8bit');
@@ -359,17 +375,29 @@ class CryptoGen
                 $iv
             );
         } else {
-            error_log("OpenEMR Error : Decryption failed authentication.");
+            try {
+                // throw an exception
+                throw new Exception("OpenEMR Error: Decryption failed authentication!");
+            } catch (Exception $e) {
+                // log the exception message and call stack then return legacy null as false for
+                // those evaluating the return value as $return == false which with legacy will eval as false.
+                // I've seen this in the codebase, and it's a bit of a hack, but it's a way to return false instead of null.
+                // Dev's should use empty() instead of == false to check return from this function.
+                // The goal here is so the call stack is exposed to track back to where the call originated.
+                $stackTrace = debug_backtrace();
+                $formattedStackTrace = $this->formatExceptionMessage($stackTrace);
+                error_log(errorLogEscape($e->getMessage()) . "\n" . text($formattedStackTrace));
+                return false;
+            }
         }
     }
-
 
     /**
      * Function to AES256 decrypt a given string, version 1
      *
      * @param string $sValue         Encrypted data that will be decrypted.
      * @param string $customPassword If null, then use standard key. If provide a password, then will derive key from this.
-     * @return string                   returns the decrypted data.
+     * @return string                returns the decrypted data.
      */
     public function aes256DecryptOne($sValue, $customPassword = null)
     {
@@ -407,7 +435,7 @@ class CryptoGen
 
     // Function to decrypt a given string
     // This specific function is only used for backward compatibility
-    // TODO: Should be removed in the future or now if not needed. Brady should I refactor this?
+    // TODO: Should be removed in the future.
     public function aes256Decrypt_mycrypt($sValue)
     {
         $sSecretKey = pack('H*', "bcb04b7e103a0cd8b54763051cef08bc55abe029fdebae5e1d417e2ffb2a00a3");
@@ -450,7 +478,6 @@ class CryptoGen
     private function collectCryptoKey($version = "one", $sub = "", $keySource = 'drive')
     {
         // Check if key is in the cache first (and return it if it is)
-        // TODO: I believe method used here is deprecated in PHP 8.2 and will throw error in PHP 9.0
         $cacheLabel = $version . $sub . $keySource;
         if (!empty($this->{$cacheLabel})) {
             return $this->{$cacheLabel};
@@ -518,7 +545,6 @@ class CryptoGen
         }
 
         // Store key in cache and then return the key
-        // TODO: I believe method used here is deprecated in PHP 8.2 and will throw error in PHP 9.0
         $this->{$cacheLabel} = $key;
         return $key;
     }

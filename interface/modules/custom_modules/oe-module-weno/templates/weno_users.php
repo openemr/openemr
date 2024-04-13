@@ -58,6 +58,7 @@ if (isset($_POST['save'])) {
             const persistChange = document.querySelectorAll('.persist-uid');
             persistChange.forEach(persist => {
                 persist.addEventListener('change', () => {
+                    top.restoreSession();
                     $("#form_save_users").click();
                 });
             });
@@ -66,10 +67,10 @@ if (isset($_POST['save'])) {
 </head>
 <body>
     <div class="container-fluid">
-        <h6 class="text-center"><small><?php echo xlt("Auto Save On for Weno UID."); ?></small></h6>
+        <h6 class="text-center"><small><cite><?php echo xlt("Auto Save On for Weno UID."); ?></cite></small></h6>
         <form method="POST">
             <input type="hidden" id="csrf_token_form" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
-            <table class="table table-sm table-hover table-striped">
+            <table class="table table-sm table-hover table-striped table-borderless">
                 <thead>
                 <tr>
                     <th><?php echo xlt("ID"); ?></th>

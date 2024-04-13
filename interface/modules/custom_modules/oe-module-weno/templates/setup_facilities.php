@@ -50,6 +50,7 @@ while ($row = sqlFetchArray($list)) {
         const persistChange = document.querySelectorAll('.persist');
         persistChange.forEach(persist => {
             persist.addEventListener('change', () => {
+                top.restoreSession();
                 $("#save_weno_id").click();
             });
         });
@@ -58,10 +59,10 @@ while ($row = sqlFetchArray($list)) {
 <body class="body_top">
     <div>
         <div class="container-fluid" id="facility">
-            <h6 class="text-center"><small><?php echo xlt("Auto Save On for Facility Weno Location."); ?></small></h6>
+            <h6 class="text-center"><small><cite><?php echo xlt("Auto Save On for Facility Weno Location."); ?></cite></small></h6>
             <form name="wenofacilityinfo" method="post" action="setup_facilities.php" onsubmit="return top.restoreSession()">
                 <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
-                <table class="table">
+                <table class="table table-sm table-hover table-striped table-borderless">
                     <thead>
                     <tr>
                         <th></th>
