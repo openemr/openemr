@@ -93,14 +93,14 @@ class CryptoGen
     /**
      * Standard function to decrypt
      *
-     * @param string $value              This is the data to decrypt.
-     * @param string $customPassword     If provide a password, then will derive keys from this.(and will not use the standard keys)
-     * @param string $keySource          This is the source of the standard keys. Options are 'drive' and 'database'
-     * @param int    $minimumVersion     This is the minimum encryption version supported (useful if accepting encrypted data
-     *                                   from outside OpenEMR to ensure bad actor is not trying to use an older version).
+     * @param string      $value          This is the data to decrypt.
+     * @param string|null $customPassword If provide a password, then will derive keys from this.(and will not use the standard keys)
+     * @param string      $keySource      This is the source of the standard keys. Options are 'drive' and 'database'
+     * @param int|null    $minimumVersion This is the minimum encryption version supported (useful if accepting encrypted data
+     *                                    from outside OpenEMR to ensure bad actor is not trying to use an older version).
      *
      */
-    public function decryptStandard($value, $customPassword = null, $keySource = 'drive', $minimumVersion = null)
+    public function decryptStandard(string $value, string $customPassword = null, string $keySource = 'drive', mixed $minimumVersion = null): false|string
     {
         if (empty($value)) {
             return "";
@@ -226,13 +226,13 @@ class CryptoGen
      * Function to decrypt data
      * Should not be called directly (only called by decryptStandard() function)
      *
-     * @param string $sValue         Encrypted data that will be decrypted.
-     * @param string $customPassword If null, then use standard keys. If provide a password, then will derive key from this.
-     * @param string $keySource      This is the source of the keys. Options are 'drive' and 'database'
-     * @param string $keyNumber      This is the key number/version.
-     * @return string or false          returns the decrypted data or false if failed.
+     * @param string      $sValue         Encrypted data that will be decrypted.
+     * @param string|null $customPassword If null, then use standard keys. If provide a password, then will derive key from this.
+     * @param string      $keySource      This is the source of the keys. Options are 'drive' and 'database'
+     * @param string|null $keyNumber      This is the key number/version.
+     * @return false|string or false      returns the decrypted data or false if failed.
      */
-    private function coreDecrypt($sValue, $customPassword = null, $keySource = 'drive', $keyNumber = null)
+    private function coreDecrypt(string $sValue, string $customPassword = null, string $keySource = 'drive', string $keyNumber = null): false|string
     {
         $keyNumber = isset($keyNumber) ? $keyNumber : $this->keyVersion;
 
