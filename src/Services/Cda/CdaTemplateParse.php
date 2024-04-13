@@ -97,7 +97,9 @@ class CdaTemplateParse
                     }
                 }
             }
-            $this->templateData = $postParseEvent->getTemplateData();
+            if (!empty($postParseEvent)) {
+                $this->templateData = $postParseEvent->getTemplateData();
+            }
         }
         return $this->templateData;
     }
