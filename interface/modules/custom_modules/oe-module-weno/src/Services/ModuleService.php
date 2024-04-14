@@ -50,14 +50,18 @@ class ModuleService
         $vendors['weno_provider_email'] = '';
         $vendors['weno_provider_password'] = '';
 
+        $us = $gl = [];
+
         $gl = sqlStatementNoLog(
             "SELECT gl_name, gl_value FROM `globals` WHERE `gl_name` IN(?, ?, ?, ?, ?)",
             array("weno_rx_enable", "weno_rx_enable_test", "weno_encryption_key", "weno_admin_username", "weno_admin_password")
         );
-        $us = sqlStatementNoLog(
-            "SELECT `setting_label`, `setting_value`, `setting_user` FROM `user_settings` WHERE `setting_label` IN(?, ?) AND `setting_user` = ?",
-            array("global:weno_provider_email", "global:weno_provider_password", $_SESSION['authUserID'])
-        );
+        if (!empty($_SESSION['authUserID'] ?? ''))  {
+            $us = sqlStatementNoLog(
+                "SELECT `setting_label`, `setting_value`, `setting_user` FROM `user_settings` WHERE `setting_label` IN(?, ?) AND `setting_user` = ?",
+                array("global:weno_provider_email", "global:weno_provider_password", $_SESSION['authUserID'] ?? '')
+            );
+        }
 
         $flag = false;
         while ($row = sqlFetchArray($gl)) {
@@ -73,7 +77,7 @@ class ModuleService
             $key = substr($row['setting_label'], 7);
             $vendors[$key] = $row['setting_value'];
         }
-        if (!$flag) {
+        if (!$flag && !empty($_SESSION['authUserID'] ?? '')) {
             $this->saveVendorGlobals($vendors, 'user');
         }
         if ($decrypt) {
@@ -93,9 +97,15 @@ class ModuleService
     public function saveVendorGlobals($items, $which = null): void
     {
         $crypt = new CryptoGen();
-        $items['weno_encryption_key'] = $crypt->encryptStandard($items['weno_encryption_key']);
-        $items['weno_admin_password'] = $crypt->encryptStandard($items['weno_admin_password']);
-        $items['weno_provider_password'] = $crypt->encryptStandard($items['weno_provider_password']);
+        if (!empty($items['weno_encryption_key'])) {
+            $items['weno_encryption_key'] = $crypt->encryptStandard($items['weno_encryption_key']);
+        }
+        if (!empty($items['weno_admin_password'])) {
+            $items['weno_admin_password'] = $crypt->encryptStandard($items['weno_admin_password']);
+        }
+        if (!empty($items['weno_provider_password'])) {
+            $items['weno_provider_password'] = $crypt->encryptStandard($items['weno_provider_password']);
+        }
         $vendors['weno_rx_enable'] = $items['weno_rx_enable'] ?? '0';
         $vendors['weno_rx_enable_test'] = $items['weno_rx_enable_test'] ?? '0';
         $vendors['weno_encryption_key'] = $items['weno_encryption_key'];
@@ -116,12 +126,12 @@ class ModuleService
                 );
             }
         }
-        if ($which != 'global') {
+        if ($which != 'global' && !empty($_SESSION['authUserID'] ?? '')) {
             foreach ($userSettings as $key => $vendor) {
                 $GLOBALS[$key] = $vendor;
                 sqlQuery(
                     "INSERT INTO `user_settings` (`setting_label`,`setting_value`, `setting_user`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `setting_value` = ?, `setting_user` = ?",
-                    array('global:' . $key, $vendor, $_SESSION['authUserID'], $vendor, $_SESSION['authUserID'])
+                    array('global:' . $key, $vendor, $_SESSION['authUserID'], $vendor, $_SESSION['authUserID'] ?? '')
                 );
             }
         }

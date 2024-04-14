@@ -311,7 +311,7 @@ insurance;
         } else {
             // from users facility
             $facilityService = new FacilityService();
-            $locId = $facilityService->getFacilityForUser($_SESSION['authUserID']);
+            $locId = $facilityService->getFacilityForUser($_SESSION['authUserID'] ?? '');
         }
 
         if (empty($locId['weno_id'] ?? '')) {

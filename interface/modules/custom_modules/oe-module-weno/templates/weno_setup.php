@@ -115,7 +115,7 @@ $vendors = $boot->getVendorGlobals();
                 });
 
                 if (isPersistEvent) {
-                    const successMsg = "<?php echo xlt('Auto Saved!'); ?>";
+                    const successMsg = <?php echo xlj('Auto Saved!'); ?>;
                     syncAlertMsg(successMsg, 1000, 'success');
                     isPersistEvent = false;
                     event.preventDefault();
