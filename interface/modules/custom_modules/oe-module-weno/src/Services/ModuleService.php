@@ -56,7 +56,7 @@ class ModuleService
             "SELECT gl_name, gl_value FROM `globals` WHERE `gl_name` IN(?, ?, ?, ?, ?)",
             array("weno_rx_enable", "weno_rx_enable_test", "weno_encryption_key", "weno_admin_username", "weno_admin_password")
         );
-        if (!empty($_SESSION['authUserID'] ?? ''))  {
+        if (!empty($_SESSION['authUserID'] ?? '')) {
             $us = sqlStatementNoLog(
                 "SELECT `setting_label`, `setting_value`, `setting_user` FROM `user_settings` WHERE `setting_label` IN(?, ?) AND `setting_user` = ?",
                 array("global:weno_provider_email", "global:weno_provider_password", $_SESSION['authUserID'] ?? '')
