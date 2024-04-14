@@ -58,20 +58,23 @@ class ModuleService
             "SELECT `setting_label`, `setting_value`, `setting_user` FROM `user_settings` WHERE `setting_label` IN(?, ?) AND `setting_user` = ?",
             array("global:weno_provider_email", "global:weno_provider_password", $_SESSION['authUserID'])
         );
-        if (empty($gl)) {
-            $this->saveVendorGlobals($vendors, 'global');
-            return $vendors;
-        }
-        if (empty($us)) {
-            $this->saveVendorGlobals($vendors, 'user');
-            return $vendors;
-        }
+
+        $flag = false;
         while ($row = sqlFetchArray($gl)) {
+            $flag = true;
             $vendors[$row['gl_name']] = $row['gl_value'];
         }
+        if (!$flag) {
+            $this->saveVendorGlobals($vendors, 'global');
+        }
+        $flag = false;
         while ($row = sqlFetchArray($us)) {
+            $flag = true;
             $key = substr($row['setting_label'], 7);
             $vendors[$key] = $row['setting_value'];
+        }
+        if (!$flag) {
+            $this->saveVendorGlobals($vendors, 'user');
         }
         if ($decrypt) {
             $crypt = new CryptoGen();
@@ -148,7 +151,7 @@ class ModuleService
      */
     public function isWenoConfigured(): bool
     {
-        self::statusPharmacyDownloadReset(); // if last failed, reset to active
+        // self::statusPharmacyDownloadReset(); // if last failed, reset to active TODO: this may cause a race condition! Check.
         $config = $this->getVendorGlobals();
         $keys = array_keys($config);
         foreach ($keys as $key) {
@@ -203,6 +206,14 @@ class ModuleService
         // set module state.
         $sql = "UPDATE `modules` SET `mod_active` = ?, `mod_ui_active` = ? WHERE `mod_id` = ? OR `mod_directory` = ?";
         return sqlQuery($sql, array($flag, $flag_ui, $modId, $modId));
+    }
+
+    public static function getModuleState($modId): bool
+    {
+        $sql = "SELECT `mod_active` FROM `modules` WHERE `mod_id` = ? OR `mod_directory` = ?";
+        $flag = sqlQuery($sql, array($modId, $modId));
+
+        return !empty($flag['mod_active']);
     }
 
     /**

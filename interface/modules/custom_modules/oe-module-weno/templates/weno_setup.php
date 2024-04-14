@@ -25,6 +25,9 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     exit;
 }
 
+$boot = new ModuleService();
+$wenoValidate = new WenoValidate();
+
 $vendors = [];
 $vendors['weno_rx_enable'] = '';
 $vendors['weno_rx_enable_test'] = '';
@@ -40,13 +43,12 @@ $usersUrl = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-
 $saveAction = false;
 $saveActionPersist = false;
 $isValidKey = true;
-$boot = new ModuleService();
-$wenoValidate = new WenoValidate();
+
 if (($_POST['form_save'] ?? null)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-    unset($_POST['form_save'], $_POST['csrf_token_form']);
+    unset($_POST['form_save'], $_POST['form_save_top'], $_POST['csrf_token_form']);
     $boot->saveVendorGlobals($_POST);
     $isValidKey = $wenoValidate->verifyEncryptionKey();
     $saveAction = true;
@@ -55,7 +57,7 @@ if (($_POST['form_save_top'] ?? null)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
-    unset($_POST['form_save_top'], $_POST['csrf_token_form']);
+    unset($_POST['form_save'], $_POST['form_save_top'], $_POST['csrf_token_form']);
     $boot->saveVendorGlobals($_POST);
     $saveActionPersist = true;
 }
@@ -89,23 +91,41 @@ $vendors = $boot->getVendorGlobals();
     ?>
     <script>
         $(function () {
+            const form = document.querySelector('#set_form');
             let isValidKey = <?php echo js_escape($isValidKey); ?>;
             let saveAction = <?php echo js_escape($saveAction); ?>;
+            let isPersistEvent = false;
             let saveActionPersist = <?php echo js_escape($saveActionPersist); ?>;
-            $(".collapse.show").each(function () {
-                $(this).prev(".card-header").find(".fa").addClass("fa-minus").removeClass("fa-expand");
-            });
-            $(".collapse").on('show.bs.collapse', function () {
-                $(this).prev(".card-header").find(".fa").removeClass("fa-expand").addClass("fa-minus");
-            }).on('hide.bs.collapse', function () {
-                $(this).prev(".card-header").find(".fa").removeClass("fa-minus").addClass("fa-expand");
+            let scrollPosition = 0;
+
+            // Persist form submit so to scroll where left off.
+            form.addEventListener('submit', function (event) {
+                scrollPosition = window.scrollY;
+                let formData = new FormData(form);
+                if (isPersistEvent) {
+                    formData.append('form_save_top', 'Save');
+                }
+                fetch(form.action, {
+                    method: form.method,
+                    body: formData
+                }).then(response => response.json()).then(data => {
+                    window.scrollTo(0, scrollPosition);
+                }).catch(error => {
+                    window.scrollTo(0, scrollPosition);
+                });
+
+                if (isPersistEvent) {
+                    const successMsg = "<?php echo xlt('Auto Saved!'); ?>";
+                    syncAlertMsg(successMsg, 1000, 'success');
+                    isPersistEvent = false;
+                    event.preventDefault();
+                }
             });
 
-            // Auto save on changes.
             const persistChange = document.querySelectorAll('.persist');
             persistChange.forEach(persist => {
                 persist.addEventListener('change', () => {
-                    top.restoreSession();
+                    isPersistEvent = true;
                     $("#form_save_top").click();
                 });
             });
@@ -124,7 +144,9 @@ $vendors = $boot->getVendorGlobals();
                 field.parentNode.insertBefore(eyeIcon, field.nextSibling);
             });
 
-            document.getElementById('app_refresh_top').scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
+            if (!isPersistEvent) {
+                document.getElementById('app_refresh_top').scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
+            }
 
             if (isValidKey === 998 || isValidKey === 999) {
                 const warnMsg = "<?php echo xlt('Internet Connection Problem. Are you connected?'); ?>";
@@ -148,6 +170,15 @@ $vendors = $boot->getVendorGlobals();
                 }
                 $('#form_reset_key').addClass('d-none');
             }
+
+            $(".collapse.show").each(function () {
+                $(this).prev(".card-header").find(".fa").addClass("fa-minus").removeClass("fa-expand");
+            });
+            $(".collapse").on('show.bs.collapse', function () {
+                $(this).prev(".card-header").find(".fa").removeClass("fa-expand").addClass("fa-minus");
+            }).on('hide.bs.collapse', function () {
+                $(this).prev(".card-header").find(".fa").removeClass("fa-minus").addClass("fa-expand");
+            });
         });
     </script>
 </head>
@@ -181,10 +212,11 @@ $vendors = $boot->getVendorGlobals();
                 ?>
             </div>
         </div>
-        <form id="set_form" name="set_form" class="form" role="form" method="post" action="">
+        <form id="set_form" name="set_form" class="form" role="form" method="post" action="#">
             <div id="set-weno">
                 <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
-                <button type="submit" id="form_save_top" name="form_save_top" class="d-none" value="Save"></button>
+                <button type="submit" id="form_save_top" name="form_save_top" class="d-none" value="true"></button>
+                <!-- never active and for persist submit. -->
                 <div class="row form-group">
                     <div class="col-12 m-0 text-center">
                         <h5>
@@ -224,16 +256,21 @@ $vendors = $boot->getVendorGlobals();
                             <input type="password" autocomplete="off" class="form-control persist" maxlength="255" name="weno_admin_password" id="weno_admin_password" value="<?php echo attr($vendors['weno_admin_password']); ?>" />
                         </div>
                     </div>
-                    <hr class="text-dark bg-light font-weight-bold m-0 p-0" />
                     <div class="row form-group my-0">
                         <div class="col form-group">
-                            <button type="submit" id="form_reset_key" name="form_reset_key" class="d-none btn btn-success btn-sm btn-refresh m-1 float-right" value="Reset" title="<?php echo xla("The Encryption key did not pass validation. Clicking this button will reset your encryption key so you may continue."); ?>"><?php echo xlt("Encryption Reset"); ?></button>
+                            <button type="submit" id="form_reset_key" name="form_reset_key" class="d-none btn btn-success btn-sm btn-refresh m-1 float-right" value="Reset"
+                                title="<?php echo xla("The Encryption key did not pass validation. Clicking this button will reset your encryption key so you may continue."); ?>">
+                                <?php echo xlt("Encryption Reset"); ?>
+                            </button>
                         </div>
                         <div class="col-12 m-0 m-0 form-group">
                             <button type="button" class="btn btn-sm btn-outline-danger btn-refresh float-left" id="app_refresh_top" onclick="top.location.reload()"
-                                title="<?php echo xla("Same as a browser refresh. Click to implement any new menus and Configuration items."); ?>"><?php echo xlt("Restart OpenEMR"); ?>
+                                title="<?php echo xla("Same as a browser refresh. Click to implement any new menus and Configuration items."); ?>">
+                                <?php echo xlt("Restart OpenEMR"); ?>
                             </button>
-                            <button type="submit" id="form_save" name="form_save" class="btn btn-success btn-sm btn-save float-right" value="Save"><?php echo xlt("Validate Primary Admin"); ?></button>
+                            <button type="submit" id="form_save" name="form_save" class="btn btn-success btn-sm btn-save float-right" value="Save">
+                                <?php echo xlt("Validate Primary Admin"); ?>
+                            </button>
                         </div>
                     </div>
                     <!-- User Settings Credentials -->
@@ -248,7 +285,7 @@ $vendors = $boot->getVendorGlobals();
                         </div>
                     </div>
                     <div class="row form-group">
-                        <label for="weno_provider_email" class="col-sm-6"><?php echo xlt("Weno Provider Username for") . " " . text($thisUser); ?></label>
+                        <label for="weno_provider_email" class="col-sm-6"><?php echo xlt("Weno Provider Email for") . " " . text($thisUser); ?></label>
                         <div class="col-sm-6" title="<?php echo xla("This is required for your Prescriber user setup. Same as email for logging in into Weno"); ?>">
                             <input type="text" autocomplete="off" class="form-control persist" maxlength="255" name="weno_provider_email" id="weno_provider_email" value="<?php echo attr($vendors['weno_provider_email']); ?>" />
                         </div>
@@ -278,47 +315,6 @@ $vendors = $boot->getVendorGlobals();
                             </h5>
                         </div>
                         <iframe src="<?php echo $facilityUrl; ?>" class="w-100" style="border: none; min-height: 300px; max-height:600px;" height="250" title="<?php echo xla("Facilities") ?>"></iframe>
-                    </div>
-                    <!-- Reserved Secondary -->
-                    <div class="d-none">
-                        <div class="row form-group">
-                            <div class="col-12 m-0 text-center">
-                                <h5>
-                                    <hr class="text-dark bg-light" />
-                                    <?php echo xlt("Weno Secondary Admin Section") . ' <cite>(' . xlt('Not Required') . ')</cite>'; ?>
-                                    <hr class="text-dark bg-light" />
-                                </h5>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="row form-group">
-                                <label for="weno_secondary_encryption_key" class="col-sm-6"><?php echo xlt("Weno Secondary Encryption Key") ?></label>
-                                <div class="col-sm-6 input-group-append" title="<?php echo xla("Backup Encryption key issued by Weno eRx service on the Weno Developer Page.") ?>">
-                                    <input type="password" autocomplete="off" class="form-control" maxlength="255" name="weno_secondary_encryption_key" id="weno_secondary_encryption_key" value="<?php echo attr($vendors['weno_secondary_encryption_key']); ?>" />
-                                </div>
-                            </div>
-                            <div class="row form-group">
-                                <label for="weno_secondary_admin_username" class="col-sm-6"><?php echo xlt("Weno Secondary Admin Username") ?></label>
-                                <div class="col-sm-6" title="<?php echo xla("This is required for Weno Pharmacy Directory Download in Background Services. Same as email for logging in into Weno") ?>">
-                                    <input type="text" class="form-control" maxlength="255" name="weno_secondary_admin_username" id="weno_secondary_admin_username" value="<?php echo attr($vendors['weno_secondary_admin_username']); ?>" />
-                                </div>
-                            </div>
-                            <div class="row form-group">
-                                <label for="weno_secondary_admin_password" class="col-sm-6"><?php echo xlt("Weno Secondary Admin Password") ?></label>
-                                <div class="col-sm-6 input-group-append" title="<?php echo xla("Required Weno account password") ?>">
-                                    <input type="password" autocomplete="off" class="form-control" maxlength="255" name="weno_secondary_admin_password" id="weno_secondary_admin_password" value="<?php echo attr($vendors['weno_secondary_admin_password']); ?>" />
-                                </div>
-                            </div>
-                            <hr class="text-dark bg-light" />
-                            <div class="row form-group">
-                                <div class="col-12 m-0">
-                                    <button type="button" class="btn btn-sm btn-outline-danger btn-refresh float-left" id="app_refresh" onclick="top.location.reload()"
-                                        title="<?php echo xla("Same as a browser refresh. Click to implement any new menus and Configuration items."); ?>"><?php echo xlt("Restart OpenEMR"); ?>
-                                    </button>
-                                    <button type="submit" id="form_save" name="form_save" class="btn btn-sm btn-success btn-save float-right" value="Save"><?php echo xlt("Validate and Save"); ?></button>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

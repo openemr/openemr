@@ -169,6 +169,45 @@ class ModuleManagerListener extends AbstractModuleActionListener
      * @param $currentActionStatus
      * @return mixed
      */
+    private function reset_module($modId, $currentActionStatus): mixed
+    {
+        $rtn = false;
+        $modService = new ModuleService();
+        if (!$modService::getModuleState($modId)) {
+            // Initialize $rtn as true initially
+            $rtn = true;
+
+            $sql = "DELETE FROM `user_settings` WHERE `setting_label` LIKE 'global:weno%'";
+            $rtn = $rtn && sqlQuery($sql);
+
+            $sql = "DELETE FROM `globals` WHERE `gl_name` LIKE 'weno%'";
+            $rtn = $rtn && sqlQuery($sql);
+
+            $sql = "DROP TABLE IF EXISTS `weno_pharmacy`";
+            $rtn = $rtn && sqlQuery($sql);
+
+            $sql = "DROP TABLE IF EXISTS `weno_assigned_pharmacy`";
+            $rtn = $rtn && sqlQuery($sql);
+
+            $sql = "DROP TABLE IF EXISTS `weno_download_log`";
+            $rtn = $rtn && sqlQuery($sql);
+
+            if (!$rtn) {
+                $currentActionStatus = "WenoModule Reset Failed! At least one query failed.";
+                error_log(text($currentActionStatus));
+            } else {
+                $currentActionStatus = 'Success';
+                error_log("WenoModule Reset Successful!");
+            }
+        }
+        return $currentActionStatus;
+    }
+
+    /**
+     * @param $modId
+     * @param $currentActionStatus
+     * @return mixed
+     */
     private function install_sql($modId, $currentActionStatus): mixed
     {
         return $currentActionStatus;

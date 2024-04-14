@@ -167,7 +167,7 @@ class LogProperties
             if ($isError['is_error']) {
                 $error = $isError['messageText'];
                 error_log('Prescription download failed: ' . errorLogEscape($error));
-                $wenoLog->insertWenoLog("prescription", "invalid_credentials");
+                $wenoLog->insertWenoLog("prescription", "Invalid Prescriber Credentials Hint:see previous errors.");
                 EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, ($error));
                 die(js_escape($error));
             }

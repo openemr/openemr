@@ -57,13 +57,11 @@ function getProviderByWenoId($external_id, $provider_id = ''): string
 }
 
 ?>
-
 <script src="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
-
 <div class="row float-right mr-1">
-    <div role="button">
-        <u><span class="click" onclick="top.restoreSession(); sync_weno();"><i id="sync-icon" class="fa-solid fa-rotate-right mr-1"></i><?php echo xlt("Update from Weno"); ?></span></u>
-        <a onclick=""  href="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php"><span class=""><i class="fa fa-solid fa-pen ml-2 mr-1 mb-2"></i><?php echo xlt("Weno Prescriptions"); ?></span></a>
+    <div>
+        <a class="mr-2" href="#" onclick="top.restoreSession(); sync_weno();"><span><i id="sync-icon" class="fa-solid fa-rotate-right mr-1"></i><?php echo xlt("Refresh"); ?></span></a>
+        <a class="mr-2" onclick="top.restoreSession();" href="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php"><span><i class="fa fa fa-pencil-alt mr-1"></i><?php echo xlt("Add/Edit"); ?></span></a>
     </div>
 </div>
 <input type="hidden" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default')); ?>" />

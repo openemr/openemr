@@ -109,7 +109,7 @@ $error = false;
                     <input type="checkbox" class="form-check-input" name="weno_test_pharmacies" id="weno_test_pharmacies" onchange="testPharmaciesChanged(this);">
                     <?php echo xlt("Test Pharmacies"); ?>
                 </label>
-                <i role="button" class="text-primary fa fa-search mb-2 test-hide d-none" onclick="makeRequest()"></i>
+                <i role="button" class="text-primary fa fa-search test-hide d-none" onclick="makeRequest()"></i>
             </div>
         </div>
         <div id="test-hide" class="test-hide">
@@ -212,12 +212,12 @@ $error = false;
         let jsPrim = JSON.parse(prevPrimPharmacy);
         let jsAlt = JSON.parse(prevAltPharmacy);
 
-        if (jsPrim !== false) {
-            $('#weno_primary').text(jsAttr(" " + (jsPrim.business_name) + ' - ' + (jsPrim.address_line_1)));
+        if (jsPrim !== false && jsPrim !== null && jsPrim.business_name !== '') {
+            $('#weno_primary').text(jsText((jsPrim.business_name) + ' - ' + (jsPrim.address_line_1)));
             $('#primary_pharmacy').val(jsAttr(jsPrim.primary_ncpdp));
         }
-        if (jsAlt !== false) {
-            $('#weno_alt').text(jsAttr(" " + (jsAlt.business_name) + ' - ' + (jsAlt.address_line_1)));
+        if (jsAlt !== false && jsAlt !== null && jsAlt.business_name !== '') {
+            $('#weno_alt').text(jsText((jsAlt.business_name) + ' - ' + (jsAlt.address_line_1)));
             $('#alternate_pharmacy').val(jsAttr(jsAlt.alternate_ncpdp));
         }
     }
@@ -323,7 +323,7 @@ $error = false;
             },
             minimumInputLength: 3,
             cache: true,
-            placeholder: 'Enter desired Pharmacy',
+            placeholder: 'Default Pharmacies',
             allowClear: true
         });
     }
@@ -356,7 +356,7 @@ $error = false;
             },
             minimumInputLength: 3,
             cache: true,
-            placeholder: 'Enter City'
+            placeholder: 'Select a City'
         });
     }
 
@@ -383,7 +383,7 @@ $error = false;
 
             if (!wenoCity && !wenoZipcode) {
                 $('#weno_city').addClass("is-invalid");
-                $('.warn').text(requiredField);
+                $('.warn').text(jsText(requiredField));
             }
 
             if (!wenoState && !wenoZipcode) {
@@ -422,27 +422,27 @@ $error = false;
                 let html = '';
                 data = JSON.parse(data);
                 if (data === null || data.length === 0) { // Check for no data or empty array
-                    html += '<option value="">' + jsText(xl("No Data Found")) + '</option>';
+                    html += '<option value="">' + jsText(xl("No Pharmacy Found")) + '</option>';
                     let msg = jsText(xl('No results found.'));
-                    syncAlertMsg(msg, 3000, 'warning'); // Display warning message
+                    syncAlertMsg(msg, 2000, 'warning'); // Display warning message
                 } else {
                     if (testPharmacies) {
-                        html += '<option value="">' + jsText(xl("Select Test Pharmacy Here.")) + '</option>';
+                        html += '<option value="' + '">' + jsText(xl("Select a Test Pharmacy Here")) + '</option>';
                     } else {
-                        html += '<option value="">' + jsText(xl("Select Pharmacy Here.")) + '</option>';
+                        html += '<option value="' + '">' + jsText(xl("Select a Pharmacy Here")) + '</option>';
                     }
                     $.each(data, function (i, value) {
                         html += '<option style="width: 100%" value="' + jsAttr(value.ncpdp) + '">' + jsText(value.name) + '</option>';
                     });
                     let msg = (testPharmacies ? (jsText(xl('Test')) + ' ') : '') + jsText(xl('Pharmacy search completed')) + ': ' + data.length + ' ' + jsText(xl('result(s) found.'));
-                    syncAlertMsg(msg, 3000, 'warning', 'lg'); // Display success message
+                    syncAlertMsg(msg, 2000, 'warning', 'lg'); // Display success message
                 }
                 $("#weno_pharmacy").html(html); // Write HTML options to the select element
             },
             // Error handling
             error: function (error) {
                 let msg = jsText(xl('Something went wrong. Try again!')) + ' ' + jsAttr(error);
-                syncAlertMsg(msg, 3000, 'danger', 'lg'); // Display error message
+                syncAlertMsg(msg, 5000, 'danger', 'lg'); // Display error message
             }
         });
     }
@@ -450,14 +450,14 @@ $error = false;
     function assignPrimaryPharmacy() {
         weno_pharm = $('#weno_pharmacy').val();
         weno_pharm_text = $('#weno_pharmacy').text();
-        $('#weno_primary').text(" " + wenoPrimPharm);
+        $('#weno_primary').text(jsText(wenoPrimPharm));
         $('#primary_pharmacy').val(weno_pharm);
     }
 
     function assignAlternatePharmacy() {
         weno_alt = $('#weno_pharmacy').val();
         weno_alt_text = $('#weno_pharmacy').text();
-        $('#weno_alt').text(" " + wenoPrimPharm);
+        $('#weno_alt').text(jsText(wenoPrimPharm));
         $('#alternate_pharmacy').val(weno_alt);
     }
 
