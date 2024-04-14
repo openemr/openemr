@@ -16,7 +16,6 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
-use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -30,16 +29,18 @@ if ($_POST) {
     }
 }
 
+
 $fetch = sqlStatement("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 and authorized = 1");
 while ($row = sqlFetchArray($fetch)) {
     $usersData[] = $row;
 }
 
-if (isset($_POST['save'])) {
+if (($_POST['save'] ?? false) == 'true') {
     foreach ($_POST['weno_provider_id'] as $id => $weno_prov_id) {
         sqlStatement("UPDATE `users` SET weno_prov_id = ? WHERE id = ?", [$weno_prov_id, $id]);
     }
-    $updateUserSetting = (new TransmitProperties())->getWenoProviderId();
+
+    unset($_POST['save']);
     Header("Location: " . $GLOBALS['webroot'] . "/interface/modules/custom_modules/oe-module-weno/templates/weno_users.php");
     exit;
 }
@@ -56,10 +57,15 @@ if (isset($_POST['save'])) {
     <script>
         $(function () {
             const persistChange = document.querySelectorAll('.persist-uid');
+            const successMsg = <?php echo xlj('Auto Saved!'); ?>;
+            let isPersistEvent = false;
             persistChange.forEach(persist => {
                 persist.addEventListener('change', () => {
                     top.restoreSession();
-                    $("#form_save_users").click();
+                    syncAlertMsg(successMsg, 1000, 'success').then(() => {
+                        isPersistEvent = true;
+                        $("#form_save_users").click();
+                    });
                 });
             });
         });
@@ -99,7 +105,7 @@ if (isset($_POST['save'])) {
                 <?php } ?>
                 </tbody>
             </table>
-            <button type="submit" id="form_save_users" name="save" class="btn btn-primary float-right d-none"><?php echo xlt("Update Users Weno ID"); ?></button>
+            <button type="submit" id="form_save_users" name="save" class="btn btn-primary float-right d-none" value="true"><?php echo xlt("Update Users Weno ID"); ?></button>
         </form>
     </div>
 </body>

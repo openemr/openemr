@@ -497,9 +497,9 @@ insurance;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getProviderName(): mixed
+    public function getProviderName(): string
     {
         $provider_info = sqlQuery("select fname, mname, lname from users where username=? ", [$_SESSION["authUser"]]);
         $provider_info = $provider_info ?? ['fname' => '', 'mname' => '', 'lname' => ''];
@@ -507,9 +507,9 @@ insurance;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getPatientName(): mixed
+    public function getPatientName(): string
     {
         $patient_info = sqlQuery("select fname, mname, lname from patient_data where pid=? ", [$_SESSION["pid"]]);
         $patient_info = $patient_info ?? ['fname' => '', 'mname' => '', 'lname' => ''];

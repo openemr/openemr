@@ -32,7 +32,7 @@ function manage(id, action) {
         }
     }
     if (action === 'reset_module') {
-        if (!confirm("Please Confirm with OK to preform Reset this Module!\nThis action may possibly remove database dependencies only related to this module.")) {
+        if (!confirm("Please Confirm with OK to Reset Module!\nThis action may possibly remove database dependencies that are only related to this module.")) {
             return false;
         }
     }

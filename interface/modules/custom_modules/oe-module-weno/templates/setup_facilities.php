@@ -48,10 +48,17 @@ while ($row = sqlFetchArray($list)) {
 <script>
     $(function () {
         const persistChange = document.querySelectorAll('.persist');
+        const successMsg = <?php echo xlj('Auto Saved!'); ?>;
+        let isPersistEvent = false;
+
         persistChange.forEach(persist => {
             persist.addEventListener('change', () => {
                 top.restoreSession();
-                $("#save_weno_id").click();
+                syncAlertMsg(successMsg, 1000, 'success')
+                .then(() => {
+                    isPersistEvent = true;
+                    $("#save_weno_id").click();
+                });
             });
         });
     });

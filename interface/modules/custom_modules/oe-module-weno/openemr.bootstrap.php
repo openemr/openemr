@@ -3,7 +3,6 @@
 /**
  *
  * @package     OpenEMR Weno Module
- * @link        https://dev.wenoexchange.com
  *
  * @author      Jerry Padgett <sjpadgett@gmail.com>
  * @author      Kofi Appiah <kkappiah@medsov.com>
@@ -13,8 +12,6 @@
  */
 
 namespace OpenEMR\Modules\WenoModule;
-
-use OpenEMR\Core\ModulesClassLoader;
 
 /**
  * @global OpenEMR\Core\ModulesClassLoader $classLoader

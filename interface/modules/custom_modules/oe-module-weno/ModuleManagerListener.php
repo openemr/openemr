@@ -171,36 +171,36 @@ class ModuleManagerListener extends AbstractModuleActionListener
      */
     private function reset_module($modId, $currentActionStatus): mixed
     {
-        $rtn = false;
+        $rtn = true;
         $modService = new ModuleService();
-        if (!$modService::getModuleState($modId)) {
-            // Initialize $rtn as true initially
-            $rtn = true;
+        $logMessage = ''; // Initialize an empty string to store log messages
 
+        if (!$modService::getModuleState($modId)) {
             $sql = "DELETE FROM `user_settings` WHERE `setting_label` LIKE 'global:weno%'";
-            $rtn = $rtn && sqlQuery($sql);
+            $rtn = sqlQuery($sql);
+            $logMessage .= "DELETE FROM `user_settings`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
 
             $sql = "DELETE FROM `globals` WHERE `gl_name` LIKE 'weno%'";
-            $rtn = $rtn && sqlQuery($sql);
+            $rtn = sqlQuery($sql);
+            $logMessage .= "DELETE FROM `globals`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
 
             $sql = "DROP TABLE IF EXISTS `weno_pharmacy`";
-            $rtn = $rtn && sqlQuery($sql);
+            $rtn = sqlQuery($sql);
+            $logMessage .= "DROP TABLE `weno_pharmacy`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
 
             $sql = "DROP TABLE IF EXISTS `weno_assigned_pharmacy`";
-            $rtn = $rtn && sqlQuery($sql);
+            $rtn = sqlQuery($sql);
+            $logMessage .= "DROP TABLE `weno_assigned_pharmacy`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
 
             $sql = "DROP TABLE IF EXISTS `weno_download_log`";
-            $rtn = $rtn && sqlQuery($sql);
+            $rtn = sqlQuery($sql);
+            $logMessage .= "DROP TABLE `weno_download_log`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
 
-            if (!$rtn) {
-                $currentActionStatus = "WenoModule Reset Failed! At least one query failed.";
-                error_log(text($currentActionStatus));
-            } else {
-                $currentActionStatus = 'Success';
-                error_log("WenoModule Reset Successful!");
-            }
+            error_log(text($logMessage));
         }
-        return $currentActionStatus;
+
+        // return log messages to the MM to show user.
+        return text($logMessage);
     }
 
     /**
