@@ -31,7 +31,7 @@ if ($logurlparam == 'error') {
     exit;
 }
 
-$url = "https://dev.wenoexchange.com/en/EPCS/RxLog?useremail=";
+$url = "https://online.wenoexchange.com/en/EPCS/RxLog?useremail=";
 
 $urlOut = $url . urlencode($provider_info['email'] ?? '') . "&data=" . urlencode($logurlparam);
 

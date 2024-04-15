@@ -7,7 +7,7 @@ use GuzzleHttp\Exception\GuzzleException;
 
 class WenoValidate extends ModuleService
 {
-    private string $requestUrl = 'https://dev.wenoexchange.com/webapi/restapi/WenoManage';
+    private string $requestUrl = 'https://online.wenoexchange.com/webapi/restapi/WenoManage';
     private string $messageID;
     private string $userEmail;
     private string $md5UserPassword;

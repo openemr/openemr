@@ -66,6 +66,7 @@ $help_items = [
   .fa-2x {
     font-size: 1.25rem;
   }
+
   /* installer log for upgrades maybe? Appears broken! */
   .show_hide_log {
     border-radius: 5px;
@@ -109,10 +110,10 @@ $help_items = [
     }
 </script>
 <div class="installer bg-light text-dark">
-    <div class="bg-light text-dark" id="helpPanel">
+    <div class="bg-light text-dark text-center" id="helpPanel">
         <button class="btn btn-outline-primary btn-sm btn-show my-2" type="button" onclick="toggleHelp()"><?php echo xlt('Modules Help'); ?></button>
         <a class="btn btn-outline-info btn-sm btn-show bg-light text-dark my-2" href="https://www.open-emr.org/wiki/index.php/OpenEMR_Modules" target="_blank"><?php echo xlt('Visit Third Party Modules Wiki'); ?></a>
-        <div class="help-content bg-light text-dark d-none" id="helpContent">
+        <div class="help-content bg-light text-dark text-left d-none" id="helpContent">
             <ul style="font-size: 1.0rem;">
                 <?php
                 echo '';
@@ -125,16 +126,19 @@ $help_items = [
             <button class="btn btn-sm btn-outline-primary float-right mb-2" type="button" onclick="toggleHelp()"><?php echo xlt('Dismiss'); ?></button>
         </div>
     </div>
+    <div class="text-center"><span class="h3"><?php echo $listener->z_xlt('Custom Module Listings'); ?></span></div>
     <div id='err' class='bold'></div>
     <div class="imagetable">
         <div class="modal"></div>
         <div id="install_upgrade_log" style="overflow-y: auto; height: 500px; display: none;"></div>
         <div class="imagetable_code notranslate table-responsive">
-            <table id="table-6" class="table table-light table-hover table-condensed" align="center">
+            <!-- Start Custom Module Listing -->
+            <table id="table-6" class="table table-light table-hover table-condensed">
                 <thead>
                 <tr style="font-size: 16px;">
                     <th scope="col"><?php echo $listener->z_xlt('ID'); ?></th>
                     <th scope="col"><?php echo $listener->z_xlt('Module'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Release'); ?></th>
                     <th scope="col"><?php echo $listener->z_xlt('Status'); ?></th>
                     <th scope="col"><?php echo $listener->z_xlt('Menu Text'); ?></th>
                     <th scope="col"><?php echo $listener->z_xlt('Nick Name'); ?></th>
@@ -146,10 +150,10 @@ $help_items = [
                 </thead>
                 <tbody>
                 <?php
-                /* Laminas and Custom modules directory Unregistered scan
+                /* Lamina's and Custom modules directory Unregistered scan
                  * moved to InstallerController auto register.
                  * */
-                /******** Custom Module Creation ********/
+                /******** Custom Module List Creation ********/
                 $count = 0;
                 if (sizeof($InstallersAll) > 0) {
                     foreach ($InstallersAll as $moduleResult) {
@@ -164,6 +168,7 @@ $help_items = [
                         <tr id="<?php echo $this->escapeHtml($moduleResult->modId); ?>">
                             <td><?php echo $this->escapeHtml($count); ?></td>
                             <td class="text-success"><strong><?php echo $this->escapeHtml($moduleResult->modName); ?></strong></td>
+                            <td><?php echo $this->escapeHtml($moduleResult->sql_version ?: '0.0.0'); ?></td>
                             <td>
                                 <?php
                                 if ($moduleResult->sqlRun == 0) {
@@ -252,8 +257,29 @@ $help_items = [
                         <?php
                     }
                 }
-                //end of custom if
-                /******** Laminas Module List Creation ********/
+                ?>
+                </tbody>
+            </table>
+            <!-- End of Custom List -->
+            <div class="text-center"><span class="h3"><?php echo $listener->z_xlt("Lamina's Module Listings"); ?></span></div>
+            <!-- Start Lamina's Module Listing -->
+            <table id="table-6" class="table table-light table-hover table-condensed">
+                <thead>
+                <tr style="font-size: 16px;">
+                    <th scope="col"><?php echo $listener->z_xlt('ID'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Module'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Release'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Status'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Menu Text'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Nick Name'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Type'); ?> </th>
+                    <th scope="col"><?php echo $listener->z_xlt('Dependency Modules'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Action'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Configuration'); ?></th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
                 $count = 0;
                 if (sizeof($InstallersAll) > 0) {
                     foreach ($InstallersAll as $moduleResult) {
@@ -268,6 +294,7 @@ $help_items = [
                         <tr id="<?php echo $this->escapeHtml($moduleResult->modId); ?>">
                             <td><?php echo $this->escapeHtml($count); ?></td>
                             <td class="text-primary"><strong><?php echo $this->escapeHtml($moduleResult->modName); ?></strong></td>
+                            <td><?php echo $this->escapeHtml($moduleResult->sql_version ?: '0.0.0'); ?></td>
                             <td>
                                 <?php
                                 if ($moduleResult->sqlRun == 0) {
@@ -351,6 +378,7 @@ $help_items = [
                 ?>
                 </tbody>
             </table>
+            <!-- End of Lamina's List -->
         </div>
     </div>
 </div>
