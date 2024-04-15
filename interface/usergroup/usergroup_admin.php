@@ -301,7 +301,9 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             sqlStatement("update users set supervisor_id = ? where id = ? ", array((int)$_POST["supervisor_id"], $_POST["id"]));
         }
         if (isset($_POST["google_signin_email"])) {
-            if (empty($_POST["google_signin_email"])) {
+            // Save email as null if input was empty or invalid email address format (prevent attacks such as stored xss)
+            // https://www.php.net/manual/en/filter.filters.validate.php
+            if (empty($_POST["google_signin_email"]) || !filter_var($_POST["google_signin_email"], FILTER_VALIDATE_EMAIL))  {
                 $googleSigninEmail = null;
             } else {
                 $googleSigninEmail = $_POST["google_signin_email"];
