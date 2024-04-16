@@ -29,15 +29,18 @@ if ($_POST) {
     }
 }
 
+
 $fetch = sqlStatement("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 and authorized = 1");
 while ($row = sqlFetchArray($fetch)) {
     $usersData[] = $row;
 }
 
-if (isset($_POST['save'])) {
+if (($_POST['save'] ?? false) == 'true') {
     foreach ($_POST['weno_provider_id'] as $id => $weno_prov_id) {
         sqlStatement("UPDATE `users` SET weno_prov_id = ? WHERE id = ?", [$weno_prov_id, $id]);
     }
+
+    unset($_POST['save']);
     Header("Location: " . $GLOBALS['webroot'] . "/interface/modules/custom_modules/oe-module-weno/templates/weno_users.php");
     exit;
 }
@@ -54,9 +57,15 @@ if (isset($_POST['save'])) {
     <script>
         $(function () {
             const persistChange = document.querySelectorAll('.persist-uid');
+            const successMsg = <?php echo xlj('Auto Saved!'); ?>;
+            let isPersistEvent = false;
             persistChange.forEach(persist => {
                 persist.addEventListener('change', () => {
-                    $("#form_save_users").click();
+                    top.restoreSession();
+                    syncAlertMsg(successMsg, 1000, 'success').then(() => {
+                        isPersistEvent = true;
+                        $("#form_save_users").click();
+                    });
                 });
             });
         });
@@ -64,10 +73,10 @@ if (isset($_POST['save'])) {
 </head>
 <body>
     <div class="container-fluid">
-        <h6 class="text-center"><small><?php echo xlt("Auto Save On for Weno UID."); ?></small></h6>
+        <h6 class="text-center"><small><cite><?php echo xlt("Auto Save On for Weno UID."); ?></cite></small></h6>
         <form method="POST">
             <input type="hidden" id="csrf_token_form" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
-            <table class="table table-sm table-hover table-striped">
+            <table class="table table-sm table-hover table-striped table-borderless">
                 <thead>
                 <tr>
                     <th><?php echo xlt("ID"); ?></th>
@@ -89,14 +98,14 @@ if (isset($_POST['save'])) {
                     <td><?php echo text($user['username']); ?></td>
                     <td><?php echo text($user['lname']); ?></td>
                     <td><?php echo text($user['fname']); ?></td>
-                    <td><input class="persist-uid" type="text" name="weno_provider_id[<?php echo attr($user['id']); ?>]" placeholder="<?php echo xlt("Uxxxx Provided by Weno"); ?>" value="<?php echo attr($user['weno_prov_id']); ?>"></td>
-                    <td><?php echo $user['facility']; ?></td>
+                    <td><input class="persist-uid" type="text" name="weno_provider_id[<?php echo attr($user['id']); ?>]" placeholder="<?php echo xla("Weno provider id Uxxxx"); ?>" value="<?php echo attr($user['weno_prov_id']); ?>"></td>
+                    <td><?php echo text($user['facility']); ?></td>
                     <td><i onclick='renderDialog("users", <?php echo attr_js($user['id']); ?>, event)' role='button' class='fas fa-pen text-warning'></i></td>
                     </tr>
                 <?php } ?>
                 </tbody>
             </table>
-            <button type="submit" id="form_save_users" name="save" class="btn btn-primary float-right d-none"><?php echo xlt("Update Users Weno ID"); ?></button>
+            <button type="submit" id="form_save_users" name="save" class="btn btn-primary float-right d-none" value="true"><?php echo xlt("Update Users Weno ID"); ?></button>
         </form>
     </div>
 </body>

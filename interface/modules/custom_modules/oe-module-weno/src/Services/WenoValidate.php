@@ -51,12 +51,11 @@ class WenoValidate extends ModuleService
     {
         $gbl = $this->getVendorGlobals();
         $gbl['weno_encryption_key'] = $key;
+        $GLOBALS['weno_encryption_key'] = $key;
         // save the new key to the database.
         // save will also set the global to stay current.
         $this->saveVendorGlobals($gbl);
-        error_log('A new encryption key ' . $key . ' was created and saved: ' . date('Y-d-m H:i:s', time()));
-        $wenoLog = new WenoLogService();
-        $wenoLog->insertWenoLog("new_encryption_key", "saved new key value " . $key);
+        error_log('A new encryption key was created and saved: ' . date('Y-m-d H:i:s', time()));
     }
 
     /**
@@ -160,8 +159,8 @@ class WenoValidate extends ModuleService
 
             $newKey = $response['Body']['Success']['NewEncryptionKey'] ?? '';
             return ($response !== false && !empty($newKey)) ? trim($newKey) : false;
-        } catch (GuzzleException $e) {
-            // Handle Guzzle Exception
+        } catch (\Exception $e) {
+            // Handle Exception
             return false;
         }
     }
@@ -231,11 +230,11 @@ class WenoValidate extends ModuleService
                 $result = json_decode(json_encode($result), true); // make associative array.
                 return $result ?: [];
             } else {
-                error_log("invalid_http_status_$httpCode");
+                error_log(text("invalid_http_status_$httpCode"));
                 return "connection_problem_$httpCode";
             }
         } catch (GuzzleException $e) {
-            error_log($e->getMessage());
+            error_log(errorLogEscape($e->getMessage()));
             return 'connection_problem_notconnected';
         }
     }
@@ -244,7 +243,7 @@ class WenoValidate extends ModuleService
      * @param $resetOnInvalid
      * @return bool
      */
-    public function validateAdminCredentials($resetOnInvalid = false): bool
+    public function validateAdminCredentials($resetOnInvalid = false, $where = "prescription"): bool
     {
         $newKey = '';
         $isKeyValid = $this->verifyEncryptionKey();
@@ -256,7 +255,11 @@ class WenoValidate extends ModuleService
             if (!empty($newKey)) {
                 // save new admin production key.
                 $this->setNewEncryptionKey($newKey);
+                error_log(errorLogEscape("$where Encryption Verify returned Invalid Key. Attempted to reset key."));
+                $wenoLog = new WenoLogService();
+                $wenoLog->insertWenoLog(text("$where"), "reset_encryption_key");
             }
+            return false;
         }
         // return new key or encrypted key status (default).
         return !empty($newKey) ? trim($newKey) : $isKeyValid;
