@@ -37,7 +37,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
-                <?php $datetimepicker_formatInput = true; ?>
+                <?php $datetimepicker_formatInput = false; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             });
         });
@@ -120,6 +120,19 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
         <h1><?php print xlt("Weno Downloads Management") ?></h1>
     </div>
     <div class="container mt-3" id="pharmacy">
+        <?php
+        $backGroundTask = sqlStatement("SELECT `name`, `title`, `next_run` FROM `background_services` WHERE `name` LIKE ? ORDER BY `next_run` DESC", ['%weno%']);
+        // first show some download info. Why not!
+        if ($backGroundTask ?? false) {
+            echo '<h6 class="mb-2">';
+            while ($task = sqlFetchArray($backGroundTask)) {
+                $title = $task['title'];
+                $nextRun = $task['next_run'];
+                echo '<span class="mr-5 text-success">' . text($title) . '  ' . xlt("next run") . ': <span class="text-dark">' . text($nextRun) . '</span></span>';
+            }
+            echo '</h6>';
+        }
+        ?>
         <h3><?php print xlt("Weno Downloads") ?></h3>
         <div>
             <cite class="text-info text-center p-1 mx-1"><?php echo xlt("Use this section to download Weno Pharmacy Directory and Weno Prescription Log"); ?></cite>
@@ -129,10 +142,9 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             <strong><?php echo xlt("Error!"); ?></strong>
             <span id="error-msg"></span>
         </div>
-        <table class="table table-sm mt-3">
+        <table class="table table-sm table-borderless mt-3">
             <thead>
             <tr>
-                <th scope="col">#</th>
                 <th scope="col"><?php echo xlt("Description"); ?></th>
                 <th scope="col"><?php echo xlt("Last Update"); ?></th>
                 <th scope="col"><?php echo xlt("Status"); ?></th>
@@ -141,10 +153,9 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             </thead>
             <tbody>
             <tr>
-                <th scope="row">1</th>
                 <td><?php echo xlt("Weno Pharmacy Directory"); ?></td>
-                <td><?php echo text($pharm_log['created_at'] ?? ''); ?></td>
-                <td><?php echo xlt($pharm_log['status'] ?? ''); ?></td>
+                <td><?php echo text($pharm_log['created_at'] ?? 'Never'); ?></td>
+                <td><?php echo xlt($pharm_log['status'] ?? 'Needs download'); ?></td>
                 <td>
                     <button type="button" id="btn-pharm" onclick="downloadPharmacies();" class="btn btn-primary btn-sm">
                         <?php echo xlt("Download") ?>
@@ -155,7 +166,6 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
                 </td>
             </tr>
             <tr>
-                <th scope="row">2</th>
                 <td><?php echo xlt("Prescription log"); ?></td>
                 <td><?php echo text($pres_log['created_at'] ?? ''); ?></td>
                 <td><?php echo xlt($pres_log['status'] ?? ''); ?></td>
@@ -174,7 +184,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
         <cite class="h6 text-info p-1 mx-1">
             <span><?php echo xlt("Note: Only prescription logs are deleted. Pharmacy status and errors are preserved."); ?></span>
         </cite>
-        <form method="GET" class="mt-4 mb-2">
+        <form method="GET" class="mb-2">
             <div class="form-row">
                 <div class="col-md-4 mb-3">
                     <label for="startDate"><?php echo xlt("Start Date"); ?></label>
@@ -224,12 +234,12 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             echo $message;
         }
         if (isset($_GET['search']) || isset($_GET['delete'])) {
-            $sql = "SELECT `id`, `value`, `status`, `created_at` FROM `weno_download_log` WHERE `created_at` BETWEEN ? AND ? ORDER BY `created_at` DESC";
+            $sql = "SELECT `id`, `value`, `status`, `created_at` FROM `weno_download_log` WHERE `created_at` BETWEEN ? AND ? ORDER BY `created_at` DESC, `id` DESC";
             $result = sqlStatement($sql, [$fmtStartDate . ' 00:00:00', $fmtEndDate . ' 23:59:59']);
             // Display logs in a table
             if ($result ?? false) {
                 echo '<div class="table-responsive">';
-                echo '<table class="table table-hover table-striped table-sm">';
+                echo '<table class="table table-hover table-striped table-sm table-borderless">';
                 echo '<thead>';
                 echo '<tr>';
                 echo '<th>' . xlt("ID") . '</th>';

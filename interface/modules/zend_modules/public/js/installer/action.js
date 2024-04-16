@@ -1,4 +1,3 @@
-
 /**
  * interface/modules/zend_modules/public/js/installer/action.js
  *
@@ -27,12 +26,17 @@ function register(status, title, name, method, type) {
 }
 
 function manage(id, action) {
-    if (action == 'unregister') {
+    if (action === 'unregister') {
         if (!confirm("Please Confirm with OK to Unregister this Module.")) {
             return false;
         }
     }
-    install_upgrade_log = $("#install_upgrade_log");
+    if (action === 'reset_module') {
+        if (!confirm("Please Confirm with OK to Reset Module!\nThis action may possibly remove database dependencies that are only related to this module.")) {
+            return false;
+        }
+    }
+    let install_upgrade_log = $("#install_upgrade_log");
     install_upgrade_log.empty();
 
     if (document.getElementById('mod_enc_menu'))
