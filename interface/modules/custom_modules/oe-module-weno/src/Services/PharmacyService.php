@@ -115,7 +115,7 @@ class PharmacyService
 
     public function checkWenoPharmacyLog()
     {
-        $db_exist = sqlStatement("SELECT * FROM weno_download_log LIMIT 1");
+        $db_exist = sqlStatement("SELECT * FROM weno_download_log ORDER BY `created_at` DESC, `id` DESC LIMIT 1");
         if (empty($db_exist)) {
             return "empty";
         } else {

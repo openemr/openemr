@@ -13,55 +13,110 @@
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Modules\WenoModule\Services\LogProperties;
+use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 use OpenEMR\Modules\WenoModule\Services\WenoPharmaciesJson;
 use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 
+/**
+ * Download Weno Pharmacy data.
+ */
 function downloadWenoPharmacy()
 {
-    // Check if the encryption key is valid. If not, request a new key and then set it.
     $wenoValidate = new WenoValidate();
-    $isKey = $wenoValidate->validateAdminCredentials(true); // auto reset on invalid.
+    $isKey = $wenoValidate->validateAdminCredentials(true, "pharmacy");
+
     if ((int)$isKey >= 998) {
-        EventAuditLogger::instance()->newEvent(
-            "pharmacy_background",
-            $_SESSION['authUser'],
-            $_SESSION['authProvider'],
-            1,
-            text("Background Initiated Pharmacy download attempt failed. Internet problem!")
-        );
-        error_log('Background Initiated Pharmacy Download not ran. Internet problem: ' . text($isKey));
-        die;
+        handleDownloadError("Background Initiated Pharmacy download attempt failed. Internet problem!");
     }
-    error_log('Background Initiated Encryption Verify returned: ' . text($isKey == '1' ? 'Verified key is valid.' : 'Invalid Key'));
 
-    $cryptoGen = new CryptoGen();
-    $localPharmacyJson = new WenoPharmaciesJson($cryptoGen);
-    // Check if the background service is active. Intervals are set to once a day
+    if ($isKey === false) {
+        requireGlobals();
+    }
+
+    $localPharmacyJson = new WenoPharmaciesJson(new CryptoGen());
     $value = $localPharmacyJson->checkBackgroundService();
+
     if ($value == 'active' || $value == 'live') {
-        error_log('Background Initiated Pharmacy Download Started.');
+        $wenoLog = new WenoLogService();
+        $wenoLog->insertWenoLog("pharmacy", "Download started");
 
-        $status = $localPharmacyJson->storePharmacyDataJson();
-
-        EventAuditLogger::instance()->newEvent(
-            "pharmacy_background",
-            $_SESSION['authUser'],
-            $_SESSION['authProvider'],
-            1,
-            "Background Initiated Pharmacy Download Completed with Status:"  . text($status)
-        );
-        error_log('Background Initiated Weno Pharmacies download completed with status:' . text($status));
-        die;
+        performPharmacyDownload($localPharmacyJson);
     }
 }
 
 /**
+ * Perform the pharmacy data download.
+ *
+ * @param WenoPharmaciesJson $localPharmacyJson
+ */
+function performPharmacyDownload(WenoPharmaciesJson $localPharmacyJson)
+{
+    error_log('Background Initiated Pharmacy Download Started.');
+
+    $status = $localPharmacyJson->storePharmacyDataJson();
+
+    EventAuditLogger::instance()->newEvent(
+        "pharmacy_background",
+        $_SESSION['authUser'],
+        $_SESSION['authProvider'],
+        1,
+        "Background Initiated Pharmacy Download Completed with Status:" . ($status)
+    );
+
+    error_log('Background Initiated Weno Pharmacies download completed with status:' . text($status));
+}
+
+/**
+ * Download Weno Prescription log.
+ *
  * @throws Exception
  */
 function downloadWenoPrescriptionLog(): void
 {
+    $wenoValidate = new WenoValidate();
+    $isKey = $wenoValidate->validateAdminCredentials(true);
+
+    if ((int)$isKey >= 998) {
+        handleDownloadError("Prescription download attempt failed. Internet problem!");
+    }
+
+    if ($isKey === false) {
+        requireGlobals();
+    }
+
     $logSync = new LogProperties();
     if (!$logSync->logSync()) {
         error_log("Background services failed for prescription log.");
     }
+}
+
+/**
+ * Handle download errors.
+ *
+ * @param string $errorMessage
+ */
+function handleDownloadError(string $errorMessage)
+{
+    EventAuditLogger::instance()->newEvent(
+        "pharmacy_background",
+        $_SESSION['authUser'],
+        $_SESSION['authProvider'],
+        1,
+        ($errorMessage)
+    );
+
+    error_log(errorLogEscape($errorMessage));
+    die;
+}
+
+/**
+ * Require global variables.
+ */
+function requireGlobals(): void
+{
+    // Key has been reset, reload globals
+    // This is the problem when using globals for anything in a function.
+    // They need to be reloaded when dynamically changed or JIT global values.
+    // TODO: We need to address this in the future.
+    require_once dirname(__DIR__, 4) . "/globals.php";
 }
