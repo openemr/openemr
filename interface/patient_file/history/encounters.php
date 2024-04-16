@@ -2,8 +2,8 @@
 
 /**
  * Encounter list.
- *  rm: print button to print page; include patients name, id and dob on the page
- * version 1.0.0
+ *  rm: print button to print page & generate pdf; include patients name, id and dob on the page. issue #7270
+ *
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
