@@ -834,7 +834,7 @@ window.onload = function() {
             } // end while
 
             // Dump remaining document lines if count not exceeded.
-            while ($drow  ) {
+            while ($drow){
                 showDocument($drow);
                 $drow = sqlFetchArray($dres);
             }
