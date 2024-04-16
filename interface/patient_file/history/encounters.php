@@ -316,7 +316,7 @@ window.onload = function() {
          $external_id = getPatientData($pid, "pubpid")['pubpid'];
         echo $name . " (" . $external_id . ")" .  "&nbsp;  &nbsp; DOB: " . $dob ;
 
-        ?>
+    ?>
     </span>
 
     <div class="table-responsive">
@@ -390,7 +390,6 @@ window.onload = function() {
             }
 
             $numRes = 0;
-(new SystemLogger())->debug("size, start, numRes", array( $pagesize, $pagestart, $numRes));
 
             $sqlBindArray = array();
             if ($attendant_type == 'pid') {
@@ -482,11 +481,7 @@ window.onload = function() {
 
                     // This generates document lines as appropriate for the date order.
                 while ($drow && $raw_encounter_date && $drow['docdate'] > $raw_encounter_date) {
-
-                    (new SystemLogger())->debug(" generate: size, start, numRes", array( $pagesize, $pagestart, $numRes));
-
-                        showDocument($drow);
-
+                         showDocument($drow);
                     $drow = sqlFetchArray($dres);
                 }
 
@@ -840,7 +835,6 @@ window.onload = function() {
 
             // Dump remaining document lines if count not exceeded.
             while ($drow  ) {
-
                 showDocument($drow);
                 $drow = sqlFetchArray($dres);
             }
