@@ -14,5 +14,4 @@ namespace OpenEMR\Common\Crypto;
 
 class CryptoGenException extends \Exception
 {
-
 }
