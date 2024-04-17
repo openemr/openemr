@@ -237,7 +237,6 @@ function authorized_clicked() {
 <tr>
 <td style="width:150px;"><span class="text"><?php echo xlt('Username'); ?>: </span></td><td style="width:220px;"><input type="text" name="rumple" style="width:120px;" class="form-control"><span class="mandatory"></span></td>
 <?php if (empty($GLOBALS['gbl_ldap_enabled']) || empty($GLOBALS['gbl_ldap_exclusions'])) { ?>
-
 <td style="width:150px;">
     <span class="text"><?php echo xlt('Password'); ?>:</span>
 </td>
@@ -668,7 +667,7 @@ function checkPasswordStrength() {
 
     if (pwd.length < 6) {
         document.getElementById('password_strength_meter').style.backgroundColor = "#ff6666";
-        document.getElementById('password_strength_text').innerHTML = "<?php echo xlt('Very Weak'); ?>";
+        document.getElementById('password_strength_text').innerText = <?php echo xlj('Very Weak'); ?>;
     } else {
         if (pwd.match(number) && pwd.match(alphabets) && pwd.match(special_characters)) {
             strength += 3;
@@ -681,19 +680,19 @@ function checkPasswordStrength() {
         switch (strength) {
             case 1:
                 document.getElementById('password_strength_meter').style.backgroundColor = "#ffcc00";
-                document.getElementById('password_strength_text').innerText = "<?php echo xlt('Weak'); ?>";
+                document.getElementById('password_strength_text').innerText = <?php echo xlj('Weak'); ?>;
                 break;
             case 2:
                 document.getElementById('password_strength_meter').style.backgroundColor = "#ffcc66";
-                document.getElementById('password_strength_text').innerText = "<?php echo xlt('Good'); ?>";
+                document.getElementById('password_strength_text').innerText = <?php echo xlj('Good'); ?>;
                 break;
             case 3:
                 document.getElementById('password_strength_meter').style.backgroundColor = "#99cc00";
-                document.getElementById('password_strength_text').innerText = "<?php echo xlt('Strong'); ?>";
+                document.getElementById('password_strength_text').innerText = <?php echo xlj('Strong'); ?>;
                 break;
             default:
                 document.getElementById('password_strength_meter').style.backgroundColor = "#ff6666";
-                document.getElementById('password_strength_text').innerText = "<?php echo xlt('Very Weak'); ?>";
+                document.getElementById('password_strength_text').innerText = <?php echo xlj('Very Weak'); ?>;
                 break;
         }
     }
