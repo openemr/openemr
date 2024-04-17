@@ -116,7 +116,7 @@ $res = sqlStatement($query, $sqlBindArray);
 
 <div class="container-fluid">
     <div class="nav navbar-fixed-top body_title">
-        <div class="col-md-12">
+        <div class="col-md-12 bg-light text-dark">
             <h3><?php echo xlt('Address Book'); ?></h3>
 
         <form class='navbar-form' method='post' action='addrbook_list.php' onsubmit='return top.restoreSession()'>

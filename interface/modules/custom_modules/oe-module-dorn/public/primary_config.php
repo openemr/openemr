@@ -12,11 +12,13 @@
 
     require_once "../../../../globals.php";
 
-    use OpenEMR\Common\Acl\AclMain;
-    use OpenEMR\Common\Csrf\CsrfUtils;
-    use OpenEMR\Common\Twig\TwigContainer;
-    use OpenEMR\Modules\Dorn\ConnectorApi;
-    use OpenEMR\Core\Header; //this is needed along with setupHeader() to get the pop up to appear
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\Header;
+use OpenEMR\Modules\Dorn\ConnectorApi;
+
+//this is needed along with setupHeader() to get the pop up to appear
 
     $tab = "Configure Primary";
 
@@ -147,7 +149,7 @@ function doedclick_add() {
                                             </div>
                                         </td>
                                         <td scope="row">
-                                            <button type="button" class="btn btn-primary btn-add" onclick="doedclick_edit(<?php echo attr_js($data->npi); ?>)"><?php echo xlt('Edit');?></button>
+                                            <button type="button" class="btn btn-primary btn-add" onclick="doedclick_edit(<?php echo attr_js($data->npi ?? ''); ?>)"><?php echo xlt('Edit');?></button>
                                         </td>
                                     </tr>
                                         <?php
