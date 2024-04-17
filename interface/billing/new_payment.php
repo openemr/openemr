@@ -63,6 +63,11 @@ if ($mode == "new_payment" || $mode == "distribute") {
     if ($post_to_date == '') {
         $post_to_date = date('Y-m-d');
     }
+
+    if(((float)trim(formData('payment_amount')))<0){
+        die("Payment amount cannot be less than 0");
+    }
+    
     if ($_POST['deposit_date'] == '') {
         $deposit_date = $post_to_date;
     }

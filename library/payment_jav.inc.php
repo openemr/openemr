@@ -419,6 +419,16 @@
             document.getElementById('payment_amount').focus();
             return false;
         }
+        if (parseFloat(document.getElementById('payment_amount').value) < 0) {
+            let message = <?php echo xlj('Payment Amount must be Greater than 0') ?>;
+            (async (message, time) => {
+                await asyncAlertMsg(message, time, 'warning', 'lg');
+            })(message, 1500).then(res => {
+            });
+            document.getElementById('payment_amount').focus();
+            return false;
+        }
+        
         <?php
         if (!empty($screen) && ($screen == 'edit_payment')) {
             ?>

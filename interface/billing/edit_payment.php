@@ -103,6 +103,10 @@ if (isset($_POST["mode"])) {
             $global_account = "', global_amount = '" . trim(formData('global_reset'));
         }
 
+        if(((float)trim(formData('payment_amount')))<0){
+            die("Payment amount cannot be less than 0");
+        }
+
         sqlStatement("update ar_session set " .
             $QueryPart .
             "', user_id = '" . trim(add_escape_custom($user_id)) .
