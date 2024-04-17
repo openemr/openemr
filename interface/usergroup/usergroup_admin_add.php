@@ -237,7 +237,17 @@ function authorized_clicked() {
 <tr>
 <td style="width:150px;"><span class="text"><?php echo xlt('Username'); ?>: </span></td><td style="width:220px;"><input type="text" name="rumple" style="width:120px;" class="form-control"><span class="mandatory"></span></td>
 <?php if (empty($GLOBALS['gbl_ldap_enabled']) || empty($GLOBALS['gbl_ldap_exclusions'])) { ?>
-<td style="width:150px;"><span class="text"><?php echo xlt('Password'); ?>: </span></td><td style="width:250px;"><input type="password" style="width:120px;" name="stiltskin" class="form-control"><span class="mandatory"></span></td>
+
+<td style="width:150px;">
+    <span class="text"><?php echo xlt('Password'); ?>:</span>
+</td>
+<td style="width:150px;">
+    <input type="password" style="width:120px;" name="stiltskin" id="stiltskin" class="form-control" onkeyup="checkPasswordStrength();">
+    <span class="mandatory"></span>
+    <!-- Password Strength Meter -->
+    <div id="password_strength_meter" style="width:120px; height:20px; border:1px solid #ccc; margin-top: 5px;"></div>
+    <div id="password_strength_text"></div>
+</td>
 <?php } else { ?>
         <td><input type="hidden" value="124" name="stiltskin" /></td>
 <?php } ?>
@@ -645,6 +655,52 @@ $(function () {
 
 });
 </script>
+
+<!-- Password Strength Meter JavaScript -->
+<script>
+function checkPasswordStrength() {
+    console.log("checkPasswordStrength called");
+    var number = /([0-9])/;
+    var alphabets = /([a-zA-Z])/;
+    var special_characters = /([~,!,@,#,$,%,^,&,*,-,_,+,=,?,>,<])/;
+
+    var pwd = document.getElementById("stiltskin").value;
+    var strength = 0;
+
+    if (pwd.length < 6) {
+        document.getElementById('password_strength_meter').style.backgroundColor = "#ff6666";
+        document.getElementById('password_strength_text').innerHTML = "<?php echo xlt('Very Weak'); ?>";
+    } else {
+        if (pwd.match(number) && pwd.match(alphabets) && pwd.match(special_characters)) {
+            strength += 3;
+        } else if (pwd.match(number) && pwd.match(alphabets)) {
+            strength += 2;
+        } else if (pwd.match(alphabets)) {
+            strength += 1;
+        }
+
+        switch (strength) {
+            case 1:
+                document.getElementById('password_strength_meter').style.backgroundColor = "#ffcc00";
+                document.getElementById('password_strength_text').innerHTML = "<?php echo xlt('Weak'); ?>";
+                break;
+            case 2:
+                document.getElementById('password_strength_meter').style.backgroundColor = "#ffcc66";
+                document.getElementById('password_strength_text').innerHTML = "<?php echo xlt('Good'); ?>";
+                break;
+            case 3:
+                document.getElementById('password_strength_meter').style.backgroundColor = "#99cc00";
+                document.getElementById('password_strength_text').innerHTML = "<?php echo xlt('Strong'); ?>";
+                break;
+            default:
+                document.getElementById('password_strength_meter').style.backgroundColor = "#ff6666";
+                document.getElementById('password_strength_text').innerHTML = "<?php echo xlt('Very Weak'); ?>";
+                break;
+        }
+    }
+}
+</script>
+
 <table>
 
 </table>
