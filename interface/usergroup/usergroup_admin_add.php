@@ -659,9 +659,8 @@ $(function () {
 <!-- Password Strength Meter JavaScript -->
 <script>
 function checkPasswordStrength() {
-    console.log("checkPasswordStrength called");
-    var number = /([0-9])/;
-    var alphabets = /([a-zA-Z])/;
+    var number = /(\p{N})/u;
+    var alphabets = /(\p{L})/u;
     var special_characters = /([~,!,@,#,$,%,^,&,*,-,_,+,=,?,>,<])/;
 
     var pwd = document.getElementById("stiltskin").value;
@@ -682,19 +681,19 @@ function checkPasswordStrength() {
         switch (strength) {
             case 1:
                 document.getElementById('password_strength_meter').style.backgroundColor = "#ffcc00";
-                document.getElementById('password_strength_text').innerHTML = "<?php echo xlt('Weak'); ?>";
+                document.getElementById('password_strength_text').innerText = "<?php echo xlt('Weak'); ?>";
                 break;
             case 2:
                 document.getElementById('password_strength_meter').style.backgroundColor = "#ffcc66";
-                document.getElementById('password_strength_text').innerHTML = "<?php echo xlt('Good'); ?>";
+                document.getElementById('password_strength_text').innerText = "<?php echo xlt('Good'); ?>";
                 break;
             case 3:
                 document.getElementById('password_strength_meter').style.backgroundColor = "#99cc00";
-                document.getElementById('password_strength_text').innerHTML = "<?php echo xlt('Strong'); ?>";
+                document.getElementById('password_strength_text').innerText = "<?php echo xlt('Strong'); ?>";
                 break;
             default:
                 document.getElementById('password_strength_meter').style.backgroundColor = "#ff6666";
-                document.getElementById('password_strength_text').innerHTML = "<?php echo xlt('Very Weak'); ?>";
+                document.getElementById('password_strength_text').innerText = "<?php echo xlt('Very Weak'); ?>";
                 break;
         }
     }
