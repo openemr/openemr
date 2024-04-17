@@ -146,7 +146,7 @@ if (!empty($_POST)) {
                     </div>
                     <div class="row">
                         <div class="col-md-3">
-                            <button type="submit" name="SubmitButton" class="btn btn-primary"><?php echo xlt("Submit") ?></button>
+                            <button type="submit" onsubmit="return top.restoreSession()" name="SubmitButton" class="btn btn-primary"><?php echo xlt("Submit") ?></button>
                         </div>
                     </div>
 
