@@ -377,7 +377,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
         try {
             $isDorn = \OpenEMR\Modules\Dorn\DornGenHl7Order::isDornLab($ppid) && class_exists('OpenEMR\Modules\Dorn\DornGenHl7Order');
             if ($isDorn) {
-                $dornConnector = new \OpenEMR\Modules\Dorn\DornGenHl7Order();
+                $dornConnector = new \OpenEMR\Modules\Dorn\DornGenHl7Order(); // Do not use an import statement for this class, it could break the code
             }
         } catch (Exception $e) {
             $isDorn = false;
@@ -530,24 +530,21 @@ $bill_type = $row['billing_type'] ?? '';
 $gbl_lab = get_lab_name($row['lab_id'] ?? '');
 
 if ($formid) {
-    $location = sqlQueryNoLog("SELECT f.id, f.facility_code, f.name FROM facility as f " .
-        "WHERE f.id = ?", array($row['account_facility']));
+    $location = sqlQueryNoLog("SELECT f.id, f.facility_code, f.name FROM facility as f WHERE f.id = ?", array($row['account_facility']));
 } else {
-    $location = sqlQueryNoLog("SELECT f.id, f.facility_code, f.name FROM users as u " .
-        "INNER JOIN facility as f ON u.facility_id = f.id WHERE u.id = ?", array($row['provider_id']));
+    $location = sqlQueryNoLog("SELECT f.id, f.facility_code, f.name FROM users as u INNER JOIN facility as f ON u.facility_id = f.id WHERE u.id = ?", array($row['provider_id']));
 }
 $account = $location['facility_code'] ?? '';
 $account_name = $location['name'] ?? '';
 $account_facility = $location['id'] ?? '';
 if (!empty($row['lab_id'])) {
     $log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name(get_lab_name($row['lab_id'])) . "/logs/";
-
     if (!is_dir($log_file)) {
         if (!mkdir($log_file, 0755, true) && !is_dir($log_file)) {
             throw new Exception(sprintf('Directory "%s" was not created', $log_file));
         }
     }
-// filename
+    // filename
     $log_file .= check_file_dir_name($formid) . '_order_log.log';
     if (file_exists($log_file)) {
         $order_log = file_get_contents($log_file);
@@ -555,7 +552,7 @@ if (!empty($row['lab_id'])) {
 }
 ?>
 <!DOCTYPE html>
-<html>
+<html lang="">
 <head>
     <?php Header::setupHeader(['datetime-picker', 'reason-code-widget']); ?>
 
@@ -568,7 +565,6 @@ if (!empty($row['lab_id'])) {
         var viewmode = <?php echo !empty($viewmode) ? 1 : 0 ?>;
         var refreshForm = <?php echo js_escape($reload_url); ?>;
 
-
         // we want to setup our reason code widgets
         window.addEventListener('DOMContentLoaded', function() {
             if (oeUI.reasonCodeWidget) {
@@ -578,7 +574,6 @@ if (!empty($row['lab_id'])) {
                 return;
             }
         });
-
 
         function processSubmit(od) { // not used yet
             $("#form_order_abn").val(od.order_abn);
@@ -623,11 +618,10 @@ if (!empty($row['lab_id'])) {
         // formseq = 0-relative index in the form.
         function sel_proc_type(formseq) {
             let f = document.forms[0];
-            gbl_formseq = formseq;
             let ptvarname = 'form_proc_type[' + formseq + ']';
-
             let title = <?php echo xlj("Find Procedure Order"); ?>;
-// This replaces the previous search for an easier/faster order picker tool.
+            gbl_formseq = formseq;
+            // This replaces the previous search for an easier/faster order picker tool.
             dlgopen('../../orders/find_order_popup.php' +
                 '?labid=' + encodeURIComponent(f.form_lab_id.value) +
                 '&order=' + encodeURIComponent(f[ptvarname].value) +
@@ -648,7 +642,6 @@ if (!empty($row['lab_id'])) {
             let ptproccode = 'form_proc_code[' + gbl_formseq + ']';
             let ptproctypename = 'form_proc_order_title[' + gbl_formseq + ']';
             let psc = '';
-
             f[pttransport].value = temptype;
             f[ptvarname].value = typeid;
             f[ptdescname].value = typename;
@@ -752,7 +745,7 @@ if (!empty($row['lab_id'])) {
             remapSelectors('input,select', remapNames);
             remapSelectors('.qoe-table-sel-procedure', remapIds);
             remapSelectors('[data-toggle-container]', function(node) {
-                node.dataset.toggleContainer = "reason_code_" + lineCount;
+                node.dataset.toggleClassContainer = "reason_code_" + lineCount;
             });
             remapSelectors('.reasonCodeContainer', function(node) {
                 node.id = "reason_code_" + lineCount;
@@ -1029,7 +1022,7 @@ if (!empty($row['lab_id'])) {
         }
 
         function doWait(e) {
-            $(".wait").removeClass('d-none');
+            $(".wait").toggleClass('d-none');
             return true;
         }
     </script>
@@ -1085,8 +1078,8 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
 ?>
 <body class="body_top" onsubmit="doWait(event)">
     <div class="container">
-        <div class="page-header">
-            <h2><?php echo implode(" ", $title); ?></h2>
+        <div class="page-header text-center">
+            <h4><?php echo implode(" ", $title); ?></h4>
         </div>
         <div class="col-md-12">
             <form class="form form-horizontal" method="post" action="" onsubmit="return validate(this,event)">
@@ -1428,7 +1421,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         </div>
                                     </td>
                                     <td>
-                                        <button class="btn btn-secondary reason-code-btn mt-2"
+                                        <button class="btn btn-secondary reason-code-btn"
                                                 title='<?php echo xla('Click here to provide an explanation for procedure order (or why an order was not performed)'); ?>'
                                                 data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-asterisk"></i></button>
                                     </td>
@@ -1517,7 +1510,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         </div>
                                     </td>
                                     <td>
-                                        <button class="btn btn-secondary reason-code-btn mt-2"
+                                        <button class="btn btn-secondary btn-sm reason-code-btn"
                                                 title='<?php echo xla('Click here to provide an explanation for procedure order (or why an order was not performed)'); ?>'
                                                 data-toggle-container="reason_code_<?php echo attr($i); ?>"><i class="fa fa-asterisk"></i></button>
                                     </td>
@@ -1531,7 +1524,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                         ?>
                     </div>
                     <div class="btn=group ml-4">
-                        <button type="button" class="btn btn-success btn-add" onclick="addProcLine()"><?php echo xlt('Add Procedure'); ?>
+                        <button type="button" class="btn btn-success btn-add btn-sm" onclick="addProcLine()"><?php echo xlt('New'); ?>
                         </button>
                     </div>
                 </fieldset>
@@ -1554,7 +1547,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                             href="<?php echo attr($rpath); ?>"><?php echo text($title) ?></a>
                                         <?php }
                                     } ?>
-                                    <a class='btn btn-success ml-1' href='#'
+                                    <a class='btn btn-success btn-sm ml-1' href='#'
                                         onclick="createLabels(event, this)"><?php echo xlt('Labels'); ?></a>
                                     <?php
                                     if ($gbl_lab === "labcorp") { ?>
