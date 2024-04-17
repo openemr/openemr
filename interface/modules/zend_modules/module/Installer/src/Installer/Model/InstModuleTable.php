@@ -416,9 +416,7 @@ class InstModuleTable
                 $results = $this->applicationTable->zQuery($sql, $params);
             }
         } else {
-            $sql = "UPDATE modules SET sql_run=1, mod_nick_name=?, mod_enc_menu=?,
-                                 date=NOW(), sql_version = ?, acl_version = ?
-                             WHERE mod_id = ?";
+            $sql = "UPDATE modules SET sql_run=1, mod_nick_name=?, mod_enc_menu=?, date=NOW(), sql_version = ?, acl_version = ? WHERE mod_id = ?";
             $params = array(
                 $values[0],
                 $values[1],

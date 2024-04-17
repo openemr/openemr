@@ -59,7 +59,7 @@ class LogImportBuild
         return $entry['count'];
     }
 
-    public function buildInsertArray(): bool|string
+    public function buildPrescriptionInserts(): bool|string
     {
         $l = 0;
         if (file_exists($this->rxsynclog)) {

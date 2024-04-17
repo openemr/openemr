@@ -21,16 +21,18 @@
  * @link      https://www.open-emr.org
  * @author    Ensoftek, Inc
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2015 Ensoftek, Inc
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Common\Crypto;
 
+use Exception;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
-#[\AllowDynamicProperties]
 class CryptoGen
 {
     # This is the current encrypt/decrypt version
@@ -40,18 +42,34 @@ class CryptoGen
     #  to decrypt values from prior versions)
     # Remember to update cryptCheckStandard() and decryptStandard()
     #  when increment this.
-    private $encryptionVersion = "006";
+    private string $encryptionVersion = "006";
     # This is the current key version. As above, will increment this
     #  when update the encrypt/decrypt methodology to allow backward
     #  compatibility.
     # Remember to update decryptStandard() when increment this.
-    private $keyVersion = "six";
+    private string $keyVersion = "six";
 
     # Note that dynamic variables in this class in the collectCryptoKey()
     #  function are used to store the key cache.
     #   (note this is why this class has the been marked with the
     #    [AllowDynamicProperties] attribute, or will throw deprecation
     #    message in PHP 8.2 and throw error in PHP 9.0)
+
+    private $sixadrive = null;
+    private $sixbdrive = null;
+    private $sixadatabase = null;
+    private $sixbdatabase = null;
+    private $fiveadrive = null;
+    private $fivebdrive = null;
+    private $fiveadatabase = null;
+    private $fivebdatabase = null;
+    private $fouradrive = null;
+    private $fourbdrive = null;
+    private $fouradatabase = null;
+    private $fourbdatabase = null;
+    private $twoadrive = null;
+    private $twobdrive = null;
+    private $onedrive = null;
 
     public function __construct()
     {
@@ -60,9 +78,9 @@ class CryptoGen
     /**
      * Standard function to encrypt
      *
-     * @param  string  $value           This is the data to encrypt.
-     * @param  string  $customPassword  If provide a password, then will derive keys from this.(and will not use the standard keys)
-     * @param  string  $keySource       This is the source of the standard keys. Options are 'drive' and 'database'
+     * @param string $value          This is the data to encrypt.
+     * @param string $customPassword If provide a password, then will derive keys from this.(and will not use the standard keys)
+     * @param string $keySource      This is the source of the standard keys. Options are 'drive' and 'database'
      *
      */
     public function encryptStandard($value, $customPassword = null, $keySource = 'drive')
@@ -75,14 +93,14 @@ class CryptoGen
     /**
      * Standard function to decrypt
      *
-     * @param  string  $value           This is the data to decrypt.
-     * @param  string  $customPassword  If provide a password, then will derive keys from this.(and will not use the standard keys)
-     * @param  string  $keySource       This is the source of the standard keys. Options are 'drive' and 'database'
-     * @param  int     $minimumVersion  This is the minimum encryption version supported (useful if accepting encrypted data
-     *                                   from outside OpenEMR to ensure bad actor is not trying to use an older version).
-     *
+     * @param string|null $value          This is the data to decrypt.
+     * @param string|null $customPassword If provide a password, then will derive keys from this.(and will not use the standard keys)
+     * @param string      $keySource      This is the source of the standard keys. Options are 'drive' and 'database'
+     * @param int|null    $minimumVersion This is the minimum encryption version supported (useful if accepting encrypted data
+     *                                    from outside OpenEMR to ensure bad actor is not trying to use an older version).
+     * @return false|string
      */
-    public function decryptStandard($value, $customPassword = null, $keySource = 'drive', $minimumVersion = null)
+    public function decryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive', ?int $minimumVersion = null): false|string
     {
         if (empty($value)) {
             return "";
@@ -137,10 +155,10 @@ class CryptoGen
      * Function to encrypt data
      * Should not be called directly (only called by encryptStandard() function)
      *
-     * @param  string  $sValue          Raw data that will be encrypted.
-     * @param  string  $customPassword  If null, then use standard keys. If provide a password, then will derive key from this.
-     * @param  string  $keySource       This is the source of the keys. Options are 'drive' and 'database'
-     * @param  string  $keyNumber       This is the key number/version.
+     * @param string $sValue         Raw data that will be encrypted.
+     * @param string $customPassword If null, then use standard keys. If provide a password, then will derive key from this.
+     * @param string $keySource      This is the source of the keys. Options are 'drive' and 'database'
+     * @param string $keyNumber      This is the key number/version.
      * @return string                   returns the encrypted data.
      */
     private function coreEncrypt($sValue, $customPassword = null, $keySource = 'drive', $keyNumber = null)
@@ -208,13 +226,13 @@ class CryptoGen
      * Function to decrypt data
      * Should not be called directly (only called by decryptStandard() function)
      *
-     * @param  string  $sValue          Encrypted data that will be decrypted.
-     * @param  string  $customPassword  If null, then use standard keys. If provide a password, then will derive key from this.
-     * @param  string  $keySource       This is the source of the keys. Options are 'drive' and 'database'
-     * @param  string  $keyNumber       This is the key number/version.
-     * @return string or false          returns the decrypted data or false if failed.
+     * @param string|null $sValue         Encrypted data that will be decrypted.
+     * @param string|null $customPassword If null, then use standard keys. If provide a password, then will derive key from this.
+     * @param string      $keySource      This is the source of the keys. Options are 'drive' and 'database'
+     * @param string|null $keyNumber      This is the key number/version.
+     * @return false|string or false      returns the decrypted data or false if failed.
      */
-    private function coreDecrypt($sValue, $customPassword = null, $keySource = 'drive', $keyNumber = null)
+    private function coreDecrypt(?string $sValue, ?string $customPassword = null, string $keySource = 'drive', ?string $keyNumber = null): false|string
     {
         $keyNumber = isset($keyNumber) ? $keyNumber : $this->keyVersion;
 
@@ -267,16 +285,49 @@ class CryptoGen
                 $iv
             );
         } else {
-            error_log("OpenEMR Error : Decryption failed authentication.");
+            try {
+                // throw an exception
+                throw new Exception("OpenEMR Error: Decryption failed authentication!");
+            } catch (Exception $e) {
+                // log the exception message and call stack then return legacy null as false for
+                // those evaluating the return value as $return == false which with legacy will eval as false.
+                // I've seen this in the codebase, and it's a bit of a hack, but it's a way to return false instead of null.
+                // Dev's should use empty() instead of == false to check return from this function.
+                // The goal here is so the call stack is exposed to track back to where the call originated.
+                $stackTrace = debug_backtrace();
+                $formattedStackTrace = $this->formatExceptionMessage($stackTrace);
+                error_log(errorLogEscape($e->getMessage()) . "\n" . text($formattedStackTrace));
+                return false;
+            }
         }
     }
 
+    private function formatExceptionMessage($stackTrace): string
+    {
+        $formattedStackTrace = "Call Stack:\n";
+        foreach ($stackTrace as $index => $call) {
+            $formattedStackTrace .= "#" . $index . " ";
+            if (isset($call['file'])) {
+                $formattedStackTrace .= $call['file'] . " ";
+                if (isset($call['line'])) {
+                    $formattedStackTrace .= "(" . $call['line'] . "): ";
+                }
+            }
+            if (isset($call['class'])) {
+                $formattedStackTrace .= $call['class'] . $call['type'];
+            }
+            if (isset($call['function'])) {
+                $formattedStackTrace .= $call['function'] . "()\n";
+            }
+        }
+        return $formattedStackTrace;
+    }
 
     /**
      * Function to AES256 decrypt a given string, version 2
      *
-     * @param  string  $sValue          Encrypted data that will be decrypted.
-     * @param  string  $customPassword  If null, then use standard key. If provide a password, then will derive key from this.
+     * @param string $sValue         Encrypted data that will be decrypted.
+     * @param string $customPassword If null, then use standard key. If provide a password, then will derive key from this.
      * @return string or false          returns the decrypted data or false if failed.
      */
     public function aes256DecryptTwo($sValue, $customPassword = null)
@@ -308,7 +359,6 @@ class CryptoGen
             return false;
         }
 
-
         $ivLength = openssl_cipher_iv_length('aes-256-cbc');
         $hmacHash = mb_substr($raw, 0, 32, '8bit');
         $iv = mb_substr($raw, 32, $ivLength, '8bit');
@@ -325,17 +375,29 @@ class CryptoGen
                 $iv
             );
         } else {
-            error_log("OpenEMR Error : Decryption failed authentication.");
+            try {
+                // throw an exception
+                throw new Exception("OpenEMR Error: Decryption failed authentication!");
+            } catch (Exception $e) {
+                // log the exception message and call stack then return legacy null as false for
+                // those evaluating the return value as $return == false which with legacy will eval as false.
+                // I've seen this in the codebase, and it's a bit of a hack, but it's a way to return false instead of null.
+                // Dev's should use empty() instead of == false to check return from this function.
+                // The goal here is so the call stack is exposed to track back to where the call originated.
+                $stackTrace = debug_backtrace();
+                $formattedStackTrace = $this->formatExceptionMessage($stackTrace);
+                error_log(errorLogEscape($e->getMessage()) . "\n" . text($formattedStackTrace));
+                return false;
+            }
         }
     }
-
 
     /**
      * Function to AES256 decrypt a given string, version 1
      *
-     * @param  string  $sValue          Encrypted data that will be decrypted.
-     * @param  string  $customPassword  If null, then use standard key. If provide a password, then will derive key from this.
-     * @return string                   returns the decrypted data.
+     * @param string $sValue         Encrypted data that will be decrypted.
+     * @param string $customPassword If null, then use standard key. If provide a password, then will derive key from this.
+     * @return string                returns the decrypted data.
      */
     public function aes256DecryptOne($sValue, $customPassword = null)
     {
@@ -373,6 +435,7 @@ class CryptoGen
 
     // Function to decrypt a given string
     // This specific function is only used for backward compatibility
+    // TODO: Should be removed in the future.
     public function aes256Decrypt_mycrypt($sValue)
     {
         $sSecretKey = pack('H*', "bcb04b7e103a0cd8b54763051cef08bc55abe029fdebae5e1d417e2ffb2a00a3");
@@ -405,9 +468,9 @@ class CryptoGen
      *  key set from database, collect key set from drive, decrypt key set from drive using the database
      *  key; caching the key will bypass all these steps).
      *
-     * @param  string  $version   This is the number/version of they key.
-     * @param  string  $sub       This is the sublabel of the key
-     * @param  string  $keySource This is the source of the standard keys. Options are 'drive' and 'database'
+     * @param string $version     This is the number/version of they key.
+     * @param string $sub         This is the sublabel of the key
+     * @param string $keySource   This is the source of the standard keys. Options are 'drive' and 'database'
      *                            The 'drive' keys are stored at sites/<site-dir>/documents/logs_and_misc/methods
      *                            The 'database' keys are stored in the 'keys' sql table
      * @return string             Returns the key in raw form.

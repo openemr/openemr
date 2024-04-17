@@ -115,7 +115,7 @@ class PharmacyService
 
     public function checkWenoPharmacyLog()
     {
-        $db_exist = sqlStatement("SELECT * FROM weno_download_log LIMIT 1");
+        $db_exist = sqlStatement("SELECT * FROM weno_download_log ORDER BY `created_at` DESC, `id` DESC LIMIT 1");
         if (empty($db_exist)) {
             return "empty";
         } else {
@@ -123,26 +123,25 @@ class PharmacyService
         }
     }
 
-    public function insertPharmacies($insertdata)
+    public function insertPharmacies($insertdata): bool
     {
-
-        $sql = "INSERT INTO weno_pharmacy SET ";
-        $sql .= "ncpdp = ?, ";
-        $sql .= "npi = ?, ";
-        $sql .= "business_name = ?, ";
-        $sql .= "address_line_1 = ?, ";
-        $sql .= "address_line_2 = ?, ";
-        $sql .= "city = ?, ";
-        $sql .= "state = ?, ";
-        $sql .= "zipcode = ?,";
-        $sql .= "country_code = ?, ";
-        $sql .= "international = ?, ";
-        $sql .= "pharmacy_phone = ?, ";
-        $sql .= "on_weno = ?, ";
-        $sql .= "test_pharmacy = ?, ";
-        $sql .= "state_wide_mail_order = ?, ";
-        $sql .= "24hr = ? ";
-
+        $sql = "INSERT INTO weno_pharmacy (ncpdp, npi, business_name, address_line_1, address_line_2, city, state, zipcode, country_code, international, pharmacy_phone, on_weno, test_pharmacy, state_wide_mail_order, 24hr) ";
+            $sql .= "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ";
+            $sql .= "ON DUPLICATE KEY UPDATE ";
+            $sql .= "npi = ?, ";
+            $sql .= "business_name = ?, ";
+            $sql .= "address_line_1 = ?, ";
+            $sql .= "address_line_2 = ?, ";
+            $sql .= "city = ?, ";
+            $sql .= "state = ?, ";
+            $sql .= "zipcode = ?,";
+            $sql .= "country_code = ?, ";
+            $sql .= "international = ?, ";
+            $sql .= "pharmacy_phone = ?, ";
+            $sql .= "on_weno = ?, ";
+            $sql .= "test_pharmacy = ?, ";
+            $sql .= "state_wide_mail_order = ?, ";
+            $sql .= "24hr = ? ";
         try {
             sqlStatementNoLog($sql, [
                 $insertdata['ncpdp'],
@@ -160,13 +159,29 @@ class PharmacyService
                 $insertdata['test_pharmacy'],
                 $insertdata['state_wide_mail'] ?? '',
                 $insertdata['fullDay'],
+                $insertdata['npi'],
+                $insertdata['business_name'],
+                $insertdata['address_line_1'],
+                $insertdata['address_line_2'],
+                $insertdata['city'],
+                $insertdata['state'],
+                $insertdata['zipcode'],
+                $insertdata['country'],
+                $insertdata['international'],
+                $insertdata['pharmacy_phone'],
+                $insertdata['on_weno'],
+                $insertdata['test_pharmacy'],
+                $insertdata['state_wide_mail'] ?? '',
+                $insertdata['fullDay'],
             ]);
         } catch (Exception $e) {
-            return $e->getMessage();
+            $e = $e->getMessage();
+            return true;
         }
+        return false;
     }
 
-    public function updatePharmacies($insertdata)
+    public function updatePharmacies($insertdata): bool
     {
         $sql = "UPDATE weno_pharmacy SET ";
         $sql .= "npi = ?, ";
@@ -202,8 +217,10 @@ class PharmacyService
                 $insertdata['ncpdp']
             ]);
         } catch (Exception $e) {
-            return $e->getMessage();
+            $e = $e->getMessage();
+            return true;
         }
+        return false;
     }
 
     public function removeWenoPharmacies()

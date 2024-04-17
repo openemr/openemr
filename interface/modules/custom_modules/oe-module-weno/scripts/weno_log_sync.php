@@ -13,49 +13,110 @@
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Modules\WenoModule\Services\LogProperties;
+use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 use OpenEMR\Modules\WenoModule\Services\WenoPharmaciesJson;
+use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 
+/**
+ * Download Weno Pharmacy data.
+ */
 function downloadWenoPharmacy()
 {
-    $cryptoGen = new CryptoGen();
-    $localPharmacyJson = new WenoPharmaciesJson($cryptoGen);
+    $wenoValidate = new WenoValidate();
+    $isKey = $wenoValidate->validateAdminCredentials(true, "pharmacy");
 
-    // Check if the background service is active. Intervals are set to once a day
-    // Weno has decided to not force the import of pharmacies since they are using the iframe
-    // and the pharmacy can be selected at the time of creating the prescription.
+    if ((int)$isKey >= 998) {
+        handleDownloadError("Background Initiated Pharmacy download attempt failed. Internet problem!");
+    }
+
+    if ($isKey === false) {
+        requireGlobals();
+    }
+
+    $localPharmacyJson = new WenoPharmaciesJson(new CryptoGen());
     $value = $localPharmacyJson->checkBackgroundService();
+
+    if ($value == 'active' || $value == 'live') {
+        $wenoLog = new WenoLogService();
+        $wenoLog->insertWenoLog("pharmacy", "Download started");
+
+        performPharmacyDownload($localPharmacyJson);
+    }
+}
+
+/**
+ * Perform the pharmacy data download.
+ *
+ * @param WenoPharmaciesJson $localPharmacyJson
+ */
+function performPharmacyDownload(WenoPharmaciesJson $localPharmacyJson)
+{
+    error_log('Background Initiated Pharmacy Download Started.');
+
+    $status = $localPharmacyJson->storePharmacyDataJson();
 
     EventAuditLogger::instance()->newEvent(
         "pharmacy_background",
         $_SESSION['authUser'],
         $_SESSION['authProvider'],
         1,
-        "Init Background Pharmacy Download Service Status:"  . text(ucfirst($value))
+        "Background Initiated Pharmacy Download Completed with Status:" . ($status)
     );
-    if ($value == 'active' || $value == 'live') {
-        error_log('Background Initiated Pharmacy Download Started.');
 
-        $status = $localPharmacyJson->storePharmacyDataJson();
-
-        EventAuditLogger::instance()->newEvent(
-            "pharmacy_background",
-            $_SESSION['authUser'],
-            $_SESSION['authProvider'],
-            1,
-            "Background Initiated Pharmacy Download Completed with Status:"  . text($status)
-        );
-        error_log('Background Initiated Weno Pharmacies download completed with status:' . text($status));
-        die;
-    }
+    error_log('Background Initiated Weno Pharmacies download completed with status:' . text($status));
 }
 
 /**
+ * Download Weno Prescription log.
+ *
  * @throws Exception
  */
 function downloadWenoPrescriptionLog(): void
 {
+    $wenoValidate = new WenoValidate();
+    $isKey = $wenoValidate->validateAdminCredentials(true);
+
+    if ((int)$isKey >= 998) {
+        handleDownloadError("Prescription download attempt failed. Internet problem!");
+    }
+
+    if ($isKey === false) {
+        requireGlobals();
+    }
+
     $logSync = new LogProperties();
     if (!$logSync->logSync()) {
         error_log("Background services failed for prescription log.");
     }
+}
+
+/**
+ * Handle download errors.
+ *
+ * @param string $errorMessage
+ */
+function handleDownloadError(string $errorMessage)
+{
+    EventAuditLogger::instance()->newEvent(
+        "pharmacy_background",
+        $_SESSION['authUser'],
+        $_SESSION['authProvider'],
+        1,
+        ($errorMessage)
+    );
+
+    error_log(errorLogEscape($errorMessage));
+    die;
+}
+
+/**
+ * Require global variables.
+ */
+function requireGlobals(): void
+{
+    // Key has been reset, reload globals
+    // This is the problem when using globals for anything in a function.
+    // They need to be reloaded when dynamically changed or JIT global values.
+    // TODO: We need to address this in the future.
+    require_once dirname(__DIR__, 4) . "/globals.php";
 }

@@ -71,6 +71,10 @@ class LogProperties
         $this->cryptoGen = new CryptoGen();
         $this->method = "aes-256-cbc";
         $this->rxsynclog = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/logsync.csv";
+        $logDir = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno";
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0775, true);
+        }
         $this->enc_key = $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key'] ?? '');
         $this->key = substr(hash('sha256', $this->enc_key, true), 0, 32);
         $this->iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
@@ -103,7 +107,7 @@ class LogProperties
             "ToDate" => $today,
             "ResponseFormat" => "CSV"
         ];
-        $plaintext = json_encode($p);                //json encode email and password
+        $plaintext = json_encode($p); //json encode email and password
         if ($this->enc_key && $md5) {
             return base64_encode(openssl_encrypt($plaintext, $this->method, $this->key, OPENSSL_RAW_DATA, $this->iv));
         } else {
@@ -137,10 +141,8 @@ class LogProperties
      */
     public function logSync()
     {
+        $wenoLog = new WenoLogService();
         $provider_info['email'] = $this->weno_admin_email;
-
-        $wenolog = new WenoLogService();
-
         $logurlparam = $this->logEpcs();
         $syncLogs = "https://online.wenoexchange.com/en/EPCS/DownloadNewRxSyncDataVal?useremail=";
         if ($logurlparam == 'error') {
@@ -148,8 +150,8 @@ class LogProperties
             error_log("Cipher failure check encryption key", time());
             exit;
         }
-        $urlOut = $syncLogs . urlencode($provider_info['email']) . "&data=" . urlencode($logurlparam);
 
+        $urlOut = $syncLogs . urlencode($provider_info['email']) . "&data=" . urlencode($logurlparam);
         $ch = curl_init($urlOut);
         curl_setopt($ch, CURLOPT_TIMEOUT, 200);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -161,26 +163,26 @@ class LogProperties
         curl_close($ch);
         if ($statusCode == 200) {
             file_put_contents($this->rxsynclog, $rpt);
-            $isError = $wenolog->scrapeWenoErrorHtml($rpt);
+            $isError = $wenoLog->scrapeWenoErrorHtml($rpt);
             if ($isError['is_error']) {
                 $error = $isError['messageText'];
-                error_log('Prescription download failed: ' . $error);
-                $wenolog->insertWenoLog("prescription", "loginfail");
-                $wenolog->insertWenoLog("prescription", "Failed");
-                EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, $error);
+                error_log('Prescription download failed: ' . errorLogEscape($error));
+                $wenoLog->insertWenoLog("prescription", "Invalid Prescriber Credentials Hint:see previous errors.");
+                EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, ($error));
                 die(js_escape($error));
             }
-            $wenolog->insertWenoLog("prescription", "Success");
+            $wenoLog->insertWenoLog("prescription", "Success");
         } else {
             // yes record failures.
-            EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "$statusCode");
-            $wenolog->insertWenoLog("prescription", "Failed");
+            EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, ("$statusCode"));
+            error_log("Prescription download failed: errorLogEscape($statusCode)");
+            $wenoLog->insertWenoLog("prescription", "http_error_$statusCode");
             return false;
         }
 
         if (file_exists($this->rxsynclog)) {
             $log = new LogImportBuild();
-            $rtn = $log->buildInsertArray();
+            $rtn = $log->buildPrescriptionInserts();
             if (!$rtn) {
                 return false;
             }
@@ -191,9 +193,9 @@ class LogProperties
     }
 
     /**
-     * @return mixed
+     * @return string|array
      */
-    public function getProviderEmail(): mixed
+    public function getProviderEmail(): string|array
     {
         if ($_SESSION['authUser']) {
             $provider_info = ['email' => $GLOBALS['weno_provider_email']];
@@ -201,7 +203,7 @@ class LogProperties
                 return $provider_info;
             } else {
                 $error = xlt("Provider email address is missing. Go to User settings Email to add provider's weno registered email address");
-                error_log($error);
+                error_log(errorLogEscape($error));
                 TransmitProperties::echoError($error);
             }
         } elseif ($GLOBALS['weno_admin_username'] ?? false) {
@@ -213,6 +215,7 @@ class LogProperties
             echo TransmitProperties::styleErrors($error);
             exit;
         }
+        return '';
     }
 
     /**

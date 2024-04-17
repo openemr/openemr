@@ -22,14 +22,18 @@ use Exception;
 use Laminas\Config\Reader\ReaderInterface;
 use Laminas\Config\Reader\Xml;
 use Laminas\Db\TableGateway\AbstractTableGateway;
+use OpenEMR\Common\Command\Trait\CommandLineDebugStylerTrait;
 use OpenEMR\Services\Cda\CdaTemplateImportDispose;
 use OpenEMR\Services\Cda\CdaTemplateParse;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
 use OpenEMR\Services\Cda\XmlExtended;
 use OpenEMR\Services\CodeTypesService;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class CarecoordinationTable extends AbstractTableGateway
 {
+    use CommandLineDebugStylerTrait;
+
     public const NPI_SAMPLE = "987654321";
     public const ORGANIZATION_SAMPLE = "External Physicians Practice";
     public const ORGANIZATION2_SAMPLE = "External Health and Hospitals";
@@ -49,6 +53,11 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->importService = new CdaTemplateImportDispose();
         $this->validateDocument = new CdaValidateDocuments();
         $this->validationIsDisabled = $GLOBALS['ccda_validation_disable'] ?? false;
+    }
+
+    public function getImportService(): CdaTemplateImportDispose
+    {
+        return $this->importService;
     }
 
     /*

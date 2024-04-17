@@ -56,7 +56,7 @@ $patientid = $_GET['patid'] ?? null;
 
 // did someone tamper with eid?
 $checkEidInAppt = false;
-$patient_appointments = fetchAppointments('1970-01-01', '2382-12-31', $_SESSION['pid']);
+$patient_appointments = fetchAppointments('1970-01-01', '2382-12-31', $pid);
 $checkEidInAppt = array_search($eid, array_column($patient_appointments, 'pc_eid'));
 
 if (!empty($eid) && !$checkEidInAppt) {
@@ -65,7 +65,7 @@ if (!empty($eid) && !$checkEidInAppt) {
 }
 
 if (!empty($_POST['form_pid'])) {
-    if ($_POST['form_pid'] != $_SESSION['pid']) {
+    if ($_POST['form_pid'] != $pid) {
         echo js_escape("error");
         exit();
     }
@@ -323,7 +323,7 @@ if (($_POST['form_action'] ?? null) == "save") {
                         "'" . add_escape_custom($_POST['form_category']) . "', " .
                         "'" . add_escape_custom($row['pc_multiple']) . "', " .
                         "'" . add_escape_custom($to_be_inserted) . "', " .
-                        "'" . add_escape_custom($_SESSION['pid']) . "', " .
+                        "'" . add_escape_custom($pid) . "', " .
                         "'" . add_escape_custom($_POST['form_title']) . "', " .
                         "NOW(), " .
                         "'" . add_escape_custom($_POST['form_comments']) . "', " .
@@ -350,7 +350,7 @@ if (($_POST['form_action'] ?? null) == "save") {
             foreach ($_POST['form_provider_ae'] as $provider) {
                 sqlStatement("UPDATE openemr_postcalendar_events SET " .
                     "pc_catid = '" . add_escape_custom($_POST['form_category']) . "', " .
-                    "pc_pid = '" . add_escape_custom($_SESSION['pid']) . "', " .
+                    "pc_pid = '" . add_escape_custom($pid) . "', " .
                     "pc_title = '" . add_escape_custom($_POST['form_title']) . "', " .
                     "pc_time = NOW(), " .
                     "pc_hometext = '" . add_escape_custom($_POST['form_comments']) . "', " .
@@ -383,7 +383,7 @@ if (($_POST['form_action'] ?? null) == "save") {
             sqlStatement("UPDATE openemr_postcalendar_events SET " .
                 "pc_catid = '" . add_escape_custom($_POST['form_category']) . "', " .
                 "pc_aid = '" . add_escape_custom($prov) . "', " .
-                "pc_pid = '" . add_escape_custom($_SESSION['pid']) . "', " .
+                "pc_pid = '" . add_escape_custom($pid) . "', " .
                 "pc_title = '" . add_escape_custom($_POST['form_title']) . "', " .
                 "pc_time = NOW(), " .
                 "pc_hometext = '" . add_escape_custom($_POST['form_comments']) . "', " .
@@ -434,7 +434,7 @@ if (($_POST['form_action'] ?? null) == "save") {
                     "'" . add_escape_custom($_POST['form_category']) . "', " .
                     "'" . add_escape_custom($new_multiple_value) . "', " .
                     "'" . add_escape_custom($provider) . "', " .
-                    "'" . add_escape_custom($_SESSION['pid']) . "', " .
+                    "'" . add_escape_custom($pid) . "', " .
                     "'" . add_escape_custom($_POST['form_title']) . "', " .
                     "NOW(), " .
                     "'" . add_escape_custom($_POST['form_comments']) . "', " .
@@ -464,7 +464,7 @@ if (($_POST['form_action'] ?? null) == "save") {
                 ") VALUES ( " .
                 "'" . add_escape_custom($_POST['form_category']) . "', " .
                 "'" . add_escape_custom($_POST['form_provider_ae']) . "', " .
-                "'" . add_escape_custom($_SESSION['pid']) . "', " .
+                "'" . add_escape_custom($pid) . "', " .
                 "'" . add_escape_custom($_POST['form_title']) . "', " .
                 "NOW(), " .
                 "'" . add_escape_custom($_POST['form_comments']) . "', " .
@@ -514,7 +514,7 @@ if (!empty($_POST['form_action'])) {
     $note .= ". " . xl("Use Portal Dashboard to confirm with patient.");
     $title = xl("Patient Reminders");
     $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", array($_POST['form_provider_ae']));
-    $rtn = addPnote($_SESSION['pid'], $note, 1, 1, $title, $user['username'], '', 'New');
+    $rtn = addPnote($pid, $note, 1, 1, $title, $user['username'], '', 'New');
 
     $_SESSION['whereto'] = '#appointmentcard';
     header('Location:./home.php');
@@ -570,7 +570,7 @@ if ($eid) {
         $hometext = substr($hometext, 6);
     }
 } else {
-    $patientid = $_GET['pid'];
+    $patientid = $pid;
 }
 
 // If we have a patient ID, get the name and phone numbers to display.

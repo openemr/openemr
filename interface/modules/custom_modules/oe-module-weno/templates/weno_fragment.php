@@ -21,16 +21,14 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
     exit;
 }
 
-$logService = new WenoLogService();
-$pharmacy_log = $logService->getLastPharmacyDownloadStatus();
-
 $validate = new TransmitProperties(true);
 $validate_errors = "";
 $cite = '';
 
 $logService = new WenoLogService();
-$pharmacyLog = $logService->getLastPharmacyDownloadStatus();
-$status = xlt("Last pharmacy update failed! Current count") . ": " . text($pharmacyLog['count'] ?? 0) . ". " . "Last success was" . ": " . text($pharmacyLog['created_at'] ?? '');
+$pharmacyLog = $logService->getLastPharmacyDownloadStatus('Success');
+
+$status = xlt("Last pharmacy update failed! Status") . ": " . text($pharmacyLog['status'] ?? '') . ". " . xlt("Current number of Pharmacies available") . ": " . text($pharmacyLog['count'] ?? 0) . " " . xlt("that is from last successful update on") . ": " . text($pharmacyLog['created_at'] ?? '');
 $cite = <<<CITE
 <cite class="h6 text-danger p-1 mt-1">
     <span>$status</span>
@@ -59,13 +57,11 @@ function getProviderByWenoId($external_id, $provider_id = ''): string
 }
 
 ?>
-
 <script src="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
-
 <div class="row float-right mr-1">
-    <div role="button">
-        <u><span class="click" onclick="sync_weno()"><i id="sync-icon" class="fa-solid fa-rotate-right mr-1"></i><?php echo xlt("Refresh"); ?></span></u>
-        <a href="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php"><span><i class="fa-solid fa-pen ml-2 mb-2"></i></span></a>
+    <div>
+        <a class="mr-2" href="#" onclick="top.restoreSession(); sync_weno();"><span><i id="sync-icon" class="fa-solid fa-rotate-right mr-1"></i><?php echo xlt("Refresh"); ?></span></a>
+        <a class="mr-2" onclick="top.restoreSession();" href="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php"><span><i class="fa fa fa-pencil-alt mr-1"></i><?php echo xlt("Add/Edit"); ?></span></a>
     </div>
 </div>
 <input type="hidden" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default')); ?>" />
@@ -77,9 +73,9 @@ function getProviderByWenoId($external_id, $provider_id = ''): string
 <?php }
 if ($hasWarnings || $hasErrors) { ?>
     <div id="error-alert" class="alert <?php echo !$justWarnings ? 'alert-danger' : 'alert-warning'; ?> mt-2 px-0 py-1" role="alert">
-        <span class="text-warning"><strong><?php echo xlt("Problems!"); ?></strong></span> <span><?php echo xlt("Weno eRx is not fully configured. Details"); ?></span>
+        <span class="text-warning"><span><?php echo xlt("Problems!"); ?></span></span> <span><?php echo xlt("Weno eRx is not fully configured. Details"); ?></span>
         <a role="button" class="btn btn-link p-0 pl-1" onclick="$('.dialog-alert').toggleClass('d-none')"><i class="fa fa-question-circle close"></i></a>
-        <div id="dialog-alert" class="dialog-alert m-0 p-0 pt-1 d-none">
+        <div id="dialog-alert" class="dialog-alert m-0 p-0 pt-1 small d-none">
             <div id="dialog-content" class="dialog-content"><?php echo $validate_errors; ?></div>
         </div>
     </div>

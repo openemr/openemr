@@ -53,13 +53,14 @@ class ModuleManagerListener extends AbstractModuleActionListener
         if (method_exists(self::class, $methodName)) {
             return self::$methodName($modId, $currentActionStatus);
         } else {
-            return "Module cleanup method $methodName does not exist.";
+            // no reason to report action method is missing.
+            return $currentActionStatus;
         }
     }
 
     /**
      * Required method to return namespace
-     * If namespace isn't provided return empty
+     * If namespace isn't provided return empty string
      * and register namespace at top of this script..
      *
      * @return string
@@ -71,8 +72,8 @@ class ModuleManagerListener extends AbstractModuleActionListener
     }
 
     /**
-     * Required method to return this class object,
-     * so it is instantiated in Laminas Manager.
+     * Required method to return this class object
+     * so it will be instantiated in Laminas Manager.
      *
      * @return ModuleManagerListener
      */
@@ -95,6 +96,21 @@ class ModuleManagerListener extends AbstractModuleActionListener
          * this flag is reset by MM.
         */
         $modService::setModuleState($modId, '0', '1');
+        return $currentActionStatus;
+    }
+
+    /**
+     * @param $modId
+     * @param $currentActionStatus
+     * @return mixed
+     */
+    private function help_requested($modId, $currentActionStatus): mixed
+    {
+        // must call a script that implements a dialog to show help.
+        // I can't find a way to override the Lamina's UI except using a dialog.
+        if (file_exists(__DIR__ . '/show_help.php')) {
+            include __DIR__ . '/show_help.php';
+        }
         return $currentActionStatus;
     }
 
@@ -146,6 +162,45 @@ class ModuleManagerListener extends AbstractModuleActionListener
         $sql = "DELETE FROM `background_services` WHERE `name` = ? OR `name` = ?";
         sqlQuery($sql, array('WenoExchange', 'WenoExchangePharmacies'));
         return $currentActionStatus;
+    }
+
+    /**
+     * @param $modId
+     * @param $currentActionStatus
+     * @return mixed
+     */
+    private function reset_module($modId, $currentActionStatus): mixed
+    {
+        $rtn = true;
+        $modService = new ModuleService();
+        $logMessage = ''; // Initialize an empty string to store log messages
+
+        if (!$modService::getModuleState($modId)) {
+            $sql = "DELETE FROM `user_settings` WHERE `setting_label` LIKE 'global:weno%'";
+            $rtn = sqlQuery($sql);
+            $logMessage .= "DELETE FROM `user_settings`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
+
+            $sql = "DELETE FROM `globals` WHERE `gl_name` LIKE 'weno%'";
+            $rtn = sqlQuery($sql);
+            $logMessage .= "DELETE FROM `globals`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
+
+            $sql = "DROP TABLE IF EXISTS `weno_pharmacy`";
+            $rtn = sqlQuery($sql);
+            $logMessage .= "DROP TABLE `weno_pharmacy`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
+
+            $sql = "DROP TABLE IF EXISTS `weno_assigned_pharmacy`";
+            $rtn = sqlQuery($sql);
+            $logMessage .= "DROP TABLE `weno_assigned_pharmacy`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
+
+            $sql = "DROP TABLE IF EXISTS `weno_download_log`";
+            $rtn = sqlQuery($sql);
+            $logMessage .= "DROP TABLE `weno_download_log`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
+
+            error_log(text($logMessage));
+        }
+
+        // return log messages to the MM to show user.
+        return text($logMessage);
     }
 
     /**

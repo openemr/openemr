@@ -30,9 +30,6 @@ use Twig\Environment;
 
 class Bootstrap
 {
-    const OPENEMR_GLOBALS_LOCATION = "../../../../globals.php";
-    const MODULE_INSTALLATION_PATH = "/interface/modules/custom_modules/oe-module-weno";
-    const MODULE_NAME = "";
     const MODULE_MENU_NAME = "Weno";
 
     /**
@@ -65,6 +62,18 @@ class Bootstrap
      * @var SelectedPatientPharmacy
      */
     private SelectedPatientPharmacy $selectedPatientPharmacy;
+    public string $installPath;
+
+    public function __construct(EventDispatcher $dispatcher)
+    {
+        $this->installPath = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-weno";
+        $this->eventDispatcher = $dispatcher;
+        $this->globalsConfig = new WenoGlobalConfig();
+        $this->moduleDirectoryName = basename(dirname(__DIR__));
+        $this->modulePath = dirname(__DIR__);
+        $this->logger = new SystemLogger();
+        $this->selectedPatientPharmacy = new SelectedPatientPharmacy();
+    }
 
     /**
      * @return void
@@ -72,12 +81,11 @@ class Bootstrap
     public function subscribeToEvents(): void
     {
         $modService = new ModuleService();
+        // let Admin configure Weno if module is not configured.
+        $this->addGlobalSettings();
         if (!$modService->isWenoConfigured()) {
-            // let Admin configure Weno if module is not configured.
-            $this->addGlobalSettings();
             return;
         }
-        $this->addGlobalSettings();
         $this->registerMenuItems();
         $this->registerDemographicsEvents();
         $this->demographicsSelectorEvents();
@@ -85,16 +93,6 @@ class Bootstrap
         $this->patientSaveEvents();
         $this->patientUpdateEvents();
         $modService::setModuleState('oe-module-weno', '1', '0');
-    }
-
-    public function __construct(EventDispatcher $dispatcher)
-    {
-        $this->eventDispatcher = $dispatcher;
-        $this->globalsConfig = new WenoGlobalConfig();
-        $this->moduleDirectoryName = basename(dirname(__DIR__));
-        $this->modulePath = dirname(__DIR__);
-        $this->logger = new SystemLogger();
-        $this->selectedPatientPharmacy = new SelectedPatientPharmacy();
     }
 
     /**
@@ -225,38 +223,69 @@ class Bootstrap
     public function addCustomMenuItem(MenuEvent $event): MenuEvent
     {
         $menu = $event->getMenu();
+        // Top level menu
+        $topMenu = new \stdClass();
+        $topMenu->requirement = 0;
+        $topMenu->target = 'adm0';
+        $topMenu->menu_id = 'adm';
+        $topMenu->label = xlt("Weno eRx Tools");
+        $topMenu->icon = "fa-caret-right";
+        $topMenu->children = [];
+        $topMenu->acl_req = ["admin", "super"];
+        $topMenu->global_req = ["weno_rx_enable"];
         //Prescription Log
         $menuItem = new \stdClass();
         $menuItem->requirement = 0;
         $menuItem->target = 'rep';
         $menuItem->menu_id = 'rep0';
-        $menuItem->label = xlt("Prescription Log");
-        $menuItem->url = self::MODULE_INSTALLATION_PATH . "/templates/rxlogmanager.php";
+        $menuItem->label = xlt("Weno Prescription Log");
+        $menuItem->url = "/interface/modules/custom_modules/oe-module-weno/templates/rxlogmanager.php";
         $menuItem->children = [];
         $menuItem->acl_req = ["patients", "rx"];
         $menuItem->global_req = ["weno_rx_enable"];
-
-        //Weno Management
-        $mgtMenu = new \stdClass();
-        $mgtMenu->requirement = 0;
-        $mgtMenu->target = 'adm0';
-        $mgtMenu->menu_id = 'adm';
-        $mgtMenu->label = xlt("Weno Management");
-        $mgtMenu->url = self::MODULE_INSTALLATION_PATH . "/templates/facilities.php";
-        $mgtMenu->children = [];
-        $mgtMenu->acl_req = ["admin", "super"];
-        $mgtMenu->global_req = ["weno_rx_enable"];
-
+        //Weno log
+        $dlMenu = new \stdClass();
+        $dlMenu->requirement = 0;
+        $dlMenu->target = 'adm1';
+        $dlMenu->menu_id = 'adm';
+        $dlMenu->label = xlt("Weno Downloads Management");
+        $dlMenu->url = "/interface/modules/custom_modules/oe-module-weno/templates/download_log_viewer.php";
+        $dlMenu->children = [];
+        $dlMenu->acl_req = ["admin", "super"];
+        $dlMenu->global_req = ["weno_rx_enable"];
+        //Weno Setup
+        $setupMenu = new \stdClass();
+        $setupMenu->requirement = 0;
+        $setupMenu->target = 'adm0';
+        $setupMenu->menu_id = 'adm';
+        $setupMenu->label = xlt("Weno eRx Service Setup");
+        $setupMenu->url = "/interface/modules/custom_modules/oe-module-weno/templates/weno_setup.php";
+        $setupMenu->children = [];
+        $setupMenu->acl_req = ["admin", "super"];
+        $setupMenu->global_req = ["weno_rx_enable"];
+        // Background Services
+        $serviceMenu = new \stdClass();
+        $serviceMenu->requirement = 0;
+        $serviceMenu->target = 'rpt0';
+        $serviceMenu->menu_id = 'rep';
+        $serviceMenu->label = xlt("Background Services (Convenience)");
+        $serviceMenu->url = "/interface/reports/background_services.php";
+        $serviceMenu->children = [];
+        $serviceMenu->acl_req = ["admin", "super"];
+        $serviceMenu->global_req = ["weno_rx_enable"];
+        // Write the menu items to the menu
         foreach ($menu as $item) {
             if ($item->menu_id == 'admimg') {
+                $item->children[] = $topMenu;
                 foreach ($item->children as $other) {
-                    if ($other->label == 'Other') {
-                        $other->children[] = $mgtMenu;
+                    if ($other->label == 'Weno eRx Tools') {
+                        $other->children[] = $dlMenu;
+                        $other->children[] = $setupMenu;
+                        $other->children[] = $serviceMenu;
                         break;
                     }
                 }
             }
-
             if ($item->menu_id == 'repimg') {
                 foreach ($item->children as $clientReport) {
                     if ($clientReport->label == 'Clients') {
