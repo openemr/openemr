@@ -36,6 +36,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 <title><?php echo xlt('Change Password'); ?></title>
 
 <script src="checkpwd_validation.js"></script>
+<script src="../../library/js/utility.js"></script>
 
 <script>
 //Validating password and display message if password field is empty - starts
@@ -127,6 +128,9 @@ $row = sqlFetchArray($res);
                         <label class='control-label col-sm-2'><?php echo xlt('New Password') . ":"; ?></label>
                         <div class='col-sm-3'>
                             <input type='password' class='form-control' name='newPass'  value="" autocomplete='off'>
+                            <!-- Password Strength Meter -->
+                            <div id="password_strength_meter" style="width:100%; height:15px; border:1px solid #ccc; margin-top: 5px;"></div>
+                            <div id="password_strength_text"></div>
                         </div>
                     </div>
                     <div class="form-group">
