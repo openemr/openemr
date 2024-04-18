@@ -18,19 +18,19 @@ class PatientRetrieveOffsiteDocument extends Event
 {
     const REMOTE_DOCUMENT_LOCATION = 'remote.document.retrieve.location';
     private string $url;
-    private $presignedurl;
+    private $offsiteurl;
     public function __construct($url)
     {
         $this->url = $url;
     }
 
-    public function setPresignedUrl(string $presignedUrl): void
+    public function setOffsiteUrl(string $offsitedUrl): void
     {
-        $this->presignedurl = $presignedUrl;
+        $this->offsiteurl = $offsiteUrl;
     }
 
-    public function getPresignedUrl()
+    public function getOffsiteUrl()
     {
-        return $this->presignedurl;
+        return $this->offsiteurl;
     }
 }
