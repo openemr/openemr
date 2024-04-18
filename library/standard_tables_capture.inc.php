@@ -612,9 +612,13 @@ function valueset_import($type)
     sqlStatementNoLog("START TRANSACTION");
     if (is_dir($dir) && $handle = opendir($dir)) {
         while (false !== ($filename = readdir($handle))) {
+            // skip the zip file that's in the tmp file dir
+            if (stripos($filename, ".zip")) {
+                continue;
+            }
             if (stripos($filename, ".xml")) {
                     $abs_path = $dir . $filename;
-                    $xml  = simplexml_load_file($abs_path, null, null, 'ns0', true);
+                    $xml  = simplexml_load_file($abs_path, null, 0, 'ns0', true);
                 foreach ($xml->DescribedValueSet as $vset) {
                     $vset_attr = $vset->attributes();
                     $nqf = $vset->xpath('ns0:Group[@displayName="NQF Number"]/ns0:Keyword');
@@ -628,13 +632,13 @@ function valueset_import($type)
                                     description = values(description),
                                     valueset_name = values(valueset_name)",
                                     array(
-                                        $nqf_code,
-                                        $con_attr->code,
-                                        $con_attr->codeSystem,
-                                        $con_attr->codeSystemName,
-                                        $vset_attr->ID,
-                                        $con_attr->displayName,
-                                        $vset_attr->displayName
+                                        (string) $nqf_code,
+                                        (string) $con_attr->code,
+                                        (string) $con_attr->codeSystem,
+                                        (string) $con_attr->codeSystemName,
+                                        (string) $vset_attr->ID,
+                                        (string) $con_attr->displayName,
+                                        (string) $vset_attr->displayName
                                     )
                                 );
                                 sqlStatementNoLog(
@@ -643,13 +647,13 @@ function valueset_import($type)
                                     description = values(description),
                                     valueset_name = values(valueset_name)",
                                     array(
-                                         $nqf_code,
-                                         $vset_attr->ID,
-                                         $con_attr->codeSystem,
+                                        (string) $nqf_code,
+                                        (string) $vset_attr->ID,
+                                        (string) $con_attr->codeSystem,
                                          'OID',
-                                         $vset_attr->ID,
-                                         $vset_attr->displayName,
-                                         $vset_attr->displayName
+                                        (string) $vset_attr->ID,
+                                        (string) $vset_attr->displayName,
+                                        (string) $vset_attr->displayName
                                     )
                                 );
                             }
