@@ -17,9 +17,20 @@ use Symfony\Contracts\EventDispatcher\Event;
 class PatientRetrieveOffsiteDocument extends Event
 {
     const REMOTE_DOCUMENT_LOCATION = 'remote.document.retrieve.location';
-    public string $url;
+    private string $url;
+    private $presignedurl;
     public function __construct($url)
     {
         $this->url = $url;
+    }
+
+    public function setPresignedUrl(string $presignedUrl): void
+    {
+        $this->presignedurl = $presignedUrl;
+    }
+
+    public function getPresignedUrl()
+    {
+        return $this->presignedurl;
     }
 }

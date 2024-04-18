@@ -806,8 +806,9 @@ class C_Document extends Controller
         $retrieveOffsiteDocument = new PatientRetrieveOffsiteDocument("/" . $s3Key[1]);
         $this->eventDispatcher->dispatch($retrieveOffsiteDocument, PatientRetrieveOffsiteDocument::REMOTE_DOCUMENT_LOCATION);
         //this is for the s3 bucket module. If the file is not found locally, it will be found remotely
-        if ($GLOBALS['presignedUrl']) {
-            header("Location: " . $GLOBALS['presignedUrl']);
+        if ($retrieveOffsiteDocument->getPresignedUrl() != null) {
+            header('Content-Description: File Transfer');
+            header("Location: " . $retrieveOffsiteDocument->getPresignedUrl());
             exit;
         }
 
