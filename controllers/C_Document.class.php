@@ -24,6 +24,8 @@ use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Events\PatientDocuments\PatientDocumentTreeViewFilterEvent;
+use OpenEMR\Events\PatientDocuments\PatientRetrieveOffsiteDocument;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class C_Document extends Controller
 {
@@ -39,6 +41,10 @@ class C_Document extends Controller
     private $cryptoGen;
     private bool $skip_acl_check = false;
     private DocumentTemplateService $templateService;
+    /**
+     * @var EventDispatcherInterface $eventDispatcher
+     */
+    private $eventDispatcher;
 
     public function __construct($template_mod = "general")
     {
@@ -794,6 +800,16 @@ class C_Document extends Controller
 
         if (file_exists($temp_url)) {
             $url = $temp_url;
+        }
+        //fire a remote call to see if the file is stored somewhere else
+        $s3Key = explode("//", $temp_url); //split the url to get the s3 key
+        $retrieveOffsiteDocument = new PatientRetrieveOffsiteDocument("/" . $s3Key[1]);
+        $this->eventDispatcher->dispatch($retrieveOffsiteDocument, PatientRetrieveOffsiteDocument::REMOTE_DOCUMENT_LOCATION);
+        //this is for the s3 bucket module. If the file is not found locally, it will be found remotely
+        if ($retrieveOffsiteDocument->getOffsiteUrl() != null) {
+            header('Content-Description: File Transfer');
+            header("Location: " . $retrieveOffsiteDocument->getOffsiteUrl());
+            exit;
         }
 
         if (!file_exists($url)) {
