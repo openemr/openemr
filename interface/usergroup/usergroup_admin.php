@@ -27,6 +27,7 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
@@ -302,8 +303,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         }
         if (isset($_POST["google_signin_email"])) {
             // Save email as null if input was empty or invalid email address format (prevent attacks such as stored xss)
-            // https://www.php.net/manual/en/filter.filters.validate.php
-            if (empty($_POST["google_signin_email"]) || !filter_var($_POST["google_signin_email"], FILTER_VALIDATE_EMAIL))  {
+            if (empty($_POST["google_signin_email"]) || !ValidationUtils::isValidEmail($_POST["google_signin_email"]))  {
                 $googleSigninEmail = null;
             } else {
                 $googleSigninEmail = $_POST["google_signin_email"];
