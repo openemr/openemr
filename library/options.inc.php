@@ -58,6 +58,7 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Common\Forms\Types\BillingCodeType;
+use OpenEMR\Common\Forms\Types\LocalProviderListType;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
@@ -800,34 +801,9 @@ function generate_form_field($frow, $currvalue)
         } else {
             echo "</select>";
         }
-    } elseif ($data_type == 11) { // provider list, including address book entries with an NPI number
-        $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
-        "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
-        "AND ( authorized = 1 OR ((username = '' OR username IS NULL) AND npi != '' )) " .
-        "ORDER BY lname, fname");
-        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
-        echo " $lbfonchange $disabled>";
-        echo "<option value=''>" . xlt('Unassigned') . "</option>";
-        $got_selected = false;
-        while ($urow = sqlFetchArray($ures)) {
-            $uname = text($urow['fname'] . ' ' . $urow['lname']);
-            $optionId = attr($urow['id']);
-            echo "<option value='$optionId'";
-            if ($urow['id'] == $currvalue) {
-                echo " selected";
-                $got_selected = true;
-            }
-
-            echo ">$uname</option>";
-        }
-
-        if (!$got_selected && $currvalue) {
-            echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
-            echo "</select>";
-            echo " <span class='text-danger' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</span>";
-        } else {
-            echo "</select>";
-        }
+    } elseif ($data_type == LocalProviderListType::OPTIONS_TYPE_INDEX) { // provider list, including address book entries with an NPI number
+        $obj = new LocalProviderListType();
+        echo $obj->buildFormView($frow, $currvalue);
     } elseif ($data_type == 12) { // pharmacy list
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
         echo " $lbfonchange $disabled>";
@@ -1809,23 +1785,28 @@ function generate_print_field($frow, $currvalue, $value_allowed = true)
                 echo "&nbsp;(" . text($agestr) . ")";
             }
         }
-    } elseif ($data_type == 10 || $data_type == 11) { // provider list
-        $tmp = '';
-        if ($currvalue) {
-            $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
-            "WHERE id = ?", array($currvalue));
-            $tmp = ucwords($urow['fname'] . " " . $urow['lname']);
-            if (empty($tmp)) {
-                $tmp = "($currvalue)";
-            }
-        }
-        if ($tmp === '') {
-            $tmp = '&nbsp;';
+    } elseif ($data_type == 10 || $data_type == LocalProviderListType::OPTIONS_TYPE_INDEX) { // provider list
+        if ($data_type == LocalProviderListType::OPTIONS_TYPE_INDEX) {
+            $obj = new LocalProviderListType();
+            echo $obj->buildPrintView($frow, $currvalue, $value_allowed);
         } else {
-            $tmp = htmlspecialchars($tmp, ENT_QUOTES);
-        }
+            $tmp = '';
+            if ($currvalue) {
+                $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
+                    "WHERE id = ?", array($currvalue));
+                $tmp = ucwords($urow['fname'] . " " . $urow['lname']);
+                if (empty($tmp)) {
+                    $tmp = "($currvalue)";
+                }
+            }
+            if ($tmp === '') {
+                $tmp = '&nbsp;';
+            } else {
+                $tmp = htmlspecialchars($tmp, ENT_QUOTES);
+            }
 
             echo $tmp;
+        }
     } elseif ($data_type == 12) { // pharmacy list
         $tmp = '';
         if ($currvalue) {
@@ -2472,10 +2453,15 @@ function generate_display_field($frow, $currvalue)
                 $s .= "&nbsp;(" . text($agestr) . ")";
             }
         }
-    } elseif ($data_type == 10 || $data_type == 11) { // provider
-        $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
-        "WHERE id = ?", array($currvalue));
-        $s = text(ucwords(($urow['fname'] ?? '') . " " . ($urow['lname'] ?? '')));
+    } elseif ($data_type == 10 || $data_type == LocalProviderListType::OPTIONS_TYPE_INDEX) { // provider
+        if ($data_type == LocalProviderListType::OPTIONS_TYPE_INDEX) {
+            $obj = new LocalProviderListType();
+            $s = $obj->buildDisplayView($frow, $currvalue);
+        } else {
+            $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
+                "WHERE id = ?", array($currvalue));
+            $s = text(ucwords(($urow['fname'] ?? '') . " " . ($urow['lname'] ?? '')));
+        }
     } elseif ($data_type == 12) { // pharmacy list
         $pres = get_pharmacies();
         while ($prow = sqlFetchArray($pres)) {
@@ -2963,10 +2949,15 @@ function generate_plaintext_field($frow, $currvalue)
         if ($tmp) {
             $s .= ' ' . $tmp;
         }
-    } elseif ($data_type == 10 || $data_type == 11) { // provider
-        $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
-        "WHERE id = ?", array($currvalue));
-        $s = ucwords($urow['fname'] . " " . $urow['lname']);
+    } elseif ($data_type == 10 || $data_type == LocalProviderListType::OPTIONS_TYPE_INDEX) { // provider
+        if ($data_type == LocalProviderListType::OPTIONS_TYPE_INDEX) {
+            $obj = new LocalProviderListType();
+            $s = $obj->buildPlaintextView($frow, $currvalue);
+        } else {
+            $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
+                "WHERE id = ?", array($currvalue));
+            $s = ucwords($urow['fname'] . " " . $urow['lname']);
+        }
     } elseif ($data_type == 12) { // pharmacy list
         $pres = get_pharmacies();
         while ($prow = sqlFetchArray($pres)) {
