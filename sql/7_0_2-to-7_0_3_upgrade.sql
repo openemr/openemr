@@ -113,11 +113,4 @@
 ALTER TABLE `form_encounter` ADD `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 #EndIf
 
-#IfNotTable dashboard_card_visibility
-CREATE TABLE IF NOT EXISTS dashboard_card_visibility (
- `id` INTEGER PRIMARY KEY AUTO_INCREMENT,
- `card_abrev `VARCHAR(75) NOT NULL,
- `card_name` VARCHAR(75) NOT NULL
-)Engine=InnoDB;
-#EndIfTable
 
