@@ -503,3 +503,22 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
     window.oeSMART = oeSMART;
 })(window, window.top.oeSMART || {});
 
+/*
+* @function isValidEmail(emailAddress)
+* @summary call this function where you need to validate an email address
+*  is formatted correctly, function will return bool true/false
+*
+* @param string An email address to validate, e.g. e.g. first.last@gmail.com
+*/
+function isValidEmail(emailAddress) {
+    // RegEx from https://owasp.org/www-community/OWASP_Validation_Regex_Repository
+    var mailformat = /^[a-zA-Z0-9_+&*-]+(?:\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
+    if(emailAddress.match(mailformat)) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+
