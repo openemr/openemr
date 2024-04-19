@@ -237,7 +237,18 @@ function authorized_clicked() {
 <tr>
 <td style="width:150px;"><span class="text"><?php echo xlt('Username'); ?>: </span></td><td style="width:220px;"><input type="text" name="rumple" style="width:120px;" class="form-control"><span class="mandatory"></span></td>
 <?php if (empty($GLOBALS['gbl_ldap_enabled']) || empty($GLOBALS['gbl_ldap_exclusions'])) { ?>
-<td style="width:150px;"><span class="text"><?php echo xlt('Password'); ?>: </span></td><td style="width:250px;"><input type="password" style="width:120px;" name="stiltskin" class="form-control"><span class="mandatory"></span></td>
+<td style="width:150px;">
+    <span class="text"><?php echo xlt('Password'); ?>:</span>
+</td>
+<td style="width:150px;">
+    <input type="password" style="width:120px;" name="stiltskin" id="stiltskin" class="form-control" onkeyup="checkPasswordStrength(this);">
+    <span class="mandatory"></span>
+    <!-- Password Strength Meter -->
+    <div id="password_strength_meter" class="progress mt-2">
+        <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+    <div id="password_strength_text"></div>
+</td>
 <?php } else { ?>
         <td><input type="hidden" value="124" name="stiltskin" /></td>
 <?php } ?>
@@ -645,6 +656,7 @@ $(function () {
 
 });
 </script>
+
 <table>
 
 </table>
