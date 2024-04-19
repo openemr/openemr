@@ -118,13 +118,9 @@ function submitform() {
     } //secure_pwd if ends here
 
     // Valiate Google email (if provided)
-    if(document.new_user.google_signin_email.value != ""){
-        // https://owasp.org/www-community/OWASP_Validation_Regex_Repository
-        var mailformat = /^[a-zA-Z0-9_+&*-]+(?:\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
-        if(!document.new_user.google_signin_email.value.match(mailformat)) {
-            alert(<?php echo xlj('Google email provided is invalid/not properly formatted (e.g. first.last@gmail.com)') ?>);
-            return false;
-        }
+    if(document.new_user.google_signin_email.value != "" !isValidEmail(document.new_user.google_signin_email.value){
+        alert(<?php echo xlj('Google email provided is invalid/not properly formatted (e.g. first.last@gmail.com)') ?>);
+        return false;
     }
 
     <?php if ($GLOBALS['erx_enable']) { ?>

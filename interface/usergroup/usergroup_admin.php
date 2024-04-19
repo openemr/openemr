@@ -303,7 +303,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         }
         if (isset($_POST["google_signin_email"])) {
             // Save email as null if input was empty or invalid email address format (prevent attacks such as stored xss)
-            if (empty($_POST["google_signin_email"]) || !ValidationUtils::isValidEmail($_POST["google_signin_email"]))  {
+            if (empty($_POST["google_signin_email"]) || !ValidationUtils::isValidEmail($_POST["google_signin_email"])) {
                 $googleSigninEmail = null;
             } else {
                 $googleSigninEmail = $_POST["google_signin_email"];

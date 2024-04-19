@@ -513,12 +513,9 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
 function isValidEmail(emailAddress) {
     // RegEx from https://owasp.org/www-community/OWASP_Validation_Regex_Repository
     var mailformat = /^[a-zA-Z0-9_+&*-]+(?:\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
-    if(emailAddress.match(mailformat)) {
+    if (emailAddress.match(mailformat)) {
         return true;
-    }
-    else {
+    } else {
         return false;
     }
 }
-
-

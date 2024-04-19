@@ -130,15 +130,11 @@ function submitform() {
 
     }//If pwd null ends here
 
-    // Valiate Google email (if provided)
-    if(document.forms[0].google_signin_email.value != ""){
-        // https://owasp.org/www-community/OWASP_Validation_Regex_Repository
-        var mailformat = /^[a-zA-Z0-9_+&*-]+(?:\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
-        if(!document.forms[0].google_signin_email.value.match(mailformat)) {
-            flag=1;
-            alert(<?php echo xlj('Google email provided is invalid/not properly formatted (e.g. first.last@gmail.com)') ?>);
-            return false;
-        }
+    // Valiate Google email address (if provided)
+    if(document.forms[0].google_signin_email.value != "" && !isValidEmail(document.forms[0].google_signin_email.value)){
+        flag=1;
+        alert(<?php echo xlj('Google email provided is invalid/not properly formatted (e.g. first.last@gmail.com)') ?>);
+        return false;
     }
 
 <?php } ?>
