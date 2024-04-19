@@ -121,13 +121,3 @@ CREATE TABLE IF NOT EXISTS dashboard_card_visibility (
 )Engine=InnoDB;
 #EndIfTable
 
-#IfNotRow lists option_id Hide_Dashboard_Cards
--- Create new list Hide Dashboard Cards
-INSERT INTO `dashboard_card_visibility` (`id`, `card_abrev`, `card_name`) VALUES (NULL, 'card_allergies', 'Allergies');
-INSERT INTO `dashboard_card_visibility` (`id`, `card_abrev`, `card_name`) VALUES (NULL, 'card_amendments', 'Amendments');
-INSERT INTO `dashboard_card_visibility` (`id`, `card_abrev`, `card_name`) VALUES (NULL, 'card_disclosure', 'Disclosures');
-INSERT INTO `dashboard_card_visibility` (`id`, `card_abrev`, `card_name`) VALUES (NULL, 'card_lab', 'Lab');
-INSERT INTO `dashboard_card_visibility` (`id`, `card_abrev`, `card_name`) VALUES (NULL, 'card_medicalproblems', 'Medical Problems');
-INSERT INTO `dashboard_card_visibility` (`id`, `card_abrev`, `card_name`) VALUES (NULL, 'card_medication', 'Medication');
-INSERT INTO `dashboard_card_visibility` (`id`, `card_abrev`, `card_name`) VALUES (NULL, 'card_vitals', 'Vitals');
-#EndIf
