@@ -27,7 +27,6 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
@@ -302,8 +301,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             sqlStatement("update users set supervisor_id = ? where id = ? ", array((int)$_POST["supervisor_id"], $_POST["id"]));
         }
         if (isset($_POST["google_signin_email"])) {
-            // Save email as null if input was empty or invalid email address format (prevent attacks such as stored xss)
-            if (empty($_POST["google_signin_email"]) || !ValidationUtils::isValidEmail($_POST["google_signin_email"])) {
+            if (empty($_POST["google_signin_email"])) {
                 $googleSigninEmail = null;
             } else {
                 $googleSigninEmail = $_POST["google_signin_email"];
