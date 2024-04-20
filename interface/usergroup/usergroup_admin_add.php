@@ -118,7 +118,7 @@ function submitform() {
     } //secure_pwd if ends here
 
     // Valiate Google email (if provided)
-    if(document.new_user.google_signin_email.value != "" !isValidEmail(document.new_user.google_signin_email.value){
+    if(document.new_user.google_signin_email.value != "" && !isValidEmail(document.new_user.google_signin_email.value)) {
         alert(<?php echo xlj('Google email provided is invalid/not properly formatted (e.g. first.last@gmail.com)') ?>);
         return false;
     }
