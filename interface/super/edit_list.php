@@ -1283,13 +1283,6 @@ function writeITLine($it_array)
             <th><?php echo xlt('Check In'); ?>&nbsp;&nbsp;&nbsp;&nbsp;</th>
             <th><?php echo xlt('Check Out'); ?></th>
             <th><?php echo xlt('Code(s)'); ?></th>
-        <?php elseif ($list_id == 'Hide_Dashboard_Cards') : ?>
-            <th><?php echo xlt('ID'); ?></th>
-            <th><?php echo xlt('Title'); ?></th>
-            <th><?php echo xlt('Order'); ?></th>
-            <th><?php echo xlt('Default'); ?></th>
-            <th><?php echo xlt('Hide'); ?></th>
-            <th><?php echo xlt('Notes'); ?></th>
         <?php elseif ($list_id == 'issue_types') : ?>
             <th><?php echo xlt('OpenEMR Application Category'); ?></th>
             <th><?php echo xlt('Active{{Issue}}'); ?></th>
