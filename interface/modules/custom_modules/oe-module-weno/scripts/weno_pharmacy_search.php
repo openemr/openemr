@@ -6,14 +6,16 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Kofi Appiah <kkappiah@medsov.com>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023 Kofi Appiah <kkappiah@medsov.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(dirname(__DIR__, 5) . "/interface/globals.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
@@ -29,49 +31,53 @@ $params = [];
 
 if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_city') {
     $return_arr = array();
-    $term    = filter_input(INPUT_GET, "term");
-    $val = '%' . $term . '%';
-
+    $term = filter_input(INPUT_GET, "term");
+    $val = $term . '%';
     $params[] = $val;
 
-    $sql = "SELECT city, id FROM weno_pharmacy WHERE city LIKE ? LIMIT 10";
+    $sql = "SELECT city, id FROM weno_pharmacy WHERE city LIKE ? GROUP BY city LIMIT 10";
     $res = sqlStatement($sql, $params);
     while ($row = sqlFetchArray($res)) {
-        $return_arr[] =  $row['city'];
+        $return_arr[] = ucwords(strtolower($row['city']));
     }
-
     echo text(json_encode($return_arr));
 }
 
 if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
-    $term    = filter_input(INPUT_GET, "term");
+    $term = filter_input(INPUT_GET, "term");
     $val = '%' . $term . '%';
 
     $params[] = $val;
 
     $sql = "SELECT Business_Name, state, ncpdp, city, address_line_1 " .
-            "FROM weno_pharmacy WHERE Business_Name LIKE ?";
+        "FROM weno_pharmacy WHERE Business_Name LIKE ?";
 
-    $weno_coverage  = $_GET['coverage'] ?: '';
-    $weno_state     = $_GET['weno_state'] ?: '';
-    $weno_city      = $_GET['weno_city'] ?: '';
-    $full_day       = $_GET['full_day'] ? 'Yes' : '';
-    $weno_only      = $_GET['weno_only'] ? 'True' : '';
-    $weno_zipcode   = $_GET['weno_zipcode'] ?: '';
-    $weno_test_pharmacies   = $_GET['test_pharmacy'] ? 'True' : '';
-
+    $weno_coverage = $_GET['coverage'] ?? false ?: '';
+    $weno_state = $_GET['weno_state'] ?? false ?: '';
+    $weno_city = $_GET['weno_city'] ?? false ?: '';
+    $weno_zipcode = $_GET['weno_zipcode'] ?? false ?: '';
+    $weno_only = $_GET['weno_only'] == 'true' ? 'True' : '';
+    $full_day = $_GET['full_day'] == 'true' ? 'Yes' : '';
+    $weno_test_pharmacies = $_GET['test_pharmacy'] == 'true' ? 'True' : '';
 
     if (!empty($weno_coverage)) {
         $sql .= " AND state_wide_mail_order = ?";
         $params[] = $weno_coverage;
     }
-    if (!empty($weno_state)) {
-        $sql .= " AND state = ?";
-        $params[] = $weno_state;
-    }
-    if (!empty($weno_city)) {
-        $sql .= " AND city = ?";
-        $params[] = $weno_city;
+
+    // if a zip, search by it and forget city and state
+    if (empty($weno_zipcode)) {
+        if (!empty($weno_city)) {
+            $sql .= " AND city = ?";
+            $params[] = $weno_city;
+        }
+        if (!empty($weno_state)) {
+            $sql .= " AND state = ?";
+            $params[] = $weno_state;
+        }
+    } else {
+        $sql .= " AND ZipCode = ?";
+        $params[] = $weno_zipcode;
     }
     if (!empty($weno_only)) {
         $sql .= " AND on_weno = ?";
@@ -81,10 +87,6 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
         $sql .= " AND 24HR = ?";
         $params[] = $full_day;
     }
-    if (!empty($weno_zipcode)) {
-        $sql .= " AND ZipCode = ?";
-        $params[] = $weno_zipcode;
-    }
     if (!empty($weno_test_pharmacies)) {
         $sql .= " AND test_pharmacy = ?";
         $params[] = $weno_test_pharmacies;
@@ -92,10 +94,11 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
 
     $sql .= " ORDER BY Business_Name ASC";
 
+    $return_arr = [];
     $res = sqlStatement($sql, $params);
     while ($row = sqlFetchArray($res)) {
         $return_arr[] = array(
-            "name"  => $row['Business_Name'] . "/ " . $row['address_line_1'] . " / " . $row['city'],
+            "name" => ucwords(strtolower($row['Business_Name'] . " " . $row['address_line_1'] . " " . $row['city'])),
             "ncpdp" => $row['ncpdp']
         );
     }
@@ -103,31 +106,34 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
 }
 
 if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
-    $sql = "SELECT Business_Name, state, ncpdp, city, address_line_1 " .
-            "FROM weno_pharmacy WHERE 1=1";
+    $sql = "SELECT Business_Name, state, ncpdp, city, address_line_1 " . "FROM weno_pharmacy WHERE 1=1";
 
-    $weno_coverage  = $_GET['coverage'] ?: '';
-    $weno_state     = $_GET['weno_state'] ?: '';
-    $weno_city      = $_GET['weno_city'] ?: '';
-    $full_day       = $_GET['full_day'] ? 'Yes' : '';
-    $weno_zipcode   = $_GET['weno_zipcode'] ?: '';
+    $weno_coverage = $_GET['coverage'] ?: '';
+    $weno_state = $_GET['weno_state'] ?: '';
+    $weno_city = $_GET['weno_city'] ?: '';
+    $weno_zipcode = $_GET['weno_zipcode'] ?: '';
+    $weno_only = $_GET['weno_only'] == 'true' ? 'True' : '';
+    $full_day = $_GET['full_day'] == 'true' ? 'Yes' : '';
     $weno_test_pharmacies = $_GET['test_pharmacy'] == 'true' ? 'True' : '';
 
-    if (!empty($weno_state)) {
-        $sql .= " AND state = ?";
-        $params[] = $weno_state;
-    }
-    if (!empty($weno_zipcode)) {
+    // if a zip, search by it and forget city and state
+    if (empty($weno_zipcode)) {
+        if (!empty($weno_city)) {
+            $sql .= " AND city = ?";
+            $params[] = $weno_city;
+        }
+        if (!empty($weno_state)) {
+            $sql .= " AND state = ?";
+            $params[] = $weno_state;
+        }
+    } else {
         $sql .= " AND ZipCode = ?";
         $params[] = $weno_zipcode;
     }
+
     if (!empty($weno_coverage)) {
         $sql .= " AND state_wide_mail_order = ?";
         $params[] = $weno_coverage;
-    }
-    if (!empty($weno_city)) {
-        $sql .= " AND city = ?";
-        $params[] = $weno_city;
     }
     if (!empty($full_day)) {
         $sql .= " AND 24HR = ?";
@@ -140,11 +146,11 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
 
     $sql .= " ORDER BY Business_Name ASC";
 
-    $res = sqlStatement($sql, $params);
     $return_arr = [];
+    $res = sqlStatement($sql, $params);
     while ($row = sqlFetchArray($res)) {
         $return_arr[] = array(
-            "name"  => $row['Business_Name'] . "/ " . $row['address_line_1'] . " / " . $row['city'],
+            "name" => ucwords(strtolower($row['Business_Name'] . " " . $row['address_line_1'] . " " . $row['city'])),
             "ncpdp" => $row['ncpdp']
         );
     }

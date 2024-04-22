@@ -24,9 +24,16 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Events\PatientDocuments\PatientDocumentStoreOffsite;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class Document extends ORDataObject
 {
+    /**
+     * @var EventDispatcherInterface $eventDispatcher
+     */
+    private $eventDispatcher;
+
     public const TABLE_NAME = "documents";
 
     /**
@@ -248,6 +255,8 @@ class Document extends ORDataObject
         if ($id != "") {
             $this->populate();
         }
+
+        $this->eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
     }
 
     /**
@@ -981,6 +990,26 @@ class Document extends ORDataObject
             $this->couch_docid = $docid;
             $this->couch_revid = $revid;
         } else {
+            // Store it remotely.
+            $offSiteUpload = new PatientDocumentStoreOffsite($data);
+            $offSiteUpload->setPatientId($patient_id) ?? '';
+            $offSiteUpload->setRemoteFileName($filename) ?? '';
+            $offSiteUpload->setRemoteMimeType($mimetype) ?? '';
+            $offSiteUpload->setRemoteCategory($category_id) ?? '';
+            /**
+             * There must be a return to terminate processing.
+             */
+             $this->eventDispatcher->dispatch($offSiteUpload, PatientDocumentStoreOffsite::REMOTE_STORAGE_LOCATION);
+
+            /**
+             * If the response from the listener is true then the file was uploaded to another location.
+             * Else resume the local file storage
+             */
+
+            if ($GLOBALS['documentStoredRemotely']) {
+                return xlt("Document was uploaded to remote storage"); // terminate processing
+            }
+
             // Storing document files locally.
             $repository = $GLOBALS['oer_config']['documents']['repository'];
             $higher_level_path = preg_replace("/[^A-Za-z0-9\/]/", "_", $higher_level_path);

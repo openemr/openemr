@@ -5,12 +5,10 @@
 
 require_once dirname(__DIR__, 4) . "/globals.php";
 
-use OpenEMR\Common\Logging\EventAuditLogger;
-
 use OpenEMR\Common\Crypto\CryptoGen;
-use OpenEMR\Modules\WenoModule\Services\LogDataInsert;
-use OpenEMR\Modules\WenoModule\Services\WenoLogService;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
+use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 $cryptoGen = new CryptoGen();
 $weno_username = $GLOBALS['weno_admin_username'] ?? '';
@@ -19,23 +17,17 @@ $encryption_key = $cryptoGen->decryptStandard($GLOBALS['weno_encryption_key'] ??
 $baseurl = "https://online.wenoexchange.com/en/EPCS/DownloadPharmacyDirectory";
 
 $data = array(
-    "UserEmail"             => $weno_username,
-    "MD5Password"           => md5($weno_password),
-    "ExcludeNonWenoTest"    => "N",
-    "Daily"                 => "N"
+    "UserEmail" => $weno_username,
+    "MD5Password" => md5($weno_password),
+    "ExcludeNonWenoTest" => "N",
+    "Daily" => "N"
 );
 
 if (date("l") == "Monday") { //if today is Monday download the weekly file
     $data["Daily"] = "N";
+} else {
+    $data["Daily"] = "Y";
 }
-
-//check if there is history of download, if not do a weekly file
-// $pharmacyService = new PharmacyService();
-// $db_exist = $pharmacyService->checkWenoPharmacyLog();
-// if($db_exist != "empty"){
-//     $data["Daily"] = "Y";
-// }
-
 
 $json_object = json_encode($data);
 $method = 'aes-256-cbc';
@@ -51,7 +43,7 @@ $storelocation = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/weno_p
 $path_to_extract = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/";
 
 // takes URL of image and Path for the image as parameter
-function download_zipfile($fileUrl, $zipped_file)
+function download_zipfile($fileUrl, $zipped_file): void
 {
     $fp = fopen($zipped_file, 'w+');
 
@@ -66,12 +58,23 @@ function download_zipfile($fileUrl, $zipped_file)
     fclose($fp);
 }
 
+$comment = "User Initiated Unscheduled Daily Pharmacy Import";
+if ($data['Daily'] == 'N') {
+    $comment = "User Initiated Unscheduled Weekly Pharmacy Import";
+}
+EventAuditLogger::instance()->newEvent(
+    "pharmacy_log",
+    $_SESSION['authUser'],
+    $_SESSION['authProvider'],
+    1,
+    $comment
+);
+
 download_zipfile($fileUrl, $storelocation);
 
 $zip = new ZipArchive();
-
-$wenolog = new WenoLogService();
-
+$wenoLog = new WenoLogService();
+$csvFile = '';
 if ($zip->open($storelocation) === true) {
     $zip->extractTo($path_to_extract);
 
@@ -81,18 +84,26 @@ if ($zip->open($storelocation) === true) {
         $filename = basename($csvFile);
         $csvFilename = $filename;
 
-        EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "File extracted successfully.");
         echo 'File extracted successfully.';
         echo 'CSV filename: ' . text($csvFilename);
         $zip->close();
         unlink($storelocation);
     } else {
-        EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "No CSV file found in the zip archive.");
+        EventAuditLogger::instance()->newEvent("pharmacy_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "No CSV file found in the zip archive.");
         echo 'No CSV file found in the zip archive.';
     }
 } else {
-    EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Failed to extract the file.");
-    echo 'Failed to extract the file.';
+    $rpt = file_get_contents($storelocation);
+    $isError = $wenoLog->scrapeWenoErrorHtml($rpt);
+    if ($isError['is_error']) {
+        error_log('Pharmacy download failed: ' . errorLogEscape($isError['messageText']));
+        $wenoLog->insertWenoLog("pharmacy", "Exceeded download limits");
+    }
+    EventAuditLogger::instance()->newEvent("pharmacy_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, ($isError['messageText']));
+    $wenoLog->insertWenoLog("pharmacy", "Failed");
+    // no need to continue
+    // send error to UI alert
+    die(js_escape($isError['messageText']));
 }
 
 $insertPharmacy = new PharmacyService();
@@ -113,6 +124,7 @@ if (file_exists($csvFile)) {
             sqlStatementNoLog('START TRANSACTION');
         }
         while (!feof($records)) {
+            $isError = false;
             $line = fgetcsv($records);
 
             if ($l <= 1) {
@@ -122,46 +134,43 @@ if (file_exists($csvFile)) {
             if (!isset($line[1])) {
                 continue;
             }
-            if (!isset($line[1])) {
-                continue;
-            }
             if (!empty($line)) {
                 if ($data['Daily'] == 'N') {
-                    $ncpdp = str_replace(['[', ']'], '', $line[3]);
-                    $npi = str_replace(['[', ']'], '', $line[5]);
-                    $business_name = $line[6];
-                    $address_line_1 = $line[7];
-                    $address_line_2 = $line[8];
-                    $city = $line[9];
-                    $state = $line[10];
+                    $ncpdp = str_replace(['[', ']'], '', $line[3] ?? '');
+                    $npi = str_replace(['[', ']'], '', $line[5] ?? '');
+                    $business_name = $line[6] ?? '';
+                    $address_line_1 = $line[7] ?? '';
+                    $address_line_2 = $line[8] ?? '';
+                    $city = $line[9] ?? '';
+                    $state = $line[10] ?? '';
                     $zipcode = str_replace(['[', ']'], '', $line[11]);
-                    $country = $line[12];
-                    $international = $line[13];
+                    $country = $line[12] ?? '';
+                    $international = $line[13] ?? '';
                     $pharmacy_phone = str_replace(['[', ']'], '', $line[16]);
-                    $on_weno = $line[21];
-                    $test_pharmacy = $line[17];
-                    $state_wide_mail = $line[18];
-                    $fullDay = $line[22];
+                    $on_weno = $line[21] ?? '';
+                    $test_pharmacy = $line[17] ?? '';
+                    $state_wide_mail = $line[18] ?? '';
+                    $fullDay = $line[22] ?? '';
                 } else {
-                    $ncpdp = str_replace(['[', ']'], '', $line[3]);
-                    $npi = str_replace(['[', ']'], '', $line[7]);
-                    $business_name = $line[8];
-                    $city = $line[11];
-                    $state = $line[12];
-                    $zipcode = str_replace(['[', ']'], '', $line[14]);
-                    $country = $line[15];
-                    $address_line_1 = $line[9];
-                    $address_line_2 = $line[10];
-                    $international = $line[16];
-                    $pharmacy_phone = str_replace(['[', ']'], '', $line[20]);
-                    $county = $line[33];
-                    $on_weno = $line[37];
-                    $compounding = $line[41];
-                    $medicaid_id = $line[45];
-                    $dea = $line[44];
-                    $test_pharmacy = $line[29];
-                    $fullDay = $line[40];
-                    $state_wide_mail = $line[47];
+                    $ncpdp = str_replace(['[', ']'], '', $line[3] ?? '');
+                    $npi = str_replace(['[', ']'], '', $line[7] ?? '');
+                    $business_name = $line[8] ?? '';
+                    $city = $line[11] ?? '';
+                    $state = $line[12] ?? '';
+                    $zipcode = str_replace(['[', ']'], '', $line[14] ?? '');
+                    $country = $line[15] ?? '';
+                    $address_line_1 = $line[9] ?? '';
+                    $address_line_2 = $line[10] ?? '';
+                    $international = $line[16] ?? '';
+                    $pharmacy_phone = str_replace(['[', ']'], '', $line[20] ?? '');
+                    $county = $line[33] ?? '';
+                    $on_weno = $line[37] ?? '';
+                    $compounding = $line[41] ?? '';
+                    $medicaid_id = $line[45] ?? '';
+                    $dea = $line[44] ?? '';
+                    $test_pharmacy = $line[29] ?? '';
+                    $fullDay = $line[40] ?? '';
+                    $state_wide_mail = $line[47] ?? '';
                 }
 
                 $insertdata['ncpdp'] = $ncpdp;
@@ -181,29 +190,57 @@ if (file_exists($csvFile)) {
                 $insertdata['fullDay'] = $fullDay;
 
                 if ($data['Daily'] == 'Y') {
-                    $insertPharmacy->updatePharmacies($insertdata);
+                    $isError = $insertPharmacy->updatePharmacies($insertdata);
                 } else {
-                    $insertPharmacy->insertPharmacies($insertdata);
+                    $isError = $insertPharmacy->insertPharmacies($insertdata);
                 }
-
                 ++$l;
             }
         }
     } catch (Exception $e) {
         throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
     }
-    $wenolog->insertWenoLog("pharmacy", "Success");
+
     fclose($records);
+    // Start the transaction.
     sqlStatementNoLog('COMMIT');
     sqlStatementNoLog('SET autocommit=1');
 
+    // remove the files
     foreach ($files as $file) {
         if (is_file($file)) {
             unlink($file);
         }
     }
-    error_log("Pharmacy Imported");
+    if ($isError) {
+        EventAuditLogger::instance()->newEvent(
+            "pharmacy_log",
+            $_SESSION['authUser'],
+            $_SESSION['authProvider'],
+            0,
+            "Pharmacy Import download failed SQL Insert error."
+        );
+        $wenoLog->insertWenoLog("pharmacy", "Failed");
+        error_log("User Initialed Pharmacy Import Failed Insert error");
+    }
+    // let's brag about it.
+    EventAuditLogger::instance()->newEvent(
+        "pharmacy_log",
+        $_SESSION['authUser'],
+        $_SESSION['authProvider'],
+        1,
+        "User Initiated Pharmacy Download was Imported Successfully."
+    );
+    $wenoLog->insertWenoLog("pharmacy", "Success");
+    error_log("User Initiated Pharmacy Imported");
 } else {
-    $wenolog->insertWenoLog("pharmacy", "Failed");
-    error_log("file missing");
+    EventAuditLogger::instance()->newEvent(
+        "pharmacy_log",
+        $_SESSION['authUser'],
+        $_SESSION['authProvider'],
+        0,
+        "Pharmacy Import download failed."
+    );
+    $wenoLog->insertWenoLog("pharmacy", "Failed");
+    error_log("User Initialed Pharmacy Import Failed File Missing");
 }

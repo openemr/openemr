@@ -1,3 +1,13 @@
+$compact-theme: false;
+@import "../../public/assets/bootstrap/scss/bootstrap";
+
+$fa-font-path: "../assets/@fortawesome/fontawesome-free/webfonts";
+@import "../../public/assets/@fortawesome/fontawesome-free/scss/fontawesome";
+@import "../../public/assets/@fortawesome/fontawesome-free/scss/brands";
+@import "../../public/assets/@fortawesome/fontawesome-free/scss/regular";
+@import "../../public/assets/@fortawesome/fontawesome-free/scss/solid";
+
+@import "default-variables";
 @import "core";
 
 a {

@@ -92,7 +92,7 @@ class ModulesApplication
             $folderName = strtok($truncatedPath, '/');
             if ($folderName !== false) {
                 $resultSet = sqlStatementNoLog($statement = "SELECT mod_name, mod_directory FROM modules "
-                . " WHERE mod_active = 1 AND type = ? AND mod_directory = ? ", [$type, $folderName]);
+                . " WHERE (mod_active = 1 OR mod_ui_active = 1) AND type = ? AND mod_directory = ? ", [$type, $folderName]);
                 $row = sqlFetchArray($resultSet);
                 if (empty($row)) {
                     throw new AccessDeniedException("admin", "super", "Access to module path for disabled module is denied");

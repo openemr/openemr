@@ -263,6 +263,7 @@ class AppointmentService extends BaseService
                        pce.pc_room,
                        pce.pc_pid,
                        pce.pc_hometext,
+                       pce.pc_title,
                        f1.name as facility_name,
                        f1_map.uuid as facility_uuid,
                        f2.name as billing_location_name,
@@ -288,9 +289,14 @@ class AppointmentService extends BaseService
 
     public function insert($pid, $data)
     {
-        $startTime = date("H:i:s", strtotime($data['pc_startTime']));
-        // TODO: Why are we adding strings with numbers?  How is this even working
-        $endTime = $startTime . $data['pc_duration'];
+        $startUnixTime = strtotime($data['pc_startTime']);
+        $startTime = date('H:i:s', $startUnixTime);
+
+        // DateInterval _needs_ a valid constructor, so set it to 0s then update.
+        $endTimeInterval = new \DateInterval('PT0S');
+        $endTimeInterval->s = $data['pc_duration'];
+
+        $endTime = (new \DateTime())->setTimestamp($startUnixTime)->add($endTimeInterval);
         $uuid = (new UuidRegistry())->createUuid();
 
         $sql  = " INSERT INTO openemr_postcalendar_events SET";
@@ -323,7 +329,7 @@ class AppointmentService extends BaseService
                 $data["pc_eventDate"],
                 $data['pc_apptstatus'],
                 $startTime,
-                $endTime,
+                $endTime->format('H:i:s'),
                 $data["pc_facility"],
                 $data["pc_billing_location"],
                 $data["pc_aid"] ?? null
@@ -474,7 +480,7 @@ class AppointmentService extends BaseService
      * @param $option
      * @return bool
      */
-    public function isCheckInStatus($option)
+    public static function isCheckInStatus($option)
     {
         $row = sqlQuery("SELECT toggle_setting_1 FROM list_options WHERE " .
             "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));
@@ -490,7 +496,7 @@ class AppointmentService extends BaseService
      * @param $option
      * @return bool
      */
-    public function isCheckOutStatus($option)
+    public static function isCheckOutStatus($option)
     {
         $row = sqlQuery("SELECT toggle_setting_2 FROM list_options WHERE " .
             "list_id = 'apptstat' AND option_id = ? AND activity = 1", array($option));

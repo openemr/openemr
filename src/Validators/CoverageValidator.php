@@ -136,18 +136,17 @@ class CoverageValidator extends BaseValidator
                         }
                         return true;
                     });
-                $context->required('subscriber_ss')->lengthBetween(2, 255);
                 $context->required('subscriber_DOB')->datetime('Y-m-d');
                 $context->required('subscriber_street')->lengthBetween(2, 255);
                 $context->required('subscriber_postal_code')->lengthBetween(2, 255);
                 $context->required('subscriber_city')->lengthBetween(2, 255);
                 $context->required('subscriber_state')->listOption($GLOBALS['state_list']);
-                $context->required('subscriber_country')->listOption($GLOBALS['country_list']);
+                $context->optional('subscriber_country')->listOption($GLOBALS['country_list']);
                 $context->optional('subscriber_phone')->lengthBetween(2, 255);
                 $context->required('subscriber_sex')->listOption('sex');
                 $context->required('accept_assignment')->inArray(['TRUE', 'FALSE']);
                 // policy type has a Not Applicable(NA) option which is an empty string so we allow empty here
-                $context->required('policy_type')->allowEmpty(true)->inArray(InsurancePolicyTypes::POLICY_TYPES);
+                $context->optional('policy_type')->allowEmpty(true)->inArray(InsurancePolicyTypes::POLICY_TYPES);
                 $context->optional('subscriber_employer')->lengthBetween(2, 255);
                 $context->optional('subscriber_employer_street')->lengthBetween(2, 255);
                 $context->optional('subscriber_employer_postal_code')->lengthBetween(2, 255);
