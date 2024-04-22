@@ -437,7 +437,6 @@ window.onload = function() {
             if (($pagesize > 0) && ($pagestart > 0)) {
                 generatePageElement($pagestart - $pagesize, $pagesize, $billing_view, $issue, "&lArr;" . htmlspecialchars(xl("Prev"), ENT_NOQUOTES) . " ");
             }
-
             echo (($pagesize > 0) ? ($pagestart + 1) : "1") . "-" . $upper . " " . htmlspecialchars(xl('of'), ENT_NOQUOTES) . " " . $numRes;
 
             if (($pagesize > 0) && ($pagestart + $pagesize <= $numRes)) {
