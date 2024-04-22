@@ -310,12 +310,13 @@ window.onload = function() {
     <br />
     <span class="heading" >
     <?php
+    if ($attendant_type == 'pid') {
   // RM put patienes name, id and dob at top of the history -->
         $name =  getPatientNameFirstLast($pid);
         $dob =  text(oeFormatShortDate(getPatientData($pid, "DOB")['DOB']));
          $external_id = getPatientData($pid, "pubpid")['pubpid'];
         echo $name . " (" . $external_id . ")" .  "&nbsp;  &nbsp; DOB: " . $dob ;
-
+    }
     ?>
     </span>
 
