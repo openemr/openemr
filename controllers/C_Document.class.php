@@ -774,14 +774,14 @@ class C_Document extends Controller
         //strip url of protocol handler
         $url = preg_replace("|^(.*)://|", "", $url);
 
-        //change full path to current webroot.  this is for documents that may have
-        //been moved from a different filesystem and the full path in the database
-        //is not current.  this is also for documents that may of been moved to
-        //different patients. Note that the path_depth is used to see how far down
-                //the path to go. For example, originally the path_depth was always 1, which
-                //only allowed things like documents/1/<file>, but now can have more structured
-                //directories. For example a path_depth of 2 can give documents/encounters/1/<file>
-                // etc.
+        // change full path to current webroot.  this is for documents that may have
+        // been moved from a different filesystem and the full path in the database
+        // is not current.  this is also for documents that may of been moved to
+        // different patients. Note that the path_depth is used to see how far down
+        // the path to go. For example, originally the path_depth was always 1, which
+        // only allowed things like documents/1/<file>, but now can have more structured
+        // directories. For example a path_depth of 2 can give documents/encounters/1/<file>
+        // etc.
         // NOTE that $from_filename and basename($url) are the same thing
         $from_all = explode("/", $url);
         $from_filename = array_pop($from_all);
@@ -803,13 +803,16 @@ class C_Document extends Controller
         }
         //fire a remote call to see if the file is stored somewhere else
         $s3Key = explode("//", $temp_url); //split the url to get the s3 key
-        $retrieveOffsiteDocument = new PatientRetrieveOffsiteDocument("/" . $s3Key[1]);
-        $this->eventDispatcher->dispatch($retrieveOffsiteDocument, PatientRetrieveOffsiteDocument::REMOTE_DOCUMENT_LOCATION);
-        //this is for the s3 bucket module. If the file is not found locally, it will be found remotely
-        if ($retrieveOffsiteDocument->getOffsiteUrl() != null) {
-            header('Content-Description: File Transfer');
-            header("Location: " . $retrieveOffsiteDocument->getOffsiteUrl());
-            exit;
+        // if the s3 key isn't empty then ...
+        if (!empty($s3Key[1])) {
+            $retrieveOffsiteDocument = new PatientRetrieveOffsiteDocument("/" . $s3Key[1]);
+            $this->eventDispatcher->dispatch($retrieveOffsiteDocument, PatientRetrieveOffsiteDocument::REMOTE_DOCUMENT_LOCATION);
+            //this is for the s3 bucket module. If the file is not found locally, it will be found remotely
+            if ($retrieveOffsiteDocument->getOffsiteUrl() != null) {
+                header('Content-Description: File Transfer');
+                header("Location: " . $retrieveOffsiteDocument->getOffsiteUrl());
+                exit;
+            }
         }
 
         if (!file_exists($url)) {
