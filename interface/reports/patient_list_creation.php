@@ -773,7 +773,11 @@ if (!empty($_POST['form_refresh'])) {
         array_push($sqlBindArray, $sql_gender);
     }
     if (strlen($sql_ethnicity) != 0) {
-        $whr_stmt .= " AND pd.ethnicity LIKE ?";
+        $whr_stmt .= " AND (pd.ethnicity = ? OR pd.ethnicity LIKE ? OR pd.ethnicity LIKE ?)";
+        array_push($sqlBindArray, $sql_ethnicity);
+        // catch the item at the beginning of the list
+        array_push($sqlBindArray, '%' . $sql_ethnicity . '|%');
+        // catch any item after the first item
         array_push($sqlBindArray, '%|' . $sql_ethnicity . '%');
     }
 
