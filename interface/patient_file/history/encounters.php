@@ -30,7 +30,6 @@ use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
-use OpenEMR\Common\Logging\SystemLogger;
 
 $is_group = ($attendant_type == 'gid') ? true : false;
 
