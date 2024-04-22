@@ -149,10 +149,12 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
     $return_arr = [];
     $res = sqlStatement($sql, $params);
     while ($row = sqlFetchArray($res)) {
-        $return_arr[] = array(
-            "name" => ucwords(strtolower($row['Business_Name'] . " " . $row['address_line_1'] . " " . $row['city'])),
-            "ncpdp" => $row['ncpdp']
-        );
+        if (strlen($row['ncpdp']) <= 7) {
+            $return_arr[] = array(
+                "name" => ucwords(strtolower($row['Business_Name'] . " " . $row['address_line_1'] . " " . $row['city'])),
+                "ncpdp" => $row['ncpdp']
+            );
+        }
     }
     echo text(json_encode($return_arr));
 }
