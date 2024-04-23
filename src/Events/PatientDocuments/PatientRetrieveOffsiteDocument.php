@@ -18,19 +18,24 @@ class PatientRetrieveOffsiteDocument extends Event
 {
     const REMOTE_DOCUMENT_LOCATION = 'remote.document.retrieve.location';
     private string $url;
-    private $offsiteurl;
-    public function __construct($url)
+    private $offsiteUrl;
+    public function __construct(string $url)
     {
         $this->url = $url;
     }
 
-    public function setOffsiteUrl(string $offsitedUrl): void
+    public function getOpenEMRDocumentUrl(): string
     {
-        $this->offsiteurl = $offsiteUrl;
+        return $this->url;
+    }
+
+    public function setOffsiteUrl(string $offsiteUrl): void
+    {
+        $this->offsiteUrl = $offsiteUrl;
     }
 
     public function getOffsiteUrl()
     {
-        return $this->offsiteurl;
+        return $this->offsiteUrl;
     }
 }

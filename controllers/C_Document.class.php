@@ -25,7 +25,6 @@ use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Events\PatientDocuments\PatientDocumentTreeViewFilterEvent;
 use OpenEMR\Events\PatientDocuments\PatientRetrieveOffsiteDocument;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class C_Document extends Controller
 {
@@ -41,10 +40,6 @@ class C_Document extends Controller
     private $cryptoGen;
     private bool $skip_acl_check = false;
     private DocumentTemplateService $templateService;
-    /**
-     * @var EventDispatcherInterface $eventDispatcher
-     */
-    private $eventDispatcher;
 
     public function __construct($template_mod = "general")
     {
@@ -801,18 +796,20 @@ class C_Document extends Controller
         if (file_exists($temp_url)) {
             $url = $temp_url;
         }
-        //fire a remote call to see if the file is stored somewhere else
-        $s3Key = explode("//", $temp_url); //split the url to get the s3 key
-        // if the s3 key isn't empty then ...
-        if (!empty($s3Key[1])) {
-            $retrieveOffsiteDocument = new PatientRetrieveOffsiteDocument("/" . $s3Key[1]);
-            $this->eventDispatcher->dispatch($retrieveOffsiteDocument, PatientRetrieveOffsiteDocument::REMOTE_DOCUMENT_LOCATION);
-            //this is for the s3 bucket module. If the file is not found locally, it will be found remotely
-            if ($retrieveOffsiteDocument->getOffsiteUrl() != null) {
-                header('Content-Description: File Transfer');
-                header("Location: " . $retrieveOffsiteDocument->getOffsiteUrl());
-                exit;
-            }
+
+        $retrieveOffsiteDocument = new PatientRetrieveOffsiteDocument($temp_url);
+        $updatedOffsiteDocumentEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch(
+            $retrieveOffsiteDocument,
+            PatientRetrieveOffsiteDocument::REMOTE_DOCUMENT_LOCATION
+        );
+        // if a module writer has an independent offsite storage mechanism used this accomdoates that.
+        // If the file is not found locally, it will be found remotely.  Systems like s3, blob stores, etc, can
+        // be tied and and use those urls.  Note NO security is handled here so any kind of security mechanism must
+        // be handled on the receiving end's URL (s3/azure for example use signed urls with signature verification)
+        if (!empty($updatedOffsiteDocumentEvent) && $updatedOffsiteDocumentEvent->getOffsiteUrl() != null) {
+            header('Content-Description: File Transfer');
+            header("Location: " . $updatedOffsiteDocumentEvent->getOffsiteUrl());
+            exit;
         }
 
         if (!file_exists($url)) {
