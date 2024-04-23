@@ -768,22 +768,17 @@ if (!empty($_REQUEST['go'])) { ?>
             </div><!--end of recalls div-->
             <?php } ?>
             <div class="row tab-pane" role="tabpanel" id="sms-div">
-                <div class="col-sm-12">
-                    <div class="jumbotron jumbotron-fluid p-2">
-                        <?php if ($logged_in) { ?>
-                        <div class="col-sm-4 col-md-4 col-lg-4">
-                            <span class="title"><?php echo xlt('SMS Zone'); ?></span>
-                            <br/><br/>
-                            <form id="smsForm" class="input-group">
-                                <select id="SMS_patient" type="text" class="form-control m-0 w-100" placeholder="<?php echo xla("Patient Name"); ?>" > </select>
-                                <span class="input-group-addon" onclick="SMS_direct();"><i class="fas fa-phone"></i></span>
-                                <input type="hidden" id="sms_pid" />
-                                <input type="hidden" id="sms_mobile" value="" />
-                                <input type="hidden" id="sms_allow" value="" />
-                            </form>
-                        </div>
-                        <?php } ?>
-                    </div>
+                <div class="col-sm-4 col-md-4 col-lg-4">
+                    <?php if ($logged_in) { ?>
+                    <h4><?php echo xlt('SMS Zone'); ?></h4>
+                    <form id="smsForm" class="input-group">
+                        <select id="SMS_patient" type="text" class="form-control m-0 w-100" placeholder="<?php echo xla("Patient Name"); ?>"></select>
+                        <span class="input-group-addon" onclick="SMS_direct();">&nbsp;&nbsp;<i id='open-sms-tooltip' class="fas fa-2x fa-phone"></i></span>
+                        <input type="hidden" id="sms_pid" />
+                        <input type="hidden" id="sms_mobile" value="" />
+                        <input type="hidden" id="sms_allow" value="" />
+                    </form>
+                    <?php } ?>
                 </div>
             </div><!--end of sms div-->
         </div>
@@ -849,6 +844,7 @@ if (!empty($_REQUEST['go'])) { ?>
         $(function () {
             $('#see-all-tooltip').attr({"title": <?php echo xlj('Click to show messages for all users'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
             $('#just-mine-tooltip').attr({"title": <?php echo xlj('Click to show messages for only the current user'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+            $('#open-sms-tooltip').attr({"title": <?php echo xlj('Click to open SMS for patient'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
         });
         $(function () {
             var f = $("#smsForm");
@@ -877,7 +873,10 @@ if (!empty($_REQUEST['go'])) { ?>
                         };
                     },
                     cache: true
-                }
+                },
+                dropdownAutoWidth: true,
+                placeholder: xl('Search for patient...'),
+                theme: 'bootstrap4'
             })
 
             $('#SMS_patient').on('select2:select', function (e) {
