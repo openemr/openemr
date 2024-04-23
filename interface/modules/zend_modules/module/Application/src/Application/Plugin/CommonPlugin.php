@@ -133,7 +133,7 @@ class CommonPlugin extends AbstractPlugin
                             $detail_query_array[] = trim($field_value['value'] ?? '');
                         }
                     } else {
-                        $detail_query_array[] = trim($field_value);
+                        $detail_query_array[] = trim($field_value ?? '');
                     }
 
                     $detail_query_array[] = $audit_master_id;
