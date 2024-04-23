@@ -314,7 +314,7 @@ window.onload = function() {
         $name =  getPatientNameFirstLast($pid);
         $dob =  text(oeFormatShortDate(getPatientData($pid, "DOB")['DOB']));
          $external_id = getPatientData($pid, "pubpid")['pubpid'];
-        echo text($name) . " (" . text($external_id). ")" .  "&nbsp;  &nbsp; DOB: " . $dob ;
+        echo text($name) . " (" . text($external_id) . ")" .  "&nbsp;  &nbsp; DOB: " . $dob ;
     }
     ?>
     </span>
