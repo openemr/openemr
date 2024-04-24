@@ -226,7 +226,7 @@ class Claim
         //
         $this->payers = array();
         $this->payers[0] = array();
-        $query = "SELECT * FROM insurance_data WHERE pid = ? AND 
+        $query = "SELECT * FROM insurance_data WHERE pid = ? AND
             (date <= ? OR date IS NULL) AND (date_end >= ? OR date_end IS NULL) ORDER BY type ASC, date DESC";
         $dres = sqlStatement($query, array($this->pid, $encounter_date, $encounter_date));
         $prevtype = '';
@@ -1834,7 +1834,7 @@ class Claim
 
     public function orderingProviderData(): bool|array|null
     {
-        $sql = "SELECT u.lname, u.fname, u.street, u.city, u.state, u.zip FROM users AS u WHERE u.id = ?";
+        $sql = "SELECT u.lname, u.fname, u.npi, u.street, u.city, u.state, u.zip FROM users AS u WHERE u.id = ?";
         return sqlQuery($sql, array($this->billing_options['provider_id']));
     }
 }

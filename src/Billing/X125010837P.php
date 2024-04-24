@@ -1520,8 +1520,8 @@ class X125010837P
                     "*" .
                     "*" .
                     "*" .
-                    "*" . "XX" .
-                    "*" . $orderProvider['street'] . "~\n" .
+                    "*" . "XX" . '*' . $orderProvider['npi'] . "~\n" .
+                    "N3*" . $orderProvider['street'] . "~\n" .
                     "N4*" . $orderProvider['city'] . '*' . $orderProvider['state'] . '*' . $orderProvider['zip'] . "~\n";
             }
 
