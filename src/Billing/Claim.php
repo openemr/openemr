@@ -1831,4 +1831,10 @@ class Claim
 
         return $this->line_item_adjs;
     }
+
+    public function orderingProviderData(): bool|array|null
+    {
+        $sql = "SELECT u.lname, u.fname, u.street, u.city, u.state, u.zip FROM users AS u WHERE u.id = ?";
+        return sqlQuery($sql, array($this->billing_options['provider_id']));
+    }
 }

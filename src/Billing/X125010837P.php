@@ -1509,7 +1509,21 @@ class X125010837P
             // Segment NM1 (Loop 2420D Supervising Provider Name) omitted.
             // Segment REF (Loop 2420D Supervising Provider Secondary Identification) omitted.
 
-            // Loop 2420E, Ordering Provider omitted.
+            // Loop 2420E, Ordering Provider
+            if ($claim->box17Qualifier() == "DK") {
+                $orderProvider = $claim->orderingProviderData();
+                ++$edicount;
+                $out .= "NM1" .
+                    "*" . "DK" .
+                    "*" . "1" .
+                    "*" .  $orderProvider['lname'] . '*' . $orderProvider['fname'] .
+                    "*" .
+                    "*" .
+                    "*" .
+                    "*" . "XX" .
+                    "*" . $orderProvider['street'] . "~\n" .
+                    "N4*" . $orderProvider['city'] . '*' . $orderProvider['state'] . '*' . $orderProvider['zip'] . "~\n";
+            }
 
             // Segment NM1 (Referring Provider Name) omitted.
             // Segment REF (Referring Provider Secondary Identification) omitted.
