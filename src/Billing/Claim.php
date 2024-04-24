@@ -37,6 +37,7 @@ class Claim
     public $provider;          // row from users table (rendering provider)
     public $referrer;          // row from users table (referring provider)
     public $supervisor;        // row from users table (supervising provider)
+    public $orderer;           // row from users table (ordering provider)
     public $insurance_numbers; // row from insurance_numbers table for current payer
     public $supervisor_numbers;// row from insurance_numbers table for current payer
     public $patient_data;      // row from patient_data table
@@ -81,6 +82,7 @@ class Claim
             $this->procs[0]['payer_id'],
             $this->encounter['supervisor_id']
         );
+        $this->orderer = (new UserService())->getUser($this->getOrdererId());
     }
 
     public function getProcsAndDiags($pid, $encounter_id)
@@ -188,6 +190,17 @@ class Claim
             $this->patient_data['ref_providerID'] : $provider_id;
         }
         return $referrer_id;
+    }
+
+    public function getOrdererId()
+    {
+        if ($this->billing_options['provider_id'] ?? '') {
+            $orderer_id = $this->billing_options['provider_id'];
+        } elseif ($this->encounterService->getOrderingProviderID($this->pid, $this->encounter_id) ?? '') {
+            $orderer_id = $this->encounterService->getOrderingProviderID($this->pid, $this->encounter_id);
+        }
+
+        return $orderer_id;
     }
 
     // This enforces the X12 Basic Character Set. Page A2.
@@ -1253,7 +1266,7 @@ class Claim
     public function cptNDCID($prockey)
     {
         $ndcinfo = $this->procs[$prockey]['ndc_info'];
-        if (preg_match('/^N4(\S+)\s+(\S\S)(.*)/', $ndcinfo, $tmp)) {
+        if (preg_match('/^N4(\S+)\s+(\S\S)(.*)/', $ndcinfo ?? '', $tmp)) {
             $ndc = $tmp[1];
             if (preg_match('/^(\d+)-(\d+)-(\d+)$/', $ndc, $tmp)) {
                 return sprintf('%05d%04d%02d', $tmp[1], $tmp[2], $tmp[3]);
@@ -1830,5 +1843,69 @@ class Claim
         }
 
         return $this->line_item_adjs;
+    }
+
+    public function ordererLastName()
+    {
+        return $this->x12Clean(trim($this->orderer['lname'] ?? ''));
+    }
+
+    public function ordererFirstName()
+    {
+        return $this->x12Clean(trim($this->orderer['fname']));
+    }
+
+    public function ordererMiddleName()
+    {
+        return $this->x12Clean(trim($this->orderer['mname']));
+    }
+
+    public function ordererNPI()
+    {
+        return $this->x12Clean(trim($this->orderer['npi']));
+    }
+
+    public function ordererUPIN()
+    {
+        return $this->x12Clean(trim($this->orderer['upin']));
+    }
+
+    public function ordererSSN()
+    {
+        return $this->x12Clean(trim(str_replace('-', '', $this->orderer['federaltaxid'])));
+    }
+
+    public function ordererTaxonomy()
+    {
+        if (empty($this->orderer['taxonomy'])) {
+            return '207Q00000X';
+        }
+
+        return $this->x12Clean(trim($this->orderer['taxonomy']));
+    }
+
+    public function ordererStreet()
+    {
+        return $this->x12Clean(trim($this->orderer['street']));
+    }
+
+    public function ordererStreetB()
+    {
+        return $this->x12Clean(trim($this->orderer['streetb']));
+    }
+
+    public function ordererCity()
+    {
+        return $this->x12Clean(trim($this->orderer['city']));
+    }
+
+    public function ordererState()
+    {
+        return $this->x12Clean(trim($this->orderer['state']));
+    }
+
+    public function ordererZip()
+    {
+        return $this->x12Clean(trim($this->orderer['zip']));
     }
 }
