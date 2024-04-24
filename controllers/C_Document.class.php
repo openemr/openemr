@@ -780,36 +780,42 @@ class C_Document extends Controller
         // NOTE that $from_filename and basename($url) are the same thing
         $from_all = explode("/", $url);
         $from_filename = array_pop($from_all);
-        $from_pathname_array = array();
-        for ($i = 0; $i < $d->get_path_depth(); $i++) {
-            $from_pathname_array[] = array_pop($from_all);
-        }
-        $from_pathname_array = array_reverse($from_pathname_array);
-        $from_pathname = implode("/", $from_pathname_array);
-        if ($couch_docid && $couch_revid) {
-            //for couchDB no URL is available in the table, hence using the foreign_id which is patientID
-            $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $d->get_foreign_id() . '_' . $from_filename;
-        } else {
-            $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
-        }
+        // no point in doing any of these checks if $from_filename is empty which can lead to false positives on file_exists
+        if (!empty($from_filename)) {
+            $from_pathname_array = array();
+            for ($i = 0; $i < $d->get_path_depth(); $i++) {
+                $from_pathname_array[] = array_pop($from_all);
+            }
+            $from_pathname_array = array_reverse($from_pathname_array);
+            $from_pathname = implode("/", $from_pathname_array);
+            if ($couch_docid && $couch_revid) {
+                //for couchDB no URL is available in the table, hence using the foreign_id which is patientID
+                $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $d->get_foreign_id() . '_' . $from_filename;
+            } else {
+                $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
+            }
 
-        if (file_exists($temp_url)) {
-            $url = $temp_url;
-        }
+            if (file_exists($temp_url)) {
+                $url = $temp_url;
+            }
 
-        $retrieveOffsiteDocument = new PatientRetrieveOffsiteDocument($temp_url);
-        $updatedOffsiteDocumentEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch(
-            $retrieveOffsiteDocument,
-            PatientRetrieveOffsiteDocument::REMOTE_DOCUMENT_LOCATION
-        );
-        // if a module writer has an independent offsite storage mechanism used this accomdoates that.
-        // If the file is not found locally, it will be found remotely.  Systems like s3, blob stores, etc, can
-        // be tied and and use those urls.  Note NO security is handled here so any kind of security mechanism must
-        // be handled on the receiving end's URL (s3/azure for example use signed urls with signature verification)
-        if (!empty($updatedOffsiteDocumentEvent) && $updatedOffsiteDocumentEvent->getOffsiteUrl() != null) {
-            header('Content-Description: File Transfer');
-            header("Location: " . $updatedOffsiteDocumentEvent->getOffsiteUrl());
-            exit;
+            $retrieveOffsiteDocument = new PatientRetrieveOffsiteDocument($d->get_url(), $d);
+            $updatedOffsiteDocumentEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch(
+                $retrieveOffsiteDocument,
+                PatientRetrieveOffsiteDocument::REMOTE_DOCUMENT_LOCATION
+            );
+            // if a module writer has an independent offsite storage mechanism used this accomdoates that.
+            // If the file is not found locally, it will be found remotely.  Systems like s3, blob stores, etc, can
+            // be tied and and use those urls.  Note NO security is handled here so any kind of security mechanism must
+            // be handled on the receiving end's URL (s3/azure for example use signed urls with signature verification)
+            if (
+                $updatedOffsiteDocumentEvent instanceof PatientRetrieveOffsiteDocument
+                && $updatedOffsiteDocumentEvent->getOffsiteUrl() != null
+            ) {
+                header('Content-Description: File Transfer');
+                header("Location: " . $updatedOffsiteDocumentEvent->getOffsiteUrl());
+                exit;
+            }
         }
 
         if (!file_exists($url)) {

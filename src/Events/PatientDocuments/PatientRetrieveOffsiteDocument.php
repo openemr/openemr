@@ -13,15 +13,27 @@
 namespace OpenEMR\Events\PatientDocuments;
 
 use Symfony\Contracts\EventDispatcher\Event;
+use Document;
 
 class PatientRetrieveOffsiteDocument extends Event
 {
     const REMOTE_DOCUMENT_LOCATION = 'remote.document.retrieve.location';
     private string $url;
     private $offsiteUrl;
-    public function __construct(string $url)
+    private Document $document;
+    public function __construct(string $url, ?Document $document = null)
     {
         $this->url = $url;
+        $this->document = $document;
+    }
+
+    /**
+     * Returns the OpenEMR document class that represents this document in the file system
+     * @return Document|null
+     */
+    public function getOpenEMRDocument(): ?Document
+    {
+        return $this->document;
     }
 
     public function getOpenEMRDocumentUrl(): string
