@@ -29,7 +29,6 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\OeUI\OemrUI;
@@ -341,7 +340,7 @@ if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) 
 
 $title = ($userMode) ? xlt("User Settings") : xlt("Configuration");
 ?>
-<title><?php  echo $title; ?></title>
+<title><?php echo $title; ?></title>
 <?php Header::setupHeader(['common','jscolor']); ?>
 
 <style>
@@ -388,14 +387,14 @@ $apiUrl = $serverConfig->getInternalBaseApiUrl();
     echo 'style="min-width: 700px;"';
       } ?>>
 
-    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?>">
+    <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?> mt-2">
         <div class="row">
-             <div class="col-sm-12">
+             <div class="col-sm-12 px-0 my-2">
                 <?php echo $oemr_ui->pageHeading() . "\r\n"; ?>
             </div>
         </div>
         <div class="row">
-            <div class="col-sm-12 pl-0">
+            <div class="col-sm-12 px-0">
                 <?php if ($userMode) { ?>
                 <form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php?mode=user' onsubmit='return top.restoreSession()'>
                 <?php } else { ?>
@@ -406,7 +405,7 @@ $apiUrl = $serverConfig->getInternalBaseApiUrl();
                         <div class="btn-group oe-margin-b-10">
                             <button type='submit' class='btn btn-primary btn-save oe-pull-toward' name='form_save' value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
                         </div>
-                        <div class="input-group col-sm-4 oe-pull-away">
+                        <div class="input-group col-sm-4 oe-pull-away p-0">
                         <?php // mdsupport - Optional server based searching mechanism for large number of fields on this screen.
                         if (!$userMode) {
                             $placeholder = xla('Search configuration');

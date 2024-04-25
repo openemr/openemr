@@ -43,14 +43,7 @@ if (isset($_GET['id'])) {//clicked edit form
 
 
 if ($form_id) {//If editing a form or the form already exists (inwhich case will automatically go into edit mode for existing form)
-    $participants_sql =  "SELECT tgpa.*, p.fname, p.lname " .
-        "FROM therapy_groups_participant_attendance as tgpa " .
-        "JOIN patient_data as p ON tgpa.pid = p.id " .
-        "WHERE tgpa.form_id = ?;";
-    $result = sqlStatement($participants_sql, array($form_id));
-    while ($p = sqlFetchArray($result)) {
-        $participants[] = $p;
-    }
+    $participants = getGroupAttendance($form_id);
 } else {//new form
     $participants = getParticipants($therapy_group, true);
 }

@@ -55,10 +55,10 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
     $weno_coverage = $_GET['coverage'] ?? false ?: '';
     $weno_state = $_GET['weno_state'] ?? false ?: '';
     $weno_city = $_GET['weno_city'] ?? false ?: '';
-    $full_day = !empty($_GET['full_day']) ? 'Yes' : '';
-    $weno_only = !empty($_GET['weno_only']) ? 'True' : '';
     $weno_zipcode = $_GET['weno_zipcode'] ?? false ?: '';
-    $weno_test_pharmacies = !empty($_GET['test_pharmacy']) ? 'True' : '';
+    $weno_only = $_GET['weno_only'] == 'true' ? 'True' : '';
+    $full_day = $_GET['full_day'] == 'true' ? 'Yes' : '';
+    $weno_test_pharmacies = $_GET['test_pharmacy'] == 'true' ? 'True' : '';
 
     if (!empty($weno_coverage)) {
         $sql .= " AND state_wide_mail_order = ?";
@@ -111,8 +111,9 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
     $weno_coverage = $_GET['coverage'] ?: '';
     $weno_state = $_GET['weno_state'] ?: '';
     $weno_city = $_GET['weno_city'] ?: '';
-    $full_day = $_GET['full_day'] ? 'Yes' : '';
     $weno_zipcode = $_GET['weno_zipcode'] ?: '';
+    $weno_only = $_GET['weno_only'] == 'true' ? 'True' : '';
+    $full_day = $_GET['full_day'] == 'true' ? 'Yes' : '';
     $weno_test_pharmacies = $_GET['test_pharmacy'] == 'true' ? 'True' : '';
 
     // if a zip, search by it and forget city and state
@@ -148,10 +149,12 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
     $return_arr = [];
     $res = sqlStatement($sql, $params);
     while ($row = sqlFetchArray($res)) {
-        $return_arr[] = array(
-            "name" => ucwords(strtolower($row['Business_Name'] . " " . $row['address_line_1'] . " " . $row['city'])),
-            "ncpdp" => $row['ncpdp']
-        );
+        if (strlen($row['ncpdp']) <= 7) {
+            $return_arr[] = array(
+                "name" => ucwords(strtolower($row['Business_Name'] . " " . $row['address_line_1'] . " " . $row['city'])),
+                "ncpdp" => $row['ncpdp']
+            );
+        }
     }
     echo text(json_encode($return_arr));
 }

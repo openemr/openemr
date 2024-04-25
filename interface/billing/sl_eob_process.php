@@ -386,7 +386,7 @@ function era_callback(&$out)
             // processed by the primary payer so try to deal with that
             if (!$prev) {
                 if (!$svc['mod']) {
-                    if (in_array($svc['code'], $cpts)) {
+                    if (in_array($svc['code'], $cpts ?? [])) {
                         foreach ($cpts as $k => $v) {
                             if ($v == $codekey) {
                                 $codekey = $cpt . ':' . implode(':', $mods[$v]);

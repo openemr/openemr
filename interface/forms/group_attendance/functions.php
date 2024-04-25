@@ -66,6 +66,7 @@ function participant_insertions($form_id, $therapy_group, $group_encounter_data,
  */
 function insert_into_tgpa_table($form_id, $pid, $participantData)
 {
+
     $sql_for_table_tgpa = "INSERT INTO therapy_groups_participant_attendance (form_id, pid, meeting_patient_comment, meeting_patient_status) " .
         "VALUES(?,?,?,?);";
     sqlStatement($sql_for_table_tgpa, array($form_id, $pid, $participantData['comment'], $participantData['status']));
@@ -152,6 +153,19 @@ function get_appt_data($encounter_id)
     return $result;
 }
 
+function getGroupAttendance($form_id): array
+{
+    $participants_sql =  "SELECT tgpa.*, p.fname, p.lname " .
+        "FROM therapy_groups_participant_attendance as tgpa " .
+        "JOIN patient_data as p ON tgpa.pid = p.id " .
+        "WHERE tgpa.form_id = ?;";
+    $result = sqlStatement($participants_sql, array($form_id));
+    $participants = array();
+    while ($p = sqlFetchArray($result)) {
+        $participants[] = $p;
+    }
+    return $participants;
+}
 /**
  * Gets group encounter data
  * @param $encounter_id
@@ -175,6 +189,13 @@ function if_to_create_for_patient($status)
     $sql = 'SELECT toggle_setting_1 FROM list_options WHERE list_id = \'attendstat\' AND toggle_setting_1 = 1 AND option_id = ?';
     $to_create = sqlQuery($sql, array($status));
     return $to_create;
+}
+
+function getAttendanceStatus($status)
+{
+    $sql = 'SELECT title FROM list_options WHERE list_id = \'attendstat\' AND option_id = ?';
+    $result = sqlQuery($sql, array($status));
+    return $result['title'];
 }
 
 /**
