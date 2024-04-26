@@ -144,14 +144,6 @@ MSG;
 </ParticipantObjectIdentification>
 MSG;
 
-
-    /**
-     * Keep track of the tables and the fields in each table that contains sensitive information
-     */
-    private const SENSITIVE_RECORDS = [
-        "ar_session" => array("reference")
-    ];
-
     /**
      * @param $event
      * @param $user
@@ -637,27 +629,6 @@ MSG;
                 $event = "patient-record";
                 $category = $this->eventCategoryFinder($comments, $event, $table);
                 break;
-            }
-        }
-
-        /**
-         * Avoid logging sensitive information in logs.
-         * For any insert operation, if the current table contains any field containing sensitive information,
-         * the value for that field is masked to match its length.
-         */
-        if ($querytype == "insert") {
-            foreach (self::SENSITIVE_RECORDS as $table => $fields) {
-                if (strpos($comments, $table) !== false) {
-                    foreach ($fields as $field) {
-                        $pattern = "/($field)\s*=\s*'([^']+)'/";
-                        $comments = preg_replace_callback($pattern, function ($matches) {
-                            $field_name = $matches[1];
-                            $field_value = $matches[2];
-                            $masked_value = str_repeat('X', strlen($field_value));
-                            return "$field_name = '$masked_value'";
-                        }, $comments);
-                    }
-                }
             }
         }
 
