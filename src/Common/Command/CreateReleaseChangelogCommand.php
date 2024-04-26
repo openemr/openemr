@@ -20,51 +20,47 @@ namespace OpenEMR\Common\Command;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use OpenEMR\Common\Command\Runner\CommandContext;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputDefinition;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\OutputInterface;
 
-class CreateReleaseChangelogCommand implements IOpenEMRCommand
+class CreateReleaseChangelogCommand extends Command
 {
     const MAX_API_FETCH_COUNT = 15;
 
-    /**
-     * Prints the instructions on how to use this command
-     * @param CommandContext $context All the context about the command environment.
-     */
-    public function printUsage(CommandContext $context)
+    protected function configure()
     {
-        echo "Command Usage: " . $context->getScriptName() . " -c CreateReleaseChangelog " . " --token=<token>" . " -m <milestone>" . "\n";
-        echo "-m <milestone> The milestone to generate the changelog for\n";
-        echo "-token=<token> Optional A github access token to use for API calls (unauthenticated requests are rate limited to 60 api calls per hour)\n";
-        echo "-h Prints out this help message\n";
+        $this
+            ->setName('openemr-dev:create-release-change-log')
+            ->setDescription("Utility class to help test and use the client credentials grant assertion")
+            ->addUsage('--site=default')
+            ->setDefinition(
+                new InputDefinition([
+                    new InputOption('milestone', 'm', InputOption::VALUE_REQUIRED, 'The milestone to generate the changelog for'),
+                    new InputOption('token', 't', InputOption::VALUE_REQUIRED, 'Optional A github access token to use for API calls (unauthenticated requests are rate limited to 60 api calls per hour)'),
+                    new InputOption('debug', 'd', InputOption::VALUE_NONE, 'Whether to turn on debug mode or not'),
+                ])
+            );
     }
-
-    /**
-     * Returns a description of the command
-     * @return string
-     */
-    public function getDescription(CommandContext $context): string
-    {
-        return "Generates an human readable description of the OpenEMR release changelog";
-    }
-
     /**
      * Execute the command and spit any output to STDOUT and errors to STDERR
      * @param CommandContext $context All the context information needed for the CLI Command to execute
      */
-    public function execute(CommandContext $context)
+    public function execute(InputInterface $input, OutputInterface $output)
     {
-        // note the colon means required, two colons means optional, no colon means it has no arguments
-        $opts = getopt('c:m:hd', ["token::"]);
-        if (empty($opts['m'])) {
-            $this->printUsage($context);
-            return;
+        // going to hit the github api endpoint for the milestone given in the api
+        $milestoneName = $input->getOption('milestone');
+        $accessToken = $input->getOption('token') ?? null;
+        if (empty($milestoneName)) {
+            $output->writeln($this->getSynopsis());
+            return Command::INVALID;
         }
         $debug = false;
-        if (!empty($opts['d'])) {
+        if ($input->hasOption('debug')) {
             $debug = true;
         }
-        // going to hit the github api endpoint for the milestone given in the api
-        $milestoneName = $opts['m'];
-        $accessToken = $opts['token'] ?? null;
 
         try {
             $milestone = $this->getMilestoneNumberFromName($milestoneName, $accessToken);
@@ -112,15 +108,17 @@ class CreateReleaseChangelogCommand implements IOpenEMRCommand
             $this->printIssues($standardIssues, $uniqueCategories);
             echo "### OpenEMR Developer Changes\n\n";
             $this->printIssues($developerIssues, $uniqueCategories);
+            return Command::SUCCESS;
         } catch (GuzzleException $exception) {
             if ($exception->getCode() == 403) {
                 $this->printRateLimitMessage($exception->getResponse());
                 throw $exception;
             }
             echo "Error getting issues from github. Exception message was: " . $exception->getMessage() . "\n";
+            return Command::FAILURE;
         } catch (\Exception $e) {
             echo "Error getting issues from github. Exception message was: " . $e->getMessage() . "\n";
-            return;
+            return Command::FAILURE;
         }
     }
 
