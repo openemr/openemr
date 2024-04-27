@@ -114,7 +114,7 @@ if ($mode == 'new') {
         'encounter_type_code' => $encounter_type_code,
         'encounter_type_description' => $encounter_type_description,
         'in_collection' => $in_collection,
-        'ordering_proivider_id' => $ordering_provider_id,
+        'ordering_provider_id' => $ordering_provider_id,
     ];
 
     $col_string = implode(" = ?, ", array_keys($data)) . " = ?";

@@ -192,7 +192,7 @@ class Claim
         return $referrer_id;
     }
 
-    public function getOrdererId()
+    public function getOrdererId(): string|int|null
     {
         if ($this->billing_options['provider_id'] ?? '') {
             $orderer_id = $this->billing_options['provider_id'];
@@ -200,7 +200,7 @@ class Claim
             $orderer_id = $this->encounterService->getOrderingProviderID($this->pid, $this->encounter_id);
         }
 
-        return $orderer_id;
+        return $orderer_id ?? '';
     }
 
     // This enforces the X12 Basic Character Set. Page A2.
