@@ -77,12 +77,12 @@ function renderDialog(action, uid, event) {
     const actionUrl = `${urls[action]}${urlPart}id=${encodeURIComponent(uid)}&csrf_token_form=${encodeURIComponent(csrf)}`;
 
     // Open modal dialog
-    dlgopen('', 'dialog-mod', '900', 'full', '', '', {
+    dlgopen('', 'dialog-mod', 'modal-lg', 'full', '', '', {
         buttons: [
             {
-            text: jsText('Return to eRx Widget'),
-            close: true,
-            style: 'primary'
+                text: jsText('Return to eRx Widget'),
+                close: true,
+                style: 'primary'
             }
         ],
         allowResize: true,
@@ -91,6 +91,7 @@ function renderDialog(action, uid, event) {
         dialogId: 'error-dialog',
         type: 'iframe',
         resolvePromiseOn: 'close',
+        sizeHeight: 'full',
         url: top.webroot_url + actionUrl
     }).then(function (dialog) {
         top.restoreSession();

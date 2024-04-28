@@ -263,6 +263,16 @@ class Bootstrap
         $setupMenu->children = [];
         $setupMenu->acl_req = ["admin", "super"];
         $setupMenu->global_req = ["weno_rx_enable"];
+        // Background Services
+        $serviceMenu = new \stdClass();
+        $serviceMenu->requirement = 0;
+        $serviceMenu->target = 'rpt0';
+        $serviceMenu->menu_id = 'rep';
+        $serviceMenu->label = xlt("Background Services (Convenience)");
+        $serviceMenu->url = "/interface/reports/background_services.php";
+        $serviceMenu->children = [];
+        $serviceMenu->acl_req = ["admin", "super"];
+        $serviceMenu->global_req = ["weno_rx_enable"];
         // Write the menu items to the menu
         foreach ($menu as $item) {
             if ($item->menu_id == 'admimg') {
@@ -271,6 +281,7 @@ class Bootstrap
                     if ($other->label == 'Weno eRx Tools') {
                         $other->children[] = $dlMenu;
                         $other->children[] = $setupMenu;
+                        $other->children[] = $serviceMenu;
                         break;
                     }
                 }

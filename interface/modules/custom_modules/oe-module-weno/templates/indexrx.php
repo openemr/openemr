@@ -112,7 +112,7 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
             $(function () {
                 const warnMsg = "<?php echo xlt('Internet connection problem. Returning to Patient chart when alert closes!'); ?>";
                 syncAlertMsg(warnMsg, 8000, 'danger', 'lg').then(() => {
-                    window.location.href = "<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>";
+                    window.location.href = "<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid ?? '')) ?>";
                 });
             });
         <?php } else if (!$isValidKey) { ?>
@@ -139,13 +139,13 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
     <div class="container-xl">
         <div class="container-xl sticky-container bg-light text-dark">
             <form>
-                <header class="bg-dark text-light text-center">
-                    <h2>
+                <header class="bg-light text-dark text-center">
+                    <h3>
                         <a href="<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>" class="text-primary" title="<?php echo xla("Return to Patient Demographics"); ?>"><?php echo xlt("e-Prescribe"); ?>
-                            <cite class="small font-weight-bold text-primary"><i class="fa fa-arrow-left mr-1"></i><?php echo xla("Return to Patient"); ?></cite>
+                            <cite class="small font-weight-bold text-primary"><span class="h6"><?php echo xla("Return to Patient"); ?></span></cite>
                         </a>
                         <button type="submit" id="form_reset_key" name="form_reset_key" class="btn btn-danger btn-sm btn-refresh p-1 m-0 mt-1 mr-2 float-right d-none" value="Save" title="<?php echo xla("The Encryption key did not pass validation. Clicking this button will reset your encryption key so you may continue."); ?>"><?php echo xlt("Session is invalid!. Click to Reset?"); ?></button>
-                    </h2>
+                    </h3>
                 </header>
             </form>
             <div class="row mx-1 center">
@@ -201,4 +201,3 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
     </div>
 </body>
 </html>
-

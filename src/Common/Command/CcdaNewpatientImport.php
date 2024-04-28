@@ -18,6 +18,7 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class CcdaNewpatientImport extends Command
 {
@@ -30,6 +31,7 @@ class CcdaNewpatientImport extends Command
             ->setDefinition(
                 new InputDefinition([
                     new InputOption('document', null, InputOption::VALUE_REQUIRED, 'File (path) that will be imported to create the new patient'),
+                    new InputOption('debug', null, InputOption::VALUE_NONE, 'Turns on debug mode.'),
                     new InputOption('site', null, InputOption::VALUE_REQUIRED, 'Name of site', 'default'),
                 ])
             )
@@ -50,7 +52,18 @@ class CcdaNewpatientImport extends Command
         // get around a large ccda data array
         ini_set("memory_limit", -1);
 
-        $GLOBALS['modules_application']->getServiceManager()->build(CarecoordinationTable::class)->importNewPatient($input->getOption('document'));
+
+
+        $symfonyStyler = new SymfonyStyle($input, $output);
+
+        $careCoordinationTable = $GLOBALS['modules_application']->getServiceManager()->build(CarecoordinationTable::class);
+        if ($careCoordinationTable instanceof CarecoordinationTable) {
+            if ($input->getOption('debug') !== false) {
+                $careCoordinationTable->setCommandLineStyler($symfonyStyler);
+                $careCoordinationTable->getImportService()->setCommandLineStyler($symfonyStyler);
+            }
+            $careCoordinationTable->importNewPatient($input->getOption('document'));
+        }
         return 0;
     }
 }

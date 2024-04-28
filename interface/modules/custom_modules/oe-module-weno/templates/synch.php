@@ -24,8 +24,14 @@ if (!AclMain::aclCheckCore('patient', 'med')) {
     exit;
 }
 
-$logproperties = new LogProperties();
-$result = $logproperties->logSync();
+$logProperties = new LogProperties();
+try {
+    $task = $_REQUEST['key'] ?? $_POST['key'] ??  '';
+    $result = $logProperties->logSync($task);
+} catch (Exception $e) {
+    $result = false;
+    error_log('Error syncing log: ' . errorLogEscape($e->getMessage()));
+}
 
 if ($result) {
     http_response_code(200);

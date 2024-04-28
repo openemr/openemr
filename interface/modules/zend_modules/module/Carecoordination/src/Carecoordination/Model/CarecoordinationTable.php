@@ -22,14 +22,18 @@ use Exception;
 use Laminas\Config\Reader\ReaderInterface;
 use Laminas\Config\Reader\Xml;
 use Laminas\Db\TableGateway\AbstractTableGateway;
+use OpenEMR\Common\Command\Trait\CommandLineDebugStylerTrait;
 use OpenEMR\Services\Cda\CdaTemplateImportDispose;
 use OpenEMR\Services\Cda\CdaTemplateParse;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
 use OpenEMR\Services\Cda\XmlExtended;
 use OpenEMR\Services\CodeTypesService;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class CarecoordinationTable extends AbstractTableGateway
 {
+    use CommandLineDebugStylerTrait;
+
     public const NPI_SAMPLE = "987654321";
     public const ORGANIZATION_SAMPLE = "External Physicians Practice";
     public const ORGANIZATION2_SAMPLE = "External Health and Hospitals";
@@ -49,6 +53,11 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->importService = new CdaTemplateImportDispose();
         $this->validateDocument = new CdaValidateDocuments();
         $this->validationIsDisabled = $GLOBALS['ccda_validation_disable'] ?? false;
+    }
+
+    public function getImportService(): CdaTemplateImportDispose
+    {
+        return $this->importService;
     }
 
     /*
@@ -310,31 +319,33 @@ class CarecoordinationTable extends AbstractTableGateway
                 }
             }
         } else {
-            $tel = $xml['recordTarget']['patientRole']['telecom'];
-            if ($tel['use'] == 'MC') {
-                $this->documentData['field_name_value_array']['patient_data'][1]['phone_cell'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
-            } elseif ($tel['use'] == 'HP') {
-                $this->documentData['field_name_value_array']['patient_data'][1]['phone_home'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
-            } elseif ($tel['use'] == 'WP') {
-                $this->documentData['field_name_value_array']['patient_data'][1]['phone_biz'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
-            } elseif ($tel['use'] == 'EC') {
-                $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
-            } elseif (stripos($tel['value'], 'mailto:') !== false) {
-                $regex = "/([a-z0-9_\-\.]+)" . "@" . "([a-z0-9-]{1,64})" . "\." . "([a-z]{2,10})/i";
-                $mail = explode('mailto:', ($tel['value'] ?? null));
-                $this->documentData['field_name_value_array']['patient_data'][1]['email'] = null;
-                if (!empty($mail[1])) {
-                    $mailto = preg_replace($regex, '\\1@\\2.\\3', $mail[1]);
-                    $this->documentData['field_name_value_array']['patient_data'][1]['email'] = $mailto;
+            $tel = $xml['recordTarget']['patientRole']['telecom'] ?? '';
+            if (!empty($tel)) {
+                if ($tel['use'] == 'MC') {
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_cell'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                } elseif ($tel['use'] == 'HP') {
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_home'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                } elseif ($tel['use'] == 'WP') {
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_biz'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                } elseif ($tel['use'] == 'EC') {
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
+                } elseif (stripos($tel['value'], 'mailto:') !== false) {
+                    $regex = "/([a-z0-9_\-\.]+)" . "@" . "([a-z0-9-]{1,64})" . "\." . "([a-z]{2,10})/i";
+                    $mail = explode('mailto:', ($tel['value'] ?? null));
+                    $this->documentData['field_name_value_array']['patient_data'][1]['email'] = null;
+                    if (!empty($mail[1])) {
+                        $mailto = preg_replace($regex, '\\1@\\2.\\3', $mail[1]);
+                        $this->documentData['field_name_value_array']['patient_data'][1]['email'] = $mailto;
+                    }
+                } else {
+                    $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
                 }
-            } else {
-                $this->documentData['field_name_value_array']['patient_data'][1]['phone_contact'] = preg_replace('/[^0-9]+/i', '', ($tel['value'] ?? null));
             }
         }
 
-        $this->documentData['field_name_value_array']['patient_data'][1]['status'] = strtolower($xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['displayName']) ?? $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['code'] ?? null;
+        $this->documentData['field_name_value_array']['patient_data'][1]['status'] = strtolower($xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['displayName'] ?? '') ?? $xml['recordTarget']['patientRole']['patient']['maritalStatusCode']['code'] ?? null;
         $this->documentData['field_name_value_array']['patient_data'][1]['religion'] = $xml['recordTarget']['patientRole']['patient']['religiousAffiliationCode']['displayName'] ?? null;
-        if (is_array($xml['recordTarget']['patientRole']['patient']['raceCode'][0])) {
+        if (is_array($xml['recordTarget']['patientRole']['patient']['raceCode'][0] ?? '')) {
             $this->documentData['field_name_value_array']['patient_data'][1]['race'] = $xml['recordTarget']['patientRole']['patient']['raceCode'][0]['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['raceCode'][0]['code'] ?? null;
         } else {
             $this->documentData['field_name_value_array']['patient_data'][1]['race'] = $xml['recordTarget']['patientRole']['patient']['raceCode']['displayName'] ?? $xml['recordTarget']['patientRole']['patient']['raceCode']['code'] ?? null;

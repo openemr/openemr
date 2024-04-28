@@ -1030,7 +1030,7 @@ class CarecoordinationController extends AbstractActionController
 
                     $auditMasterRecordId = $this->getCarecoordinationTable()->import($ob->get_id());
                     // we can use this to do any other processing as the files should be in order
-                    $auditMasterRecordByPatients[$fileComponents[2]] = $auditMasterRecordId;
+                    $auditMasterRecordByPatients[$fileComponents[2] ?? ''] = $auditMasterRecordId;
                 }
             }
         }

@@ -259,6 +259,9 @@ class InstallerController extends AbstractActionController
                 }
             } elseif ($action == "unregister") {
                 $status = $this->UnregisterModule($request->getPost('modId'));
+            } elseif ($action == "reset_module") {
+                // call listener to reset module to initial state perhaps!
+                $status =  "Success";
             }
             // send post same action event to module.
             if ($modType == InstModuleTable::MODULE_TYPE_CUSTOM) {
@@ -890,7 +893,7 @@ class InstallerController extends AbstractActionController
      * @param string $modId
      * @return boolean
      */
-    public function UnregisterModule($modId = '')
+    public function UnregisterModule($modId = ''): bool|string
     {
         $resp = $this->getInstallerTable()->unRegister($modId);
         if ($resp == 'failure') {

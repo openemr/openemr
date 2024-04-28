@@ -50,7 +50,7 @@ class PractitionerService extends BaseService
             ];
     }
 
-    public function getSelectFields(): array
+    public function getSelectFields(string $tableAlias = '', string $columnPrefix = ""): array
     {
         // since we are joining a bunch of fields we need to make sure we normalize our regular field array by adding
         // the table name for our own table values.

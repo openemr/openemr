@@ -2,6 +2,8 @@
 
 /**
  * Encounter list.
+ *  rm: print button to print page & generate pdf; include patients name, id and dob on the page. issue #7270
+ *
  *
  * @package   OpenEMR
  * @link      http://www.open-emr.org
@@ -180,6 +182,12 @@ function generatePageElement($start, $pagesize, $billing, $issue, $text)
 <script src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajtooltip.js"></script>
 
 <script>
+
+$(function () {
+   // print the history - as displayed
+    top.printLogSetup(document.getElementById('printbutton'));
+});
+
 // open dialog to edit an invoice w/o opening encounter.
 function editInvoice(e, id) {
     e.stopPropagation();
@@ -272,6 +280,8 @@ window.onload = function() {
     <?php } else { ?>
         <a href='encounters.php?billing=1&issue=<?php echo $issue . $getStringForPage; ?>' class="btn btn-small btn-info" onclick='top.restoreSession()' style='font-size: 11px'><?php echo xlt('To Billing View'); ?></a>
     <?php } ?>
+    &nbsp; &nbsp;
+     <a  href='#' id='printbutton' class='btn btn-secondary btn-print'>  <?php echo xlt('Print page'); ?>   </a>
 
     <span class="float-right">
         <?php echo xlt('Results per page'); ?>:
@@ -297,6 +307,17 @@ window.onload = function() {
     </span>
 
     <br />
+    <span class="heading" >
+    <?php
+    if ($attendant_type == 'pid') {
+  // RM put patienes name, id and dob at top of the history -->
+        $name =  getPatientNameFirstLast($pid);
+        $dob =  text(oeFormatShortDate(getPatientData($pid, "DOB")['DOB']));
+         $external_id = getPatientData($pid, "pubpid")['pubpid'];
+        echo $name . " (" . $external_id . ")" .  "&nbsp;  &nbsp; DOB: " . $dob ;
+    }
+    ?>
+    </span>
 
     <div class="table-responsive">
         <table class="table table-hover jumbotron py-4 mt-3">
@@ -368,7 +389,7 @@ window.onload = function() {
                 $drow = sqlFetchArray($dres);
             }
 
-            // $count = 0;
+            $numRes = 0;
 
             $sqlBindArray = array();
             if ($attendant_type == 'pid') {
@@ -401,7 +422,7 @@ window.onload = function() {
 
             $countRes = sqlStatement($countQuery, $sqlBindArray);
             $count = sqlFetchArray($countRes);
-            $numRes = $count['c'];
+            $numRes += $count['c'];
 
 
             if ($pagesize > 0) {
@@ -460,7 +481,7 @@ window.onload = function() {
 
                     // This generates document lines as appropriate for the date order.
                 while ($drow && $raw_encounter_date && $drow['docdate'] > $raw_encounter_date) {
-                    showDocument($drow);
+                         showDocument($drow);
                     $drow = sqlFetchArray($dres);
                 }
 
@@ -813,7 +834,7 @@ window.onload = function() {
             } // end while
 
             // Dump remaining document lines if count not exceeded.
-            while ($drow /* && $count <= $N */) {
+            while ($drow) {
                 showDocument($drow);
                 $drow = sqlFetchArray($dres);
             }

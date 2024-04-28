@@ -41,7 +41,7 @@ function attr_url($text)
  */
 function js_url($text)
 {
-    return js_escape(urlencode($text));
+    return js_escape(urlencode($text ?? ''));
 }
 
 /**

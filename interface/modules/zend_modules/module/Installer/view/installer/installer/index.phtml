@@ -31,6 +31,7 @@ $depObj = $this->dependencyObject;
 $coreModules = $this->coreModules ?? [];
 
 $help_items = [
+    xlt('') . '<a  class="text-dark" href="https://www.open-emr.org/wiki/index.php/OpenEMR_Modules" target="_blank">' . xlt("Visit additional modules for OpenEMR developed and listed by third party vendors.") . '</a>',
     xlt('Laminas Modules are the original modules framework.'),
     xlt('Custom Modules were added to allow developers more freedom by using other development frameworks.'),
     xlt('The "Nick Name" is used to identify the module in the menu and not required.'),
@@ -49,19 +50,6 @@ $help_items = [
     xlt('To enable or disable a module, select the module and click the "Enable" or "Disable" button.'),
 ];
 ?>
-<!-- Retain for future use. Config and enable new page buttons here. -->
-<!--<ul class="tabNav bg-light text-dark">
-    <li class="current divMenu" onclick="$('.registered').show();$('.unregistered').hide();$('.divMenu').removeClass('current');$(this).addClass('current');">
-        <button type="button" class="btn btn-primary" id="header_tab_Registered">
-            <?php /*echo $listener->z_xlt('Custom Modules'); */ ?>
-        </button>
-    </li>
-    <li class="divMenu" onclick="$('.registered').hide();$('.unregistered').show();$('.divMenu').removeClass('current');$(this).addClass('current');">
-        <button type="button" class="btn btn-primary" href="javascript:void(0)" id="header_tab_UnReg">
-            <?php /*echo $listener->z_xlt('Laminas Modules'); */ ?> <span id='ct'></span>
-        </button>
-    </li>
-</ul>-->
 <style>
   body {
     font-family: Arial, Helvetica, sans-serif !important;
@@ -78,6 +66,7 @@ $help_items = [
   .fa-2x {
     font-size: 1.25rem;
   }
+
   /* installer log for upgrades maybe? Appears broken! */
   .show_hide_log {
     border-radius: 5px;
@@ -121,14 +110,15 @@ $help_items = [
     }
 </script>
 <div class="installer bg-light text-dark">
-    <div class="container bg-light text-dark" id="helpPanel">
+    <div class="bg-light text-dark text-center" id="helpPanel">
         <button class="btn btn-outline-primary btn-sm btn-show my-2" type="button" onclick="toggleHelp()"><?php echo xlt('Modules Help'); ?></button>
-        <div class="help-content container bg-dark text-light d-none" id="helpContent">
-            <ul>
+        <a class="btn btn-outline-info btn-sm btn-show bg-light text-dark my-2" href="https://www.open-emr.org/wiki/index.php/OpenEMR_Modules" target="_blank"><?php echo xlt('Visit Third Party Modules Wiki'); ?></a>
+        <div class="help-content bg-light text-dark text-left d-none" id="helpContent">
+            <ul style="font-size: 1.0rem;">
                 <?php
                 echo '';
                 foreach ($help_items as $item) {
-                    echo '<li>' . $item . '</li>' . "\n";
+                    echo '<li class="text-dark">' . $item . '</li>' . "\n";
                 }
                 echo '';
                 ?>
@@ -136,16 +126,19 @@ $help_items = [
             <button class="btn btn-sm btn-outline-primary float-right mb-2" type="button" onclick="toggleHelp()"><?php echo xlt('Dismiss'); ?></button>
         </div>
     </div>
+    <div class="text-center"><span class="h3"><?php echo $listener->z_xlt('Custom Module Listings'); ?></span></div>
     <div id='err' class='bold'></div>
     <div class="imagetable">
         <div class="modal"></div>
         <div id="install_upgrade_log" style="overflow-y: auto; height: 500px; display: none;"></div>
         <div class="imagetable_code notranslate table-responsive">
-            <table id="table-6" class="table table-light table-hover table-condensed" align="center">
+            <!-- Start Custom Module Listing -->
+            <table id="table-6" class="table table-light table-hover table-condensed">
                 <thead>
                 <tr style="font-size: 16px;">
                     <th scope="col"><?php echo $listener->z_xlt('ID'); ?></th>
                     <th scope="col"><?php echo $listener->z_xlt('Module'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Release'); ?></th>
                     <th scope="col"><?php echo $listener->z_xlt('Status'); ?></th>
                     <th scope="col"><?php echo $listener->z_xlt('Menu Text'); ?></th>
                     <th scope="col"><?php echo $listener->z_xlt('Nick Name'); ?></th>
@@ -157,10 +150,10 @@ $help_items = [
                 </thead>
                 <tbody>
                 <?php
-                /* Laminas and Custom modules directory Unregistered scan
+                /* Lamina's and Custom modules directory Unregistered scan
                  * moved to InstallerController auto register.
                  * */
-                /******** Custom Module Creation ********/
+                /******** Custom Module List Creation ********/
                 $count = 0;
                 if (sizeof($InstallersAll) > 0) {
                     foreach ($InstallersAll as $moduleResult) {
@@ -175,6 +168,7 @@ $help_items = [
                         <tr id="<?php echo $this->escapeHtml($moduleResult->modId); ?>">
                             <td><?php echo $this->escapeHtml($count); ?></td>
                             <td class="text-success"><strong><?php echo $this->escapeHtml($moduleResult->modName); ?></strong></td>
+                            <td><?php echo $this->escapeHtml($moduleResult->sql_version ?: '0.0.0'); ?></td>
                             <td>
                                 <?php
                                 if ($moduleResult->sqlRun == 0) {
@@ -236,11 +230,11 @@ $help_items = [
                                 <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','help_requested');" title="<?php echo $listener->z_xla('If module has a help, clicking here will show it.'); ?>"><i class="fa fa-question-circle text-primary fa-1x" aria-hidden="true"></i></a>
                                 <!-- We should be able to unregister even if not installed i.e sql_run = 0 -->
                                 <?php if ($moduleResult->sqlRun == 0 && $moduleResult->modActive == 0) { ?>
-                                    <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><i class="fa fa-registered text-warning fa-1x" aria-hidden="true"></i></a>
+                                    <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','reset_module');" title="<?php echo $listener->z_xla('Click Here to Reset this Module to the initial unregistered and uninstalled state.'); ?>"><i class="fa fa-registered text-warning fa-1x" aria-hidden="true"></i></a>
                                 <?php } elseif ($moduleResult->modActive == 1) { ?>
                                     <a href="javascript:void(0)" class="link_submit active" onclick="configure('<?php echo $this->escapeHtml($moduleResult->modId) ?>','<?php echo $this->basePath() ?>');" title="<?php echo $listener->z_xla('Click Here to Configure This module'); ?>"><i class="fa fa-cog fa-1x <?php echo $moduleResult->modUiActive == 1 ? ' fa-spin text-danger' : 'text-dark'; ?>"></i></a>
                                     <?php if ($moduleResult->modUiActive == 1 && $moduleResult->type == 0) { ?>
-                                        <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module'); ?>"><i class="fa fa-trash text-warning fa-1x" aria-hidden="true"></i></a>
+                                        <a href="javascript:void(0)" class="link_submit active" onclick="manage('<?php echo $this->escapeHtml($moduleResult->modId) ?>','unregister');" title="<?php echo $listener->z_xla('Click Here to UnRegister this Module. All database information is left intact except this module registration entry is removed from database.'); ?>"><i class="fa fa-trash text-warning fa-1x" aria-hidden="true"></i></a>
                                     <?php } ?>
                                 <?php } elseif ($moduleResult->modActive == 0 && $moduleResult->type == 0) { ?>
                                     <?php if ($moduleResult->modUiActive == 1) {
@@ -263,8 +257,29 @@ $help_items = [
                         <?php
                     }
                 }
-                //end of custom if
-                /******** Laminas Module List Creation ********/
+                ?>
+                </tbody>
+            </table>
+            <!-- End of Custom List -->
+            <div class="text-center"><span class="h3"><?php echo $listener->z_xlt("Lamina's Module Listings"); ?></span></div>
+            <!-- Start Lamina's Module Listing -->
+            <table id="table-6" class="table table-light table-hover table-condensed">
+                <thead>
+                <tr style="font-size: 16px;">
+                    <th scope="col"><?php echo $listener->z_xlt('ID'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Module'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Release'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Status'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Menu Text'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Nick Name'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Type'); ?> </th>
+                    <th scope="col"><?php echo $listener->z_xlt('Dependency Modules'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Action'); ?></th>
+                    <th scope="col"><?php echo $listener->z_xlt('Configuration'); ?></th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php
                 $count = 0;
                 if (sizeof($InstallersAll) > 0) {
                     foreach ($InstallersAll as $moduleResult) {
@@ -279,6 +294,7 @@ $help_items = [
                         <tr id="<?php echo $this->escapeHtml($moduleResult->modId); ?>">
                             <td><?php echo $this->escapeHtml($count); ?></td>
                             <td class="text-primary"><strong><?php echo $this->escapeHtml($moduleResult->modName); ?></strong></td>
+                            <td><?php echo $this->escapeHtml($moduleResult->sql_version ?: '0.0.0'); ?></td>
                             <td>
                                 <?php
                                 if ($moduleResult->sqlRun == 0) {
@@ -362,38 +378,7 @@ $help_items = [
                 ?>
                 </tbody>
             </table>
+            <!-- End of Lamina's List -->
         </div>
     </div>
 </div>
-<!-- Future use for new tab. Enable buttons at top. -->
-<div class="installer_code notranslate unregistered bg-light" style="display:none">
-    <table id="table-6" class="table table-light table-hover table-condensed" align="center">
-        <thead>
-        <tr>
-            <th class="bg-light text-dark">
-                <span style="font-size: 1.25rem"><?php echo $listener->z_xlt('Manage Laminas Modules'); ?></span>
-            </th>
-        <tr>
-        <tr style="font-size: 16px;">
-            <th scope="col"><?php echo $listener->z_xlt('ID'); ?></th>
-            <th scope="col"><?php echo $listener->z_xlt('Module'); ?> </th>
-            <th scope="col"><?php echo $listener->z_xlt('Status'); ?> </th>
-            <th scope="col"><?php echo $listener->z_xlt('Menu Text'); ?> </th>
-            <th scope="col"><?php echo $listener->z_xlt('Nick Name'); ?> </th>
-            <th scope="col"><?php echo $listener->z_xlt('Type'); ?> </th>
-            <th scope="col"><?php echo $listener->z_xlt('Dependency Modules'); ?> </th>
-            <th scope="col"><?php echo $listener->z_xlt('Action'); ?> </th>
-            <th scope="col"><?php echo $listener->z_xlt('Config'); ?> </th>
-        </tr>
-        </thead>
-        <?php ?>
-    </table>
-</div>
-<?php
-/*if ($slno > 0) {
-    */ ?><!--
-    <script>
-        $('#ct').html('(<?php /*echo $this->escapeHtml($slno) */ ?>)');
-    </script>
-    --><?php
-/*}*/ ?>

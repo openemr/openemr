@@ -22,9 +22,9 @@ class EmployerService extends BaseService
     }
 
     // we want to grab the puuid from the patient table so people can search on it
-    public function getSelectFields(): array
+    public function getSelectFields(string $tableAlias = '', string $columnPrefix = ""): array
     {
-        $fields = parent::getSelectFields();
+        $fields = parent::getSelectFields($tableAlias, $columnPrefix);
         $fields[] = '`patient`.`puuid`';
         return $fields;
     }

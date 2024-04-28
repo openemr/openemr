@@ -129,6 +129,14 @@ function submitform() {
         }
 
     }//If pwd null ends here
+
+    // Valiate Google email address (if provided)
+    if(document.forms[0].google_signin_email.value != "" && !isValidEmail(document.forms[0].google_signin_email.value)) {
+        flag=1;
+        alert(<?php echo xlj('Google email provided is invalid/not properly formatted (e.g. first.last@gmail.com)') ?>);
+        return false;
+    }
+
 <?php } ?>
   if (document.forms[0].access_group_id) {
     var sel = getSelected(document.forms[0].access_group_id.options);

@@ -18,6 +18,7 @@ use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 class CcdaNewpatient extends Command
 {
@@ -31,6 +32,7 @@ class CcdaNewpatient extends Command
                 new InputDefinition([
                     new InputOption('am_id', null, InputOption::VALUE_REQUIRED, 'The master audit table id of patient that will be imported as a new patient'),
                     new InputOption('document_id', null, InputOption::VALUE_REQUIRED, 'The ccda document id that was imported into the audit table'),
+                    new InputOption('debug', null, InputOption::VALUE_NONE, 'Turns on debug mode.'),
                     new InputOption('site', null, InputOption::VALUE_REQUIRED, 'Name of site', 'default'),
                 ])
             )
@@ -49,6 +51,16 @@ class CcdaNewpatient extends Command
         }
 
         $GLOBALS['modules_application']->getServiceManager()->build(CarecoordinationTable::class)->insert_patient($input->getOption('am_id'), $input->getOption('document_id'));
+        $symfonyStyler = new SymfonyStyle($input, $output);
+
+        $careCoordinationTable = $GLOBALS['modules_application']->getServiceManager()->build(CarecoordinationTable::class);
+        if ($careCoordinationTable instanceof CarecoordinationTable) {
+            if ($input->getOption('debug') !== false) {
+                $careCoordinationTable->setCommandLineStyler($symfonyStyler);
+                $careCoordinationTable->getImportService()->setCommandLineStyler($symfonyStyler);
+            }
+            $careCoordinationTable->insert_patient($input->getOption('am_id'), $input->getOption('document_id'));
+        }
         return 0;
     }
 }

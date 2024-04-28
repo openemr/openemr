@@ -105,17 +105,26 @@ class BaseService
 
     /**
      * Return the fields that should be used in a standard select clause.  Can be overwritten by inheriting classes
+     * @param string $alias if the field should be prefixed with a table alias
+     * @param string $columnPrefix prefix to add to each field, used if there is a possibility of column name conflicts in select statement, prefix's can only be ascii alphabetic and the underscore characters
      * @return array
      */
-    public function getSelectFields(): array
+    public function getSelectFields(string $tableAlias = '', string $columnPrefix = ""): array
     {
+        $tableAlias = trim($tableAlias);
+        if ($tableAlias == '') {
+            $tableAlias = '`' . $this->getTable() . '`';
+        }
+        // only allow ascii characters and underscore
+        $columnPrefix = preg_replace("/[^a-z_]+/i", "", $columnPrefix);
+        $tableAlias .= ".";
         // since we are often joining a bunch of fields we need to make sure we normalize our regular field array
         // by adding the table name for our own table values.
         $fields = $this->getFields();
         $normalizedFields = [];
         // processing is cheap
         foreach ($fields as $field) {
-            $normalizedFields[] = '`' . $this->getTable() . '`.`' . $field . '`';
+            $normalizedFields[] = $tableAlias . '`' . $columnPrefix . $field . '`';
         }
 
         return $normalizedFields;

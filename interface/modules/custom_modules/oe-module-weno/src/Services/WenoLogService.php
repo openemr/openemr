@@ -23,23 +23,29 @@ class WenoLogService
     public function getLastPrescriptionLogStatus(): bool|array|null
     {
         $params  = "prescription";
-        $sql = "SELECT * FROM weno_download_log WHERE ";
-        $sql .= "VALUE = ? ORDER BY created_at DESC LIMIT 1";
+        $sql = "SELECT * FROM weno_download_log WHERE VALUE = ?  ORDER BY `created_at` DESC, `id` DESC LIMIT 1";
 
         return sqlQuery($sql, [$params]);
     }
 
-    public function getLastPharmacyDownloadStatus(): bool|array|null
+    public function getLastPharmacyDownloadStatus($lastStatus = ''): bool|array|null
     {
         $params = "pharmacy";
-        $v = ['count' => 0, 'created_at' => '', 'status' => 'Unknown'];
-        $vsql = sqlQuery("SELECT * FROM `weno_download_log` WHERE `value` = ? ORDER BY `created_at` DESC LIMIT 1", [$params]);
+        $v = ['count' => 0, 'created_at' => 'Never', 'status' => 'Possibly download is in progress.'];
+        $vsql = sqlQuery("SELECT * FROM `weno_download_log` WHERE `value` = ? ORDER BY `created_at` DESC, `id` DESC LIMIT 1", [$params]);
         if (!$vsql) {
             return $v;
         }
         $v = $vsql;
         $count = sqlQuery("SELECT COUNT(`id`) as count FROM `weno_pharmacy`");
         $v['count'] = $count['count'] ?? 0;
+
+        if (!empty($lastStatus)) {
+            $vsql = sqlQuery("SELECT `created_at` FROM `weno_download_log` WHERE `value` = ? AND `status` = ? ORDER BY `created_at` DESC, `id` DESC LIMIT 1", [$params, $lastStatus]);
+            if ($vsql) {
+                $v['created_at'] = $vsql['created_at'];
+            }
+        }
 
         return $v;
     }

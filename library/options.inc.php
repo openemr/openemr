@@ -57,6 +57,8 @@ require_once(dirname(dirname(__FILE__)) . "/custom/code_types.inc.php");
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Layouts\LayoutsUtils;
+use OpenEMR\Common\Forms\Types\BillingCodeType;
+use OpenEMR\Common\Forms\Types\LocalProviderListType;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
@@ -799,34 +801,9 @@ function generate_form_field($frow, $currvalue)
         } else {
             echo "</select>";
         }
-    } elseif ($data_type == 11) { // provider list, including address book entries with an NPI number
-        $ures = sqlStatement("SELECT id, fname, lname, specialty FROM users " .
-        "WHERE active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' ) " .
-        "AND ( authorized = 1 OR ((username = '' OR username IS NULL) AND npi != '' )) " .
-        "ORDER BY lname, fname");
-        echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
-        echo " $lbfonchange $disabled>";
-        echo "<option value=''>" . xlt('Unassigned') . "</option>";
-        $got_selected = false;
-        while ($urow = sqlFetchArray($ures)) {
-            $uname = text($urow['fname'] . ' ' . $urow['lname']);
-            $optionId = attr($urow['id']);
-            echo "<option value='$optionId'";
-            if ($urow['id'] == $currvalue) {
-                echo " selected";
-                $got_selected = true;
-            }
-
-            echo ">$uname</option>";
-        }
-
-        if (!$got_selected && $currvalue) {
-            echo "<option value='" . attr($currvalue) . "' selected>* " . text($currvalue) . " *</option>";
-            echo "</select>";
-            echo " <span class='text-danger' title='" . xla('Please choose a valid selection from the list.') . "'>" . xlt('Fix this') . "!</span>";
-        } else {
-            echo "</select>";
-        }
+    } elseif ($data_type == LocalProviderListType::OPTIONS_TYPE_INDEX) { // provider list, including address book entries with an NPI number
+        $obj = new LocalProviderListType();
+        echo $obj->buildFormView($frow, $currvalue);
     } elseif ($data_type == 12) { // pharmacy list
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
         echo " $lbfonchange $disabled>";
@@ -950,82 +927,9 @@ function generate_form_field($frow, $currvalue)
         }
 
         echo "</select>";
-    } elseif ($data_type == 15) { // A billing code. If description matches an existing code type then that type is used.
-        $codetype = '';
-        if (!empty($frow['description']) && isset($code_types[$frow['description']])) {
-            $codetype = $frow['description'];
-        }
-        $fldlength = attr($frow['fld_length']);
-        $maxlength = $frow['max_length'];
-        $string_maxlength = "";
-        // if max_length is set to zero, then do not set a maxlength
-        if ($maxlength) {
-            $string_maxlength = "maxlength='" . attr($maxlength) . "'";
-        }
-        // Edit option E means allow multiple (Extra) billing codes in a field.
-        // We invent a class name for this because JavaScript needs to know.
-        $className = '';
-        if (strpos($frow['edit_options'], 'E') !== false) {
-            $className = 'EditOptionE';
-        }
-        //
-        if (isOption($edit_options, '2') !== false) {
-            // Option "2" generates a hidden input for the codes, and a matching visible field
-            // displaying their descriptions. First step is computing the description string.
-            $currdescstring = '';
-            if (!empty($currvalue)) {
-                $relcodes = explode(';', $currvalue);
-                foreach ($relcodes as $codestring) {
-                    if ($codestring === '') {
-                        continue;
-                    }
-                    if ($currdescstring !== '') {
-                        $currdescstring .= '; ';
-                    }
-                    $currdescstring .= getCodeDescription($codestring, $codetype);
-                }
-            }
-
-            $currdescstring = attr($currdescstring);
-            //
-            echo "<div>"; // wrapper for myHideOrShow()
-            echo "<input type='text'" .
-            " name='form_$field_id_esc'" .
-            " id='form_related_code'" .
-            " class='" . attr($className) . "'" .
-            " size='$fldlength'" .
-            " value='$currescaped'" .
-            " style='display:none'" .
-            " $lbfonchange readonly $disabled />";
-            // Extra readonly input field for optional display of code description(s).
-            echo "<input type='text'" .
-            " name='form_$field_id_esc" . "__desc'" .
-            " size='$fldlength'" .
-            " title='$description'" .
-            " value='$currdescstring'";
-            if (!$disabled) {
-                echo " onclick='sel_related(this," . attr_js($codetype) . ")'";
-            }
-
-            echo "class='form-control$smallform'";
-            echo " readonly $disabled />";
-            echo "</div>";
-        } else {
-            echo "<input type='text'" .
-            " name='form_$field_id_esc'" .
-            " id='form_related_code'" .
-            " class='" . attr($className) . "'" .
-            " size='$fldlength'" .
-            " $string_maxlength" .
-            " title='$description'" .
-            " value='$currescaped'";
-            if (!$disabled) {
-                echo " onclick='sel_related(this," . attr_js($codetype) . ")'";
-            }
-
-            echo "class='form-control$smallform'";
-            echo " $lbfonchange readonly $disabled />";
-        }
+    } elseif ($data_type == BillingCodeType::OPTIONS_TYPE_INDEX) { // A billing code. If description matches an existing code type then that type is used.
+        $billingCodeType = new BillingCodeType();
+        echo $billingCodeType->buildFormView($frow, $currvalue);
     } elseif ($data_type == 16) { // insurance company list
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' class='form-control$smallform' title='$description'>";
         echo "<option value='0'></option>";
@@ -1851,7 +1755,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true)
             $tmp = htmlspecialchars($tmp, ENT_QUOTES);
         }
         echo $tmp;
-    } elseif ($data_type == 2 || $data_type == 15) { // simple text field
+    } elseif ($data_type == 2 || $data_type == BillingCodeType::OPTIONS_TYPE_INDEX) { // simple text field
         if ($currescaped === '') {
             $currescaped = '&nbsp;';
         }
@@ -1881,23 +1785,28 @@ function generate_print_field($frow, $currvalue, $value_allowed = true)
                 echo "&nbsp;(" . text($agestr) . ")";
             }
         }
-    } elseif ($data_type == 10 || $data_type == 11) { // provider list
-        $tmp = '';
-        if ($currvalue) {
-            $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
-            "WHERE id = ?", array($currvalue));
-            $tmp = ucwords($urow['fname'] . " " . $urow['lname']);
-            if (empty($tmp)) {
-                $tmp = "($currvalue)";
-            }
-        }
-        if ($tmp === '') {
-            $tmp = '&nbsp;';
+    } elseif ($data_type == 10 || $data_type == LocalProviderListType::OPTIONS_TYPE_INDEX) { // provider list
+        if ($data_type == LocalProviderListType::OPTIONS_TYPE_INDEX) {
+            $obj = new LocalProviderListType();
+            echo $obj->buildPrintView($frow, $currvalue, $value_allowed);
         } else {
-            $tmp = htmlspecialchars($tmp, ENT_QUOTES);
-        }
+            $tmp = '';
+            if ($currvalue) {
+                $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
+                    "WHERE id = ?", array($currvalue));
+                $tmp = ucwords($urow['fname'] . " " . $urow['lname']);
+                if (empty($tmp)) {
+                    $tmp = "($currvalue)";
+                }
+            }
+            if ($tmp === '') {
+                $tmp = '&nbsp;';
+            } else {
+                $tmp = htmlspecialchars($tmp, ENT_QUOTES);
+            }
 
             echo $tmp;
+        }
     } elseif ($data_type == 12) { // pharmacy list
         $tmp = '';
         if ($currvalue) {
@@ -2544,10 +2453,15 @@ function generate_display_field($frow, $currvalue)
                 $s .= "&nbsp;(" . text($agestr) . ")";
             }
         }
-    } elseif ($data_type == 10 || $data_type == 11) { // provider
-        $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
-        "WHERE id = ?", array($currvalue));
-        $s = text(ucwords(($urow['fname'] ?? '') . " " . ($urow['lname'] ?? '')));
+    } elseif ($data_type == 10 || $data_type == LocalProviderListType::OPTIONS_TYPE_INDEX) { // provider
+        if ($data_type == LocalProviderListType::OPTIONS_TYPE_INDEX) {
+            $obj = new LocalProviderListType();
+            $s = $obj->buildDisplayView($frow, $currvalue);
+        } else {
+            $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
+                "WHERE id = ?", array($currvalue));
+            $s = text(ucwords(($urow['fname'] ?? '') . " " . ($urow['lname'] ?? '')));
+        }
     } elseif ($data_type == 12) { // pharmacy list
         $pres = get_pharmacies();
         while ($prow = sqlFetchArray($pres)) {
@@ -2586,25 +2500,9 @@ function generate_display_field($frow, $currvalue)
         }
 
         $s = htmlspecialchars($uname, ENT_NOQUOTES);
-    } elseif ($data_type == 15) { // billing code
-        $s = '';
-        if (!empty($currvalue)) {
-            $relcodes = explode(';', $currvalue);
-            foreach ($relcodes as $codestring) {
-                if ($codestring === '') {
-                    continue;
-                }
-                $tmp = lookup_code_descriptions($codestring);
-                if ($s !== '') {
-                    $s .= '; ';
-                }
-                if (!empty($tmp)) {
-                    $s .= text($tmp);
-                } else {
-                    $s .= text($codestring) . ' (' . xlt('not found') . ')';
-                }
-            }
-        }
+    } elseif ($data_type == BillingCodeType::OPTIONS_TYPE_INDEX) { // billing code
+        $billingCodeType = new BillingCodeType();
+        $s = $billingCodeType->buildDisplayView($frow, $currvalue);
     } elseif ($data_type == 16) { // insurance company list
         $insprovs = getInsuranceProviders();
         foreach ($insprovs as $key => $ipname) {
@@ -3032,8 +2930,11 @@ function generate_plaintext_field($frow, $currvalue)
                 $s .= " (" . $resnote . ")";
             }
         }
-    } elseif ($data_type == 2 || $data_type == 3 || $data_type == 15) { // simple or long text field
+    } elseif ($data_type == 2 || $data_type == 3) { // simple or long text field
         $s = $currvalue;
+    } else if ($data_type == BillingCodeType::OPTIONS_TYPE_INDEX) {
+        $billingCodeType = new BillingCodeType();
+        $s = $billingCodeType->buildPlaintextView($frow, $currvalue);
     } elseif ($data_type == 4) { // date
         $modtmp = isOption($edit_options, 'F') === false ? 0 : 1;
         if (!$modtmp) {
@@ -3048,10 +2949,15 @@ function generate_plaintext_field($frow, $currvalue)
         if ($tmp) {
             $s .= ' ' . $tmp;
         }
-    } elseif ($data_type == 10 || $data_type == 11) { // provider
-        $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
-        "WHERE id = ?", array($currvalue));
-        $s = ucwords($urow['fname'] . " " . $urow['lname']);
+    } elseif ($data_type == 10 || $data_type == LocalProviderListType::OPTIONS_TYPE_INDEX) { // provider
+        if ($data_type == LocalProviderListType::OPTIONS_TYPE_INDEX) {
+            $obj = new LocalProviderListType();
+            $s = $obj->buildPlaintextView($frow, $currvalue);
+        } else {
+            $urow = sqlQuery("SELECT fname, lname, specialty FROM users " .
+                "WHERE id = ?", array($currvalue));
+            $s = ucwords($urow['fname'] . " " . $urow['lname']);
+        }
     } elseif ($data_type == 12) { // pharmacy list
         $pres = get_pharmacies();
         while ($prow = sqlFetchArray($pres)) {
@@ -3436,12 +3342,10 @@ function accumActionConditions(&$frow, &$condition_str)
             "itemid:"   . js_escape($condition['itemid'])   . ", " .
             "operator:" . js_escape($condition['operator']) . ", " .
             "value:"    . js_escape($condition['value'])    . ", ";
-        if ($frow['data_type'] == 15 && strpos($frow['edit_options'], '2') !== false) {
+        if ($frow['data_type'] == BillingCodeType::OPTIONS_TYPE_INDEX && strpos($frow['edit_options'], '2') !== false) {
+            $billingCodeType = new BillingCodeType();
             // For billing codes handle requirement to display its description.
-            $tmp = explode('=', $action, 2);
-            if (!empty($tmp[1])) {
-                $condition_str .= "valdesc:" . js_escape(getCodeDescription($tmp[1])) . ", ";
-            }
+            $condition_str .= $billingCodeType->getAccumActionConditions($frow, $condition_str, $action);
         }
         $condition_str .= "andor:" . js_escape($andor) . "}";
     }
@@ -5016,28 +4920,13 @@ EOD;
 }
 
 /**
- * Test if modifier($test) is in array of options for data type.
- *
+ *  Test if modifier($test) is in array of options for data type.
+ * @deprecated use LayoutsUtils::isOption
  * @param json array $options ["G","P","T"], ["G"] or could be legacy string with form "GPT", "G", "012"
  * @param string $test
  * @return boolean
  */
 function isOption($options, string $test): bool
 {
-    if (empty($options) || !isset($test) || $options == "null") {
-        return false; // why bother?
-    }
-    if (strpos($options, ',') === false) { // not json array of modifiers.
-        // could be string of char's or single element of json ["RO"] or "TP" or "P" e.t.c.
-        json_decode($options, true); // test if options json. json_last_error() will return JSON_ERROR_SYNTAX if not.
-        // if of form ["RO"] (single modifier) means not legacy so continue on.
-        if (is_string($options) && (json_last_error() !== JSON_ERROR_NONE)) { // nope, it's string.
-            $t = str_split(trim($options)); // very good chance it's legacy modifier string.
-            $options = json_encode($t); // make it json array to convert from legacy to new modifier json schema.
-        }
-    }
-
-    $options = json_decode($options, true); // all should now be json
-
-    return is_array($options) && in_array($test, $options, true); // finally the truth!
+    return LayoutsUtils::isOption($options, $test);
 }

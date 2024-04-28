@@ -345,7 +345,47 @@ function oeSortable(callBackFn) {
     }
 }
 
+// Password Strength Meter JavaScript
+function checkPasswordStrength(inputElement) {
+    var number = /[\p{N}]/u;  // Matches any Unicode number character
+    var alphabets = /[\p{L}]/u;  // Matches any Unicode letter character
+    var special_characters = /[^\p{N}\p{L}]/u; // Matches any character that is not a letter, number, or whitespace
 
+    var pwd = inputElement.value;
+    var strength = 0;
+
+    if (pwd.length < 6) {
+        document.getElementById('password_strength_meter').style.backgroundColor = "#ff6666";
+        document.getElementById('password_strength_text').innerText = xl('Very Weak');
+    } else {
+        if (pwd.match(number) && pwd.match(alphabets) && pwd.match(special_characters)) {
+            strength += 3;
+        } else if (pwd.match(number) && pwd.match(alphabets)) {
+            strength += 2;
+        } else if (pwd.match(alphabets)) {
+            strength += 1;
+        }
+
+        switch (strength) {
+            case 1:
+                document.getElementById('password_strength_meter').style.backgroundColor = "#ffcc00";
+                document.getElementById('password_strength_text').innerText = xl('Weak');
+                break;
+            case 2:
+                document.getElementById('password_strength_meter').style.backgroundColor = "#ffcc66";
+                document.getElementById('password_strength_text').innerText = xl('Good');
+                break;
+            case 3:
+                document.getElementById('password_strength_meter').style.backgroundColor = "#99cc00";
+                document.getElementById('password_strength_text').innerText = xl('Strong');
+                break;
+            default:
+                document.getElementById('password_strength_meter').style.backgroundColor = "#ff6666";
+                document.getElementById('password_strength_text').innerText = xl('Very Weak');
+                break;
+        }
+    }
+}
 /*
 * Universal async BS alert message with promise
 * Note the use of new javaScript translate function xl().
@@ -503,3 +543,19 @@ if (typeof top.userDebug !== 'undefined' && (top.userDebug === '1' || top.userDe
     window.oeSMART = oeSMART;
 })(window, window.top.oeSMART || {});
 
+/*
+* @function isValidEmail(emailAddress)
+* @summary call this function where you need to validate an email address
+*  is formatted correctly, function will return bool true/false
+*
+* @param string An email address to validate, e.g. e.g. first.last@gmail.com
+*/
+function isValidEmail(emailAddress) {
+    // RegEx from https://owasp.org/www-community/OWASP_Validation_Regex_Repository
+    var mailformat = /^[a-zA-Z0-9_+&*-]+(?:\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
+    if (emailAddress.match(mailformat)) {
+        return true;
+    } else {
+        return false;
+    }
+}
