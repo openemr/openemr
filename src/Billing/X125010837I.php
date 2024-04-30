@@ -29,7 +29,13 @@ class X125010837I
         $out = '';
         $claim = new Claim($pid, $encounter, $x12_partner);
         $edicount = 0;
-
+        // Qualify data array
+        if (!empty($ub04id)) {
+            for ($i = 0; $i < 428; ++$i) {
+                $ub04id[$i] = $ub04id[$i] ?? '';
+            }
+        }
+        // This is the start of the 837I claim
         $log .= "Generating 837I claim $pid-$encounter for " .
             $claim->patientFirstName() . ' ' .
             $claim->patientMiddleName() . ' ' .
