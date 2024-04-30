@@ -6,18 +6,17 @@
  * @package OpenEMR
  * @link    https://www.open-emr.org
  * @author  Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2017-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Billing;
 
 use OpenEMR\Billing\BillingProcessor\BillingClaimBatchControlNumber;
-use OpenEMR\Billing\Claim;
 
 class X125010837I
 {
-    public function x12Date($frmdate)
+    public static function x12Date($frmdate)
     {
         return ('20' . substr($frmdate, 4, 2) . substr($frmdate, 0, 2) . substr($frmdate, 2, 2));
     }
@@ -30,7 +29,13 @@ class X125010837I
         $out = '';
         $claim = new Claim($pid, $encounter, $x12_partner);
         $edicount = 0;
-
+        // Qualify data array
+        if (!empty($ub04id)) {
+            for ($i = 0; $i < 428; ++$i) {
+                $ub04id[$i] = $ub04id[$i] ?? '';
+            }
+        }
+        // This is the start of the 837I claim
         $log .= "Generating 837I claim $pid-$encounter for " .
             $claim->patientFirstName() . ' ' .
             $claim->patientMiddleName() . ' ' .
@@ -1017,7 +1022,6 @@ class X125010837I
             ++$edicount;
 
             // Revenue code from form
-            //
             $tmp = $ub04id[$os]; //$revcode[$prockey][revenue_code];
             if (empty($tmp)) {
                 $log .= "*** Error: Missing Revenue Code for " . $claim->cptKey($prockey) . "!\n";

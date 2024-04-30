@@ -6,7 +6,7 @@
  * @package OpenEMR
  * @link    http://www.open-emr.org
  * @author  Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2017 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2017-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -14,7 +14,6 @@ require_once("../globals.php");
 
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\Claim;
-use OpenEMR\Billing\X125010837I;
 use OpenEMR\Pdf\PdfCreator;
 
 function ub04_dispose()
@@ -41,8 +40,8 @@ function ub04_dispose()
             saveTemplate($encounter, $pid, $ub04id, $dispose);
             exit("done");
         } elseif ($dispose == "reset_claim") {
-            $pid = isset($_POST['pid']) ? $_POST['pid'] : $_GET['pid'];
-            $encounter = isset($_POST['encounter']) ? $_POST['encounter'] : $_GET['encounter'];
+            $pid = $_POST['pid'] ?? $_GET['pid'];
+            $encounter = $_POST['encounter'] ?? $_GET['encounter'];
             // clear claim first otherwise get ub04 returns cuurent version.
             //
             $flg = exist_ub04_claim($pid, $encounter, true);
@@ -72,7 +71,7 @@ function get_payer_defaults($payerid)
 function savePayerTemplate($payerid, $ubo4id)
 {
     $ub04id = json_encode($ub04id);
-    sqlStatement("update insurance_companies set claim_template= ? where id = ?", array(
+    sqlStatement("update insurance_companies set claim_template = ? where id = ?", array(
         $ubo4id,
         $payerid
     ));
@@ -120,8 +119,8 @@ function buildTemplate(string $pid = null, string $encounter = null, $htmlin, st
 
 function ub04Dispose($dispose = 'download', $htmlin = "", $filename = "ub04.pdf", $form_action = "")
 {
-    $top = isset($_POST["left_ubmargin"]) ? $_POST["left_ubmargin"] : $GLOBALS['left_ubmargin_default'];
-    $side = isset($_POST["top_ubmargin"]) ? $_POST["top_ubmargin"] : $GLOBALS['top_ubmargin_default'];
+    $top = $_POST["left_ubmargin"] ?? $GLOBALS['left_ubmargin_default'];
+    $side = $_POST["top_ubmargin"] ?? $GLOBALS['top_ubmargin_default'];
     $form_filename = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/$filename";
     // convert points to inches-some tricky calculus here! 72 pts/inch
     $top = round($top / 72.00, 2) . "in";
@@ -146,7 +145,9 @@ function ub04Dispose($dispose = 'download', $htmlin = "", $filename = "ub04.pdf"
                 'no-images' => $isnotform,
                 'grayscale' => true,
                 'page-size' => 'Letter',
-                'orientation' => 'Portrait'
+                'orientation' => 'Portrait',
+                'load-media-error-handling' => 'ignore',
+                'load-error-handling' => 'ignore'
             );
 
             $PdfCreator = new PdfCreator();
@@ -183,7 +184,7 @@ function exist_ub04_claim($pid, $encounter, $flag = false)
         $encounter
     ));
     if ($row) {
-        if (! empty($row['submitted_claim'])) {
+        if (!empty($row['submitted_claim'])) {
             if ($flag === false) {
                 return $row['submitted_claim'];
             } else {
@@ -247,8 +248,8 @@ function get_ub04_array($pid, $encounter, &$log = "")
     $clm_amount_adjusted = 0;
     $clm_amount_paid = $ub04_proc_index ? 0 : $claim->patientPaidAmount();
     for ($tlh = 0; $tlh < $proccount; ++$tlh) {
-        $tmp = $claim->procs[$tlh][code_text];
-        if ($claim->procs[$tlh][code_type] == 'HCPCS') {
+        $tmp = $claim->procs[$tlh]['code_text'];
+        if ($claim->procs[$tlh]['code_type'] == 'HCPCS') {
             $tmpcode = '3';
         } else {
             $tmpcode = '1';
@@ -265,7 +266,9 @@ function get_ub04_array($pid, $encounter, &$log = "")
         }
     }
     foreach ($revcode as $key => $row) {
-        $revcod[$key] = $row['revenue_code'];
+        if (!empty($row)) {
+            $revcod[$key] = $row['revenue_code'];
+        }
     }
     array_multisort($revcod, SORT_ASC, $revcode2);
     // Procedure loop starts here.
@@ -294,10 +297,10 @@ function get_ub04_array($pid, $encounter, &$log = "")
         $mcnt = $ub04_proc_index;
 
         // @todo need if inpatient or out patient for box 74 - 74e
-        $tmp = $claim->cleanDate($revcode2[$mcnt][date]);
+        $tmp = $claim->cleanDate($revcode2[$mcnt]['date']);
         $sdate = substr($tmp, 4, 2) . substr($tmp, 6, 2) . substr($tmp, 2, 2);
         if ($pcnt < 6) {
-            $ub04id[$dos++] = $revcode2[$mcnt][code]; /* 74. PRINCIPAL PROCEDURE CODE */
+            $ub04id[$dos++] = $revcode2[$mcnt]['code']; /* 74. PRINCIPAL PROCEDURE CODE */
             $ub04id[$dos++] = $sdate; /* 74. PRINCIPAL PROCEDURE DATE */
             if ($dos == 388) {
                 $dos = 393;
@@ -307,12 +310,12 @@ function get_ub04_array($pid, $encounter, &$log = "")
         // @todo Deal with code modifiers $revcode2[$mcnt][modifier]
         $tmp = $claim->serviceDate();
         $sdate = substr($tmp, 4, 2) . substr($tmp, 6, 2) . substr($tmp, 2, 2);
-        $ub04id[$os] = $claim->procs[$mcnt][revenue_code]; // 42. REVENUE CODE, Line 1-23 */
-        $ub04id[++$os] = strtoupper($revcode2[$mcnt][code_text]); /* 43. REVENUE DESCRIPTION, Line 1-23 */
-        $ub04id[++$os] = trim($revcode2[$mcnt][code] . ' ' . $revcode2[$mcnt][modifier]); /* 44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 1-23 */
+        $ub04id[$os] = $claim->procs[$mcnt]['revenue_code']; // 42. REVENUE CODE, Line 1-23 */
+        $ub04id[++$os] = strtoupper($revcode2[$mcnt]['code_text']); /* 43. REVENUE DESCRIPTION, Line 1-23 */
+        $ub04id[++$os] = trim($revcode2[$mcnt]['code'] . ' ' . $revcode2[$mcnt]['modifier']); /* 44. HCPCS/ACCOMMODATION RATES/HIPPS RATE CODES, Line 1-23 */
         $ub04id[++$os] = $sdate; /* 45. SERVICE DATE, Line 1-23 */
-        $ub04id[++$os] = $revcode2[$mcnt][units]; /* 46. SERVICE UNITS, Line 1-23 */
-        $ub04id[++$os] = str_replace('.', '  ', sprintf('%8.2f', $revcode2[$mcnt][fee])); /* 47. TOTAL CHARGES, Line 1-23 */
+        $ub04id[++$os] = $revcode2[$mcnt]['units']; /* 46. SERVICE UNITS, Line 1-23 */
+        $ub04id[++$os] = str_replace('.', '  ', sprintf('%8.2f', $revcode2[$mcnt]['fee'])); /* 47. TOTAL CHARGES, Line 1-23 */
         $ub04id[++$os] = ''; /* 48. NON-COVERED CHARGES, Line 1-23 */
         $os += 2;
     }
@@ -347,10 +350,10 @@ function get_ub04_array($pid, $encounter, &$log = "")
         }
     }
     // @todo Not sure
-    $ub04id[367] = $diagnosis[0] ? substr($diagnosis[0], 0, 7) : ''; /* 69. ADMITTING DIAGNOSIS CODE */
-    $ub04id[368] = $diagnosis[1] ? substr($diagnosis[1], 0, 7) : ''; /* 70a. PATIENT'S REASON FOR VISIT */
-    $ub04id[369] = $diagnosis[2] ? substr($diagnosis[2], 0, 7) : ''; /* 70b. PATIENT'S REASON FOR VISIT */
-    $ub04id[370] = $diagnosis[3] ? substr($diagnosis[3], 0, 7) : ''; /* 70c. PATIENT'S REASON FOR VISIT */
+    $ub04id[367] = $diagnosis[0] ?? '' ? substr($diagnosis[0], 0, 7) : ''; /* 69. ADMITTING DIAGNOSIS CODE */
+    $ub04id[368] = $diagnosis[1] ?? '' ? substr($diagnosis[1], 0, 7) : ''; /* 70a. PATIENT'S REASON FOR VISIT */
+    $ub04id[369] = $diagnosis[2] ?? '' ? substr($diagnosis[2], 0, 7) : ''; /* 70b. PATIENT'S REASON FOR VISIT */
+    $ub04id[370] = $diagnosis[3] ?? '' ? substr($diagnosis[3], 0, 7) : ''; /* 70c. PATIENT'S REASON FOR VISIT */
 
     $payer_os = 0;
     if (empty($claim->payerName(0))) {
