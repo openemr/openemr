@@ -519,7 +519,7 @@ class CarecoordinationTable extends AbstractTableGateway
                             $item = trim($item['value'] ?? '');
                         }
                     } else {
-                        $item = trim($item);
+                        $item = trim($item ?? '');
                     }
                     $resfield[] = ['table_name' => trim($row['table_name']), 'field_name' => trim($itemKey), 'field_value' => $item, 'entry_identification' => trim($row['entry_identification'])];
                 }
@@ -582,7 +582,7 @@ class CarecoordinationTable extends AbstractTableGateway
                     // patient UUID from exported
                     $uuid = trim($newdata['patient_data']['referrerID']);
                     // have we already imported for this UUID?
-                    $pid_exist = sqlQuery("SELECT pid FROM `patient_data` WHERE `referrerID` = ? ORDER BY `pid` DESC Limit 1", array($uuid))['pid'];
+                    $pid_exist = sqlQuery("SELECT pid FROM `patient_data` WHERE `referrerID` = ? ORDER BY `pid` DESC Limit 1", array($uuid))['pid'] ?? '';
                     if (!empty($pid_exist) && is_numeric($pid_exist ?? null)) {
                         // We did so let check the type. If encounters then a CDA
                         $enc_exist = sqlQuery("SELECT COUNT(`encounter`) as `cnt` FROM `form_encounter` WHERE `pid` = ? AND `encounter` > 0", array((int)$pid_exist))['cnt'] ?? 0;
@@ -677,9 +677,9 @@ class CarecoordinationTable extends AbstractTableGateway
                 $arr_allergies['lists2'][$c]['outcome'] = $newdata['lists2']['outcome'];
                 $c++;
             } elseif ($table == 'encounter') {
-                $arr_encounter['encounter'][$k]['extension'] = $newdata['encounter']['extension'];
-                $arr_encounter['encounter'][$k]['root'] = $newdata['encounter']['root'];
-                $arr_encounter['encounter'][$k]['date'] = $newdata['encounter']['date'];
+                $arr_encounter['encounter'][$k]['extension'] = $newdata['encounter']['extension'] ?? '';
+                $arr_encounter['encounter'][$k]['root'] = $newdata['encounter']['root'] ?? '';
+                $arr_encounter['encounter'][$k]['date'] = $newdata['encounter']['date'] ?? null;
                 $arr_encounter['encounter'][$k]['date_end'] = $newdata['encounter']['date_end'] ?? null;
 
                 $arr_encounter['encounter'][$k]['provider_npi'] = $newdata['encounter']['provider_npi'];
