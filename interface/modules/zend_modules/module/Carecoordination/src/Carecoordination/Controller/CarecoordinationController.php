@@ -1015,7 +1015,7 @@ class CarecoordinationController extends AbstractActionController
             $componentCount = count($fileComponents);
 
             // now we need to do our document import for our ccda for this patient
-            if ($componentCount == 2) {
+            if ($componentCount > 0) {
                 // let's process the ccda
                 $file_name = basename($stat['name']);
 
