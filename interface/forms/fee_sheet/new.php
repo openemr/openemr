@@ -209,9 +209,10 @@ function echoServiceLines()
         } else { // not billed
             if ($institutional) {
                 if ($codetype != 'COPAY' && $codetype != 'ICD10') {
-                    echo "  <td class='billcell'><select type='text' class='revcode form-control form-control-sm' name='bill[" . attr($lino) . "][revenue_code]' " .
-                        "title='" . xla("Revenue Code for this item. Type to search") . "' " .
-                        "value='" . attr($revenue_code) . "' size='4'></select></td>\n";
+                    echo "  <td class='billcell'>" .
+                        "<input type='text' class='revcode form-control form-control-sm' name='bill[" . attr($lino) . "][revenue_code]' " .
+                        "title='" . xla("Revenue Code for this item. Type to search or double click for list") . "' " .
+                        "value='" . attr($revenue_code) . "' size='4'></td>\n";
                 } else {
                     echo "  <td class='billcell'>&nbsp;</td>\n";
                 }
@@ -635,7 +636,7 @@ $billresult = BillingUtilities::getBillingByEncounter($fs->pid, $fs->encounter, 
 ?>
 <html>
 <head>
-<?php Header::setupHeader(['common', 'knockout', 'select2']);?>
+<?php Header::setupHeader(['common', 'knockout', 'jquery-ui', 'jquery-ui-base']);?>
 <script>
 var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
 var diags = new Array();
@@ -685,31 +686,24 @@ if (!empty($_POST['newcodes'])) {
 }
 ?>
 function reinitForm(){
-    $(".revcode").select2({
-        ajax: {
-            url: "<?php echo $GLOBALS['web_root'] ?>/interface/billing/ub04_helpers.php",
-            dataType: 'json',
-            data: function(params) {
-                return {
-                  code_group: "revenue_code",
-                  term: params.term
-                };
-            },
-            processResults: function(data) {
-                return  {
-                    results: $.map(data, function(item, index) {
-                        return {
-                            text: item.label,
-                            id: index,
-                            value: item.value
-                        }
-                    })
-                };
-                return x;
-            },
-            cache: true
+    var cache = {};
+    $( ".revcode" ).autocomplete({
+        minLength: 1,
+        source: function( request, response ) {
+            var term = request.term;
+            request.code_group = "revenue_code";
+            if ( term in cache ) {
+                response( cache[ term ] );
+                return;
+            }
+            $.getJSON( "<?php echo $GLOBALS['web_root'] ?>/interface/billing/ub04_helpers.php", request, function( data, status, xhr ) {
+                cache[ term ] = data;
+                response( data );
+            })
         }
-    })
+    }).dblclick(function(event) {
+        $(this).autocomplete('search'," ");
+    });
 }
 
 // This is invoked by <select onchange> for the various dropdowns,
@@ -1312,7 +1306,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         // Also preserve other items from the form, if present.
                                         if (!empty($bline['id']) && empty($iter["billed"])) {
                                             if ($institutional) {
-                                                //$revenue_code   = trim($bline['revenue_code']);
+                                                $revenue_code   = trim($bline['revenue_code']);
                                             }
                                             $modifier   = trim($bline['mod'] ?? '');
                                             $units = intval(trim($bline['units'] ?? ''));
