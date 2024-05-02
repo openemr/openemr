@@ -373,12 +373,10 @@ class CdaTemplateParse
                 $i += count($this->templateData['field_name_value_array']['encounter']);
             }
 
-            if (!empty($this->templateData['field_name_value_array']['encounter'][$i])) {
-                $this->templateData['field_name_value_array']['encounter'][$i]['extension'] = $entry['encounter']['id']['extension'];
-                $this->templateData['field_name_value_array']['encounter'][$i]['root'] = $entry['encounter']['id']['root'];
-                $this->templateData['field_name_value_array']['encounter'][$i]['date'] = ($entry['encounter']['effectiveTime']['value'] ?? null) ?: $entry['encounter']['effectiveTime']['low']['value'] ?? null;
-                $this->templateData['field_name_value_array']['encounter'][$i]['date_end'] = $entry['encounter']['effectiveTime']['high']['value'] ?? null;
-            }
+            $this->templateData['field_name_value_array']['encounter'][$i]['extension'] = $entry['encounter']['id']['extension'] ?? '';
+            $this->templateData['field_name_value_array']['encounter'][$i]['root'] = $entry['encounter']['id']['root'] ?? '';
+            $this->templateData['field_name_value_array']['encounter'][$i]['date'] = ($entry['encounter']['effectiveTime']['value'] ?? null) ?: $entry['encounter']['effectiveTime']['low']['value'] ?? null;
+            $this->templateData['field_name_value_array']['encounter'][$i]['date_end'] = $entry['encounter']['effectiveTime']['high']['value'] ?? null;
 
             $code_type = $entry['encounter']['code']['codeSystemName'] ?? '' ?: $entry['encounter']['code']['codeSystem'] ?? '';
             $code_text = $entry['encounter']['code']['displayName'] ?? '';
