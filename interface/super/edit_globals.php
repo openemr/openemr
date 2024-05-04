@@ -645,22 +645,6 @@ $apiUrl = $serverConfig->getInternalBaseApiUrl();
                                                     echo "</option>\n";
                                                 }
                                                 echo "  </select>\n";
-                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_MULTI_DASHBOARD_CARDS) {
-                                                $res = sqlStatement("SELECT * FROM dashboard_card_visibility");
-                                                echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='3'>\n";
-                                                while ($row = sqlFetchArray($res)) {
-                                                    echo "   <option value='" . attr($row['card_abrev']) . "'";
-                                                    foreach ($glarr as $glrow) {
-                                                        if ($glrow['gl_value'] == $row['card_abrev']) {
-                                                            echo " selected";
-                                                            break;
-                                                        }
-                                                    }
-                                                    echo ">";
-                                                    echo xlt($row['card_name']);
-                                                    echo "</option>\n";
-                                                }
-                                                echo "  </select>\n";
                                             } elseif ($fldtype == GlobalSetting::DATA_TYPE_COLOR_CODE) {
                                                 if ($userMode) {
                                                     $globalTitle = $globalValue;
