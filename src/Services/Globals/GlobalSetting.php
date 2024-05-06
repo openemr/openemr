@@ -42,6 +42,9 @@ class GlobalSetting
     // multiple select language selector
     const DATA_TYPE_MULTI_LANGUAGE_SELECT = "m_lang";
 
+    // multiple select dashboard cards
+    const DATA_TYPE_MULTI_DASHBOARD_CARDS = "m_dashboard_cards";
+
     // list of default visits in OpenEMR
     const DATA_TYPE_DEFAULT_VISIT_CATEGORY = "default_visit_category";
     // CSS Theme selector
