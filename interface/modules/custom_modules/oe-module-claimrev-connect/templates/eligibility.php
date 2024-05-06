@@ -66,12 +66,13 @@ foreach ($insurance as $row) {
                 <div class="row">
                     <div class="col-2">
                     
-                        <form method="post" action="../../patient_file/summary/demographics.php">
+                        <form id="eligibility-form">
                             <input type="hidden" id="responsibility" name="responsibility" value="<?php echo attr(ucfirst($row['payer_responsibility']));?>">
+                            <input type="hidden" id="pid" name="pid" value="<?php echo $pid;?>">
                             <button type="submit" name="checkElig" class="btn btn-primary"><?php echo xlt("Check"); ?></button>
                         </form>
                     </div>
-                    <div class="col">
+                    <div class="col" id="messageOldContent">
     <?php
                 $eligibilityCheck = EligibilityData::getEligibilityResult($pid, $row['payer_responsibility']);
     foreach ($eligibilityCheck as $check) {
@@ -91,13 +92,14 @@ foreach ($insurance as $row) {
     }//end foreach
     ?>                        
                     </div>
+                    <div class="row" id="messageAppendContent"></div>
                 </div>
                 <div class="row">
                     <div class="col">
                         <hr/>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row" id="mainOldContent">
                     <div class="col">
     <?php
               //yeah.... this weird. why would someone do this? because I couldn't get the include
@@ -248,6 +250,9 @@ foreach ($insurance as $row) {
     ?>   
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col" id="mainAppendContent"></div>
+                </div>
             </div>            
         <?php
         $classActive = "";
@@ -256,6 +261,40 @@ foreach ($insurance as $row) {
     </div>
 </div>
 </div>
+
+<script>
+    $(document).ready(function () {
+        $(document).on('submit', '#eligibility-form', function (event) {
+            event.preventDefault();
+
+            var form = $(this);
+            var formData = form.serialize();
+
+            $.ajax({
+                url: '../../patient_file/summary/demographics.php',
+                type: 'POST',
+                data: formData,
+                success: function (response) {
+                     if (response.html1 && response.html2) {
+                   
+                    $("#messageOldContent").addClass('d-none');
+                    $("#messageAppendContent").removeClass('d-none');
+                    $("#mainOldContent").addClass('d-none');
+                    $("#mainAppendContent").removeClass('d-none');
+                    $('#messageAppendContent').html(response.html1);
+                    $('#mainAppendContent').html(response.html2);
+              
+                } else {
+                    console.error('Missing HTML content in response');
+                }
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+    });
+</script>
 
 
 

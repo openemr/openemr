@@ -55,6 +55,14 @@ use OpenEMR\Services\ImmunizationService;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use OpenEMR\Patient\Cards\InsuranceViewCard;
+use OpenEMR\Patient\Cards\BillingViewCard;
+use OpenEMR\Patient\Cards\DemographicsViewCard;
+use OpenEMR\Modules\ClaimRevConnector\EligibilityData;
+use OpenEMR\Modules\ClaimRevConnector\EligibilityInquiryRequest;
+use OpenEMR\Modules\ClaimRevConnector\SubscriberPatientEligibilityRequest;
+use OpenEMR\Modules\ClaimRevConnector\EligibilityObjectCreator;
+use OpenEMR\Modules\ClaimRevConnector\ValueMapping;
 
 $twig = new TwigContainer(null, $GLOBALS['kernel']);
 
@@ -71,12 +79,178 @@ if (isset($_GET['set_pid'])) {
     }
 }
 
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['pid']) && !empty($_POST['pid'])) {
+
+    $pr = $_POST['responsibility'];
+    $pid = $_POST['pid'];
+
+    //$pid is found on the parent page that is including this php file
+    $formattedPr = ValueMapping::mapPayerResponsibility($pr);
+    EligibilityData::removeEligibilityCheck($pid, $formattedPr);
+    $requestObjects = EligibilityObjectCreator::buildObject($pid, $pr, null, null, null);
+    EligibilityObjectCreator::saveToDatabase($requestObjects, $pid);
+    $request = $requestObjects[0];
+
+    $eligibilityCheck = EligibilityData::getEligibilityResult($pid, $pr);
+
+    $html1 = "";
+    $html2 = "";
+
+    foreach ($eligibilityCheck as $check) {
+        $html1 .= '<div class="row">';
+        $html1 .= '<div class="col">' . xlt("Status") . ': ' . text($check["status"]) . '</div>';
+        $html1 .= '<div class="col">(' . xlt("Last Update") . ': ' . text($check["last_update"]) . ')</div>';
+        $html1 .= '<div class="col">' . xlt("Message") . ': ' . text($check["response_message"]) . '</div>';
+        $html1 .= '</div>';
+    }
+
+    $path = __DIR__;
+    $path = str_replace("src", "templates", $path);
+
+
+    foreach ($eligibilityCheck as $check) {
+    
+        if ($check["eligibility_json"] == null) {
+            $html2 .= xlt("No Results");
+        } else {
+            $individualJson = $check["individual_json"];
+            $individual = json_decode($individualJson);
+            $results = $individual->eligibility;
+            $index = 0;
+            foreach ($results as $result) {
+                $index++;
+                $eligibilityData = $result;
+                $benefits = null;
+                $subscriberPatient = null;
+                $data = null;
+                if (property_exists($eligibilityData, 'mapped271')) {
+                    $data = $eligibilityData->mapped271;
+                }
+
+                if (property_exists($data, 'dependent')) {
+                    $dependent = $data->dependent;
+                    if ($dependent != null) {
+                        if (property_exists($dependent, 'benefits')) {
+                            $benefits = $dependent->benefits;
+                            $subscriberPatient = $dependent;
+                        }
+                    }
+                }
+
+                if (property_exists($data, 'subscriber')) {
+                    $subscriber = $data->subscriber;
+                    if ($subscriber != null) {
+                        if (property_exists($subscriber, 'benefits')) {
+                            $benefits = $subscriber->benefits;
+                            $subscriberPatient = $subscriber;
+                        }
+                    }
+                }
+
+                $html2 .= '<ul class="nav nav-tabs mb-2">';
+                $classActive = "active";
+                $first = "true";
+                $html2 .= '<li class="nav-item" role="presentation">';
+                $html2 .= '<a id="claimrev-ins-quick-tab" aria-selected="' . $first . '" class="nav-link active" data-toggle="tab" role="tab" href="#eligibility-quick-' . attr($index) . '">' . xlt("Quick Info ") . '</a>';
+                $html2 .= '</li>';
+                
+                $html2 .= '<li class="nav-item" role="presentation">';
+                $html2 .= '<a id="claimrev-ins-deductibles-tab" aria-selected="' . $first . '" class="nav-link" data-toggle="tab" role="tab" href="#eligibility-deductibles-' . attr($index) . '">' . xlt("Deductibles") . '</a>';
+                $html2 .= '</li>';
+                
+                $html2 .= '<li class="nav-item" role="presentation">';
+                $html2 .= '<a id="claimrev-ins-benefits-tab" aria-selected="' . $first . '" class="nav-link" data-toggle="tab" role="tab" href="#eligibility-benefits-' . attr($index) . '">' . xlt("Benefits") . '</a>';
+                $html2 .= '</li>';
+                
+                $html2 .= '<li class="nav-item" role="presentation">';
+                $html2 .= '<a id="claimrev-ins-medicare-tab" aria-selected="' . $first . '" class="nav-link" data-toggle="tab" role="tab" href="#eligibility-medicare-' . attr($index) . '">' . xlt("Medicare") . '</a>';
+                $html2 .= '</li>';
+                
+                $html2 .= '<li class="nav-item" role="presentation">';
+                $html2 .= '<a id="claimrev-ins-validations-tab" aria-selected="' . $first . '" class="nav-link" data-toggle="tab" role="tab" href="#eligibility-validations-' . attr($index) . '">' . xlt("Validations") . '</a>';
+                $html2 .= '</li>';
+                
+                $html2 .= '</ul>';
+
+                $html2 .= '<div class="tab-content">';
+                $html2 .= '<div id="eligibility-quick-' . attr($index) . '" class="tab-pane active">';
+                $html2 .= '<div class="row">';
+                $html2 .= '<div class="col">';
+                ob_start();
+                include $path . '/quick_info.php';
+                $html2 .= ob_get_clean(); // Include and capture the output of 'quick_info.php'
+                $html2 .= '</div>';
+                $html2 .= '</div>';
+                $html2 .= '</div>';
+
+                $html2 .= '<div id="eligibility-deductibles-' . attr($index) . '" class="tab-pane">';
+                $html2 .= '<div class="row">';
+                $html2 .= '<div class="col">';
+                include $path . '/deductibles.php';
+                $html2 .= '</div>';
+                $html2 .= '</div>';
+                $html2 .= '</div>';
+
+                $html2 .= '<div id="eligibility-medicare-' . attr($index) . '" class="tab-pane">';
+                $html2 .= '<div class="row">';
+                $html2 .= '<div class="col">';
+                include $path . '/medicare_info.php';
+                $html2 .= '</div>';
+                $html2 .= '</div>';
+                $html2 .= '</div>';
+
+                $html2 .= '<div id="eligibility-benefits-' . attr($index) . '" class="tab-pane">';
+                $html2 .= '<div class="row">';
+                $html2 .= '<div class="col">';
+                $source = $data->informationSourceName;
+                include $path . '/source.php';
+                $html2 .= '</div>';
+                $html2 .= '</div>';
+                $html2 .= '<div class="row">';
+                $html2 .= '<div class="col">';
+                $receiver = $data->receiver;
+                include $path . '/receiver.php';
+                $html2 .= '</div>';
+                $html2 .= '</div>';
+                $html2 .= '<div class="row">';
+                $html2 .= '<div class="col">';
+                if ($benefits != null) {
+                    include $path . '/subscriber_patient.php';
+                    include $path . '/benefit.php';
+                }
+                $html2 .= '</div>';
+                $html2 .= '</div>';
+                $html2 .= '</div>';
+
+                $html2 .= '<div id="eligibility-validations-' . attr($index) . '" class="tab-pane">';
+                $html2 .= '<div class="row">';
+                $html2 .= '<div class="col">';
+                include $path . '/validation.php';
+                $html2 .= '</div>';
+                $html2 .= '</div>';
+                $html2 .= '</div>';
+                $html2 .= '</div>';
+            }//end foreach eligibility
+        }//else results
+    }//end main foreach
+
+    $response = array(
+        'html1' => $html1,
+        'html2' => $html2
+    );
+
+    $jsonResponse = json_encode($response);
+
+    header('Content-Type: application/json');
+    echo $jsonResponse;
+    exit();
+}
+
 // Note: it would eventually be a good idea to move this into
 // it's own module that people can remove / add if they don't
 // want smart support in their system.
 $smartLaunchController = new SMARTLaunchController($GLOBALS["kernel"]->getEventDispatcher());
 $smartLaunchController->registerContextEvents();
-$hiddenCards = getHiddenDashboardCards();
 
 /**
  * @var EventDispatcher
@@ -117,17 +291,6 @@ if ($GLOBALS['insurance_only_one']) {
     $insurance_array = array('primary');
 } else {
     $insurance_array = array('primary', 'secondary', 'tertiary');
-}
-
-function getHiddenDashboardCards(): array
-{
-    $hiddenList = [];
-    $ret = sqlStatement("SELECT gl_value FROM `globals` WHERE `gl_name` = 'hide_dashboard_cards'");
-    while ($row = sqlFetchArray($ret)) {
-        $hiddenList[] = $row['gl_value'];
-    }
-
-    return $hiddenList;
 }
 
 function print_as_money($money)
@@ -1047,9 +1210,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <?php
                     $t = $twig->getTwig();
 
-                    $allergy = (AclMain::aclCheckIssue('allergy') ? 1 : 0) && !in_array('card_allergies', $hiddenCards) ? 1 : 0;
-                    $pl = (AclMain::aclCheckIssue('medical_problem') ? 1 : 0) && !in_array('card_medicalproblems', $hiddenCards) ? 1 : 0;
-                    $meds = (AclMain::aclCheckIssue('medication') ? 1 : 0) && !in_array('card_medication', $hiddenCards) ? 1 : 0;
+                    $allergy = (AclMain::aclCheckIssue('allergy')) ? 1 : 0;
+                    $pl = (AclMain::aclCheckIssue('medical_problem')) ? 1 : 0;
+                    $meds = (AclMain::aclCheckIssue('medication')) ? 1 : 0;
                     $rx = (!$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx')) ? 1 : 0;
                     $cards = max(1, ($allergy + $pl + $meds));
                     $col = "p-1 ";
@@ -1198,7 +1361,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         ob_end_clean();
 
                         echo "<div class=\"col\">";
-                        echo $t->render('patient/card/rx.html.twig', $viewArgs); // render core prescription card
+                        echo $t->render('patient/card/rx.html.twig', $viewArgs);
                         echo "</div>";
                     endif;
                     ?>
@@ -1285,9 +1448,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
-                        if (!in_array('card_patientreminders', $hiddenCards)) {
-                            echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
-                        }
+                        echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
                     endif; //end if prw is activated
 
                     if (AclMain::aclCheckCore('patients', 'disclosure')) :
@@ -1308,9 +1469,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
-                        if (!in_array('card_disclosure', $hiddenCards)) {
-                            echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
-                        }
+                        echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
                     endif; // end if disclosures authorized
 
                     if ($GLOBALS['amendments'] && AclMain::aclCheckCore('patients', 'amendment')) :
@@ -1338,9 +1497,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
-                        if (!in_array('card_amendments', $hiddenCards)) {
-                            echo $twig->getTwig()->render('patient/card/amendments.html.twig', $viewArgs);
-                        }
+                        echo $twig->getTwig()->render('patient/card/amendments.html.twig', $viewArgs);
                     endif; // end amendments authorized
 
                     if (AclMain::aclCheckCore('patients', 'lab')) :
@@ -1368,9 +1525,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
-                        if (!in_array('card_lab', $hiddenCards)) {
-                            echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
-                        }
+                        echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
                     endif; // end labs authorized
 
                     if ($vitals_is_registered && AclMain::aclCheckCore('patients', 'med')) :
@@ -1393,9 +1548,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
-                        if (!in_array('card_vitals', $hiddenCards)) {
-                            echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
-                        }
+                        echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
                     endif; // end vitals
 
                     // if anyone wants to render anything after the patient demographic list
