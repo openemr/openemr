@@ -55,9 +55,6 @@ use OpenEMR\Services\ImmunizationService;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use OpenEMR\Patient\Cards\InsuranceViewCard;
-use OpenEMR\Patient\Cards\BillingViewCard;
-use OpenEMR\Patient\Cards\DemographicsViewCard;
 
 $twig = new TwigContainer(null, $GLOBALS['kernel']);
 
@@ -79,6 +76,7 @@ if (isset($_GET['set_pid'])) {
 // want smart support in their system.
 $smartLaunchController = new SMARTLaunchController($GLOBALS["kernel"]->getEventDispatcher());
 $smartLaunchController->registerContextEvents();
+$hiddenCards = getHiddenDashboardCards();
 
 /**
  * @var EventDispatcher
@@ -119,6 +117,17 @@ if ($GLOBALS['insurance_only_one']) {
     $insurance_array = array('primary');
 } else {
     $insurance_array = array('primary', 'secondary', 'tertiary');
+}
+
+function getHiddenDashboardCards(): array
+{
+    $hiddenList = [];
+    $ret = sqlStatement("SELECT gl_value FROM `globals` WHERE `gl_name` = 'hide_dashboard_cards'");
+    while ($row = sqlFetchArray($ret)) {
+        $hiddenList[] = $row['gl_value'];
+    }
+
+    return $hiddenList;
 }
 
 function print_as_money($money)
@@ -1038,9 +1047,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <?php
                     $t = $twig->getTwig();
 
-                    $allergy = (AclMain::aclCheckIssue('allergy')) ? 1 : 0;
-                    $pl = (AclMain::aclCheckIssue('medical_problem')) ? 1 : 0;
-                    $meds = (AclMain::aclCheckIssue('medication')) ? 1 : 0;
+                    $allergy = (AclMain::aclCheckIssue('allergy') ? 1 : 0) && !in_array('card_allergies', $hiddenCards) ? 1 : 0;
+                    $pl = (AclMain::aclCheckIssue('medical_problem') ? 1 : 0) && !in_array('card_medicalproblems', $hiddenCards) ? 1 : 0;
+                    $meds = (AclMain::aclCheckIssue('medication') ? 1 : 0) && !in_array('card_medication', $hiddenCards) ? 1 : 0;
                     $rx = (!$GLOBALS['disable_prescriptions'] && AclMain::aclCheckCore('patients', 'rx')) ? 1 : 0;
                     $cards = max(1, ($allergy + $pl + $meds));
                     $col = "p-1 ";
@@ -1189,7 +1198,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         ob_end_clean();
 
                         echo "<div class=\"col\">";
-                        echo $t->render('patient/card/rx.html.twig', $viewArgs);
+                        echo $t->render('patient/card/rx.html.twig', $viewArgs); // render core prescription card
                         echo "</div>";
                     endif;
                     ?>
@@ -1276,7 +1285,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
-                        echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
+                        if (!in_array('card_patientreminders', $hiddenCards)) {
+                            echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
+                        }
                     endif; //end if prw is activated
 
                     if (AclMain::aclCheckCore('patients', 'disclosure')) :
@@ -1297,7 +1308,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
-                        echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
+                        if (!in_array('card_disclosure', $hiddenCards)) {
+                            echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
+                        }
                     endif; // end if disclosures authorized
 
                     if ($GLOBALS['amendments'] && AclMain::aclCheckCore('patients', 'amendment')) :
@@ -1325,7 +1338,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
-                        echo $twig->getTwig()->render('patient/card/amendments.html.twig', $viewArgs);
+                        if (!in_array('card_amendments', $hiddenCards)) {
+                            echo $twig->getTwig()->render('patient/card/amendments.html.twig', $viewArgs);
+                        }
                     endif; // end amendments authorized
 
                     if (AclMain::aclCheckCore('patients', 'lab')) :
@@ -1353,7 +1368,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
-                        echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
+                        if (!in_array('card_lab', $hiddenCards)) {
+                            echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
+                        }
                     endif; // end labs authorized
 
                     if ($vitals_is_registered && AclMain::aclCheckCore('patients', 'med')) :
@@ -1376,7 +1393,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
                             'appendedInjection' => $dispatchResult->getAppendedInjection(),
                         ];
-                        echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
+                        if (!in_array('card_vitals', $hiddenCards)) {
+                            echo $twig->getTwig()->render('patient/card/loader.html.twig', $viewArgs);
+                        }
                     endif; // end vitals
 
                     // if anyone wants to render anything after the patient demographic list

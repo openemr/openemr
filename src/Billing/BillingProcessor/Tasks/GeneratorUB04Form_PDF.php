@@ -16,10 +16,10 @@
 
 namespace OpenEMR\Billing\BillingProcessor\Tasks;
 
-use OpenEMR\Billing\BillingProcessor\GeneratorInterface;
-use OpenEMR\Billing\BillingProcessor\LoggerInterface;
 use OpenEMR\Billing\BillingProcessor\BillingClaim;
 use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
+use OpenEMR\Billing\BillingProcessor\GeneratorInterface;
+use OpenEMR\Billing\BillingProcessor\LoggerInterface;
 use OpenEMR\Billing\BillingProcessor\Traits\WritesToBillingLog;
 use OpenEMR\Billing\BillingUtilities;
 
@@ -36,7 +36,7 @@ class GeneratorUB04Form_PDF extends AbstractGenerator implements GeneratorInterf
 
     public function setup(array $context)
     {
-        $this->batch = new BillingClaimBatch('.pdf');
+        $this->batch = new BillingClaimBatch('.pdf', $context);
 
         // This was called at top of old billing_process.php so call in setup()
         ub04_dispose();

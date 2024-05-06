@@ -36,6 +36,7 @@ class CcdController extends AbstractActionController
 
     protected $documentsTable;
 
+    protected $listenerObject;
     /**
      * @var Documents\Controller\DocumentsController
      */

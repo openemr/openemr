@@ -553,6 +553,15 @@ $ires = sqlStatement("SELECT id, type, title, begdate FROM lists WHERE " .
                                 </select>
                             </div>
                         </div>
+                        <div class="col-sm <?php displayOption('enc_enable_ordering_provider');?>">
+                            <div class="form-group">
+                                <label for='ordering_provider_id' class="text-right"><?php echo xlt('Ordering Provider'); ?>:</label>
+                                <?php
+                                    $MBO->genOrderingProviderSelect('ordering_provider_id', '-- ' . xl("Please Select") . ' --', $result["ordering_provider_id"] ?? '');
+                                ?>
+                                </select>
+                            </div>
+                        </div>
                         <div class="col-sm <?php displayOption('enc_enable_facility'); ?>">
                             <div class="form-group">
                                 <label for='facility_id_sel' class="text-right"><?php echo xlt('Facility'); ?>:</label>

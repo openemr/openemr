@@ -191,7 +191,12 @@ $GLOBALS_METADATA = array(
             'style_light.css',
             xl('Pick a general theme (need to logout/login after changing this setting).')
         ),
-
+        'hide_dashboard_cards' => array(
+            xl('Hide selected cards on patient dashboard'),
+            'm_dashboard_cards',
+            '',
+            xl('Multi (Shift or CTRL) Select the cards you want to hide on the patient dashboard.')
+        ),
         'window_title_add_patient_name' => array(
             xl('Add Patient Name To Window Title'),
             'bool',                           // data type
@@ -4308,6 +4313,12 @@ $GLOBALS_METADATA = array(
             xl('Show Encounter Class option on Encounters'),
         ],
 
+        'enc_enable_ordering_provider' => [
+            xl('Show Ordering Provider option on Encounters'),
+            getDefaultRenderListOptions(),
+            RenderFormFieldHelper::HIDE_ALL,
+            xl('Display the Ordering Provider option on Encounters'),
+        ],
     ],
 );
 

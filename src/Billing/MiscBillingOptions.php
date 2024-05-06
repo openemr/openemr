@@ -88,6 +88,30 @@ class MiscBillingOptions
         echo "</select>\n";
     }
 
+    public function genOrderingProviderSelect($selname, $toptext, $default = 0, $disabled = false)
+    {
+        $query = "SELECT id, lname, fname FROM users WHERE npi != '' ORDER BY lname, fname";
+        $res = sqlStatement($query);
+        echo "<select name='" . attr($selname) . "' id='" . attr($selname) . "' class='form-control'";
+        if ($disabled) {
+            echo " disabled";
+        }
+
+        echo ">";
+        echo "<option value=''>" . text($toptext);
+        while ($row = sqlFetchArray($res)) {
+            $provid = $row['id'];
+            echo "<option value='" . attr($provid) . "'";
+            if ($provid == $default) {
+                echo " selected";
+            }
+
+            echo ">" . text($row['lname'] . ", " . $row['fname']);
+        }
+
+        echo "</select>\n";
+    }
+
     public function qual_id_to_description($qual_type, $value)
     {
         $options = $this->hcfa_date_quals[$qual_type];

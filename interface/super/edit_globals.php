@@ -645,6 +645,38 @@ $apiUrl = $serverConfig->getInternalBaseApiUrl();
                                                     echo "</option>\n";
                                                 }
                                                 echo "  </select>\n";
+                                            } elseif ($fldtype == GlobalSetting::DATA_TYPE_MULTI_DASHBOARD_CARDS) {
+                                                $hiddenList = [];
+                                                $ret = sqlStatement("SELECT gl_value FROM `globals` WHERE `gl_name` = 'hide_dashboard_cards'");
+                                                while ($row = sqlFetchArray($ret)) {
+                                                    $hiddenList[] = $row['gl_value'];
+                                                }
+                                                // The list of cards to hide. For now add to array new cards.
+                                                $res = array(
+                                                    ['card_abrev' => '', 'card_name' => xlt('None or Reset')],
+                                                    ['card_abrev' => attr('card_allergies'), 'card_name' => xlt('Allergies')],
+                                                    ['card_abrev' => attr('card_amendments'), 'card_name' => xlt('Amendments')],
+                                                    ['card_abrev' => attr('card_disclosure'), 'card_name' => xlt('Disclosures')],
+                                                    ['card_abrev' => attr('card_lab'), 'card_name' => xlt('Labs')],
+                                                    ['card_abrev' => attr('card_medicalproblems'), 'card_name' => xlt('Medical Problems')],
+                                                    ['card_abrev' => attr('card_medication'), 'card_name' => xlt('Medications')],
+                                                    //['card_abrev' => 'card_rx', 'card_name' => 'Prescriptions'], // For now don't hide because can be disabled as feature.
+                                                    ['card_abrev' => attr('card_vitals'), 'card_name' => xlt('Vitals')]
+                                                );
+                                                echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='8'>\n";
+                                                foreach ($res as $row) {
+                                                    echo "   <option value='" . attr($row['card_abrev']) . "'";
+                                                    foreach ($glarr as $glrow) {
+                                                        if ($glrow['gl_value'] == $row['card_abrev']) {
+                                                            echo " selected";
+                                                            break;
+                                                        }
+                                                    }
+                                                    echo ">";
+                                                    echo xlt($row['card_name']);
+                                                    echo "</option>\n";
+                                                }
+                                                echo "  </select>\n";
                                             } elseif ($fldtype == GlobalSetting::DATA_TYPE_COLOR_CODE) {
                                                 if ($userMode) {
                                                     $globalTitle = $globalValue;

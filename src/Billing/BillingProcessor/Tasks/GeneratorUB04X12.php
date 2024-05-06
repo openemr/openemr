@@ -10,17 +10,17 @@
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2014-2020 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2017-2020 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2017-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Billing\BillingProcessor\Tasks;
 
+use OpenEMR\Billing\BillingProcessor\BillingClaim;
+use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingProcessor\GeneratorCanValidateInterface;
 use OpenEMR\Billing\BillingProcessor\GeneratorInterface;
 use OpenEMR\Billing\BillingProcessor\LoggerInterface;
-use OpenEMR\Billing\BillingProcessor\BillingClaim;
-use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingProcessor\Traits\WritesToBillingLog;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\X125010837I;
@@ -70,6 +70,7 @@ class GeneratorUB04X12 extends AbstractGenerator implements GeneratorInterface, 
     public function validateOnly(BillingClaim $claim)
     {
         $this->printToScreen(xl("Successfully validated claim") . ": " . $claim->getId());
+        $this->ub04id = get_ub04_array($claim->getPid(), $claim->getEncounter());
         return $this->updateBatch($claim);
     }
 
@@ -134,7 +135,7 @@ class GeneratorUB04X12 extends AbstractGenerator implements GeneratorInterface, 
         $this->batch->append_claim_close();
 
         $format_bat = str_replace('~', PHP_EOL, $this->batch->getBatContent());
-        $wrap = "<!DOCTYPE html><html><head></head><body><div style='overflow: hidden;'><pre>" . text($format_bat) . "</pre></div></body></html>";
+        $wrap = "<!DOCTYPE html><html><head></head><body class='bg-light text-dark'><div class='bg-light text-dark' style='overflow: hidden;'><pre>" . text($format_bat) . "</pre></div></body></html>";
         echo $wrap;
     }
 
