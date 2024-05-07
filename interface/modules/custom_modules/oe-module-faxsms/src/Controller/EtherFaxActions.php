@@ -30,6 +30,9 @@ class EtherFaxActions extends AppDispatch
     public string $portalUrl;
     protected $crypto;
     private EtherFaxClient $client;
+    private mixed $appSecret;
+    private mixed $sid;
+    private mixed $appKey;
 
     public function __construct()
     {
@@ -518,7 +521,7 @@ class EtherFaxActions extends AppDispatch
             if (!file_exists($faxStoreDir) && !mkdir($faxStoreDir, 0777, true) && !is_dir($faxStoreDir)) {
                 throw new \RuntimeException(sprintf('Directory "%s" was not created', $faxStoreDir));
             }
-            $file_name = "${faxStoreDir}/${type}_${docid}.${ext}";
+            $file_name = "{$faxStoreDir}/{$type}_{$docid}.{$ext}";
             file_put_contents($file_name, $raw);
             $this->setSession('where', $file_name);
             $this->setFaxDeleted($apiResponse->JobId);
