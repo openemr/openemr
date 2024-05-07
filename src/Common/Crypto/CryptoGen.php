@@ -270,7 +270,7 @@ class CryptoGen
         } else {
             try {
                 // throw an exception
-                throw new Exception("OpenEMR Error: Decryption failed hmac authentication!");
+                throw new Exception("OpenEMR Error: Decryption failed HMAC Authentication!");
             } catch (Exception $e) {
                 // log the exception message and call stack then return legacy null as false for
                 // those evaluating the return value as $return == false which with legacy will eval as false.
@@ -279,7 +279,7 @@ class CryptoGen
                 // The goal here is so the call stack is exposed to track back to where the call originated.
                 $stackTrace = debug_backtrace();
                 $formattedStackTrace = $this->formatExceptionMessage($stackTrace);
-                error_log(errorLogEscape($e->getMessage()) . "\n" . error_log($formattedStackTrace));
+                error_log(errorLogEscape($e->getMessage()) . "\n" . errorLogEscape($formattedStackTrace));
                 return false;
             }
         }
@@ -287,7 +287,7 @@ class CryptoGen
 
     private function formatExceptionMessage($stackTrace): string
     {
-        $formattedStackTrace = "Call Stack:\n";
+        $formattedStackTrace = "Possibly Config Password or Token. Error Call Stack:\n";
         foreach ($stackTrace as $index => $call) {
             $formattedStackTrace .= "#" . $index . " ";
             if (isset($call['file'])) {

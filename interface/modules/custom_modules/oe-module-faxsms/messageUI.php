@@ -190,7 +190,11 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                 'width=' + width / 1.75 + ', height=' + height +
                 ', top=' + top + ', left=' + left
             );
-            win.document.write("<iframe width='100%' height='100%' style='border:none;' src='" + dataUrl + "'></iframe>");
+            if (win === null) {
+                alert(xl('Please allow popups for this site'));
+            } else {
+                win.document.write("<iframe width='100%' height='100%' style='border:none;' src='" + dataUrl + "'></iframe>");
+            }
         }
 
         function viewDocument(e = '', dataUrl) {
@@ -212,7 +216,11 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                 'width=' + width / 1.75 + ', height=' + height +
                 ', top=' + top + ', left=' + left
             );
-            win.document.write("<iframe width='100%' height='100%' style='border:none;' src='" + dataUrl + "'></iframe>");
+            if (win === null) {
+                alert(xl('Please allow popups for this site'));
+            } else {
+                win.document.write("<iframe width='100%' height='100%' style='border:none;' src='" + dataUrl + "'></iframe>");
+            }
         }
 
         function getDocument(e, docuri, docid, downFlag, deleteFlag = '') {
