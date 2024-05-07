@@ -12,13 +12,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Common\Twig\TwigContainer;
-use PHPMailer\PHPMailer\PHPMailer;
 
 // check if using the patient portal
 //(if so, then use the portal authorization)
+$notPatientPortal = false;
 if (isset($_GET['portal_auth'])) {
     $landingpage = "../portal/index.php";
 
@@ -37,12 +35,7 @@ if (isset($_GET['portal_auth'])) {
     }
 } else {
     // Check authorization.
-    require_once("../interface/globals.php");
-    $thisauth = AclMain::aclCheckCore('patients', 'pat_rep');
-    if (!$thisauth) {
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Create CCR")]);
-        exit;
-    }
+    $notPatientPortal = true;
 }
 
 require_once(dirname(__FILE__) . "/../interface/globals.php");
@@ -50,6 +43,18 @@ require_once(dirname(__FILE__) . "/../library/sql-ccr.inc.php");
 require_once(dirname(__FILE__) . "/uuid.php");
 require_once(dirname(__FILE__) . "/transmitCCD.php");
 require_once(dirname(__FILE__) . "/../custom/code_types.inc.php");
+
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
+use PHPMailer\PHPMailer\PHPMailer;
+
+if ($notPatientPortal) {
+    $thisauth = AclMain::aclCheckCore('patients', 'pat_rep');
+    if (!$thisauth) {
+        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Create CCR")]);
+        exit;
+    }
+}
 
 function createCCR($action, $raw = "no", $requested_by = "")
 {
