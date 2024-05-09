@@ -784,7 +784,7 @@ function zip_content($source, $destination, $content = '', $create = true)
                             }
                             if (!empty($dateres['date'])) {
                             // show the encounter's date
-                            echo "(" . text(oeFormatSDFT(strtotime($dateres["date"]))) . ") ";
+                                echo "(" . text(oeFormatSDFT(strtotime($dateres["date"]))) . ") ";
                             }
                             if ($res[1] == 'newpatient') {
                                 // display the provider info
