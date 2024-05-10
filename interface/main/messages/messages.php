@@ -303,6 +303,8 @@ if (!empty($_REQUEST['go'])) { ?>
                                     if (checkPnotesNoteId($note_id, $_SESSION['authUser'])) {
                                         updatePnote($noteid, $note, $form_note_type, $assigned_to, $form_message_status, $datetime);
                                         $noteid = '';
+                                    } else {
+                                        die("Message is not assigned to you. Adding is disallowed.");
                                     }
                                 } else {
                                     if ($noteid && $assigned_to == '-patient-') {
