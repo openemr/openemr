@@ -18,6 +18,7 @@ use MyMailer;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
+use OpenEMR\Services\ImageUtilities\HandleImageController;
 use Symfony\Component\HttpClient\HttpClient;
 
 class EtherFaxActions extends AppDispatch
@@ -372,6 +373,7 @@ class EtherFaxActions extends AppDispatch
             ;
             $faxStore = $this->fetchFaxQueue($dateFrom, $dateTo);
             $responseMsgs = [];
+            $responseMsgs[0] = '';
             $responseMsgs[2] = xlt('Not Implemented');
             $direction = 'inbound';
             foreach ($faxStore as $faxDetails) {
@@ -383,10 +385,9 @@ class EtherFaxActions extends AppDispatch
                 $from = $faxDetails->CallingNumber;
                 $params = $faxDetails->DocumentParams;
                 $form = '';
-                $docType = null;
                 $id_esc = text($id);
                 $showFlag = 0;
-                $recog = $faxDetails->AnalyzeFormResult->AnalyzeResult->DocumentResults;
+                $recog = $faxDetails->AnalyzeFormResult->AnalyzeResult->DocumentResults ?? [];
                 foreach ($recog as $r) {
                     $details = null;
                     $form = "<tr id='$id_esc' class='d-none collapse-all'><td colspan='12'>\n" .
@@ -398,7 +399,7 @@ class EtherFaxActions extends AppDispatch
                         xlt("Confidence") . " : " . text($r->DocTypeConfidence * 100) .
                         "\n</th></tr></thead>\n";
                     $form .= "<tbody>\n";
-                    $parse = $this->parseValidators($r->Fields);
+                    $parse = $this->parseValidators($r->Fields) ?? null ? $this->parseValidators($r->Fields) : [];
                     $pid_assumed = '';
                     if (!empty($parse['DOB']) && !empty($parse['fname']) && !empty($parse['lname'])) {
                         $pid_assumed = sqlQuery(
@@ -406,7 +407,7 @@ class EtherFaxActions extends AppDispatch
                             array($parse['fname'], $parse['lname'], date("Y-m-d", strtotime(($parse['DOB']))))
                         )['pid'];
                     }
-                    $pid_assumed = $pid_assumed ?: 'No';
+                    $pid_assumed = $pid_assumed ?? 0 ? $pid_assumed : 'No';
                     foreach ($r->Fields as $field) {
                         if ($field->Text == 'unselected' || empty($field->Text)) {
                             continue;
@@ -418,16 +419,22 @@ class EtherFaxActions extends AppDispatch
                         $form .= '<td>' . text($field->Confidence * 100) . "</td>\n";
                         $form .= "</tr>\n";
                         $table[$field->Name] = ['name' => $field->Name, 'value' => $field->Text];
-                        $details['dob'] = $field->Name == "Patient Date of Birth" ? $field->Text : $details['dob'];
+                        $details['dob'] = $field->Name == "Patient Date of Birth" ? $field->Text : $details['dob'] ?? '';
                         if (preg_match('/(Patient First Name)(Patient Last Name)/', $field->Name)) {
                             $details['name'][$field->Name] = $field->Text;
                         }
-                        $details['gender'] = $field->Text == "selected" && (stripos($field->Name, 'Male') !== false) ? 'Male' : $details['gender'];
-                        $details['gender'] = $field->Text == "selected" && (stripos($field->Name, 'Female') !== false) ? 'Female' : $details['gender'];
+                        $details['gender'] = $field->Text == "selected" && (stripos($field->Name, 'Male') !== false) ? 'Male' : $details['gender'] ?? '';
+                        $details['gender'] = $field->Text == "selected" && (stripos($field->Name, 'Female') !== false) ? 'Female' : $details['gender'] ?? '';
                     }
                     $form .= "</tbody>\n</table>\n</div>\n</td>\n</tr>\n";
                 }
-                $parse = json_encode($parse);
+
+                if (!empty($parse)) {
+                    $parse = json_encode($parse);
+                } else {
+                    $parse = '';
+                }
+
                 $patientLink = "<a role='button' href='javascript:void(0)' onclick=\"createPatient(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js($parse) . ")\"> <i class='fa fa-chart-simple mr-2' title='" . xla("Chart fax or Create patient and chart fax to documents.") . "'></i></a>";
                 $messageLink = "<a role='button' href='javascript:void(0)' onclick=\"notifyUser(event, " . attr_js($id) . ", " . attr_js($record_id) . ", " . attr_js(($pid ?? 0)) . ")\"> <i class='fa fa-paper-plane mr-2' title='" . xla("Notify a user and attach this fax to message.") . "'></i></a>";
                 $downloadLink = "<a role='button' href='javascript:void(0)' onclick=\"getDocument(event, null, " . attr_js($id) . ", 'true')\"> <i class='fa fa-file-download mr-2' title='" . xla("Download and delete fax") . "'></i></a>";
@@ -447,7 +454,7 @@ class EtherFaxActions extends AppDispatch
                         "</td><td>" . text($faxDetails->PagesReceived) .
                         "</td><td>" . text($docLen) .
                         "</td><td class='text-left'>" . $detailLink .
-                        "</td><td class='text-center'>" . text($pid_assumed) .
+                        "</td><td class='text-center'>" . text($pid_assumed ?? 0) .
                         "</td><td class='text-left'>" . $patientLink . $messageLink . $forwardLink . $viewLink . $downloadLink . $deleteLink .
                         "</td></tr>";
                     $responseMsgs[0] .= $form;
@@ -473,7 +480,6 @@ class EtherFaxActions extends AppDispatch
      */
     public function viewFax(): string
     {
-        $formatted_document = null;
         $docid = $this->getRequest('docid');
         $isDownload = $this->getRequest('download');
         $isDownload = $isDownload == 'true' ? 1 : 0;
@@ -484,7 +490,6 @@ class EtherFaxActions extends AppDispatch
         }
 
         $faxStoreDir = $this->baseDir;
-
         try {
             if (is_numeric($docid)) {
                 $apiResponse = $this->fetchFaxFromQueue(null, $docid);
@@ -500,21 +505,27 @@ class EtherFaxActions extends AppDispatch
             $this->setFaxDeleted($apiResponse->JobId);
             return json_encode('success');
         }
-        $faxImage = $apiResponse->FaxImage;
-        $raw = base64_decode($faxImage);
+
+        $faxImage = $apiResponse->FaxImage; //base_64
         $c_header = $apiResponse->DocumentParams->Type;
+
+        if ($c_header == 'image/tiff') {
+            $faxImage = $this->formatFax($faxImage);
+            $c_header = 'application/pdf';
+        }
+        // TODO unused! why is it here?
         if ($c_header == 'application/pdf') {
             $ext = 'pdf';
             $type = 'Fax';
-            $formatted_document = 'data:application/pdf;base64, ' . $faxImage;
+            $dataUrl = 'data:application/pdf;base64, ' . $faxImage;
         } elseif ($c_header == 'image/tiff' || $c_header == 'image/tif') {
             $ext = 'tiff';
             $type = 'Fax';
-            $formatted_document = 'data:image/tiff;base64, ' . $faxImage;
+            $dataUrl = 'data:image/tiff;base64, ' . $faxImage;
         } else {
             $ext = 'txt';
             $type = 'Text';
-            $formatted_document = "data:text/plain, " . $faxImage;
+            $dataUrl = "data:text/plain, " . $faxImage;
         }
         // Set up to download file.
         if ($isDownload) {
@@ -522,6 +533,7 @@ class EtherFaxActions extends AppDispatch
                 throw new \RuntimeException(sprintf('Directory "%s" was not created', $faxStoreDir));
             }
             $file_name = "{$faxStoreDir}/{$type}_{$docid}.{$ext}";
+            $raw = base64_decode($faxImage);
             file_put_contents($file_name, $raw);
             $this->setSession('where', $file_name);
             $this->setFaxDeleted($apiResponse->JobId);
@@ -531,8 +543,16 @@ class EtherFaxActions extends AppDispatch
         return json_encode(['base64' => $faxImage, 'mime' => $c_header]);
     }
 
+    public function formatFax($encodedFax): string
+    {
+        $control = new HandleImageController();
+        $formatted_document = $control->convertImageToPdf($encodedFax, '', 'gd');
+
+        return base64_encode($formatted_document);
+    }
+
     /**
-     * @param $content
+     * @param string $content
      * @return void
      */
     public function disposeDoc($content = ''): void
@@ -646,9 +666,13 @@ class EtherFaxActions extends AppDispatch
     public function fetchFaxQueue($start, $end): array
     {
         $rows = [];
-        $res = sqlStatement("SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `deleted` = '0' AND (`receive_date` > ? AND `receive_date` < ?)", [$start, $end]);
+        $res = sqlStatement("SELECT `id`, `details_json`, `receive_date` FROM `oe_faxsms_queue` WHERE `deleted` = '0' AND (`receive_date` > ? AND `receive_date` < ?)", [$start, $end]);
         while ($row = sqlFetchArray($res)) {
             $detail = json_decode($row['details_json']);
+            if (json_last_error()) {
+                error_log('Error: ' . $row['id'] . ': ' . json_last_error_msg() . ' ' . $row['details_json']);
+                continue;
+            }
             $detail->RecordId = $row['id'];
             $rows[] = $detail;
         }
@@ -661,7 +685,7 @@ class EtherFaxActions extends AppDispatch
      * @param $id
      * @return mixed
      */
-    public function fetchFaxFromQueue($jobId, $id = null)
+    public function fetchFaxFromQueue($jobId, $id = null): mixed
     {
         if (!empty($jobId)) {
             $row = sqlQuery("SELECT `id`, `details_json` FROM `oe_faxsms_queue` WHERE `job_id` = ? LIMIT 1", [$jobId]);
