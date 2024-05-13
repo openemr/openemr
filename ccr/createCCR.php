@@ -12,31 +12,30 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionUtil;
+
 // check if using the patient portal
 //(if so, then use the portal authorization)
+$notPatientPortal = false;
 if (isset($_GET['portal_auth'])) {
     $landingpage = "../portal/index.php";
 
     // Will start the (patient) portal OpenEMR session/cookie.
     require_once(dirname(__FILE__) . "/../src/Common/Session/SessionUtil.php");
-    OpenEMR\Common\Session\SessionUtil::portalSessionStart();
+    SessionUtil::portalSessionStart();
 
     if (isset($_SESSION['pid']) && isset($_SESSION['patient_portal_onsite_two'])) {
         $pid = $_SESSION['pid'];
         $ignoreAuth = true;
         global $ignoreAuth;
     } else {
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '?w');
         exit;
     }
 } else {
     // Check authorization.
-    $thisauth = AclMain::aclCheckCore('patients', 'pat_rep');
-    if (!$thisauth) {
-        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Create CCR")]);
-        exit;
-    }
+    $notPatientPortal = true;
 }
 
 require_once(dirname(__FILE__) . "/../interface/globals.php");
@@ -45,7 +44,17 @@ require_once(dirname(__FILE__) . "/uuid.php");
 require_once(dirname(__FILE__) . "/transmitCCD.php");
 require_once(dirname(__FILE__) . "/../custom/code_types.inc.php");
 
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Twig\TwigContainer;
 use PHPMailer\PHPMailer\PHPMailer;
+
+if ($notPatientPortal) {
+    $thisauth = AclMain::aclCheckCore('patients', 'pat_rep');
+    if (!$thisauth) {
+        echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Create CCR")]);
+        exit;
+    }
+}
 
 function createCCR($action, $raw = "no", $requested_by = "")
 {
