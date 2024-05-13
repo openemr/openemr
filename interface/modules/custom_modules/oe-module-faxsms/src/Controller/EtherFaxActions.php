@@ -18,8 +18,8 @@ use MyMailer;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
-use OpenEMR\Services\ImageUtilities\HandleImageController;
-use Symfony\Component\HttpClient\HttpClient;
+use OpenEMR\Pdf\MpdfGenericPdfCreator;
+use OpenEMR\Services\ImageUtilities\HandleImageService;
 
 class EtherFaxActions extends AppDispatch
 {
@@ -38,7 +38,7 @@ class EtherFaxActions extends AppDispatch
     public function __construct()
     {
         if (empty($GLOBALS['oefax_enable_fax'] ?? null)) {
-            throw new \RuntimeException(xlt("Access denied! Module not enabled"));
+            throw new \Exception(xlt("Access denied! Module not enabled"));
         }
         $this->crypto = new CryptoGen();
         $this->baseDir = $GLOBALS['temporary_files_dir'];
@@ -65,8 +65,7 @@ class EtherFaxActions extends AppDispatch
         $this->sid = $credentials['username'] ?? '';
         $this->appKey = $credentials['appKey'] ?? '';
         $this->appSecret = $credentials['appSecret'] ?? '';
-        $this->serverUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ?
-                "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
+        $this->serverUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
         $this->uriDir = $this->serverUrl . $this->uriDir;
 
         return $credentials;
@@ -79,7 +78,7 @@ class EtherFaxActions extends AppDispatch
      * @param array $user
      * @return string
      */
-    public static function emailDocument($email, $body, $file, $user = []): string
+    public static function emailDocument($email, $body, $file, array $user = []): string
     {
         $from_name = ($user['fname'] ?? '') . ' ' . ($user['lname'] ?? '');
         $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached fax document.");
@@ -100,6 +99,7 @@ class EtherFaxActions extends AppDispatch
         } else {
             $status = xlt("Error: Email failed") . text($mail->ErrorInfo);
         }
+
         return $status;
     }
 
@@ -460,7 +460,7 @@ class EtherFaxActions extends AppDispatch
                     $responseMsgs[0] .= $form;
                 }
             }
-        } catch (\RuntimeException $e) {
+        } catch (\Exception $e) {
             $message = $e->getMessage();
             $responseMsgs = "<tr><td>" . $message . " : " . xlt('Ensure account credentials are correct.') . "</td></tr>";
             echo json_encode(array('error' => $responseMsgs));
@@ -476,11 +476,13 @@ class EtherFaxActions extends AppDispatch
 
     /**
      * Endpoint for fax view setup.
-     * @return string
+     *
+     * @return string base64 encoded fax image
+     * @throws Exception
      */
     public function viewFax(): string
     {
-        $docid = $this->getRequest('docid');
+        $docId = $this->getRequest('docid');
         $isDownload = $this->getRequest('download');
         $isDownload = $isDownload == 'true' ? 1 : 0;
         $isDelete = $this->getRequest('delete');
@@ -491,10 +493,10 @@ class EtherFaxActions extends AppDispatch
 
         $faxStoreDir = $this->baseDir;
         try {
-            if (is_numeric($docid)) {
-                $apiResponse = $this->fetchFaxFromQueue(null, $docid);
+            if (is_numeric($docId)) {
+                $apiResponse = $this->fetchFaxFromQueue(null, $docId);
             } else {
-                $apiResponse = $this->fetchFaxFromQueue($docid);
+                $apiResponse = $this->fetchFaxFromQueue($docId);
             }
         } catch (\Exception $e) {
             $message = $e->getMessage();
@@ -508,12 +510,18 @@ class EtherFaxActions extends AppDispatch
 
         $faxImage = $apiResponse->FaxImage; //base_64
         $c_header = $apiResponse->DocumentParams->Type;
-
-        if ($c_header == 'image/tiff') {
-            $faxImage = $this->formatFax($faxImage);
-            $c_header = 'application/pdf';
+        // Check if fax is tiff and convert jpeg to pdf.
+        if ($c_header == 'image/tiff' || $c_header == 'image/tif') {
+            $formattedImage = $this->formatFax($faxImage);
+            if (!$formattedImage) {
+                $faxImage = $formattedImage;
+                $c_header = 'application/pdf';
+            } else {
+                // Continue unmolested and allow browser to handle.
+                $c_header = 'image/tiff';
+            }
         }
-        // TODO unused! why is it here?
+        // used below for extension and type.
         if ($c_header == 'application/pdf') {
             $ext = 'pdf';
             $type = 'Fax';
@@ -530,53 +538,86 @@ class EtherFaxActions extends AppDispatch
         // Set up to download file.
         if ($isDownload) {
             if (!file_exists($faxStoreDir) && !mkdir($faxStoreDir, 0777, true) && !is_dir($faxStoreDir)) {
-                throw new \RuntimeException(sprintf('Directory "%s" was not created', $faxStoreDir));
+                throw new \Exception(sprintf('Directory "%s" was not created', $faxStoreDir));
             }
-            $file_name = "{$faxStoreDir}/{$type}_{$docid}.{$ext}";
+            $file_name = "{$faxStoreDir}/{$type}_{$docId}.{$ext}";
             $raw = base64_decode($faxImage);
             file_put_contents($file_name, $raw);
             $this->setSession('where', $file_name);
             $this->setFaxDeleted($apiResponse->JobId);
-            return json_encode($file_name);
+            if ($c_header == 'image/tiff' || $c_header == 'image/tif') {
+                return json_encode(['base64' => $faxImage, 'mime' => $c_header, 'path' => $file_name]);
+            }
+            return json_encode(['base64' => '', 'mime' => $c_header, 'path' => $file_name]);
         }
         // base64 formatted for view in iframe.
         return json_encode(['base64' => $faxImage, 'mime' => $c_header]);
     }
 
-    public function formatFax($encodedFax): string
+    /**
+     * @param $encodedFax
+     * @return string
+     */
+    public function formatFax($encodedFax): false|string
     {
-        $control = new HandleImageController();
-        $formatted_document = $control->convertImageToPdf($encodedFax, '', 'gd');
+        $control = new HandleImageService();
+        $formatted_document = $control->convertImageToPdf($encodedFax, $control, '');
 
-        return base64_encode($formatted_document);
+        return !empty($formatted_document) ? base64_encode($formatted_document) : false;
     }
 
     /**
-     * @param string $content
-     * @return void
+     * @return string|false
      */
-    public function disposeDoc($content = ''): void
+    public function disposeDocument(): string|false
     {
-        $where = $this->getRequest('file_path', null);
+        $response = ['success' => false, 'message' => '', 'url' => ''];
+        $where = $this->getRequest('file_path') ?? $this->getSession('where');
         if (empty($where)) {
-            $where = $this->getSession('where');
+            die(xlt('Problem with download. Use browser back button'));
         }
-        if (file_exists($where)) {
-            ob_clean();
-            header("Cache-Control: public");
-            header("Content-Description: File Transfer");
-            header("Content-Disposition: attachment; filename=" . basename($where));
-            header("Content-Type: application/download");
-            header("Content-Transfer-Encoding: binary");
-            header('Content-Length: ' . filesize($where));
+        $content = $this->getRequest('content', '');
+        $action = $this->getRequest('action');
 
-            readfile($where);
+        if ($action == 'download') {
+            $this->sendFile($where);
+            sleep(2);
             unlink($where);
             exit;
         }
 
-        die(xlt('Problem with download. Use browser back button'));
+        if (!empty($content) && $action == 'setup') {
+            $decodedContent = base64_decode($content);
+            if (file_put_contents($where, $decodedContent) !== false) {
+                $response['success'] = true;
+                $response['url'] = $where;
+            } else {
+                $response['message'] = 'Failed to write file';
+            }
+        } elseif ($action == 'setup') {
+            $response['success'] = true;
+            $response['url'] = $where;
+        }
+
+        return json_encode($response);
     }
+
+    private function sendFile(string $filePath): void
+    {
+        ob_end_clean();
+        header("Cache-Control: public");
+        header("Content-Description: File Transfer");
+        header("Content-Disposition: attachment; filename=" . basename($filePath));
+        header("Content-Type: application/pdf");
+        header("Content-Transfer-Encoding: binary");
+        header('Content-Length: ' . filesize($filePath));
+
+        readfile($filePath);
+
+        exit;
+    }
+
+
 
     /**
      * @return false|string
@@ -703,7 +744,7 @@ class EtherFaxActions extends AppDispatch
      */
     public function fetchQueueCount(): int
     {
-        return  (int)sqlQuery("SELECT COUNT(id) as count FROM `oe_faxsms_queue` WHERE deleted = 0")['count'] ?? 0;
+        return (int)sqlQuery("SELECT COUNT(id) as count FROM `oe_faxsms_queue` WHERE deleted = 0")['count'] ?? 0;
     }
 
     /**
@@ -765,7 +806,7 @@ class EtherFaxActions extends AppDispatch
         );
         if (!empty($result)) {
             $err = xlt("Error: Failed to save document. Category Fax");
-            error_log($err  . ' ' . text($result));
+            error_log($err . ' ' . text($result));
             return $err;
         } else {
             $result = xlt("Chart Success");

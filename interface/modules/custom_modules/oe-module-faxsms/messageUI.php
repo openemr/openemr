@@ -6,7 +6,7 @@
  * @package   OpenEMR
  * @link      http://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2018-2023 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2018-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -32,7 +32,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
     if (!$clientApp->verifyAcl()) {
         die("<h3>" . xlt("Not Authorised!") . "</h3>");
     }
-    Header::setupHeader(['opener', 'datetime-picker']);
+    Header::setupHeader(['opener', 'datetime-picker', 'jspdf', 'jstiff']);
     echo "<script>const pid=" . js_escape($pid) . ";const portalUrl=" . js_escape($clientApp->portalUrl ?? '') .
         ";const currentService=" . js_escape($service) . ";const serviceType=" . js_escape($serviceType) . "</script>";
     ?>
@@ -47,14 +47,14 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                 require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
                 ?>
             });
-            var dateRange = new Date(new Date().setDate(new Date().getDate() - 7));
+            let dateRange = new Date(new Date().setDate(new Date().getDate() - 7));
             $("#fromdate").val(dateRange.toJSON().slice(0, 10));
             $("#todate").val(new Date().toJSON().slice(0, 10));
 
             $(".other").hide();
-            if (currentService === '2') {
+            if (currentService == '2') {
                 $(".etherfax").hide();
-            } else if (currentService === '3') {
+            } else if (currentService == '3') {
                 $(".twilio").hide();
                 $(".etherfax-hide").hide();
                 $(".etherfax").show();
@@ -92,14 +92,14 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             } catch (error) {
                 console.log('Session restore failed!');
             }
-            let msg = <?php echo xlj('Are you sure you wish to send all scheduled reminders now.') ?>;
+            let msg = <?php echo xlj('Are you sure you wish to send all scheduled reminders now?') ?>;
             if (e === 'live') {
                 let yn = confirm(msg);
                 if (!yn) {
                     return false
                 }
             }
-            let msg1 = <?php echo xlj('Appointment Reminder Alerts') ?>;
+            let msg1 = <?php echo xlj('Appointment Reminder Alerts!') ?>;
             dlgopen(ppath, '_blank', 1240, 900, true, msg1)
         };
 
@@ -110,7 +110,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                 console.log('Session restore failed!');
             }
             e.preventDefault();
-            let msg = <?php echo xlj('Credentials and SMS Notifications') ?>;
+            let msg = <?php echo xlj('Credentials and Notifications') ?>;
             dlgopen('', 'setup', 'modal-md', 700, '', msg, {
                 buttons: [
                     {text: 'Cancel', close: true, style: 'secondary  btn-sm'}
@@ -118,16 +118,6 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                 url: "./setup.php?type=" + encodeURIComponent(serviceType)
             });
         };
-
-        function base64ToArrayBuffer(_base64Str) {
-            let binaryString = window.atob(_base64Str);
-            let binaryLen = binaryString.length;
-            let bytes = new Uint8Array(binaryLen);
-            for (let i = 0; i < binaryLen; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
-            return bytes;
-        }
 
         const forwardFax = function (e, docid = '', filePath = '', details = []) {
             let btnClose = <?php echo xlj("Cancel"); ?>;
@@ -141,6 +131,16 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             });
             return false;
         };
+
+        function base64ToArrayBuffer(_base64Str) {
+            let binaryString = window.atob(_base64Str);
+            let binaryLen = binaryString.length;
+            let bytes = new Uint8Array(binaryLen);
+            for (let i = 0; i < binaryLen; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes;
+        }
 
         function showPrint(base64, _contentType = 'image/tiff') {
             const binary = atob(base64.replace(/\s/g, ''));
@@ -166,64 +166,8 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             iframe.src = url;
         }
 
-        function showDocument(_base64, _contentType = 'image/tiff') {
-            const binary = atob(_base64.replace(/\s/g, ''));
-            const len = binary.length;
-            const buffer = new ArrayBuffer(len);
-            const view = new Uint8Array(buffer);
-            for (let i = 0; i < len; i++) {
-                view[i] = binary.charCodeAt(i);
-            }
-            const blob = new Blob([view], {type: _contentType});
-            const dataUrl = URL.createObjectURL(blob);
-            let width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ?
-                document.documentElement.clientWidth : screen.width;
-            let height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ?
-                document.documentElement.clientHeight : screen.height;
-            height = screen.height ? screen.height * 0.95 : height;
-            let left = (width / 4);
-            let top = '10';
-            let win = window.open(
-                '', '',
-                'toolbar=0, location=0, directories=0, status=0, menubar=0,' +
-                ' scrollbars=0, resizable=0, copyhistory=0, ' +
-                'width=' + width / 1.75 + ', height=' + height +
-                ', top=' + top + ', left=' + left
-            );
-            if (win === null) {
-                alert(xl('Please allow popups for this site'));
-            } else {
-                win.document.write("<iframe width='100%' height='100%' style='border:none;' src='" + dataUrl + "'></iframe>");
-            }
-        }
-
-        function viewDocument(e = '', dataUrl) {
-            if (e !== '') {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            let width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ?
-                document.documentElement.clientWidth : screen.width;
-            let height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ?
-                document.documentElement.clientHeight : screen.height;
-            height = screen.height ? screen.height * 0.95 : height;
-            let left = (width / 4);
-            let top = '10';
-            let win = window.open(
-                '', '',
-                'toolbar=0, location=0, directories=0, status=0, menubar=0,' +
-                ' scrollbars=0, resizable=0, copyhistory=0, ' +
-                'width=' + width / 1.75 + ', height=' + height +
-                ', top=' + top + ', left=' + left
-            );
-            if (win === null) {
-                alert(xl('Please allow popups for this site'));
-            } else {
-                win.document.write("<iframe width='100%' height='100%' style='border:none;' src='" + dataUrl + "'></iframe>");
-            }
-        }
-
-        function getDocument(e, docuri, docid, downFlag, deleteFlag = '') {
+        // Function to get or dispose of document.
+        async function getDocument(e, docuri, docid, downFlag, deleteFlag = '') {
             try {
                 top.restoreSession();
             } catch (error) {
@@ -237,8 +181,8 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             }
             if (downFlag == 'true') {
                 let yn = confirm(
-                    xl("After downloading a fax it is marked as received and no longer available.") + "\n\n" +
-                    xl("Do you want to continue with download?")
+                    xl("After a fax is downloaded it is marked as received and no longer available here.") + "\n\n" +
+                    xl("Do you want to continue with this download?")
                 );
                 if (!yn) {
                     return false;
@@ -252,17 +196,20 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                     return false;
                 }
             }
+            // Get ready, Get set, Go!
             let actionUrl = 'viewFax?type=fax';
             $("#brand").addClass('fa fa-spinner fa-spin');
-            return $.post(actionUrl, {
-                'type': serviceType,
-                'docuri': docuri,
-                'docid': docid,
-                'pid': pid,
-                'download': downFlag,
-                'delete': deleteFlag
-            }).done(function (json) {
+            try {
+                let json = await $.post(actionUrl, {
+                    'type': serviceType,
+                    'docuri': docuri,
+                    'docid': docid,
+                    'pid': pid,
+                    'download': downFlag,
+                    'delete': deleteFlag
+                }).promise();
                 $("#brand").removeClass('fa fa-spinner fa-spin');
+                let data;
                 try {
                     data = JSON.parse(json);
                 } catch {
@@ -273,12 +220,123 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                     return false;
                 }
                 if (downFlag == 'true') {
-                    location.href = "disposeDoc?type=fax&file_path=" + encodeURIComponent(data);
-                    setTimeout(retrieveMsgs, 3000);
+                    let base64 = data.base64;
+                    if (data.mime === 'image/tiff' || data.mime === 'image/tif') {
+                        let images = await convertTiffToImages(base64ToArrayBuffer(data.base64));
+                        base64 = await convertImagesToPdf(images, data.filename);
+                    } else {
+                        base64 = '';
+                    }
+                    fetch('disposeDocument?type=fax', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            action: 'setup',
+                            file_path: data.path,
+                            content: base64
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        // Download the file. result.url is temp file path of tiff to pdf by image conversion in JS or imagick.
+                        if (result.success) {
+                            location.href = location.href = "disposeDocument?type=fax&action=download&file_path=" + encodeURIComponent(result.url);
+                        } else {
+                            console.error('Failed to prepare the file for download:', jsText(result.message));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+
                     return false;
                 }
-                showDocument(data.base64, data.mime);
-            });
+                if (data.mime === 'application/pdf') {
+                    showDocument(data.base64, data.mime);
+                } else if (data.mime === 'image/tiff') {
+                    let images = await convertTiffToImages(base64ToArrayBuffer(data.base64));
+                    let pdfBase64 = await convertImagesToPdf(images, data.filename);
+                    showDocument(pdfBase64.replace('data:application/pdf;base64,', ''), 'application/pdf');
+                } else {
+                    showDocument(data.base64, data.mime);
+                }
+            } catch (error) {
+                console.error('Error handling document:', jsText(error));
+                $("#brand").removeClass('fa fa-spinner fa-spin');
+            }
+        }
+
+        // Function to convert TIFF to PNG/JPEG images
+        async function convertTiffToImages(tiffData, mime = 'image/jpeg') {
+            try {
+                let tiff = new Tiff({buffer: tiffData});
+                const directories = tiff.countDirectory();
+                const promises = [];
+
+                for (let i = 0; i < directories; i++) {
+                    promises.push(new Promise((resolve, reject) => {
+                        tiff.setDirectory(i);
+                        let canvas = tiff.toCanvas();
+                        let imageData = canvas.toDataURL(mime);
+                        resolve(imageData);
+                    }));
+                }
+
+                return Promise.all(promises);
+            } catch (error) {
+                console.error('Failed to convert TIFF to images:', error);
+                return [];
+            }
+        }
+
+        // Function to convert images to PDF and return a base64
+        async function convertImagesToPdf(images, filename = 'fax-tiff-to-pdf.pdf') {
+            const doc = new jsPDF();
+            const pageHeight = doc.internal.pageSize.getHeight();
+
+            for (let i = 0; i < images.length; i++) {
+                if (i !== 0) {
+                    doc.addPage();
+                }
+                doc.addImage(images[i], 'JPEG', 10, 10, 190, pageHeight - 20);
+            }
+
+            return doc.output('datauristring').split(',')[1]; // Return only the Base64 part
+        }
+
+
+        function showDocument(_base64, _contentType = 'image/tiff') {
+            try {
+                const binary = atob(_base64.replace(/\s/g, ''));
+                const len = binary.length;
+                const buffer = new ArrayBuffer(len);
+                const view = new Uint8Array(buffer);
+                for (let i = 0; i < len; i++) {
+                    view[i] = binary.charCodeAt(i);
+                }
+                const blob = new Blob([view], {type: _contentType});
+                const dataUrl = URL.createObjectURL(blob);
+                displayInNewWindow(dataUrl);
+            } catch (e) {
+                console.error('Error decoding base64 or displaying document:', e);
+                alert('Failed to display the document due to an invalid format.');
+            }
+        }
+
+        function displayInNewWindow(dataUrl) {
+            let width = window.innerWidth || document.documentElement.clientWidth || screen.width;
+            let height = window.innerHeight || document.documentElement.clientHeight || screen.height;
+            height = screen.height ? screen.height * 0.95 : height;
+            let left = (width / 4);
+            let top = '10';
+            let win = window.open('', '', 'toolbar=0, location=0, directories=0, status=0, menubar=0, scrollbars=0, resizable=0, copyhistory=0, width=' + width / 1.75 + ', height=' + height + ', top=' + top + ', left=' + left);
+            if (win === null) {
+                alert(xl('Please allow popups for this site'));
+            } else {
+                win.document.write("<iframe width='100%' height='100%' style='border:none;' src='" + dataUrl + "'></iframe>");
+            }
         }
 
         // SMS status
@@ -317,7 +375,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                     alertMsg(data.error);
                     return false;
                 }
-                // populate our panels
+                // populate our cards
                 $("#rcvdetails tbody").empty().append(data[0]);
                 $("#sent-details tbody").empty().append(data[1]);
                 $("#msgdetails tbody").empty().append(data[2]);
@@ -431,7 +489,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             return false;
         }
 
-        function notifyUser(e, faxId, recordId, pid=0) {
+        function notifyUser(e, faxId, recordId, pid = 0) {
             e.preventDefault();
             let btnClose = <?php echo xlj("Exit"); ?>;
             let url = top.webroot_url +
@@ -447,11 +505,13 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             let url = './library/utility.php?pop_add_new=1&recId=' +
                 encodeURIComponent(recordId) + "&jobId=" + encodeURIComponent(faxId) + "&data=" + encodeURIComponent(data);
             dlgopen(url, 'create_patient', 'modal-md', 'full', '', '', {
-                buttons: [{text: btnClose, close: true, style: 'primary'}],
-                sizeHeight: 'full'}
+                    buttons: [{text: btnClose, close: true, style: 'primary'}],
+                    sizeHeight: 'full'
+                }
             );
             return false;
         }
+
         // drop bucket
         const queueMsg = '' + <?php echo xlj('Fax Queue. Drop files or Click here for Fax Contact form.') ?>;
         Dropzone.autoDiscover = false;

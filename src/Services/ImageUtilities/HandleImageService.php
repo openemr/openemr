@@ -9,6 +9,11 @@ use OpenEMR\Pdf\MpdfGenericPdfCreator;
 
 class HandleImageService
 {
+    /**
+     * @param $imageData
+     * @param $pdfPath
+     * @return false|string
+     */
     public function convertImageToPdfUseGD($imageData, $pdfPath): false|string
     {
         try {
@@ -38,6 +43,11 @@ class HandleImageService
         }
     }
 
+    /**
+     * @param $imageContent
+     * @param $pdfOutPath
+     * @return false|string
+     */
     public function convertImageToPdfUseImagick($imageContent, $pdfOutPath = ''): false|string
     {
         try {
@@ -70,5 +80,135 @@ class HandleImageService
         }
         // Return the PDF content as a string if $pdfOutPath is empty
         return $pdfContent;
+    }
+
+    /**
+     * Resize Example:
+     * $control = new HandleImageService();
+     * $sourceImage = 'C:\xampp\htdocs\openemr\public\images\balloons-154949_960_720.png';
+     * $resizedImage = $control->resizeImage($sourceImage, 200, 200);
+     *
+     * @param $sourceImage
+     * @param $targetWidth
+     * @param $targetHeight
+     * @return string
+     * @throws Exception
+     */
+    public function resizeImage($sourceImage, $targetWidth, $targetHeight, $doSavePath = false): string
+    {
+        // Get the image type
+        $imageInfo = getimagesize($sourceImage);
+        $imageType = $imageInfo[2];
+
+        // Load the source image based on its type
+        $sourceImageResource = match ($imageType) {
+            IMAGETYPE_JPEG => imagecreatefromjpeg($sourceImage),
+            IMAGETYPE_PNG => imagecreatefrompng($sourceImage),
+            default => throw new Exception('Unsupported image type'),
+        };
+
+        // Calculate aspect ratio
+        $originalWidth = $imageInfo[0];
+        $originalHeight = $imageInfo[1];
+        $aspectRatio = $originalWidth / $originalHeight;
+
+        // Calculate new dimensions
+        if ($targetWidth / $targetHeight > $aspectRatio) {
+            $newWidth = $targetHeight * $aspectRatio;
+            $newHeight = $targetHeight;
+        } else {
+            $newWidth = $targetWidth;
+            $newHeight = $targetWidth / $aspectRatio;
+        }
+
+        // Create a new empty image with the target dimensions
+        $targetImage = imagecreatetruecolor($newWidth, $newHeight);
+
+        // Preserve transparency for PNG images
+        if ($imageType == IMAGETYPE_PNG) {
+            imagealphablending($targetImage, false);
+            imagesavealpha($targetImage, true);
+            $transparent = imagecolorallocatealpha($targetImage, 255, 255, 255, 127);
+            imagefilledrectangle($targetImage, 0, 0, $newWidth, $newHeight, $transparent);
+        }
+
+        // Resize the source image to fit the target image
+        imagecopyresampled($targetImage, $sourceImageResource, 0, 0, 0, 0, $newWidth, $newHeight, $originalWidth, $originalHeight);
+
+        if ($doSavePath) {
+            // Save the resized image to a file
+            $base = pathinfo($sourceImage, PATHINFO_FILENAME);
+            $outputImage = $base . '_resized' . (($imageType == IMAGETYPE_PNG) ? '.png' : '.jpg');
+
+            switch ($imageType) {
+                case IMAGETYPE_JPEG:
+                    imagejpeg($targetImage, $outputImage, 90); // 90 is the quality level (0-100)
+                    break;
+                case IMAGETYPE_PNG:
+                    imagepng($targetImage, $outputImage);
+                    break;
+            }
+        } else {
+            // Return the resized image as a base64-encoded string
+            ob_start();
+            switch ($imageType) {
+                case IMAGETYPE_JPEG:
+                    imagejpeg($targetImage, null, 90); // 90 is the quality level (0-100)
+                    break;
+                case IMAGETYPE_PNG:
+                    imagepng($targetImage);
+                    break;
+            }
+            $imageData = ob_get_contents();
+            ob_end_clean();
+            $outputImage = 'data:image/' . (($imageType == IMAGETYPE_PNG) ? 'png' : 'jpeg') . ';base64,' . base64_encode($imageData);
+        }
+        // Free up memory
+        imagedestroy($targetImage);
+        imagedestroy($sourceImageResource);
+
+        return $outputImage;
+    }
+
+    public function isImagickAvailable(): bool
+    {
+        return extension_loaded('imagick');
+    }
+
+    public function isGdAvailable(): bool
+    {
+        return extension_loaded('gd');
+    }
+
+    public function convertImageToPdf($imageData, HandleImageService $handleImageController, $pdfPath = '', $useExt = 'imagick'): false|string
+    {
+        $content = '';
+        if (is_file($imageData)) {
+            $imageContent = file_get_contents($imageData);
+        } else {
+            $imageContent = $imageData;
+        }
+
+        $usingImagick = $useExt === 'imagick' && $handleImageController->isImagickAvailable();
+        $usingGd = $useExt === 'gd' && $handleImageController->isGdAvailable() && !$usingImagick;
+
+        if ($usingImagick || $usingGd) {
+            try {
+                if ($usingImagick) {
+                    $content = $handleImageController->convertImageToPdfUseImagick($imageContent, $pdfPath);
+                } elseif ($usingGd) {
+                    $content = false; // revert to javascript viewer
+                    // $content = $this->convertImageToPdfUseGD($imageContent, $pdfPath); // TODO when we find a use!
+                }
+            } catch (Exception $e) {
+                error_log('Error converting image to PDF: ' . $e->getMessage());
+                return false;
+            }
+        } else {
+            error_log('No suitable image processing library available.');
+            return false; // revert to javascript viewer
+        }
+
+        return $content;
     }
 }
