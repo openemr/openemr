@@ -34,7 +34,7 @@ do {
     $e_DateTime = $ccr->createElement('DateTime');
     $e_Result->appendChild($e_DateTime);
 
-    $date = date_create($row['date']);
+    $date = date_create($row['date'] ?? '');
 
     $e_ExactDateTime = $ccr->createElement('ExactDateTime', $date->format('Y-m-d\TH:i:s\Z'));
     $e_DateTime->appendChild($e_ExactDateTime);
@@ -53,7 +53,7 @@ do {
     $e_Actor = $ccr->createElement('Actor');
     $e_Source->appendChild($e_Actor);
 
-    $e_ActorID = $ccr->createElement('ActorID', $uuid);
+    $e_ActorID = $ccr->createElement('ActorID', $uuid ?? '');
   //$e_ActorID = $ccr->createElement('ActorID',${"labID{$row['lab']}"});
     $e_Actor->appendChild($e_ActorID);
 
@@ -78,7 +78,7 @@ do {
     $e_Description = $ccr->createElement('Description');
     $e_Test->appendChild($e_Description);
 
-    $e_Text = $ccr->createElement('Text', $row['name']);
+    $e_Text = $ccr->createElement('Text', $row['name'] ?? '');
     $e_Description->appendChild($e_Text);
 
     $e_Code = $ccr->createElement('Code');
@@ -93,13 +93,13 @@ do {
     $e_Actor = $ccr->createElement('Actor');
     $e_Source->appendChild($e_Actor);
 
-    $e_ActorID = $ccr->createElement('ActorID', $uuid);
+    $e_ActorID = $ccr->createElement('ActorID', $uuid ?? '');
     $e_Actor->appendChild($e_ActorID);
 
     $e_TestResult = $ccr->createElement('TestResult');
     $e_Test->appendChild($e_TestResult);
 
-    $e_Value = $ccr->createElement('Value', $row['result']);
+    $e_Value = $ccr->createElement('Value', $row['result'] ?? '');
     $e_TestResult->appendChild($e_Value);
 
     $e_Code = $ccr->createElement('Code');
@@ -111,7 +111,7 @@ do {
     $e_Description = $ccr->createElement('Description');
     $e_TestResult->appendChild($e_Description);
 
-    $e_Text = $ccr->createElement('Text', $row['result']);
+    $e_Text = $ccr->createElement('Text', $row['result'] ?? '');
     $e_Description->appendChild($e_Text);
 
     //if($row['abnormal'] == '' ) {
@@ -121,7 +121,7 @@ do {
     $e_Normal = $ccr->createElement('Normal');
         $e_NormalResult->appendChild($e_Normal);
 
-    $e_Value = $ccr->createElement('Value', $row['range']);
+    $e_Value = $ccr->createElement('Value', $row['range'] ?? '');
     $e_Normal->appendChild($e_Value);
 
     $e_Units = $ccr->createElement('Units');
@@ -136,14 +136,14 @@ do {
         $e_Actor = $ccr->createElement('Actor');
         $e_Source->appendChild($e_Actor);
 
-        $e_ActorID = $ccr->createElement('ActorID', $uuid);
+        $e_ActorID = $ccr->createElement('ActorID', $uuid ?? '');
         $e_Actor->appendChild($e_ActorID);
 
     //} else {
         $e_Flag = $ccr->createElement('Flag');
         $e_Test->appendChild($e_Flag);
 
-        $e_Text = $ccr->createElement('Text', $row['abnormal']);
+        $e_Text = $ccr->createElement('Text', $row['abnormal'] ?? '');
         $e_Flag->appendChild($e_Text);
     //}
 
