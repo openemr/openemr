@@ -168,7 +168,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
         // if we have a filename from our database, we want to send that
         $att_filename = $filename;
         $extension = ""; // no extension needed
-    } else if (!empty($patientName2)) {
+    } elseif (!empty($patientName2)) {
         //spaces are the argument delimiter for the phiMail API calls and must be removed
         // CCDA format requires patient name in last, first format
         $att_filename = str_replace(" ", "_", $xml_type . "_" . $patientData[0]['lname']
@@ -231,9 +231,9 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
     // MU2 CareCoordination added the need to send CCDAs formatted as html,pdf, or xml
     if ($format_type == 'html') {
         $add_type = "TEXT";
-    } else if ($format_type == 'pdf') {
+    } elseif ($format_type == 'pdf') {
         $add_type = "RAW";
-    } else if ($format_type == 'xml') {
+    } elseif ($format_type == 'xml') {
         $add_type = $xml_type == "CCR" ? "CCR" : "CDA";
     } else {
         // unsupported format
