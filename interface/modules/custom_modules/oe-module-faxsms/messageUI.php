@@ -26,6 +26,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?php echo $tabTitle ?? ''; ?></title>
     <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.css">
     <?php
@@ -198,7 +199,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             }
             // Get ready, Get set, Go!
             let actionUrl = 'viewFax?type=fax';
-            $("#brand").addClass('fa fa-spinner fa-spin');
+            $(".brand").addClass('fa fa-spinner fa-spin');
             try {
                 let json = await $.post(actionUrl, {
                     'type': serviceType,
@@ -208,7 +209,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                     'download': downFlag,
                     'delete': deleteFlag
                 }).promise();
-                $("#brand").removeClass('fa fa-spinner fa-spin');
+                $(".brand").removeClass('fa fa-spinner fa-spin');
                 let data;
                 try {
                     data = JSON.parse(json);
@@ -264,7 +265,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                 }
             } catch (error) {
                 console.error('Error handling document:', jsText(error));
-                $("#brand").removeClass('fa fa-spinner fa-spin');
+                $(".brand").removeClass('fa fa-spinner fa-spin');
             }
         }
 
@@ -358,7 +359,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             let datefrom = $('#fromdate').val();
             let dateto = $('#todate').val();
             let data = [];
-            $("#brand").addClass('fa fa-spinner fa-spin');
+            $(".brand").addClass('fa fa-spinner fa-spin');
             $("#rcvdetails tbody").empty();
             $("#sent-details tbody").empty();
             $("#msgdetails tbody").empty();
@@ -371,7 +372,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                 }, function () {
                 }, 'json').done(function (data) {
                 if (data.error) {
-                    $("#brand").removeClass('fa fa-spinner fa-spin');
+                    $(".brand").removeClass('fa fa-spinner fa-spin');
                     alertMsg(data.error);
                     return false;
                 }
@@ -386,7 +387,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             }).fail(function (xhr, status, error) {
                 alertMsg(<?php echo xlj('Not Authenticated or not authorised. Ensure valid credentials are setup from Activity menu.'); ?>, 7000);
             }).always(function () {
-                $("#brand").removeClass('fa fa-spinner fa-spin');
+                $(".brand").removeClass('fa fa-spinner fa-spin');
             });
         }
 
@@ -402,7 +403,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             let datefrom = $('#fromdate').val();
             let dateto = $('#todate').val();
 
-            $("#brand").addClass('fa fa-spinner fa-spin');
+            $(".brand").addClass('fa fa-spinner fa-spin');
             return $.post(actionUrl, {
                 'type': serviceType,
                 'pid': pid,
@@ -422,7 +423,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                     getNotificationLog();
                 }
             }).always(function () {
-                $("#brand").removeClass('fa fa-spinner fa-spin');
+                $(".brand").removeClass('fa fa-spinner fa-spin');
             });
         }
 
@@ -437,7 +438,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             let datefrom = $('#fromdate').val() + " 00:00:01";
             let dateto = $('#todate').val() + " 23:59:59";
 
-            $("#brand").addClass('fa fa-spinner fa-spin');
+            $(".brand").addClass('fa fa-spinner fa-spin');
             return $.post(actionUrl, {
                 'type': serviceType,
                 'pid': pid,
@@ -453,7 +454,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                 }
                 $("#alertdetails tbody").empty().append(data);
             }).always(function () {
-                $("#brand").removeClass('fa fa-spinner fa-spin');
+                $(".brand").removeClass('fa fa-spinner fa-spin');
             });
         }
 
@@ -560,7 +561,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
     <div class="sticky-top">
         <nav class="navbar navbar-expand-xl navbar-light bg-light">
             <div class="container">
-                <a class="navbar-brand" href="#"><h4><?php echo $title; ?></h4></a>
+                <a class="navbar-brand" href="#"><h4><?php echo $title; ?><i class="brand ml-1" id="brand-top"></i></h4></a>
                 <button type="button" class="bg-primary navbar-toggler mr-auto" data-toggle="collapse" data-target="#nav-header-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -579,8 +580,8 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                         </div>
                     </form>
                     <div class="nav-item dropdown ml-auto">
-                        <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                            <?php echo xlt('Actions'); ?><span class="caret"></span>
+                        <button class="btn btn-lg btn-link dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+                            <?php echo xlt('Account Actions'); ?><span class="caret"></span>
                         </button>
                         <div class="dropdown-menu" role="menu">
                             <a class="dropdown-item" href="#" onclick="doSetup(event)"><?php echo xlt('Account Credentials'); ?></a>
@@ -590,7 +591,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                             <?php } ?>
                             <a class="dropdown-item etherfax" href="#" onclick="docInfo(event, portalUrl)"><?php echo xlt('Portal Gateway'); ?></a>
                         </div>
-                        <button type="button" class="nav-item etherfax btn btn-secondary btn-transmit" onclick="docInfo(event, portalUrl)"><?php echo xlt('Account Portal'); ?>
+                        <button type="button" class="nav-item etherfax d-none btn btn-secondary btn-transmit" onclick="docInfo(event, portalUrl)"><?php echo xlt('Account Portal'); ?>
                         </button>
                     </div>
                 </div><!-- /.navbar-collapse -->
@@ -599,7 +600,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
     <div class="container-fluid main-container mt-3">
         <div class="row">
             <div class="col-md-10 offset-md-1 content">
-                <h3><?php echo xlt("Activities") ?><i class="ml-1" id="brand"></i></h3>
+                <h3><?php echo xlt("Activities") ?><i class="brand ml-1" id="brand"></i></h3>
                 <div id="dashboard" class="card">
                     <!-- Nav tabs -->
                     <ul id="tab-menu" class="nav nav-pills" role="tablist">

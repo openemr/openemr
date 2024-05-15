@@ -387,8 +387,8 @@ class EtherFaxActions extends AppDispatch
                 $form = '';
                 $id_esc = text($id);
                 $showFlag = 0;
-                $recog = $faxDetails->AnalyzeFormResult->AnalyzeResult->DocumentResults ?? [];
-                foreach ($recog as $r) {
+                $recogized = $faxDetails->AnalyzeFormResult->AnalyzeResult->DocumentResults ?? [];
+                foreach ($recogized as $r) {
                     $details = null;
                     $form = "<tr id='$id_esc' class='d-none collapse-all'><td colspan='12'>\n" .
                         "<div class='container table-responsive'>\n" .
@@ -711,7 +711,6 @@ class EtherFaxActions extends AppDispatch
         while ($row = sqlFetchArray($res)) {
             $detail = json_decode($row['details_json']);
             if (json_last_error()) {
-                error_log('Error: ' . $row['id'] . ': ' . json_last_error_msg() . ' ' . $row['details_json']);
                 continue;
             }
             $detail->RecordId = $row['id'];
