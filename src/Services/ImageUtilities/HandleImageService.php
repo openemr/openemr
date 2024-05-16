@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Fax SMS Module Member
+ *
+ * @package   OpenEMR
+ * @link      http://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General public License 3
+ */
+
 namespace OpenEMR\Services\ImageUtilities;
 
 use Exception;
@@ -251,30 +261,31 @@ class HandleImageService
     public function convertImageToPdf($imageData, HandleImageService $handleImageController, $pdfPath = '', $useExt = 'imagick'): false|string
     {
         $content = '';
+
         if (is_file($imageData)) {
             $imageContent = file_get_contents($imageData);
         } else {
             $imageContent = $imageData;
         }
-
+        // Check for extension availability
         $usingImagick = $useExt === 'imagick' && $handleImageController->isImagickAvailable();
         $usingGd = $useExt === 'gd' && $handleImageController->isGdAvailable() && !$usingImagick;
 
-        if ($usingImagick || $usingGd) {
-            try {
-                if ($usingImagick) {
-                    $content = $handleImageController->convertImageToPdfUseImagick($imageContent, $pdfPath);
-                } elseif ($usingGd) {
-                    $content = false; // revert to javascript viewer
-                    // $content = $this->convertImageToPdfUseGD($imageContent, $pdfPath); // TODO when we find a use!
-                }
-            } catch (Exception $e) {
-                error_log('Error converting image to PDF: ' . text($e->getMessage()));
-                return false;
+        if (!$usingImagick && !$usingGd) {
+            return false; // todo Could provide an alternative method but JS will pick this up
+        }
+
+        try {
+            if ($usingImagick) {
+                $content = $handleImageController->convertImageToPdfUseImagick($imageContent, $pdfPath);
+            } elseif ($usingGd) {
+                // Implement GD conversion or provide a message if not yet implemented
+                $content = false; // Placeholder for actual GD implementation
+                error_log('GD based conversion not implemented.');
             }
-        } else {
-            error_log('No suitable image processing library available.');
-            return false; // revert to javascript viewer
+        } catch (Exception $e) {
+            error_log('Error converting image to PDF using ' . ($usingImagick ? 'Imagick' : 'GD') . ': ' . text($e->getMessage()));
+            return false;
         }
 
         return $content;

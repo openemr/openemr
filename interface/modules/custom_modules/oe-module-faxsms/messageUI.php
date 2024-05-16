@@ -243,7 +243,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                     .then(result => {
                         // Download the file. result.url is temp file path of tiff to pdf by image conversion in JS or imagick.
                         if (result.success) {
-                            location.href = location.href = "disposeDocument?type=fax&action=download&file_path=" + encodeURIComponent(result.url);
+                            location.href = "disposeDocument?type=fax&action=download&file_path=" + encodeURIComponent(result.url);
                         } else {
                             console.error('Failed to prepare the file for download:', jsText(result.message));
                         }
@@ -307,22 +307,34 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
             return doc.output('datauristring').split(',')[1]; // Return only the Base64 part
         }
 
-
         function showDocument(_base64, _contentType = 'image/tiff') {
             try {
-                const binary = atob(_base64.replace(/\s/g, ''));
+                // Log the type and value of _base64 to debug
+                console.log('Type of _base64:', typeof _base64);
+                console.log('Content of _base64:', _base64);
+
+                // Ensure _base64 is a string
+                if (typeof _base64 !== 'string') {
+                    throw new TypeError('Expected a base64 string');
+                }
+
+                // Remove any whitespace in the base64 string
+                const cleanedBase64 = _base64.replace(/\s/g, '');
+                const binary = atob(cleanedBase64);
                 const len = binary.length;
                 const buffer = new ArrayBuffer(len);
                 const view = new Uint8Array(buffer);
+
                 for (let i = 0; i < len; i++) {
                     view[i] = binary.charCodeAt(i);
                 }
-                const blob = new Blob([view], {type: _contentType});
+
+                const blob = new Blob([view], { type: _contentType });
                 const dataUrl = URL.createObjectURL(blob);
                 displayInNewWindow(dataUrl);
             } catch (e) {
                 console.error('Error decoding base64 or displaying document:', e);
-                alert('Failed to display the document due to an invalid format.');
+                alert('Failed to display the document due to an invalid document format.');
             }
         }
 
