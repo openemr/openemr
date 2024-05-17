@@ -159,7 +159,7 @@ class EtherFaxActions extends AppDispatch
         if (!$this->authenticate()) {
             return $this->authErrorDefault;
         }
-
+        // needed args
         $isContent = $this->getRequest('isContent');
         $file = $this->getRequest('file');
         $docId = $this->getRequest('docId');
@@ -168,9 +168,9 @@ class EtherFaxActions extends AppDispatch
         $email = $this->getRequest('email');
         $hasEmail = $this->validEmail($email);
         $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
-        $from = $this->formatPhone($this->credentials['phone']);
         $user = $this::getLoggedInUser();
-        $csid = $user['facility'];
+        $facility = substr($user['facility'], 0, 20);
+        $csid = $this->formatPhone($this->credentials['phone']);
         $tag = $user['username'];
 
         if (empty($isContent)) {
@@ -189,7 +189,7 @@ class EtherFaxActions extends AppDispatch
         }
 
         try {
-            $fax = $this->client->sendFax($phone, $file, null, $from, $csid, $tag, $isDocuments, pathinfo($file, PATHINFO_BASENAME));
+            $fax = $this->client->sendFax($phone, $file, null, $facility, $csid, $tag, $isDocuments, pathinfo($file, PATHINFO_BASENAME));
             if (!$fax->FaxResult) {
                 return 'Error: ' . json_encode($fax->Message);
             }
@@ -264,9 +264,9 @@ class EtherFaxActions extends AppDispatch
         $faxNumber = $this->formatPhone($this->getRequest('phone'));
         $hasEmail = $this->validEmail($email);
         $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS["SMTP_USER"] ?? null);
-        $from = $this->formatPhone($this->credentials['phone']);
         $user = $this::getLoggedInUser();
-        $csid = $user['facility'];
+        $facility = substr($user['facility'], 0, 20);
+        $csid = $this->formatPhone($this->credentials['phone']);
         $tag = xlt("Forwarded");
         $statusMsg = xlt("Forwarding Requests") . "<br />";
 
@@ -296,7 +296,7 @@ class EtherFaxActions extends AppDispatch
 
         if ($faxNumber) {
             try {
-                $fax = $this->client->sendFax($faxNumber, $filepath, null, $from, $csid, $tag, false);
+                $fax = $this->client->sendFax($faxNumber, $filepath, null, $facility, $csid, $tag, false);
                 if (!$fax->FaxResult) {
                     return js_escape('Error: ' . $fax->Message . ' ' . FaxResult::getFaxResult($fax->Result));
                 }
