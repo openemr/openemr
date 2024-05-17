@@ -376,7 +376,7 @@ class EtherFaxActions extends AppDispatch
 
             $faxFormattedDate = date('M j, Y g:i:sa T', $faxDate);
             $docLen = text(round($params->Length / 1000, 2)) . "KB";
-            $responseMsgs[0] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . text($faxDetails->PagesReceived) . "</td><td>" . text($docLen) . "</td><td class='text-left'>" . $detailLink . "</td><td class='text-center'>" . text($pid_assumed ?? '') . "</td><td class='text-left'>" . $patientLink . $messageLink . $forwardLink . $viewLink . $downloadLink . $deleteLink . "</td></tr>";
+            $responseMsgs[0] .= "<tr><td>" . text($faxFormattedDate) . "</td><td>" . text($from) . "</td><td>" . text($faxDetails->RemoteId) . "</td><td>" . text($to) . "</td><td>" . text($faxDetails->PagesReceived) . "</td><td>" . text($docLen) . "</td><td class='text-left'>" . $detailLink . "</td><td class='text-center'>" . text($pid_assumed ?? '') . "</td><td class='text-left'>" . $patientLink . $messageLink . $forwardLink . $viewLink . $downloadLink . $deleteLink . "</td></tr>";
             $responseMsgs[0] .= $form;
         }
 

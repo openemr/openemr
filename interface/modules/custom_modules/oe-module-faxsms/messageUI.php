@@ -638,13 +638,12 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
                                         <thead>
                                         <tr>
                                             <th><?php echo xlt("Time") ?></th>
-                                            <th><?php echo xlt("From") ?></th>
+                                            <th><?php echo xlt("Caller #") ?></th>
+                                            <th><?php echo xlt("Caller Id") ?></th>
                                             <th><?php echo xlt("To") ?></th>
                                             <th><?php echo xlt("Pages") ?></th>
                                             <th><?php echo xlt("Length") ?></th>
-                                            <th><a role='button' href='javascript:void(0)' class='btn btn-link fa fa-eye' onclick="toggleDetail('collapse')"></a>
-                                                <?php echo xlt("Extracted") ?>
-                                            </th>
+                                            <th><a role='button' href='javascript:void(0)' class='btn btn-link fa fa-eye' onclick="toggleDetail('collapse')"></a><?php echo xlt("Extracted") ?></th>
                                             <th><?php echo xlt("MRN Match") ?></th>
                                             <th><?php echo xlt("Actions") ?></th>
                                         </tr>
