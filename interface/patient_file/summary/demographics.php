@@ -26,6 +26,7 @@
  */
 
 require_once("../../globals.php");
+
 require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
@@ -60,6 +61,10 @@ use OpenEMR\Services\ImmunizationService;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+
+// Reset the previous name flag to allow normal operation.
+// This is set in new.php so we can prevent new previous name from being added i.e no pid available.
+OpenEMR\Common\Session\SessionUtil::setSession('disablePreviousNameAdds', 0);
 
 $twig = new TwigContainer(null, $GLOBALS['kernel']);
 
