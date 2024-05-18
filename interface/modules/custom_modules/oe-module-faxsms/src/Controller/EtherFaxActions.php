@@ -449,7 +449,7 @@ class EtherFaxActions extends AppDispatch
     public function formatFax($encodedFax): string
     {
         $control = new HandleImageService();
-        $formatted_document = $control->convertImageToPdf($encodedFax, $control, '');
+        $formatted_document = $control->convertImageToPdf($encodedFax, '');
 
         return $formatted_document ? base64_encode($formatted_document) : false;
     }

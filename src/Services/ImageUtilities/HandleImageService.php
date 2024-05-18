@@ -252,13 +252,12 @@ class HandleImageService
 
     /**
      * @param                    $imageData
-     * @param HandleImageService $handleImageController
-     * @param                    $pdfPath
-     * @param                    $useExt
+     * @param string             $pdfPath
+     * @param string             $useExt
      * @return false|string
      * @throws Exception
      */
-    public function convertImageToPdf($imageData, HandleImageService $handleImageController, $pdfPath = '', $useExt = 'imagick'): false|string
+    public function convertImageToPdf($imageData, $pdfPath = '', $useExt = 'imagick'): false|string
     {
         $content = '';
 
@@ -268,8 +267,8 @@ class HandleImageService
             $imageContent = $imageData;
         }
         // Check for extension availability
-        $usingImagick = $useExt === 'imagick' && $handleImageController->isImagickAvailable();
-        $usingGd = $useExt === 'gd' && $handleImageController->isGdAvailable() && !$usingImagick;
+        $usingImagick =  $this->isImagickAvailable() && $useExt === 'imagick';
+        $usingGd =  $this->isGdAvailable() && $useExt === 'gd' && !$usingImagick;
 
         if (!$usingImagick && !$usingGd) {
             return false; // todo Could provide an alternative method but JS will pick this up
@@ -277,7 +276,7 @@ class HandleImageService
 
         try {
             if ($usingImagick) {
-                $content = $handleImageController->convertImageToPdfUseImagick($imageContent, $pdfPath);
+                $content = $this->convertImageToPdfUseImagick($imageContent, $pdfPath);
             } elseif ($usingGd) {
                 // Implement GD conversion or provide a message if not yet implemented
                 $content = false; // Placeholder for actual GD implementation
