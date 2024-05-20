@@ -6,6 +6,6 @@
  * but not fully implemented.
  * */
 
-$v_major = '3';
-$v_minor = '1';
+$v_major = '4';
+$v_minor = '0';
 $v_patch = '0';

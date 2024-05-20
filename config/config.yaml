@@ -221,7 +221,13 @@ assets:
         script: jszip.min.js
     jspdf:
         basePath: '%assets_static_relative%/jspdf/dist/'
-        script: jspdf.umd.min.js
+        script: jspdf.min.js
+    jspdfdebug:
+      basePath: '%assets_static_relative%/jspdf/dist/'
+      script: jspdf.debug.js
+    jstiff:
+      basePath: '%assets_static_relative%/tiff/'
+      script: tiff.min.js
     dwv:
         basePath: '%assets_static_relative%/dwv/'
         script:

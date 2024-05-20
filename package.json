@@ -97,7 +97,7 @@
     "jquery": "3.7.1",
     "jquery-datetimepicker": "2.5.21",
     "jquery-validation": "1.19.5",
-    "jspdf": "2.5.1",
+    "jspdf": "1.5.3",
     "jszip": "3.10.1",
     "knockout": "3.5.1",
     "konva": "9.2.1",
@@ -107,6 +107,7 @@
     "purecss": "3.0.0",
     "select2": "4.0.13",
     "sortablejs": "1.15.0",
+    "tiff": "git+https://github.com/seikichi/tiff.js.git",
     "underscore": "1.13.6",
     "validate.js": "0.13.1"
   },

@@ -254,8 +254,8 @@ class EtherFaxClient
             ]);
             $this->httpCode = $response->getStatusCode();
             $result = $response->getBody();
-        } catch (Exception $e) {
-            return $e->getMessage();
+        } catch (\GuzzleHttp\Exception\GuzzleException $e) {
+            throw new \Exception($e->getMessage());
         }
 
         return $result;
