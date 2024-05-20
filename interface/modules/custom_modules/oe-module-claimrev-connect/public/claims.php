@@ -15,6 +15,7 @@
     use OpenEMR\Common\Acl\AclMain;
     use OpenEMR\Common\Twig\TwigContainer;
     use OpenEMR\Modules\ClaimRevConnector\ClaimsPage;
+    use OpenEMR\Core\Header;
 
     $tab = "claims";
 
@@ -27,11 +28,13 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
 
 <html>
     <head>
-        <link rel="stylesheet" href="../../../../../public/assets/bootstrap/dist/css/bootstrap.min.css">
+        <?php echo Header::setupAssets(['common']); ?>
+        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap/dist/css/bootstrap.min.css">
     </head>
     <title><?php echo xlt("ClaimRev Connect - Claims"); ?></title>
     <body>
-        <div class="row"> 
+        <div class="container-fluid">
+        <div class="row">
             <div class="col">
             <?php
                 require '../templates/navbar.php';
@@ -39,14 +42,14 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
             </div>
         </div>
         <form method="post" action="claims.php">
-            <div class="card">  
+            <div class="card">
                 <div class="row">
                     <div class="col">
                         <div class="form-group">
                             <label for="startDate"><?php echo xlt("Send Date Start") ?></label>
                             <input type="date" class="form-control"  id="startDate" name="startDate" value="<?php echo isset($_POST['startDate']) ? attr($_POST['startDate']) : '' ?>"  placeholder="yyyy-mm-dd"/>
                         </div>
-                    </div>                    
+                    </div>
                     <div class="col">
                         <div class="form-group">
                             <label for="endDate"><?php echo xlt("Send Date End"); ?></label>
@@ -54,10 +57,10 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
                         </div>
                     </div>
                     <div class="col">
-                      
-                    </div>                    
+
+                    </div>
                     <div class="col">
-                        
+
                     </div>
                 </div>
                 <div class="row">
@@ -74,22 +77,22 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
                         </div>
                     </div>
                     <div class="col">
-                    
+
                     </div>
                     <div class="col">
-                    
+
                     </div>
-                </div>   
+                </div>
                 <div class="row">
                     <div class="col">
                         <button type="submit" name="SubmitButton" class="btn btn-primary"><?php echo xlt("Submit") ?></button>
                     </div>
                     <div class="col-10">
-                    
+
                     </div>
-                </div>            
-                
-            </div> 
+                </div>
+
+            </div>
         </form>
 
 
@@ -107,18 +110,18 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
                 <table class="table">
                 <thead>
                     <tr>
-                    
+
                         <th scope="col"><?php echo xlt("Status") ?></th>
                         <th scope="col"><?php echo xlt("Payer Info") ?></th>
                         <th scope="col"><?php echo xlt("Provider Info") ?></th>
                         <th scope="col"><?php echo xlt("Patient Info") ?></th>
-                        <th scope="col"><?php echo xlt("Claim Info") ?></th>                 
+                        <th scope="col"><?php echo xlt("Claim Info") ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php
                     foreach ($datas as $data) {
-                        ?>                            
+                        ?>
                         <tr>
                             <td>
                                 <div class="row">
@@ -137,7 +140,7 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
                                     <div class="col">
                                         <div class="row">
                                             <div class="font-weight-bold col">
-                                            <?php echo xlt("File Status"); ?>:                                                
+                                            <?php echo xlt("File Status"); ?>:
                                             </div>
                                         </div>
                                          <div class="row">
@@ -151,7 +154,7 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
                                     <div class="col">
                                         <div class="row">
                                             <div class="font-weight-bold col">
-                                            <?php echo xlt(" Payer Acceptance"); ?>:                                               
+                                            <?php echo xlt(" Payer Acceptance"); ?>:
                                             </div>
                                         </div>
                                          <div class="row">
@@ -163,7 +166,7 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
                                     <div class="col">
                                         <div class="row">
                                             <div class="font-weight-bold col">
-                                            <?php echo xlt("ERA"); ?>:                                                
+                                            <?php echo xlt("ERA"); ?>:
                                             </div>
                                         </div>
                                          <div class="row">
@@ -172,56 +175,56 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
                                             </div>
                                         </div>
                                     </div>
-                                </div>                              
-                            </td>
-                            <td>
-                                <div class="row">
-                                    <div class="font-weight-bold col">
-                                    <?php echo xlt("Name"); ?>:                                        
-                                    </div>
-                                    <div class="col">
-                                    <?php echo text($data->payerName); ?> 
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="font-weight-bold col">
-                                    <?php echo xlt("Number"); ?>:                                        
-                                    </div>
-                                    <div class="col">
-                                    <?php echo text($data->payerNumber); ?> 
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="font-weight-bold col">
-                                    <?php echo xlt("Control #"); ?>:                                        
-                                    </div>
-                                    <div class="col">
-                                    <?php echo text($data->payerControlNumber); ?> 
-                                    </div>
                                 </div>
                             </td>
                             <td>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                    <?php echo xlt("Name"); ?>:                                        
+                                    <?php echo xlt("Name"); ?>:
                                     </div>
                                     <div class="col">
-                                    <?php echo text($data->providerFirstName); ?>  <?php echo text($data->providerLastName); ?>  
+                                    <?php echo text($data->payerName); ?>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                    <?php echo xlt("NPI"); ?>:                                        
+                                    <?php echo xlt("Number"); ?>:
                                     </div>
                                     <div class="col">
-                                    <?php echo text($data->providerNpi); ?> 
+                                    <?php echo text($data->payerNumber); ?>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="font-weight-bold col">
+                                    <?php echo xlt("Control #"); ?>:
+                                    </div>
+                                    <div class="col">
+                                    <?php echo text($data->payerControlNumber); ?>
                                     </div>
                                 </div>
                             </td>
                             <td>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                    <?php echo xlt("Name"); ?>:                                        
+                                    <?php echo xlt("Name"); ?>:
+                                    </div>
+                                    <div class="col">
+                                    <?php echo text($data->providerFirstName); ?>  <?php echo text($data->providerLastName); ?>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="font-weight-bold col">
+                                    <?php echo xlt("NPI"); ?>:
+                                    </div>
+                                    <div class="col">
+                                    <?php echo text($data->providerNpi); ?>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="row">
+                                    <div class="font-weight-bold col">
+                                    <?php echo xlt("Name"); ?>:
                                     </div>
                                     <div class="col">
                                     <?php echo text($data->pLastName); ?>, <?php echo text($data->pFirstName); ?>
@@ -232,30 +235,30 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
                                     <?php echo xlt("DOB"); ?>:
                                     </div>
                                     <div class="col">
-                                <?php echo text(substr($data->birthDate, 0, 10)); ?>  
+                                <?php echo text(substr($data->birthDate, 0, 10)); ?>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                    <?php echo xlt("Gender"); ?>:                                        
+                                    <?php echo xlt("Gender"); ?>:
                                     </div>
                                     <div class="col">
-                                    <?php echo text($data->patientGender); ?> 
+                                    <?php echo text($data->patientGender); ?>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                    <?php echo xlt("Member #"); ?>:                                        
+                                    <?php echo xlt("Member #"); ?>:
                                     </div>
                                     <div class="col">
-                                    <?php echo text($data->memberNumber); ?> 
+                                    <?php echo text($data->memberNumber); ?>
                                     </div>
                                 </div>
                             </td>
                             <td>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                    <?php echo xlt("Trace #"); ?>:                                        
+                                    <?php echo xlt("Trace #"); ?>:
                                     </div>
                                     <div class="col">
                                     <?php echo text($data->traceNumber); ?>
@@ -263,38 +266,38 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
                                 </div>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                    <?php echo xlt("Control #"); ?>:                                        
+                                    <?php echo xlt("Control #"); ?>:
                                     </div>
                                     <div class="col">
-                                    <?php echo text($data->payerControlNumber); ?> 
+                                    <?php echo text($data->payerControlNumber); ?>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                    <?php echo xlt("Billed Amt"); ?>:                                        
+                                    <?php echo xlt("Billed Amt"); ?>:
                                     </div>
                                     <div class="col">
-                                    <?php echo text($data->billedAmount); ?> 
+                                    <?php echo text($data->billedAmount); ?>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                    <?php echo xlt("Payed Amt"); ?>:                                        
+                                    <?php echo xlt("Payed Amt"); ?>:
                                     </div>
                                     <div class="col">
-                                    <?php echo text($data->payerPaidAmount); ?> 
+                                    <?php echo text($data->payerPaidAmount); ?>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="font-weight-bold col">
-                                    <?php echo xlt("Service Date"); ?>:                                        
+                                    <?php echo xlt("Service Date"); ?>:
                                     </div>
                                     <div class="col">
-                                    <?php echo text(substr($data->serviceDate, 0, 10)); ?> / <?php echo text(substr($data->serviceDateEnd, 0, 10)); ?> 
+                                    <?php echo text(substr($data->serviceDate, 0, 10)); ?> / <?php echo text(substr($data->serviceDateEnd, 0, 10)); ?>
                                     </div>
                                 </div>
-                            </td>                            
-                        </tr>  
+                            </td>
+                        </tr>
                         <?php if ($data->errors) {
                             ?>
                         <tr>
@@ -309,16 +312,16 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
                                 ?>
                                 </ul>
                             </td>
-                        </tr>   
-                        <?php } ?>         
-                    <?php } ?>    
-                  </tbody>               
+                        </tr>
+                        <?php } ?>
+                    <?php } ?>
+                  </tbody>
                 </table>
         <?php }
         ?>
 
-       
-        
+
+        </div>
     </body>
 </html>
 

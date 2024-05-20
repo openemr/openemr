@@ -44,7 +44,7 @@ if (!empty($_POST)) {
 <html>
     <head>
         <?php Header::setupHeader(['common', 'opener']); ?>
-        <link rel="stylesheet" href="../../../../../public/assets/bootstrap/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap/dist/css/bootstrap.min.css">
         <script>
             function downloadEra(objectId) {
                 window.location = 'EraDownload.php?eraId=' + objectId;
@@ -54,7 +54,8 @@ if (!empty($_POST)) {
     </head>
     <title><?php echo xlt("ClaimRev Connect - ERAs"); ?></title>
     <body>
-        <div class="row"> 
+    <div class="container-fluid">
+        <div class="row">
             <div class="col">
             <?php
                 require '../templates/navbar.php';
@@ -69,7 +70,7 @@ if (!empty($_POST)) {
                             <label for="startDate"><?php echo xlt("Receive Date Start") ?>:</label>
                             <input type="date" class="form-control"  id="startDate" name="startDate" value="<?php echo isset($_POST['startDate']) ? attr($_POST['startDate']) : '' ?>"  placeholder="yyyy-mm-dd"/>
                         </div>
-                    </div>                    
+                    </div>
                     <div class="col">
                         <div class="form-group">
                             <label for="endDate"><?php echo xlt("Receive Date End"); ?>:</label>
@@ -85,7 +86,7 @@ if (!empty($_POST)) {
                         </select>
                         </div>
 
-                    </div>                    
+                    </div>
                     <div class="col"></div>
                 </div>
                 <div class="row">
@@ -103,14 +104,14 @@ if (!empty($_POST)) {
                <table class="table">
                 <thead>
                     <tr>
-                    
+
                         <th scope="col"><?php echo xlt("Date") ?></th>
                         <th scope="col"><?php echo xlt("Payer Name") ?></th>
                         <th scope="col"><?php echo xlt("Payer Number") ?></th>
                         <th scope="col"><?php echo xlt("Billed Amt") ?></th>
                         <th scope="col"><?php echo xlt("Payer Paid Amt") ?></th>
-                        <th scope="col"><?php echo xlt("Patient Responsibility") ?></th>       
-                        <th scope="col"><?php echo xlt("Actions") ?></th>             
+                        <th scope="col"><?php echo xlt("Patient Responsibility") ?></th>
+                        <th scope="col"><?php echo xlt("Actions") ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -126,7 +127,7 @@ if (!empty($_POST)) {
                             <td scope="row"><?php echo text($data->patientResponsibility); ?></td>
                             <td scope="row">
                                 <button type="button" onClick="downloadEra('<?php echo attr($data->id); ?>');" name="downloadFile" class="btn btn-primary">
-                                    <?php echo xlt("Download ERA"); ?>    
+                                    <?php echo xlt("Download ERA"); ?>
                                 </button>
                             </td>
                         </tr>
@@ -134,5 +135,6 @@ if (!empty($_POST)) {
                 </tbody>
                 </table>
         <?php }  ?>
+    </div>
     </body>
 </html>

@@ -15,6 +15,7 @@
     use OpenEMR\Common\Acl\AclMain;
     use OpenEMR\Common\Twig\TwigContainer;
     use OpenEMR\Modules\ClaimRevConnector\ConnectivityInfo;
+    use OpenEMR\Core\Header;
 
     $tab = "connectivity";
 
@@ -27,10 +28,12 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
 
 <html>
     <head>
-        <link rel="stylesheet" href="../../../../../public/assets/bootstrap/dist/css/bootstrap.min.css">
+        <?php echo Header::setupAssets(['common']); ?>
+        <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] ?>/bootstrap/dist/css/bootstrap.min.css">
     </head>
     <title><?php echo xlt("ClaimRev Connect - Account"); ?></title>
     <body>
+    <div class="container-fluid">
         <div class="row">
             <div class="col">
                 <?php require '../templates/navbar.php'; ?>
@@ -39,9 +42,9 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
         <div class="row">
             <div class="col">
             <?php $connectivityInfo = new ConnectivityInfo(); ?>
-                <h3><?php echo xlt("Client Connection Information"); ?></h3>              
+                <h3><?php echo xlt("Client Connection Information"); ?></h3>
                 <ul>
-                
+
                     <li><?php echo xlt("Authority");?>: <?php echo text($connectivityInfo->client_authority); ?></li>
                     <li><?php echo xlt("Client ID");?>: <?php echo text($connectivityInfo->clientId); ?></li>
                     <li><?php echo xlt("Client Scope");?>: <?php echo text($connectivityInfo->client_scope); ?></li>
@@ -49,13 +52,14 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
                     <li><?php echo xlt("Default Account");?>: <?php echo text($connectivityInfo->defaultAccount); ?>  </li>
                     <li><?php echo xlt("Token");?>:  <?php echo text($connectivityInfo->hasToken); ?>  </li>
                 </ul>
-            </div>       
+            </div>
         </div>
         <div class="row">
             <div class="col">
                 <a href="index.php"><?php echo xlt("Back to index"); ?></a>
             </div>
         </div>
+    </div>
     </body>
 </html>
 
