@@ -31,8 +31,6 @@
 */
 
 use OpenEMR\Core\AbstractModuleActionListener;
-//use OpenEMR\Modules\ClaimRevConnector\Services\ModuleServices;
-
 
 /* Allows maintenance of background tasks depending on Module Manager action. */
 
