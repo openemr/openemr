@@ -281,7 +281,7 @@ class EtherFaxActions extends AppDispatch
 
         $content = $fax->FaxImage;
         $c_header = $fax->DocumentParams->Type;
-        $ext = $c_header == 'application/pdf' ? 'pdf' : ($c_header == 'image/tiff' || $c_header == 'image/tif' ? 'tiff' : 'txt');
+        $ext = $c_header == 'application/pdf' ? '.pdf' : ($c_header == 'image/tiff' || $c_header == 'image/tif' ? '.tiff' : '.txt');
         $filepath = $this->baseDir . "/send/" . ($jobId . $ext);
 
         if (!file_exists($this->baseDir . '/send')) {
@@ -430,7 +430,7 @@ class EtherFaxActions extends AppDispatch
                 throw new Exception(sprintf('Directory "%s" was not created', $faxStoreDir));
             }
 
-            $file_name = "{$faxStoreDir}/Fax_{$docId}." . ($c_header == 'application/pdf' ? 'pdf' : ($c_header == 'image/tiff' ? 'tiff' : 'txt'));
+            $file_name = "{$faxStoreDir}/Fax_{$docId}" . ($c_header == 'application/pdf' ? '.pdf' : ($c_header == 'image/tiff' ? '.tiff' : '.txt'));
             file_put_contents($file_name, base64_decode($faxImage));
             $this->setSession('where', $file_name);
             $this->setFaxDeleted($apiResponse->JobId);
