@@ -1,6 +1,21 @@
 <?php
 
+/**
+ * ClaimRevConnector Module Services
+ *
+ * This file contains the services for the ClaimRevConnector module.
+ *
+ * PHP version 7
+ *
+ * @package   OpenEMR Modules
+ * @link      https://www.open-emr.org
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\Modules\ClaimRevConnector\Services;
+
 class ModuleServices
 {
     public function __construct()

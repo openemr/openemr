@@ -176,7 +176,6 @@ class ModuleManagerListener extends AbstractModuleActionListener
         $logMessage = ''; // Initialize an empty string to store log messages
 
         if (!$modService::getModuleState($modId)) {
-
             $sql = "DELETE FROM `globals` WHERE `gl_name` LIKE 'oe_claimrev%'";
             $rtn = sqlQuery($sql);
             $logMessage .= "DELETE FROM `globals`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
