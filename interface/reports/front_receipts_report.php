@@ -309,22 +309,20 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         <?php
         $method_keys = array_keys(array_unique(array_merge($total1_by_method, $total2_by_method)));
         foreach ($method_keys as $method_key) { ?>
-        <tr class="report_totals_by_method">
-            <td colspan='5'>
-                <?php echo xlt('Totals by Method') . ' ' . text($method_key); ?>
-            <td align='right'>
-                    <?php echo text(FormatMoney::getBucks($total1_by_method[$method_key])); ?>
-            </td>
-            <td align='right'>
-                    <?php echo text(FormatMoney::getBucks($total2_by_method[$method_key])); ?>
-            </td>
-            <td align='right'>
-                    <?php echo text(FormatMoney::getBucks($total1_by_method[$method_key] + $total2_by_method[$method_key])); ?>
-            </td>
-        </tr>
-            <?php
-        }
-        ?>
+            <tr class="report_totals_by_method">
+                <td colspan='5'>
+                    <?php echo xlt('Totals by Method') . ' ' . text($method_key); ?>
+                <td align='right'>
+                        <?php echo text(FormatMoney::getBucks($total1_by_method[$method_key])); ?>
+                </td>
+                <td align='right'>
+                        <?php echo text(FormatMoney::getBucks($total2_by_method[$method_key])); ?>
+                </td>
+                <td align='right'>
+                        <?php echo text(FormatMoney::getBucks($total1_by_method[$method_key] + $total2_by_method[$method_key])); ?>
+                </td>
+            </tr>
+        <?php } ?>
 
 <tr class="report_totals">
  <td colspan='5'>
@@ -341,8 +339,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
  </td>
 </tr>
 
-    <?php
-        }
+        <?php
+    }
     ?>
 </tbody>
 </table>
