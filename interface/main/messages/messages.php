@@ -300,8 +300,12 @@ if (!empty($_REQUEST['go'])) { ?>
                             $datetime = isset($_POST['form_datetime']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_datetime']) : '';
                             foreach ($assigned_to_list as $assigned_to) {
                                 if ($noteid && $assigned_to != '-patient-') {
-                                    updatePnote($noteid, $note, $form_note_type, $assigned_to, $form_message_status, $datetime);
-                                    $noteid = '';
+                                    if (checkPnotesNoteId($note_id, $_SESSION['authUser'])) {
+                                        updatePnote($noteid, $note, $form_note_type, $assigned_to, $form_message_status, $datetime);
+                                        $noteid = '';
+                                    } else {
+                                        die("Message is not assigned to you. Adding is disallowed.");
+                                    }
                                 } else {
                                     if ($noteid && $assigned_to == '-patient-') {
                                         // When $assigned_to == '-patient-' we don't update the current note, but
