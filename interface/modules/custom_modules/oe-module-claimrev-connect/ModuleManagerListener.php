@@ -31,7 +31,6 @@
 */
 
 use OpenEMR\Core\AbstractModuleActionListener;
-use OpenEMR\Modules\ClaimRevConnector\Services\ModuleServices;
 
 /* Allows maintenance of background tasks depending on Module Manager action. */
 
@@ -87,23 +86,6 @@ class ModuleManagerListener extends AbstractModuleActionListener
      * @param $currentActionStatus
      * @return mixed
      */
-    private function install($modId, $currentActionStatus): mixed
-    {
-        $modService = new ModuleServices();
-        /* setting the active ui flag here will allow the config button to show
-         * before enable. This is a good thing because it allows the user to
-         * configure the module before enabling it. However, if the module is disabled
-         * this flag is reset by MM.
-        */
-        $modService::setModuleState($modId, '0', '1');
-        return $currentActionStatus;
-    }
-
-    /**
-     * @param $modId
-     * @param $currentActionStatus
-     * @return mixed
-     */
     private function help_requested($modId, $currentActionStatus): mixed
     {
         // must call a script that implements a dialog to show help.
@@ -119,25 +101,9 @@ class ModuleManagerListener extends AbstractModuleActionListener
      * @param $currentActionStatus
      * @return mixed
      */
-    private function preenable($modId, $currentActionStatus): mixed
-    {
-        return $currentActionStatus;
-    }
-
-    /**
-     * @param $modId
-     * @param $currentActionStatus
-     * @return mixed
-     */
     private function enable($modId, $currentActionStatus): mixed
     {
-        $modService = new ModuleServices();
-        if ($modService->isClaimRevConfigured()) {
-            $modService::setModuleState($modId, '1', '0');
-            return $currentActionStatus;
-        }
-        $modService::setModuleState($modId, '1', '1');
-        return xlt("Claim Rev Service is not configured. Please configure Claim Rev Service in the Admin Config.");
+        return $currentActionStatus;
     }
 
     /**
@@ -148,7 +114,6 @@ class ModuleManagerListener extends AbstractModuleActionListener
     private function disable($modId, $currentActionStatus): mixed
     {
         // allow config button to show before enable.
-        ModuleServices::setModuleState($modId, '0', '1');
         return $currentActionStatus;
     }
 
@@ -162,71 +127,5 @@ class ModuleManagerListener extends AbstractModuleActionListener
         $sql = "DELETE FROM `background_services` WHERE `name` = ? OR `name` = ? OR `name` = ?";
         sqlQuery($sql, array('ClaimRev_Send', 'ClaimRev_Receive', 'ClaimRev_Elig_Send_Receive'));
         return $currentActionStatus;
-    }
-
-    /**
-     * @param $modId
-     * @param $currentActionStatus
-     * @return mixed
-     */
-    private function reset_module($modId, $currentActionStatus): mixed
-    {
-        $rtn = true;
-        $modService = new ModuleServices();
-        $logMessage = ''; // Initialize an empty string to store log messages
-
-        if (!$modService::getModuleState($modId)) {
-            $sql = "DELETE FROM `globals` WHERE `gl_name` LIKE 'oe_claimrev%'";
-            $rtn = sqlQuery($sql);
-            $logMessage .= "DELETE FROM `globals`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
-
-            $sql = "DROP TABLE IF EXISTS `mod_claimrev_eligibility`";
-            $rtn = sqlQuery($sql);
-            $logMessage .= "DROP TABLE `mod_claimrev_eligibility`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
-
-            error_log(text($logMessage));
-        }
-
-        // return log messages to the MM to show user.
-        return text($logMessage);
-    }
-
-    /**
-     * @param $modId
-     * @param $currentActionStatus
-     * @return mixed
-     */
-    private function install_sql($modId, $currentActionStatus): mixed
-    {
-        return $currentActionStatus;
-    }
-
-    /**
-     * @param $modId
-     * @param $currentActionStatus
-     * @return mixed
-     */
-    private function upgrade_sql($modId, $currentActionStatus): mixed
-    {
-        return $currentActionStatus;
-    }
-
-    /**
-     * Grab all Module setup or columns values.
-     *
-     * @param        $modId
-     * @param string $col
-     * @return array
-     */
-    function getModuleRegistry($modId, $col = '*'): array
-    {
-        $registry = [];
-        $sql = "SELECT $col FROM modules WHERE mod_id = ?";
-        $results = sqlQuery($sql, array($modId));
-        foreach ($results as $k => $v) {
-            $registry[$k] = trim((preg_replace('/\R/', '', $v)));
-        }
-
-        return $registry;
     }
 }
