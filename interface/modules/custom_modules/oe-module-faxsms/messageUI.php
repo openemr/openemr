@@ -294,17 +294,21 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : xlt('FAX');
 
         // Function to convert images to PDF and return a base64
         async function convertImagesToPdf(images, filename = 'fax-tiff-to-pdf.pdf') {
+            const {jsPDF} = window.jspdf;
             const doc = new jsPDF();
-            const pageHeight = doc.internal.pageSize.getHeight();
+            doc.internal.write.isEvalSupported = false;
+            const pageHeight = doc.internal.pageSize.height;
+            const pageWidth = doc.internal.pageSize.width;
 
             for (let i = 0; i < images.length; i++) {
                 if (i !== 0) {
                     doc.addPage();
                 }
-                doc.addImage(images[i], 'JPEG', 10, 10, 190, pageHeight - 20);
+                doc.addImage(images[i], 'JPEG', 0, 0, pageWidth, pageHeight);
             }
 
-            return doc.output('datauristring').split(',')[1]; // Return only the Base64 part
+            // Return the PDF as base64 string
+            return doc.output('datauristring').split(',')[1];
         }
 
         function showDocument(_base64, _contentType = 'image/tiff') {

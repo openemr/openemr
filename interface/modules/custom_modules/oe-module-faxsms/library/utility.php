@@ -78,9 +78,9 @@ if ($_POST['form_create'] ?? null) {
     $form_city = '';
     $form_postcode = '';
     $form_countrycode = '';
-    $form_regdate = DateToYYYYMMDD(trim($_POST['regdate']));
+    $form_regdate = DateToYYYYMMDD(trim($_POST['regdate'] ?? ''));
     newPatientData(
-        $_POST["db_id"],
+        $_POST["db_id"] ?? '',
         $_POST["title"] ?? '',
         $form_fname,
         $form_lname,
@@ -160,16 +160,16 @@ if (empty($_POST) && !empty($data)) {
     $_POST = $data;
     unset($data);
 }
-$form_pubpid = $_POST['pubpid'] ? trim($_POST['pubpid']) : '';
-$form_title = $_POST['title'] ? trim($_POST['title']) : '';
-$form_fname = $_POST['fname'] ? trim($_POST['fname']) : '';
-$form_mname = $_POST['mname'] ? trim($_POST['mname']) : '';
-$form_lname = $_POST['lname'] ? trim($_POST['lname']) : '';
-$form_refsource = $_POST['refsource'] ? trim($_POST['refsource']) : '';
-$form_sex = $_POST['sex'] ? trim($_POST['sex']) : '';
-$form_refsource = $_POST['refsource'] ? trim($_POST['refsource']) : '';
-$form_dob = $_POST['DOB'] ? trim($_POST['DOB']) : '';
-$form_regdate = $_POST['regdate'] ? trim($_POST['regdate']) : date('Y-m-d');
+$form_pubpid = $_POST['pubpid'] ?? '' ? trim($_POST['pubpid']) : '';
+$form_title = $_POST['title'] ?? '' ? trim($_POST['title']) : '';
+$form_fname = $_POST['fname'] ?? '' ? trim($_POST['fname']) : '';
+$form_mname = $_POST['mname'] ?? '' ? trim($_POST['mname']) : '';
+$form_lname = $_POST['lname'] ?? '' ? trim($_POST['lname']) : '';
+$form_refsource = $_POST['refsource'] ?? '' ? trim($_POST['refsource']) : '';
+$form_sex = $_POST['sex'] ?? '' ? trim($_POST['sex']) : '';
+$form_refsource = $_POST['refsource'] ?? '' ? trim($_POST['refsource']) : '';
+$form_dob = $_POST['DOB'] ?? '' ? trim($_POST['DOB']) : '';
+$form_regdate = $_POST['regdate'] ?? '' ? trim($_POST['regdate']) : date('Y-m-d');
 
 ?>
 <!DOCTYPE html>
