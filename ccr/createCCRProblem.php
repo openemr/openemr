@@ -38,7 +38,7 @@ do {
     $e_DateTime = $ccr->createElement('DateTime');
     $e_Problem->appendChild($e_DateTime);
 
-    $date = date_create($row['date']);
+    $date = date_create($row['date'] ?? '');
 
     $e_ExactDateTime = $ccr->createElement('ExactDateTime', $date->format('Y-m-d\TH:i:s\Z'));
     $e_DateTime->appendChild($e_ExactDateTime);
@@ -46,7 +46,7 @@ do {
     $e_IDs = $ccr->createElement('IDs');
     $e_Problem->appendChild($e_IDs);
 
-    $e_ID = $ccr->createElement('ID', $row['pid']);
+    $e_ID = $ccr->createElement('ID', $row['pid'] ?? '');
     $e_IDs->appendChild($e_ID);
 
     $e_IDs->appendChild(sourceType($ccr, $sourceID));
@@ -61,13 +61,13 @@ do {
     $e_Description = $ccr->createElement('Description');
     $e_Problem->appendChild($e_Description);
 
-    $e_Text = $ccr->createElement('Text', lookup_code_descriptions($row['diagnosis']));
+    $e_Text = $ccr->createElement('Text', lookup_code_descriptions($row['diagnosis'] ?? ''));
     $e_Description->appendChild($e_Text);
 
     $e_Code = $ccr->createElement('Code');
     $e_Description->appendChild($e_Code);
 
-    $e_Value = $ccr->createElement('Value', $row['diagnosis']);
+    $e_Value = $ccr->createElement('Value', $row['diagnosis'] ?? '');
     $e_Code->appendChild($e_Value);
 
     $e_Value = $ccr->createElement('CodingSystem', 'ICD9-CM');
@@ -88,12 +88,12 @@ do {
     $e_Actor = $ccr->createElement('Actor');
     $e_Source->appendChild($e_Actor);
 
-    $e_ActorID = $ccr->createElement('ActorID', $uuid);
+    $e_ActorID = $ccr->createElement('ActorID', $uuid ?? '');
     $e_Actor->appendChild($e_ActorID);
 
     $e_Problem->appendChild($e_Source);
 
-    $e_CommentID = $ccr->createElement('CommentID', $row['comments']);
+    $e_CommentID = $ccr->createElement('CommentID', $row['comments'] ?? '');
     $e_Problem->appendChild($e_CommentID);
 
     $e_Episodes = $ccr->createElement('Episodes');
@@ -124,7 +124,7 @@ do {
     $e_Description = $ccr->createElement('Description');
     $e_HealthStatus->appendChild($e_Description);
 
-    $e_Text = $ccr->createElement('Text', $row['reason']);
+    $e_Text = $ccr->createElement('Text', $row['reason'] ?? '');
     $e_Description->appendChild($e_Text);
 
     $e_HealthStatus->appendChild(sourceType($ccr, $sourceID));

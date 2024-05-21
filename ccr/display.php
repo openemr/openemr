@@ -32,7 +32,7 @@ try {
     if (!$d->can_access()) {
         echo $twig->getTwig()->render("templates/error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']);
         exit;
-    } else if ($d->is_deleted()) {
+    } elseif ($d->is_deleted()) {
         echo $twig->getTwig()->render("templates/error/404.html.twig");
         exit;
     }

@@ -1665,7 +1665,7 @@ class Display extends base
                                             <div class="divTableRow">
                                                 <div class="divTableCell divTableHeading">MedEx <?php echo xlt('Username'); ?></div>
                                                 <div class="divTableCell indent20">
-                                                    <?php echo $prefs['ME_username']; ?>
+                                                    <?php echo text($prefs['ME_username']); ?>
                                                 </div>
                                             </div>
                                             <div class="divTableRow">
