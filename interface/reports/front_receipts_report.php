@@ -313,13 +313,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
             <td colspan='5'>
                 <?php echo xlt('Totals by Method') . ' ' . text($method_key); ?>
             <td align='right'>
-                    <?php echo text(bucks($total1_by_method[$method_key])); ?>
+                    <?php echo text(FormatMoney::getBucks($total1_by_method[$method_key])); ?>
             </td>
             <td align='right'>
-                    <?php echo text(bucks($total2_by_method[$method_key])); ?>
+                    <?php echo text(FormatMoney::getBucks($total2_by_method[$method_key])); ?>
             </td>
             <td align='right'>
-                    <?php echo text(bucks($total1_by_method[$method_key] + $total2_by_method[$method_key])); ?>
+                    <?php echo text(FormatMoney::getBucks($total1_by_method[$method_key] + $total2_by_method[$method_key])); ?>
             </td>
         </tr>
             <?php
