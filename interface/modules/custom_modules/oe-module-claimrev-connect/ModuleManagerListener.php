@@ -31,6 +31,7 @@
 */
 
 use OpenEMR\Core\AbstractModuleActionListener;
+use OpenEMR\Modules\ClaimRevConnector\Services\ModuleServices;
 
 /* Allows maintenance of background tasks depending on Module Manager action. */
 
@@ -86,17 +87,17 @@ class ModuleManagerListener extends AbstractModuleActionListener
      * @param $currentActionStatus
      * @return mixed
      */
-//    private function install($modId, $currentActionStatus): mixed
-//    {
-//        $modService = new ModuleServices();
-//        /* setting the active ui flag here will allow the config button to show
-//         * before enable. This is a good thing because it allows the user to
-//         * configure the module before enabling it. However, if the module is disabled
-//         * this flag is reset by MM.
-//        */
-//        $modService::setModuleState($modId, '0', '1');
-//        return $currentActionStatus;
-//    }
+    private function install($modId, $currentActionStatus): mixed
+    {
+        $modService = new ModuleServices();
+        /* setting the active ui flag here will allow the config button to show
+         * before enable. This is a good thing because it allows the user to
+         * configure the module before enabling it. However, if the module is disabled
+         * this flag is reset by MM.
+        */
+        $modService::setModuleState($modId, '0', '1');
+        return $currentActionStatus;
+    }
 
     /**
      * @param $modId
@@ -118,38 +119,38 @@ class ModuleManagerListener extends AbstractModuleActionListener
      * @param $currentActionStatus
      * @return mixed
      */
-//    private function preenable($modId, $currentActionStatus): mixed
-//    {
-//        return $currentActionStatus;
-//    }
+    private function preenable($modId, $currentActionStatus): mixed
+    {
+        return $currentActionStatus;
+    }
 
     /**
      * @param $modId
      * @param $currentActionStatus
      * @return mixed
      */
-//    private function enable($modId, $currentActionStatus): mixed
-//    {
-//        $modService = new ModuleServices();
-//        if ($modService->isClaimRevConfigured()) {
-//            $modService::setModuleState($modId, '1', '0');
-//            return $currentActionStatus;
-//        }
-//        $modService::setModuleState($modId, '1', '1');
-//        return xlt("Weno eRx Service is not configured. Please configure Weno eRx Service in the Weno Module Setup.");
-//    }
+    private function enable($modId, $currentActionStatus): mixed
+    {
+        $modService = new ModuleServices();
+        if ($modService->isClaimRevConfigured()) {
+            $modService::setModuleState($modId, '1', '0');
+            return $currentActionStatus;
+        }
+        $modService::setModuleState($modId, '1', '1');
+        return xlt("Claim Rev Service is not configured. Please configure Claim Rev Service in the Admin Config.");
+    }
 
     /**
      * @param $modId
      * @param $currentActionStatus
      * @return mixed
      */
-//    private function disable($modId, $currentActionStatus): mixed
-//    {
-//        // allow config button to show before enable.
-//        ModuleServices::setModuleState($modId, '0', '1');
-//        return $currentActionStatus;
-//    }
+    private function disable($modId, $currentActionStatus): mixed
+    {
+        // allow config button to show before enable.
+        ModuleServices::setModuleState($modId, '0', '1');
+        return $currentActionStatus;
+    }
 
     /**
      * @param $modId
@@ -168,48 +169,48 @@ class ModuleManagerListener extends AbstractModuleActionListener
      * @param $currentActionStatus
      * @return mixed
      */
-//    private function reset_module($modId, $currentActionStatus): mixed
-//    {
-//        $rtn = true;
-//        $modService = new ModuleServices();
-//        $logMessage = ''; // Initialize an empty string to store log messages
-//
-//        if (!$modService::getModuleState($modId)) {
-//
-//            $sql = "DELETE FROM `globals` WHERE `gl_name` LIKE 'oe_claimrev%'";
-//            $rtn = sqlQuery($sql);
-//            $logMessage .= "DELETE FROM `globals`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
-//
-//            $sql = "DROP TABLE IF EXISTS `mod_claimrev_eligibility`";
-//            $rtn = sqlQuery($sql);
-//            $logMessage .= "DROP TABLE `mod_claimrev_eligibility`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
-//
-//            error_log(text($logMessage));
-//        }
-//
-//        // return log messages to the MM to show user.
-//        return text($logMessage);
-//    }
+    private function reset_module($modId, $currentActionStatus): mixed
+    {
+        $rtn = true;
+        $modService = new ModuleServices();
+        $logMessage = ''; // Initialize an empty string to store log messages
+
+        if (!$modService::getModuleState($modId)) {
+
+            $sql = "DELETE FROM `globals` WHERE `gl_name` LIKE 'oe_claimrev%'";
+            $rtn = sqlQuery($sql);
+            $logMessage .= "DELETE FROM `globals`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
+
+            $sql = "DROP TABLE IF EXISTS `mod_claimrev_eligibility`";
+            $rtn = sqlQuery($sql);
+            $logMessage .= "DROP TABLE `mod_claimrev_eligibility`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
+
+            error_log(text($logMessage));
+        }
+
+        // return log messages to the MM to show user.
+        return text($logMessage);
+    }
 
     /**
      * @param $modId
      * @param $currentActionStatus
      * @return mixed
      */
-//    private function install_sql($modId, $currentActionStatus): mixed
-//    {
-//        return $currentActionStatus;
-//    }
+    private function install_sql($modId, $currentActionStatus): mixed
+    {
+        return $currentActionStatus;
+    }
 
     /**
      * @param $modId
      * @param $currentActionStatus
      * @return mixed
      */
-//    private function upgrade_sql($modId, $currentActionStatus): mixed
-//    {
-//        return $currentActionStatus;
-//    }
+    private function upgrade_sql($modId, $currentActionStatus): mixed
+    {
+        return $currentActionStatus;
+    }
 
     /**
      * Grab all Module setup or columns values.
