@@ -194,21 +194,21 @@ $error = false;
         let prevAltPharmacy = <?php echo js_escape($prev_alt_pharmacy); ?>;
 
         if (pid > 0) {
-            init(prevPrimPharmacy, prevAltPharmacy);
+            initPharmacyDisplay(prevPrimPharmacy, prevAltPharmacy);
         }
         //checking if weno_pharmacy div exists initialize select2
         let pharmacySelector = document.getElementById("weno_pharmacy");
         if (pharmacySelector !== null) {
             createWenoPharmacySelect2();
         }
-        //checking if city div div exists and initialize select2
+        //checking if city div exists and initialize select2
         var citySelector = document.getElementById("weno_city");
         if (citySelector !== null) {
             createWenoCitySelect2();
         }
     };
 
-    function init(prevPrimPharmacy, prevAltPharmacy) {
+    function initPharmacyDisplay(prevPrimPharmacy, prevAltPharmacy) {
         let jsPrim = JSON.parse(prevPrimPharmacy);
         let jsAlt = JSON.parse(prevAltPharmacy);
 
