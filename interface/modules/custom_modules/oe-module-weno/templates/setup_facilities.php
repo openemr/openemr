@@ -76,7 +76,7 @@ while ($row = sqlFetchArray($list)) {
                         <th><?php print xlt('Facility Name'); ?></th>
                         <th><?php print xlt('Address'); ?></th>
                         <th><?php print xlt('City'); ?></th>
-                        <th><?php print xlt('Weno ID'); ?></th>
+                        <th><?php print xlt('Weno Location ID'); ?></th>
                     </tr>
                     </thead>
                     <?php

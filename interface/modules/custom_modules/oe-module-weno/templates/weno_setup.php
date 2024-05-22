@@ -199,10 +199,10 @@ $vendors = $boot->getVendorGlobals();
 - All values must be entered and validated.
 - If validation fails because either email and/or password are invalid an alert will be shown stating such.
 - If the encryption key is deemed invalid then an alert will show and the Encryption Reset button is enabled. First try re-entering the key but if that doesn't work then clicking the Reset button will create a new key. This change will also be reflected in the Admins main Weno account and no other actions are required by the user. You may look on the key as an API token which may be a more familiar term to the reader. 
-- The optional User Setting Credentials Subsection is a short cut to save time by entering the Weno Provider credentials for the user. This is the same as the Weno Provider ID in the Config Users Settings.\n
+- The optional User Setting Credentials Subsection is a short cut to save time by entering the Weno User credentials for the user. This is the same as the Weno User ID in the Config Users Settings.\n
 *** The Map Weno User Id`s (Required)  Section.
 - This section presents a table of all authorised users showing their default facility if assigned and an input field to enter their Weno user id Uxxxx. This value is important in order to form a relationship between Weno and the OpenEMR user for tracking prescriptions.
-- All values are automatically saved for the user whenever the Weno Provider ID is entered or changed.
+- All values are automatically saved for the user whenever the Weno User ID is entered or changed.
 - As a convenience, an edit button is supplied to present a dialog containing the Users settings in edit mode. From here user may edit any setting such as assigning a default facility. This would be the same as accessing Users from top menu Admin->Users selected provider.\n
 *** The Map Weno Facility Id`s (Required)  Section.
 - This section is pretty self explanatory with perhaps noting this same data may be accessed from top menu Admin->Weno eRx Tools->Weno eRx Service.
@@ -296,7 +296,7 @@ $vendors = $boot->getVendorGlobals();
                             <input type="password" autocomplete="off" class="form-control persist" maxlength="255" name="weno_provider_password" id="weno_provider_password" value="<?php echo attr($vendors['weno_provider_password']); ?>" />
                         </div>
                     </div>
-                    <!-- Users Weno ID's -->
+                    <!-- Users Weno Location ID's -->
                     <div class="row form-group">
                         <div class="col-12 m-0 text-center">
                             <h5>

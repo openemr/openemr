@@ -52,7 +52,7 @@ function getProviderByWenoId($external_id, $provider_id = ''): string
     if ($provider) {
         return $provider['fname'] . " " . $provider['mname'] . " " . $provider['lname'];
     } else {
-        return xlt("Weno Provider Id missing.");
+        return xlt("Weno User Id missing.");
     }
 }
 
