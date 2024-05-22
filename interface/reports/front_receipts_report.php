@@ -63,7 +63,7 @@ $to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_da
         // The OnClick handler for receipt display.
         function show_receipt(pid,timestamp) {
             dlgopen('../patient_file/front_payment.php?receipt=1&patient=' + encodeURIComponent(pid) +
-                '&time=' + encodeURIComponent(timestamp), '_blank', 550, 400, '', '', {
+                '&time=' + encodeURIComponent(timestamp), '_blank', 850, 550, '', '', {
                 onClosed: 'reload'
             });
          }
@@ -208,7 +208,7 @@ $to_date   = (isset($_POST['form_to_date'])) ? DateToYYYYMMDD($_POST['form_to_da
 if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     ?>
 <div id="report_results">
-<table class='table'>
+<table class='table table-striped'>
 <thead class='thead-light'>
 <th> <?php echo xlt('Time'); ?> </th>
 <th> <?php echo xlt('Patient'); ?> </th>
@@ -288,6 +288,15 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
             <?php
             $total1 += $row['amount1'];
             $total2 += $row['amount2'];
+            $method = $row['method'];
+            if (empty($total1_by_method[$method])) {
+                $total1_by_method[$method] = 0;
+            }
+            $total1_by_method[$method] += $row['amount1'];
+            if (empty($total2_by_method[$method])) {
+                $total2_by_method[$method] = 0;
+            }
+            $total2_by_method[$method] += $row['amount2'];
         }
         ?>
 
@@ -296,6 +305,24 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
   &nbsp;
  </td>
 </tr>
+
+        <?php
+        $method_keys = array_keys(array_unique(array_merge($total1_by_method, $total2_by_method)));
+        foreach ($method_keys as $method_key) { ?>
+            <tr class="report_totals_by_method">
+                <td colspan='5'>
+                    <?php echo xlt('Totals by Method') . ' ' . text($method_key); ?>
+                <td align='right'>
+                        <?php echo text(FormatMoney::getBucks($total1_by_method[$method_key])); ?>
+                </td>
+                <td align='right'>
+                        <?php echo text(FormatMoney::getBucks($total2_by_method[$method_key])); ?>
+                </td>
+                <td align='right'>
+                        <?php echo text(FormatMoney::getBucks($total1_by_method[$method_key] + $total2_by_method[$method_key])); ?>
+                </td>
+            </tr>
+        <?php } ?>
 
 <tr class="report_totals">
  <td colspan='5'>
