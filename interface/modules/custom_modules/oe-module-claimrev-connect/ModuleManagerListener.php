@@ -134,6 +134,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
         $sql = "DROP TABLE IF EXISTS `mod_claimrev_eligibility`";
         $rtn = sqlQuery($sql);
         $logMessage .= "DROP TABLE `mod_claimrev_eligibility`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
+        error_log(text($logMessage));
         return $currentActionStatus;
     }
 }
