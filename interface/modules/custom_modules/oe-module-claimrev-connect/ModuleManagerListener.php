@@ -127,13 +127,6 @@ class ModuleManagerListener extends AbstractModuleActionListener
         $logMessage = ''; // Initialize an empty string to store log messages
         $sql = "DELETE FROM `background_services` WHERE `name` = ? OR `name` = ? OR `name` = ?";
         sqlQuery($sql, array('ClaimRev_Send', 'ClaimRev_Receive', 'ClaimRev_Elig_Send_Receive'));
-        $sql = "DELETE FROM `globals` WHERE `gl_name` LIKE 'oe_claimrev%'";
-        $rtn = sqlQuery($sql);
-        $logMessage .= "DELETE FROM `globals`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
-
-        $sql = "DROP TABLE IF EXISTS `mod_claimrev_eligibility`";
-        $rtn = sqlQuery($sql);
-        $logMessage .= "DROP TABLE `mod_claimrev_eligibility`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
         error_log(text($logMessage));
         return $currentActionStatus;
     }
