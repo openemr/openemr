@@ -128,4 +128,37 @@ class ModuleManagerListener extends AbstractModuleActionListener
         sqlQuery($sql, array('ClaimRev_Send', 'ClaimRev_Receive', 'ClaimRev_Elig_Send_Receive'));
         return $currentActionStatus;
     }
+
+    /**
+     * @param $modId
+     * @param $currentActionStatus
+     * @return mixed
+     */
+    private function reset_module($modId, $currentActionStatus): mixed
+    {
+        $logMessage = ''; // Initialize an empty string to store log messages
+        if (!self::getModuleState($modId)) {
+
+            $sql = "DELETE FROM `globals` WHERE `gl_name` LIKE 'oe_claimrev%'";
+            $rtn = sqlQuery($sql);
+            $logMessage .= "DELETE FROM `globals`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
+
+            $sql = "DROP TABLE IF EXISTS `mod_claimrev_eligibility`";
+            $rtn = sqlQuery($sql);
+            $logMessage .= "DROP TABLE `mod_claimrev_eligibility`: " . (empty($rtn) ? "Success" : "Failed") . "\n";
+
+            error_log(text($logMessage));
+        }
+
+        // return log messages to the MM to show user.
+        return text($logMessage);
+    }
+
+    public static function getModuleState($modId): bool
+    {
+        $sql = "SELECT `mod_active` FROM `modules` WHERE `mod_id` = ? OR `mod_directory` = ?";
+        $flag = sqlQuery($sql, array($modId, $modId));
+
+        return !empty($flag['mod_active']);
+    }
 }
