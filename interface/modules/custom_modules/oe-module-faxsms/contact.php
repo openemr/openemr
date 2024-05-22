@@ -96,68 +96,77 @@ if (empty($isSMS)) {
                 }
             }
             // when the form is submitted
-            $('#contact-form').on('submit', function (e) {
-                if (!e.isDefaultPrevented()) {
-                    let wait = '<div class="text-center wait"><i class="fa fa-cog fa-spin fa-2x"></i></div>';
-                    let url = 'sendFax?type=fax';
-                    if (isSms) {
-                        url = 'sendSMS?type=sms';
-                    }
-                    if (isForward) {
-                        url = 'forwardFax?type=fax';
-                    }
-                    if (isEmail) {
-                        url = 'sendEmail?type=email';
-                    }
-                    if (isOnetime) {
-                        url = "./library/api_onetime.php?";
-                        if (isSms) {
-                            url += 'sendOneTime&type=sms'
-                        } else {
-                            url += 'sendOneTime&type=email';
-                        }
-                    }
+            $(document).ready(function() {
+                // Ensuring event handlers are set after the DOM is fully loaded
+                $('#contact-form').on('submit', function(e) {
+                    e.preventDefault(); // Prevent the default form submit
+
+                    const wait = '<div class="text-center wait"><i class="fa fa-cog fa-spin fa-2x"></i></div>';
                     $('#contact-form').find('.messages').html(wait);
-                    // POST values in the background the script URL
+
+                    const url = buildUrl();
+                    const formData = $(this).serialize();
+
                     $.ajax({
                         type: "POST",
                         url: url,
-                        data: $(this).serialize(),
-                        success: function (data) {
-                            try {
-                                let t_data = JSON.parse(data);
-                                data = t_data;
-                            } catch (e) {
-                            }
-                            let err = (data.search(/Exception/) !== -1 ? 1 : 0);
-                            if (!err) {
-                                err = (data.search(/Error:/) !== -1) ? 1 : 0;
-                            }
-                            // Type of the message: success or danger. Apply it to the alert.
-                            let messageAlert = 'alert-' + (err !== 0 ? 'danger' : 'success');
-                            let messageText = data;
-
-                            // let's compose alert box HTML
-                            let alertBox = '<div class="alert ' + messageAlert + ' alert-dismissable">' +
-                                '<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + messageText + '</div>';
-
-                            // If we have messageAlert and messageText
-                            if (messageAlert && messageText) {
-                                // inject the alert to messages div in our form
-                                $('#contact-form').find('.messages').html(alertBox);
-                                setTimeout(function () {
-                                    if (!err) {
-                                        // close dialog as we have success.
-                                        dlgclose();
-                                    }
-                                    // if error let user close dialog for time to read error message.
-                                }, 4000);
-                            }
+                        data: formData,
+                        success: handleResponse,
+                        error: function() {
+                            showErrorMessage('An unexpected error occurred and your request could not be completed.');
                         }
                     });
-                    return false;
+                });
+
+                function buildUrl() {
+                    // Simplify logic by directly mapping conditions to URLs
+                    if (isOnetime) {
+                        const type = isSms ? 'sms' : 'email';
+                        return `./library/api_onetime.php?sendOneTime&type=${encodeURIComponent(type)}`;
+                    }
+
+                    if (isSms) {
+                        return 'sendSMS?type=sms';
+                    } else if (isForward) {
+                        return 'forwardFax?type=fax';
+                    } else if (isEmail) {
+                        return 'sendEmail?type=email';
+                    } else {
+                        return 'sendFax?type=fax';
+                    }
                 }
-            })
+
+                function handleResponse(data) {
+                    let jsonData;
+                    try {
+                        jsonData = JSON.parse(data);
+                    } catch (e) {
+                        jsonData = data; // Use data as is if it can't be parsed as JSON
+                    }
+
+                    const isError = /Exception|Error:/.test(jsonData);
+                    const messageType = isError ? 'danger' : 'success';
+                    const messageText = jsonData;
+                    const alertBox = `<div class="alert alert-${messageType} alert-dismissable">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                            ${messageText}
+                          </div>`;
+
+                    $('#contact-form').find('.messages').html(alertBox);
+                    if (!isError) {
+                        setTimeout(() => { dlgclose(); }, 4000); // Auto-close dialog on success
+                    }
+                }
+
+                function showErrorMessage(message) {
+                    const alertBox = `<div class="alert alert-danger alert-dismissable">
+                            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                            ${message}
+                          </div>`;
+                    $('#contact-form').find('.messages').html(alertBox);
+                }
+            });
+
         });
 
         function sel_patient() {
