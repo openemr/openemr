@@ -203,7 +203,7 @@ $vendors = $boot->getVendorGlobals();
 *** The Map Weno User Id`s (Required)  Section.
 - This section presents a table of all authorised users showing their default facility if assigned and an input field to enter their Weno user id Uxxxx. This value is important in order to form a relationship between Weno and the OpenEMR user for tracking prescriptions.
 - All values are automatically saved for the user whenever the Weno User ID is entered or changed.
-- As a convenience, an edit button is supplied to present a dialog containing the Users settings in edit mode. From here user may edit any setting such as assigning a default facility. This would be the same as accessing Users from top menu Admin->Users selected provider.\n
+- As a convenience, an edit button is supplied to present a dialog containing the Users settings in edit mode. From here user may edit any setting such as assigning a default facility. This would be the same as accessing Users from top menu Admin->Users selected Weno Prescriber.\n
 *** The Map Weno Facility Id`s (Required)  Section.
 - This section is pretty self explanatory with perhaps noting this same data may be accessed from top menu Admin->Weno eRx Tools->Weno eRx Service.
 - It is important to note that the prescribing user should have their default facility set in their User settings. This is the same as the Weno User ID section in that it is required to form a relationship between Weno and the OpenEMR facility for tracking prescriptions.
@@ -296,16 +296,6 @@ $vendors = $boot->getVendorGlobals();
                             <input type="password" autocomplete="off" class="form-control persist" maxlength="255" name="weno_provider_password" id="weno_provider_password" value="<?php echo attr($vendors['weno_provider_password']); ?>" />
                         </div>
                     </div>
-                    <!-- Users Weno Location ID's -->
-                    <div class="row form-group">
-                        <div class="col-12 m-0 text-center">
-                            <h5>
-                                <hr id="scroll-to" class="text-dark bg-light" />
-                                <?php echo xlt("Map Weno User Id's") . ' <small><cite>(' . xlt('Required') . ')</cite></small>'; ?>
-                            </h5>
-                        </div>
-                        <iframe id="userFrame" src="<?php echo $usersUrl; ?>" class="w-100" style="border: none; min-height: 300px; max-height:600px;" height="250" title="<?php echo xla("Users") ?>"></iframe>
-                    </div>
                     <!-- Locations -->
                     <div class="row form-group">
                         <div class="col-12 m-0 text-center">
@@ -315,6 +305,16 @@ $vendors = $boot->getVendorGlobals();
                             </h5>
                         </div>
                         <iframe src="<?php echo $facilityUrl; ?>" class="w-100" style="border: none; min-height: 300px; max-height:600px;" height="250" title="<?php echo xla("Facilities") ?>"></iframe>
+                    </div>
+                    <!-- Users Weno Location ID's -->
+                    <div class="row form-group">
+                        <div class="col-12 m-0 text-center">
+                            <h5>
+                                <hr id="scroll-to" class="text-dark bg-light" />
+                                <?php echo xlt("Map Weno User Id's") . ' <small><cite>(' . xlt('Required') . ')</cite></small>'; ?>
+                            </h5>
+                        </div>
+                        <iframe id="userFrame" src="<?php echo $usersUrl; ?>" class="w-100" style="border: none; min-height: 300px; max-height:600px;" height="250" title="<?php echo xla("Users") ?>"></iframe>
                     </div>
                 </div>
             </div>

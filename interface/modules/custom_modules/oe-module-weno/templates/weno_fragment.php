@@ -14,16 +14,23 @@
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    exit;
+    echo xlt("Not Authorized to use this widget.");
+    return;
 }
 
 $validate = new TransmitProperties(true);
 $validate_errors = "";
 $cite = '';
+
+if (stripos($validate->getWenoProviderId(), 'Weno User Id missing') !== false) {
+    echo xlt("Not Authorized! Missing Weno Prescriber Id. See User Settings to configure Weno Prescriber Id.");
+    return "Fail";
+}
 
 $logService = new WenoLogService();
 $pharmacyLog = $logService->getLastPharmacyDownloadStatus('Success');

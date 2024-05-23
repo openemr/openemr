@@ -294,7 +294,7 @@ insurance;
     {
         $provider_info = ['email' => ($GLOBALS['weno_provider_email'] ?? '')];
         if (empty($provider_info['email'])) {
-            return "REQED:{user_settings}" . (xlt('Provider Email is missing. Go to User Settings Weno Tab and enter your Weno User Email'));
+            return "REQED:{user_settings}" . (xlt('Weno Prescriber Email is missing. Go to User Settings Weno Tab and enter your Weno User Email'));
         } else {
             return $provider_info;
         }
@@ -429,11 +429,11 @@ insurance;
         if (!empty($GLOBALS['weno_provider_password'])) {
             $ret = $this->cryptoGen->decryptStandard($GLOBALS['weno_provider_password']);
             if (!$ret) {
-                return ("REQED:{user_settings}" . xlt('Your Provider Password fails decryption. Go to User Settings Weno Tab and reenter your Weno User Password'));
+                return ("REQED:{user_settings}" . xlt('Your Weno Prescriber Password fails decryption. Go to User Settings Weno Tab and reenter your Weno User Password'));
             }
             return $ret;
         } else {
-            return "REQED:{user_settings}" . xlt('Your Provider Password is missing. Go to User Settings Weno Tab and enter your Weno User Password');
+            return "REQED:{user_settings}" . xlt('Your Weno Prescriber Password is missing. Go to User Settings Weno Tab and enter your Weno User Password');
         }
     }
 
@@ -539,14 +539,16 @@ insurance;
         if ((!empty($GLOBALS['weno_provider_uid'])) && !empty($provider['weno_prov_id'])) {
             $doIt = ($GLOBALS['weno_provider_uid']) != trim($provider['weno_prov_id']);
             if ($doIt) {
-                $GLOBALS['weno_provider_uid'] = $provider['weno_prov_id'];
+                $provider['weno_prov_id'] = $GLOBALS['weno_provider_uid'];
                 $sql = "INSERT INTO `user_settings` (`setting_value`, `setting_user`, `setting_label`) 
                     VALUES (?, ?, 'global:weno_provider_uid') 
                     ON DUPLICATE KEY UPDATE `setting_value` = ?";
                 sqlQuery($sql, [$provider['weno_prov_id'], $id, $provider['weno_prov_id']]);
             }
 
-            $GLOBALS['weno_provider_uid'] = $GLOBALS['weno_prov_id'] = $provider['weno_prov_id']; // update globals
+            $GLOBALS['weno_provider_uid'] = $GLOBALS['weno_prov_id'] = $provider['weno_prov_id']; // update users
+            $sql = "INSERT INTO `users` (`weno_prov_id`, `id`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `weno_prov_id` = ?";
+            sqlQuery($sql, [$GLOBALS['weno_provider_uid'], $id, $GLOBALS['weno_provider_uid']]);
             return $provider['weno_prov_id'];
         } elseif (!empty($provider['weno_prov_id'] ?? '') && empty($GLOBALS['weno_provider_uid'])) {
             $sql = "INSERT INTO `user_settings` (`setting_value`, `setting_user`, `setting_label`) 
@@ -557,8 +559,7 @@ insurance;
             $GLOBALS['weno_provider_uid'] = $GLOBALS['weno_prov_id'] = $provider['weno_prov_id'];
             return $provider['weno_prov_id'];
         } elseif (empty($provider['weno_prov_id'] ?? '') && !empty($GLOBALS['weno_provider_uid'])) {
-            $sql = "INSERT INTO `users` (`weno_prov_id`, `id`) VALUES (?, ?) 
-                ON DUPLICATE KEY UPDATE `weno_prov_id` = ?";
+            $sql = "INSERT INTO `users` (`weno_prov_id`, `id`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `weno_prov_id` = ?";
             sqlQuery($sql, [$GLOBALS['weno_provider_uid'], $id, $GLOBALS['weno_provider_uid']]);
 
             $provider['weno_prov_id'] = $GLOBALS['weno_prov_id'] = $GLOBALS['weno_provider_uid'];
