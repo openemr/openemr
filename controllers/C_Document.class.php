@@ -25,7 +25,6 @@ use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Events\PatientDocuments\PatientDocumentTreeViewFilterEvent;
 use OpenEMR\Events\PatientDocuments\PatientRetrieveOffsiteDocument;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class C_Document extends Controller
 {
@@ -41,10 +40,6 @@ class C_Document extends Controller
     private $cryptoGen;
     private bool $skip_acl_check = false;
     private DocumentTemplateService $templateService;
-    /**
-     * @var EventDispatcherInterface $eventDispatcher
-     */
-    private $eventDispatcher;
 
     public function __construct($template_mod = "general")
     {
@@ -774,42 +769,53 @@ class C_Document extends Controller
         //strip url of protocol handler
         $url = preg_replace("|^(.*)://|", "", $url);
 
-        //change full path to current webroot.  this is for documents that may have
-        //been moved from a different filesystem and the full path in the database
-        //is not current.  this is also for documents that may of been moved to
-        //different patients. Note that the path_depth is used to see how far down
-                //the path to go. For example, originally the path_depth was always 1, which
-                //only allowed things like documents/1/<file>, but now can have more structured
-                //directories. For example a path_depth of 2 can give documents/encounters/1/<file>
-                // etc.
+        // change full path to current webroot.  this is for documents that may have
+        // been moved from a different filesystem and the full path in the database
+        // is not current.  this is also for documents that may of been moved to
+        // different patients. Note that the path_depth is used to see how far down
+        // the path to go. For example, originally the path_depth was always 1, which
+        // only allowed things like documents/1/<file>, but now can have more structured
+        // directories. For example a path_depth of 2 can give documents/encounters/1/<file>
+        // etc.
         // NOTE that $from_filename and basename($url) are the same thing
         $from_all = explode("/", $url);
         $from_filename = array_pop($from_all);
-        $from_pathname_array = array();
-        for ($i = 0; $i < $d->get_path_depth(); $i++) {
-            $from_pathname_array[] = array_pop($from_all);
-        }
-        $from_pathname_array = array_reverse($from_pathname_array);
-        $from_pathname = implode("/", $from_pathname_array);
-        if ($couch_docid && $couch_revid) {
-            //for couchDB no URL is available in the table, hence using the foreign_id which is patientID
-            $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $d->get_foreign_id() . '_' . $from_filename;
-        } else {
-            $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
-        }
+        // no point in doing any of these checks if $from_filename is empty which can lead to false positives on file_exists
+        if (!empty($from_filename)) {
+            $from_pathname_array = array();
+            for ($i = 0; $i < $d->get_path_depth(); $i++) {
+                $from_pathname_array[] = array_pop($from_all);
+            }
+            $from_pathname_array = array_reverse($from_pathname_array);
+            $from_pathname = implode("/", $from_pathname_array);
+            if ($couch_docid && $couch_revid) {
+                //for couchDB no URL is available in the table, hence using the foreign_id which is patientID
+                $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/' . $d->get_foreign_id() . '_' . $from_filename;
+            } else {
+                $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
+            }
 
-        if (file_exists($temp_url)) {
-            $url = $temp_url;
-        }
-        //fire a remote call to see if the file is stored somewhere else
-        $s3Key = explode("//", $temp_url); //split the url to get the s3 key
-        $retrieveOffsiteDocument = new PatientRetrieveOffsiteDocument("/" . $s3Key[1]);
-        $this->eventDispatcher->dispatch($retrieveOffsiteDocument, PatientRetrieveOffsiteDocument::REMOTE_DOCUMENT_LOCATION);
-        //this is for the s3 bucket module. If the file is not found locally, it will be found remotely
-        if ($retrieveOffsiteDocument->getOffsiteUrl() != null) {
-            header('Content-Description: File Transfer');
-            header("Location: " . $retrieveOffsiteDocument->getOffsiteUrl());
-            exit;
+            if (file_exists($temp_url)) {
+                $url = $temp_url;
+            }
+
+            $retrieveOffsiteDocument = new PatientRetrieveOffsiteDocument($d->get_url(), $d);
+            $updatedOffsiteDocumentEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch(
+                $retrieveOffsiteDocument,
+                PatientRetrieveOffsiteDocument::REMOTE_DOCUMENT_LOCATION
+            );
+            // if a module writer has an independent offsite storage mechanism used this accomdoates that.
+            // If the file is not found locally, it will be found remotely.  Systems like s3, blob stores, etc, can
+            // be tied and and use those urls.  Note NO security is handled here so any kind of security mechanism must
+            // be handled on the receiving end's URL (s3/azure for example use signed urls with signature verification)
+            if (
+                $updatedOffsiteDocumentEvent instanceof PatientRetrieveOffsiteDocument
+                && $updatedOffsiteDocumentEvent->getOffsiteUrl() != null
+            ) {
+                header('Content-Description: File Transfer');
+                header("Location: " . $updatedOffsiteDocumentEvent->getOffsiteUrl());
+                exit;
+            }
         }
 
         if (!file_exists($url)) {

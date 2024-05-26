@@ -139,7 +139,7 @@ class LogProperties
     /**
      * @throws Exception
      */
-    public function logSync()
+    public function logSync($tasked = 'background')
     {
         $wenoLog = new WenoLogService();
         $provider_info['email'] = $this->weno_admin_email;
@@ -167,9 +167,20 @@ class LogProperties
             if ($isError['is_error']) {
                 $error = $isError['messageText'];
                 error_log('Prescription download failed: ' . errorLogEscape($error));
-                $wenoLog->insertWenoLog("prescription", "Invalid Prescriber Credentials Hint:see previous errors.");
                 EventAuditLogger::instance()->newEvent("prescriptions_log", $_SESSION['authUser'], $_SESSION['authProvider'], 0, ($error));
-                die(js_escape($error));
+                // if background task then return false
+                if ($tasked == 'background') {
+                    $wenoLog->insertWenoLog("prescription", "Invalid Prescriber Credentials Background Service.");
+                    return false;
+                }
+                if ($tasked == 'downloadLog') {
+                    $wenoLog->insertWenoLog("prescription", "Invalid Prescriber Credentials User Download.");
+                    echo(js_escape($error));
+                    exit;
+                }
+                $wenoLog->insertWenoLog("prescription", "Invalid Prescriber Credentials Hint:see previous errors.");
+                echo(js_escape($error));
+                return false;
             }
             $wenoLog->insertWenoLog("prescription", "Success");
         } else {

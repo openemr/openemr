@@ -141,7 +141,7 @@ $row1 = sqlFetchArray($result[1]);
     $e_InformationSystem = $ccr->createElement('InformationSystem');
     $e_Actor->appendChild($e_InformationSystem);
 
-    $e_Name = $ccr->createElement('Name', $row1['facility']);
+    $e_Name = $ccr->createElement('Name', text($row1['facility'] ?? ''));
     $e_InformationSystem->appendChild($e_Name);
 
   $e_Type = $ccr->createElement('Type', 'Facility');

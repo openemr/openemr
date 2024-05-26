@@ -85,7 +85,7 @@ function downloadWenoPrescriptionLog(): void
     }
 
     $logSync = new LogProperties();
-    if (!$logSync->logSync()) {
+    if (!$logSync->logSync('background')) {
         error_log("Background services failed for prescription log.");
     }
 }

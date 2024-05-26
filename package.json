@@ -108,6 +108,7 @@
     "purecss": "3.0.0",
     "select2": "4.0.13",
     "sortablejs": "1.15.0",
+    "tiff": "git+https://github.com/seikichi/tiff.js.git",
     "underscore": "1.13.6",
     "validate.js": "0.13.1"
   },

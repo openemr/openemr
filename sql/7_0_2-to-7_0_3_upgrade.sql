@@ -117,3 +117,7 @@ ALTER TABLE `form_encounter` ADD `last_update` timestamp NOT NULL DEFAULT CURREN
 INSERT INTO `supported_external_dataloads` (`load_type`, `load_source`, `load_release_date`, `load_filename`, `load_checksum`) VALUES
 ('CQM_VALUESET', 'NIH_VSAC', '2023-05-04', 'ec_only_cms_20230504.xml.zip', 'b77b3c2a88d23de0ec427c1cfc5088ce');
 #EndIf
+
+#IfMissingColumn form_encounter ordering_provider_id
+ALTER TABLE `form_encounter` ADD `ordering_provider_id` INT(11) DEFAULT '0' COMMENT 'ordering provider, if any, for this visit';
+#EndIf

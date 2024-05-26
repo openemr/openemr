@@ -952,10 +952,14 @@ class CarecoordinationController extends AbstractActionController
                     $patientCountHash[$patientNameIndex];
                 }
             } elseif ($componentCount == ($patientDocumentsIndex + 1)) {
-                if ($patientCountHash[$patientNameIndex] > $maxDocuments) {
+                if ($patientCountHash[$patientNameIndex] ?? '' > $maxDocuments) {
                     $shouldDeleteIndex = true;
                 } else {
-                    $patientCountHash[$patientNameIndex] += 1;
+                    if (!empty($patientCountHash[$patientNameIndex])) {
+                        $patientCountHash[$patientNameIndex] += 1;
+                    } else {
+                        $patientCountHash[$patientNameIndex] = 0;
+                    }
                 }
             } else {
                 $shouldDeleteIndex = true;
@@ -1015,7 +1019,7 @@ class CarecoordinationController extends AbstractActionController
             $componentCount = count($fileComponents);
 
             // now we need to do our document import for our ccda for this patient
-            if ($componentCount == 2) {
+            if ($componentCount > 0) {
                 // let's process the ccda
                 $file_name = basename($stat['name']);
 
@@ -1030,7 +1034,7 @@ class CarecoordinationController extends AbstractActionController
 
                     $auditMasterRecordId = $this->getCarecoordinationTable()->import($ob->get_id());
                     // we can use this to do any other processing as the files should be in order
-                    $auditMasterRecordByPatients[$fileComponents[2]] = $auditMasterRecordId;
+                    $auditMasterRecordByPatients[$fileComponents[2] ?? ''] = $auditMasterRecordId;
                 }
             }
         }

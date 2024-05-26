@@ -607,8 +607,8 @@ class CdaTemplateImportDispose
             if (!empty($value['code_text'] ?? null)) {
                 $cat = explode('|', $value['code_text'] ?? null);
                 $catname = trim($cat[0]);
-                $reason = trim($cat[1]);
-                $pc_catid = sqlQuery("SELECT pc_catid FROM `openemr_postcalendar_categories` Where `pc_catname` = ?", array($catname))['pc_catid'];
+                $reason = trim($cat[1] ?? '');
+                $pc_catid = sqlQuery("SELECT pc_catid FROM `openemr_postcalendar_categories` Where `pc_catname` = ?", array($catname))['pc_catid'] ?? '';
             }
             if (empty($pc_catid) && !empty($catname)) {
                 // create a new category to match the import
@@ -2143,7 +2143,7 @@ class CdaTemplateImportDispose
             ORDER BY fe.encounter DESC, fe.date DESC Limit 1";
         $rtn = sqlQuery($sql, array($item_date, $item_pid));
 
-        return (int)$rtn['encounter'] ?: 0;
+        return (int)($rtn['encounter'] ?? '') ?: 0;
     }
 
     /**
