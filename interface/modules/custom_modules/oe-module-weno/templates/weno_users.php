@@ -83,7 +83,7 @@ if (($_POST['save'] ?? false) == 'true') {
                     <th><?php echo xlt("Username"); ?></th>
                     <th><?php echo xlt("Last"); ?></th>
                     <th><?php echo xlt("First"); ?></th>
-                    <th><?php echo xlt("Weno Provider"); ?></th>
+                    <th><?php echo xlt("Weno User"); ?></th>
                     <th><?php echo xlt("Facility"); ?></th>
                     <th><?php echo xlt("Edit"); ?></th>
                 </tr>
@@ -98,14 +98,14 @@ if (($_POST['save'] ?? false) == 'true') {
                     <td><?php echo text($user['username']); ?></td>
                     <td><?php echo text($user['lname']); ?></td>
                     <td><?php echo text($user['fname']); ?></td>
-                    <td><input class="persist-uid" type="text" name="weno_provider_id[<?php echo attr($user['id']); ?>]" placeholder="<?php echo xla("Weno provider id Uxxxx"); ?>" value="<?php echo attr($user['weno_prov_id']); ?>"></td>
+                    <td><input class="persist-uid" type="text" name="weno_provider_id[<?php echo attr($user['id']); ?>]" placeholder="<?php echo xla("Weno User id Uxxxx"); ?>" value="<?php echo attr($user['weno_prov_id']); ?>"></td>
                     <td><?php echo text($user['facility']); ?></td>
                     <td><i onclick='renderDialog("users", <?php echo attr_js($user['id']); ?>, event)' role='button' class='fas fa-pen text-warning'></i></td>
                     </tr>
                 <?php } ?>
                 </tbody>
             </table>
-            <button type="submit" id="form_save_users" name="save" class="btn btn-primary float-right d-none" value="true"><?php echo xlt("Update Users Weno ID"); ?></button>
+            <button type="submit" id="form_save_users" name="save" class="btn btn-primary float-right d-none" value="true"><?php echo xlt("Update Users Weno Location ID"); ?></button>
         </form>
     </div>
 </body>

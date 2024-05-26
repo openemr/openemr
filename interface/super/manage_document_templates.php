@@ -111,9 +111,9 @@ if (!empty($_POST['bn_upload'])) {
             if ($_FILES['form_file']['size'] > $maxZipSize) {
                 die(xlt('Zip file size exceeds the maximum allowed size'));
             }
-            
+
             // Check for nested zip files
-            $zip = new ZipArchive;
+            $zip = new ZipArchive();
             if ($zip->open($tmp_name) === true) {
                 for ($i = 0; $i < $zip->numFiles; $i++) {
                     $nestedFile = $zip->getNameIndex($i);
