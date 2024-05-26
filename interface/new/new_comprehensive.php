@@ -666,7 +666,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                           </div>
                           <label class='col-form-label col-md-1 mb-2'><?php echo xlt('D.O.B.'); ?>:</label>
                           <div class="col-md-5 mb-2">
-                            <input type='entry' size='11' class='datepicker form-control' name='i<?php echo attr($i); ?>subscriber_DOB' id='i<?php echo attr($i); ?>subscriber_DOB' value='<?php echo attr($result3['subscriber_DOB'] ?? ''); ?>' />
+                            <input type='entry' size='11' class='datepicker-past form-control' name='i<?php echo attr($i); ?>subscriber_DOB' id='i<?php echo attr($i); ?>subscriber_DOB' value='<?php echo attr($result3['subscriber_DOB'] ?? ''); ?>' />
                           </div>
                           <label class='col-form-label col-md-1 required'><?php echo xlt('Group Number'); ?>:</label>
                           <div class="col-md-5 mb-2">
