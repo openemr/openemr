@@ -213,7 +213,7 @@ class LogProperties
             if (!empty($provider_info['email'])) {
                 return $provider_info;
             } else {
-                $error = xlt("Provider email address is missing. Go to User settings Email to add provider's weno registered email address");
+                $error = xlt("Weno Prescriber email address is missing. Go to User settings Email to add Weno Prescriber's weno registered email address");
                 error_log(errorLogEscape($error));
                 TransmitProperties::echoError($error);
             }
@@ -221,7 +221,7 @@ class LogProperties
             $provider_info["email"] = $GLOBALS['weno_admin_username'];
             return $provider_info;
         } else {
-            $error = xlt("Provider email address is missing. Go to User settings Weno tab to add provider's weno registered email address");
+            $error = xlt("Weno Prescriber email address is missing. Go to User settings Weno tab to add Weno Prescriber's weno registered email address");
             error_log($error);
             echo TransmitProperties::styleErrors($error);
             exit;
@@ -238,7 +238,7 @@ class LogProperties
             if (!empty($GLOBALS['weno_admin_password'])) {
                 return $this->cryptoGen->decryptStandard($GLOBALS['weno_admin_password']);
             } else {
-                echo xlt('Provider Password is missing');
+                echo xlt('Weno Prescriber Password is missing');
                 die;
             }
         } elseif ($GLOBALS['weno_admin_password']) {

@@ -822,7 +822,7 @@ tr.selected {
 
                                 echo "<td><input type='checkbox' class='error' id='" . attr($row["id"]) . "' value='" . xlt('Error') . "' " . $checkbox . " /></td>";
 
-                                echo "<td><button type='button' class='btn btn-danger btn-delete' id='" . attr($row["id"]) . "' value='" . xlt('Delete') . "'>" . xlt('Delete') . "</button></td>";
+                                echo "<td><button type='button' class='delete btn btn-danger btn-delete' id='" . attr($row["id"]) . "' value='" . xlt('Delete') . "'>" . xlt('Delete') . "</button></td>";
                                 echo "</tr>";
                         }
                         ?>

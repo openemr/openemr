@@ -36,8 +36,8 @@ $form_name = "note";
 
         $(function () {
             $('.datepicker').datetimepicker({
-                <?php $datetimepicker_timepicker = true; ?>
-                <?php $datetimepicker_showseconds = true; ?>
+                <?php $datetimepicker_timepicker = false; ?>
+                <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
@@ -83,9 +83,9 @@ $form_name = "note";
 
                             <td>
                                 <span class="text"><?php echo xlt('Date'); ?></span>
-                                <input class="datepicker form-control" type='text' size='10' class='datepicker' name='date_of_signature' id='date_of_signature'
-                                       value='<?php echo attr(date('Y-m-d', time())); ?>'
-                                       title='<?php echo xla('yyyy-mm-dd'); ?>' />
+                                <input class='datepicker form-control' type='text' size='16' name='date_of_signature' id='date_of_signature' autocomplete='off'
+                                       value='<?php echo attr(oeFormatShortDate(date('Y-m-d'))); ?>'
+                                       title='<?php echo xla('Date of Signature'); ?>' />
                             </td>
                         </tr>
                     </table>

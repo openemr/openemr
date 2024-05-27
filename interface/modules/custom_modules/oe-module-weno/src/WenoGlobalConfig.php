@@ -85,22 +85,22 @@ class WenoGlobalConfig
                 , 'user_setting' => false
             ]*/
             self::WENO_PROVIDER_EMAIL => [
-                'title' => xl('Weno Provider Email')
+                'title' => xl('Weno Prescriber Email')
                 , 'description' => xl('')
                 , 'type' => GlobalSetting::DATA_TYPE_TEXT
                 , 'default' => ''
                 , 'user_setting' => true
             ]
             , self::WENO_PROVIDER_PASSWORD => [
-                'title' => xl('Weno Provider Password')
+                'title' => xl('Weno Prescriber Password')
                 , 'description' => xl('')
                 , 'type' => GlobalSetting::DATA_TYPE_ENCRYPTED
                 , 'default' => ''
                 , 'user_setting' => true
             ]
             , self::WENO_PROVIDER_UID => [
-                'title' => xl('Weno Provider ID')
-                , 'description' => xl('When a Weno eRx provider, please enter your Weno provider ID here or in your Users setting. If you are not a Weno provider, please leave this field blank.')
+                'title' => xl('Weno Prescriber ID')
+                , 'description' => xl('When a Weno eRx Prescriber, please enter your Weno User ID here or in your Users setting. If you are not a Weno Prescriber, please leave this field blank.')
                 , 'type' => GlobalSetting::DATA_TYPE_TEXT
                 , 'default' => ''
                 , 'user_setting' => true

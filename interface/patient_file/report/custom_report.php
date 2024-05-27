@@ -782,9 +782,10 @@ function zip_content($source, $destination, $content = '', $create = true)
                                 echo "<div class='text encounter_form'>";
                                 echo "<h4>" . text(xl_form_title($formres["form_name"])) . "</h4>";
                             }
-
+                            if (!empty($dateres['date'])) {
                             // show the encounter's date
-                            echo "(" . text(oeFormatSDFT(strtotime($dateres["date"]))) . ") ";
+                                echo "(" . text(oeFormatSDFT(strtotime($dateres["date"]))) . ") ";
+                            }
                             if ($res[1] == 'newpatient') {
                                 // display the provider info
                                 echo ' ' . xlt('Provider') . ': ' . text(getProviderName(getProviderIdOfEncounter($form_encounter)));

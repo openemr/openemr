@@ -32,8 +32,10 @@ if ($encounter == "") {
     $encounter = date("Ymd");
 }
 
+$_POST['date_of_signature'] = DateToYYYYMMDD($_POST['date_of_signature']);
+
 if ($_GET["mode"] == "new") {
-    $newid = formSubmit($table_name, $_POST, $_GET["id"], $userauthorized);
+    $newid = formSubmit($table_name, $_POST, $_GET["id"] ?? '', $userauthorized);
     addForm($encounter, "Work/School Note", $newid, "note", $pid, $userauthorized);
 } elseif ($_GET["mode"] == "update") {
     $success = formUpdate($table_name, $_POST, $_GET["id"], $userauthorized);
