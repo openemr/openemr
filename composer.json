@@ -61,7 +61,7 @@
         "ramsey/uuid": "4.7.4",
         "robthree/twofactorauth": "2.0.0",
         "rospdf/pdf-php": "0.12.67",
-        "smarty/smarty": "4.3.4",
+        "smarty/smarty": "4.5.3",
         "steverhoades/oauth2-openid-connect-server": "2.6.1",
         "stripe/stripe-php": "13.2.0",
         "symfony/config": "5.4.26",
