@@ -143,7 +143,10 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
         $sql .= " AND test_pharmacy = ?";
         $params[] = $weno_test_pharmacies;
     }
-
+    if (!empty($weno_only)) {
+        $sql .= " AND on_weno = ?";
+        $params[] = $weno_only;
+    }
     $sql .= " ORDER BY Business_Name ASC";
 
     $return_arr = [];

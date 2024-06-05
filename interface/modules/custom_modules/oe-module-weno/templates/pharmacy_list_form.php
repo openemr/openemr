@@ -96,6 +96,11 @@ $error = false;
     </div>
     <?php if (!$error) { ?>
         <div class="row col-12 m-0 p-0 mb-1">
+            <div>
+                <label class="bg-light text-success mb-1">
+                    <?php echo xlt("Optional Filters:"); ?>
+                </label>
+            </div>
             <div class="col pl-0 form-inline">
                 <label class="ml-1 form-check-inline">
                     <input type="checkbox" class="form-check-input" name="24hr" id="24hr" onclick="fullDayChanged(this);">
@@ -113,8 +118,8 @@ $error = false;
             </div>
         </div>
         <div id="test-hide" class="test-hide">
-            <cite class="small mb-1">
-                <?php echo xlt("Search by Zipcode OR City and State."); ?>
+            <cite class="small mb-1 text-success">
+                <?php echo xlt("Additionally Filter by Zipcode, State OR City and State with Local or Statewide Coverage."); ?>
             </cite>
             <div class="row px-0 mx-0">
                 <select name="weno_coverage" class="form-control form-control-sm" id="weno_coverage" onchange="coverageChanged()">
@@ -135,7 +140,13 @@ $error = false;
                     } ?>
                 </select>
                 <select class="form-control" name="weno_city" id="weno_city" onchange="cityChanged()"><?php echo xlt("Enter City"); ?></select>
-                <button type="button" class="btn btn-primary btn-sm mb-3" onclick="search()"><?php echo xlt("Search"); ?></button>
+                <div class="my-2 btn-group-sm" role="group">
+                    <span class="text-success mr-1">
+                        <?php echo xlt("Click One to Search:"); ?>
+                    </span>
+                    <button type="button" class="btn btn-success btn-sm" onclick="search()"><?php echo xlt("List Search"); ?></button>
+                    <button type="button" class="btn btn-success btn-sm" onclick="searchOn()"><?php echo xlt("Name Search"); ?></button>
+                </div>
             </div>
         </div>
         <div>
@@ -323,7 +334,7 @@ $error = false;
             },
             minimumInputLength: 3,
             cache: true,
-            placeholder: 'Default Pharmacies',
+            placeholder: 'Pharmacy Name Filtered Search',
             allowClear: true
         });
     }
@@ -359,6 +370,14 @@ $error = false;
             placeholder: 'Select a City'
         });
     }
+    function searchOn() {let pharmacySelector = document.getElementById("weno_pharmacy");
+        if ($('#weno_pharmacy').hasClass('select2-hidden-accessible')) {
+            $('#weno_pharmacy').select2('destroy').off('select2:open');
+        }
+        if (pharmacySelector !== null) {
+            createWenoPharmacySelect2();
+        }
+    }
 
     function search() {
         wenoZipcode = $('#weno_zipcode').val();
@@ -369,7 +388,7 @@ $error = false;
         const isValidZipcode = wenoZipcode && coverage;
         const isValidCityAndState = wenoCity && wenoState && !wenoZipcode;
 
-        if (isValidZipcode || isValidCityAndState) {
+        if (coverage && (wenoState || wenoZipcode)) {
             $('#weno_city, #weno_state, #weno_coverage, #weno_zipcode').removeClass("is-invalid");
             $('.warn').text('');
 
@@ -380,18 +399,17 @@ $error = false;
         } else {
             $('#weno_city, #weno_state, #weno_coverage').removeClass("is-invalid");
             $('.warn').text('');
-
-            if (!wenoCity && !wenoZipcode) {
-                $('#weno_city').addClass("is-invalid");
-                $('.warn').text(jsText(requiredField));
-            }
-
-            if (!wenoState && !wenoZipcode) {
-                $('#weno_zipcode').addClass("is-invalid");
-            }
-
             if (!coverage) {
                 $('#weno_coverage').addClass("is-invalid");
+                $('.warn').text(jsText('Coverage is required'));
+            }
+            if (!wenoState) {
+                $('#weno_state').addClass("is-invalid");
+                $('.warn').text(jsText('State is required'));
+            }
+            if (!coverage && !wenoZipcode) {
+                $('#weno_zipcode').addClass("is-invalid");
+                $('.warn').text(jsText('Zipcode is required'));
             }
         }
     }
@@ -411,6 +429,7 @@ $error = false;
             weno_zipcode: wenoZipcode,
             coverage: coverage,
             full_day: fullDay,
+            weno_only: wenoOnly,
             test_pharmacy: testPharmacies,
             csrf_token_form: csrf
         };
