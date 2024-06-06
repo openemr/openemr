@@ -140,25 +140,25 @@ $error = false;
                     } ?>
                 </select>
                 <select class="form-control" name="weno_city" id="weno_city" onchange="cityChanged()"><?php echo xlt("Enter City"); ?></select>
-                <div class="my-2 btn-group-sm" role="group">
-                    <span class="text-success mr-1">
-                        <?php echo xlt("Click One to Search:"); ?>
-                    </span>
-                    <button type="button" class="btn btn-success btn-sm" onclick="search()"><?php echo xlt("List Search"); ?></button>
-                    <button type="button" class="btn btn-success btn-sm" onclick="searchOn()"><?php echo xlt("Name Search"); ?></button>
-                </div>
             </div>
         </div>
         <div>
         </div>
-        <div class="show-hide">
-            <select class="form-control form-control-sm bg-light text-dark" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()">
+        <cite class="small mb-1 text-success text-center">
+            <?php echo xlt("Search Results."); ?>
+        </cite>
+        <div class="form-group">
+            <select class="form-control form-control-sm bg-light text-dark mr-1 mb-1" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()">
                 <option value=""></option>
             </select>
+            <span class="ml-1 mt-0 btn-group" role="group">
+                <button type="button" class="btn btn-success btn-sm" onclick="search()"><?php echo xlt("List Search"); ?></button>
+                <button type="button" class="btn btn-success btn-sm" onclick="searchOn()"><?php echo xlt("Name Search"); ?></button>
+            </span>
         </div>
         <div class="mt-2 mb-1">
-            <button type="button" class="btn btn-primary btn-sm mr-3 show-hide" onclick="assignPrimaryPharmacy()"><?php echo xlt("Assign Primary Pharmacy"); ?></button>
-            <button type="button" class="btn btn-primary btn-sm ml-3 show-hide" onclick="assignAlternatePharmacy()"><?php echo xlt("Assign Alternate Pharmacy"); ?></button>
+            <button type="button" class="btn btn-primary btn-sm mr-1 show-hide" onclick="assignPrimaryPharmacy()"><?php echo xlt("Assign Primary Pharmacy"); ?></button>
+            <button type="button" class="btn btn-primary btn-sm show-hide" onclick="assignAlternatePharmacy()"><?php echo xlt("Assign Alternate Pharmacy"); ?></button>
             <button type="button" class="btn btn-secondary btn-sm" onclick="resetForm()"><?php echo xlt("Reset"); ?></button>
         </div>
     <?php } ?>
@@ -262,8 +262,19 @@ $error = false;
     }
 
     function coverageChanged() {
-        var coverage = document.getElementById('weno_coverage').selectedOptions[0];
-        this.coverage = coverage ? coverage.value : '';
+        var coverageElement = document.getElementById('weno_coverage');
+        var coverage = coverageElement.selectedOptions[0] ? coverageElement.selectedOptions[0].value : '';
+
+        var zipcodeElement = document.getElementById('weno_zipcode');
+        var cityElement = document.getElementById('select2-weno_city-container');
+
+        if (coverage === 'State') {
+            zipcodeElement.disabled = true;
+            cityElement.style.display = 'none';
+        } else {
+            zipcodeElement.disabled = false;
+            cityElement.style.display = 'block';
+        }
     }
 
     function fullDayChanged(cb) {
@@ -334,7 +345,7 @@ $error = false;
             },
             minimumInputLength: 3,
             cache: true,
-            placeholder: 'Pharmacy Name Filtered Search',
+            placeholder: 'Click and Type Filtered Pharmacy Name Search',
             allowClear: true
         });
     }
