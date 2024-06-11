@@ -17,6 +17,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+//require_once("../../../../globals.php");
 require_once $GLOBALS['srcdir'] . '/options.inc.php';
 
 use OpenEMR\Common\Acl\AclMain;
@@ -72,6 +73,9 @@ $error = false;
     color: var(--dark);
     border: 1px solid #aaa;
     border-radius: 2px;
+  }
+  .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: var(--dark);
   }
 </style>
 
@@ -152,33 +156,34 @@ $error = false;
         <div>
         </div>
         <cite class="small mb-1 text-success text-center">
-            <?php echo xlt("Search Results."); ?>
+            <?php echo xlt("Search Result Actions."); ?>
         </cite>
+        <span class="ml-1 my-1 btn-group" role="group">
+            <button type="button" class="btn btn-success btn-sm" onclick="search()"><?php echo xlt("List Search"); ?></button>
+            <button type="button" class="btn btn-success btn-sm" onclick="searchOn()"><?php echo xlt("Name Search"); ?></button>
+        </span>
         <div class="form-group">
             <select class="form-control form-control-sm bg-light text-dark mr-1 mb-1" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()">
                 <option value=""></option>
             </select>
-            <span class="ml-1 mt-0 btn-group" role="group">
-                <button type="button" class="btn btn-success btn-sm" onclick="search()"><?php echo xlt("List Search"); ?></button>
-                <button type="button" class="btn btn-success btn-sm" onclick="searchOn()"><?php echo xlt("Name Search"); ?></button>
-            </span>
         </div>
+        <hr class="m-0 mt-2 mb-1 p-0 font-weight-bold bg-light text-dark" />
         <div class="mt-2 mb-1">
             <button type="button" class="btn btn-primary btn-sm mr-1 show-hide" onclick="assignPrimaryPharmacy()"><?php echo xlt("Assign Primary Pharmacy"); ?></button>
             <button type="button" class="btn btn-primary btn-sm show-hide" onclick="assignAlternatePharmacy()"><?php echo xlt("Assign Alternate Pharmacy"); ?></button>
             <button type="button" class="btn btn-secondary btn-sm" onclick="resetForm()"><?php echo xlt("Reset"); ?></button>
         </div>
     <?php } ?>
-    <div class="m-0 text-center">
-        <cite><?php echo xlt("Current Weno Selected Pharmacies"); ?></cite>
+    <hr class="m-0 mb-1 p-0 font-weight-bold bg-light text-dark" />
+    <div class="m-0 mt-1 text-center">
+        <cite class="small text-primary bg-light"><?php echo xlt("Assigned Pharmacies"); ?></cite>
     </div>
-    <hr class="m-0 mb1 p-0 font-weight-bold bg-light text-dark" />
     <div>
         <span class="text-primary font-weight-bold mr-2"><?php echo xlt("Weno Selected Primary Pharmacy") . ':'; ?></span>
         <i id="weno_primary"></i>
     </div>
     <div class="mb-1">
-        <span class="text-success font-weight-bold"><?php echo xlt("Weno Selected Alternate Pharmacy") . ':'; ?></span>
+        <span class="text-primary font-weight-bold"><?php echo xlt("Weno Selected Alternate Pharmacy") . ':'; ?></span>
         <i id="weno_alt"></i>
         <hr class=" font-weight-bold bg-light text-dark" />
     </div>

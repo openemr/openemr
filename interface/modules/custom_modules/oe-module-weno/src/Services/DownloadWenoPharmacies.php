@@ -66,7 +66,7 @@ class DownloadWenoPharmacies
             $records = $stmt->process($csv);
 
             $headers = $records->getHeader();
-            $rowNumber = stripos($headers[3], 'NCPDP_safe') !== false ? 1 : 2;
+            $rowNumber = stripos($headers[3] ?? '', 'NCPDP_safe') !== false ? 1 : 2;
 
             if ($rowNumber === 2) {
                 $csv->setHeaderOffset(1);
@@ -107,12 +107,9 @@ class DownloadWenoPharmacies
                 $record['Created'] = $dateTime ? $dateTime->format('Y-m-d H:i:s') : null;
                 $dateTime = \DateTime::createFromFormat('m/d/Y h:i:s A', $record['Modified']);
                 $record['Modified'] = $dateTime ? $dateTime->format('Y-m-d H:i:s') : null;
-                if ($record['Deleted'] != '') {
-                    $dateTime = \DateTime::createFromFormat('m/d/Y h:i:s A', $record['Deleted']);
-                    $record['Deleted'] = $dateTime->format('Y-m-d H:i:s');
-                } else {
-                    $record['Deleted'] = null;
-                }
+                $dateTime = \DateTime::createFromFormat('m/d/Y h:i:s A', $record['Deleted']);
+                $record['Deleted'] = $dateTime ? $dateTime->format('Y-m-d H:i:s') : null;
+
                 $record['Business_Name'] = ucwords(strtolower($record['Business_Name']));
                 $record['Address_Line_1'] = ucwords(strtolower($record['Address_Line_1']));
                 $record['City'] = ucwords(strtolower($record['City']));
