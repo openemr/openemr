@@ -63,7 +63,15 @@ $error = false;
 <style>
   .warn {
     color: red;
-    font-size: 10px;
+    font-size: 12px;
+  }
+
+  .select2-container--default .select2-selection--single {
+    height: unset;
+    background-color: var(--light);
+    color: var(--dark);
+    border: 1px solid #aaa;
+    border-radius: 2px;
   }
 </style>
 
@@ -75,12 +83,12 @@ $error = false;
     <input type="text" name="alternate_pharmacy" id="alternate_pharmacy" hidden>
     <hr class="bg-light font-weight-bold text-dark my-0 my-1">
     <div class="d-flex">
-        <span class="h4 text-primary">
-            <?php echo xlt("Weno Pharmacy Selector"); ?>
-        </span>
+        <div class="h4 text-primary">
+            <?php echo xlt("Weno Pharmacy"); ?>
+        </div>
         <?php if (!empty($pharmacy_log['count'] ?? 0)) {
             $error = false; ?>
-            <cite class="h6 text-success p-1">
+            <cite class="text-success p-1">
                 <?php
                 echo xlt("Status") . ": " . (text($pharmacy_log['status']) ?? xlt("No Data")) . " " . xlt("Last Download") . ": " . (text($pharmacy_log['created_at']) ?? xlt("No Data"));
                 ?>
@@ -119,7 +127,7 @@ $error = false;
         </div>
         <div id="test-hide" class="test-hide">
             <cite class="small mb-1 text-success">
-                <?php echo xlt("Additionally Filter by Zipcode, State OR City and State with Local or Statewide Coverage."); ?>
+                <?php echo xlt("Additionally Filter by Zipcode(takes precedence), State OR City and State with Local or Statewide Coverage."); ?>
             </cite>
             <div class="row px-0 mx-0">
                 <select name="weno_coverage" class="form-control form-control-sm" id="weno_coverage" onchange="coverageChanged()">
@@ -131,7 +139,6 @@ $error = false;
                     <input type="text" size="16" class="form-control form-control-sm" name="weno_zipcode" id="weno_zipcode" placeholder="Zipcode" onchange="zipChanged()" value="">
                     <div class="warn"></div>
                 </div>
-                <span class="mx-1"><?php echo xlt("or"); ?></span>
                 <select class="form-control form-control-sm" name="weno_state" id="weno_state" onchange="stateChanged()">
                     <option value=""><?php echo xlt("State"); ?></option>
                     <?php while ($row = sqlFetchArray($res)) { ?>
@@ -139,7 +146,7 @@ $error = false;
                         <?php
                     } ?>
                 </select>
-                <select class="form-control" name="weno_city" id="weno_city" onchange="cityChanged()"><?php echo xlt("Enter City"); ?></select>
+                <select class="form-control bg-light text-dark" name="weno_city" id="weno_city" onchange="cityChanged()"><?php echo xlt("Enter City"); ?></select>
             </div>
         </div>
         <div>
@@ -242,7 +249,6 @@ $error = false;
     function zipChanged() {
         var wenoZip = document.getElementById('weno_zipcode').value;
         this.wenoZipCode = wenoZip ? wenoZip : '';
-
         $('#weno_zipcode').removeClass("is-invalid");
         $('.warn').text('');
     }
@@ -250,11 +256,15 @@ $error = false;
     function stateChanged() {
         var wenoState = document.getElementById('weno_state').selectedOptions[0];
         this.wenoState = wenoState ? wenoState.value : '';
+        $('#weno_city, #weno_state, #weno_coverage, #weno_zipcode').removeClass("is-invalid");
+        $('.warn').text('');
     }
 
     function cityChanged() {
         var wenoCity = document.getElementById('weno_city').selectedOptions[0];
         this.wenoCity = wenoCity ? wenoCity.value : '';
+        $('#weno_city, #weno_state, #weno_coverage, #weno_zipcode').removeClass("is-invalid");
+        $('.warn').text('');
     }
 
     function onWenoChanged(cb) {
@@ -262,17 +272,20 @@ $error = false;
     }
 
     function coverageChanged() {
-        var coverageElement = document.getElementById('weno_coverage');
-        var coverage = coverageElement.selectedOptions[0] ? coverageElement.selectedOptions[0].value : '';
+        $('#weno_city, #weno_state, #weno_coverage, #weno_zipcode').removeClass("is-invalid");
+        $('.warn').text('');
+        const coverageElement = document.getElementById('weno_coverage');
+        const coverage = coverageElement.selectedOptions[0] ? coverageElement.selectedOptions[0].value : '';
 
-        var zipcodeElement = document.getElementById('weno_zipcode');
-        var cityElement = document.getElementById('select2-weno_city-container');
+        const zipcodeElement = document.getElementById('weno_zipcode');
+        const cityElement = document.getElementById('select2-weno_city-container');
 
         if (coverage === 'State') {
-            zipcodeElement.disabled = true;
+            zipcodeElement.style.display = 'none';
             cityElement.style.display = 'none';
         } else {
             zipcodeElement.disabled = false;
+            zipcodeElement.style.display = 'block';
             cityElement.style.display = 'block';
         }
     }
@@ -381,7 +394,9 @@ $error = false;
             placeholder: 'Select a City'
         });
     }
-    function searchOn() {let pharmacySelector = document.getElementById("weno_pharmacy");
+
+    function searchOn() {
+        let pharmacySelector = document.getElementById("weno_pharmacy");
         if ($('#weno_pharmacy').hasClass('select2-hidden-accessible')) {
             $('#weno_pharmacy').select2('destroy').off('select2:open');
         }
@@ -416,7 +431,7 @@ $error = false;
             }
             if (!wenoState) {
                 $('#weno_state').addClass("is-invalid");
-                $('.warn').text(jsText('State is required'));
+                $('.warn').text(jsText('State or Zipcode is required'));
             }
             if (!coverage && !wenoZipcode) {
                 $('#weno_zipcode').addClass("is-invalid");

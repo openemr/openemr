@@ -35,13 +35,13 @@ if (stripos($validate->getWenoProviderId(), 'Weno User Id missing') !== false) {
 $logService = new WenoLogService();
 $pharmacyLog = $logService->getLastPharmacyDownloadStatus('Success');
 
-$status = xlt("Last pharmacy update failed! Status") . ": " . text($pharmacyLog['status'] ?? '') . ". " . xlt("Current number of Pharmacies available") . ": " . text($pharmacyLog['count'] ?? 0) . " " . xlt("that is from last successful update on") . ": " . text($pharmacyLog['created_at'] ?? '');
+$status = xlt("Last pharmacy update") . ": " . text($pharmacyLog['status'] ?? '') . ". " . xlt("Number Pharmacies available") . ": " . text($pharmacyLog['count'] ?? 0);
 $cite = <<<CITE
 <cite class="h6 text-danger p-1 mt-1">
     <span>$status</span>
 </cite>
 CITE;
-if ($pharmacyLog['status'] == 'Success') {
+if (str_starts_with($pharmacyLog['status'], 'Success')) {
     $cite = '';
 }
 
@@ -67,8 +67,8 @@ function getProviderByWenoId($external_id, $provider_id = ''): string
 <script src="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
 <div class="row float-right mr-1">
     <div>
-        <a class="mr-2" href="#" onclick="top.restoreSession(); sync_weno();"><span><i id="sync-icon" class="fa-solid fa-rotate-right mr-1"></i><?php echo xlt("Refresh"); ?></span></a>
-        <a class="mr-2" onclick="top.restoreSession();" href="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php"><span><i class="fa fa fa-pencil-alt mr-1"></i><?php echo xlt("Add/Edit"); ?></span></a>
+        <a class="mr-2" href="#" onclick="top.restoreSession(); sync_weno();"><span><i id="sync-icon" class="fa-solid fa-rotate-right mr-1"></i><?php echo xlt("Sync"); ?></span></a>
+        <a class="mr-2" onclick="top.restoreSession();" href="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/templates/indexrx.php"><span><i class="fa fa fa-pencil-alt mr-1"></i><?php echo xlt("Prescribe"); ?></span></a>
     </div>
 </div>
 <input type="hidden" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default')); ?>" />
