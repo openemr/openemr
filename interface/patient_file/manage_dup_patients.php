@@ -8,10 +8,13 @@
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2021 Rod Roark <rod@sunsetsystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ *
+ * add ability to output results as a csv file. version 1.0 Ruth Moulton
  */
 
 require_once("../globals.php");
-require_once("$srcdir/patient.inc.php");
+require_once("$srcdir/patient.inc"); // for instances of v7 p2
+/*require_once("$srcdir/patient.inc.php"); */ //for current development code
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
@@ -21,10 +24,11 @@ use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 $firsttime = true;
+$group = 1;
 
 function displayRow($row, $pid = '')
 {
-    global $firsttime;
+    global $firsttime, $group ;
 
     $bgcolor = '#ffdddd';
     $myscore = '';
@@ -45,11 +49,14 @@ function displayRow($row, $pid = '')
         "<option value='U'>" . xlt('Mark as Unique') . "</option>" .
         "<option value='R'>" . xlt('Recompute Score') . "</option>";
         if (!$firsttime) {
-            echo " <tr bgcolor='#dddddd'><td class='detail' colspan='12'>&nbsp;</td></tr>\n";
+            $group++;
+            if (empty($_POST['form_csvexport'])) { //don't put the next line into the csv file
+                echo " <tr bgcolor='#dddddd'><td class='detail' colspan='12'>&nbsp;</td></tr>\n";
+            }
         }
     }
-
     $firsttime = false;
+
     $ptname = $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'];
     $phones = array();
     if (trim($row['phone_home'])) {
@@ -70,50 +77,79 @@ function displayRow($row, $pid = '')
             $facname = $facrow['name'];
         }
     }
-    ?>
+/* output the line to the csv file if requested, otherwise display */
+    if (!empty($_POST['form_csvexport'])) {
+            echo csvEscape(text($group)) . ',';
+            echo csvEscape(text($myscore)) . ',';
+            echo csvEscape($row['pid']) . ',';
+            echo csvEscape($row['id']) . ',';
+            echo csvEscape(text($ptname)) . ',';
+            // format dates by users preference
+            echo csvEscape(oeFormatShortDate(substr($row['DOB'], 0, 10))) . ',';
+            echo csvEscape($row['ss']) . ',';
+            echo csvEscape($row['email']) . ',';
+            echo csvEscape(text($phones)) . ',';
+            echo csvEscape(oeFormatShortDate($row['regdate'])) . ',';
+            echo csvEscape(text($facname)) . ',';
+             echo csvEscape($row['street']) . "\n";
+    } else {
+        ?>
  <tr bgcolor='<?php echo $bgcolor; ?>'>
   <td class="detail" bgcolor="#dddddd">
    <select onchange='selchange(this, <?php echo attr_js($pid); ?>, <?php echo attr_js($row['pid']); ?>)' style='width:100%'>
-    <?php echo $options; // this is html and already escaped as required ?>
+        <?php echo $options; // this is html and already escaped as required ?>
    </select>
   </td>
   <td class="detail" align="right">
-    <?php echo text($myscore); ?>
+        <?php echo text($myscore); ?>
   </td>
   <td class="detail" align="right" onclick="openNewTopWindow(<?php echo attr_js($row['pid']); ?>)"
     title="<?php echo xla('Click to open in a new window or tab'); ?>" style="color:blue;cursor:pointer">
-    <?php echo text($row['pid']); ?>
+        <?php echo text($row['pid']); ?>
   </td>
   <td class="detail">
-    <?php echo text($row['pubpid']); ?>
+        <?php echo text($row['pubpid']); ?>
   </td>
   <td class="detail">
-    <?php echo text($ptname); ?>
+        <?php echo text($ptname); ?>
   </td>
   <td class="detail">
-    <?php echo text(oeFormatShortDate($row['DOB'])); ?>
+        <?php echo text(oeFormatShortDate($row['DOB'])); ?>
   </td>
   <td class="detail">
-    <?php echo text($row['ss']); ?>
+        <?php echo text($row['ss']); ?>
   </td>
   <td class="detail">
-    <?php echo text($row['email']); ?>
+        <?php echo text($row['email']); ?>
   </td>
   <td class="detail">
-    <?php echo text($phones); ?>
+        <?php echo text($phones); ?>
   </td>
   <td class="detail">
-    <?php echo text(oeFormatShortDate($row['regdate'])); ?>
+        <?php echo text(oeFormatShortDate($row['regdate'])); ?>
   </td>
   <td class="detail">
-    <?php echo text($facname); ?>
+        <?php echo text($facname); ?>
   </td>
   <td class="detail">
-    <?php echo text($row['street']); ?>
+        <?php echo text($row['street']); ?>
   </td>
  </tr>
-    <?php
-}
+        <?php
+    } //else display
+} // function displayRow
+
+/* debug */
+  /*  error_log (!empty($_POST)? "post not empty:"  : "post empty" );
+  /*  if (!empty($_POST)) {
+         error_log("post contains " . count($_POST)  );
+         $i = 0;
+         foreach($_POST as $i => $i_value){
+             error_log( $i . " " . $i_value);
+         }
+        }
+        */
+/* debug */
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -127,7 +163,20 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 $scorecalc = getDupScoreSQL();
-?>
+
+// In the case of CSV export only, a download will be forced. set up parameters
+if (!empty($_POST['form_csvexport'])) {
+   // error_log("set up csv parameters");
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Content-Type: application/force-download");
+    $today = getdate()['year']  . getdate()['mon'] . getdate()['mday'] ;
+    $today = text($today);
+    $filename = "duplicate_patients" . "_" . $GLOBALS['openemr_name'] . "_" .  $today . ".csv" ;
+    header("Content-Disposition: attachment; filename=" . $filename . '"');
+    header("Content-Description: File Transfer");
+} else { ?>
 <html>
 <head>
 <title><?php echo xlt('Duplicate Patient Management') ?></title>
@@ -160,7 +209,7 @@ $(function () {
 });
 
 function openNewTopWindow(pid) {
- document.fnew.patientID.value = pid;
+   document.fnew.patientID.value = pid;
  top.restoreSession();
  document.fnew.submit();
 }
@@ -180,9 +229,59 @@ function selchange(sel, toppid, rowpid) {
     f.form_action.value = sel.value;
     f.form_toppid.value = toppid;
     f.form_rowpid.value = rowpid;
-    f.submit();
+    f.form_csvexport.value = "";// submit without putting out a csv file
+   /* f.submit(); */
+   requestrefresh();
   }
 }
+
+function requestrefresh() {
+    var f = document.forms[0];
+    let data =new FormData();
+    for (i = 0; i<f.length; i++){
+        data.append(f[i].name, f[i].value);
+    }
+    fetch('#',
+        {method: "POST",
+            body: data
+        })
+       .then (response => response.text())
+       .then ( (response) =>
+            {
+                document.body.innerHTML = response;
+            });
+ } // requestrefresh()
+
+function requestcsv() {
+    var f = document.forms[0];
+    let data =new FormData();
+    for (i = 0; i<f.length; i++){
+        data.append(f[i].name, f[i].value);
+    }
+    fetch('#',
+        {method: "POST",
+            body: data
+        })
+
+       .then (response => response.blob())
+       .then(blob => {
+
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            // generate the file name
+            a.download =
+            <?php
+                $today = getdate()['year']  . getdate()['mon'] . getdate()['mday'] ;
+                $today = text($today);
+                echo ("'duplicate_patients" . "_" . $GLOBALS['openemr_name'] . "_" .  $today . ".csv' ;" );
+            ?>
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+      });
+ } // requestcsv()
 
 </script>
 
@@ -190,18 +289,26 @@ function selchange(sel, toppid, rowpid) {
 
 <body style='margin: 2em; background-color: #dddddd' >
 <center>
-
 <h2><?php echo xlt('Duplicate Patient Management')?></h2>
-
-<form method='post' action='manage_dup_patients.php'>
+<!-- give the form a name rm -->
+<form name='theform' id='theform' method='post' action='manage_dup_patients.php'>
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <table border='0' cellpadding='3'>
  <tr>
   <td align='center'>
-   <input type='submit' name='form_refresh' value="<?php echo xla('Refresh') ?>">
-   &nbsp;
-   <input type='button' value='<?php echo xla('Print'); ?>' onclick='window.print()' />
+  <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
+
+    <a href='#' class='btn btn-secondary btn-save' type="button" onclick='$("#form_csvexport").val(""); $("#form_refresh").attr("value","true"); requestrefresh(); '>
+                        <?php echo xlt('Refresh'); ?>
+   </a>
+<!--    <a href='#' class='btn btn-secondary btn-transmit' onclick='$("#form_csvexport").attr("value","true"); $("#theform").submit();' > -->
+    <a href='#' class='btn btn-secondary btn-transmit' onclick='$("#form_csvexport").attr("value","true"); requestcsv(); ' >
+              <?php echo xlt('Export to CSV'); ?>
+    </a>
+    &nbsp;
+    <input type='button' value='<?php echo xla('Print'); ?>' onclick='window.print()' />
+    &nbsp;
   </td>
  </tr>
  <tr>
@@ -209,6 +316,26 @@ function selchange(sel, toppid, rowpid) {
   </td>
  </tr>
 </table>
+<?php } //end of html without csv setup
+
+// either put out headings to the screen or to the csv file
+if (!empty($_POST['form_csvexport'])) {
+        // CSV headers:
+  //  error_log("output headers");
+        echo csvEscape(xl('Group')) . ',';
+        echo csvEscape(xl('Score')) . ',';
+        echo csvEscape(xl('PID')) . ',';
+        echo csvEscape(xl('ID')) . ',';
+        echo csvEscape(xl('Name')) . ',';
+        echo csvEscape(xl('DOB')) . ',';
+        echo csvEscape(xl('SSN')) . ',';
+        echo csvEscape(xl('Email')) . ',';
+        echo csvEscape(xl('Telephone')) . ',';
+        echo csvEscape(xl('Registered')) . ',';
+        echo csvEscape(xl('Home Facility')) . ',';
+        echo csvEscape(xl('Address')) . "\n";
+} else {
+    ?>
 
 <table id='mymaintable' class='mymaintable'>
  <thead>
@@ -252,8 +379,8 @@ function selchange(sel, toppid, rowpid) {
   </tr>
  </thead>
  <tbody>
-<?php
-
+    <?php
+}
 $form_action = $_POST['form_action'] ?? '';
 
 if ($form_action == 'U') {
@@ -279,9 +406,12 @@ while ($row1 = sqlFetchArray($res1)) {
         displayRow($row2, $row1['pid']);
     }
 }
-?>
+
+if (empty($_POST['form_csvexport'])) {
+    ?>
 </tbody>
 </table>
+<input type='hidden' name='form_csvexport' id='form_csvexport' value=''/>
 <input type='hidden' name='form_action' value='' />
 <input type='hidden' name='form_toppid' value='0' />
 <input type='hidden' name='form_rowpid' value='0' />
@@ -297,3 +427,6 @@ while ($row1 = sqlFetchArray($res1)) {
 
 </body>
 </html>
+    <?php
+}  // end of not csv
+?>
