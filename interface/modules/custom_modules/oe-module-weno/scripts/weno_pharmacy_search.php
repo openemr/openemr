@@ -79,12 +79,10 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
     }
 
     if ($weno_coverage == 'State') {
-        $sql .= " AND (state_wide_mail_order = ? AND FIND_IN_SET(?, REPLACE(mail_order_us_state_serviced, '|', ',')) > 0)";
-        $params[] = $weno_coverage;
-        $params[] = $weno_state;
+        $sql .= " AND (`state_wide_mail_order` = 'State') AND (`mail_order_us_state_serviced` = 'All' OR FIND_IN_SET(?, REPLACE (`mail_order_us_state_serviced`, '|', ',' )) > 0)";
+        $params[] = trim($weno_state);
     } else {
-        $sql .= " AND state_wide_mail_order = ?";
-        $params[] = 'Local';
+        $sql .= " AND (state_wide_mail_order = 'Local')";
     }
     // optional filters
     if (!empty($full_day)) {
@@ -112,7 +110,7 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_pharmacy') {
             );
         }
     }
-    echo text(json_encode($return_arr));
+    echo json_encode($return_arr);
 }
 
 if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
@@ -145,12 +143,10 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
     }
 
     if ($weno_coverage == 'State') {
-        $sql .= " AND (state_wide_mail_order = ? AND FIND_IN_SET(?, REPLACE(mail_order_us_state_serviced, '|', ',')) > 0)";
-        $params[] = 'State'; // statewide mail order
+        $sql .= " AND (`state_wide_mail_order` = 'State') AND (`mail_order_us_state_serviced` = 'All' OR FIND_IN_SET(?, REPLACE (`mail_order_us_state_serviced`, '|', ',' )) > 0)";
         $params[] = trim($weno_state);
     } else {
-        $sql .= " AND state_wide_mail_order = ?";
-        $params[] = 'Local';
+        $sql .= " AND (state_wide_mail_order = 'Local')";
     }
     // optional filters
     if (!empty($full_day)) {
@@ -177,5 +173,5 @@ if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_drop') {
             );
         }
     }
-    echo text(json_encode($return_arr));
+    echo json_encode($return_arr);
 }

@@ -74,8 +74,16 @@ $error = false;
     border: 1px solid #aaa;
     border-radius: 2px;
   }
+
   .select2-container--default .select2-selection--single .select2-selection__rendered {
     color: var(--dark);
+  }
+
+  .select2-container--default .select2-selection--single .select2-selection__clear {
+    cursor: pointer;
+    float: right;
+    font-weight: bold;
+    margin-left: 10px;
   }
 </style>
 
@@ -92,9 +100,9 @@ $error = false;
         </div>
         <?php if (!empty($pharmacy_log['count'] ?? 0)) {
             $error = false; ?>
-            <cite class="text-success p-1">
+            <cite class="text-primary p-1">
                 <?php
-                echo xlt("Status") . ": " . (text($pharmacy_log['status']) ?? xlt("No Data")) . " " . xlt("Last Download") . ": " . (text($pharmacy_log['created_at']) ?? xlt("No Data"));
+                echo xlt("Status") . ": " . (text($pharmacy_log['status']) ?? xlt("No Data")) . " " . (text($pharmacy_log['created_at']) ?? xlt("No Data"));
                 ?>
             </cite>
         <?php } else {
@@ -158,11 +166,12 @@ $error = false;
         <cite class="small mb-1 text-success text-center">
             <?php echo xlt("Search Result Actions."); ?>
         </cite>
-        <span class="ml-1 my-1 btn-group" role="group">
-            <button type="button" class="btn btn-success btn-sm" onclick="search()"><?php echo xlt("List Search"); ?></button>
+        <span class="ml-1 my-2" role="group">
+            <button type="button" class="btn btn-success btn-sm my-2" onclick="search()"><?php echo xlt("List Search"); ?></button>
+            <span class="alert-danger mt-2" id="searchResults"></span>
             <button type="button" class="btn btn-success btn-sm" onclick="searchOn()"><?php echo xlt("Name Search"); ?></button>
         </span>
-        <div class="form-group">
+        <div class="form-group mt-2">
             <select class="form-control form-control-sm bg-light text-dark mr-1 mb-1" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()">
                 <option value=""></option>
             </select>
@@ -179,11 +188,11 @@ $error = false;
         <cite class="small text-primary bg-light"><?php echo xlt("Assigned Pharmacies"); ?></cite>
     </div>
     <div>
-        <span class="text-primary font-weight-bold mr-2"><?php echo xlt("Weno Selected Primary Pharmacy") . ':'; ?></span>
+        <span class="text-primary font-weight-bold mr-2"><?php echo xlt("Assigned Primary") . ':'; ?></span>
         <i id="weno_primary"></i>
     </div>
     <div class="mb-1">
-        <span class="text-primary font-weight-bold"><?php echo xlt("Weno Selected Alternate Pharmacy") . ':'; ?></span>
+        <span class="text-primary font-weight-bold"><?php echo xlt("Assigned Alternate") . ':'; ?></span>
         <i id="weno_alt"></i>
         <hr class=" font-weight-bold bg-light text-dark" />
     </div>
@@ -236,11 +245,11 @@ $error = false;
         let jsAlt = JSON.parse(prevAltPharmacy);
 
         if (jsPrim !== false && jsPrim !== null && jsPrim.business_name !== '') {
-            $('#weno_primary').text(jsText((jsPrim.business_name) + ' - ' + (jsPrim.address_line_1)));
+            $('#weno_primary').text(jsText((jsPrim.business_name) + ' - ' + (jsPrim.address_line_1) + ' ' + (jsPrim.city) + ', ' + (jsPrim.state)));
             $('#primary_pharmacy').val(jsAttr(jsPrim.primary_ncpdp));
         }
         if (jsAlt !== false && jsAlt !== null && jsAlt.business_name !== '') {
-            $('#weno_alt').text(jsText((jsAlt.business_name) + ' - ' + (jsAlt.address_line_1)));
+            $('#weno_alt').text(jsText((jsAlt.business_name) + ' - ' + (jsAlt.address_line_1) + ' ' + (jsAlt.city) + ', ' + (jsAlt.state)));
             $('#alternate_pharmacy').val(jsAttr(jsAlt.alternate_ncpdp));
         }
     }
@@ -256,6 +265,7 @@ $error = false;
         this.wenoZipCode = wenoZip ? wenoZip : '';
         $('#weno_zipcode').removeClass("is-invalid");
         $('.warn').text('');
+        $("#searchResults").text('');
     }
 
     function stateChanged() {
@@ -263,6 +273,7 @@ $error = false;
         this.wenoState = wenoState ? wenoState.value : '';
         $('#weno_city, #weno_state, #weno_coverage, #weno_zipcode').removeClass("is-invalid");
         $('.warn').text('');
+        $("#searchResults").text('');
     }
 
     function cityChanged() {
@@ -270,15 +281,18 @@ $error = false;
         this.wenoCity = wenoCity ? wenoCity.value : '';
         $('#weno_city, #weno_state, #weno_coverage, #weno_zipcode').removeClass("is-invalid");
         $('.warn').text('');
+        $("#searchResults").text('');
     }
 
     function onWenoChanged(cb) {
         this.wenoOnly = cb ? cb.checked : false;
+        $("#searchResults").text('');
     }
 
     function coverageChanged() {
         $('#weno_city, #weno_state, #weno_coverage, #weno_zipcode').removeClass("is-invalid");
         $('.warn').text('');
+        $("#searchResults").text('');
         const coverageElement = document.getElementById('weno_coverage');
         const coverage = coverageElement.selectedOptions[0] ? coverageElement.selectedOptions[0].value : '';
 
@@ -297,6 +311,7 @@ $error = false;
 
     function fullDayChanged(cb) {
         this.fullDay = cb ? cb.checked : false;
+        $("#searchResults").text('');
     }
 
     function testPharmaciesChanged(cb) {
@@ -415,6 +430,7 @@ $error = false;
         wenoCity = $('#weno_city').val();
         wenoState = $('#weno_state').val();
         coverage = $('#weno_coverage').val();
+        $("#searchResults").text('');
 
         const isValidZipcode = wenoZipcode && coverage;
         const isValidCityAndState = wenoCity && wenoState && !wenoZipcode;
@@ -474,7 +490,7 @@ $error = false;
                 if (data === null || data.length === 0) { // Check for no data or empty array
                     html += '<option value="">' + jsText(xl("No Pharmacy Found")) + '</option>';
                     let msg = jsText(xl('No results found.'));
-                    syncAlertMsg(msg, 2000, 'warning'); // Display warning message
+                    $("#searchResults").text(msg);
                 } else {
                     if (testPharmacies) {
                         html += '<option value="' + '">' + jsText(xl("Select a Test Pharmacy Here")) + '</option>';
@@ -484,8 +500,8 @@ $error = false;
                     $.each(data, function (i, value) {
                         html += '<option style="width: 100%" value="' + jsAttr(value.ncpdp) + '">' + jsText(value.name) + '</option>';
                     });
-                    let msg = (testPharmacies ? (jsText(xl('Test')) + ' ') : '') + jsText(xl('Pharmacy search completed')) + ': ' + data.length + ' ' + jsText(xl('result(s) found.'));
-                    syncAlertMsg(msg, 2000, 'warning', 'lg'); // Display success message
+                    let msg = data.length + ' ' + jsText(xl('result(s) found.'));
+                    $("#searchResults").text(msg);
                 }
                 $("#weno_pharmacy").html(html); // Write HTML options to the select element
             },
@@ -522,6 +538,7 @@ $error = false;
         $('#primary_pharmacy').val();
         $('#weno_alt').text('');
         $('#alternate_pharmacy').val();
+        $("#searchResults").text('');
 
         resetSelect2();
     }
