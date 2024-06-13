@@ -261,7 +261,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
      */
     protected function searchForOpenEMRRecords($openEMRSearchParameters, $puuidBind = null): ProcessingResult
     {
-        return $this->appointmentService->search($openEMRSearchParameters, true, $puuidBind);
+        return $this->appointmentService->searchAllWithPatient($openEMRSearchParameters, true);
     }
 
     /**
