@@ -112,7 +112,21 @@ class CoverageValidator extends BaseValidator
                                     $previousNames = $patient['previous_names'];
                                     $found = false;
                                     foreach ($previousNames as $previousName) {
-                                        if ($previousName['previous_name_first'] == $values['subscriber_fname'] && $previousName['previous_name_last'] == $values['subscriber_lname']) {
+                                        // do a strict equality and then we can do multibyte comparison for localizations
+                                        // note if we want to handle more comprehensive multibytes
+                                        // we need to do some normalizations as per this stackoverflow post: https://stackoverflow.com/a/38855868
+                                        // I'm not incorporating the normalization techniques yet as we need to better understand their implications before
+                                        // applying the fix
+                                        // TODO: look at normalizing the multi-byte strings to better handle international languages where multiple unicode characters correspond to the same uppercase or lowercase character
+                                        if (
+                                            ($previousName['previous_name_first'] == $values['subscriber_fname']
+                                                || mb_strtolower($previousName['previous_name_first']) == mb_strtolower($values['subscriber_fname'])
+                                            )
+                                            &&
+                                            ($previousName['previous_name_last'] == $values['subscriber_lname']
+                                                || mb_strtolower($previousName['previous_name_last']) == mb_strtolower($values['subscriber_lname'])
+                                            )
+                                        ) {
                                             $found = true;
                                             break;
                                         }
