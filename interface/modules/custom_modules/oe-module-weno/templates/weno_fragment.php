@@ -125,6 +125,7 @@ if ($hasErrors) { ?>
         <input type="hidden" id="prim_ncpdp" name="prim_ncpdp" value="<?php echo attr($prim_pharmacy['ncpdp_safe']); ?>" />
         <cite><span role="button" id="primary-pharmacy" title="<?php echo $titleMessage ?>"><?php echo text($primary_pharmacy); ?></span></cite>
         <select id="select-primary" class="d-none">
+            <option value=""><?php echo xlt("Select for No Pharmacy or Click for list"); ?></option>
             <?php foreach ($pharmacies as $pharmacy) {
                 $primary = ($pharmacy['business_name'] ?? false) ? ($pharmacy['business_name'] . ' - ' . ($pharmacy['address_line_1'] ?? '') . ' ' . ($pharmacy['city'] ?? '') . ', ' . ($pharmacy['state'] ?? '')) : '';
                 $isSelected = ($pharmacy['ncpdp_safe'] == $prim_pharmacy['ncpdp_safe']) ? 'selected' : '';
@@ -140,6 +141,7 @@ if ($hasErrors) { ?>
         <input type="hidden" id="alt_ncpdp" name="alt_ncpdp" value="<?php echo attr($alt_pharmacy['ncpdp_safe']); ?>" />
         <cite><span role="button" id="alternate-pharmacy" title="<?php echo $titleMessage ?>"><?php echo text($alternate_pharmacy); ?></span></cite>
         <select id="select-alternate" class="d-none">
+            <option value=""><?php echo xlt("Select for No Pharmacy or Click for list"); ?></option>
             <?php foreach ($pharmacies as $pharmacy) {
                 $alternate = ($pharmacy['business_name'] ?? false) ? ($pharmacy['business_name'] . ' - ' . ($pharmacy['address_line_1'] ?? '') . ' ' . ($pharmacy['city'] ?? '') . ', ' . ($pharmacy['state'] ?? '')) : '';
                 $isSelected = ($pharmacy['ncpdp_safe'] == $alt_pharmacy['ncpdp_safe']) ? 'selected' : '';
@@ -194,6 +196,7 @@ if ($hasErrors) { ?>
 
                 const result = await response.json();
                 console.log('Save successful:', result);
+                window.location.reload();
             } catch (error) {
                 console.error('Error saving selection:', error);
             }
