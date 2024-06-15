@@ -109,6 +109,7 @@ class DocumentTemplateRender
         // purify html (and remove js)
         $isLegacy = stripos($template, 'portal_version') === false;
         $config = HTMLPurifier_Config::createDefault();
+        $config->set('Cache.SerializerPath', $GLOBALS['temporary_files_dir']);
         $config->set('Core.Encoding', 'UTF-8');
         $config->set('CSS.AllowedProperties', '*');
         $purify = new HTMLPurifier($config);
