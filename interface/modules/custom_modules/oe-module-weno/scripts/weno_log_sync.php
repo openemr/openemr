@@ -20,7 +20,7 @@ use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 /**
  * Download Weno Pharmacy data called by background service.
  */
-function downloadWenoPharmacy()
+function downloadWenoPharmacy(): void
 {
     $wenoLog = new WenoLogService();
     $wenoValidate = new WenoValidate();

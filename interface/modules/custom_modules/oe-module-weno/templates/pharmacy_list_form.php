@@ -59,6 +59,10 @@ $prev_alt_pharmacy = json_encode($prev_alt_pharmacy);
 $sql = "SELECT list_id, option_id, title FROM list_options WHERE list_id = 'state'";
 $res = sqlStatement($sql);
 $error = false;
+
+$pharmacyService = new PharmacyService();
+$defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? array();
+
 ?>
 
 <style>
@@ -67,24 +71,32 @@ $error = false;
     font-size: 12px;
   }
 
-  .select2-container--default .select2-selection--single {
-    height: unset;
-    background-color: var(--light);
-    color: var(--dark);
-    border: 1px solid #aaa;
-    border-radius: 2px;
-  }
-
-  .select2-container--default .select2-selection--single .select2-selection__rendered {
-    color: var(--dark);
-  }
-
   .select2-container--default .select2-selection--single .select2-selection__clear {
     cursor: pointer;
     float: right;
     font-weight: bold;
     margin-left: 10px;
   }
+
+  /* Ensure Select2 elements match the styling */
+  .select2-container--default .select2-selection--single {
+    height: calc(2.25rem + 2px);
+    background-color: var(--light);
+    color: var(--dark);
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+  }
+
+  .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: var(--dark);
+    line-height: 1.5;
+    padding-left: 4px;
+    padding-right: 6px;
+  }
+
 </style>
 
 <div id="weno_form"></div>
@@ -142,16 +154,16 @@ $error = false;
                 <?php echo xlt("Additionally Filter by Zipcode(takes precedence), State OR City and State with Local or Statewide Coverage."); ?>
             </cite>
             <div class="row px-0 mx-0">
-                <select name="weno_coverage" class="form-control form-control-sm" id="weno_coverage" onchange="coverageChanged()">
-                    <option value=""><?php echo xlt("Select Coverage") . " *" ?></option>
-                    <option value="State"><?php echo xlt("State Wide Mail Order") ?></option>
+                <select name="weno_coverage" class="form-control form-control" id="weno_coverage" onchange="coverageChanged()">
                     <option value="Local" selected><?php echo xlt("Local Retail") ?></option>
+                    <option value="State"><?php echo xlt("State Wide Mail Order") ?></option>
+                    <option value=""><?php echo xlt("Select Coverage") . " *" ?></option>
                 </select>
                 <div>
-                    <input type="text" size="16" class="form-control form-control-sm" name="weno_zipcode" id="weno_zipcode" placeholder="Zipcode" onchange="zipChanged()" value="">
+                    <input type="text" size="16" class="form-control" name="weno_zipcode" id="weno_zipcode" placeholder="Zipcode" onchange="zipChanged()" value="">
                     <div class="warn"></div>
                 </div>
-                <select class="form-control form-control-sm" name="weno_state" id="weno_state" onchange="stateChanged()">
+                <select class="form-control form-control" name="weno_state" id="weno_state" onchange="stateChanged()">
                     <option value=""><?php echo xlt("State"); ?></option>
                     <?php while ($row = sqlFetchArray($res)) { ?>
                         <option value="<?php echo attr($row['option_id']); ?>"><?php echo text($row['title']); ?></option>
@@ -163,16 +175,17 @@ $error = false;
         </div>
         <div>
         </div>
-        <cite class="small mb-1 text-success text-center">
+        <cite class="mb-1 text-success text-center">
             <?php echo xlt("Search Result Actions."); ?>
         </cite>
         <span class="ml-1 my-2" role="group">
             <button type="button" class="btn btn-success btn-sm my-2" onclick="search()"><?php echo xlt("List Search"); ?></button>
-            <span class="alert-danger mt-2" id="searchResults"></span>
             <button type="button" class="btn btn-success btn-sm" onclick="searchOn()"><?php echo xlt("Name Search"); ?></button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="clearFilters()"><?php echo xlt("Clear"); ?></button>
+            <span class="h5 alert-danger mt-3" id="searchResults"></span>
         </span>
-        <div class="form-group mt-2">
-            <select class="form-control form-control-sm bg-light text-dark mr-1 mb-1" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()">
+        <div id="select-div" class="form-group mt-2">
+            <select class="form-control form-control bg-light text-dark mr-1 mb-1" name="form_weno_pharmacy" id="weno_pharmacy" onchange="pharmSelChanged()">
                 <option value=""></option>
             </select>
         </div>
@@ -201,7 +214,6 @@ $error = false;
 <script>
     // csrf token
     let csrf = document.querySelector('input[name="csrf_token_form"]').value;
-
     var wenoState = null;
     var wenoCity = null;
     var wenoZipcode = null;
@@ -212,31 +224,58 @@ $error = false;
     var wenoPrimPharm = null;
     var wenoValChanged = null;
     var wenoAltPharm = null;
-    var requiredField = "City or Zipcode is required";
 
     window.onload = (event) => {
-        //the template is hidden by default. use this to display the template
-        var template = document.getElementById("weno_template");
-        var weno_form = document.getElementById("weno_form");
-        var clone = document.importNode(template.content, true);
-        weno_form.appendChild(clone);
+        // Initialize the form with the last search values
+        const defaultFilters = <?php echo js_escape($defaultFilters); ?>;
 
-        let pid = <?php echo json_encode($pid); ?>;
-        let prevPrimPharmacy = <?php echo js_escape($prev_prim_pharmacy); ?>;
-        let prevAltPharmacy = <?php echo js_escape($prev_alt_pharmacy); ?>;
+        // Display the hidden template
+        const template = document.getElementById("weno_template");
+        const wenoForm = document.getElementById("weno_form");
+        const clone = document.importNode(template.content, true);
+        wenoForm.appendChild(clone);
+
+        const pid = <?php echo json_encode($pid); ?>;
+        const prevPrimPharmacy = <?php echo json_encode($prev_prim_pharmacy); ?>;
+        const prevAltPharmacy = <?php echo json_encode($prev_alt_pharmacy); ?>;
 
         if (pid > 0) {
             initPharmacyDisplay(prevPrimPharmacy, prevAltPharmacy);
         }
-        //checking if weno_pharmacy div exists initialize select2
-        let pharmacySelector = document.getElementById("weno_pharmacy");
+
+        // Initialize Select2 for pharmacy if the element exists
+        const pharmacySelector = document.getElementById("weno_pharmacy");
         if (pharmacySelector !== null) {
             createWenoPharmacySelect2();
         }
-        //checking if city div exists and initialize select2
-        var citySelector = document.getElementById("weno_city");
+
+        // Initialize Select2 for city if the element exists
+        const citySelector = document.getElementById("weno_city");
         if (citySelector !== null) {
             createWenoCitySelect2();
+        }
+
+        // Initialize the default filters
+        document.getElementById("weno_coverage").value = defaultFilters.weno_coverage || 'Local';
+        document.getElementById("weno_zipcode").value = defaultFilters.weno_zipcode || '';
+        document.getElementById("weno_state").value = defaultFilters.weno_state || '';
+
+        const defaultCity = defaultFilters.weno_city;
+        if (defaultCity) {
+            const cityOption = new Option(defaultCity, defaultCity, true, true);
+            $('#weno_city').append(cityOption).trigger('change');
+        }
+
+        const allDay = document.getElementById('24hr');
+        if (allDay) {
+            allDay.checked = defaultFilters.all_day === "on";
+            fullDay = document.getElementById('24hr').checked;
+        }
+
+        const wenoOnlyEle = document.getElementById('weno_only');
+        if (wenoOnlyEle) {
+            wenoOnlyEle.checked = defaultFilters.weno_only === "on";
+            wenoOnly = document.getElementById('weno_only').checked;
         }
     };
 
@@ -295,7 +334,6 @@ $error = false;
         $("#searchResults").text('');
         const coverageElement = document.getElementById('weno_coverage');
         const coverage = coverageElement.selectedOptions[0] ? coverageElement.selectedOptions[0].value : '';
-
         const zipcodeElement = document.getElementById('weno_zipcode');
         const cityElement = document.getElementById('select2-weno_city-container');
 
@@ -426,6 +464,7 @@ $error = false;
     }
 
     function search() {
+        document.getElementById("select-div").style.visibility = 'hidden';
         wenoZipcode = $('#weno_zipcode').val();
         wenoCity = $('#weno_city').val();
         wenoState = $('#weno_state').val();
@@ -469,6 +508,9 @@ $error = false;
             wenoZipcode = '';
             coverage = '';
         }
+        wenoOnly = document.getElementById('weno_only').checked;
+        fullDay = document.getElementById('24hr').checked;
+        testPharmacies = document.getElementById('weno_test_pharmacies').checked;
         let data = {
             searchFor: 'weno_drop',
             weno_state: wenoState,
@@ -500,10 +542,11 @@ $error = false;
                     $.each(data, function (i, value) {
                         html += '<option style="width: 100%" value="' + jsAttr(value.ncpdp) + '">' + jsText(value.name) + '</option>';
                     });
-                    let msg = data.length + ' ' + jsText(xl('result(s) found.'));
+                    let msg = jsAttr(data.length) + ' ' + jsText(xl('result(s) found.'));
                     $("#searchResults").text(msg);
                 }
-                $("#weno_pharmacy").html(html); // Write HTML options to the select element
+                $("#weno_pharmacy").html(html); // Write HTML options to the select elementresult(s) found
+                document.getElementById("select-div").style.visibility = 'visible';
             },
             // Error handling
             error: function (error) {
@@ -552,6 +595,32 @@ $error = false;
         } else {
             $('#weno_pharmacy').val('');
         }
+    }
+
+    function clearFilters() {
+        // Clear warning messages and search results
+        $('.warn').text('');
+        $("#searchResults").text('');
+
+        // Clear individual filter fields
+        document.getElementById('weno_state').selectedIndex = 0;
+        document.getElementById('weno_zipcode').value = '';
+        $('#weno_city').val(null).trigger('change');
+        $('#weno_state').val(null).trigger('change');
+        $('#weno_coverage').val('Local').trigger('change');
+
+        // Reset global variables (assuming these are defined elsewhere)
+        wenoState = null;
+        wenoCity = null;
+        wenoZipcode = null;
+        coverage = null;
+        fullDay = null;
+        wenoOnly = null;
+        testPharmacies = null;
+
+        // Remove invalid class from filter elements
+        const multi = $('#weno_city, #weno_state, #weno_coverage, #weno_zipcode');
+        multi.removeClass("is-invalid");
     }
 
 </script>

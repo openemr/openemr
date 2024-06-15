@@ -28,7 +28,6 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
 }
 
 $params = [];
-
 if (isset($_GET['searchFor']) && $_GET['searchFor'] == 'weno_city') {
     $return_arr = array();
     $term = filter_input(INPUT_GET, "term");

@@ -41,8 +41,10 @@ CREATE TABLE `weno_assigned_pharmacy` (
     `pid`             BIGINT(20) NOT NULL,
     `primary_ncpdp`   VARCHAR(8) NOT NULL,
     `alternate_ncpdp` VARCHAR(8) NOT NULL,
-    KEY (`pid`),
-    PRIMARY KEY (`id`)
+    `is_history`      TINYINT(1) DEFAULT 0,
+    `search_persist`  TINYTEXT,
+    PRIMARY KEY (`id`),
+    KEY (`pid`)
 ) ENGINE = InnoDB;
 #EndIf
 
@@ -80,4 +82,12 @@ UPDATE `globals` SET gl_name='weno_admin_username' WHERE gl_name = 'weno_provide
 
 #IfNotColumnType weno_download_log status varchar(255)
 ALTER TABLE `weno_download_log` CHANGE `value` `value` VARCHAR(63) NOT NULL, CHANGE `status` `status` VARCHAR(255) NOT NULL;
+#EndIf
+
+#IfMissingColumn weno_assigned_pharmacy is_history
+ALTER TABLE `weno_assigned_pharmacy` ADD `is_history` TINYINT(1) NOT NULL DEFAULT '0', ADD `search_persist` TINYTEXT;
+#EndIf
+
+#IfMissingColumn weno_assigned_pharmacy search_persist
+ALTER TABLE `weno_assigned_pharmacy` ADD `search_persist` TINYTEXT;
 #EndIf

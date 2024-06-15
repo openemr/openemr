@@ -56,8 +56,26 @@ $res = sqlStatement("SELECT * FROM prescriptions WHERE patient_id = ? AND indica
 $pharmacyService = new PharmacyService();
 $prim_pharmacy = $pharmacyService->getWenoPrimaryPharm($_SESSION['pid']) ?? false;
 $alt_pharmacy = $pharmacyService->getWenoAlternatePharm($_SESSION['pid']) ?? false;
-$primary_pharmacy = ($prim_pharmacy['business_name'] ?? false) ? ($prim_pharmacy['business_name'] . ' - ' . ($prim_pharmacy['address_line_1'] ?? '') . ' ' . ($prim_pharmacy['city'] ?? '') . ', ' . ($prim_pharmacy['state'] ?? '')) : '';
-$alternate_pharmacy = ($alt_pharmacy['business_name'] ?? false) ? ($alt_pharmacy['business_name'] . ' - ' . ($alt_pharmacy['address_line_1'] ?? '') . ' ' . ($alt_pharmacy['city'] ?? '') . ', ' . $alt_pharmacy['state'] ?? '') : '';
+
+$primary_pharmacy = ($prim_pharmacy['business_name'] ?? false) ? ($prim_pharmacy['business_name'] . ' - ' .
+    ($prim_pharmacy['address_line_1'] ?? '') . ' ' . ($prim_pharmacy['city'] ?? '') .
+    ', ' . ($prim_pharmacy['state'] ?? '')) : '';
+
+$alternate_pharmacy = ($alt_pharmacy['business_name'] ?? false) ? ($alt_pharmacy['business_name'] . ' - ' .
+($alt_pharmacy['address_line_1'] ?? '') . ' ' . ($alt_pharmacy['city'] ?? '') .
+', ' . $alt_pharmacy['state'] ?? '') : '';
+
+$res = sqlStatement(
+    "SELECT DISTINCT wp.ncpdp_safe, wp.business_name, wp.address_line_1, wp.city, wp.state FROM weno_assigned_pharmacy wap INNER JOIN weno_pharmacy wp ON wap.primary_ncpdp = wp.ncpdp_safe OR wap.alternate_ncpdp = wp.ncpdp_safe;
+"
+);
+$pharmacies = array();
+foreach ($res as $row) {
+    $pharmacies[] = $row;
+}
+$pharmacyCount = count($pharmacies);
+// title for the select dropdown events
+$titleMessage = xla("Click to select from a list of previously assigned pharmacies.");
 
 function getProviderByWenoId($external_id, $provider_id = ''): string
 {
@@ -70,37 +88,11 @@ function getProviderByWenoId($external_id, $provider_id = ''): string
 }
 
 ?>
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // Get the labels and select elements
-        const primaryLabel = document.getElementById("label-primary");
-        const alternateLabel = document.getElementById("label-alternate");
-
-        const primaryPharmacySpan = document.getElementById("primary-pharmacy");
-        const alternatePharmacySpan = document.getElementById("alternate-pharmacy");
-
-        const primarySelect = document.getElementById("select-primary");
-        const alternateSelect = document.getElementById("select-alternate");
-
-        // Event listener for the primary label
-        primaryLabel.addEventListener("click", function() {
-            primaryPharmacySpan.classList.add("d-none");
-            primarySelect.classList.remove("d-none");
-        });
-
-        // Event listener for the alternate label
-        alternateLabel.addEventListener("click", function() {
-            alternatePharmacySpan.classList.add("d-none");
-            alternateSelect.classList.remove("d-none");
-        });
-    });
-
-</script>
 <script src="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
 <style>
-    .dialog-alert {
-        font-size:14px;
-    }
+  .dialog-alert {
+    font-size: 14px;
+  }
 </style>
 <div class="row float-right mr-1">
     <div>
@@ -115,7 +107,7 @@ function getProviderByWenoId($external_id, $provider_id = ''): string
     <div id="sync-alert" class="d-none"></div>
     <br>
 <?php }
-if (!$hasWarnings || $hasErrors) { ?>
+if ($hasWarnings || $hasErrors) { ?>
     <div class="container-fluid m-0 p-0">
         <div id="error-alert" class="col alert <?php echo !$justWarnings ? 'alert-danger' : 'alert-warning'; ?> mt-2 px-0 py-1" role="alert">
             <span class="text-danger"><span><?php echo xlt("Problems!"); ?></span></span> <span class="text-dark"><?php echo xlt("Weno eRx is not fully configured. Details"); ?></span>
@@ -125,29 +117,130 @@ if (!$hasWarnings || $hasErrors) { ?>
             </div>
         </div>
     </div>
+    <div class="container-fluid m-0 p-0">
+        <div id="warning-alert" class="col alert alert-warning mt-2 px-0 py-1" role="alert">
+            <span class="text-warning"><span><?php echo xlt("Warnings!"); ?></span></span> <span class="text-dark"><?php echo xlt("Weno eRx is not fully configured. Details"); ?></span>
+            <a role="button" class="btn btn-link p-0 pl-1" onclick="$('.dialog-alert').toggleClass('d-none')"><i class="fa fa-question-circle close"></i></a>
+            <div id="dialog-alert" class="dialog-alert m-0 p-0 pt-1 small d-none">
+                <div id="dialog-content" class="dialog-content text-warning" style="background-color: #fff"><?php echo $validate_errors; ?></div>
+            </div>
+        </div>
+    </div>
 <?php } ?>
-<div class="form-group mb-0 small">
+<?php if ($pharmacyCount > 0) { ?>
+    <div class="form-group mb-0 small">
     <div class="input-group">
-        <label id="label-primary" class="text-primary mb-0 mr-2" for="select-primary"><b><?php echo xlt("Assigned Primary"); ?>:</b></label>
-        <cite><span id="primary-pharmacy"><?php echo text($primary_pharmacy); ?></span></cite>
-        <!-- Placeholder for the select element -->
+        <label role="button" id="label-primary" class="text-primary mb-0 mr-2" for="select-primary" title="<?php echo $titleMessage ?>">
+            <b><?php echo xlt("Assigned Primary"); ?>:</b>
+        </label>
+        <input type="hidden" id="prim_ncpdp" name="prim_ncpdp" value="<?php echo attr($prim_pharmacy['ncpdp_safe']); ?>" />
+        <cite><span role="button" id="primary-pharmacy" title="<?php echo $titleMessage ?>"><?php echo text($primary_pharmacy); ?></span></cite>
         <select id="select-primary" class="d-none">
-            <?php foreach ($pharmacies as $pharmacy) : ?>
-                <option value="<?php echo htmlspecialchars($pharmacy); ?>"><?php echo htmlspecialchars($pharmacy); ?></option>
-            <?php endforeach; ?>
+            <?php foreach ($pharmacies as $pharmacy) {
+                $primary = ($pharmacy['business_name'] ?? false) ? ($pharmacy['business_name'] . ' - ' . ($pharmacy['address_line_1'] ?? '') . ' ' . ($pharmacy['city'] ?? '') . ', ' . ($pharmacy['state'] ?? '')) : '';
+                $isSelected = ($pharmacy['ncpdp_safe'] == $prim_pharmacy['ncpdp_safe']) ? 'selected' : '';
+                ?>
+                <option value="<?php echo attr($pharmacy['ncpdp_safe']); ?>" <?php echo $isSelected; ?>><?php echo text($primary); ?></option>
+            <?php } ?>
         </select>
     </div>
     <div class="input-group">
-        <label id="label-alternate" class="text-primary mb-1 mr-1" for="select-alternate"><b><?php echo xlt("Assigned Alternate"); ?>:</b></label>
-        <cite><span id="alternate-pharmacy"><?php echo text($alternate_pharmacy); ?></span></cite>
-        <!-- Placeholder for the select element -->
+        <label role="button" id="label-alternate" class="text-primary mb-1 mr-1" for="select-alternate" title="<?php echo $titleMessage ?>">
+            <b><?php echo xlt("Assigned Alternate"); ?>:</b>
+        </label>
+        <input type="hidden" id="alt_ncpdp" name="alt_ncpdp" value="<?php echo attr($alt_pharmacy['ncpdp_safe']); ?>" />
+        <cite><span role="button" id="alternate-pharmacy" title="<?php echo $titleMessage ?>"><?php echo text($alternate_pharmacy); ?></span></cite>
         <select id="select-alternate" class="d-none">
-            <?php foreach ($pharmacies as $pharmacy) : ?>
-                <option value="<?php echo htmlspecialchars($pharmacy); ?>"><?php echo htmlspecialchars($pharmacy); ?></option>
-            <?php endforeach; ?>
+            <?php foreach ($pharmacies as $pharmacy) {
+                $alternate = ($pharmacy['business_name'] ?? false) ? ($pharmacy['business_name'] . ' - ' . ($pharmacy['address_line_1'] ?? '') . ' ' . ($pharmacy['city'] ?? '') . ', ' . ($pharmacy['state'] ?? '')) : '';
+                $isSelected = ($pharmacy['ncpdp_safe'] == $alt_pharmacy['ncpdp_safe']) ? 'selected' : '';
+                ?>
+                <option value="<?php echo attr($pharmacy['ncpdp_safe']); ?>" <?php echo $isSelected; ?>><?php echo text($alternate); ?></option>
+            <?php } ?>
         </select>
     </div>
 </div>
+<?php } ?>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const csrfToken = document.getElementById('csrf_token_form').value;
+        const pid = <?php echo $pid; ?>;
+        const url = `${top.webroot_url}/interface/modules/custom_modules/oe-module-weno/scripts/update_pharmacy.php`;
+
+        // Function to handle label click
+        function handleLabelClick(span, select) {
+            span.classList.add("d-none");
+            select.classList.remove("d-none");
+            select.focus();
+        }
+
+        // Function to handle select change and auto-save
+        async function handleSelectChange(span, select, input) {
+            const selectedOption = select.options[select.selectedIndex].text;
+            const selectedValue = select.value;
+
+            span.textContent = selectedOption;
+            span.classList.remove("d-none");
+            select.classList.add("d-none");
+            input.value = selectedValue;
+
+            // Auto-save the selected option
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        csrf_token_form: csrfToken,
+                        pid: pid,
+                        primary: document.getElementById('prim_ncpdp').value,
+                        alternate: document.getElementById('alt_ncpdp').value
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const result = await response.json();
+                console.log('Save successful:', result);
+            } catch (error) {
+                console.error('Error saving selection:', error);
+            }
+        }
+
+        // Function to handle select blur (losing focus) to restore the span
+        function handleSelectBlur(span, select) {
+            span.classList.remove("d-none");
+            select.classList.add("d-none");
+        }
+
+        function addEventListeners(labelId, spanId, selectId, inputId) {
+            const label = document.getElementById(labelId);
+            const span = document.getElementById(spanId);
+            const select = document.getElementById(selectId);
+            const input = document.getElementById(inputId);
+
+            label.addEventListener("click", function () {
+                handleLabelClick(span, select);
+            });
+            span.addEventListener("click", function () {
+                handleLabelClick(span, select);
+            });
+            select.addEventListener("change", function () {
+                handleSelectChange(span, select, input);
+            });
+            select.addEventListener("blur", function () {
+                handleSelectBlur(span, select);
+            });
+        }
+
+        addEventListeners("label-primary", "primary-pharmacy", "select-primary", "prim_ncpdp");
+        addEventListeners("label-alternate", "alternate-pharmacy", "select-alternate", "alt_ncpdp");
+    });
+</script>
+
 <div class="table-responsive">
     <table class="table table-sm table-hover table-striped w-100">
         <thead class="thead thead-light border-bottom">
