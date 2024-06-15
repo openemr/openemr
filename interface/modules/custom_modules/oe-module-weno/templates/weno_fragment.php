@@ -28,7 +28,7 @@ $validate_errors = "";
 $cite = '';
 
 if (stripos($validate->getWenoProviderId(), 'Weno User Id missing') !== false) {
-    echo xlt("Not Authorized! Missing Weno Prescriber Id. See User Settings to configure Weno Prescriber Id.");
+    echo xlt("Not Authorized! Missing Weno Prescriber Id. See User Settings Weno tab to configure Weno Prescriber Id.");
     return "Fail";
 }
 
@@ -46,8 +46,6 @@ if (str_starts_with($pharmacyLog['status'], 'Success')) {
 }
 
 $hasErrors = !empty($validate->errors['errors']);
-$hasWarnings = !empty($validate->errors['warnings']);
-$justWarnings = $hasWarnings && empty($validate->errors['errors']);
 $validate_errors = $validate->errors['string'];
 
 $pid = ($pid ?? '') ?: $_SESSION['pid'] ?? '';
@@ -107,22 +105,13 @@ function getProviderByWenoId($external_id, $provider_id = ''): string
     <div id="sync-alert" class="d-none"></div>
     <br>
 <?php }
-if ($hasWarnings || $hasErrors) { ?>
+if ($hasErrors) { ?>
     <div class="container-fluid m-0 p-0">
-        <div id="error-alert" class="col alert <?php echo !$justWarnings ? 'alert-danger' : 'alert-warning'; ?> mt-2 px-0 py-1" role="alert">
+        <div id="error-alert" class="col alert alert-danger mt-2 px-0 py-1" role="alert">
             <span class="text-danger"><span><?php echo xlt("Problems!"); ?></span></span> <span class="text-dark"><?php echo xlt("Weno eRx is not fully configured. Details"); ?></span>
             <a role="button" class="btn btn-link p-0 pl-1" onclick="$('.dialog-alert').toggleClass('d-none')"><i class="fa fa-question-circle close"></i></a>
             <div id="dialog-alert" class="dialog-alert m-0 p-0 pt-1 small d-none">
                 <div id="dialog-content" class="dialog-content text-danger" style="background-color: #fff"><?php echo $validate_errors; ?></div>
-            </div>
-        </div>
-    </div>
-    <div class="container-fluid m-0 p-0">
-        <div id="warning-alert" class="col alert alert-warning mt-2 px-0 py-1" role="alert">
-            <span class="text-warning"><span><?php echo xlt("Warnings!"); ?></span></span> <span class="text-dark"><?php echo xlt("Weno eRx is not fully configured. Details"); ?></span>
-            <a role="button" class="btn btn-link p-0 pl-1" onclick="$('.dialog-alert').toggleClass('d-none')"><i class="fa fa-question-circle close"></i></a>
-            <div id="dialog-alert" class="dialog-alert m-0 p-0 pt-1 small d-none">
-                <div id="dialog-content" class="dialog-content text-warning" style="background-color: #fff"><?php echo $validate_errors; ?></div>
             </div>
         </div>
     </div>
