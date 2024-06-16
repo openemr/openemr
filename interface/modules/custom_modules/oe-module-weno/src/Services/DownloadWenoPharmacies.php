@@ -102,7 +102,7 @@ class DownloadWenoPharmacies
                 }
                 $rowNumber++;
 
-                $record = array_map(fn($item) => str_replace(['[', ']'], '', trim($item)), $record);
+                $record = array_map(fn($item) => str_replace(['[', ']'], '', trim($item ?? '')), $record);
                 $dateTime = \DateTime::createFromFormat('m/d/Y h:i:s A', $record['Created']);
                 $record['Created'] = $dateTime ? $dateTime->format('Y-m-d H:i:s') : null;
                 $dateTime = \DateTime::createFromFormat('m/d/Y h:i:s A', $record['Modified']);

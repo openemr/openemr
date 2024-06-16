@@ -69,7 +69,7 @@ class PharmacyService
     public function getWenoLastSearch($pid)
     {
         $sql = "SELECT `search_persist` FROM weno_assigned_pharmacy WHERE pid = ?";
-        return json_decode(sqlQuery($sql, array($pid))['search_persist']);
+        return json_decode(sqlQuery($sql, array($pid))['search_persist'] ?? '');
     }
 
     public function getWenoPrimaryPharm($pid): false|array|null
