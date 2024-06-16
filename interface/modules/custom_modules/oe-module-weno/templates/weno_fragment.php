@@ -197,7 +197,7 @@ if ($hasErrors) { ?>
                 const result = await response.json();
                 top.restoreSession();
                 console.log('Save successful:', result);
-                window.location.reload();
+                window.location.replace('./demographics.php');
             } catch (error) {
                 console.error('Error saving selection:', error);
             }

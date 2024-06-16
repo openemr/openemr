@@ -18,8 +18,6 @@ if (!CsrfUtils::verifyCsrfToken($data["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }
 
-$type = $data['type'];
-
 $pharmacyService = new PharmacyService();
 $pid = $data['pid'] ?? 0;
 
@@ -41,8 +39,8 @@ if (!$result) {
 }
 
 $updateData = array(
-    "primary_pharmacy" => $data['primary'],
-    "alternate_pharmacy" => $data['alternate'],
+    "primary_pharmacy" => $data['primary'] ?? '',
+    "alternate_pharmacy" => $data['alternate'] ?? '',
     "search_persist" => $persist
 );
 
