@@ -7,13 +7,16 @@
  * @link      http://www.open-emr.org
  *
  * @author    Stephen Nielson <stephen@nielson.org>
+ * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019 Stephen Nielson <stephen@nielson.org>
+ * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Core;
 
 use OpenEMR\Common\Acl\AccessDeniedException;
+use OpenEMR\Events\Core\ModuleLoadEvents;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Laminas\Mvc\Application;
 use Laminas\Mvc\Service\ServiceManagerConfig;
@@ -124,31 +127,42 @@ class ModulesApplication
     private function bootstrapCustomModules(ModulesClassLoader $classLoader, $eventDispatcher, $webRootPath, $customModulePath)
     {
         self::checkModuleScriptPathForEnabledModule(self::MODULE_TYPE_CUSTOM, $webRootPath, $customModulePath);
-        // we skip the audit log as it has no bearing on user activity and is core system related...
+
+        // We skip the audit log as it has no bearing on user activity and is core system related...
         $resultSet = sqlStatementNoLog($statement = "SELECT mod_name, mod_directory FROM modules WHERE mod_active = 1 AND type != 1 ORDER BY `mod_ui_order`, `date`");
         $db_modules = [];
+        $failed_modules[] = [];
         while ($row = sqlFetchArray($resultSet)) {
-            if (is_readable($customModulePath . $row['mod_directory'] . '/' . attr(self::CUSTOM_MODULE_BOOSTRAP_NAME))) {
-                $db_modules[] = ["name" => $row["mod_name"], "directory" => $row['mod_directory'], "path" => $customModulePath . $row['mod_directory']];
+            $modulePath = $customModulePath . $row['mod_directory'] . '/' . attr(self::CUSTOM_MODULE_BOOSTRAP_NAME);
+            if ($this->isFileReadableWithRetry($modulePath, 3, 50)) {
+                $db_modules[] = ["name" => $row["mod_name"], "directory" => $row['mod_directory'], "path" => $customModulePath . $row['mod_directory'], "available" => true, "error" => ""];
             } else {
-                // no reason to try and include a missing bootstrap.
-                // notify user, turn off module and move on...
+                // Can't include a missing bootstrap. Notify user and log the error.
                 error_log("Custom module " . errorLogEscape($customModulePath . $row['mod_directory'])
                     . '/' . self::CUSTOM_MODULE_BOOSTRAP_NAME
-                    . " is enabled but missing bootstrap.php script. Install and enable in module manager. This is the only warning.");
-                // disable to prevent flooding log with this error
-                $error = sqlQueryNoLog("UPDATE `modules` SET `mod_active` = '0' WHERE `modules`.`mod_name` = ? AND `modules`.`mod_directory` = ?", array($row['mod_name'], $row['mod_directory']));
-                // tell user we did it.
-                if (!$error) {
-                    error_log("Custom module " . errorLogEscape($row['mod_name']) . " has been disabled");
-                }
+                    . " is enabled but after 3 tries can not read the bootstrap.php script. Uninstall and or disable in module manager.");
+                $failed_modules[] = ["name" => $row["mod_name"], "directory" => $row['mod_directory'], "path" => $customModulePath . $row['mod_directory'], "available" => false, "error" => "Module is missing bootstrap."];
             }
         }
         foreach ($db_modules as $module) {
+            // TODO: sjp Might be useful to fire event for each module. I envision a sort of system monitor to evaluate the health of the loaded modules.
             $this->loadCustomModule($classLoader, $module, $eventDispatcher);
         }
-        // TODO: stephen we should fire an event saying we've now loaded all the modules here.
-        // Unsure who'd be listening or care.
+        // Dispatch core event indicating that all modules have been loaded
+        $eventDispatcher->dispatch(new ModuleLoadEvents($db_modules, $failed_modules), ModuleLoadEvents::MODULES_LOADED);
+    }
+
+    private function isFileReadableWithRetry($filePath, $retries = 3, $wait = 100): bool
+    {
+        while ($retries > 0) {
+            if (is_readable($filePath)) {
+                return true;
+            }
+            $retries--;
+            error_log("Custom module bootstrap file " . errorLogEscape($filePath) . " is not readable. Retry Count:" . errorLogEscape(3 - $retries));
+            usleep($wait * 100000); // Wait for a x milliseconds before retrying
+        }
+        return false;
     }
 
     private function loadCustomModule(ModulesClassLoader $classLoader, $module, $eventDispatcher)

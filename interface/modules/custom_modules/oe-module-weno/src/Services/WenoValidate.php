@@ -245,7 +245,7 @@ class WenoValidate extends ModuleService
      */
     public function validateAdminCredentials($resetOnInvalid = false, $where = "prescription"): bool
     {
-        $newKey = '';
+        $newKey = false;
         $isKeyValid = $this->verifyEncryptionKey();
         if ($isKeyValid >= 998) {
             return $isKeyValid;
