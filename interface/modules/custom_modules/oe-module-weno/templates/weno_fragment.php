@@ -18,7 +18,7 @@ use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
-if (!AclMain::aclCheckCore('patients', 'med')) {
+if (!AclMain::aclCheckCore('patients', 'demo', '', 'write')) {
     echo xlt("Not Authorized to use this widget.");
     return;
 }
@@ -174,7 +174,7 @@ if ($hasErrors) { ?>
             span.classList.remove("d-none");
             select.classList.add("d-none");
             input.value = selectedValue;
-
+            top.restoreSession();
             // Auto-save the selected option
             try {
                 const response = await fetch(url, {
@@ -195,6 +195,7 @@ if ($hasErrors) { ?>
                 }
 
                 const result = await response.json();
+                top.restoreSession();
                 console.log('Save successful:', result);
                 window.location.reload();
             } catch (error) {

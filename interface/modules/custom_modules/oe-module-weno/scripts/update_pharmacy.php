@@ -7,7 +7,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 
-if (!AclMain::aclCheckCore('patients', 'med')) {
+if (!AclMain::aclCheckCore('patients', 'rx')) {
     echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pharmacy Selector")]);
     exit;
 }
