@@ -241,7 +241,7 @@ class Bootstrap
         $menuItem->label = xlt("Weno Prescription Log");
         $menuItem->url = "/interface/modules/custom_modules/oe-module-weno/templates/rxlogmanager.php";
         $menuItem->children = [];
-        $menuItem->acl_req = ["patients", "rx"];
+        $menuItem->acl_req = ["patients", "demo", 'write'];
         $menuItem->global_req = ["weno_rx_enable"];
         //Weno log
         $dlMenu = new \stdClass();

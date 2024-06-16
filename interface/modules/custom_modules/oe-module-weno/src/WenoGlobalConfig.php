@@ -62,28 +62,7 @@ class WenoGlobalConfig
                 , 'type' => GlobalSetting::DATA_TYPE_BOOL
                 , 'default' => ''
                 , 'user_setting' => false
-            ]
-            ,/* self::WENO_ENCRYPTION_KEY => [
-                'title' => xl('Weno Encryption Key')
-                , 'description' => xl('Encryption key issued by Weno eRx service on the Weno Developer Page')
-                , 'type' => GlobalSetting::DATA_TYPE_ENCRYPTED
-                , 'default' => ''
-                , 'user_setting' => false
-            ]
-            , self::WENO_ADMIN_USERNAME => [
-                'title' => xl('Weno Admin Username')
-                , 'description' => xl('This is required for Weno Pharmacy Directory Download in Background Services. Same as email for logging in into Weno')
-                , 'type' => GlobalSetting::DATA_TYPE_TEXT
-                , 'default' => ''
-                , 'user_setting' => false
-            ]
-            , self::WENO_ADMIN_PASSWORD => [
-                'title' => xl('Weno Admin Password')
-                , 'description' => xl('')
-                , 'type' => GlobalSetting::DATA_TYPE_ENCRYPTED
-                , 'default' => ''
-                , 'user_setting' => false
-            ]*/
+            ],
             self::WENO_PROVIDER_EMAIL => [
                 'title' => xl('Weno Prescriber Email')
                 , 'description' => xl('')

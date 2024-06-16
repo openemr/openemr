@@ -183,7 +183,7 @@ if ($urlParam == 'error') {   //check to make sure there were no errors
                 <?php } ?>
                 <div class="col">
                     <div><b><?php echo xlt("Primary Pharmacy"); ?> : </b><?php echo text($primary_pharmacy['business_name'] . " / " . $primary_pharmacy['address_line_1'] . " / " . $primary_pharmacy['city']); ?></div>
-                    <div><b><?php echo xlt("Weno Alt"); ?> : </b><?php echo text($alt_pharmacy['business_name'] . " / " . $alt_pharmacy['address_line_1'] . " / " . $alt_pharmacy['city']); ?></div>
+                    <div><b><?php echo xlt("Weno Alt"); ?> : </b><?php echo text($alt_pharmacy['business_name'] ?? '' . " / " . $alt_pharmacy['address_line_1'] ?? '' . " / " . $alt_pharmacy['city'] ?? ''); ?></div>
                 </div>
             </div>
         </div>
