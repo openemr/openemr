@@ -59,7 +59,7 @@ class C_Prescription extends Controller
 
             // $res = sqlStatement("SELECT * FROM drugs ORDER BY selector");
 
-           $res = sqlStatement("SELECT d.name, d.ndc_number, d.form, d.size, " .
+            $res = sqlStatement("SELECT d.name, d.ndc_number, d.form, d.size, " .
             "d.unit, d.route, d.substitute, t.drug_id, t.selector, t.dosage, " .
             "t.period, t.quantity, t.refills, d.drug_code, i.on_hand,i.expiration " .
             "FROM drug_templates AS t " .
@@ -70,11 +70,10 @@ class C_Prescription extends Controller
             while ($row = sqlFetchArray($res)) {
                 $tmp_output = $row['selector'];
                 if ($row['ndc_number']) {
-
                     $tmp_output .= ' - Price of One Tab: ' . $row['ndc_number'];
                     $tmp_output .= ' - No left in stock: ' . $row['on_hand'];
                     $tmp_output .= ' - Expiry Date: ' . $row['expiration'];
-                   }
+                }
                 $drug_array_values[] = $row['drug_id'];
                 $drug_array_output[] = $tmp_output;
                 if ($drug_attributes) {
